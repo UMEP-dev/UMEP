@@ -336,13 +336,13 @@ class ImageMorphParam:
                            fmt=numformat, delimiter=' ', header=header, comments='')
 
                 header = ' pai   zH zHmax zHstd'
-                numformat = '%4.3f %4.3f %5.3f'
-                arr = np.concatenate((immorphresult["pai_all"], immorphresult["zH_all"], immorphresult["zHmax_all"],
-                                      immorphresult["zH_sd_all"]), axis=1)
-                np.savetxt(self.folderPath[0] + '/isotropic_result_' + str(f.attributes()[idx]) + '.txt', arr,
-                           fmt=numformat, delimiter=' ', header=header, comments='')
+                numformat = '%4.3f %5.3f %5.3f %5.3f'
+                # arr2 = np.concatenate((immorphresult["pai_all"], immorphresult["zH_all"], immorphresult["zHmax_all"],
+                #                       immorphresult["zH_sd_all"]), axis=1)
+                arr2 = np.array([[immorphresult["pai_all"], immorphresult["zH_all"], immorphresult["zHmax_all"], immorphresult["zH_sd_all"]]])
+                np.savetxt(self.folderPath[0] + '/isotropic_result_' + str(f.attributes()[idx]) + '.txt', arr2, fmt=numformat, delimiter=' ', header=header, comments='')
                 # np.savetxt(self.plugin_dir + '/data/result_' + str(f.attributes()[idx]) + '.txt', arr,
-                #            fmt=numformat, delimiter=' ', header=header, comments='')
+                #            fmt=numformat, delimiter=' ', header=header, comments='')fmt=numformat,
 
             dataset = None
             dataset2 = None

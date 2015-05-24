@@ -31,7 +31,7 @@ def imagemorphparam_v1(dsm, dem, scale, mid, dtheta):
     zH_all = buildvec.mean()
     zHmax_all = buildvec.max()
     zH_sd_all = buildvec.std()
-    pai_all = buildvec.size / build.size
+    pai_all = (buildvec.size * 1.0) / (build.size * 1.0)
 
     fai = np.zeros((72, 1))
     zH = np.zeros((72, 1))
