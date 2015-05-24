@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/ShadowGenerator" >
+        <file>ShadowIcon.png</file>
+    </qresource>
+</RCC>

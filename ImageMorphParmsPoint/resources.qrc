@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/ImageMorphParmsPoint" >
+        <file>ImageMorphIconPoint.png</file>
+    </qresource>
+</RCC>

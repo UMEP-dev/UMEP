@@ -1,0 +1,42 @@
+# This file contains metadata for your plugin. Since 
+# version 2.0 of QGIS this is the proper way to supply 
+# information about a plugin. The old method of 
+# embedding metadata in __init__.py will 
+# is no longer supported since version 2.0.
+
+# This file should be included when you package your plugin.# Mandatory items:
+
+[general]
+name=UMEP
+qgisMinimumVersion=2.0
+description=Urban Multi-scale Environmental Predictor
+
+version=0.1
+author=Fredrik Lindberg, University of Gothenburg
+email=fredrikl@gvc.gu.se
+
+# End of mandatory metadata
+
+# Recommended items:
+
+about=UMEP is an extensive plugin designed for urban climate in general and climate sensitive planning applications
+      in particular. The plugin consist of a pre-processor, a processor and a post-processor. This plugin is a
+      collaboration between University of Gothenburg, University of Helsinki and University of Reading.
+
+# Uncomment the following line and add your changelog:
+# changelog=
+
+# Tags are comma separated with spaces allowed
+tags=urban climate, urban planning
+
+homepage=
+tracker=
+repository=
+category=Plugins
+icon=/SkyViewFactorCalculator/icon_svf.png
+# experimental flag
+experimental=True
+
+# deprecated flag (applies to the whole plugin, not just a single version)
+deprecated=False
+

@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/SkyViewFactorCalculator" >
+        <file>icon_svf.png</file>
+    </qresource>
+</RCC>
