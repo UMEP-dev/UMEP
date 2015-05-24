@@ -296,6 +296,10 @@ class ImageMorphParam:
                     QMessageBox.critical(None, "Error", "No valid ground DEM raster layer is selected")
                     return
 
+                if not (dsm == sizex) & (dem == sizey):
+                    QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+                return
+
                 # # get raster source - gdalwarp
                 provider = dsm.dataProvider()
                 filePath_dsm = str(provider.dataSourceUri())
@@ -335,14 +339,12 @@ class ImageMorphParam:
                 np.savetxt(self.folderPath[0] + '/anisotropic_result_' + str(f.attributes()[idx]) + '.txt', arr,
                            fmt=numformat, delimiter=' ', header=header, comments='')
 
-                header = ' pai   zH zHmax zHstd'
+                header = ' pai   zH    zHmax    zHstd'
                 numformat = '%4.3f %5.3f %5.3f %5.3f'
-                # arr2 = np.concatenate((immorphresult["pai_all"], immorphresult["zH_all"], immorphresult["zHmax_all"],
-                #                       immorphresult["zH_sd_all"]), axis=1)
-                arr2 = np.array([[immorphresult["pai_all"], immorphresult["zH_all"], immorphresult["zHmax_all"], immorphresult["zH_sd_all"]]])
-                np.savetxt(self.folderPath[0] + '/isotropic_result_' + str(f.attributes()[idx]) + '.txt', arr2, fmt=numformat, delimiter=' ', header=header, comments='')
-                # np.savetxt(self.plugin_dir + '/data/result_' + str(f.attributes()[idx]) + '.txt', arr,
-                #            fmt=numformat, delimiter=' ', header=header, comments='')fmt=numformat,
+                arr2 = np.array([[immorphresult["pai_all"], immorphresult["zH_all"], immorphresult["zHmax_all"],
+                                  immorphresult["zH_sd_all"]]])
+                np.savetxt(self.folderPath[0] + '/isotropic_result_' + str(f.attributes()[idx]) + '.txt', arr2,
+                           fmt=numformat, delimiter=' ', header=header, comments='')
 
             dataset = None
             dataset2 = None
@@ -352,140 +354,15 @@ class ImageMorphParam:
             time.sleep(0.25)
 
         self.iface.messageBar().clearWidgets()
-        self.iface.messageBar().pushMessage("Image Morphometric Parameters", "Process successful!")
+        # self.iface.messageBar().pushMessage("Image Morphometric Parameters", "Process successful!")
+        QMessageBox.information(None, "Image Morphometric Parameters", "Process successful!")
 
     def run(self):
         """Run method that performs all the real work"""
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
-        result = self.dlg.exec_()
+        self.dlg.exec_()
 
         gdal.UseExceptions()
         gdal.AllRegister()
-        #
-        # if result:  # See if OK was pressed
-        #
-        #     # initiate progressbar
-        #     progressMessageBar = self.iface.messageBar().createMessage("Processing...")
-        #     progress = QProgressBar()
-        #
-        #     poly = self.layerComboManagerPolygrid.getLayer()
-        #     if poly is None:
-        #         QMessageBox.critical(None, "Error", "No valid Polygon layer is selected1")
-        #         return
-        #     if not poly.geometryType() == 2:
-        #         QMessageBox.critical(None, "Error", "No valid Polygon layer is selected2")
-        #         return
-        #
-        #     poly_field = self.layerComboManagerPolyField.getFieldName()
-        #     if poly_field is None:
-        #         QMessageBox.critical(None, "Error", "An attribute filed with unique fields must be selected")
-        #         return
-        #
-        #     vlayer = QgsVectorLayer(poly.source(), "polygon", "ogr")
-        #     prov = vlayer.dataProvider()
-        #     fields = prov.fields()
-        #     idx = vlayer.fieldNameIndex(poly_field)
-        #
-        #     progress.setMaximum(vlayer.featureCount())
-        #     progressMessageBar.layout().addWidget(progress)
-        #     self.iface.messageBar().pushWidget(progressMessageBar, self.iface.messageBar().INFO)
-        #
-        #     dir_poly = self.plugin_dir + '/data/poly_temp.shp'
-        #     j = 0
-        #     for f in vlayer.getFeatures():  # looping through each grip polygon
-        #         progress.setValue(j + 1)
-        #
-        #         #savename = self.plugin_dir + '/data/' + str(j) + ".shp"
-        #         writer = QgsVectorFileWriter(dir_poly, "CP1250", fields, prov.geometryType(),
-        #                                      prov.crs(), "ESRI shapefile")
-        #
-        #         if writer.hasError() != QgsVectorFileWriter.NoError:
-        #             self.iface.messageBar().pushMessage("Error when creating shapefile: ", str(writer.hasError()))
-        #
-        #         attributes = f.attributes()
-        #         self.iface.messageBar().pushMessage("Test", str(f.attributes()[idx]))
-        #         geometry = f.geometry()
-        #         feature = QgsFeature()
-        #         feature.setAttributes(attributes)
-        #         feature.setGeometry(geometry)
-        #         writer.addFeature(feature)
-        #         del writer
-        #
-        #         if self.dlg.checkBoxOnlyBuilding.isChecked():  # Only building heights
-        #             dsm_build = self.layerComboManagerDSMbuild.getLayer()
-        #             if dsm_build is None:
-        #                 QMessageBox.critical(None, "Error", "No valid building DSM raster layer is selected")
-        #                 return
-        #
-        #             provider = dsm_build.dataProvider()
-        #             filePath_dsm_build = str(provider.dataSourceUri())
-        #             gdalruntextdsm_build = 'gdalwarp -dstnodata -9999 -q -cutline ' + dir_poly + \
-        #                                    ' -crop_to_cutline -of GTiff ' + filePath_dsm_build + \
-        #                                    ' ' + self.plugin_dir + '/data/clipdsm.tif'
-        #             os.system(gdalruntextdsm_build)
-        #             dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
-        #             dsm = dataset.ReadAsArray().astype(np.float)
-        #             sizex = dsm.shape[0]
-        #             sizey = dsm.shape[1]
-        #             dem = np.zeros((sizex, sizey))
-        #
-        #         else:  # Both building ground heights
-        #             dsm = self.layerComboManagerDSMbuildground.getLayer()
-        #             dem = self.layerComboManagerDEM.getLayer()
-        #
-        #             if dsm is None:
-        #                 QMessageBox.critical(None, "Error", "No valid ground and building DSM raster layer is selected")
-        #                 return
-        #             if dem is None:
-        #                 QMessageBox.critical(None, "Error", "No valid ground DEM raster layer is selected")
-        #                 return
-        #
-        #             # # get raster source - gdalwarp
-        #             provider = dsm.dataProvider()
-        #             filePath_dsm = str(provider.dataSourceUri())
-        #             provider = dem.dataProvider()
-        #             filePath_dem = str(provider.dataSourceUri())
-        #             gdalruntextdsm = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + dir_poly + \
-        #                              ' -crop_to_cutline -of GTiff ' + filePath_dsm + \
-        #                              ' ' + self.plugin_dir + '/data/clipdsm.tif'
-        #             gdalruntextdem = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + dir_poly + \
-        #                              ' -crop_to_cutline -of GTiff ' + filePath_dem + \
-        #                              ' ' + self.plugin_dir + '/data/clipdem.tif'
-        #             si = subprocess.STARTUPINFO()
-        #             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        #             subprocess.call(gdalruntextdsm, startupinfo=si)
-        #             subprocess.call(gdalruntextdem, startupinfo=si)
-        #
-        #             dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
-        #             dsm = dataset.ReadAsArray().astype(np.float)
-        #             dataset2 = gdal.Open(self.plugin_dir + '/data/clipdem.tif')
-        #             dem = dataset2.ReadAsArray().astype(np.float)
-        #
-        #         geotransform = dataset.GetGeoTransform()
-        #         scale = 1 / geotransform[1]
-        #
-        #         nodata_test = (dem == -9999)
-        #         if nodata_test.any() == True:
-        #             self.iface.messageBar().pushMessage("Image Morphometric Parameters", str(j))
-        #         else:
-        #             immorphresult = imagemorphparam_v1(dsm, dem, scale, 0, 5.)
-        #
-        #             # save to file
-        #             header = ' Wd pai   fai   zH'
-        #             numformat = '%3d %4.3f %4.3f %5.3f'
-        #             arr = np.concatenate((immorphresult["deg"], immorphresult["pai"], immorphresult["fai"],
-        #                                   immorphresult["zH"]), axis=1)
-        #             np.savetxt(self.plugin_dir + '/data/result_' + str(f.attributes()[idx]) + '.txt', arr,
-        #                        fmt=numformat, delimiter=' ', header=header, comments='')
-        #
-        #         dataset = None
-        #         dataset2 = None
-        #         dataset3 = None
-        #
-        #         j += 1
-        #         time.sleep(0.25)
-        #
-        #     self.iface.messageBar().clearWidgets()
-        #     self.iface.messageBar().pushMessage("Image Morphometric Parameters", "Process successful!")
