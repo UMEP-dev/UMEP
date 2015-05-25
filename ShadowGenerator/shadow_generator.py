@@ -33,11 +33,6 @@ from osgeo import gdal, osr
 import os.path
 import dailyshading as dsh
 import numpy as np
-from pydev import pydevd
-
-#import Pysolar.solar as pys
-# import datetime as dt
-import matplotlib.pylab as plt
 
 
 class ShadowGenerator:
@@ -219,8 +214,8 @@ class ShadowGenerator:
         dsmlayer = self.layerComboManagerDSM.getLayer()
 
         if dsmlayer is None:
-                QMessageBox.critical(None, "Error", "No valid raster layer is selected")
-                return
+            QMessageBox.critical(None, "Error", "No valid raster layer is selected")
+            return
 
         provider = dsmlayer.dataProvider()
         filepath_dsm = str(provider.dataSourceUri())
@@ -246,6 +241,7 @@ class ShadowGenerator:
             UNIT["degree",0.01745329251994328,
                 AUTHORITY["EPSG","9122"]],
             AUTHORITY["EPSG","4326"]]"""
+
         new_cs = osr.SpatialReference()
         new_cs.ImportFromWkt(wgs84_wkt)
 
@@ -282,7 +278,7 @@ class ShadowGenerator:
             vegsizex = vegdsm.shape[0]
             vegsizey = vegdsm.shape[1]
 
-            if not (vegsizex == sizex) & (vegsizey == sizey):  # &
+            if not (vegsizex == sizex) & (vegsizey == sizey):
                 QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
                 return
 

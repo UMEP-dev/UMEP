@@ -21,21 +21,16 @@
  ***************************************************************************/
 """
 from PyQt4.QtCore import *
-from PyQt4.QtGui import QAction, QIcon, QMessageBox, QProgressBar, QFileDialog
+from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
 from qgis.core import QgsVectorLayer, QgsVectorFileWriter, QgsFeature
-#import os.path
 import os
 from qgiscombomanager import *
-from osgeo import gdal  #, ogr
-#import numpy as np
+from osgeo import gdal
 import subprocess
 from imageMorphometricParms_v1 import *
-#import matplotlib.pylab as plt
 import time
-#import scipy as sc
 import sys
 #sys.path.append('C:/Program Files (x86)/JetBrains/PyCharm 3.4.1/helpers/pydev')
-#from pydev import pydevd
 
 # Initialize Qt resources from file resources.py
 import resources_rc
@@ -325,7 +320,7 @@ class ImageMorphParam:
             scale = 1 / geotransform[1]
 
             nodata_test = (dem == -9999)
-            if nodata_test.any() == True:
+            if nodata_test.any():  # == True
                 self.iface.messageBar().pushMessage("Image Morphometric Parameters", str(j))
             else:
                 self.degree = float(self.dlg.degreeBox.currentText())

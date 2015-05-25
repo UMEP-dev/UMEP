@@ -98,14 +98,22 @@ class UMEP:
         self.Pre_Menu.addMenu(self.MD_Menu)
         self.UG_Menu = QMenu("Urban Geometry")
         self.Pre_Menu.addMenu(self.UG_Menu)
+        self.ULC_Menu = QMenu("Urban Land Cover")
+        self.Pre_Menu.addMenu(self.ULC_Menu)
 
         # Sub-actions to Surface Morphology
         self.IMCG_Action = QAction("Image Morphometric Calculator (Grid)", self.iface.mainWindow())
         self.SM_Menu.addAction(self.IMCG_Action)
-        self.IMCG_Action.triggered.connect(self.IMCG)  # Vad va detta? IMG?
+        self.IMCG_Action.triggered.connect(self.IMCG)
         self.IMCP_Action = QAction("Image Morphometric Calculator (Point)", self.iface.mainWindow())
         self.SM_Menu.addAction(self.IMCP_Action)
         self.IMCP_Action.triggered.connect(self.IMCP)
+        self.ULCUEBG_Action = QAction("Land Cover Fractions (Grid)", self.iface.mainWindow())
+        self.SM_Menu.addAction(self.ULCUEBG_Action)
+        self.ULCUEBG_Action.setEnabled(False)
+        self.ULCUEBP_Action = QAction("Land Cover Fractions (Point)", self.iface.mainWindow())
+        self.SM_Menu.addAction(self.ULCUEBP_Action)
+        self.ULCUEBP_Action.setEnabled(False)
 
         # Sub-actions to Meteorological Data Preparation
         self.PED_Action = QAction("Prepare Existing Data", self.iface.mainWindow())
@@ -150,20 +158,27 @@ class UMEP:
         # Sub-menus to Urban Energy Balance
         self.QF_Action = QAction("Antropogenic heat (Qf) (LUCY)", self.iface.mainWindow())
         self.UEB_Menu.addAction(self.QF_Action)
-        self.QALL_Action = QAction("Urban Energy Balance (SUEWS)", self.iface.mainWindow())
-        self.UEB_Menu.addAction(self.QALL_Action)
-        self.CBL_Action = QAction("UEB + CBL (BLUEWS)", self.iface.mainWindow())
+        self.QF_Action.setEnabled(False)
+        self.SUEWS_Action = QAction("Urban Energy Balance (SUEWS)", self.iface.mainWindow())
+        self.UEB_Menu.addAction(self.SUEWS_Action)
+        self.SUEWS_Action.setEnabled(False)
+        self.LUMPS_Action = QAction("Urban Energy Balance (LUMPS)", self.iface.mainWindow())
+        self.UEB_Menu.addAction(self.LUMPS_Action)
+        self.LUMPS_Action.setEnabled(False)
+        self.CBL_Action = QAction("UEB + CBL (BLUEWS/BLUMPS)", self.iface.mainWindow())
         self.UEB_Menu.addAction(self.CBL_Action)
+        self.CBL_Action.setEnabled(False)
 
         # Sub-menus to Solar radiation
         self.SEBE_Action = QAction("Solar Energy on Building Envelopes (SEBE)", self.iface.mainWindow())
         self.SUN_Menu.addAction(self.SEBE_Action)
+        self.SEBE_Action.setEnabled(False)
 
         # Sub-menus to About
-        self.About_Action = QAction("About)", self.iface.mainWindow())
+        self.About_Action = QAction("About", self.iface.mainWindow())
         self.About_Menu.addAction(self.About_Action)
         self.About_Action.setEnabled(False)
-        self.Manual_Action = QAction("Manual)", self.iface.mainWindow())
+        self.Manual_Action = QAction("Manual", self.iface.mainWindow())
         self.About_Menu.addAction(self.Manual_Action)
         self.Manual_Action.setEnabled(False)
 
@@ -281,7 +296,7 @@ class UMEP:
         sg.run()
         
     def IMCG(self):
-        pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True) #used for debugging
+        # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True) #used for debugging
         sg = ImageMorphParam(self.iface)
         sg.run()
 
@@ -298,12 +313,6 @@ class UMEP:
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
-        # result = self.dlg.exec_()
         self.dlg.exec_()
-        # See if OK was pressed
-        # if result:
-            # Do something useful here - delete the line containing pass and
-            # substitute with your code.
-            # pass
 
 

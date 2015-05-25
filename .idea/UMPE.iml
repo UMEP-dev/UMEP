@@ -4,9 +4,6 @@
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="ShadowGenerator" />
-    <orderEntry type="module" module-name="ImageMorphParmsPoint" />
-    <orderEntry type="module" module-name="SkyViewFactorCalculator" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_FOLDERS">
