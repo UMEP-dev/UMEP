@@ -291,7 +291,7 @@ class ImageMorphParam:
                     QMessageBox.critical(None, "Error", "No valid ground DEM raster layer is selected")
                     return
 
-                if not (dsm == sizex) & (dem == sizey):
+                if not (dsm.shape[0] == dem.shape[0]) & (dsm.shape[1] == dem.shape[1]):
                     QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
                 return
 
