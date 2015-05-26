@@ -27,73 +27,10 @@
       <file leaf-file-name="UMEP.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/UMEP.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.76022565" vertical-offset="2453" max-vertical-offset="5491">
-              <caret line="177" column="42" selection-start-line="177" selection-start-column="42" selection-end-line="177" selection-end-column="42" />
+            <state vertical-scroll-proportion="5.6141734" vertical-offset="377" max-vertical-offset="5491">
+              <caret line="149" column="41" selection-start-line="149" selection-start-column="41" selection-end-line="149" selection-end-column="41" />
               <folding />
             </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="image_morph_param.py" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ImageMorphParam/image_morph_param.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="102" max-vertical-offset="6120">
-              <caret line="325" column="69" selection-start-line="325" selection-start-column="69" selection-end-line="325" selection-end-column="69" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="dailyshading.py" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ShadowGenerator/dailyshading.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="663" max-vertical-offset="2992">
-              <caret line="62" column="23" selection-start-line="62" selection-start-column="23" selection-end-line="62" selection-end-column="23" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="shadow_generator.py" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ShadowGenerator/shadow_generator.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="5478" max-vertical-offset="6511">
-              <caret line="280" column="61" selection-start-line="280" selection-start-column="61" selection-end-line="280" selection-end-column="61" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="svf_calculator.py" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/SkyViewFactorCalculator/svf_calculator.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="5193" max-vertical-offset="6086">
-              <caret line="349" column="0" selection-start-line="349" selection-start-column="0" selection-end-line="349" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="pb_tool.cfg" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/pb_tool.cfg">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="714" max-vertical-offset="1360">
-              <caret line="29" column="49" selection-start-line="29" selection-start-column="49" selection-end-line="29" selection-end-column="49" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="metadata.txt" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/metadata.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="136" max-vertical-offset="816">
-              <caret line="19" column="20" selection-start-line="19" selection-start-column="20" selection-end-line="19" selection-end-column="20" />
-              <folding />
-            </state>
-          </provider>
-          <provider editor-type-id="com.intellij.persistence.database.editor.CsvTableFileEditorProvider">
-            <state />
           </provider>
         </entry>
       </file>
@@ -109,22 +46,25 @@
       <list>
         <option value="$PROJECT_DIR$/Makefile" />
         <option value="$PROJECT_DIR$/README.txt" />
-        <option value="$PROJECT_DIR$/pb_tool.cfg" />
         <option value="$PROJECT_DIR$/metadata.txt" />
         <option value="$PROJECT_DIR$/__init__.py" />
-        <option value="$PROJECT_DIR$/ShadowGenerator/dailyshading.py" />
         <option value="$PROJECT_DIR$/ImageMorphParmsPoint/imageMorphometricParms_v1.py" />
         <option value="$PROJECT_DIR$/SkyViewFactorCalculator/svf_calculator_dialog.py" />
         <option value="$PROJECT_DIR$/ShadowGenerator/shadow_generator_dialog.py" />
-        <option value="$PROJECT_DIR$/SkyViewFactorCalculator/Skyviewfactor4d.py" />
         <option value="$USER_HOME$/.qgis2/python/plugins/UMEP/ImageMorphParam/imageMorphometricParms_v1.py" />
         <option value="$PROJECT_DIR$/ImageMorphParam/imageMorphometricParms_v1.py" />
         <option value="$USER_HOME$/.qgis2/python/plugins/UMEP/UMEP.py" />
         <option value="$USER_HOME$/.qgis2/python/plugins/UMEP/ImageMorphParam/image_morph_param.py" />
+        <option value="$PROJECT_DIR$/Utilities/__init__.py" />
+        <option value="$PROJECT_DIR$/ShadowGenerator/shadow_generator.py" />
+        <option value="$PROJECT_DIR$/Utilities/Tools.py" />
+        <option value="$PROJECT_DIR$/ShadowGenerator/dailyshading.py" />
+        <option value="$PROJECT_DIR$/SkyViewFactorCalculator/Skyviewfactor4d.py" />
+        <option value="$PROJECT_DIR$/pb_tool.cfg" />
         <option value="$PROJECT_DIR$/ImageMorphParmsPoint/imagemorphparmspoint_v1.py" />
         <option value="$PROJECT_DIR$/SkyViewFactorCalculator/svf_calculator.py" />
+        <option value="$PROJECT_DIR$/Utilities/shadowingfunctions.py" />
         <option value="$PROJECT_DIR$/ImageMorphParam/image_morph_param.py" />
-        <option value="$PROJECT_DIR$/ShadowGenerator/shadow_generator.py" />
         <option value="$PROJECT_DIR$/UMEP.py" />
       </list>
     </option>
@@ -135,8 +75,8 @@
   <component name="ProjectFrameBounds">
     <option name="x" value="-4" />
     <option name="y" value="-4" />
-    <option name="width" value="1928" />
-    <option name="height" value="1180" />
+    <option name="width" value="1374" />
+    <option name="height" value="748" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -164,6 +104,7 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -192,13 +133,12 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="ImageMorphParam" />
+              <option name="myItemId" value="ShadowGenerator" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -215,6 +155,11 @@
     <option name="myPythonConsoleState">
       <console-settings />
     </option>
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="M:\PythonScripts\UMEP\Utilities" />
+    </key>
   </component>
   <component name="RunManager" selected="Python Remote Debug.Remote Debug UMEP">
     <configuration default="true" type="DjangoTestsConfigurationType" factoryName="Django tests">
@@ -412,15 +357,15 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-4" y="-4" width="1928" height="1180" extended-state="6" />
-    <editor active="false" />
+    <frame x="-4" y="-4" width="1374" height="748" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.29190752" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3069307" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32960597" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2284345" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33006042" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.34204793" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
@@ -458,7 +403,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$USER_HOME$/.qgis2/python/plugins/UMEP/ImageMorphParam/image_morph_param.py</url>
-          <line>204</line>
+          <line>198</line>
           <option name="timeStamp" value="10" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
@@ -471,41 +416,29 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/UMEP.py">
+    <entry file="file://$PROJECT_DIR$/ImageMorphParam/image_morph_param.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="5185">
-          <caret line="278" column="9" selection-start-line="278" selection-start-column="9" selection-end-line="278" selection-end-column="9" />
-          <folding />
+        <state vertical-scroll-proportion="0.0" vertical-offset="248" max-vertical-offset="6290">
+          <caret line="25" column="9" selection-start-line="25" selection-start-column="9" selection-end-line="25" selection-end-column="9" />
+          <folding>
+            <element signature="e#1202#1228#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ImageMorphParmsPoint/imagemorphparmspoint_v1.py">
+    <entry file="file://$PROJECT_DIR$/ShadowGenerator/dailyshading.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1666" max-vertical-offset="8347">
-          <caret line="98" column="25" selection-start-line="98" selection-start-column="25" selection-end-line="98" selection-end-column="25" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="68" max-vertical-offset="3026">
+          <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="52" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/ShadowGenerator/shadow_generator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="5298" max-vertical-offset="6562">
-          <caret line="330" column="35" selection-start-line="330" selection-start-column="35" selection-end-line="330" selection-end-column="35" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="1020" max-vertical-offset="6511">
+          <caret line="81" column="32" selection-start-line="81" selection-start-column="32" selection-end-line="81" selection-end-column="32" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/UMEP.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="4091" max-vertical-offset="5134">
-          <caret line="268" column="17" selection-start-line="268" selection-start-column="17" selection-end-line="268" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ImageMorphParmsPoint/imagemorphparmspoint_v1.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="8296">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -658,13 +591,13 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Makefile">
+      <provider editor-type-id="com.intellij.persistence.database.editor.CsvTableFileEditorProvider">
+        <state />
+      </provider>
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.8152753" vertical-offset="0" max-vertical-offset="3944">
           <caret line="27" column="14" selection-start-line="27" selection-start-column="14" selection-end-line="27" selection-end-column="14" />
         </state>
-      </provider>
-      <provider editor-type-id="com.intellij.persistence.database.editor.CsvTableFileEditorProvider">
-        <state />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/SkyViewFactorCalculator/__init__.py">
@@ -682,28 +615,12 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/metadata.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="136" max-vertical-offset="816">
-          <caret line="19" column="20" selection-start-line="19" selection-start-column="20" selection-end-line="19" selection-end-column="20" />
-          <folding />
-        </state>
-      </provider>
       <provider editor-type-id="com.intellij.persistence.database.editor.CsvTableFileEditorProvider">
         <state />
       </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/SkyViewFactorCalculator/shadowingfunctions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.39285713" vertical-offset="2693" max-vertical-offset="3281">
-          <caret line="172" column="31" selection-start-line="172" selection-start-column="31" selection-end-line="172" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pb_tool.cfg">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="714" max-vertical-offset="1360">
-          <caret line="29" column="49" selection-start-line="29" selection-start-column="49" selection-end-line="29" selection-end-column="49" />
-          <folding />
+        <state vertical-scroll-proportion="0.0" vertical-offset="136" max-vertical-offset="816">
+          <caret line="19" column="20" selection-start-line="19" selection-start-column="20" selection-end-line="19" selection-end-column="20" />
         </state>
       </provider>
     </entry>
@@ -718,20 +635,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.5415929" vertical-offset="357" max-vertical-offset="952">
           <caret line="43" column="0" selection-start-line="43" selection-start-column="0" selection-end-line="43" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/SkyViewFactorCalculator/Skyviewfactor4d.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4148">
-          <caret line="4" column="29" selection-start-line="4" selection-start-column="29" selection-end-line="4" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ShadowGenerator/shadowingfunctions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.40614334" vertical-offset="1734" max-vertical-offset="3366">
-          <caret line="89" column="4" selection-start-line="89" selection-start-column="4" selection-end-line="90" selection-end-column="40" />
         </state>
       </provider>
     </entry>
@@ -765,13 +668,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ImageMorphParmsPoint/imagemorphparmspoint_v1.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5510563" vertical-offset="5382" max-vertical-offset="8347">
-          <caret line="335" column="31" selection-start-line="335" selection-start-column="31" selection-end-line="335" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ImageMorphParmsPoint/imageMorphometricParms_v1.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="1.327674" vertical-offset="0" max-vertical-offset="1496">
@@ -800,50 +696,103 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/UMEP_dialog.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.40056416" vertical-offset="56" max-vertical-offset="765">
+          <caret line="20" column="77" selection-start-line="20" selection-start-column="77" selection-end-line="20" selection-end-column="77" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ImageMorphParam/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="709">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Utilities/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="688">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Utilities/qgiscombomanager/layercombo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.59302324" vertical-offset="408" max-vertical-offset="3298">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/ShadowGenerator/dailyshading.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="663" max-vertical-offset="2992">
-          <caret line="62" column="23" selection-start-line="62" selection-start-column="23" selection-end-line="62" selection-end-column="23" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3026">
+          <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="52" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SkyViewFactorCalculator/Skyviewfactor4d.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.2157969" vertical-offset="0" max-vertical-offset="4114">
+          <caret line="9" column="0" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pb_tool.cfg">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5923836" vertical-offset="651" max-vertical-offset="1360">
+          <caret line="63" column="58" selection-start-line="63" selection-start-column="58" selection-end-line="63" selection-end-column="58" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ImageMorphParmsPoint/imagemorphparmspoint_v1.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="184" max-vertical-offset="7735">
+          <caret line="36" column="0" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/SkyViewFactorCalculator/svf_calculator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="5193" max-vertical-offset="6086">
-          <caret line="349" column="0" selection-start-line="349" selection-start-column="0" selection-end-line="349" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="4335" max-vertical-offset="6035">
+          <caret line="36" column="29" selection-start-line="36" selection-start-column="29" selection-end-line="36" selection-end-column="29" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ShadowGenerator/shadow_generator.py">
+    <entry file="file://$PROJECT_DIR$/Utilities/shadowingfunctions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="5478" max-vertical-offset="6511">
-          <caret line="280" column="61" selection-start-line="280" selection-start-column="61" selection-end-line="280" selection-end-column="61" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/UMEP_dialog.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.40056416" vertical-offset="56" max-vertical-offset="765">
-          <caret line="20" column="77" selection-start-line="20" selection-start-column="77" selection-end-line="20" selection-end-column="77" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="2538" max-vertical-offset="3247">
+          <caret line="92" column="36" selection-start-line="92" selection-start-column="36" selection-end-line="92" selection-end-column="36" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/ImageMorphParam/image_morph_param.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="357" max-vertical-offset="6273">
-          <caret line="325" column="69" selection-start-line="325" selection-start-column="69" selection-end-line="325" selection-end-column="69" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="248" max-vertical-offset="6256">
+          <caret line="32" column="0" selection-start-line="32" selection-start-column="0" selection-end-line="32" selection-end-column="0" />
+          <folding>
+            <element signature="e#1202#1228#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ShadowGenerator/shadow_generator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.055837564" vertical-offset="471" max-vertical-offset="6511">
+          <caret line="29" column="0" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="42" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/UMEP.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.76022565" vertical-offset="2453" max-vertical-offset="5491">
-          <caret line="177" column="42" selection-start-line="177" selection-start-column="42" selection-end-line="177" selection-end-column="42" />
+        <state vertical-scroll-proportion="5.6141734" vertical-offset="377" max-vertical-offset="5491">
+          <caret line="149" column="41" selection-start-line="149" selection-start-column="41" selection-end-line="149" selection-end-column="41" />
           <folding />
         </state>
       </provider>

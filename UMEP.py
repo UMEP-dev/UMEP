@@ -148,9 +148,6 @@ class UMEP:
         self.MRT_Action = QAction("Mean Radiant Temperature (SOLWEIG)", self.iface.mainWindow())
         self.OTC_Menu.addAction(self.MRT_Action)
         self.MRT_Action.setEnabled(False)
-        self.DSP_Action = QAction("Daily Shadow Pattern", self.iface.mainWindow())
-        self.OTC_Menu.addAction(self.DSP_Action)
-        self.DSP_Action.triggered.connect(self.SH)
         self.PWS_Action = QAction("Pedestrian Wind Speed", self.iface.mainWindow())
         self.OTC_Menu.addAction(self.PWS_Action)
         self.PWS_Action.setEnabled(False)
@@ -173,6 +170,9 @@ class UMEP:
         self.SEBE_Action = QAction("Solar Energy on Building Envelopes (SEBE)", self.iface.mainWindow())
         self.SUN_Menu.addAction(self.SEBE_Action)
         self.SEBE_Action.setEnabled(False)
+        self.DSP_Action = QAction("Daily Shadow Pattern", self.iface.mainWindow())
+        self.SUN_Menu.addAction(self.DSP_Action)
+        self.DSP_Action.triggered.connect(self.SH)
 
         # Sub-menus to About
         self.About_Action = QAction("About", self.iface.mainWindow())

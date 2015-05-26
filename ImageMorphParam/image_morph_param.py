@@ -24,12 +24,11 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
 from qgis.core import QgsVectorLayer, QgsVectorFileWriter, QgsFeature
 import os
-from qgiscombomanager import *
+from ..Utilities.qgiscombomanager import *
 from osgeo import gdal
 import subprocess
 from imageMorphometricParms_v1 import *
 import time
-import sys
 #sys.path.append('C:/Program Files (x86)/JetBrains/PyCharm 3.4.1/helpers/pydev')
 
 # Initialize Qt resources from file resources.py

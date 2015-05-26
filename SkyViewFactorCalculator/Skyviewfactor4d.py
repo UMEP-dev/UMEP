@@ -1,14 +1,12 @@
 
 import numpy as np
-import shadowingfunctions as shadow
+from ..Utilities import shadowingfunctions as shadow
+#import shadowingfunctions as shadow
 from osgeo import gdal
 from osgeo.gdalconst import *
-#import shadowingfunctionglobalradiation as shadow
-#import shadowingfunction_20 as shadowveg
 #import matplotlib.pyplot as plt
-from svf_calculator_dialog import SkyViewFactorCalculatorDialog
+#from svf_calculator_dialog import SkyViewFactorCalculatorDialog
 #import svf_calculator
-#dia = svf_calculator.SkyViewFactorCalculator.self.dlg()
 
 def Skyviewfactor4d(a, scale, dlg):
 

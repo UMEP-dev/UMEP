@@ -31,7 +31,7 @@ import resources_rc
 from svf_calculator_dialog import SkyViewFactorCalculatorDialog
 import os.path
 import numpy as np
-from qgiscombomanager import *
+from ..Utilities.qgiscombomanager import *
 from osgeo import gdal
 import Skyviewfactor4d as svf
 from osgeo.gdalconst import *

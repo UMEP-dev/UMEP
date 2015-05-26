@@ -27,7 +27,7 @@ from PyQt4.QtGui import *
 import resources_rc
 # Import the code for the dialog
 from shadow_generator_dialog import ShadowGeneratorDialog
-from qgiscombomanager import *
+from ..Utilities.qgiscombomanager import *
 from osgeo import gdal, osr
 #import gdal from gdalconst import *
 import os.path

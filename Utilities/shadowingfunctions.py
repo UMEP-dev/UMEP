@@ -91,8 +91,6 @@ def shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue
     sh = np.zeros((sizex, sizey))
     vbshvegsh = np.zeros((sizex, sizey))
     vegsh = np.zeros((sizex, sizey))
-    #stopbuild = np.zeros((sizex, sizey))
-    #stopveg = np.zeros((sizex, sizey))
     tempbush = np.zeros((sizex, sizey))
     f = a
     g = np.zeros((sizex, sizey))

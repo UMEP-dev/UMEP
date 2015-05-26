@@ -1,12 +1,14 @@
 __author__ = 'xlinfr'
 
 import numpy as np
-import shadowingfunctions as shadow
+#import shadowingfunctions as shadow
+from ..Utilities import shadowingfunctions as shadow
 import Pysolarn.solar as pys
 import datetime as dt
 from osgeo import gdal
 from osgeo.gdalconst import *
 from PyQt4.QtGui import *
+
 
 
 def dailyshading(dsm, vegdsm, vegdsm2, scale, lonlat, sizex, sizey, tv, UTC, usevegdem, timeInterval, onetime, dlg, folder, gdal_data, trans):
