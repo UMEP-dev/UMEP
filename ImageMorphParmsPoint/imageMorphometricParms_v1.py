@@ -19,9 +19,7 @@ import numpy as np
 import scipy.ndimage.interpolation as sc
 
 
-def imagemorphparam_v1(dsm, dem, scale, mid, dtheta, dlg):
-
-    dlg.progressBar.setRange(0., 360. / dtheta)
+def imagemorphparam_v1(dsm, dem, scale, mid, dtheta):
 
     build = dsm - dem
     build[(build < 2.)] = 0.  # building should be higher than 2 meter
@@ -47,7 +45,6 @@ def imagemorphparam_v1(dsm, dem, scale, mid, dtheta, dlg):
     j = int(0)
     #progess 72 index
     for angle in np.arange(0, (360.-dtheta+0) + dtheta, dtheta):
-        dlg.progressBar.setValue(angle)
         c = np.zeros((n, n))
         #d = sc.imrotate(build, angle, 'nearest')
         d = sc.rotate(build, angle, reshape=False, mode='nearest')

@@ -21,7 +21,7 @@
  ***************************************************************************/
 """
 from PyQt4.QtCore import *  # QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QAction, QIcon, QMessageBox, QProgressBar, QFileDialog
+from PyQt4.QtGui import QAction, QIcon, QMessageBox, QProgressBar
 from qgis.gui import *
 from qgis.core import QgsVectorLayer, QgsMapLayerRegistry, QgsFeature, QgsGeometry, QgsPoint, QgsVectorFileWriter
 
@@ -33,7 +33,6 @@ import os.path
 import numpy as np
 from osgeo import gdal
 import subprocess
-import webbrowser
 from imageMorphometricParms_v1 import *
 from qgiscombomanager import *
 
@@ -69,19 +68,7 @@ class ImageMorphParmsPoint:
         # Create the dialog (after translation) and keep reference
         self.dlg = ImageMorphParmsPointDialog()
         self.dlg.runButton.clicked.connect(self.calc_image)
-        self.dlg.pushButtonSave.clicked.connect(self.folder_path)
-        self.dlg.selectpoint.clicked.connect(self.select_point)
-        self.dlg.helpButton.clicked.connect(self.help)
         self.dlg.progressBar.setValue(0)
-
-        self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(4)
-        self.fileDialog.setAcceptMode(1)
-
-        for i in range(1, 25):
-            if 360 % i == 0:
-                self.dlg.degreeBox.addItem(str(i))
-        self.dlg.degreeBox.setCurrentIndex(4)
 
 
         # Declare instance attributes
@@ -95,14 +82,10 @@ class ImageMorphParmsPoint:
         self.canvas = self.iface.mapCanvas()
         self.poiLayer = None
         self.polyLayer = None
-        self.folderPath = 'None'
-        self.degree = 5.0
 
         #g pin tool
         self.pointTool = QgsMapToolEmitPoint(self.canvas)
         self.toolPan = QgsMapToolPan(self.canvas)
-
-        self.pointTool.canvasClicked.connect(self.create_point)
 
         #self.layerComboManagerPolygrid = VectorLayerCombo(self.dlg.comboBox_Polygrid)
         #fieldgen = VectorLayerCombo(self.dlg.comboBox_Polygrid, initLayer="")
@@ -212,7 +195,7 @@ class ImageMorphParmsPoint:
             text=self.tr(u'Image Morphometric Parameters Point'),
             callback=self.run,
             parent=self.iface.mainWindow())
-        #QObject.connect(self.dlg.selectpoint, SIGNAL("clicked()"), self.select_point)
+        QObject.connect(self.dlg.selectpoint, SIGNAL("clicked()"), self.select_point)
         #QObject.connect(self.dlg.button_box, SIGNAL("accepted()"), self.calc_image)
 
     def unload(self):
@@ -222,13 +205,6 @@ class ImageMorphParmsPoint:
                 self.tr(u'&Image Morphometric Parameters Point'),
                 action)
             self.iface.removeToolBarIcon(action)
-
-    def folder_path(self):
-        self.fileDialog.open()
-        result = self.fileDialog.exec_()
-        if result == 1:
-            self.folderPath = self.fileDialog.selectedFiles()
-            self.dlg.textOutput.setText(self.folderPath[0])
 
     def create_point_layer(self):
         canvas = self.iface.mapCanvas()
@@ -253,7 +229,7 @@ class ImageMorphParmsPoint:
         self.dlg.hide()
         self.canvas.setMapTool(self.pointTool)
         self.create_point_layer()
-        #self.pointTool.canvasClicked.connect(self.create_point)
+        self.pointTool.canvasClicked.connect(self.create_point)
         #self.dlg.show()
 
     def create_point(self, point):
@@ -262,8 +238,7 @@ class ImageMorphParmsPoint:
         coords = "{}, {}".format(point.x(), point.y())
         self.iface.messageBar().pushMessage("Coordinate selected", str(coords))
         #self.point = point
-        #self.dlg.button_box.setEnabled(1)
-        self.dlg.closeButton.setEnabled(1)
+        self.dlg.button_box.setEnabled(1)
         QgsMapLayerRegistry.instance().addMapLayer(self.poiLayer)
 
         # create the feature
@@ -293,7 +268,7 @@ class ImageMorphParmsPoint:
         #QgsMapLayerRegistry.instance().addMapLayer(self.polyLayer)
 
         # create buffer feature
-        #fc = int(self.provider.featureCount())
+        fc = int(self.provider.featureCount())
         featurepoly = QgsFeature()
 
         # Assign feature the buffered geometry
@@ -301,7 +276,7 @@ class ImageMorphParmsPoint:
         featurepoly.setGeometry(QgsGeometry.fromPoint(
             #QgsPoint(self.point.x(), self.point.y())).buffer(radius, 1000, 1, 1, 1.0))
             QgsPoint(point.x(), point.y())).buffer(radius, 1000, 1, 1, 1.0))
-        #featurepoly.setAttributes([fc])
+        featurepoly.setAttributes([fc])
         self.polyLayer.startEditing()
         self.polyLayer.addFeature(featurepoly, True)
         self.polyLayer.commitChanges()
@@ -315,11 +290,6 @@ class ImageMorphParmsPoint:
         self.polyLayer.setCacheImage(None)
         self.polyLayer.triggerRepaint()
         #QObject.connect(self.dlg.selectpoint, SIGNAL("clicked()"), self.select_point)
-
-    def help(self):
-        url = "file://" + self.plugin_dir + "/README.html"
-        #url = "http://www.google.com"
-        webbrowser.open_new_tab(url)
 
     def run(self):
         """Run method that performs all the real work"""
@@ -342,13 +312,13 @@ class ImageMorphParmsPoint:
            # initiate progressbar
             #progressMessageBar = self.iface.messageBar().createMessage("Processing...")
             #progress = QProgressBar()
-        progress = self.dlg.progressBar.setValue(0)
-        # progress.setValue(0)
+        progress = self.dlg.progressBar
+        progress.setValue(0)
         #self.dlg.progressBar.setValue(0)
         #self.dlg.progressBar.setMaximum(10000)
-        # test = 0
-        # for test in range(0,10000):
-        #     progress.setValue(test)
+        test = 0
+        for test in range(0,10000):
+            progress.setValue(test)
 
         #poly = self.layerComboManagerPolygrid.getLayer()
         poly = self.iface.activeLayer()
@@ -459,10 +429,7 @@ class ImageMorphParmsPoint:
             if nodata_test.any() == False:
                 self.iface.messageBar().pushMessage("Image Morphometric Parameters")
             else:
-                #immorphresult = imagemorphparam_v1(dsm, dem, scale, 0, 5.)
-                self.degree = float(self.dlg.degreeBox.currentText())
-
-                immorphresult = imagemorphparam_v1(dsm, dem, scale, 0, self.degree, self.dlg)
+                immorphresult = imagemorphparam_v1(dsm, dem, scale, 0, 5.)
                 self.iface.messageBar().pushMessage("test test", str(3))
 
                 # save to file
