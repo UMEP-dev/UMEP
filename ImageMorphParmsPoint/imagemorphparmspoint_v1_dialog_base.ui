@@ -10,125 +10,18 @@
     <x>0</x>
     <y>0</y>
     <width>391</width>
-    <height>239</height>
+    <height>304</height>
    </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>400</width>
+    <height>320</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Image Morphometric Parameters</string>
   </property>
-  <widget class="QLabel" name="label_2">
-   <property name="geometry">
-    <rect>
-     <x>13</x>
-     <y>58</y>
-     <width>165</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Raster DSM (building and ground):</string>
-   </property>
-   <property name="buddy">
-    <cstring>comboBox_DSMbuildground</cstring>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="comboBox_DSMbuildground">
-   <property name="geometry">
-    <rect>
-     <x>181</x>
-     <y>56</y>
-     <width>199</width>
-     <height>20</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="comboBox_DEM">
-   <property name="geometry">
-    <rect>
-     <x>181</x>
-     <y>92</y>
-     <width>199</width>
-     <height>20</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_4">
-   <property name="geometry">
-    <rect>
-     <x>43</x>
-     <y>130</y>
-     <width>135</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Raster DSM (only buildings):</string>
-   </property>
-   <property name="buddy">
-    <cstring>comboBox_DSMbuild</cstring>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="comboBox_DSMbuild">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>181</x>
-     <y>128</y>
-     <width>199</width>
-     <height>20</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_3">
-   <property name="geometry">
-    <rect>
-     <x>51</x>
-     <y>94</y>
-     <width>128</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Raster DEM (only ground):</string>
-   </property>
-   <property name="buddy">
-    <cstring>comboBox_DEM</cstring>
-   </property>
-  </widget>
-  <widget class="QDialogButtonBox" name="button_box">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>223</x>
-     <y>202</y>
-     <width>160</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="checkBoxOnlyBuilding">
-   <property name="geometry">
-    <rect>
-     <x>12</x>
-     <y>204</y>
-     <width>181</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Raster DSM (only buildings) exist</string>
-   </property>
-  </widget>
   <widget class="QPushButton" name="selectpoint">
    <property name="geometry">
     <rect>
@@ -138,6 +31,15 @@
      <height>35</height>
     </rect>
    </property>
+   <property name="contextMenuPolicy">
+    <enum>Qt::DefaultContextMenu</enum>
+   </property>
+   <property name="toolTip">
+    <string>Select point on canvas</string>
+   </property>
+   <property name="whatsThis">
+    <string>Select a point on the canvas &lt;a href=README.html&gt; Click here for more info! &lt;/a href&gt;</string>
+   </property>
    <property name="text">
     <string>Select point on canvas</string>
    </property>
@@ -145,14 +47,14 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>214</x>
+     <x>204</x>
      <y>20</y>
-     <width>89</width>
+     <width>99</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>Search radius (m):</string>
+    <string>Search distance (m):</string>
    </property>
   </widget>
   <widget class="QSpinBox" name="spinBox">
@@ -184,7 +86,7 @@
    <property name="geometry">
     <rect>
      <x>308</x>
-     <y>164</y>
+     <y>244</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -197,7 +99,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>162</y>
+     <y>242</y>
      <width>181</width>
      <height>23</height>
     </rect>
@@ -206,25 +108,226 @@
     <number>24</number>
    </property>
   </widget>
+  <widget class="QPushButton" name="pushButtonSave">
+   <property name="geometry">
+    <rect>
+     <x>308</x>
+     <y>214</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Select</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>8</x>
+     <y>214</y>
+     <width>71</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Output folder:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="textOutput">
+   <property name="geometry">
+    <rect>
+     <x>78</x>
+     <y>214</y>
+     <width>219</width>
+     <height>20</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QFrame" name="frame">
+   <property name="geometry">
+    <rect>
+     <x>2</x>
+     <y>74</y>
+     <width>387</width>
+     <height>133</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Sunken</enum>
+   </property>
+   <widget class="QComboBox" name="comboBox_DSMbuild">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>182</x>
+      <y>104</y>
+      <width>199</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>14</x>
+      <y>40</y>
+      <width>165</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Raster DSM (building and ground):</string>
+    </property>
+    <property name="buddy">
+     <cstring>comboBox_DSMbuildground</cstring>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>46</x>
+      <y>106</y>
+      <width>135</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Raster DSM (only buildings):</string>
+    </property>
+    <property name="buddy">
+     <cstring>comboBox_DSMbuild</cstring>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox_DSMbuildground">
+    <property name="geometry">
+     <rect>
+      <x>182</x>
+      <y>38</y>
+      <width>199</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>52</x>
+      <y>76</y>
+      <width>128</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Raster DEM (only ground):</string>
+    </property>
+    <property name="buddy">
+     <cstring>comboBox_DEM</cstring>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox_DEM">
+    <property name="geometry">
+     <rect>
+      <x>182</x>
+      <y>74</y>
+      <width>199</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBoxOnlyBuilding">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>12</y>
+      <width>181</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
+    </property>
+    <property name="text">
+     <string>Raster DSM (only buildings) exist</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QPushButton" name="closeButton">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>308</x>
+     <y>274</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="degreeBox">
+   <property name="geometry">
+    <rect>
+     <x>306</x>
+     <y>46</y>
+     <width>74</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_8">
+   <property name="geometry">
+    <rect>
+     <x>106</x>
+     <y>50</y>
+     <width>197</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Wind direction search interval (degrees):</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="helpButton">
+   <property name="geometry">
+    <rect>
+     <x>8</x>
+     <y>274</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Help</string>
+   </property>
+  </widget>
+  <zorder>frame</zorder>
+  <zorder>selectpoint</zorder>
+  <zorder>label</zorder>
+  <zorder>spinBox</zorder>
+  <zorder>runButton</zorder>
+  <zorder>progressBar</zorder>
+  <zorder>pushButtonSave</zorder>
+  <zorder>label_5</zorder>
+  <zorder>textOutput</zorder>
+  <zorder>closeButton</zorder>
+  <zorder>degreeBox</zorder>
+  <zorder>label_8</zorder>
+  <zorder>helpButton</zorder>
  </widget>
  <resources/>
  <connections>
-  <connection>
-   <sender>button_box</sender>
-   <signal>rejected()</signal>
-   <receiver>ImageMorphParamDialogBase</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>288</x>
-     <y>192</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>373</x>
-     <y>196</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>checkBoxOnlyBuilding</sender>
    <signal>toggled(bool)</signal>
@@ -232,12 +335,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>187</y>
+     <x>44</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
-     <x>194</x>
-     <y>147</y>
+     <x>199</x>
+     <y>197</y>
     </hint>
    </hints>
   </connection>
@@ -248,12 +351,12 @@
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>187</y>
+     <x>74</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>183</x>
-     <y>111</y>
+     <x>186</x>
+     <y>167</y>
     </hint>
    </hints>
   </connection>
@@ -264,28 +367,28 @@
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>72</x>
-     <y>187</y>
+     <x>70</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>193</x>
-     <y>75</y>
+     <y>125</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>button_box</sender>
-   <signal>accepted()</signal>
+   <sender>closeButton</sender>
+   <signal>clicked()</signal>
    <receiver>ImageMorphParamDialogBase</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>240</x>
-     <y>175</y>
+     <x>342</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
-     <x>209</x>
-     <y>164</y>
+     <x>200</x>
+     <y>277</y>
     </hint>
    </hints>
   </connection>

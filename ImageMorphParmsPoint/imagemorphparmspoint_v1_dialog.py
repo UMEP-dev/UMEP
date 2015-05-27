@@ -22,8 +22,9 @@
 """
 
 import os
+import webbrowser
 
-from PyQt4 import QtGui, uic
+from PyQt4 import QtGui, uic, QtCore
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'imagemorphparmspoint_v1_dialog_base.ui'))
@@ -39,3 +40,4 @@ class ImageMorphParmsPointDialog(QtGui.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+
