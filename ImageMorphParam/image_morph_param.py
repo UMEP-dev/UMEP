@@ -22,14 +22,14 @@
 """
 from PyQt4.QtCore import *
 from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
+from qgis.gui import *
 from qgis.core import QgsVectorLayer, QgsVectorFileWriter, QgsFeature
 import os
 from ..Utilities.qgiscombomanager import *
 from osgeo import gdal
 import subprocess
-from imageMorphometricParms_v1 import *
+from ..Utilities.imageMorphometricParms_v1 import *
 import time
-#sys.path.append('C:/Program Files (x86)/JetBrains/PyCharm 3.4.1/helpers/pydev')
 
 # Initialize Qt resources from file resources.py
 import resources_rc
@@ -69,14 +69,14 @@ class ImageMorphParam:
 
         # Create the dialog (after translation) and keep reference
         self.dlg = ImageMorphParamDialog()
+        self.dlg.runButton.clicked.connect(self.start_progress)
+        self.dlg.pushButtonSave.clicked.connect(self.folder_path)
+        self.dlg.progressBar.setValue(0)
+        self.dlg.checkBoxOnlyBuilding.toggled.connect(self.text_enable)
 
         self.fileDialog = QFileDialog()
         self.fileDialog.setFileMode(4)
         self.fileDialog.setAcceptMode(1)
-
-        self.dlg.runButton.clicked.connect(self.start_progress)
-        self.dlg.pushButtonSave.clicked.connect(self.folder_path)
-        self.dlg.progressBar.setValue(0)
 
         for i in range(1, 25):
             if 360 % i == 0:
@@ -93,7 +93,6 @@ class ImageMorphParam:
         self.toolbar = self.iface.addToolBar(u'ImageMorphParam')
         self.toolbar.setObjectName(u'ImageMorphParam')
 
-        #self.layerComboManagerPolygrid = VectorLayerCombo(self.dlg.comboBox_Polygrid, options={"geomType":Polygon})
         self.layerComboManagerPolygrid = VectorLayerCombo(self.dlg.comboBox_Polygrid)
         fieldgen = VectorLayerCombo(self.dlg.comboBox_Polygrid, initLayer="")
         self.layerComboManagerPolyField = FieldCombo(self.dlg.comboBox_Field, fieldgen, initField="")
@@ -218,6 +217,16 @@ class ImageMorphParam:
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.textOutput.setText(self.folderPath[0])
 
+    def text_enable(self):
+        if self.dlg.checkBoxOnlyBuilding.isChecked():
+            self.dlg.label_2.setEnabled(False)
+            self.dlg.label_3.setEnabled(False)
+            self.dlg.label_4.setEnabled(True)
+        else:
+            self.dlg.label_2.setEnabled(True)
+            self.dlg.label_3.setEnabled(True)
+            self.dlg.label_4.setEnabled(False)
+
     def start_progress(self):
 
         poly = self.layerComboManagerPolygrid.getLayer()
@@ -290,10 +299,6 @@ class ImageMorphParam:
                     QMessageBox.critical(None, "Error", "No valid ground DEM raster layer is selected")
                     return
 
-                if not (dsm.shape[0] == dem.shape[0]) & (dsm.shape[1] == dem.shape[1]):
-                    QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
-                return
-
                 # # get raster source - gdalwarp
                 provider = dsm.dataProvider()
                 filePath_dsm = str(provider.dataSourceUri())
@@ -315,15 +320,20 @@ class ImageMorphParam:
                 dataset2 = gdal.Open(self.plugin_dir + '/data/clipdem.tif')
                 dem = dataset2.ReadAsArray().astype(np.float)
 
+                if not (dsm.shape[0] == dem.shape[0]) & (dsm.shape[1] == dem.shape[1]):
+                    QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+                    return
+
             geotransform = dataset.GetGeoTransform()
             scale = 1 / geotransform[1]
 
             nodata_test = (dem == -9999)
             if nodata_test.any():  # == True
-                self.iface.messageBar().pushMessage("Image Morphometric Parameters", str(j))
+                self.iface.messageBar().pushMessage("Grid " + str(f.attributes()[idx]) + " not calculated",
+                "Includes NoData Pixels")
             else:
                 self.degree = float(self.dlg.degreeBox.currentText())
-                immorphresult = imagemorphparam_v1(dsm, dem, scale, 0, self.degree)
+                immorphresult = imagemorphparam_v1(dsm, dem, scale, 0, self.degree, self.dlg)
 
                 # save to file
                 header = ' Wd pai   fai   zH  zHmax   zHstd'
@@ -347,8 +357,7 @@ class ImageMorphParam:
             j += 1
             time.sleep(0.25)
 
-        self.iface.messageBar().clearWidgets()
-        # self.iface.messageBar().pushMessage("Image Morphometric Parameters", "Process successful!")
+        # self.iface.messageBar().clearWidgets()
         QMessageBox.information(None, "Image Morphometric Parameters", "Process successful!")
 
     def run(self):

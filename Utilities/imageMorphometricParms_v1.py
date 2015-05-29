@@ -16,12 +16,11 @@
 import Image
 from scipy import *
 import numpy as np
-#import scipy.misc as sc
 import scipy.ndimage.interpolation as sc
 import PIL
 
 
-def imagemorphparam_v1(dsm, dem, scale, mid, dtheta):
+def imagemorphparam_v1(dsm, dem, scale, mid, dtheta, dlg):
 
     build = dsm - dem
     build[(build < 2.)] = 0.  # building should be higher than 2 meter
@@ -45,6 +44,7 @@ def imagemorphparam_v1(dsm, dem, scale, mid, dtheta):
     imid = np.floor((n/2.))
     if mid == 1:
         dY = np.int16(np.arange(np.dot(1, imid)))  # the whole length of the grid (y)
+        dlg.progressBar.setRange(0., 360. / dtheta)
     else:
         dY = np.int16(np.arange(np.dot(1, n)))  # the whole length of the grid (y)
 
@@ -56,6 +56,9 @@ def imagemorphparam_v1(dsm, dem, scale, mid, dtheta):
     filt = np.array(np.hstack((filt1, filt2))).conj().T
     j = int(0)
     for angle in np.arange(0, (360.-dtheta+0) + dtheta, dtheta):
+        if mid == 1:
+            dlg.progressBar.setValue(angle)
+
         c = np.zeros((n, n))
         #d = sc.imrotate(build, angle, 'nearest')
         d = sc.rotate(build, angle, reshape=False, mode='nearest')

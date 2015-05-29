@@ -296,12 +296,12 @@ class UMEP:
         sg.run()
         
     def IMCG(self):
-        # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True) #used for debugging
         sg = ImageMorphParam(self.iface)
         sg.run()
 
     def IMCP(self):
         sg = ImageMorphParmsPoint(self.iface)
+        # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True) #used for debugging
         sg.run()
 
     def SVF(self):

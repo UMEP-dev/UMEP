@@ -24,18 +24,19 @@ from PyQt4.QtCore import *  # QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon, QMessageBox, QProgressBar, QFileDialog
 from qgis.gui import *
 from qgis.core import QgsVectorLayer, QgsMapLayerRegistry, QgsFeature, QgsGeometry, QgsPoint, QgsVectorFileWriter
-
-# Initialize Qt resources from file resources.py
-import resources_rc
-# Import the code for the dialog
-from imagemorphparmspoint_v1_dialog import ImageMorphParmsPointDialog
-import os.path
-import numpy as np
+import os
+from ..Utilities.qgiscombomanager import *
 from osgeo import gdal
 import subprocess
 import webbrowser
-from imageMorphometricParms_v1 import *
-from qgiscombomanager import *
+from ..Utilities.imageMorphometricParms_v1 import *
+from ..pydev import pydevd
+# Initialize Qt resources from file resources.py
+import resources_rc
+
+# Import the code for the dialog
+from imagemorphparmspoint_v1_dialog import ImageMorphParmsPointDialog
+
 
 class ImageMorphParmsPoint:
     """QGIS Plugin Implementation."""
@@ -68,7 +69,7 @@ class ImageMorphParmsPoint:
 
         # Create the dialog (after translation) and keep reference
         self.dlg = ImageMorphParmsPointDialog()
-        self.dlg.runButton.clicked.connect(self.calc_image)
+        self.dlg.runButton.clicked.connect(self.start_process)
         self.dlg.pushButtonSave.clicked.connect(self.folder_path)
         self.dlg.selectpoint.clicked.connect(self.select_point)
         self.dlg.helpButton.clicked.connect(self.help)
@@ -103,12 +104,8 @@ class ImageMorphParmsPoint:
         #g pin tool
         self.pointTool = QgsMapToolEmitPoint(self.canvas)
         self.toolPan = QgsMapToolPan(self.canvas)
-
         self.pointTool.canvasClicked.connect(self.create_point)
 
-        #self.layerComboManagerPolygrid = VectorLayerCombo(self.dlg.comboBox_Polygrid)
-        #fieldgen = VectorLayerCombo(self.dlg.comboBox_Polygrid, initLayer="")
-        #self.layerComboManagerPolyField = FieldCombo(self.dlg.comboBox_Field, fieldgen, initField="")
         self.layerComboManagerDSMbuildground = RasterLayerCombo(self.dlg.comboBox_DSMbuildground)
         RasterLayerCombo(self.dlg.comboBox_DSMbuildground, initLayer="")
         self.layerComboManagerDEM = RasterLayerCombo(self.dlg.comboBox_DEM)
@@ -347,38 +344,11 @@ class ImageMorphParmsPoint:
             self.dlg.label_3.setEnabled(True)
             self.dlg.label_4.setEnabled(False)
 
-    def run(self):
-        """Run method that performs all the real work"""
-        # show the dialog
-        self.dlg.show()
+    def start_process(self):
+        # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
+        self.dlg.progressBar.setValue(0)
 
-        # Run the dialog event loop
-        result = self.dlg.exec_()
-
-        gdal.UseExceptions()
-        gdal.AllRegister()
-
-    def calc_image(self):
-        # See if OK was pressed
-        #if self.dlg.selectpoint(SIGNAL("clicked()")):
-        #result = 1
-        #if result == 1:
-            #QMessageBox.critical(None, "Error", "HÄnder det nått?")
-
-           # initiate progressbar
-            #progressMessageBar = self.iface.messageBar().createMessage("Processing...")
-            #progress = QProgressBar()
-        progress = self.dlg.progressBar.setValue(0)
-        # progress.setValue(0)
-        #self.dlg.progressBar.setValue(0)
-        #self.dlg.progressBar.setMaximum(10000)
-        # test = 0
-        # for test in range(0,10000):
-        #     progress.setValue(test)
-
-        #poly = self.layerComboManagerPolygrid.getLayer()
         poly = self.iface.activeLayer()
-        #poly = self.polyLayer
         if poly is None:
             QMessageBox.critical(None, "Error", "No valid Polygon layer is selected")
             return
@@ -403,10 +373,7 @@ class ImageMorphParmsPoint:
         #self.iface.messageBar().pushWidget(progressMessageBar, self.iface.messageBar().INFO)
 
         dir_poly = self.plugin_dir + '/data/poly_temp.shp'
-        #j = 0
-        #for f in vlayer.getFeatures():  # looping through each grip polygon
-            #progress.setValue(j + 1)
-        #QMessageBox.critical(None, "Error", str(prov.geometryType()))
+
         #savename = self.plugin_dir + '/data/' + str(j) + ".shp"
         writer = QgsVectorFileWriter(dir_poly, "CP1250", fields, prov.geometryType(),
                                      prov.crs(), "ESRI shapefile")
@@ -414,15 +381,9 @@ class ImageMorphParmsPoint:
         if writer.hasError() != QgsVectorFileWriter.NoError:
             self.iface.messageBar().pushMessage("Error when creating shapefile: ", str(writer.hasError()))
 
-
-        #attributes = vlayer.attributes()
-        #self.iface.messageBar().pushMessage("Test", str(vlayer.attributes()[idx]))
-        #geometry = poly.geometry()
         poly.selectAll()
         selection = poly.selectedFeatures()
-        #feature = QgsFeature()
-        #feature.setAttributes(attributes)
-        #.setGeometry(geometry)
+
         for feature in selection:
             writer.addFeature(feature)
         del writer
@@ -478,35 +439,46 @@ class ImageMorphParmsPoint:
             dataset2 = gdal.Open(self.plugin_dir + '/data/clipdem.tif')
             dem = dataset2.ReadAsArray().astype(np.float)
 
-            geotransform = dataset.GetGeoTransform()
-            scale = 1 / geotransform[1]
-            self.iface.messageBar().pushMessage("innan loop")
-            nodata_test = (dem == -9999)
-            if nodata_test.any() == False:
-                self.iface.messageBar().pushMessage("Image Morphometric Parameters")
-            else:
-                #immorphresult = imagemorphparam_v1(dsm, dem, scale, 0, 5.)
-                self.degree = float(self.dlg.degreeBox.currentText())
+            if not (dsm.shape[0] == dem.shape[0]) & (dsm.shape[1] == dem.shape[1]):
+                QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+                return
 
-                immorphresult = imagemorphparam_v1(dsm, dem, scale, 0, self.degree, self.dlg)
-                self.iface.messageBar().pushMessage("test test", str(3))
+        geotransform = dataset.GetGeoTransform()
+        scale = 1 / geotransform[1]
+        # self.iface.messageBar().pushMessage("innan loop")
 
-                # save to file
-                header = ' Wd pai   fai   zH'
-                numformat = '%3d %4.3f %4.3f %5.3f'
-                arr = np.concatenate((immorphresult["deg"], immorphresult["pai"], immorphresult["fai"],
-                                      immorphresult["zH"]), axis=1)
-                #np.savetxt(self.plugin_dir + '/data/result_' + str(vlayer.attributes()[idx]) + '.txt', arr,
-                #           fmt=numformat, delimiter=' ', header=header, comments='')
+        self.degree = float(self.dlg.degreeBox.currentText())
+        immorphresult = imagemorphparam_v1(dsm, dem, scale, 1, self.degree, self.dlg)
 
-                np.savetxt(self.plugin_dir + '/data/result.txt', arr,
-                           fmt=numformat, delimiter=' ', header=header, comments='')
+        # save to file
+        header = ' Wd pai   fai   zH  zHmax   zHstd'
+        numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f'
+        arr = np.concatenate((immorphresult["deg"], immorphresult["pai"], immorphresult["fai"],
+                              immorphresult["zH"], immorphresult["zHmax"], immorphresult["zH_sd"]), axis=1)
+        np.savetxt(self.folderPath[0] + '/anisotropic_result.txt', arr,
+                   fmt=numformat, delimiter=' ', header=header, comments='')
 
-            dataset = None
-            dataset2 = None
-            dataset3 = None
+        header = ' pai   zH    zHmax    zHstd'
+        numformat = '%4.3f %5.3f %5.3f %5.3f'
+        arr2 = np.array([[immorphresult["pai_all"], immorphresult["zH_all"], immorphresult["zHmax_all"],
+                          immorphresult["zH_sd_all"]]])
+        np.savetxt(self.folderPath[0] + '/isotropic_result.txt', arr2,
+                   fmt=numformat, delimiter=' ', header=header, comments='')
 
-            #j += 1
+        dataset = None
+        dataset2 = None
+        dataset3 = None
 
         #self.iface.messageBar().clearWidgets()
-        self.iface.messageBar().pushMessage("Image Morphometric Parameters", "Process successful!")
+        QMessageBox.information(None, "Image Morphometric Parameters", "Process successful!")
+
+    def run(self):
+        """Run method that performs all the real work"""
+        # show the dialog
+        self.dlg.show()
+
+        # Run the dialog event loop
+        self.dlg.exec_()
+
+        gdal.UseExceptions()
+        gdal.AllRegister()
