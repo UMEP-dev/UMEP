@@ -84,11 +84,11 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lonlat, sizex, sizey, tv, UTC, use
 
         if alt[i] > 0:
             if usevegdem == 0:
-                sh = shadow.shadowingfunctionglobalradiation(dsm, azi[i], alt[i], scale, dlg)
+                sh = shadow.shadowingfunctionglobalradiation(dsm, azi[i], alt[i], scale, dlg,0)
                 shtot = shtot + sh
 
             else:
-                shadowresult = shadow.shadowingfunction_20(dsm, vegdem, vegdem2, azi[i], alt[i], scale, amaxvalue, bush, dlg)
+                shadowresult = shadow.shadowingfunction_20(dsm, vegdem, vegdem2, azi[i], alt[i], scale, amaxvalue, bush, dlg,0)
                 vegsh = shadowresult["vegsh"]
                 sh = shadowresult["sh"]
                 sh=sh-(1-vegsh)*(1-psi)

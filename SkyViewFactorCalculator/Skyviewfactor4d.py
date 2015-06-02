@@ -41,7 +41,7 @@ def Skyviewfactor4d(a, scale, dlg):
             azimuth = iazimuth[int(index)-1]
 
             dlg.progressBar.setValue(index)
-            sh = shadow.shadowingfunctionglobalradiation(a, azimuth, altitude, scale)
+            sh = shadow.shadowingfunctionglobalradiation(a, azimuth, altitude, scale, dlg, 1)
             for k in np.arange(annulino[int(i)]+1, (annulino[int(i+1.)])+1):
                 #% changed to include 90
 
@@ -126,7 +126,7 @@ def Skyviewfactor4d_veg(a, scale, vegdem, vegdem2, dlg):
             # print index
             altitude = iangle[int(i)]
             azimuth = iazimuth[int(index)-1]
-            shadowresult = shadow.shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue, bush)
+            shadowresult = shadow.shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue, bush, dlg, 1)
             vegsh = shadowresult["vegsh"]
             vbshvegsh = shadowresult["vbshvegsh"]
             for k in np.arange(annulino[int(i)]+1, (annulino[int(i+1.)])+1):
