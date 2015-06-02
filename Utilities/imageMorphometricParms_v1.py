@@ -27,10 +27,16 @@ def imagemorphparam_v1(dsm, dem, scale, mid, dtheta, dlg):
 
     # new part
     buildvec = build[np.where(build > 0)]
-    zH_all = buildvec.mean()
-    zHmax_all = buildvec.max()
-    zH_sd_all = buildvec.std()
-    pai_all = (buildvec.size * 1.0) / (build.size * 1.0)
+    if buildvec.size > 0:
+        zH_all = buildvec.mean()
+        zHmax_all = buildvec.max()
+        zH_sd_all = buildvec.std()
+        pai_all = (buildvec.size * 1.0) / (build.size * 1.0)
+    else:
+        zH_all = 0
+        zHmax_all = 0
+        zH_sd_all = 0
+        pai_all = 0 
 
     fai = np.zeros((72, 1))
     zH = np.zeros((72, 1))

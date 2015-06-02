@@ -256,11 +256,11 @@ class ShadowGenerator:
         geotransform = gdal_dsm.GetGeoTransform()
         scale = 1 / geotransform[1]
 
+        trans = self.dlg.spinBoxTrans.value() / 100.0
+
         if self.dlg.checkBoxUseVeg.isChecked():
 
             usevegdem = 1
-
-            trans = self.dlg.spinBoxTrans.value() / 100.0
 
             vegdsm = self.layerComboManagerVEGDSM.getLayer()
 

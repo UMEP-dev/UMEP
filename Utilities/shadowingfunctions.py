@@ -1,8 +1,9 @@
 # Ready for python action!
 import numpy as np
+import matplotlib.pylab as plt
 
 
-def shadowingfunctionglobalradiation(a, azimuth, altitude, scale):
+def shadowingfunctionglobalradiation(a, azimuth, altitude, scale, dlg):
 
     #%This m.file calculates shadows on a DEM
     #% conversion
@@ -12,6 +13,9 @@ def shadowingfunctionglobalradiation(a, azimuth, altitude, scale):
     #% measure the size of the image
     sizex = a.shape[0]
     sizey = a.shape[1]
+    barstep = np.max([sizex, sizey])
+    dlg.progressBar.setRange(0, barstep)
+    dlg.progressBar.setValue(0)
     #% initialise parameters
     f = a
     dx = 0.
@@ -35,6 +39,7 @@ def shadowingfunctionglobalradiation(a, azimuth, altitude, scale):
     tanaltitudebyscale = np.tan(altitude) / scale
     #% main loop
     while (amaxvalue >= dz and np.abs(dx) < sizex and np.abs(dy) < sizey):
+        dlg.progressBar.setValue(index)
     #while np.logical_and(np.logical_and(amaxvalue >= dz, np.abs(dx) <= sizex), np.abs(dy) <= sizey):(np.logical_and(amaxvalue >= dz, np.abs(dx) <= sizex), np.abs(dy) <= sizey):
         #if np.logical_or(np.logical_and(pibyfour <= azimuth, azimuth < threetimespibyfour), np.logical_and(fivetimespibyfour <= azimuth, azimuth < seventimespibyfour)):
         if (pibyfour <= azimuth and azimuth < threetimespibyfour or fivetimespibyfour <= azimuth and azimuth < seventimespibyfour):
@@ -71,7 +76,7 @@ def shadowingfunctionglobalradiation(a, azimuth, altitude, scale):
     return sh
 
 
-def shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue, bush):
+def shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue, bush, dlg):
 
     #% This function casts shadows on buildings and vegetation units
     #% conversion
@@ -82,6 +87,8 @@ def shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue
     sizex = a.shape[0]
     sizey = a.shape[1]
     #% initialise parameters
+    barstep = np.max([sizex, sizey])
+    dlg.progressBar.setRange(0, barstep)
     dx = 0.
     dy = 0.
     dz = 0.
@@ -111,6 +118,7 @@ def shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue
 
     #% main loop
     while (amaxvalue >= dz and np.abs(dx) < sizex and np.abs(dy) < sizey):
+        dlg.progressBar.setValue(index)
         if (pibyfour <= azimuth and azimuth < threetimespibyfour or fivetimespibyfour <= azimuth and azimuth < seventimespibyfour):
             dy = signsinazimuth * index
             dx = -1. * signcosazimuth * np.abs(np.round(index / tanazimuth))
