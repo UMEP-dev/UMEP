@@ -20,7 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QThread
 from PyQt4.QtGui import *
 from qgis.core import *
 from qgis.gui import *
@@ -34,6 +34,8 @@ import numpy as np
 from ..Utilities.qgiscombomanager import *
 from osgeo import gdal
 import Skyviewfactor4d as svf
+from svfworker import Worker
+from svfvegworker import VegWorker
 from osgeo.gdalconst import *
 
 class SkyViewFactorCalculator:
@@ -69,6 +71,8 @@ class SkyViewFactorCalculator:
         self.dlg = SkyViewFactorCalculatorDialog()
         self.dlg.runButton.clicked.connect(self.start_progress)
         self.dlg.pushButtonSave.clicked.connect(self.folder_path)
+        self.dlg.checkBoxUseVeg.toggled.connect(self.text_enable)
+        self.dlg.checkBoxTrunkExist.toggled.connect(self.text_enable2)
         self.fileDialog = QFileDialog()
         self.fileDialog.setFileMode(4)
         self.fileDialog.setAcceptMode(1)
@@ -86,6 +90,21 @@ class SkyViewFactorCalculator:
         RasterLayerCombo(self.dlg.comboBox_vegdsm, initLayer="")
         self.layerComboManagerVEGDSM2 = RasterLayerCombo(self.dlg.comboBox_vegdsm2)
         RasterLayerCombo(self.dlg.comboBox_vegdsm2, initLayer="")
+
+        self.thread = None
+        self.worker = None
+        self.vegthread = None
+        self.vegworker = None
+        self.svftotal = None
+        self.folderPath = None
+        self.usevegdem = None
+        self.vegdsm = None
+        self.vegdsm2 = None
+        self.svfbu = None
+        self.dsm = None
+        self.scale = None
+        self.steps = 0
+
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -194,6 +213,19 @@ class SkyViewFactorCalculator:
                 action)
             self.iface.removeToolBarIcon(action)
 
+    def text_enable(self):
+        if self.dlg.checkBoxUseVeg.isChecked():
+            self.dlg.label_2.setEnabled(True)
+
+        else:
+            self.dlg.label_2.setEnabled(False)
+
+    def text_enable2(self):
+        if self.dlg.checkBoxTrunkExist.isChecked():
+            self.dlg.label_3.setEnabled(True)
+        else:
+            self.dlg.label_3.setEnabled(False)
+
     def folder_path(self):
         self.fileDialog.open()
         result = self.fileDialog.exec_()
@@ -201,146 +233,334 @@ class SkyViewFactorCalculator:
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.textOutput.setText(self.folderPath[0])
 
-    def start_progress(self):
-        self.dlg.textOutput.setText(self.folderPath[0])
-        dsmlayer = self.layerComboManagerDSM.getLayer()
+    def startWorker(self, dsm, scale, dlg):
+    # create a new worker instance
+        worker = Worker(dsm, scale, dlg)
 
-        if dsmlayer is None:
-                QMessageBox.critical(None, "Error", "No valid raster layer is selected")
-                return
+        self.dlg.runButton.setText('Cancel')
+        self.dlg.runButton.clicked.disconnect()
+        self.dlg.runButton.clicked.connect(worker.kill)
+        self.dlg.pushButton.setEnabled(False)
 
-        provider = dsmlayer.dataProvider()
-        filepath_dsm = str(provider.dataSourceUri())
-        gdal_dsm = gdal.Open(filepath_dsm)
-        dsm = gdal_dsm.ReadAsArray().astype(np.float)
-        sizex = dsm.shape[0]
-        sizey = dsm.shape[1]
-        geotransform = gdal_dsm.GetGeoTransform()
-        scale = 1 / geotransform[1]
+        # start the worker in a new thread
+        thread = QThread(self.dlg)
+        worker.moveToThread(thread)
+        worker.finished.connect(self.workerFinished)
+        worker.error.connect(self.workerError)
+        worker.progress.connect(self.progress_update)
+        thread.started.connect(worker.run)
+        thread.start()
+        self.thread = thread
+        self.worker = worker
 
-        if self.dlg.checkBoxUseVeg.isChecked():
+    def startVegWorker(self, dsm, scale, vegdsm, vegdsm2, dlg):
+    # create a new worker instance
+        vegworker = VegWorker(dsm, scale, vegdsm, vegdsm2, dlg)
 
-            usevegdem = 1
+
+        #self.dlg.runButton.setText('Cancel')
+        #self.dlg.runButton.clicked.disconnect()
+        self.dlg.runButton.clicked.connect(vegworker.kill)
+
+
+        # start the worker in a new thread
+        vegthread = QThread(self.dlg)
+        vegworker.moveToThread(vegthread)
+        vegworker.finished.connect(self.vegWorkerFinished)
+        vegworker.error.connect(self.vegWorkerError)
+        vegworker.progress.connect(self.progress_update)
+        vegthread.started.connect(vegworker.run)
+        vegthread.start()
+        self.vegthread = vegthread
+        self.vegworker = vegworker
+
+    def workerFinished(self, ret):
+        # clean up the worker and thread
+        self.worker.deleteLater()
+        self.thread.quit()
+        self.thread.wait()
+        self.thread.deleteLater()
+        # remove widget from message bar
+        #self.iface.messageBar().popWidget(self.messageBar)
+        if ret is not None:
+            # report the result
+            #layer, total_area = ret
+            #self.iface.messageBar().pushMessage('The total area of {name} is {area}.'.format(name=layer.name(), area=total_area))
+            self.svfbu = ret["svf"]
+            svfbuE = ret["svfE"]
+            svfbuS = ret["svfS"]
+            svfbuW = ret["svfW"]
+            svfbuN = ret["svfN"]
+
+            svfbuname = ret.keys()
+
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfbuname[0] + '.tif', self.svfbu)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfbuname[1] + '.tif', svfbuE)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfbuname[2] + '.tif', svfbuS)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfbuname[3] + '.tif', svfbuW)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfbuname[4] + '.tif', svfbuN)
+            if self.usevegdem == 0:
+                self.svftotal = self.svfbu
+
+                filename = self.folderPath[0] + '/' + 'SkyViewFactor' + '.tif'
+
+                svf.saveraster(self.gdal_dsm, filename, self.svftotal)
+
+                if self.dlg.checkBoxIntoCanvas.isChecked():
+                    rlayer = self.iface.addRasterLayer(filename)
+
+                    # Set opacity
+                    rlayer.renderer().setOpacity(0.5)
+
+                    # Trigger a repaint
+                    if hasattr(rlayer, "setCacheImage"):
+                        rlayer.repaintRequested.emit()
+                        #rlayer.setCacheImage(None)
+                    rlayer.triggerRepaint()
+
+                QMessageBox.information(None, "Sky View Factor Calculator", "SVF grid(s) successfully generated")
+                self.dlg.runButton.setText('Run')
+                self.dlg.runButton.clicked.disconnect()
+                self.dlg.runButton.clicked.connect(self.start_progress)
+                self.dlg.pushButton.setEnabled(True)
+            #else:
+                #self.startVegWorker(self.dsm, self.scale, self.vegdsm, self.vegdsm2, self.dlg)
+
+        else:
+            # notify the user that something went wrong
+            self.iface.messageBar().pushMessage('Operations cancelled either by user or error.', level=QgsMessageBar.CRITICAL, duration=3)
+            self.dlg.runButton.setText('Run')
+            self.dlg.runButton.clicked.disconnect()
+            self.dlg.runButton.clicked.connect(self.start_progress)
+            self.dlg.pushButton.setEnabled(True)
+            self.dlg.progressBar.setValue(0)
+
+
+    def vegWorkerFinished(self, ret):
+        # clean up the worker and thread
+        #self.vegworker.deleteLater()
+        self.vegthread.quit()
+        self.vegthread.wait()
+        self.vegthread.deleteLater()
+
+        if ret is not None:
+            # report the result
+            #layer, total_area = ret
+            #self.iface.messageBar().pushMessage('The total area of {name} is {area}.'.format(name=layer.name(), area=total_area))
+            svfveg = ret["svfveg"]
+            svfEveg = ret["svfEveg"]
+            svfSveg = ret["svfSveg"]
+            svfWveg = ret["svfWveg"]
+            svfNveg = ret["svfNveg"]
+            svfaveg = ret["svfaveg"]
+            svfEaveg = ret["svfEaveg"]
+            svfSaveg = ret["svfSaveg"]
+            svfWaveg = ret["svfWaveg"]
+            svfNaveg = ret["svfNaveg"]
+
+            svfvegname = ret.keys()
+
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfvegname[0] + '.tif', svfveg)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfvegname[1] + '.tif', svfEveg)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfvegname[2] + '.tif', svfSveg)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfvegname[3] + '.tif', svfWveg)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfvegname[4] + '.tif', svfNveg)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfvegname[5] + '.tif', svfaveg)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfvegname[6] + '.tif', svfEaveg)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfvegname[7] + '.tif', svfSaveg)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfvegname[8] + '.tif', svfWaveg)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfvegname[9] + '.tif', svfNaveg)
 
             trans = self.dlg.spinBoxTrans.value() / 100.0
 
-            vegdsm = self.layerComboManagerVEGDSM.getLayer()
+            self.svftotal = (self.svfbu-(1-svfveg)*(1-trans))
+            filename = self.folderPath[0] + '/' + 'SkyViewFactor' + '.tif'
+            svf.saveraster(self.gdal_dsm, filename, self.svftotal)
 
-            if vegdsm is None:
-                QMessageBox.critical(None, "Error", "No valid vegetation DSM selected")
-                return
+            if self.dlg.checkBoxIntoCanvas.isChecked():
+                rlayer = self.iface.addRasterLayer(filename)
+                # Set opacity
+                rlayer.renderer().setOpacity(0.5)
+                # Trigger a repaint
+                if hasattr(rlayer, "setCacheImage"):
+                    #rlayer.setCacheImage(None)
+                    rlayer.repaintRequested.emit()
+                rlayer.triggerRepaint()
 
-            # load raster
-            gdal.AllRegister()
-            provider = vegdsm.dataProvider()
-            filePathOld = str(provider.dataSourceUri())
-            dataSet = gdal.Open(filePathOld)
-            vegdsm = dataSet.ReadAsArray().astype(np.float)
+            QMessageBox.information(None, "Sky View Factor Calculator", "SVF grid(s) successfully generated")
 
-            vegsizex = vegdsm.shape[0]
-            vegsizey = vegdsm.shape[1]
+            self.dlg.runButton.setText('Run')
+            self.dlg.runButton.clicked.disconnect()
+            self.dlg.runButton.clicked.connect(self.start_progress)
+            self.dlg.pushButton.setEnabled(True)
 
-            if not (vegsizex == sizex) & (vegsizey == sizey):  # &
-                QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
-                return
+        else:
+            # notify the user that something went wrong
+            self.iface.messageBar().pushMessage('Operations cancelled either by user or error.', level=QgsMessageBar.CRITICAL, duration=3)
+            self.dlg.runButton.setText('Run')
+            self.dlg.runButton.clicked.disconnect()
+            self.dlg.runButton.clicked.connect(self.start_progress)
+            self.dlg.pushButton.setEnabled(True)
+            self.dlg.progressBar.setValue(0)
 
-            if self.dlg.checkBoxTrunkExist.isChecked():
-                vegdsm2 = self.layerComboManagerVEGDSM2.getLayer()
+    def workerError(self, e, exception_string):
+        strerror = "Worker thread raised an exception" + str(e)
+        QgsMessageLog.logMessage(strerror.format(exception_string), level=QgsMessageLog.CRITICAL)
 
-                if vegdsm2 is None:
-                    QMessageBox.critical(None, "Error", "No valid trunk zone DSM selected")
+    def vegWorkerError(self, e, exception_string):
+        #QgsMessageLog.logMessage('Vegetation Worker thread raised an exception:\n'.format(exception_string), level=QgsMessageLog.CRITICAL)
+        strerror = "Vegetation Worker thread raised an exception" + str(e)
+        QgsMessageLog.logMessage(strerror.format(exception_string), level=QgsMessageLog.CRITICAL)
+        #QMessageBox.information(None, "Sky View Factor Calculator", str(e))
+
+    def progress_update(self):
+        self.steps += 1
+        self.dlg.progressBar.setValue(self.steps)
+
+    def start_progress(self):
+        self.steps = 0
+        if self.folderPath is None:
+            QMessageBox.critical(None, "Error", "No save folder selected")
+
+        else:
+        #self.dlg.textOutput.setText(self.folderPath[0])
+            dsmlayer = self.layerComboManagerDSM.getLayer()
+
+            if dsmlayer is None:
+                    QMessageBox.critical(None, "Error", "No valid raster layer is selected")
+                    return
+
+            provider = dsmlayer.dataProvider()
+            filepath_dsm = str(provider.dataSourceUri())
+            self.gdal_dsm = gdal.Open(filepath_dsm)
+            self.dsm = self.gdal_dsm.ReadAsArray().astype(np.float)
+            sizex = self.dsm.shape[0]
+            sizey = self.dsm.shape[1]
+            geotransform = self.gdal_dsm.GetGeoTransform()
+            self.scale = 1 / geotransform[1]
+
+            if self.dlg.checkBoxUseVeg.isChecked():
+
+                self.usevegdem = 1
+
+                #trans = self.dlg.spinBoxTrans.value() / 100.0
+
+                self.vegdsm = self.layerComboManagerVEGDSM.getLayer()
+
+                if self.vegdsm is None:
+                    QMessageBox.critical(None, "Error", "No valid vegetation DSM selected")
                     return
 
                 # load raster
                 gdal.AllRegister()
-                provider = vegdsm.dataProvider()
+                provider = self.vegdsm.dataProvider()
                 filePathOld = str(provider.dataSourceUri())
                 dataSet = gdal.Open(filePathOld)
-                vegdsm2 = dataSet.ReadAsArray().astype(np.float)
+                self.vegdsm = dataSet.ReadAsArray().astype(np.float)
+
+                vegsizex = self.vegdsm.shape[0]
+                vegsizey = self.vegdsm.shape[1]
+
+                if not (vegsizex == sizex) & (vegsizey == sizey):  # &
+                    QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+                    return
+
+                if self.dlg.checkBoxTrunkExist.isChecked():
+                    self.vegdsm2 = self.layerComboManagerVEGDSM2.getLayer()
+
+                    if self.vegdsm2 is None:
+                        QMessageBox.critical(None, "Error", "No valid trunk zone DSM selected")
+                        return
+
+                    # load raster
+                    gdal.AllRegister()
+                    provider = self.vegdsm.dataProvider()
+                    filePathOld = str(provider.dataSourceUri())
+                    dataSet = gdal.Open(filePathOld)
+                    self.vegdsm2 = dataSet.ReadAsArray().astype(np.float)
+                else:
+                    trunkratio = self.dlg.spinBoxTrunkHeight.value() / 100.0
+                    self.vegdsm2 = self.vegdsm * trunkratio
+
+                vegsizex = self.vegdsm2.shape[0]
+                vegsizey = self.vegdsm2.shape[1]
+
+                if not (vegsizex == sizex) & (vegsizey == sizey):  # &
+                    QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+                    return
+
             else:
-                trunkratio = self.dlg.spinBoxTrunkHeight.value() / 100.0
-                vegdsm2 = vegdsm * trunkratio
+                self.vegdsm = 0
+                self.vegdsm2 = 0
+                self.usevegdem = 0
 
-            vegsizex = vegdsm2.shape[0]
-            vegsizey = vegdsm2.shape[1]
+            if self.usevegdem == 0:
+                self.dlg.progressBar.setRange(0, 655)
+            else:
+                self.dlg.progressBar.setRange(0, 1310)
 
-            if not (vegsizex == sizex) & (vegsizey == sizey):  # &
-                QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+            if self.folderPath is 'None':
+                QMessageBox.critical(None, "Error", "No selected folder")
                 return
-
-        else:
-            vegdsm = 0
-            vegdsm2 = 0
-            usevegdem = 0
-
-        if self.folderPath is 'None':
-            QMessageBox.critical(None, "Error", "No selected folder")
-            return
-        else:
-
-            svfresult = svf.Skyviewfactor4d(dsm, scale, self.dlg)
-            svfbu = svfresult["svf"]
-            svfbuE = svfresult["svfE"]
-            svfbuS = svfresult["svfS"]
-            svfbuW = svfresult["svfW"]
-            svfbuN = svfresult["svfN"]
-
-            svfbuname = svfresult.keys()
-
-            svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfbuname[0] + '.tif', svfbu)
-            svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfbuname[1] + '.tif', svfbuE)
-            svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfbuname[2] + '.tif', svfbuS)
-            svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfbuname[3] + '.tif', svfbuW)
-            svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfbuname[4] + '.tif', svfbuN)
-
-            if usevegdem == 1:
-                svfvegresult = svf.Skyviewfactor4d_veg(dsm, scale, vegdsm, vegdsm2, self.dlg)
-                svfveg = svfvegresult["svfveg"]
-                svfEveg = svfvegresult["svfEveg"]
-                svfSveg = svfvegresult["svfSveg"]
-                svfWveg = svfvegresult["svfWveg"]
-                svfNveg = svfvegresult["svfNveg"]
-                svfaveg = svfvegresult["svfaveg"]
-                svfEaveg = svfvegresult["svfEaveg"]
-                svfSaveg = svfvegresult["svfSaveg"]
-                svfWaveg = svfvegresult["svfWaveg"]
-                svfNaveg = svfvegresult["svfNaveg"]
-
-                svfvegname = svfvegresult.keys()
-
-                svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfvegname[0] + '.tif', svfveg)
-                svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfvegname[1] + '.tif', svfEveg)
-                svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfvegname[2] + '.tif', svfSveg)
-                svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfvegname[3] + '.tif', svfWveg)
-                svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfvegname[4] + '.tif', svfNveg)
-                svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfvegname[5] + '.tif', svfaveg)
-                svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfvegname[6] + '.tif', svfEaveg)
-                svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfvegname[7] + '.tif', svfSaveg)
-                svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfvegname[8] + '.tif', svfWaveg)
-                svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfvegname[9] + '.tif', svfNaveg)
-
-                svftotal = (svfbu-(1-svfveg)*(1-trans))
             else:
-                svftotal = svfbu
 
-            filename = self.folderPath[0] + '/' + 'SkyViewFactor' + '.tif'
+                #svfresult = svf.Skyviewfactor4d(dsm, scale, self.dlg)
+                self.startWorker(self.dsm, self.scale, self.dlg)
+                # svfbu = svfresult["svf"]
+                # svfbuE = svfresult["svfE"]
+                # svfbuS = svfresult["svfS"]
+                # svfbuW = svfresult["svfW"]
+                # svfbuW = svfresult["svfW"]
+                # svfbuN = svfresult["svfN"]
+                #
+                # svfbuname = svfresult.keys()
+                #
+                # svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfbuname[0] + '.tif', svfbu)
+                # svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfbuname[1] + '.tif', svfbuE)
+                # svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfbuname[2] + '.tif', svfbuS)
+                # svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfbuname[3] + '.tif', svfbuW)
+                # svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfbuname[4] + '.tif', svfbuN)
 
-            svf.saveraster(gdal_dsm, filename, svftotal)
+                if self.usevegdem == 1:
+                    self.startVegWorker(self.dsm, self.scale, self.vegdsm, self.vegdsm2, self.dlg)
+                    #svfvegresult = svf.Skyviewfactor4d_veg(dsm, scale, vegdsm, vegdsm2, self.dlg)
+                    # svfveg = svfvegresult["svfveg"]
+                    # svfEveg = svfvegresult["svfEveg"]
+                    # svfSveg = svfvegresult["svfSveg"]
+                    # svfWveg = svfvegresult["svfWveg"]
+                    # svfNveg = svfvegresult["svfNveg"]
+                    # svfaveg = svfvegresult["svfaveg"]
+                    # svfEaveg = svfvegresult["svfEaveg"]
+                    # svfSaveg = svfvegresult["svfSaveg"]
+                    # svfWaveg = svfvegresult["svfWaveg"]
+                    # svfNaveg = svfvegresult["svfNaveg"]
+                    #
+                    # svfvegname = svfvegresult.keys()
+                    #
+                    # svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfvegname[0] + '.tif', svfveg)
+                    # svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfvegname[1] + '.tif', svfEveg)
+                    # svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfvegname[2] + '.tif', svfSveg)
+                    # svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfvegname[3] + '.tif', svfWveg)
+                    # svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfvegname[4] + '.tif', svfNveg)
+                    # svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfvegname[5] + '.tif', svfaveg)
+                    # svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfvegname[6] + '.tif', svfEaveg)
+                    # svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfvegname[7] + '.tif', svfSaveg)
+                    # svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfvegname[8] + '.tif', svfWaveg)
+                    # svf.saveraster(gdal_dsm, self.folderPath[0] + '/' + svfvegname[9] + '.tif', svfNaveg)
+                    #
+                    # svftotal = (svfbu-(1-svfveg)*(1-trans))
+                #else:
+                    #svftotal = svfbu
 
-        QMessageBox.information(None, "Sky View Factor Calculator", "SVF grid(s) successfully generated")
-        # self.iface.messageBar().pushMessage("ShadowGenerator", "Shadow grid(s) successfully generated")
+                #filename = self.folderPath[0] + '/' + 'SkyViewFactor' + '.tif'
 
-        # load result into canvas
-        if self.dlg.checkBoxIntoCanvas.isChecked():
-            rlayer = self.iface.addRasterLayer(filename)
+                #svf.saveraster(self.gdal_dsm, filename, self.svftotal)
 
-            # Set opacity
-            rlayer.renderer().setOpacity(0.5)
 
-            # Trigger a repaint
-            if hasattr(rlayer, "setCacheImage"):
-                rlayer.setCacheImage(None)
-            rlayer.triggerRepaint()
+            # self.iface.messageBar().pushMessage("ShadowGenerator", "Shadow grid(s) successfully generated")
+
+            # load result into canvas
+
 
     def run(self):
         """Run method that performs all the real work"""

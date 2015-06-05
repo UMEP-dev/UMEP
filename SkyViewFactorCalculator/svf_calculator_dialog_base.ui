@@ -9,47 +9,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>373</width>
-    <height>298</height>
+    <width>381</width>
+    <height>267</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Shadow Generator</string>
+   <string>Sky View Factor Calculator</string>
   </property>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>12</y>
-     <width>129</width>
-     <height>13</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Building and ground DSM:</string>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="comboBox_dsm">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>146</x>
-     <y>8</y>
-     <width>223</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QCheckBox" name="checkBoxIntoCanvas">
    <property name="enabled">
     <bool>true</bool>
    </property>
    <property name="geometry">
     <rect>
-     <x>8</x>
-     <y>272</y>
+     <x>16</x>
+     <y>246</y>
      <width>137</width>
      <height>18</height>
     </rect>
@@ -61,8 +35,8 @@
   <widget class="QPushButton" name="pushButtonSave">
    <property name="geometry">
     <rect>
-     <x>292</x>
-     <y>202</y>
+     <x>300</x>
+     <y>176</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -74,8 +48,8 @@
   <widget class="QLineEdit" name="textOutput">
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>202</y>
+     <x>88</x>
+     <y>176</y>
      <width>203</width>
      <height>20</height>
     </rect>
@@ -84,8 +58,8 @@
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>6</x>
-     <y>204</y>
+     <x>14</x>
+     <y>178</y>
      <width>71</width>
      <height>16</height>
     </rect>
@@ -94,98 +68,14 @@
     <string>Output folder:</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="comboBox_vegdsm">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>146</x>
-     <y>40</y>
-     <width>223</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="comboBox_vegdsm2">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>146</x>
-     <y>68</y>
-     <width>223</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="checkBoxUseVeg">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>8</x>
-     <y>102</y>
-     <width>137</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Use vegetation DSMs</string>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="checkBoxTrunkExist">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>242</x>
-     <y>102</y>
-     <width>127</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Trunk zone DSM exist</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_2">
-   <property name="geometry">
-    <rect>
-     <x>22</x>
-     <y>44</y>
-     <width>129</width>
-     <height>13</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Vegetation Canopy DSM:</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_3">
-   <property name="geometry">
-    <rect>
-     <x>8</x>
-     <y>72</y>
-     <width>137</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Vegetation Trunk zone DSM:</string>
-   </property>
-  </widget>
   <widget class="QSpinBox" name="spinBoxTrunkHeight">
    <property name="enabled">
     <bool>false</bool>
    </property>
    <property name="geometry">
     <rect>
-     <x>288</x>
-     <y>128</y>
+     <x>298</x>
+     <y>130</y>
      <width>77</width>
      <height>22</height>
     </rect>
@@ -197,9 +87,9 @@
   <widget class="QProgressBar" name="progressBar">
    <property name="geometry">
     <rect>
-     <x>6</x>
-     <y>232</y>
-     <width>277</width>
+     <x>10</x>
+     <y>206</y>
+     <width>281</width>
      <height>23</height>
     </rect>
    </property>
@@ -213,8 +103,8 @@
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>214</x>
-     <y>124</y>
+     <x>224</x>
+     <y>126</y>
      <width>75</width>
      <height>27</height>
     </rect>
@@ -231,8 +121,8 @@ p, li { white-space: pre-wrap; }
   <widget class="QLabel" name="label_8">
    <property name="geometry">
     <rect>
-     <x>6</x>
-     <y>126</y>
+     <x>16</x>
+     <y>128</y>
      <width>117</width>
      <height>27</height>
     </rect>
@@ -252,8 +142,8 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>128</y>
+     <x>140</x>
+     <y>130</y>
      <width>55</width>
      <height>22</height>
     </rect>
@@ -265,8 +155,8 @@ p, li { white-space: pre-wrap; }
   <widget class="QPushButton" name="runButton">
    <property name="geometry">
     <rect>
-     <x>292</x>
-     <y>234</y>
+     <x>300</x>
+     <y>208</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -281,8 +171,8 @@ p, li { white-space: pre-wrap; }
   <widget class="QPushButton" name="pushButton">
    <property name="geometry">
     <rect>
-     <x>292</x>
-     <y>266</y>
+     <x>300</x>
+     <y>240</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -291,6 +181,150 @@ p, li { white-space: pre-wrap; }
     <string>Close</string>
    </property>
   </widget>
+  <widget class="QFrame" name="frame">
+   <property name="geometry">
+    <rect>
+     <x>1</x>
+     <y>1</y>
+     <width>381</width>
+     <height>121</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Sunken</enum>
+   </property>
+   <widget class="QCheckBox" name="checkBoxTrunkExist">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>244</x>
+      <y>100</y>
+      <width>127</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Trunk zone DSM exist</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox_vegdsm2">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>148</x>
+      <y>66</y>
+      <width>223</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>22</x>
+      <y>10</y>
+      <width>129</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Building and ground DSM:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>24</x>
+      <y>42</y>
+      <width>129</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Vegetation Canopy DSM:</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox_vegdsm">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>148</x>
+      <y>38</y>
+      <width>223</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBoxUseVeg">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>100</y>
+      <width>137</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Use vegetation DSMs</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox_dsm">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>148</x>
+      <y>6</y>
+      <width>223</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>70</y>
+      <width>137</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Vegetation Trunk zone DSM:</string>
+    </property>
+   </widget>
+  </widget>
+  <zorder>frame</zorder>
+  <zorder>checkBoxIntoCanvas</zorder>
+  <zorder>pushButtonSave</zorder>
+  <zorder>textOutput</zorder>
+  <zorder>label_4</zorder>
+  <zorder>spinBoxTrunkHeight</zorder>
+  <zorder>progressBar</zorder>
+  <zorder>label_5</zorder>
+  <zorder>label_8</zorder>
+  <zorder>spinBoxTrans</zorder>
+  <zorder>runButton</zorder>
+  <zorder>pushButton</zorder>
  </widget>
  <resources/>
  <connections>
