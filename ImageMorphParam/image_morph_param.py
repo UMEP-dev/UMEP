@@ -23,13 +23,14 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
 from qgis.gui import *
-from qgis.core import QgsVectorLayer, QgsVectorFileWriter, QgsFeature
+from qgis.core import QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsMessageLog
 import os
 from ..Utilities.qgiscombomanager import *
 from osgeo import gdal
 import subprocess
 from ..Utilities.imageMorphometricParms_v1 import *
 import time
+from Worker import Worker
 
 # Initialize Qt resources from file resources.py
 import resources_rc
@@ -85,6 +86,12 @@ class ImageMorphParam:
 
         self.folderPath = 'None'
         self.degree = 5.0
+        self.dsm = None
+        self.dem = None
+        self.scale = None
+        self.thread = None
+        self.worker = None
+        self.steps = 0
 
         # Declare instance attributes
         self.actions = []
@@ -227,8 +234,77 @@ class ImageMorphParam:
             self.dlg.label_3.setEnabled(True)
             self.dlg.label_4.setEnabled(False)
 
-    def start_progress(self):
+    #Metod som startar traden, knyter signaler fran traden till metoder. Se Worker.py for det arbete som traden utfor.
+    def startWorker(self, dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, iface, plugin_dir,
+                    folderPath, dlg):
+        # create a new worker instance
+        #Skapar en instans av metoden som innehaller det arbete som ska utforas i en trad
+        worker = Worker(dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, iface,
+                        plugin_dir, folderPath, dlg)
 
+        #andrar knappen som startar verktyget till en knapp som avbryter tradens arbete.
+        self.dlg.runButton.setText('Cancel')
+        self.dlg.runButton.clicked.disconnect()
+        self.dlg.runButton.clicked.connect(worker.kill)
+        self.dlg.closeButton.setEnabled(False)
+
+        # Skapar en trad som arbetet fran worker ska utforas i.
+        thread = QThread(self.dlg)
+        worker.moveToThread(thread)
+        #kopplar signaler fran traden till metoder i denna "fil"
+        worker.finished.connect(self.workerFinished)
+        worker.error.connect(self.workerError)
+        worker.progress.connect(self.progress_update)
+        thread.started.connect(worker.run)
+        #startar traden
+        thread.start()
+        self.thread = thread
+        self.worker = worker
+
+    #Metod som ar kopplad till en signal som Worker(traden) skickar nar den utfort sitt arbete, killed ar en Boolean som
+    #skiljer mellan om traden blev "fardig" for att den gjorde sitt arbete eller om den avbrots
+    def workerFinished(self, killed):
+        # Tar bort arbetaren (Worker) och traden den kors i
+        try:
+            self.worker.deleteLater()
+        except RuntimeError:
+             pass
+        self.thread.quit()
+        self.thread.wait()
+        self.thread.deleteLater()
+
+        #andra tillbaka Run-knappen till sitt vanliga tillstand och skicka ett meddelande till anvanderen.
+        if not killed:
+            self.dlg.runButton.setText('Run')
+            self.dlg.runButton.clicked.disconnect()
+            self.dlg.runButton.clicked.connect(self.start_progress)
+            self.dlg.closeButton.setEnabled(True)
+            self.dlg.progressBar.setValue(0)
+            QMessageBox.information(None, "Image Morphometric Parameters", "Process successful!")
+        if killed:
+            self.dlg.runButton.setText('Run')
+            self.dlg.runButton.clicked.disconnect()
+            self.dlg.runButton.clicked.connect(self.start_progress)
+            self.dlg.closeButton.setEnabled(True)
+            self.dlg.progressBar.setValue(0)
+            QMessageBox.information(None, "Image Morphometric Parameters", "Something went wrong or operations"
+                                                                           " cancelled, process unsuccessful!")
+
+    #Metod som tar emot en signal fran traden ifall nagot gick fel, felmeddelanden skrivs till QGIS message log.
+    def workerError(self, e, exception_string):
+        strerror = "Worker thread raised an exception" + str(e)
+        QgsMessageLog.logMessage(strerror.format(exception_string), level=QgsMessageLog.CRITICAL)
+
+    #Metod som tar emot signaler koontinuerligt fran traden som berattar att ett berakningsframsteg gjorts, uppdaterar
+    #progressbar
+    def progress_update(self):
+        self.steps +=1
+        self.dlg.progressBar.setValue(self.steps)
+
+    #Metoden som kors genom run-knappen, precis som tidigare.
+    def start_progress(self):
+        #Steg for uppdatering av progressbar
+        self.steps = 0
         poly = self.layerComboManagerPolygrid.getLayer()
         if poly is None:
             QMessageBox.critical(None, "Error", "No valid Polygon layer is selected")
@@ -247,118 +323,28 @@ class ImageMorphParam:
         fields = prov.fields()
         idx = vlayer.fieldNameIndex(poly_field)
 
+        dir_poly = self.plugin_dir + '/data/poly_temp.shp'
+        #j = 0
         self.dlg.progressBar.setMaximum(vlayer.featureCount())
 
-        dir_poly = self.plugin_dir + '/data/poly_temp.shp'
-        j = 0
-        for f in vlayer.getFeatures():  # looping through each grip polygon
-            self.dlg.progressBar.setValue(j + 1)
+        #skapar referenser till lagern som laddas in av anvandaren i comboboxes
+        if self.dlg.checkBoxOnlyBuilding.isChecked():  # Only building heights
+            dsm_build = self.layerComboManagerDSMbuild.getLayer()
+            dsm = None
+            dem = None
 
-            #savename = self.plugin_dir + '/data/' + str(j) + ".shp"
-            writer = QgsVectorFileWriter(dir_poly, "CP1250", fields, prov.geometryType(),
-                                         prov.crs(), "ESRI shapefile")
+        else:  # Both building ground heights
+            dsm = self.layerComboManagerDSMbuildground.getLayer()
+            dem = self.layerComboManagerDEM.getLayer()
+            dsm_build = None
 
-            if writer.hasError() != QgsVectorFileWriter.NoError:
-                self.iface.messageBar().pushMessage("Error when creating shapefile: ", str(writer.hasError()))
+        #Startar arbetarmetoden och traden, se startworker metoden ovan.
+        self.startWorker(poly, dsm, dem, dsm_build, poly_field, vlayer, prov, fields, idx, dir_poly, self.iface,
+                         self.plugin_dir, self.folderPath, self.dlg)
 
-            attributes = f.attributes()
-            # self.iface.messageBar().pushMessage("Test", str(f.attributes()[idx]))
-            geometry = f.geometry()
-            feature = QgsFeature()
-            feature.setAttributes(attributes)
-            feature.setGeometry(geometry)
-            writer.addFeature(feature)
-            del writer
+        #Allt som ska ske efter att arbetaren startats hanteras genom metoderna som tar emot signaler fran traden.
+        #Framforallt workerFinished metoden. Se Worker.py filen for implementering av det arbete som traden utfor.
 
-            if self.dlg.checkBoxOnlyBuilding.isChecked():  # Only building heights
-                dsm_build = self.layerComboManagerDSMbuild.getLayer()
-                if dsm_build is None:
-                    QMessageBox.critical(None, "Error", "No valid building DSM raster layer is selected")
-                    return
-
-                provider = dsm_build.dataProvider()
-                filePath_dsm_build = str(provider.dataSourceUri())
-                gdalruntextdsm_build = 'gdalwarp -dstnodata -9999 -q -cutline ' + dir_poly + \
-                                       ' -crop_to_cutline -of GTiff ' + filePath_dsm_build + \
-                                       ' ' + self.plugin_dir + '/data/clipdsm.tif'
-                os.system(gdalruntextdsm_build)
-                dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
-                dsm = dataset.ReadAsArray().astype(np.float)
-                sizex = dsm.shape[0]
-                sizey = dsm.shape[1]
-                dem = np.zeros((sizex, sizey))
-
-            else:  # Both building ground heights
-                dsm = self.layerComboManagerDSMbuildground.getLayer()
-                dem = self.layerComboManagerDEM.getLayer()
-
-                if dsm is None:
-                    QMessageBox.critical(None, "Error", "No valid ground and building DSM raster layer is selected")
-                    return
-                if dem is None:
-                    QMessageBox.critical(None, "Error", "No valid ground DEM raster layer is selected")
-                    return
-
-                # # get raster source - gdalwarp
-                provider = dsm.dataProvider()
-                filePath_dsm = str(provider.dataSourceUri())
-                provider = dem.dataProvider()
-                filePath_dem = str(provider.dataSourceUri())
-                gdalruntextdsm = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + dir_poly + \
-                                 ' -crop_to_cutline -of GTiff ' + filePath_dsm + \
-                                 ' ' + self.plugin_dir + '/data/clipdsm.tif'
-                gdalruntextdem = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + dir_poly + \
-                                 ' -crop_to_cutline -of GTiff ' + filePath_dem + \
-                                 ' ' + self.plugin_dir + '/data/clipdem.tif'
-                si = subprocess.STARTUPINFO()
-                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                subprocess.call(gdalruntextdsm, startupinfo=si)
-                subprocess.call(gdalruntextdem, startupinfo=si)
-
-                dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
-                dsm = dataset.ReadAsArray().astype(np.float)
-                dataset2 = gdal.Open(self.plugin_dir + '/data/clipdem.tif')
-                dem = dataset2.ReadAsArray().astype(np.float)
-
-                if not (dsm.shape[0] == dem.shape[0]) & (dsm.shape[1] == dem.shape[1]):
-                    QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
-                    return
-
-            geotransform = dataset.GetGeoTransform()
-            scale = 1 / geotransform[1]
-
-            nodata_test = (dem == -9999)
-            if nodata_test.any():  # == True
-                self.iface.messageBar().pushMessage("Grid " + str(f.attributes()[idx]) + " not calculated",
-                "Includes NoData Pixels")
-            else:
-                self.degree = float(self.dlg.degreeBox.currentText())
-                immorphresult = imagemorphparam_v1(dsm, dem, scale, 0, self.degree, self.dlg)
-
-                # save to file
-                header = ' Wd pai   fai   zH  zHmax   zHstd'
-                numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f'
-                arr = np.concatenate((immorphresult["deg"], immorphresult["pai"], immorphresult["fai"],
-                                      immorphresult["zH"], immorphresult["zHmax"], immorphresult["zH_sd"]), axis=1)
-                np.savetxt(self.folderPath[0] + '/anisotropic_result_' + str(f.attributes()[idx]) + '.txt', arr,
-                           fmt=numformat, delimiter=' ', header=header, comments='')
-
-                header = ' pai   zH    zHmax    zHstd'
-                numformat = '%4.3f %5.3f %5.3f %5.3f'
-                arr2 = np.array([[immorphresult["pai_all"], immorphresult["zH_all"], immorphresult["zHmax_all"],
-                                  immorphresult["zH_sd_all"]]])
-                np.savetxt(self.folderPath[0] + '/isotropic_result_' + str(f.attributes()[idx]) + '.txt', arr2,
-                           fmt=numformat, delimiter=' ', header=header, comments='')
-
-            dataset = None
-            dataset2 = None
-            dataset3 = None
-
-            j += 1
-            time.sleep(0.25)
-
-        # self.iface.messageBar().clearWidgets()
-        QMessageBox.information(None, "Image Morphometric Parameters", "Process successful!")
 
     def run(self):
         """Run method that performs all the real work"""
