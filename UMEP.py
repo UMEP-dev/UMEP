@@ -26,6 +26,7 @@ from PyQt4.QtGui import *
 import resources_rc
 # Import the code for the dialog
 from UMEP_dialog import UMEPDialog
+from MetdataProcessor.metdata_processor import MetdataProcessor
 from ShadowGenerator.shadow_generator import ShadowGenerator
 from ImageMorphParam.image_morph_param import ImageMorphParam
 from ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
@@ -118,7 +119,7 @@ class UMEP:
         # Sub-actions to Meteorological Data Preparation
         self.PED_Action = QAction("Prepare Existing Data", self.iface.mainWindow())
         self.MD_Menu.addAction(self.PED_Action)
-        self.PED_Action.setEnabled(False)
+        self.PED_Action.triggered.connect(self.PED)
         self.PFD_Action = QAction("Prepare Fictitious Data", self.iface.mainWindow())
         self.MD_Menu.addAction(self.PFD_Action)
         self.PFD_Action.setEnabled(False)
@@ -291,17 +292,21 @@ class UMEP:
             self.iface.removeToolBarIcon(action)
             self.iface.mainWindow().menuBar().removeAction(self.UMEP_Menu.menuAction())
 
+    def PED(self):
+        sg = MetdataProcessor(self.iface)
+        sg.run()
+
     def SH(self):
         sg = ShadowGenerator(self.iface)
         sg.run()
         
     def IMCG(self):
         sg = ImageMorphParam(self.iface)
+        # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True) #used for debugging
         sg.run()
 
     def IMCP(self):
         sg = ImageMorphParmsPoint(self.iface)
-        # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True) #used for debugging
         sg.run()
 
     def SVF(self):

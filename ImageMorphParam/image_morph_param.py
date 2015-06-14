@@ -236,11 +236,12 @@ class ImageMorphParam:
 
     #Metod som startar traden, knyter signaler fran traden till metoder. Se Worker.py for det arbete som traden utfor.
     def startWorker(self, dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, iface, plugin_dir,
-                    folderPath, dlg):
+                    folderPath, dlg, imid, radius):
         # create a new worker instance
         #Skapar en instans av metoden som innehaller det arbete som ska utforas i en trad
+
         worker = Worker(dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, iface,
-                        plugin_dir, folderPath, dlg)
+                        plugin_dir, folderPath, dlg, imid, radius)
 
         #andrar knappen som startar verktyget till en knapp som avbryter tradens arbete.
         self.dlg.runButton.setText('Cancel')
@@ -280,7 +281,9 @@ class ImageMorphParam:
             self.dlg.runButton.clicked.connect(self.start_progress)
             self.dlg.closeButton.setEnabled(True)
             self.dlg.progressBar.setValue(0)
-            QMessageBox.information(None, "Image Morphometric Parameters", "Process successful!")
+            QMessageBox.information(None, "Image Morphometric Parameters",
+                                    "Process successful! Check General Messages (lower left) "
+                                    "to obtain information on non-calculated grids.")
         if killed:
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
@@ -303,7 +306,7 @@ class ImageMorphParam:
 
     #Metoden som kors genom run-knappen, precis som tidigare.
     def start_progress(self):
-        #Steg for uppdatering av progressbar
+        #Steg for uppdatering av
         self.steps = 0
         poly = self.layerComboManagerPolygrid.getLayer()
         if poly is None:
@@ -338,9 +341,16 @@ class ImageMorphParam:
             dem = self.layerComboManagerDEM.getLayer()
             dsm_build = None
 
+        if self.dlg.radioButtonExtent.isChecked(): # What search method to use
+            imid = 0
+        else:
+            imid = 1
+
+        radius = self.dlg.spinBoxDistance.value()
+
         #Startar arbetarmetoden och traden, se startworker metoden ovan.
-        self.startWorker(poly, dsm, dem, dsm_build, poly_field, vlayer, prov, fields, idx, dir_poly, self.iface,
-                         self.plugin_dir, self.folderPath, self.dlg)
+        self.startWorker(dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, self.iface,
+                         self.plugin_dir, self.folderPath, self.dlg, imid, radius)
 
         #Allt som ska ske efter att arbetaren startats hanteras genom metoderna som tar emot signaler fran traden.
         #Framforallt workerFinished metoden. Se Worker.py filen for implementering av det arbete som traden utfor.

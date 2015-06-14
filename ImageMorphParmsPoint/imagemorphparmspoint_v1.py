@@ -30,7 +30,7 @@ from osgeo import gdal
 import subprocess
 import webbrowser
 from ..Utilities.imageMorphometricParms_v1 import *
-from ..pydev import pydevd
+# from ..pydev import pydevd
 # Initialize Qt resources from file resources.py
 import resources_rc
 
@@ -448,7 +448,7 @@ class ImageMorphParmsPoint:
         # self.iface.messageBar().pushMessage("innan loop")
 
         self.degree = float(self.dlg.degreeBox.currentText())
-        immorphresult = imagemorphparam_v1(dsm, dem, scale, 1, self.degree, self.dlg)
+        immorphresult = imagemorphparam_v1(dsm, dem, scale, 1, self.degree, self.dlg, 1)
 
         # save to file
         header = ' Wd pai   fai   zH  zHmax   zHstd'

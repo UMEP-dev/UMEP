@@ -20,7 +20,7 @@ import scipy.ndimage.interpolation as sc
 import PIL
 
 
-def imagemorphparam_v1(dsm, dem, scale, mid, dtheta, dlg):
+def imagemorphparam_v1(dsm, dem, scale, mid, dtheta, dlg, imp_point):
 
     build = dsm - dem
     build[(build < 2.)] = 0.  # building should be higher than 2 meter
@@ -50,19 +50,19 @@ def imagemorphparam_v1(dsm, dem, scale, mid, dtheta, dlg):
     imid = np.floor((n/2.))
     if mid == 1:
         dY = np.int16(np.arange(np.dot(1, imid)))  # the whole length of the grid (y)
-        dlg.progressBar.setRange(0., 360. / dtheta)
     else:
         dY = np.int16(np.arange(np.dot(1, n)))  # the whole length of the grid (y)
-
+    if imp_point == 1:
+            dlg.progressBar.setRange(0., 360. / dtheta)
     dX = np.int16(np.arange(imid, imid+1))
     lx = dX.shape[0]
     ly = dY.shape[0]
-    filt1 = np.ones((n, 1.)) * -1.
-    filt2 = np.ones((n, 1.))
+    filt1 = np.ones((n, 1)) * -1.
+    filt2 = np.ones((n, 1))
     filt = np.array(np.hstack((filt1, filt2))).conj().T
     j = int(0)
     for angle in np.arange(0, (360.-dtheta+0) + dtheta, dtheta):
-        if mid == 1:
+        if imp_point == 1:
             dlg.progressBar.setValue(angle)
 
         c = np.zeros((n, n))
@@ -76,8 +76,8 @@ def imagemorphparam_v1(dsm, dem, scale, mid, dtheta, dlg):
             a = ((dsm.max()-dsm.min())/d.max())*d+dsm.min()
 
         #% convolve leading edge filter with domain
-        for i in np.arange(1., (n-1.)+1):
-            c[int(i)-1, :] = np.sum((filt*a[int(i)-1:i+1., :]), 0)
+        for i in np.arange(1, (n-1)+1):
+            c[int(i)-1, :] = np.sum((filt*a[int(i)-1:i+1, :]), 0)
 
         wall = c[dY, dX]  # wall array
         wall = wall[np.where(wall > 2)]  # wall vector

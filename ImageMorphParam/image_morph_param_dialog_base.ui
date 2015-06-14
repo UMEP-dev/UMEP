@@ -7,30 +7,17 @@
     <x>0</x>
     <y>0</y>
     <width>385</width>
-    <height>323</height>
+    <height>384</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Image Morphometric Parameters</string>
   </property>
-  <widget class="QLabel" name="label_5">
-   <property name="geometry">
-    <rect>
-     <x>210</x>
-     <y>86</y>
-     <width>38</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>ID field:</string>
-   </property>
-  </widget>
   <widget class="QProgressBar" name="progressBar">
    <property name="geometry">
     <rect>
      <x>8</x>
-     <y>264</y>
+     <y>326</y>
      <width>173</width>
      <height>23</height>
     </rect>
@@ -43,7 +30,7 @@
    <property name="geometry">
     <rect>
      <x>304</x>
-     <y>264</y>
+     <y>326</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -59,7 +46,7 @@
    <property name="geometry">
     <rect>
      <x>304</x>
-     <y>292</y>
+     <y>354</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -72,7 +59,7 @@
    <property name="geometry">
     <rect>
      <x>74</x>
-     <y>236</y>
+     <y>298</y>
      <width>219</width>
      <height>20</height>
     </rect>
@@ -82,7 +69,7 @@
    <property name="geometry">
     <rect>
      <x>304</x>
-     <y>236</y>
+     <y>298</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -95,7 +82,7 @@
    <property name="geometry">
     <rect>
      <x>4</x>
-     <y>236</y>
+     <y>298</y>
      <width>71</width>
      <height>16</height>
     </rect>
@@ -108,7 +95,7 @@
    <property name="geometry">
     <rect>
      <x>2</x>
-     <y>48</y>
+     <y>92</y>
      <width>383</width>
      <height>181</height>
     </rect>
@@ -262,6 +249,19 @@ p, li { white-space: pre-wrap; }
      <cstring>comboBox_Polygrid</cstring>
     </property>
    </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>38</y>
+      <width>38</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>ID field:</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QLabel" name="label_8">
    <property name="geometry">
@@ -286,16 +286,79 @@ p, li { white-space: pre-wrap; }
     </rect>
    </property>
   </widget>
-  <zorder>frame</zorder>
-  <zorder>label_5</zorder>
-  <zorder>progressBar</zorder>
-  <zorder>runButton</zorder>
-  <zorder>closeButton</zorder>
-  <zorder>textOutput</zorder>
-  <zorder>pushButtonSave</zorder>
-  <zorder>label_6</zorder>
-  <zorder>label_8</zorder>
-  <zorder>degreeBox</zorder>
+  <widget class="QLabel" name="label_7">
+   <property name="geometry">
+    <rect>
+     <x>204</x>
+     <y>68</y>
+     <width>99</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Search distance (m):</string>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="spinBoxDistance">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>306</x>
+     <y>66</y>
+     <width>73</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+   <property name="suffix">
+    <string/>
+   </property>
+   <property name="minimum">
+    <number>1</number>
+   </property>
+   <property name="maximum">
+    <number>10000</number>
+   </property>
+   <property name="singleStep">
+    <number>10</number>
+   </property>
+   <property name="value">
+    <number>200</number>
+   </property>
+  </widget>
+  <widget class="QRadioButton" name="radioButtonExtent">
+   <property name="geometry">
+    <rect>
+     <x>8</x>
+     <y>46</y>
+     <width>189</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Search throughout the grid extent</string>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QRadioButton" name="radioButtonCenter">
+   <property name="geometry">
+    <rect>
+     <x>8</x>
+     <y>64</y>
+     <width>145</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Search from grid centroid</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections>
@@ -307,11 +370,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>49</x>
-     <y>106</y>
+     <y>150</y>
     </hint>
     <hint type="destinationlabel">
      <x>198</x>
-     <y>202</y>
+     <y>246</y>
     </hint>
    </hints>
   </connection>
@@ -323,11 +386,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>114</x>
-     <y>106</y>
+     <y>150</y>
     </hint>
     <hint type="destinationlabel">
      <x>187</x>
-     <y>166</y>
+     <y>210</y>
     </hint>
    </hints>
   </connection>
@@ -339,11 +402,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>75</x>
-     <y>106</y>
+     <y>150</y>
     </hint>
     <hint type="destinationlabel">
      <x>197</x>
-     <y>130</y>
+     <y>174</y>
     </hint>
    </hints>
   </connection>
@@ -355,11 +418,59 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>332</x>
-     <y>305</y>
+     <y>367</y>
     </hint>
     <hint type="destinationlabel">
      <x>220</x>
      <y>279</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonExtent</sender>
+   <signal>pressed()</signal>
+   <receiver>radioButtonCenter</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>42</x>
+     <y>50</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>31</x>
+     <y>72</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonCenter</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>spinBoxDistance</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>80</x>
+     <y>69</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>343</x>
+     <y>75</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonExtent</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>spinBoxDistance</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>68</x>
+     <y>54</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>347</x>
+     <y>82</y>
     </hint>
    </hints>
   </connection>
