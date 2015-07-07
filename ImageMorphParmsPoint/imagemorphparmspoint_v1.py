@@ -328,7 +328,6 @@ class ImageMorphParmsPoint:
 
     def help(self):
         url = "file://" + self.plugin_dir + "/README.html"
-        #url = "http://www.google.com"
         webbrowser.open_new_tab(url)
 
     #def whatsthisclicked(self, href):

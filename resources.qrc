@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/plugins/UMEP" >
-        <file>icon.png</file>
-    </qresource>
-</RCC>

@@ -24,7 +24,7 @@
 import os
 
 from PyQt4 import QtGui, uic
-import GdalTools_utils as Utils
+from ..Utilities import GdalTools_utils as Utils
 import shadow_generator
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(

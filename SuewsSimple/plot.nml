@@ -1,0 +1,10 @@
+&Plot
+PlotBasic=1 				! Basic plots including essential variables
+ChooseGridBasic=			! Specify gridcode to plot
+ChooseYearBasic=			! Specify year to plot
+PlotMonthlyStat=1			! Plots monthly inputOutput plots
+ChooseGridStat=			    ! Specify gridcode to plot
+ChooseYearStat=		        ! Specify year to plot
+/
+
+

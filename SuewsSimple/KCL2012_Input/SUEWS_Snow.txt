@@ -1,0 +1,29 @@
+1	2	3	4	5	6	7	8	9	10	11	12	13	14	15	16	17	18	19	20			
+Code	RadMeltFactor	TempMeltFactor	AlbedoMin	AlbedoMax	Albedo	Emissivity	tau_a	tau_f	PrecipLimAlb	SnowDensMin	SnowDensMax	tau_r	CRWMin	CRWMax	PrecipLimSnow	OHMCode_SummerWet	OHMCode_SummerDry	OHMCode_WinterWet	OHMCode_WinterDry			
+1	0.0016	0.12	0.18	0.85	0.5	0.99	0.018	0.11	2	100	400	0.043	0.05	0.2	2.2	61	61	61	61	!	Helsinki (HCW added 0.99 for emissivity)	Jarvi et al. (2014)
+550	0.001	0.14	0.18	0.8	0.5	0.99	0.01	0.1	2	100	450	0.02	0.03	0.1	2.2	61	61	61	61	!	Swindon	Ward et al. (2013)
+660	0.001	0.14	0.18	0.8	0.5	0.99	0.01	0.1	2	100	450	0.02	0.03	0.1	2.2	61	61	61	61	!	London	
+-9																						
+-9																						
+																						
+																						
+!	1	Code	Code for Snow surface					Links to SnowCode in SUEWS_SiteSelect														
+!	2	RadMeltFactor	Hourly radiation melt factor of snow																			
+!	3	TempMeltFactor	Hourly temperature melt factor of snow																			
+!	4	AlbedoMin	Minimum albedo																			
+!	5	AlbedoMax	Fresh snow albedo																			
+!	6	Albedo	Albedo																			
+!	7	Emissivity	Emissivity																			
+!	8	tau_a	Time constant for snow albedo aging in cold snow																			
+!	9	tau_f	Time constant for snow albedo aging in melting snow																			
+!	10	PrecipLimAlb	Limit for hourly precipitation when snow albedo is reset to AlbMax																			
+!	11	SnowDensMin	Fresh snow density			[kg m-3]																
+!	12	SnowDensMax	Maximum snow density			[kg m-3]																
+!	13	tau_r	Time constant for snow density																			
+!	14	CRWMin	Minimum water holding capacity of snow																			
+!	15	CRWMax	Maximum water holding capacity of snow																			
+!	16	PrecipLimSnow	Temperature limit when precipitation occurs as snow			[degC]																
+!	17	OHMCode_SummerWet						"Links to SUEWS_OHMCoefficients, col. 1"														
+!	18	OHMCode_SummerDry																				
+!	19	OHMCode_WinterWet																				
+!	20	OHMCode_WinterDry																				

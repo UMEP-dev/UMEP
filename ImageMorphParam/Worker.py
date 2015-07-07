@@ -17,7 +17,7 @@ import subprocess
 import os
 import PIL
 from paramWorker import ParamWorker
-from pydev import pydevd
+# from pydev import pydevd
 
 import sys
 

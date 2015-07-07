@@ -1,0 +1,39 @@
+1	2	3	4	5	6	7	8	9	10	11	12	13	14	15	16	17				
+Code	Albedo	Emissivity	StorageMin	StorageMax	WetThreshold	StateLimit	DrainageEq	DrainageCoef1	DrainageCoef2	SoilTypeCode	SnowLimPatch	SnowLimRemove	OHMCode_SummerWet	OHMCode_SummerDry	OHMCode_WinterWet	OHMCode_WinterDry				
+100	0.09	0.95	0.48	0.48	0.48	0.48	3	10	3	50	190	40	800	800	800	800	!	PAV	Helsinki	
+150	0.15	0.91	0.25	0.25	0.25	0.25	3	10	3	60	190	100	750	750	750	750	!	BLDG	Helsinki	
+5510	0.12	0.95	0.48	0.48	0.48	0.48	3	10	3	551	-999	-999	800	800	800	800	! 	Paved	Swindon	Ward et al. (2013)
+551	0.1	0.95	0.48	0.48	0.48	0.48	3	10	3	551	-999	-999	800	800	800	800	! 	Paved	Swindon	Ward et al. (2013)
+5520	0.15	0.91	0.25	0.25	0.25	0.25	3	10	3	552	-999	-999	799	799	799	799	!	Bldgs	Swindon	Ward et al. (2013)
+552	0.12	0.91	0.25	0.25	0.25	0.25	3	10	3	552	-999	-999	799	799	799	799	!	Bldgs	Swindon	Ward et al. (2013)
+553	0.21	0.94	1	1	1	1	2	0.013	1.71	553	-999	-999	55	55	55	55	!	BSoil	Swindon	Ward et al. (2013)
+661	0.12	0.95	0.48	0.48	0.48	0.48	3	10	3	661	120	10	800	800	800	800	!	Paved	London	
+662	0.15	0.91	0.25	0.25	0.25	0.25	3	10	3	661	120	8.5	799	799	799	799	!	Bldgs	London	
+663	0.21	0.93	1	1	1	1	2	0.013	1.71	661	-999	-999	200	200	200	200	!	Bsoil (not used)	London	
+-9																				
+-9																				
+																				
+																				
+!			"For Buildings, Paved or Bare soil surface"																	
+!	1	Code	"Code for Paved, Bldgs, BSoil surfaces"																	
+!	2	Albedo	Albedo of this surface																	
+!	3	Emissivity	Emissivity of this surface																	
+!	4	StorageMin	Minimum storage capacity of this surface					[mm]												
+!	5	StorageMax	Maximum storage capacity of this surface					[mm]												
+!	6	WetThreshold	Threshold for wet evaporation limit					[mm]												
+!	7	StateLimit	Maximum amount of water in the surface state for this surface					[mm]												
+!	8	DrainageEq	Drainage equation to use for this surface																	
+!	9	DrainageCoef1	Coefficient for drainage equation																	
+!	10	DrainageCoef2	Coefficient for drainage equation																	
+!	11	SoilTypeCode	Code for soil characteristics below this surface																	
+!	12	SnowLimPatch	Maximum SWE					[mm]												
+!	13	SnowLimRemove	SWE when snow is removed from this surface					[mm]												
+!	14	OHMCode_SummerWet																		
+!	15	OHMCode_SummerDry																		
+!	16	OHMCode_WinterWet																		
+!	17	OHMCode_WinterDry																		
+																				
+																				
+																				
+																				
+																				

@@ -31,7 +31,8 @@ from ShadowGenerator.shadow_generator import ShadowGenerator
 from ImageMorphParam.image_morph_param import ImageMorphParam
 from ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
 from SkyViewFactorCalculator.svf_calculator import SkyViewFactorCalculator
-from pydev import pydevd
+from SuewsSimple.suews_simple import SuewsSimple
+#from pydev import pydevd
 import os.path
 try:
     import matplotlib.pyplot as plt
@@ -109,12 +110,6 @@ class UMEP:
         self.IMCP_Action = QAction("Image Morphometric Calculator (Point)", self.iface.mainWindow())
         self.SM_Menu.addAction(self.IMCP_Action)
         self.IMCP_Action.triggered.connect(self.IMCP)
-        self.ULCUEBG_Action = QAction("Land Cover Fractions (Grid)", self.iface.mainWindow())
-        self.SM_Menu.addAction(self.ULCUEBG_Action)
-        self.ULCUEBG_Action.setEnabled(False)
-        self.ULCUEBP_Action = QAction("Land Cover Fractions (Point)", self.iface.mainWindow())
-        self.SM_Menu.addAction(self.ULCUEBP_Action)
-        self.ULCUEBP_Action.setEnabled(False)
 
         # Sub-actions to Meteorological Data Preparation
         self.PED_Action = QAction("Prepare Existing Data", self.iface.mainWindow())
@@ -128,6 +123,15 @@ class UMEP:
         self.SVF_Action = QAction("Sky View Factor", self.iface.mainWindow())
         self.UG_Menu.addAction(self.SVF_Action)
         self.SVF_Action.triggered.connect(self.SVF)
+
+        # Sub-actions to Urban Land Cover
+        self.ULCUEBG_Action = QAction("Land Cover Fractions (Grid)", self.iface.mainWindow())
+        self.ULC_Menu.addAction(self.ULCUEBG_Action)
+        self.ULCUEBG_Action.setEnabled(False)
+        self.ULCUEBP_Action = QAction("Land Cover Fractions (Point)", self.iface.mainWindow())
+        self.ULC_Menu.addAction(self.ULCUEBP_Action)
+        self.ULCUEBP_Action.setEnabled(False)
+
         self.HW_Action = QAction("Height/Width Ratio", self.iface.mainWindow())
         self.UG_Menu.addAction(self.HW_Action)
         self.HW_Action.setEnabled(False)
@@ -157,7 +161,10 @@ class UMEP:
         self.QF_Action = QAction("Antropogenic heat (Qf) (LUCY)", self.iface.mainWindow())
         self.UEB_Menu.addAction(self.QF_Action)
         self.QF_Action.setEnabled(False)
-        self.SUEWS_Action = QAction("Urban Energy Balance (SUEWS)", self.iface.mainWindow())
+        self.SUEWSSIMPLE_Action = QAction("Urban Energy Balance (SUEWS, Simple)", self.iface.mainWindow())
+        self.UEB_Menu.addAction(self.SUEWSSIMPLE_Action)
+        self.SUEWSSIMPLE_Action.triggered.connect(self.SUEWS_simple)
+        self.SUEWS_Action = QAction("Urban Energy Balance (SUEWS, Advanced)", self.iface.mainWindow())
         self.UEB_Menu.addAction(self.SUEWS_Action)
         self.SUEWS_Action.setEnabled(False)
         self.LUMPS_Action = QAction("Urban Energy Balance (LUMPS)", self.iface.mainWindow())
@@ -182,6 +189,12 @@ class UMEP:
         self.Manual_Action = QAction("Manual", self.iface.mainWindow())
         self.About_Menu.addAction(self.Manual_Action)
         self.Manual_Action.setEnabled(False)
+
+        # Icons
+        self.SVF_Action.setIcon(QIcon(self.plugin_dir + "/SkyViewFactorCalculator/icon_svf.png"))
+        self.IMCG_Action.setIcon(QIcon(self.plugin_dir + "/ImageMorphParam/ImageMorphIcon.png"))
+        self.IMCP_Action.setIcon(QIcon(self.plugin_dir + "/ImageMorphParmsPoint/ImageMorphIconPoint.png"))
+        self.DSP_Action.setIcon(QIcon(self.plugin_dir + "/ShadowGenerator/ShadowIcon.png"))
 
         self.iface.mainWindow().menuBar().insertMenu(self.iface.firstRightStandardMenu().menuAction(), self.UMEP_Menu)
 
@@ -302,7 +315,6 @@ class UMEP:
         
     def IMCG(self):
         sg = ImageMorphParam(self.iface)
-        # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True) #used for debugging
         sg.run()
 
     def IMCP(self):
@@ -311,6 +323,11 @@ class UMEP:
 
     def SVF(self):
         sg = SkyViewFactorCalculator(self.iface)
+        sg.run()
+
+    def SUEWS_simple(self):
+        sg = SuewsSimple(self.iface)
+        #pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True) #used for debugging
         sg.run()
 
     def run(self):
