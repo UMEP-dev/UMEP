@@ -99,6 +99,7 @@ class ImageMorphParmsPoint:
         self.polyLayer = None
         self.folderPath = 'None'
         self.degree = 5.0
+        self.point = None
 
         # #g pin tool
         self.pointTool = QgsMapToolEmitPoint(self.canvas)
@@ -247,17 +248,17 @@ class ImageMorphParmsPoint:
         # self.create_poly_layer(point) # Flyttad till generate_area
         self.dlg.setEnabled(True)
         self.dlg.activateWindow()
+        self.point = point
 
-
-    def generate_area(self, point):  # Det ar har det skiter sig. Point funkar inte
+    def generate_area(self):  # Det ar har det skiter sig. Point funkar inte
         if self.dlg.checkBoxVectorLayer.isChecked():
             self.iface.messageBar().pushMessage("test", "Hämta punkt från punkt lager")
         else:
-            self.iface.messageBar().pushMessage("y=", str(point.y()))
-            self.iface.messageBar().pushMessage("x=", str(point.x()))
+            self.iface.messageBar().pushMessage("y=", str(self.point.y()))
+            self.iface.messageBar().pushMessage("x=", str(self.point.x()))
 
         self.dlg.runButton.setEnabled(1)
-        self.create_poly_layer(point)
+        self.create_poly_layer(self.point)
 
     def select_point(self):  # Connected to "Secelct Point on Canves"
         if self.poiLayer is not None:
