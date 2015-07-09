@@ -70,8 +70,8 @@ class MetdataProcessor:
         self.actions = []
         self.menu = self.tr(u'&Metdata processor')
         # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'MetdataProcessor')
-        self.toolbar.setObjectName(u'MetdataProcessor')
+        # self.toolbar = self.iface.addToolBar(u'MetdataProcessor')
+        # self.toolbar.setObjectName(u'MetdataProcessor')
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):

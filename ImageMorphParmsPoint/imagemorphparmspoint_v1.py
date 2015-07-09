@@ -23,7 +23,7 @@
 from PyQt4.QtCore import *  # QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon, QMessageBox, QProgressBar, QFileDialog
 from qgis.gui import *
-from qgis.core import QgsVectorLayer, QgsMapLayerRegistry, QgsFeature, QgsGeometry, QgsPoint, QgsVectorFileWriter
+from qgis.core import *
 import os
 from ..Utilities.qgiscombomanager import *
 from osgeo import gdal
@@ -72,10 +72,10 @@ class ImageMorphParmsPoint:
         self.dlg.runButton.clicked.connect(self.start_process)
         self.dlg.pushButtonSave.clicked.connect(self.folder_path)
         self.dlg.selectpoint.clicked.connect(self.select_point)
+        self.dlg.generateArea.clicked.connect(self.generate_area)
         self.dlg.helpButton.clicked.connect(self.help)
         self.dlg.progressBar.setValue(0)
         self.dlg.checkBoxOnlyBuilding.toggled.connect(self.text_enable)
-        #self.dlg.selectpoint.QWhatsThisClickedEvent.connect(self.whatsthisclicked)
 
         self.fileDialog = QFileDialog()
         self.fileDialog.setFileMode(4)
@@ -86,13 +86,12 @@ class ImageMorphParmsPoint:
                 self.dlg.degreeBox.addItem(str(i))
         self.dlg.degreeBox.setCurrentIndex(4)
 
-
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&Image Morphometric Parameters Point')
         # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'ImageMorphParmsPoint')
-        self.toolbar.setObjectName(u'ImageMorphParmsPoint')
+        # self.toolbar = self.iface.addToolBar(u'ImageMorphParmsPoint')
+        # self.toolbar.setObjectName(u'ImageMorphParmsPoint')
 
         # g reference to the canvas
         self.canvas = self.iface.mapCanvas()
@@ -101,11 +100,14 @@ class ImageMorphParmsPoint:
         self.folderPath = 'None'
         self.degree = 5.0
 
-        #g pin tool
+        # #g pin tool
         self.pointTool = QgsMapToolEmitPoint(self.canvas)
-        self.toolPan = QgsMapToolPan(self.canvas)
+        #self.toolPan = QgsMapToolPan(self.canvas)
         self.pointTool.canvasClicked.connect(self.create_point)
 
+        self.layerComboManagerPolygrid = VectorLayerCombo(self.dlg.comboBox_Polygrid)
+        fieldgen = VectorLayerCombo(self.dlg.comboBox_Polygrid, initLayer="", options={"geomType": QGis.Point})
+        self.layerComboManagerPolyField = FieldCombo(self.dlg.comboBox_Field, fieldgen, initField="")
         self.layerComboManagerDSMbuildground = RasterLayerCombo(self.dlg.comboBox_DSMbuildground)
         RasterLayerCombo(self.dlg.comboBox_DSMbuildground, initLayer="")
         self.layerComboManagerDEM = RasterLayerCombo(self.dlg.comboBox_DEM)
@@ -127,7 +129,6 @@ class ImageMorphParmsPoint:
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('ImageMorphParmsPoint', message)
-
 
     def add_action(
             self,
@@ -179,28 +180,28 @@ class ImageMorphParmsPoint:
         :rtype: QAction
         """
 
-        icon = QIcon(icon_path)
-        action = QAction(icon, text, parent)
-        action.triggered.connect(callback)
-        action.setEnabled(enabled_flag)
-
-        if status_tip is not None:
-            action.setStatusTip(status_tip)
-
-        if whats_this is not None:
-            action.setWhatsThis(whats_this)
-
-        if add_to_toolbar:
-            self.toolbar.addAction(action)
-
-        if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action)
-
-        self.actions.append(action)
-
-        return action
+        # icon = QIcon(icon_path)
+        # action = QAction(icon, text, parent)
+        # action.triggered.connect(callback)
+        # action.setEnabled(enabled_flag)
+        #
+        # if status_tip is not None:
+        #     action.setStatusTip(status_tip)
+        #
+        # if whats_this is not None:
+        #     action.setWhatsThis(whats_this)
+        #
+        # if add_to_toolbar:
+        #     self.toolbar.addAction(action)
+        #
+        # if add_to_menu:
+        #     self.iface.addPluginToMenu(
+        #         self.menu,
+        #         action)
+        #
+        # self.actions.append(action)
+        #
+        # return action
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
@@ -211,8 +212,6 @@ class ImageMorphParmsPoint:
             text=self.tr(u'Image Morphometric Parameters Point'),
             callback=self.run,
             parent=self.iface.mainWindow())
-        #QObject.connect(self.dlg.selectpoint, SIGNAL("clicked()"), self.select_point)
-        #QObject.connect(self.dlg.button_box, SIGNAL("accepted()"), self.calc_image)
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
@@ -229,44 +228,10 @@ class ImageMorphParmsPoint:
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.textOutput.setText(self.folderPath[0])
 
-    def create_point_layer(self):
-        canvas = self.iface.mapCanvas()
-        mapRenderer = canvas.mapRenderer()
-        srs = mapRenderer.destinationCrs()
-        crs = str(srs.authid())
-        # self.iface.messageBar().pushMessage("Coordinate selected", test)
-        uri = "Point?field=id:integer&field=x:double&field=y:double&index=yes&crs=" + crs
-        self.poiLayer = QgsVectorLayer(uri, "Point of Interest", "memory")
-        self.provider = self.poiLayer.dataProvider()
-
-
-    def select_point(self):
-        #pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
-        if self.poiLayer is not None:
-            QgsMapLayerRegistry.instance().removeMapLayer(self.poiLayer.id())
-        if self.polyLayer is not None:
-            self.polyLayer.startEditing()
-            self.polyLayer.selectAll()
-            self.polyLayer.deleteSelectedFeatures()
-            self.polyLayer.commitChanges()
-            QgsMapLayerRegistry.instance().removeMapLayer(self.polyLayer.id())
-
-        #self.canvas = self.iface.mapCanvas()
-        self.canvas.setMapTool(self.pointTool)
-        #self.dlg.hide()
-        #self.dlg.setVisible(False)
-        self.dlg.setEnabled(False)
-        self.create_point_layer()
-        #self.pointTool.canvasClicked.connect(self.create_point)
-        #self.dlg.show()
-
-    def create_point(self, point):
+    def create_point(self, point):  # Var kommer point ifran???
         # report map coordinates from a canvas click
-        # self.dlg.hide()
-        coords = "{}, {}".format(point.x(), point.y())
-        self.iface.messageBar().pushMessage("Coordinate selected", str(coords))
-        #self.point = point
-        #self.dlg.button_box.setEnabled(1)
+        # coords = "{}, {}".format(point.x(), point.y())
+        # self.iface.messageBar().pushMessage("Coordinate selected", str(coords))
         self.dlg.closeButton.setEnabled(1)
         QgsMapLayerRegistry.instance().addMapLayer(self.poiLayer)
 
@@ -278,21 +243,48 @@ class ImageMorphParmsPoint:
         self.poiLayer.startEditing()
         self.poiLayer.addFeature(feature, True)
         self.poiLayer.commitChanges()
-        self.poiLayer.setCacheImage(None)
         self.poiLayer.triggerRepaint()
-        self.create_poly_layer(point)
-        self.canvas.setMapTool(self.toolPan)
+        # self.create_poly_layer(point) # Flyttad till generate_area
         self.dlg.setEnabled(True)
-        #self.dlg.show()
-        #self.dlg.setVisible(True)
-        #self.dlg.showNormal()
+        self.dlg.activateWindow()
 
+
+    def generate_area(self, point):  # Det ar har det skiter sig. Point funkar inte
+        if self.dlg.checkBoxVectorLayer.isChecked():
+            self.iface.messageBar().pushMessage("test", "Hämta punkt från punkt lager")
+        else:
+            self.iface.messageBar().pushMessage("y=", str(point.y()))
+            self.iface.messageBar().pushMessage("x=", str(point.x()))
+
+        self.dlg.runButton.setEnabled(1)
+        self.create_poly_layer(point)
+
+    def select_point(self):  # Connected to "Secelct Point on Canves"
+        if self.poiLayer is not None:
+            QgsMapLayerRegistry.instance().removeMapLayer(self.poiLayer.id())
+        if self.polyLayer is not None:
+            self.polyLayer.startEditing()
+            self.polyLayer.selectAll()
+            self.polyLayer.deleteSelectedFeatures()
+            self.polyLayer.commitChanges()
+            QgsMapLayerRegistry.instance().removeMapLayer(self.polyLayer.id())
+
+        self.canvas.setMapTool(self.pointTool)  # Calls a canvas click and create_point
+
+        self.dlg.setEnabled(False)
+        self.create_point_layer()
+
+    def create_point_layer(self):
+        canvas = self.iface.mapCanvas()
+        srs = canvas.mapSettings().destinationCrs()
+        crs = str(srs.authid())
+        uri = "Point?field=id:integer&field=x:double&field=y:double&index=yes&crs=" + crs
+        self.poiLayer = QgsVectorLayer(uri, "Point of Interest", "memory")
+        self.provider = self.poiLayer.dataProvider()
 
     def create_poly_layer(self, point):
-
         canvas = self.iface.mapCanvas()
-        mapRenderer = canvas.mapRenderer()
-        srs = mapRenderer.destinationCrs()
+        srs = canvas.mapSettings().destinationCrs()
         crs = str(srs.authid())
         uri = "Polygon?field=id:integer&index=yes&crs=" + crs
         dir_poly = self.plugin_dir + '/data/poly_temp.shp'
@@ -307,9 +299,7 @@ class ImageMorphParmsPoint:
 
         # Assign feature the buffered geometry
         radius = self.dlg.spinBox.value()
-        #radius = 200
         featurepoly.setGeometry(QgsGeometry.fromPoint(
-            #QgsPoint(self.point.x(), self.point.y())).buffer(radius, 1000, 1, 1, 1.0))
             QgsPoint(point.x(), point.y())).buffer(radius, 1000, 1, 1, 1.0))
         featurepoly.setAttributes([fc])
         self.polyLayer.startEditing()
@@ -322,7 +312,8 @@ class ImageMorphParmsPoint:
         # self.polyLayer.setRendererV2(QgsSingleSymbolRendererV2(s))
 
         self.polyLayer.setLayerTransparency(42)
-        self.polyLayer.setCacheImage(None)
+        # self.polyLayer.repaintRequested(None)
+        # self.polyLayer.setCacheImage(None)
         self.polyLayer.triggerRepaint()
         #QObject.connect(self.dlg.selectpoint, SIGNAL("clicked()"), self.select_point)
 
@@ -355,25 +346,12 @@ class ImageMorphParmsPoint:
             QMessageBox.critical(None, "Error", "No valid Polygon layer is selected")
             return
 
-        # poly_field = self.layerComboManagerPolyField.getFieldName()
-        # if poly_field is None:
-        #     QMessageBox.critical(None, "Error", "An attribute filed with unique fields must be selected")
-        #     return
-
-        #vlayer = QgsVectorLayer(poly.source(), "polygon", "ogr")
-        #vlayer = self.polyLayer
         prov = poly.dataProvider()
         fields = prov.fields()
-        #idx = poly.fieldNameIndex(poly_field)
-        #QMessageBox.warning(None, "Error", str(fields))
-
-        #progress.setMaximum(vlayer.featureCount())
-        #progressMessageBar.layout().addWidget(progress)
-        #self.iface.messageBar().pushWidget(progressMessageBar, self.iface.messageBar().INFO)
 
         dir_poly = self.plugin_dir + '/data/poly_temp.shp'
 
-        #savename = self.plugin_dir + '/data/' + str(j) + ".shp"
+        # savename = self.plugin_dir + '/data/' + str(j) + ".shp"
         writer = QgsVectorFileWriter(dir_poly, "CP1250", fields, prov.geometryType(),
                                      prov.crs(), "ESRI shapefile")
 
@@ -387,6 +365,9 @@ class ImageMorphParmsPoint:
             writer.addFeature(feature)
         del writer
 
+        si = subprocess.STARTUPINFO()
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
         if self.dlg.checkBoxOnlyBuilding.isChecked():  # Only building heights
             dsm_build = self.layerComboManagerDSMbuild.getLayer()
             if dsm_build is None:
@@ -395,11 +376,11 @@ class ImageMorphParmsPoint:
 
             provider = dsm_build.dataProvider()
             filePath_dsm_build = str(provider.dataSourceUri())
-            #Kolla om memorylayer går att användas istället för dir_poly tempfilen.
-            gdalruntextdsm_build = 'gdalwarp -dstnodata -9999 -q -cutline ' + dir_poly + \
+            # Kolla om memorylayer går att användas istället för dir_poly tempfilen.
+            gdalruntextdsm_build = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + dir_poly + \
                                    ' -crop_to_cutline -of GTiff ' + filePath_dsm_build + \
                                    ' ' + self.plugin_dir + '/data/clipdsm.tif'
-            os.system(gdalruntextdsm_build)
+            subprocess.call(gdalruntextdsm_build, startupinfo=si)
             dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
             dsm = dataset.ReadAsArray().astype(np.float)
             sizex = dsm.shape[0]
@@ -428,8 +409,8 @@ class ImageMorphParmsPoint:
             gdalruntextdem = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + dir_poly + \
                              ' -crop_to_cutline -of GTiff ' + filePath_dem + \
                              ' ' + self.plugin_dir + '/data/clipdem.tif'
-            si = subprocess.STARTUPINFO()
-            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            #si = subprocess.STARTUPINFO()
+            #si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             subprocess.call(gdalruntextdsm, startupinfo=si)
             subprocess.call(gdalruntextdem, startupinfo=si)
 
@@ -453,14 +434,14 @@ class ImageMorphParmsPoint:
         header = ' Wd pai   fai   zH  zHmax   zHstd'
         numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f'
         arr = np.concatenate((immorphresult["deg"], immorphresult["pai"], immorphresult["fai"],
-                              immorphresult["zH"], immorphresult["zHmax"], immorphresult["zH_sd"]), axis=1)
+                            immorphresult["zH"], immorphresult["zHmax"], immorphresult["zH_sd"]), axis=1)
         np.savetxt(self.folderPath[0] + '/anisotropic_result.txt', arr,
                    fmt=numformat, delimiter=' ', header=header, comments='')
 
-        header = ' pai   zH    zHmax    zHstd'
-        numformat = '%4.3f %5.3f %5.3f %5.3f'
-        arr2 = np.array([[immorphresult["pai_all"], immorphresult["zH_all"], immorphresult["zHmax_all"],
-                          immorphresult["zH_sd_all"]]])
+        header = ' pai  fai   zH    zHmax    zHstd '
+        numformat = '%4.3f %4.3f %5.3f %5.3f %5.3f'
+        arr2 = np.array([[immorphresult["pai_all"], immorphresult["fai_all"], immorphresult["zH_all"],
+                          immorphresult["zHmax_all"], immorphresult["zH_sd_all"]]])
         np.savetxt(self.folderPath[0] + '/isotropic_result.txt', arr2,
                    fmt=numformat, delimiter=' ', header=header, comments='')
 

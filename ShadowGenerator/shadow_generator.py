@@ -77,8 +77,8 @@ class ShadowGenerator:
         self.actions = []
         self.menu = self.tr(u'&Shadow Generator')
         # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'ShadowGenerator')
-        self.toolbar.setObjectName(u'ShadowGenerator')
+        # self.toolbar = self.iface.addToolBar(u'ShadowGenerator')
+        # self.toolbar.setObjectName(u'ShadowGenerator')
         self.folderPath = 'None'
         self.timeInterval = 30
 

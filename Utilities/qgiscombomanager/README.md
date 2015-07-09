@@ -1,3 +1,7 @@
+
+This module is __deprecated__. Its functionality has been merged into QGIS core.
+See [QgsMapLayerComboBox](http://qgis.org/api/classQgsMapLayerComboBox.html) and [QgsFieldComboBox](http://qgis.org/api/classQgsFieldComboBox.html).
+
 ## Quick start
 
 [QGIS](http://www.qgis.org) Combo Manager is a python module to easily manage a combo box with

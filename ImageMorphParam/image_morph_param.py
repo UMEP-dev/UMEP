@@ -27,10 +27,8 @@ from qgis.core import QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsMessag
 import os
 from ..Utilities.qgiscombomanager import *
 from osgeo import gdal
-import subprocess
 from ..Utilities.imageMorphometricParms_v1 import *
-import time
-from Worker import Worker
+from impgworker import Worker
 
 # Initialize Qt resources from file resources.py
 import resources_rc
@@ -97,8 +95,8 @@ class ImageMorphParam:
         self.actions = []
         self.menu = self.tr(u'&Image Morphometric Parameters')
         # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'ImageMorphParam')
-        self.toolbar.setObjectName(u'ImageMorphParam')
+        # self.toolbar = self.iface.addToolBar(u'ImageMorphParam')
+        # self.toolbar.setObjectName(u'ImageMorphParam')
 
         self.layerComboManagerPolygrid = VectorLayerCombo(self.dlg.comboBox_Polygrid)
         fieldgen = VectorLayerCombo(self.dlg.comboBox_Polygrid, initLayer="")
@@ -234,16 +232,16 @@ class ImageMorphParam:
             self.dlg.label_3.setEnabled(True)
             self.dlg.label_4.setEnabled(False)
 
-    #Metod som startar traden, knyter signaler fran traden till metoder. Se Worker.py for det arbete som traden utfor.
+    # Metod som startar traden, knyter signaler fran traden till metoder. Se impgworker.py for det arbete som traden utfor.
     def startWorker(self, dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, iface, plugin_dir,
                     folderPath, dlg, imid, radius):
         # create a new worker instance
-        #Skapar en instans av metoden som innehaller det arbete som ska utforas i en trad
+        # Skapar en instans av metoden som innehaller det arbete som ska utforas i en trad
 
         worker = Worker(dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, iface,
                         plugin_dir, folderPath, dlg, imid, radius)
 
-        #andrar knappen som startar verktyget till en knapp som avbryter tradens arbete.
+        # andrar knappen som startar verktyget till en knapp som avbryter tradens arbete.
         self.dlg.runButton.setText('Cancel')
         self.dlg.runButton.clicked.disconnect()
         self.dlg.runButton.clicked.connect(worker.kill)
@@ -252,19 +250,19 @@ class ImageMorphParam:
         # Skapar en trad som arbetet fran worker ska utforas i.
         thread = QThread(self.dlg)
         worker.moveToThread(thread)
-        #kopplar signaler fran traden till metoder i denna "fil"
+        # kopplar signaler fran traden till metoder i denna "fil"
         worker.finished.connect(self.workerFinished)
         worker.error.connect(self.workerError)
         worker.progress.connect(self.progress_update)
         thread.started.connect(worker.run)
-        #startar traden
+        # startar traden
         thread.start()
         self.thread = thread
         self.worker = worker
 
-    #Metod som ar kopplad till en signal som Worker(traden) skickar nar den utfort sitt arbete, killed ar en Boolean som
-    #skiljer mellan om traden blev "fardig" for att den gjorde sitt arbete eller om den avbrots
-    def workerFinished(self, killed):
+    # Metod som ar kopplad till en signal som Worker(traden) skickar nar den utfort sitt arbete, killed ar en Boolean som
+    # skiljer mellan om traden blev "fardig" for att den gjorde sitt arbete eller om den avbrots
+    def workerFinished(self, ret):
         # Tar bort arbetaren (Worker) och traden den kors i
         try:
             self.worker.deleteLater()
@@ -275,27 +273,30 @@ class ImageMorphParam:
         self.thread.deleteLater()
 
         #andra tillbaka Run-knappen till sitt vanliga tillstand och skicka ett meddelande till anvanderen.
-        if not killed:
+        if ret == 1:
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
             self.dlg.closeButton.setEnabled(True)
             self.dlg.progressBar.setValue(0)
-            QMessageBox.information(None, "Image Morphometric Parameters",
-                                    "Process successful! Check General Messages (lower left) "
-                                    "to obtain information on non-calculated grids.")
-        if killed:
+            # QMessageBox.information(None, "Image Morphometric Parameters",
+            #                         "Process finished! Check General Messages (speech bubble, lower left) "
+            #                         "to obtain information of the process.")
+            self.iface.messageBar().pushMessage("Image Morphometric Parameters",
+                                    "Process finished! Check General Messages (speech bubble, lower left) "
+                                    "to obtain information of the process.")
+        else:
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
             self.dlg.closeButton.setEnabled(True)
             self.dlg.progressBar.setValue(0)
-            QMessageBox.information(None, "Image Morphometric Parameters", "Something went wrong or operations"
-                                                                           " cancelled, process unsuccessful!")
+            QMessageBox.information(None, "Image Morphometric Parameters", "Operations cancelled, "
+                                                                           "process unsuccessful!")
 
     #Metod som tar emot en signal fran traden ifall nagot gick fel, felmeddelanden skrivs till QGIS message log.
     def workerError(self, e, exception_string):
-        strerror = "Worker thread raised an exception" + str(e)
+        strerror = "Worker thread raised an exception: " + str(e)
         QgsMessageLog.logMessage(strerror.format(exception_string), level=QgsMessageLog.CRITICAL)
 
     #Metod som tar emot signaler koontinuerligt fran traden som berattar att ett berakningsframsteg gjorts, uppdaterar
@@ -327,33 +328,42 @@ class ImageMorphParam:
         idx = vlayer.fieldNameIndex(poly_field)
 
         dir_poly = self.plugin_dir + '/data/poly_temp.shp'
-        #j = 0
+        # j = 0
         self.dlg.progressBar.setMaximum(vlayer.featureCount())
 
-        #skapar referenser till lagern som laddas in av anvandaren i comboboxes
+        # skapar referenser till lagern som laddas in av anvandaren i comboboxes
         if self.dlg.checkBoxOnlyBuilding.isChecked():  # Only building heights
             dsm_build = self.layerComboManagerDSMbuild.getLayer()
             dsm = None
             dem = None
+            if dsm_build is None:
+                QMessageBox.critical(None, "Error", "No valid building DSM raster layer is selected")
+                return
 
         else:  # Both building ground heights
             dsm = self.layerComboManagerDSMbuildground.getLayer()
             dem = self.layerComboManagerDEM.getLayer()
             dsm_build = None
+            if dsm is None:
+                QMessageBox.critical(None, "Error", "No valid ground and building DSM raster layer is selected")
+                return
+            if dem is None:
+                QMessageBox.critical(None, "Error", "No valid ground DEM raster layer is selected")
+                return
 
-        if self.dlg.radioButtonExtent.isChecked(): # What search method to use
+        if self.dlg.radioButtonExtent.isChecked():  # What search method to use
             imid = 0
         else:
             imid = 1
 
         radius = self.dlg.spinBoxDistance.value()
 
-        #Startar arbetarmetoden och traden, se startworker metoden ovan.
+        # Startar arbetarmetoden och traden, se startworker metoden ovan.
         self.startWorker(dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, self.iface,
                          self.plugin_dir, self.folderPath, self.dlg, imid, radius)
 
-        #Allt som ska ske efter att arbetaren startats hanteras genom metoderna som tar emot signaler fran traden.
-        #Framforallt workerFinished metoden. Se Worker.py filen for implementering av det arbete som traden utfor.
+        # Allt som ska ske efter att arbetaren startats hanteras genom metoderna som tar emot signaler fran traden.
+        # Framforallt workerFinished metoden. Se impgworker.py filen for implementering av det arbete som traden utfor.
 
 
     def run(self):

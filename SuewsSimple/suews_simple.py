@@ -74,8 +74,8 @@ class SuewsSimple:
         self.actions = []
         self.menu = self.tr(u'&Suews Simple')
         # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'SuewsSimple')
-        self.toolbar.setObjectName(u'SuewsSimple')
+        # self.toolbar = self.iface.addToolBar(u'SuewsSimple')
+        # self.toolbar.setObjectName(u'SuewsSimple')
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -197,10 +197,11 @@ class SuewsSimple:
         sg = ImageMorphParam(self.iface)
         self.dlg.setEnabled(False)
         sg.run()
+        #pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True) #used for debugging
         self.dlg.setEnabled(True)
 
     def start_progress(self):
-#        pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True) #used for debugging
+
         Suews_wrapper_v7.wrapper(self.plugin_dir)
 
     def help(self):

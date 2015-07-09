@@ -97,7 +97,9 @@ def imagemorphparam_v1(dsm, dem, scale, mid, dtheta, dlg, imp_point):
 
         j += 1
 
+    fai_all = np.mean(fai)
+
     immorphresult = {'fai': fai, 'pai': pai, 'zH': zH, 'deg': deg, 'zHmax': zHmax,'zH_sd': zH_sd, 'pai_all': pai_all,
-                     'zH_all': zH_all, 'zHmax_all': zHmax_all, 'zH_sd_all': zH_sd_all}
+                     'zH_all': zH_all, 'zHmax_all': zHmax_all, 'zH_sd_all': zH_sd_all, 'fai_all': fai_all}
 
     return immorphresult

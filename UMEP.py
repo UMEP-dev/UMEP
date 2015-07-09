@@ -34,10 +34,10 @@ from SkyViewFactorCalculator.svf_calculator import SkyViewFactorCalculator
 from SuewsSimple.suews_simple import SuewsSimple
 #from pydev import pydevd
 import os.path
-try:
-    import matplotlib.pyplot as plt
-except ImportError:
-    pass
+#try:
+#    import matplotlib.pyplot as plt
+#except ImportError:
+#    pass
 
 
 class UMEP:
@@ -76,8 +76,8 @@ class UMEP:
         self.actions = []
         self.menu = self.tr(u'&UMEP')
         # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'UMEP')
-        self.toolbar.setObjectName(u'UMEP')
+        #self.toolbar = self.iface.addToolBar(u'UMEP')
+        #self.toolbar.setObjectName(u'UMEP')
 
         # Main menu
         self.UMEP_Menu = QMenu("UMEP")
@@ -218,9 +218,9 @@ class UMEP:
         icon_path,
         text,
         callback,
-        enabled_flag=True,
-        add_to_menu=True,
-        add_to_toolbar=True,
+        enabled_flag=False,
+        add_to_menu=False,
+        add_to_toolbar=False,
         status_tip=None,
         whats_this=None,
         parent=None):
@@ -263,16 +263,16 @@ class UMEP:
         :rtype: QAction
         """
 
-        icon = QIcon(icon_path)
-        action = QAction(icon, text, parent)
-        action.triggered.connect(callback)
-        action.setEnabled(enabled_flag)
-
-        if status_tip is not None:
-            action.setStatusTip(status_tip)
-
-        if whats_this is not None:
-            action.setWhatsThis(whats_this)
+        # icon = QIcon(icon_path)
+        # action = QAction(icon, text, parent)
+        # action.triggered.connect(callback)
+        # action.setEnabled(enabled_flag)
+        #
+        # if status_tip is not None:
+        #     action.setStatusTip(status_tip)
+        #
+        # if whats_this is not None:
+        #     action.setWhatsThis(whats_this)
 
         #if add_to_toolbar:
         #    self.toolbar.addAction(action)
@@ -282,9 +282,9 @@ class UMEP:
         #        self.menu,
         #        action)
 
-        self.actions.append(action)
-
-        return action
+        # self.actions.append(action)
+        #
+        # return action
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""

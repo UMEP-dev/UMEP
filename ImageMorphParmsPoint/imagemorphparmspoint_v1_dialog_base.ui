@@ -9,84 +9,27 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>391</width>
-    <height>304</height>
+    <width>393</width>
+    <height>410</height>
    </rect>
   </property>
   <property name="maximumSize">
    <size>
     <width>400</width>
-    <height>320</height>
+    <height>410</height>
    </size>
   </property>
   <property name="windowTitle">
    <string>Image Morphometric Parameters</string>
   </property>
-  <widget class="QPushButton" name="selectpoint">
-   <property name="geometry">
-    <rect>
-     <x>16</x>
-     <y>10</y>
-     <width>133</width>
-     <height>35</height>
-    </rect>
-   </property>
-   <property name="contextMenuPolicy">
-    <enum>Qt::DefaultContextMenu</enum>
-   </property>
-   <property name="toolTip">
-    <string>Select point on canvas</string>
-   </property>
-   <property name="whatsThis">
-    <string>Select a point on the canvas &lt;a href=README.html&gt; Click here for more info! &lt;/a href&gt;</string>
-   </property>
-   <property name="text">
-    <string>Select point on canvas</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>204</x>
-     <y>20</y>
-     <width>99</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Search distance (m):</string>
-   </property>
-  </widget>
-  <widget class="QSpinBox" name="spinBox">
-   <property name="geometry">
-    <rect>
-     <x>306</x>
-     <y>18</y>
-     <width>73</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignCenter</set>
-   </property>
-   <property name="suffix">
-    <string/>
-   </property>
-   <property name="maximum">
-    <number>5000</number>
-   </property>
-   <property name="singleStep">
-    <number>10</number>
-   </property>
-   <property name="value">
-    <number>200</number>
-   </property>
-  </widget>
   <widget class="QPushButton" name="runButton">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>308</x>
-     <y>244</y>
+     <y>348</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -99,7 +42,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>242</y>
+     <y>346</y>
      <width>181</width>
      <height>23</height>
     </rect>
@@ -112,7 +55,7 @@
    <property name="geometry">
     <rect>
      <x>308</x>
-     <y>214</y>
+     <y>318</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -125,7 +68,7 @@
    <property name="geometry">
     <rect>
      <x>8</x>
-     <y>214</y>
+     <y>320</y>
      <width>71</width>
      <height>16</height>
     </rect>
@@ -138,7 +81,7 @@
    <property name="geometry">
     <rect>
      <x>78</x>
-     <y>214</y>
+     <y>318</y>
      <width>219</width>
      <height>20</height>
     </rect>
@@ -148,7 +91,7 @@
    <property name="geometry">
     <rect>
      <x>2</x>
-     <y>74</y>
+     <y>174</y>
      <width>387</width>
      <height>133</height>
     </rect>
@@ -267,7 +210,7 @@
    <property name="geometry">
     <rect>
      <x>308</x>
-     <y>274</y>
+     <y>378</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -276,34 +219,11 @@
     <string>Close</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="degreeBox">
-   <property name="geometry">
-    <rect>
-     <x>306</x>
-     <y>46</y>
-     <width>74</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_8">
-   <property name="geometry">
-    <rect>
-     <x>106</x>
-     <y>50</y>
-     <width>197</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Wind direction search interval (degrees):</string>
-   </property>
-  </widget>
   <widget class="QPushButton" name="helpButton">
    <property name="geometry">
     <rect>
      <x>8</x>
-     <y>274</y>
+     <y>378</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -312,19 +232,240 @@
     <string>Help</string>
    </property>
   </widget>
+  <widget class="QFrame" name="frame_2">
+   <property name="geometry">
+    <rect>
+     <x>2</x>
+     <y>6</y>
+     <width>387</width>
+     <height>93</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Sunken</enum>
+   </property>
+   <widget class="QCheckBox" name="checkBoxVectorLayer">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>193</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
+    </property>
+    <property name="text">
+     <string>Use existing point from vector layer</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>214</x>
+      <y>66</y>
+      <width>38</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>ID field:</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox_Polygrid">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>182</x>
+      <y>39</y>
+      <width>197</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;This Polygon layer could include one single or mutiple squares &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="selectpoint">
+    <property name="geometry">
+     <rect>
+      <x>244</x>
+      <y>8</y>
+      <width>133</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::DefaultContextMenu</enum>
+    </property>
+    <property name="toolTip">
+     <string>Select point on canvas</string>
+    </property>
+    <property name="whatsThis">
+     <string>Select a point on the canvas &lt;a href=README.html&gt; Click here for more info! &lt;/a href&gt;</string>
+    </property>
+    <property name="text">
+     <string>Select point on canvas</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox_Field">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>254</x>
+      <y>64</y>
+      <width>125</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Attribut ID should be a unique number or string for each polygon </string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>40</y>
+      <width>96</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Vector point layer:</string>
+    </property>
+    <property name="buddy">
+     <cstring>comboBox_Polygrid</cstring>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QFrame" name="frame_3">
+   <property name="geometry">
+    <rect>
+     <x>2</x>
+     <y>104</y>
+     <width>387</width>
+     <height>65</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Sunken</enum>
+   </property>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>104</x>
+      <y>40</y>
+      <width>197</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Wind direction search interval (degrees):</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="generateArea">
+    <property name="geometry">
+     <rect>
+      <x>6</x>
+      <y>8</y>
+      <width>133</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::DefaultContextMenu</enum>
+    </property>
+    <property name="toolTip">
+     <string>Select point on canvas</string>
+    </property>
+    <property name="whatsThis">
+     <string>Select a point on the canvas &lt;a href=README.html&gt; Click here for more info! &lt;/a href&gt;</string>
+    </property>
+    <property name="text">
+     <string>Generate study area</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spinBox">
+    <property name="geometry">
+     <rect>
+      <x>304</x>
+      <y>8</y>
+      <width>73</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="suffix">
+     <string/>
+    </property>
+    <property name="maximum">
+     <number>5000</number>
+    </property>
+    <property name="singleStep">
+     <number>10</number>
+    </property>
+    <property name="value">
+     <number>200</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>202</x>
+      <y>10</y>
+      <width>99</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Search distance (m):</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="degreeBox">
+    <property name="geometry">
+     <rect>
+      <x>304</x>
+      <y>36</y>
+      <width>74</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
   <zorder>frame</zorder>
-  <zorder>selectpoint</zorder>
-  <zorder>label</zorder>
-  <zorder>spinBox</zorder>
   <zorder>runButton</zorder>
   <zorder>progressBar</zorder>
   <zorder>pushButtonSave</zorder>
   <zorder>label_5</zorder>
   <zorder>textOutput</zorder>
   <zorder>closeButton</zorder>
-  <zorder>degreeBox</zorder>
-  <zorder>label_8</zorder>
   <zorder>helpButton</zorder>
+  <zorder>frame_2</zorder>
+  <zorder>frame_3</zorder>
  </widget>
  <resources/>
  <connections>
@@ -336,11 +477,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>44</x>
-     <y>86</y>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
      <x>199</x>
-     <y>197</y>
+     <y>327</y>
     </hint>
    </hints>
   </connection>
@@ -352,11 +493,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>74</x>
-     <y>99</y>
+     <y>229</y>
     </hint>
     <hint type="destinationlabel">
      <x>186</x>
-     <y>167</y>
+     <y>297</y>
     </hint>
    </hints>
   </connection>
@@ -368,11 +509,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>70</x>
-     <y>86</y>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
      <x>193</x>
-     <y>125</y>
+     <y>255</y>
     </hint>
    </hints>
   </connection>
@@ -384,11 +525,91 @@
    <hints>
     <hint type="sourcelabel">
      <x>342</x>
-     <y>290</y>
+     <y>420</y>
     </hint>
     <hint type="destinationlabel">
      <x>200</x>
      <y>277</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxVectorLayer</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>selectpoint</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>17</x>
+     <y>21</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>274</x>
+     <y>24</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxVectorLayer</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_6</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>16</x>
+     <y>26</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>111</x>
+     <y>47</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxVectorLayer</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>comboBox_Polygrid</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>13</x>
+     <y>23</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>213</x>
+     <y>59</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxVectorLayer</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_7</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>16</x>
+     <y>27</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>227</x>
+     <y>80</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxVectorLayer</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>comboBox_Field</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>17</x>
+     <y>27</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>270</x>
+     <y>87</y>
     </hint>
    </hints>
   </connection>

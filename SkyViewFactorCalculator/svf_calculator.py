@@ -81,8 +81,8 @@ class SkyViewFactorCalculator:
         self.actions = []
         self.menu = self.tr(u'&Sky View Factor Calculator')
         # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'SkyViewFactorCalculator')
-        self.toolbar.setObjectName(u'SkyViewFactorCalculator')
+        # self.toolbar = self.iface.addToolBar(u'SkyViewFactorCalculator')
+        # self.toolbar.setObjectName(u'SkyViewFactorCalculator')
 
         self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_dsm)
         RasterLayerCombo(self.dlg.comboBox_dsm, initLayer="")
@@ -105,7 +105,6 @@ class SkyViewFactorCalculator:
         self.scale = None
         self.steps = 0
 
-
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
@@ -121,7 +120,6 @@ class SkyViewFactorCalculator:
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('SkyViewFactorCalculator', message)
 
-
     def add_action(
         self,
         icon_path,
@@ -133,6 +131,7 @@ class SkyViewFactorCalculator:
         status_tip=None,
         whats_this=None,
         parent=None):
+
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -234,7 +233,7 @@ class SkyViewFactorCalculator:
             self.dlg.textOutput.setText(self.folderPath[0])
 
     def startWorker(self, dsm, scale, dlg):
-    # create a new worker instance
+        # create a new worker instance
         worker = Worker(dsm, scale, dlg)
 
         self.dlg.runButton.setText('Cancel')
@@ -254,14 +253,12 @@ class SkyViewFactorCalculator:
         self.worker = worker
 
     def startVegWorker(self, dsm, scale, vegdsm, vegdsm2, dlg):
-    # create a new worker instance
+        # create a new worker instance
         vegworker = VegWorker(dsm, scale, vegdsm, vegdsm2, dlg)
 
-
-        #self.dlg.runButton.setText('Cancel')
-        #self.dlg.runButton.clicked.disconnect()
+        # self.dlg.runButton.setText('Cancel')
+        # self.dlg.runButton.clicked.disconnect()
         self.dlg.runButton.clicked.connect(vegworker.kill)
-
 
         # start the worker in a new thread
         vegthread = QThread(self.dlg)
@@ -281,11 +278,11 @@ class SkyViewFactorCalculator:
         self.thread.wait()
         self.thread.deleteLater()
         # remove widget from message bar
-        #self.iface.messageBar().popWidget(self.messageBar)
+        # self.iface.messageBar().popWidget(self.messageBar)
         if ret is not None:
             # report the result
-            #layer, total_area = ret
-            #self.iface.messageBar().pushMessage('The total area of {name} is {area}.'.format(name=layer.name(), area=total_area))
+            # layer, total_area = ret
+            # self.iface.messageBar().pushMessage('The total area of {name} is {area}.'.format(name=layer.name(), area=total_area))
             self.svfbu = ret["svf"]
             svfbuE = ret["svfE"]
             svfbuS = ret["svfS"]

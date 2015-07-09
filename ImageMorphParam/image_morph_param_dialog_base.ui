@@ -112,9 +112,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>178</x>
+      <x>184</x>
       <y>154</y>
-      <width>199</width>
+      <width>193</width>
       <height>20</height>
      </rect>
     </property>
@@ -122,7 +122,7 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>48</x>
+      <x>54</x>
       <y>120</y>
       <width>128</width>
       <height>16</height>
@@ -141,14 +141,14 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>38</x>
       <y>156</y>
-      <width>135</width>
+      <width>143</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Raster DSM (only buildings):</string>
+     <string>Raster DSM (only 3D objects):</string>
     </property>
     <property name="buddy">
      <cstring>comboBox_DSMbuild</cstring>
@@ -174,9 +174,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QComboBox" name="comboBox_DSMbuildground">
     <property name="geometry">
      <rect>
-      <x>178</x>
+      <x>184</x>
       <y>82</y>
-      <width>199</width>
+      <width>193</width>
       <height>20</height>
      </rect>
     </property>
@@ -184,14 +184,14 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>12</x>
       <y>84</y>
-      <width>165</width>
+      <width>173</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Raster DSM (building and ground):</string>
+     <string>Raster DSM (3D objects + ground):</string>
     </property>
     <property name="buddy">
      <cstring>comboBox_DSMbuildground</cstring>
@@ -213,9 +213,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QComboBox" name="comboBox_DEM">
     <property name="geometry">
      <rect>
-      <x>178</x>
+      <x>184</x>
       <y>118</y>
-      <width>199</width>
+      <width>193</width>
       <height>20</height>
      </rect>
     </property>
@@ -224,13 +224,13 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>8</x>
-      <y>58</y>
-      <width>181</width>
+      <y>60</y>
+      <width>249</width>
       <height>18</height>
      </rect>
     </property>
     <property name="text">
-     <string>Raster DSM (only buildings) exist</string>
+     <string>Raster DSM (only buildings or vegetation) exist</string>
     </property>
    </widget>
    <widget class="QLabel" name="label">
