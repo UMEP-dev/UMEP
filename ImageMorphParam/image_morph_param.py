@@ -23,19 +23,16 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
 from qgis.gui import *
-from qgis.core import QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsMessageLog
+from qgis.core import *
 import os
 from ..Utilities.qgiscombomanager import *
 from osgeo import gdal
 from ..Utilities.imageMorphometricParms_v1 import *
 from impgworker import Worker
+from image_morph_param_dialog import ImageMorphParamDialog
 
 # Initialize Qt resources from file resources.py
 import resources_rc
-
-# Import the code for the dialog
-from image_morph_param_dialog import ImageMorphParamDialog
-
 
 class ImageMorphParam:
     """QGIS Plugin Implementation."""
@@ -99,7 +96,7 @@ class ImageMorphParam:
         # self.toolbar.setObjectName(u'ImageMorphParam')
 
         self.layerComboManagerPolygrid = VectorLayerCombo(self.dlg.comboBox_Polygrid)
-        fieldgen = VectorLayerCombo(self.dlg.comboBox_Polygrid, initLayer="")
+        fieldgen = VectorLayerCombo(self.dlg.comboBox_Polygrid, initLayer="", options={"geomType": QGis.Polygon})
         self.layerComboManagerPolyField = FieldCombo(self.dlg.comboBox_Field, fieldgen, initField="")
         self.layerComboManagerDSMbuildground = RasterLayerCombo(self.dlg.comboBox_DSMbuildground)
         RasterLayerCombo(self.dlg.comboBox_DSMbuildground, initLayer="")
@@ -234,12 +231,12 @@ class ImageMorphParam:
 
     # Metod som startar traden, knyter signaler fran traden till metoder. Se impgworker.py for det arbete som traden utfor.
     def startWorker(self, dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, iface, plugin_dir,
-                    folderPath, dlg, imid, radius):
+                    folderPath, dlg, imid, radius, degree):
         # create a new worker instance
         # Skapar en instans av metoden som innehaller det arbete som ska utforas i en trad
 
         worker = Worker(dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, iface,
-                        plugin_dir, folderPath, dlg, imid, radius)
+                        plugin_dir, folderPath, dlg, imid, radius, degree)
 
         # andrar knappen som startar verktyget till en knapp som avbryter tradens arbete.
         self.dlg.runButton.setText('Cancel')
@@ -356,11 +353,16 @@ class ImageMorphParam:
         else:
             imid = 1
 
+        if self.folderPath == 'None':
+            QMessageBox.critical(None, "Error", "Select a valid output folder")
+            return
+
         radius = self.dlg.spinBoxDistance.value()
+        degree = float(self.dlg.degreeBox.currentText())
 
         # Startar arbetarmetoden och traden, se startworker metoden ovan.
         self.startWorker(dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, self.iface,
-                         self.plugin_dir, self.folderPath, self.dlg, imid, radius)
+                         self.plugin_dir, self.folderPath, self.dlg, imid, radius, degree)
 
         # Allt som ska ske efter att arbetaren startats hanteras genom metoderna som tar emot signaler fran traden.
         # Framforallt workerFinished metoden. Se impgworker.py filen for implementering av det arbete som traden utfor.

@@ -401,12 +401,12 @@ class SkyViewFactorCalculator:
             self.dlg.progressBar.setValue(0)
 
     def workerError(self, e, exception_string):
-        strerror = "Worker thread raised an exception" + str(e)
+        strerror = "Worker thread raised an exception: " + str(e)
         QgsMessageLog.logMessage(strerror.format(exception_string), level=QgsMessageLog.CRITICAL)
 
     def vegWorkerError(self, e, exception_string):
         #QgsMessageLog.logMessage('Vegetation Worker thread raised an exception:\n'.format(exception_string), level=QgsMessageLog.CRITICAL)
-        strerror = "Vegetation Worker thread raised an exception" + str(e)
+        strerror = "Vegetation Worker thread raised an exception: " + str(e)
         QgsMessageLog.logMessage(strerror.format(exception_string), level=QgsMessageLog.CRITICAL)
         #QMessageBox.information(None, "Sky View Factor Calculator", str(e))
 
@@ -436,10 +436,24 @@ class SkyViewFactorCalculator:
             geotransform = self.gdal_dsm.GetGeoTransform()
             self.scale = 1 / geotransform[1]
 
+            if (sizex * sizey) > 250000 and (sizex * sizey) <= 1000000:
+                QMessageBox.warning(None, "Semi lage grid", "This process will take a couple of minutes. "
+                                                        "Go and make yourself a cup of tee...")
+
+            if (sizex * sizey) > 1000000 and (sizex * sizey) <= 4000000:
+                QMessageBox.warning(None, "Large grid", "This process will take some time. "
+                                                        "Go for lunch...")
+
+            if (sizex * sizey) > 4000000 and (sizex * sizey) <= 16000000:
+                QMessageBox.warning(None, "Very large grid", "This process will take a long time. "
+                                                        "Go for lunch and for a walk...")
+
+            if (sizex * sizey) > 16000000:
+                QMessageBox.warning(None, "Huge grid", "This process will take a very long time. "
+                                                        "Go home for the weekend or consider to tile your grid")
+
             if self.dlg.checkBoxUseVeg.isChecked():
-
                 self.usevegdem = 1
-
                 #trans = self.dlg.spinBoxTrans.value() / 100.0
 
                 self.vegdsm = self.layerComboManagerVEGDSM.getLayer()

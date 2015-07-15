@@ -25,7 +25,7 @@ class Worker(QtCore.QObject):
     progress = QtCore.pyqtSignal()
 
     def __init__(self, dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, iface, plugin_dir,
-                 folderPath, dlg, imid, radius):
+                 folderPath, dlg, imid, radius, degree):
         QtCore.QObject.__init__(self)
         # Boolean som berattar for traden ifall den har avbrutits
         self.killed = False
@@ -47,6 +47,7 @@ class Worker(QtCore.QObject):
         self.dlg = dlg
         self.imid = imid
         self.radius = radius
+        self.degree = degree
 
         # Forsok till att skapa ytterligare tradar, anvands inte for tillfallet.
         self.paramthread = None
@@ -159,24 +160,27 @@ class Worker(QtCore.QObject):
                     # QgsMessageBar(self.iface).pushMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated", "Includes NoData Pixels") # funkar inte
                     QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes NoData Pixels", level=QgsMessageLog.CRITICAL)
                 else:
-                    degree = float(self.dlg.degreeBox.currentText())
+                    # degree = float(self.dlg.degreeBox.currentText())
                     # Hade varit bra om ytterligare en trad hade kunnit anvandas istallet for imagemorphparam_v1
                     # self.startParamWorker(dsm_array, dem_array, scale, 0, degree, f, self.idx, self.dlg)
-                    immorphresult = imagemorphparam_v1(dsm_array, dem_array, scale, self.imid, degree, self.dlg, imp_point)
+                    # QgsMessageLog.logMessage("dsm: " + str(dsm_array[100,100]), level=QgsMessageLog.CRITICAL)
+                    # QgsMessageLog.logMessage("dem: " + str(dem_array[100,100]), level=QgsMessageLog.CRITICAL)
+
+                    immorphresult = imagemorphparam_v1(dsm_array, dem_array, scale, self.imid, self.degree, self.dlg, imp_point)
 
                     # save to file
                     header = ' Wd pai   fai   zH  zHmax   zHstd'
                     numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f'
                     arr = np.concatenate((immorphresult["deg"], immorphresult["pai"], immorphresult["fai"],
                                         immorphresult["zH"], immorphresult["zHmax"], immorphresult["zH_sd"]), axis=1)
-                    np.savetxt(self.folderPath[0] + '/anisotropic_result_' + str(f.attributes()[self.idx]) + '.txt', arr,
+                    np.savetxt(self.folderPath[0] + '/IMPGrid_anisotropic_' + str(f.attributes()[self.idx]) + '.txt', arr,
                                fmt=numformat, delimiter=' ', header=header, comments='')
 
                     header = ' pai  fai   zH    zHmax    zHstd '
                     numformat = '%4.3f %4.3f %5.3f %5.3f %5.3f'
                     arr2 = np.array([[immorphresult["pai_all"], immorphresult["fai_all"], immorphresult["zH_all"],
                                       immorphresult["zHmax_all"], immorphresult["zH_sd_all"]]])
-                    np.savetxt(self.folderPath[0] + '/isotropic_result_' + str(f.attributes()[self.idx]) + '.txt', arr2,
+                    np.savetxt(self.folderPath[0] + '/IMPGrid_isotropic_' + str(f.attributes()[self.idx]) + '.txt', arr2,
                                 fmt=numformat, delimiter=' ', header=header, comments='')
 
                 dataset = None

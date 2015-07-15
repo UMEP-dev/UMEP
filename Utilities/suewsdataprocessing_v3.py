@@ -1,4 +1,5 @@
-__author__ = 'Fredrik Lindberg'
+# -*- coding: utf-8 -*-
+#__author__ = 'Fredrik Lindberg'
 
 # This class will be used to prepare input met data into UMEP
 

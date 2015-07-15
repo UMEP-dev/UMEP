@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- UMPE
+ UMEP
                                  A QGIS plugin
- UMPE
+ UMEP
                              -------------------
         begin                : 2015-04-29
         copyright            : (C) 2015 by fredrikl@gvc.gu.se

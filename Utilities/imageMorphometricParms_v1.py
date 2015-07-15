@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #%calculates morphometric parameters for an image based on prevailing wind
 #%direction. Specify a dem on a square grid to load and averaging dimension
 #%
@@ -13,11 +14,13 @@
 # b = dem
 # scale = 1/pixel resolution (m)
 # dtheta = 5.  # degree interval
-import Image
-from scipy import *
+# import Image
+# from scipy import *
 import numpy as np
 import scipy.ndimage.interpolation as sc
-import PIL
+# import scipy.misc as sc
+# import matplotlib as plt
+# import PIL
 
 
 def imagemorphparam_v1(dsm, dem, scale, mid, dtheta, dlg, imp_point):
@@ -38,18 +41,18 @@ def imagemorphparam_v1(dsm, dem, scale, mid, dtheta, dlg, imp_point):
         zH_sd_all = 0
         pai_all = 0 
 
-    fai = np.zeros((72, 1))
-    zH = np.zeros((72, 1))
-    zHmax = np.zeros((72, 1))
-    zH_sd = np.zeros((72, 1))
-    pai = np.zeros((72, 1))
-    deg = np.zeros((72, 1))
+    fai = np.zeros((int(360./dtheta), 1))
+    zH = np.zeros((int(360./dtheta), 1))
+    zHmax = np.zeros((int(360./dtheta), 1))
+    zH_sd = np.zeros((int(360./dtheta), 1))
+    pai = np.zeros((int(360./dtheta), 1))
+    deg = np.zeros((int(360./dtheta), 1))
 
     #%subset and center
     n = dsm.shape[0]
     imid = np.floor((n/2.))
     if mid == 1:
-        dY = np.int16(np.arange(np.dot(1, imid)))  # the whole length of the grid (y)
+        dY = np.int16(np.arange(np.dot(1, imid)))  # half the length of the grid (y)
     else:
         dY = np.int16(np.arange(np.dot(1, n)))  # the whole length of the grid (y)
     if imp_point == 1:
@@ -66,13 +69,15 @@ def imagemorphparam_v1(dsm, dem, scale, mid, dtheta, dlg, imp_point):
             dlg.progressBar.setValue(angle)
 
         c = np.zeros((n, n))
-        #d = sc.imrotate(build, angle, 'nearest')
+
+        # Rotating building
+        # d = sc.imrotate(build, angle, 'nearest')
         d = sc.rotate(build, angle, reshape=False, mode='nearest')
         b = ((build.max()-build.min())/d.max())*d+build.min()
         a = b
         if b.sum() != 0:  # ground heights
-            #d = sc.imrotate(dsm, angle, 'nearest')
-            d = sc.rotate(build, angle, reshape=False, mode='nearest')
+            # d = sc.imrotate(dsm, angle, 'nearest')
+            d = sc.rotate(dsm, angle, reshape=False, mode='nearest')
             a = ((dsm.max()-dsm.min())/d.max())*d+dsm.min()
 
         #% convolve leading edge filter with domain
@@ -95,11 +100,14 @@ def imagemorphparam_v1(dsm, dem, scale, mid, dtheta, dlg, imp_point):
             zHmax[j] = bld.max()
             zH_sd[j] = bld.std()
 
+        if angle == 0:
+            test = wall
+
         j += 1
 
     fai_all = np.mean(fai)
 
     immorphresult = {'fai': fai, 'pai': pai, 'zH': zH, 'deg': deg, 'zHmax': zHmax,'zH_sd': zH_sd, 'pai_all': pai_all,
-                     'zH_all': zH_all, 'zHmax_all': zHmax_all, 'zH_sd_all': zH_sd_all, 'fai_all': fai_all}
+                     'zH_all': zH_all, 'zHmax_all': zHmax_all, 'zH_sd_all': zH_sd_all, 'fai_all': fai_all,'test': test}
 
     return immorphresult

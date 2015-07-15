@@ -98,12 +98,12 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>12</x>
       <y>568</y>
-      <width>291</width>
+      <width>321</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>* Required for most calculations in the processor (see help)</string>
+     <string>* Required for most calculations in the UMEP processor (see help)</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="checkBox_qf">

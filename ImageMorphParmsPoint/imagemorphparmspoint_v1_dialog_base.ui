@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>393</width>
-    <height>410</height>
+    <height>384</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -29,7 +29,7 @@
    <property name="geometry">
     <rect>
      <x>308</x>
-     <y>348</y>
+     <y>324</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -42,7 +42,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>346</y>
+     <y>322</y>
      <width>181</width>
      <height>23</height>
     </rect>
@@ -55,7 +55,7 @@
    <property name="geometry">
     <rect>
      <x>308</x>
-     <y>318</y>
+     <y>294</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -68,7 +68,7 @@
    <property name="geometry">
     <rect>
      <x>8</x>
-     <y>320</y>
+     <y>296</y>
      <width>71</width>
      <height>16</height>
     </rect>
@@ -81,7 +81,7 @@
    <property name="geometry">
     <rect>
      <x>78</x>
-     <y>318</y>
+     <y>294</y>
      <width>219</width>
      <height>20</height>
     </rect>
@@ -91,7 +91,7 @@
    <property name="geometry">
     <rect>
      <x>2</x>
-     <y>174</y>
+     <y>154</y>
      <width>387</width>
      <height>133</height>
     </rect>
@@ -210,7 +210,7 @@
    <property name="geometry">
     <rect>
      <x>308</x>
-     <y>378</y>
+     <y>354</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -223,7 +223,7 @@
    <property name="geometry">
     <rect>
      <x>8</x>
-     <y>378</y>
+     <y>354</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -238,7 +238,7 @@
      <x>2</x>
      <y>6</y>
      <width>387</width>
-     <height>93</height>
+     <height>69</height>
     </rect>
    </property>
    <property name="frameShape">
@@ -252,7 +252,7 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>193</width>
+      <width>203</width>
       <height>18</height>
      </rect>
     </property>
@@ -260,26 +260,10 @@
      <enum>Qt::LeftToRight</enum>
     </property>
     <property name="text">
-     <string>Use existing point from vector layer</string>
+     <string>Use existing single point vector layer</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_7">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>214</x>
-      <y>66</y>
-      <width>38</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>ID field:</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="comboBox_Polygrid">
+   <widget class="QComboBox" name="comboBox_Point">
     <property name="enabled">
      <bool>false</bool>
     </property>
@@ -321,22 +305,6 @@ p, li { white-space: pre-wrap; }
      <string>Select point on canvas</string>
     </property>
    </widget>
-   <widget class="QComboBox" name="comboBox_Field">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>254</x>
-      <y>64</y>
-      <width>125</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="toolTip">
-     <string>Attribut ID should be a unique number or string for each polygon </string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_6">
     <property name="enabled">
      <bool>false</bool>
@@ -353,7 +321,7 @@ p, li { white-space: pre-wrap; }
      <string>Vector point layer:</string>
     </property>
     <property name="buddy">
-     <cstring>comboBox_Polygrid</cstring>
+     <cstring>comboBox_Point</cstring>
     </property>
    </widget>
   </widget>
@@ -361,7 +329,7 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>2</x>
-     <y>104</y>
+     <y>82</y>
      <width>387</width>
      <height>65</height>
     </rect>
@@ -568,7 +536,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>checkBoxVectorLayer</sender>
    <signal>toggled(bool)</signal>
-   <receiver>comboBox_Polygrid</receiver>
+   <receiver>comboBox_Point</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -578,38 +546,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>213</x>
      <y>59</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxVectorLayer</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_7</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>16</x>
-     <y>27</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>227</x>
-     <y>80</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxVectorLayer</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>comboBox_Field</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>17</x>
-     <y>27</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>270</x>
-     <y>87</y>
     </hint>
    </hints>
   </connection>

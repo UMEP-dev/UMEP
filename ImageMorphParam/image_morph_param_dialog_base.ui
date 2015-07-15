@@ -359,6 +359,22 @@ p, li { white-space: pre-wrap; }
     <string>Search from grid centroid</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="closeButton_2">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>6</x>
+     <y>354</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Help</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections>

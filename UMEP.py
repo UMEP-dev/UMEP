@@ -28,12 +28,17 @@ import resources_rc
 from UMEP_dialog import UMEPDialog
 from MetdataProcessor.metdata_processor import MetdataProcessor
 from ShadowGenerator.shadow_generator import ShadowGenerator
+from SkyViewFactorCalculator.svf_calculator import SkyViewFactorCalculator
 from ImageMorphParam.image_morph_param import ImageMorphParam
 from ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
-from SkyViewFactorCalculator.svf_calculator import SkyViewFactorCalculator
+from LandCoverFractionGrid.landcoverfraction_grid import LandCoverFractionGrid
+from LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
+from LandCoverReclassifier.land_cover_reclassifier import LandCoverReclassifier
 from SuewsSimple.suews_simple import SuewsSimple
-#from pydev import pydevd
 import os.path
+# import sys
+# sys.path.append('C:/Program Files (x86)/JetBrains/PyCharm 4.5.2/helpers/pydev')
+# from pydev import pydevd
 #try:
 #    import matplotlib.pyplot as plt
 #except ImportError:
@@ -125,12 +130,15 @@ class UMEP:
         self.SVF_Action.triggered.connect(self.SVF)
 
         # Sub-actions to Urban Land Cover
-        self.ULCUEBG_Action = QAction("Land Cover Fractions (Grid)", self.iface.mainWindow())
-        self.ULC_Menu.addAction(self.ULCUEBG_Action)
-        self.ULCUEBG_Action.setEnabled(False)
-        self.ULCUEBP_Action = QAction("Land Cover Fractions (Point)", self.iface.mainWindow())
+        self.ULCUEBRC_Action = QAction("Land Cover Reclassifier", self.iface.mainWindow())
+        self.ULC_Menu.addAction(self.ULCUEBRC_Action)
+        self.ULCUEBRC_Action.triggered.connect(self.LCRC)
+        self.ULCUEBP_Action = QAction("Land Cover Fraction (Point)", self.iface.mainWindow())
         self.ULC_Menu.addAction(self.ULCUEBP_Action)
-        self.ULCUEBP_Action.setEnabled(False)
+        self.ULCUEBP_Action.triggered.connect(self.LCP)
+        self.ULCUEBG_Action = QAction("Land Cover Fraction (Grid)", self.iface.mainWindow())
+        self.ULC_Menu.addAction(self.ULCUEBG_Action)
+        self.ULCUEBG_Action.triggered.connect(self.LCG)
 
         self.HW_Action = QAction("Height/Width Ratio", self.iface.mainWindow())
         self.UG_Menu.addAction(self.HW_Action)
@@ -191,10 +199,13 @@ class UMEP:
         self.Manual_Action.setEnabled(False)
 
         # Icons
-        self.SVF_Action.setIcon(QIcon(self.plugin_dir + "/SkyViewFactorCalculator/icon_svf.png"))
-        self.IMCG_Action.setIcon(QIcon(self.plugin_dir + "/ImageMorphParam/ImageMorphIcon.png"))
-        self.IMCP_Action.setIcon(QIcon(self.plugin_dir + "/ImageMorphParmsPoint/ImageMorphIconPoint.png"))
-        self.DSP_Action.setIcon(QIcon(self.plugin_dir + "/ShadowGenerator/ShadowIcon.png"))
+        self.SVF_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_svf.png"))
+        self.IMCG_Action.setIcon(QIcon(self.plugin_dir + "/Icons/ImageMorphIcon.png"))
+        self.IMCP_Action.setIcon(QIcon(self.plugin_dir + "/Icons/ImageMorphIconPoint.png"))
+        self.DSP_Action.setIcon(QIcon(self.plugin_dir + "/Icons/ShadowIcon.png"))
+        self.ULCUEBG_Action.setIcon(QIcon(self.plugin_dir + "/Icons/LandCoverFractionGridIcon.png"))
+        self.ULCUEBP_Action.setIcon(QIcon(self.plugin_dir + "/Icons/LandCoverFractionPointIcon.png"))
+        self.ULCUEBRC_Action.setIcon(QIcon(self.plugin_dir + "/Icons/LandCoverReclassifierIcon.png"))
 
         self.iface.mainWindow().menuBar().insertMenu(self.iface.firstRightStandardMenu().menuAction(), self.UMEP_Menu)
 
@@ -224,6 +235,7 @@ class UMEP:
         status_tip=None,
         whats_this=None,
         parent=None):
+
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -327,7 +339,19 @@ class UMEP:
 
     def SUEWS_simple(self):
         sg = SuewsSimple(self.iface)
-        #pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True) #used for debugging
+        sg.run()
+
+    def LCG(self):
+        sg = LandCoverFractionGrid(self.iface)
+        sg.run()
+
+    def LCP(self):
+        sg = LandCoverFractionPoint(self.iface)
+        sg.run()
+
+    def LCRC(self):
+        sg = LandCoverReclassifier(self.iface)
+        # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True) #used for debugging
         sg.run()
 
     def run(self):

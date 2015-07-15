@@ -93,22 +93,24 @@ class ImageMorphParmsPoint:
         # self.toolbar = self.iface.addToolBar(u'ImageMorphParmsPoint')
         # self.toolbar.setObjectName(u'ImageMorphParmsPoint')
 
-        # g reference to the canvas
+        # get reference to the canvas
         self.canvas = self.iface.mapCanvas()
         self.poiLayer = None
         self.polyLayer = None
         self.folderPath = 'None'
         self.degree = 5.0
         self.point = None
+        self.pointx = None
+        self.pointy = None
 
         # #g pin tool
         self.pointTool = QgsMapToolEmitPoint(self.canvas)
         #self.toolPan = QgsMapToolPan(self.canvas)
         self.pointTool.canvasClicked.connect(self.create_point)
 
-        self.layerComboManagerPolygrid = VectorLayerCombo(self.dlg.comboBox_Polygrid)
-        fieldgen = VectorLayerCombo(self.dlg.comboBox_Polygrid, initLayer="", options={"geomType": QGis.Point})
-        self.layerComboManagerPolyField = FieldCombo(self.dlg.comboBox_Field, fieldgen, initField="")
+        self.layerComboManagerPoint = VectorLayerCombo(self.dlg.comboBox_Point)
+        fieldgen = VectorLayerCombo(self.dlg.comboBox_Point, initLayer="", options={"geomType": QGis.Point})
+        # self.layerComboManagerPointField = FieldCombo(self.dlg.comboBox_Field, fieldgen, initField="")
         self.layerComboManagerDSMbuildground = RasterLayerCombo(self.dlg.comboBox_DSMbuildground)
         RasterLayerCombo(self.dlg.comboBox_DSMbuildground, initLayer="")
         self.layerComboManagerDEM = RasterLayerCombo(self.dlg.comboBox_DEM)
@@ -248,17 +250,32 @@ class ImageMorphParmsPoint:
         # self.create_poly_layer(point) # Flyttad till generate_area
         self.dlg.setEnabled(True)
         self.dlg.activateWindow()
+        self.pointx = point.x()
+        self.pointy = point.y()
         self.point = point
 
-    def generate_area(self):  # Det ar har det skiter sig. Point funkar inte
+    def generate_area(self):
+
         if self.dlg.checkBoxVectorLayer.isChecked():
-            self.iface.messageBar().pushMessage("test", "Hämta punkt från punkt lager")
+            point = self.layerComboManagerPoint.getLayer()
+            if point is None:
+                QMessageBox.critical(None, "Error", "No valid point layer is selected")
+                return
+            if not point.geometryType() == 0:
+                QMessageBox.critical(None, "Error", "No valid Polygon layer is selected")
+                return
+
+            for poi in point.getFeatures():
+                loc = poi.geometry().asPoint()
+                self.pointx = loc[0]
+                self.pointy = loc[1]
         else:
-            self.iface.messageBar().pushMessage("y=", str(self.point.y()))
-            self.iface.messageBar().pushMessage("x=", str(self.point.x()))
+            if not self.pointx:
+                QMessageBox.critical(None, "Error", "No click registred on map canvas")
+                return
 
         self.dlg.runButton.setEnabled(1)
-        self.create_poly_layer(self.point)
+        self.create_poly_layer()
 
     def select_point(self):  # Connected to "Secelct Point on Canves"
         if self.poiLayer is not None:
@@ -283,12 +300,12 @@ class ImageMorphParmsPoint:
         self.poiLayer = QgsVectorLayer(uri, "Point of Interest", "memory")
         self.provider = self.poiLayer.dataProvider()
 
-    def create_poly_layer(self, point):
+    def create_poly_layer(self):
         canvas = self.iface.mapCanvas()
         srs = canvas.mapSettings().destinationCrs()
         crs = str(srs.authid())
         uri = "Polygon?field=id:integer&index=yes&crs=" + crs
-        dir_poly = self.plugin_dir + '/data/poly_temp.shp'
+        # dir_poly = self.plugin_dir + '/data/poly_temp.shp'
         #self.polyLayer = QgsVectorLayer(dir_poly, "Study area", "ogr")
         self.polyLayer = QgsVectorLayer(uri, "Study area", "memory")
         self.provider = self.polyLayer.dataProvider()
@@ -301,7 +318,7 @@ class ImageMorphParmsPoint:
         # Assign feature the buffered geometry
         radius = self.dlg.spinBox.value()
         featurepoly.setGeometry(QgsGeometry.fromPoint(
-            QgsPoint(point.x(), point.y())).buffer(radius, 1000, 1, 1, 1.0))
+            QgsPoint(self.pointx, self.pointy)).buffer(radius, 1000, 1, 1, 1.0))
         featurepoly.setAttributes([fc])
         self.polyLayer.startEditing()
         self.polyLayer.addFeature(featurepoly, True)
@@ -339,6 +356,10 @@ class ImageMorphParmsPoint:
         # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
         self.dlg.progressBar.setValue(0)
 
+        if self.folderPath == 'None':
+            QMessageBox.critical(None, "Error", "Select a valid output folder")
+            return
+
         poly = self.iface.activeLayer()
         if poly is None:
             QMessageBox.critical(None, "Error", "No valid Polygon layer is selected")
@@ -352,7 +373,6 @@ class ImageMorphParmsPoint:
 
         dir_poly = self.plugin_dir + '/data/poly_temp.shp'
 
-        # savename = self.plugin_dir + '/data/' + str(j) + ".shp"
         writer = QgsVectorFileWriter(dir_poly, "CP1250", fields, prov.geometryType(),
                                      prov.crs(), "ESRI shapefile")
 
@@ -369,6 +389,10 @@ class ImageMorphParmsPoint:
         si = subprocess.STARTUPINFO()
         si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
+        x = self.pointx
+        y = self.pointy
+        r = self.dlg.spinBox.value()
+
         if self.dlg.checkBoxOnlyBuilding.isChecked():  # Only building heights
             dsm_build = self.layerComboManagerDSMbuild.getLayer()
             if dsm_build is None:
@@ -378,9 +402,12 @@ class ImageMorphParmsPoint:
             provider = dsm_build.dataProvider()
             filePath_dsm_build = str(provider.dataSourceUri())
             # Kolla om memorylayer går att användas istället för dir_poly tempfilen.
-            gdalruntextdsm_build = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + dir_poly + \
-                                   ' -crop_to_cutline -of GTiff ' + filePath_dsm_build + \
-                                   ' ' + self.plugin_dir + '/data/clipdsm.tif'
+            gdalruntextdsm_build = 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff ' + \
+                                   filePath_dsm_build + ' ' + self.plugin_dir + '/data/clipdsm.tif'
+            # gdalruntextdsm_build = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + dir_poly + \
+            #                        ' -crop_to_cutline -of GTiff ' + filePath_dsm_build + \
+            #                        ' ' + self.plugin_dir + '/data/clipdsm.tif'
             subprocess.call(gdalruntextdsm_build, startupinfo=si)
             dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
             dsm = dataset.ReadAsArray().astype(np.float)
@@ -404,14 +431,20 @@ class ImageMorphParmsPoint:
             filePath_dsm = str(provider.dataSourceUri())
             provider = dem.dataProvider()
             filePath_dem = str(provider.dataSourceUri())
-            gdalruntextdsm = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + dir_poly + \
-                             ' -crop_to_cutline -of GTiff ' + filePath_dsm + \
-                             ' ' + self.plugin_dir + '/data/clipdsm.tif'
-            gdalruntextdem = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + dir_poly + \
-                             ' -crop_to_cutline -of GTiff ' + filePath_dem + \
-                             ' ' + self.plugin_dir + '/data/clipdem.tif'
-            #si = subprocess.STARTUPINFO()
-            #si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+            gdalruntextdsm = 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+                                               ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff ' + \
+                                               filePath_dsm + ' ' + self.plugin_dir + '/data/clipdsm.tif'
+            gdalruntextdem = 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff ' + \
+                                   filePath_dem + ' ' + self.plugin_dir + '/data/clipdem.tif'
+            # gdalruntextdsm = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + dir_poly + \
+            #                  ' -crop_to_cutline -of GTiff ' + filePath_dsm + \
+            #                  ' ' + self.plugin_dir + '/data/clipdsm.tif'
+            # gdalruntextdem = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + dir_poly + \
+            #                  ' -crop_to_cutline -of GTiff ' + filePath_dem + \
+            #                  ' ' + self.plugin_dir + '/data/clipdem.tif'
+
             subprocess.call(gdalruntextdsm, startupinfo=si)
             subprocess.call(gdalruntextdem, startupinfo=si)
 
@@ -426,24 +459,28 @@ class ImageMorphParmsPoint:
 
         geotransform = dataset.GetGeoTransform()
         scale = 1 / geotransform[1]
-        # self.iface.messageBar().pushMessage("innan loop")
-
         self.degree = float(self.dlg.degreeBox.currentText())
-        immorphresult = imagemorphparam_v1(dsm, dem, scale, 1, self.degree, self.dlg, 1)
+
+        nodata_test = (dsm == -9999)
+        if nodata_test.any():
+            QMessageBox.critical(None, "Error", "Grids includes nodata pixels")
+            return
+        else:
+            immorphresult = imagemorphparam_v1(dsm, dem, scale, 1, self.degree, self.dlg, 1)
 
         # save to file
         header = ' Wd pai   fai   zH  zHmax   zHstd'
         numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f'
         arr = np.concatenate((immorphresult["deg"], immorphresult["pai"], immorphresult["fai"],
                             immorphresult["zH"], immorphresult["zHmax"], immorphresult["zH_sd"]), axis=1)
-        np.savetxt(self.folderPath[0] + '/anisotropic_result.txt', arr,
+        np.savetxt(self.folderPath[0] + '/IMPPoint_anisotropic.txt', arr,
                    fmt=numformat, delimiter=' ', header=header, comments='')
 
         header = ' pai  fai   zH    zHmax    zHstd '
         numformat = '%4.3f %4.3f %5.3f %5.3f %5.3f'
         arr2 = np.array([[immorphresult["pai_all"], immorphresult["fai_all"], immorphresult["zH_all"],
                           immorphresult["zHmax_all"], immorphresult["zH_sd_all"]]])
-        np.savetxt(self.folderPath[0] + '/isotropic_result.txt', arr2,
+        np.savetxt(self.folderPath[0] + '/IMPPoint_isotropic.txt', arr2,
                    fmt=numformat, delimiter=' ', header=header, comments='')
 
         dataset = None

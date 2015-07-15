@@ -6,9 +6,10 @@ def wrapper(pathtoplugin):
     import suewsdataprocessing_v3
     import suewsplotting_v1
     import subprocess
-    import f90nml
     import os
     import sys
+    sys.path.append(pathtoplugin)
+    import f90nml
     #import Tkinter
     #import FileDialog
     #import tkFileDialog
@@ -115,7 +116,8 @@ def wrapper(pathtoplugin):
     si = subprocess.STARTUPINFO()
     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
     #subprocess.call(suewsstring, startupinfo=si)
-    subprocess.call(suewsbat, startupinfo=si)
+    # subprocess.call(suewsbat, startupinfo=si)
+    subprocess.call(suewsbat)
     #subprocess.call('SUEWS_V2015a.exe')
     #os.system(suewsstring)
 

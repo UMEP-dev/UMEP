@@ -210,6 +210,11 @@ class ShadowGenerator:
             self.dlg.timeEdit.setEnabled(False)
 
     def start_progress(self):
+
+        if self.folderPath == 'None':
+            QMessageBox.critical(None, "Error", "Select a valid output folder")
+            return
+
         self.dlg.textOutput.setText(self.folderPath[0])
         dsmlayer = self.layerComboManagerDSM.getLayer()
 

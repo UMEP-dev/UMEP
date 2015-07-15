@@ -1,1 +1,2 @@
-__author__ = 'xlinfr'
+# -*- coding: utf-8 -*-
+# __author__ = 'xlinfr'

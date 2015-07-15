@@ -201,12 +201,9 @@ class SuewsSimple:
         self.dlg.setEnabled(True)
 
     def start_progress(self):
-
+        # self.iface.messageBar().pushMessage("test=", self.plugin_dir)
         Suews_wrapper_v7.wrapper(self.plugin_dir)
 
     def help(self):
         url = "file://" + self.plugin_dir + "/help/build/html/index.html"
         webbrowser.open_new_tab(url)
-
-
-
