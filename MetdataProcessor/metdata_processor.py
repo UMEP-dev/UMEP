@@ -88,7 +88,6 @@ class MetdataProcessor:
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('MetdataProcessor', message)
 
-
     def add_action(
         self,
         icon_path,
@@ -171,7 +170,6 @@ class MetdataProcessor:
             text=self.tr(u'Metdata processor'),
             callback=self.run,
             parent=self.iface.mainWindow())
-
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
@@ -539,8 +537,6 @@ class MetdataProcessor:
         self.dlg.progressBar.setValue(10)
 
         QMessageBox.information(None, "Metdata pre-processor", "Input data to UMEP processor generated")
-
-
 
     def run(self):
         """Run method that performs all the real work"""

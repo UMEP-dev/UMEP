@@ -108,16 +108,17 @@ class Worker(QtCore.QObject):
                     landcoverresult = landcover_v1(lc_grid_array, self.imid, self.degree, self.dlg, imp_point)
 
                     # save to file
+                    pre = self.dlg.textOutput_prefix.text()
                     header = 'Wd Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
                     numformat = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
                     arr = np.concatenate((landcoverresult["deg"], landcoverresult["lc_frac"]), axis=1)
-                    np.savetxt(self.folderPath[0] + '/lc_anisotropic_result_' + str(f.attributes()[self.idx]) + '.txt', arr,
+                    np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'LCFG_anisotropic_result_' + str(f.attributes()[self.idx]) + '.txt', arr,
                                fmt=numformat, delimiter=' ', header=header, comments='')
 
                     header = ' Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
                     numformat = '%5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
                     arr2 = np.array(landcoverresult["lc_frac_all"])
-                    np.savetxt(self.folderPath[0] + '/lc_isotropic_result_' + str(f.attributes()[self.idx]) + '.txt', arr2,
+                    np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'LCFG_isotropic_result_' + str(f.attributes()[self.idx]) + '.txt', arr2,
                                 fmt=numformat, delimiter=' ', header=header, comments='')
 
                 dataset = None

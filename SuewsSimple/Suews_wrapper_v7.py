@@ -13,7 +13,11 @@ def wrapper(pathtoplugin):
     #import Tkinter
     #import FileDialog
     #import tkFileDialog
-    import matplotlib.pylab as plt
+    # import matplotlib.pylab as plt
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        pass
 
     su = suewsdataprocessing_v3.SuewsDataProcessing()
     pl = suewsplotting_v1.SuewsPlotting()
@@ -222,7 +226,6 @@ def wrapper(pathtoplugin):
                   'DensSnow_BSoil DensSnow_Water Sd_Paved Sd_Bldgs Sd_EveTr Sd_DecTr Sd_Grass Sd_BSoil Sd_Water ' \
                   'Tsnow_Paved Tsnow_Bldgs Tsnow_EveTr Tsnow_DecTr Tsnow_Grass Tsnow_BSoil Tsnow_Water'
 
-
     pynumformat_snow = '%4i ' + '%3i ' * 3 + '%8.5f ' + '%10.4f ' * 97
 
     TimeCol = np.array(TimeCol) - 1
@@ -270,9 +273,12 @@ def wrapper(pathtoplugin):
         lines = lin[j].split()
         YYYY = int(lines[1])
         gridcode = lines[0]
-        data_out = wf + fileinputpath[1:] + filecode + gridcode + '_' + str(YYYY) + '_data_5.txt'
-        suews_5min = wf + fileoutputpath[1:] + filecode + gridcode + '_' + str(YYYY) + '_5.txt'
-        suews_out = wf + fileoutputpath[1:] + filecode + gridcode + '_' + str(YYYY) + '_60.txt'
+        # data_out = wf + fileinputpath[1:] + filecode + gridcode + '_' + str(YYYY) + '_data_5.txt'
+        # suews_5min = wf + fileoutputpath[1:] + filecode + gridcode + '_' + str(YYYY) + '_5.txt'
+        # suews_out = wf + fileoutputpath[1:] + filecode + gridcode + '_' + str(YYYY) + '_60.txt'
+        data_out =  wf + fileinputpath[1:] + filecode + gridcode + '_' + str(YYYY) + '_data_5.txt'
+        suews_5min = fileoutputpath + filecode + gridcode + '_' + str(YYYY) + '_5.txt'
+        suews_out = fileoutputpath + filecode + gridcode + '_' + str(YYYY) + '_60.txt'
         suews_in = np.loadtxt(suews_5min, skiprows=1)
         suews_1hour = su.from5minto1hour_v1(suews_in, SumCol, LastCol, TimeCol)
         np.savetxt(suews_out, suews_1hour, fmt=pynumformat, delimiter=' ', header=header, comments='')  #, fmt=numformat
@@ -309,7 +315,8 @@ def wrapper(pathtoplugin):
         if chooseyearbasic:
             YYYY = chooseyearbasic
 
-        suews_out = wf + fileoutputpath[1:] + filecode + gridcode + '_' + str(YYYY) + '_60.txt'
+        # suews_out = wf + fileoutputpath[1:] + filecode + gridcode + '_' + str(YYYY) + '_60.txt'
+        suews_out = fileoutputpath + filecode + gridcode + '_' + str(YYYY) + '_60.txt'
 
         if chooseyearbasic or choosegridbasic:
             suews_1hour = np.loadtxt(suews_out, skiprows=1)
@@ -323,13 +330,13 @@ def wrapper(pathtoplugin):
         if chooseyearstat:
             YYYY = chooseyearstat
 
-        suews_out = wf + fileoutputpath[1:] + filecode + gridcode + '_' + str(YYYY) + '_60.txt'
+        # suews_out = wf + fileoutputpath[1:] + filecode + gridcode + '_' + str(YYYY) + '_60.txt'
+        suews_out = fileoutputpath + filecode + gridcode + '_' + str(YYYY) + '_60.txt'
 
         if chooseyearbasic or choosegridbasic:
             suews_1hour = np.loadtxt(suews_out, skiprows=1)
 
         pl.plotmonthlystatistics(suews_1hour, met_old)
-
 
     if plotmonthlystat == 1:
         plt.show()

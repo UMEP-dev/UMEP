@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>272</height>
+    <height>298</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
    <property name="geometry">
     <rect>
      <x>310</x>
-     <y>243</y>
+     <y>270</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -129,7 +129,7 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>310</x>
-     <y>213</y>
+     <y>240</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -142,7 +142,7 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>185</y>
+     <y>212</y>
      <width>71</width>
      <height>16</height>
     </rect>
@@ -155,7 +155,7 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>310</x>
-     <y>183</y>
+     <y>210</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -168,7 +168,7 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>12</x>
-     <y>211</y>
+     <y>238</y>
      <width>181</width>
      <height>23</height>
     </rect>
@@ -181,7 +181,7 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>243</y>
+     <y>270</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -194,7 +194,7 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>80</x>
-     <y>183</y>
+     <y>210</y>
      <width>219</width>
      <height>20</height>
     </rect>
@@ -303,7 +303,7 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>12</x>
-     <y>158</y>
+     <y>159</y>
      <width>112</width>
      <height>16</height>
     </rect>
@@ -319,8 +319,34 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>126</x>
-     <y>156</y>
+     <y>157</y>
      <width>256</width>
+     <height>20</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_9">
+   <property name="geometry">
+    <rect>
+     <x>168</x>
+     <y>186</y>
+     <width>71</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>File prefix:</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="textOutput_prefix">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>184</y>
+     <width>59</width>
      <height>20</height>
     </rect>
    </property>

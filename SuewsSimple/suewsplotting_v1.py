@@ -40,6 +40,8 @@ class SuewsPlotting:
         dectime = make_dectime(dataout)
         dates = dt.num2date(dectime)
 
+        plt.title('Model Output of Radiation balance, Energy budget and Water Balance')
+
         plt.figure(1, figsize=(15, 7), facecolor='white')
         ax1 = plt.subplot(3, 1, 1)
         ax1.plot(dates, dataout[:, 5], 'r', label='$K_{down}$')

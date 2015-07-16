@@ -469,18 +469,19 @@ class ImageMorphParmsPoint:
             immorphresult = imagemorphparam_v1(dsm, dem, scale, 1, self.degree, self.dlg, 1)
 
         # save to file
+        pre = self.dlg.textOutput_prefix.text()
         header = ' Wd pai   fai   zH  zHmax   zHstd'
         numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f'
         arr = np.concatenate((immorphresult["deg"], immorphresult["pai"], immorphresult["fai"],
                             immorphresult["zH"], immorphresult["zHmax"], immorphresult["zH_sd"]), axis=1)
-        np.savetxt(self.folderPath[0] + '/IMPPoint_anisotropic.txt', arr,
+        np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'IMPPoint_anisotropic.txt', arr,
                    fmt=numformat, delimiter=' ', header=header, comments='')
 
         header = ' pai  fai   zH    zHmax    zHstd '
         numformat = '%4.3f %4.3f %5.3f %5.3f %5.3f'
         arr2 = np.array([[immorphresult["pai_all"], immorphresult["fai_all"], immorphresult["zH_all"],
                           immorphresult["zHmax_all"], immorphresult["zH_sd_all"]]])
-        np.savetxt(self.folderPath[0] + '/IMPPoint_isotropic.txt', arr2,
+        np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'IMPPoint_isotropic.txt', arr2,
                    fmt=numformat, delimiter=' ', header=header, comments='')
 
         dataset = None

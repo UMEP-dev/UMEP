@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>610</width>
-    <height>540</height>
+    <width>616</width>
+    <height>615</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Suews Simple</string>
@@ -16,8 +22,8 @@
   <widget class="QPushButton" name="pushButtonSave">
    <property name="geometry">
     <rect>
-     <x>531</x>
-     <y>454</y>
+     <x>534</x>
+     <y>529</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -32,8 +38,8 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>531</x>
-     <y>510</y>
+     <x>534</x>
+     <y>585</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -46,17 +52,20 @@
    <property name="geometry">
     <rect>
      <x>309</x>
-     <y>454</y>
-     <width>211</width>
+     <y>529</y>
+     <width>220</width>
      <height>20</height>
     </rect>
    </property>
   </widget>
   <widget class="QPushButton" name="runButton">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
-     <x>531</x>
-     <y>482</y>
+     <x>534</x>
+     <y>557</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -68,10 +77,10 @@
   <widget class="QFrame" name="frame">
    <property name="geometry">
     <rect>
-     <x>1</x>
-     <y>6</y>
+     <x>4</x>
+     <y>42</y>
      <width>299</width>
-     <height>151</height>
+     <height>184</height>
     </rect>
    </property>
    <property name="frameShape">
@@ -90,10 +99,10 @@
      </rect>
     </property>
     <property name="text">
-     <string>Morphometric parameters generted from DSM</string>
+     <string>Morphometric parameters generted from building DSM</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButtonImport_2">
+   <widget class="QPushButton" name="pushButtonImport_IMPB">
     <property name="enabled">
      <bool>false</bool>
     </property>
@@ -154,7 +163,7 @@ p, li { white-space: pre-wrap; }
      </rect>
     </property>
     <property name="text">
-     <string>Mean Height (zH):</string>
+     <string>Mean building height (zH):</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -163,12 +172,12 @@ p, li { white-space: pre-wrap; }
      <cstring></cstring>
     </property>
    </widget>
-   <widget class="QLineEdit" name="fai_build">
+   <widget class="QLineEdit" name="lineEdit_faiBuild">
     <property name="geometry">
      <rect>
       <x>177</x>
-      <y>120</y>
-      <width>113</width>
+      <y>123</y>
+      <width>60</width>
       <height>22</height>
      </rect>
     </property>
@@ -176,12 +185,12 @@ p, li { white-space: pre-wrap; }
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit">
+   <widget class="QLineEdit" name="lineEdit_zHBuild">
     <property name="geometry">
      <rect>
       <x>177</x>
       <y>94</y>
-      <width>113</width>
+      <width>60</width>
       <height>22</height>
      </rect>
     </property>
@@ -193,7 +202,7 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>36</x>
-      <y>122</y>
+      <y>126</y>
       <width>139</width>
       <height>16</height>
      </rect>
@@ -208,14 +217,46 @@ p, li { white-space: pre-wrap; }
      <cstring></cstring>
     </property>
    </widget>
+   <widget class="QLineEdit" name="lineEdit_paiBuild">
+    <property name="geometry">
+     <rect>
+      <x>177</x>
+      <y>153</y>
+      <width>60</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_19">
+    <property name="geometry">
+     <rect>
+      <x>36</x>
+      <y>156</y>
+      <width>139</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Plan area index (lamdaP):</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+    <property name="buddy">
+     <cstring></cstring>
+    </property>
+   </widget>
   </widget>
   <widget class="QFrame" name="frame_2">
    <property name="geometry">
     <rect>
-     <x>309</x>
-     <y>6</y>
+     <x>312</x>
+     <y>42</y>
      <width>299</width>
-     <height>151</height>
+     <height>184</height>
     </rect>
    </property>
    <property name="frameShape">
@@ -229,15 +270,15 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>8</x>
       <y>30</y>
-      <width>247</width>
+      <width>289</width>
       <height>18</height>
      </rect>
     </property>
     <property name="text">
-     <string>Morphometric parameters generted from DSM</string>
+     <string>Morphometric parameters generted from canopy DSM</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButtonImport_3">
+   <widget class="QPushButton" name="pushButtonImport_IMPV">
     <property name="enabled">
      <bool>false</bool>
     </property>
@@ -254,7 +295,7 @@ p, li { white-space: pre-wrap; }
 Morphometric Calculation</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButtonImport_4">
+   <widget class="QPushButton" name="pushButtonIMPcalcVeg">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -292,7 +333,7 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>36</x>
-      <y>123</y>
+      <y>126</y>
       <width>139</width>
       <height>16</height>
      </rect>
@@ -307,12 +348,12 @@ p, li { white-space: pre-wrap; }
      <cstring></cstring>
     </property>
    </widget>
-   <widget class="QLineEdit" name="zH_veg">
+   <widget class="QLineEdit" name="lineEdit_zHveg">
     <property name="geometry">
      <rect>
       <x>177</x>
       <y>95</y>
-      <width>113</width>
+      <width>60</width>
       <height>22</height>
      </rect>
     </property>
@@ -320,12 +361,12 @@ p, li { white-space: pre-wrap; }
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QLineEdit" name="fai_veg">
+   <widget class="QLineEdit" name="lineEdit_faiveg">
     <property name="geometry">
      <rect>
       <x>177</x>
-      <y>121</y>
-      <width>113</width>
+      <y>123</y>
+      <width>60</width>
       <height>22</height>
      </rect>
     </property>
@@ -336,14 +377,46 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_10">
     <property name="geometry">
      <rect>
-      <x>42</x>
+      <x>24</x>
       <y>97</y>
-      <width>133</width>
+      <width>151</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Mean Height (zH):</string>
+     <string>Mean vegetation height (zH):</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+    <property name="buddy">
+     <cstring></cstring>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_paiveg">
+    <property name="geometry">
+     <rect>
+      <x>177</x>
+      <y>153</y>
+      <width>60</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_20">
+    <property name="geometry">
+     <rect>
+      <x>36</x>
+      <y>156</y>
+      <width>139</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Plan area index (lamdaP):</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -356,8 +429,8 @@ p, li { white-space: pre-wrap; }
   <widget class="QFrame" name="frame_4">
    <property name="geometry">
     <rect>
-     <x>309</x>
-     <y>165</y>
+     <x>312</x>
+     <y>234</y>
      <width>299</width>
      <height>280</height>
     </rect>
@@ -381,7 +454,7 @@ p, li { white-space: pre-wrap; }
      <string>Initial conditions file allready exists</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButtonImport_7">
+   <widget class="QPushButton" name="pushButtonImportInitial">
     <property name="enabled">
      <bool>false</bool>
     </property>
@@ -402,7 +475,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>3</x>
       <y>0</y>
-      <width>173</width>
+      <width>256</width>
       <height>27</height>
      </rect>
     </property>
@@ -411,21 +484,26 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Initial conditions&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Initial conditions and other settings&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
-   <widget class="QComboBox" name="comboBox_sep">
+   <widget class="QComboBox" name="comboBoxLeafCycle">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>73</x>
-      <y>243</y>
-      <width>220</width>
+      <x>142</x>
+      <y>174</y>
+      <width>151</width>
       <height>20</height>
      </rect>
     </property>
+    <item>
+     <property name="text">
+      <string> </string>
+     </property>
+    </item>
     <item>
      <property name="text">
       <string>Winter (0%)</string>
@@ -470,8 +548,8 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_16">
     <property name="geometry">
      <rect>
-      <x>12</x>
-      <y>243</y>
+      <x>87</x>
+      <y>174</y>
       <width>58</width>
       <height>20</height>
      </rect>
@@ -480,12 +558,12 @@ p, li { white-space: pre-wrap; }
      <string>Leaf cycle:</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="fai_veg_2">
+   <widget class="QLineEdit" name="DailyMeanT">
     <property name="geometry">
      <rect>
-      <x>177</x>
+      <x>228</x>
       <y>120</y>
-      <width>113</width>
+      <width>60</width>
       <height>22</height>
      </rect>
     </property>
@@ -496,14 +574,14 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_17">
     <property name="geometry">
      <rect>
-      <x>18</x>
+      <x>54</x>
       <y>122</y>
-      <width>157</width>
+      <width>172</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Daily mean temperature (degC)</string>
+     <string>Daily mean temperature (degC):</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -512,12 +590,12 @@ p, li { white-space: pre-wrap; }
      <cstring></cstring>
     </property>
    </widget>
-   <widget class="QLineEdit" name="zH_veg_2">
+   <widget class="QLineEdit" name="DaysSinceRain">
     <property name="geometry">
      <rect>
-      <x>177</x>
+      <x>228</x>
       <y>94</y>
-      <width>113</width>
+      <width>60</width>
       <height>22</height>
      </rect>
     </property>
@@ -528,7 +606,7 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_18">
     <property name="geometry">
      <rect>
-      <x>42</x>
+      <x>93</x>
       <y>96</y>
       <width>133</width>
       <height>16</height>
@@ -544,12 +622,146 @@ p, li { white-space: pre-wrap; }
      <cstring></cstring>
     </property>
    </widget>
+   <widget class="QLabel" name="label_22">
+    <property name="geometry">
+     <rect>
+      <x>39</x>
+      <y>150</y>
+      <width>187</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Soil moisture state in the ground (%):</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+    <property name="buddy">
+     <cstring></cstring>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spinBoxSoilMoisture">
+    <property name="geometry">
+     <rect>
+      <x>228</x>
+      <y>147</y>
+      <width>61</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>100</number>
+    </property>
+    <property name="singleStep">
+     <number>5</number>
+    </property>
+    <property name="value">
+     <number>100</number>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="Longitude">
+    <property name="geometry">
+     <rect>
+      <x>228</x>
+      <y>225</y>
+      <width>60</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_23">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>228</y>
+      <width>133</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Longitude (decimal deg):</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+    <property name="buddy">
+     <cstring></cstring>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="UTC">
+    <property name="geometry">
+     <rect>
+      <x>228</x>
+      <y>249</y>
+      <width>60</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_24">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>252</y>
+      <width>133</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>UTC offset (hour):</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+    <property name="buddy">
+     <cstring></cstring>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="Latitude">
+    <property name="geometry">
+     <rect>
+      <x>228</x>
+      <y>201</y>
+      <width>60</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_25">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>204</y>
+      <width>133</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Latitude (decimal deg):</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+    <property name="buddy">
+     <cstring></cstring>
+    </property>
+   </widget>
   </widget>
   <widget class="QPushButton" name="pushButtonHelp">
    <property name="geometry">
     <rect>
      <x>6</x>
-     <y>510</y>
+     <y>585</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -561,8 +773,8 @@ p, li { white-space: pre-wrap; }
   <widget class="QFrame" name="frame_3">
    <property name="geometry">
     <rect>
-     <x>0</x>
-     <y>165</y>
+     <x>3</x>
+     <y>234</y>
      <width>299</width>
      <height>280</height>
     </rect>
@@ -586,7 +798,7 @@ p, li { white-space: pre-wrap; }
      <string>Land cover fractions generted from land cover grid</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButtonImport_5">
+   <widget class="QPushButton" name="pushButtonImport_LCFP">
     <property name="enabled">
      <bool>false</bool>
     </property>
@@ -603,7 +815,7 @@ p, li { white-space: pre-wrap; }
 Cover Fraction calculation</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButtonImport_6">
+   <widget class="QPushButton" name="pushButtonLCFPcalc">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -640,9 +852,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_9">
     <property name="geometry">
      <rect>
-      <x>36</x>
+      <x>3</x>
       <y>252</y>
-      <width>139</width>
+      <width>90</width>
       <height>16</height>
      </rect>
     </property>
@@ -659,9 +871,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_8">
     <property name="geometry">
      <rect>
-      <x>36</x>
+      <x>3</x>
       <y>226</y>
-      <width>139</width>
+      <width>90</width>
       <height>16</height>
      </rect>
     </property>
@@ -678,9 +890,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLineEdit" name="pai_water">
     <property name="geometry">
      <rect>
-      <x>177</x>
+      <x>96</x>
       <y>250</y>
-      <width>113</width>
+      <width>60</width>
       <height>22</height>
      </rect>
     </property>
@@ -694,9 +906,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_7">
     <property name="geometry">
      <rect>
-      <x>36</x>
+      <x>3</x>
       <y>200</y>
-      <width>139</width>
+      <width>90</width>
       <height>16</height>
      </rect>
     </property>
@@ -713,9 +925,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>36</x>
+      <x>3</x>
       <y>97</y>
-      <width>139</width>
+      <width>90</width>
       <height>16</height>
      </rect>
     </property>
@@ -732,9 +944,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLineEdit" name="pai_evergreen">
     <property name="geometry">
      <rect>
-      <x>177</x>
+      <x>96</x>
       <y>147</y>
-      <width>113</width>
+      <width>60</width>
       <height>22</height>
      </rect>
     </property>
@@ -748,9 +960,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLineEdit" name="pai_grass">
     <property name="geometry">
      <rect>
-      <x>177</x>
+      <x>96</x>
       <y>198</y>
-      <width>113</width>
+      <width>60</width>
       <height>22</height>
      </rect>
     </property>
@@ -764,9 +976,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>36</x>
+      <x>3</x>
       <y>123</y>
-      <width>139</width>
+      <width>90</width>
       <height>16</height>
      </rect>
     </property>
@@ -783,9 +995,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>36</x>
+      <x>3</x>
       <y>149</y>
-      <width>139</width>
+      <width>90</width>
       <height>16</height>
      </rect>
     </property>
@@ -802,9 +1014,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLineEdit" name="pai_build">
     <property name="geometry">
      <rect>
-      <x>177</x>
+      <x>96</x>
       <y>121</y>
-      <width>113</width>
+      <width>60</width>
       <height>22</height>
      </rect>
     </property>
@@ -818,9 +1030,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLineEdit" name="pai_decid">
     <property name="geometry">
      <rect>
-      <x>177</x>
+      <x>96</x>
       <y>173</y>
-      <width>113</width>
+      <width>60</width>
       <height>22</height>
      </rect>
     </property>
@@ -834,9 +1046,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLineEdit" name="pai_paved">
     <property name="geometry">
      <rect>
-      <x>177</x>
+      <x>96</x>
       <y>95</y>
-      <width>113</width>
+      <width>60</width>
       <height>22</height>
      </rect>
     </property>
@@ -850,9 +1062,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_6">
     <property name="geometry">
      <rect>
-      <x>36</x>
+      <x>3</x>
       <y>175</y>
-      <width>139</width>
+      <width>90</width>
       <height>16</height>
      </rect>
     </property>
@@ -869,9 +1081,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLineEdit" name="pai_baresoil">
     <property name="geometry">
      <rect>
-      <x>177</x>
+      <x>96</x>
       <y>224</y>
-      <width>113</width>
+      <width>60</width>
       <height>22</height>
      </rect>
     </property>
@@ -882,6 +1094,77 @@ p, li { white-space: pre-wrap; }
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
+  </widget>
+  <widget class="QLineEdit" name="textInputMetdata">
+   <property name="geometry">
+    <rect>
+     <x>5</x>
+     <y>530</y>
+     <width>190</width>
+     <height>20</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButtonImport">
+   <property name="geometry">
+    <rect>
+     <x>204</x>
+     <y>528</y>
+     <width>94</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Meteorolocial file</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="defaultButton">
+   <property name="geometry">
+    <rect>
+     <x>3</x>
+     <y>6</y>
+     <width>169</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Add settings from test dataset</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit_YYYY">
+   <property name="geometry">
+    <rect>
+     <x>135</x>
+     <y>556</y>
+     <width>60</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_21">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>558</y>
+     <width>133</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Year:</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+   <property name="buddy">
+    <cstring></cstring>
+   </property>
   </widget>
  </widget>
  <resources/>
@@ -894,27 +1177,27 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>568</x>
-     <y>521</y>
+     <y>585</y>
     </hint>
     <hint type="destinationlabel">
-     <x>518</x>
-     <y>519</y>
+     <x>81</x>
+     <y>15</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>checkBox_manualmorph</sender>
    <signal>toggled(bool)</signal>
-   <receiver>pushButtonImport_2</receiver>
+   <receiver>pushButtonImport_IMPB</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>35</x>
-     <y>40</y>
+     <y>82</y>
     </hint>
     <hint type="destinationlabel">
      <x>48</x>
-     <y>67</y>
+     <y>109</y>
     </hint>
    </hints>
   </connection>
@@ -926,107 +1209,107 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>18</x>
-     <y>43</y>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
      <x>192</x>
-     <y>64</y>
+     <y>106</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>checkBox_manualmorph_3</sender>
    <signal>toggled(bool)</signal>
-   <receiver>pushButtonImport_6</receiver>
+   <receiver>pushButtonLCFPcalc</receiver>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>226</x>
-     <y>214</y>
+     <y>270</y>
     </hint>
     <hint type="destinationlabel">
      <x>226</x>
-     <y>235</y>
+     <y>291</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>checkBox_manualmorph_3</sender>
    <signal>toggled(bool)</signal>
-   <receiver>pushButtonImport_5</receiver>
+   <receiver>pushButtonImport_LCFP</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>15</x>
-     <y>217</y>
+     <y>270</y>
     </hint>
     <hint type="destinationlabel">
      <x>20</x>
-     <y>241</y>
+     <y>291</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>checkBox_manualmorph_2</sender>
    <signal>toggled(bool)</signal>
-   <receiver>pushButtonImport_3</receiver>
+   <receiver>pushButtonImport_IMPV</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>345</x>
-     <y>50</y>
+     <x>348</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>345</x>
-     <y>69</y>
+     <y>111</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>checkBox_manualmorph_2</sender>
    <signal>toggled(bool)</signal>
-   <receiver>pushButtonImport_4</receiver>
+   <receiver>pushButtonIMPcalcVeg</receiver>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>325</x>
-     <y>42</y>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>573</x>
-     <y>63</y>
+     <y>105</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>checkBox_manualmorph_4</sender>
    <signal>toggled(bool)</signal>
-   <receiver>pushButtonImport_7</receiver>
+   <receiver>pushButtonImportInitial</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>326</x>
-     <y>218</y>
+     <y>270</y>
     </hint>
     <hint type="destinationlabel">
      <x>339</x>
-     <y>245</y>
+     <y>291</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>checkBox_manualmorph_4</sender>
    <signal>toggled(bool)</signal>
-   <receiver>comboBox_sep</receiver>
+   <receiver>comboBoxLeafCycle</receiver>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>325</x>
-     <y>216</y>
+     <y>270</y>
     </hint>
     <hint type="destinationlabel">
      <x>409</x>
-     <y>433</y>
+     <y>483</y>
     </hint>
    </hints>
   </connection>

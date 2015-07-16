@@ -399,16 +399,17 @@ class LandCoverFractionPoint:
             landcoverresult = landcover_v1(dsm, 1, self.degree, self.dlg, 1)
 
         # save to file
+        pre = self.dlg.textOutput_prefix.text()
         header = 'Wd Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
         numformat = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
         arr = np.concatenate((landcoverresult["deg"], landcoverresult["lc_frac"]), axis=1)
-        np.savetxt(self.folderPath[0] + '/LCP_anisotropic_result.txt', arr,
+        np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'LCFPoint_anisotropic.txt', arr,
                    fmt=numformat, delimiter=' ', header=header, comments='')
 
         header = 'Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
         numformat = '%5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
         arr2 = np.array(landcoverresult["lc_frac_all"])
-        np.savetxt(self.folderPath[0] + '/LCP_isotropic_result.txt', arr2,
+        np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'LCFPoint_isotropic.txt', arr2,
                     fmt=numformat, delimiter=' ', header=header, comments='')
 
         dataset = None

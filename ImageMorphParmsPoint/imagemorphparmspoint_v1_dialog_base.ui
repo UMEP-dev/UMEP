@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>393</width>
-    <height>384</height>
+    <height>409</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -29,7 +29,7 @@
    <property name="geometry">
     <rect>
      <x>308</x>
-     <y>324</y>
+     <y>348</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -42,7 +42,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>322</y>
+     <y>346</y>
      <width>181</width>
      <height>23</height>
     </rect>
@@ -55,7 +55,7 @@
    <property name="geometry">
     <rect>
      <x>308</x>
-     <y>294</y>
+     <y>318</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -68,7 +68,7 @@
    <property name="geometry">
     <rect>
      <x>8</x>
-     <y>296</y>
+     <y>322</y>
      <width>71</width>
      <height>16</height>
     </rect>
@@ -81,7 +81,7 @@
    <property name="geometry">
     <rect>
      <x>78</x>
-     <y>294</y>
+     <y>318</y>
      <width>219</width>
      <height>20</height>
     </rect>
@@ -210,7 +210,7 @@
    <property name="geometry">
     <rect>
      <x>308</x>
-     <y>354</y>
+     <y>378</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -223,7 +223,7 @@
    <property name="geometry">
     <rect>
      <x>8</x>
-     <y>354</y>
+     <y>378</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -424,6 +424,32 @@ p, li { white-space: pre-wrap; }
     </property>
    </widget>
   </widget>
+  <widget class="QLabel" name="label_9">
+   <property name="geometry">
+    <rect>
+     <x>166</x>
+     <y>294</y>
+     <width>71</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>File prefix:</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="textOutput_prefix">
+   <property name="geometry">
+    <rect>
+     <x>238</x>
+     <y>292</y>
+     <width>59</width>
+     <height>20</height>
+    </rect>
+   </property>
+  </widget>
   <zorder>frame</zorder>
   <zorder>runButton</zorder>
   <zorder>progressBar</zorder>
@@ -434,6 +460,8 @@ p, li { white-space: pre-wrap; }
   <zorder>helpButton</zorder>
   <zorder>frame_2</zorder>
   <zorder>frame_3</zorder>
+  <zorder>label_9</zorder>
+  <zorder>textOutput_prefix</zorder>
  </widget>
  <resources/>
  <connections>
