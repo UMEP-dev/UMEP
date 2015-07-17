@@ -79,9 +79,23 @@ class SuewsSimple:
         self.dlg.defaultButton.clicked.connect(self.set_default_settings)
         self.dlg.pushButtonHelp.clicked.connect(self.help)
         self.dlg.runButton.clicked.connect(self.start_progress)
+        self.dlg.pushButtonSave.clicked.connect(self.folder_path)
+        self.dlg.pushButtonImport.clicked.connect(self.met_file)
+        self.dlg.pushButtonImportInitial.clicked.connect(self.import_initial)
+        self.dlg.pushButtonExportInitial.clicked.connect(self.export_initial)
 
         self.fileDialog = QFileDialog()
         self.fileDialog.setNameFilter("(*Point_isotropic.txt)")
+
+        self.fileDialogInit = QFileDialog()
+        self.fileDialogInit.setNameFilter("(*.nml)")
+
+        self.fileDialogMet = QFileDialog()
+        self.fileDialogMet.setNameFilter("(*.txt)")
+
+        self.fileDialogOut = QFileDialog()
+        self.fileDialogOut.setFileMode(4)
+        self.fileDialogOut.setAcceptMode(1)
 
         # Declare instance attributes
         self.actions = []
@@ -218,6 +232,20 @@ class SuewsSimple:
         sg.run()
         self.dlg.setEnabled(True)
 
+    def folder_path(self):
+        self.fileDialogOut.open()
+        result = self.fileDialogOut.exec_()
+        if result == 1:
+            self.folderPathOut = self.fileDialogOut.selectedFiles()
+            self.dlg.textOutput.setText(self.folderPathOut[0])
+
+    def met_file(self):
+        self.fileDialogMet.open()
+        result = self.fileDialogMet.exec_()
+        if result == 1:
+            self.folderPathMet = self.fileDialogMet.selectedFiles()
+            self.dlg.textInputMetdata.setText(self.folderPathMet[0])
+
     def import_file_IMPB(self):
         self.fileDialog.open()
         result = self.fileDialog.exec_()
@@ -287,6 +315,96 @@ class SuewsSimple:
                 if np.abs(float(self.dlg.lineEdit_paiveg.text()) - data[2] - data[3]) > 0.05:
                     self.iface.messageBar().pushMessage("Non-consistency warning", "A relatively large difference in "
                     "vegetation fraction between the canopy DSM and the landcover grid was found: " + str(float(self.dlg.lineEdit_paiveg.text()) - data[2] - data[3]), level=QgsMessageBar.WARNING)
+
+    def import_initial(self):
+        import sys
+        sys.path.append(self.plugin_dir)
+        import f90nml
+        self.fileDialogInit.open()
+        result = self.fileDialogInit.exec_()
+        if result == 1:
+            self.folderPathInit = self.fileDialogInit.selectedFiles()
+            nml = f90nml.read(self.folderPathInit[0])
+            dayssincerain = nml['initialconditions']['dayssincerain']
+            dailymeantemperature = nml['initialconditions']['temp_c0']
+            self.dlg.DaysSinceRain.setText(str(dayssincerain))
+            self.dlg.DailyMeanT.setText(str(dailymeantemperature))
+            self.dlg.comboBoxLeafCycle.setCurrentIndex(1)
+
+    def export_initial(self):
+        import sys
+        sys.path.append(self.plugin_dir)
+        import f90nml
+        self.fileDialogInit.open()
+        result = self.fileDialogInit.exec_()
+        if result == 1:
+            self.folderPathInit = self.fileDialogInit.selectedFiles()
+
+            DaysSinceRain = self.dlg.DaysSinceRain.text()
+            DailyMeanT = self.dlg.DailyMeanT.text()
+            LeafCycle = self.dlg.comboBoxLeafCycle.currentIndex() - 1.
+            SoilMoisture = self.dlg.spinBoxSoilMoisture.value()
+            moist = int(SoilMoisture * 1.5)
+
+            nml = f90nml.read(self.plugin_dir + '/BaseFiles/InitialConditionsKc1_2012.nml')
+            nml['initialconditions']['dayssincerain'] = int(DaysSinceRain)
+            nml['initialconditions']['temp_c0'] = float(DailyMeanT)
+            nml['initialconditions']['soilstorepavedstate'] = moist
+            nml['initialconditions']['soilstorebldgsstate'] = moist
+            nml['initialconditions']['soilstoreevetrstate'] = moist
+            nml['initialconditions']['soilstoredectrstate'] = moist
+            nml['initialconditions']['soilstoregrassstate'] = moist
+            nml['initialconditions']['soilstorebsoilstate'] = moist
+
+            if LeafCycle == 0: # Winter
+                nml['initialconditions']['gdd_1_0'] = 0
+                nml['initialconditions']['gdd_2_0'] = -450
+                nml['initialconditions']['laiinitialevetr'] = 4
+                nml['initialconditions']['laiinitialdectr'] = 1
+                nml['initialconditions']['laiinitialgrass'] = 1.6
+            elif LeafCycle == 1:
+                nml['initialconditions']['gdd_1_0'] = 50
+                nml['initialconditions']['gdd_2_0'] = -400
+                nml['initialconditions']['laiinitialevetr'] = 4.2
+                nml['initialconditions']['laiinitialdectr'] = 2.0
+                nml['initialconditions']['laiinitialgrass'] = 2.6
+            elif LeafCycle == 2:
+                nml['initialconditions']['gdd_1_0'] = 150
+                nml['initialconditions']['gdd_2_0'] = -300
+                nml['initialconditions']['laiinitialevetr'] = 4.6
+                nml['initialconditions']['laiinitialdectr'] = 3.0
+                nml['initialconditions']['laiinitialgrass'] = 3.6
+            elif LeafCycle == 3:
+                nml['initialconditions']['gdd_1_0'] = 225
+                nml['initialconditions']['gdd_2_0'] = -150
+                nml['initialconditions']['laiinitialevetr'] = 4.9
+                nml['initialconditions']['laiinitialdectr'] = 4.5
+                nml['initialconditions']['laiinitialgrass'] = 4.6
+            elif LeafCycle == 4: # Summer
+                nml['initialconditions']['gdd_1_0'] = 300
+                nml['initialconditions']['gdd_2_0'] = 0
+                nml['initialconditions']['laiinitialevetr'] = 5.1
+                nml['initialconditions']['laiinitialdectr'] = 5.5
+                nml['initialconditions']['laiinitialgrass'] = 5.9
+            elif LeafCycle == 5:
+                nml['initialconditions']['gdd_1_0'] = 225
+                nml['initialconditions']['gdd_2_0'] = -150
+                nml['initialconditions']['laiinitialevetr'] = 4.9
+                nml['initialconditions']['laiinitialdectr'] = 4,5
+                nml['initialconditions']['laiinitialgrass'] = 4.6
+            elif LeafCycle == 6:
+                nml['initialconditions']['gdd_1_0'] = 150
+                nml['initialconditions']['gdd_2_0'] = -300
+                nml['initialconditions']['laiinitialevetr'] = 4.6
+                nml['initialconditions']['laiinitialdectr'] = 3.0
+                nml['initialconditions']['laiinitialgrass'] = 3.6
+            elif LeafCycle == 7:
+                nml['initialconditions']['gdd_1_0'] = 50
+                nml['initialconditions']['gdd_2_0'] = -400
+                nml['initialconditions']['laiinitialevetr'] = 4.2
+                nml['initialconditions']['laiinitialdectr'] = 2.0
+                nml['initialconditions']['laiinitialgrass'] = 2.6
+            nml.write(self.folderPathInit[0], force=True)
 
     def set_default_settings(self):
         import sys
