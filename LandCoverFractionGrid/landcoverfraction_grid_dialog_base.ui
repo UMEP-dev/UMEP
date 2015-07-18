@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>393</width>
+    <width>462</width>
     <height>312</height>
    </rect>
   </property>
@@ -16,7 +16,7 @@
   <widget class="QComboBox" name="degreeBox">
    <property name="geometry">
     <rect>
-     <x>310</x>
+     <x>377</x>
      <y>7</y>
      <width>74</width>
      <height>22</height>
@@ -28,7 +28,7 @@
     <rect>
      <x>4</x>
      <y>85</y>
-     <width>383</width>
+     <width>451</width>
      <height>112</height>
     </rect>
    </property>
@@ -41,7 +41,7 @@
    <widget class="QComboBox" name="comboBox_Polygrid">
     <property name="geometry">
      <rect>
-      <x>180</x>
+      <x>245</x>
       <y>5</y>
       <width>197</width>
       <height>20</height>
@@ -58,7 +58,7 @@ p, li { white-space: pre-wrap; }
    <widget class="QComboBox" name="comboBox_lcgrid">
     <property name="geometry">
      <rect>
-      <x>124</x>
+      <x>189</x>
       <y>82</y>
       <width>253</width>
       <height>20</height>
@@ -70,12 +70,15 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>18</x>
       <y>84</y>
-      <width>109</width>
+      <width>169</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
      <string>UMEP land cover grid:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
     <property name="buddy">
      <cstring>comboBox_lcgrid</cstring>
@@ -84,7 +87,7 @@ p, li { white-space: pre-wrap; }
    <widget class="QComboBox" name="comboBox_Field">
     <property name="geometry">
      <rect>
-      <x>252</x>
+      <x>317</x>
       <y>36</y>
       <width>125</width>
       <height>20</height>
@@ -99,12 +102,15 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>80</x>
       <y>6</y>
-      <width>96</width>
+      <width>163</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
      <string>Vector polygon grid:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
     <property name="buddy">
      <cstring>comboBox_Polygrid</cstring>
@@ -115,12 +121,15 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>210</x>
       <y>38</y>
-      <width>38</width>
+      <width>106</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
      <string>ID field:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
    </widget>
   </widget>
@@ -130,7 +139,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="geometry">
     <rect>
-     <x>306</x>
+     <x>378</x>
      <y>282</y>
      <width>75</width>
      <height>23</height>
@@ -143,7 +152,7 @@ p, li { white-space: pre-wrap; }
   <widget class="QLineEdit" name="textOutput">
    <property name="geometry">
     <rect>
-     <x>76</x>
+     <x>150</x>
      <y>226</y>
      <width>219</width>
      <height>20</height>
@@ -155,12 +164,15 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>112</x>
      <y>11</y>
-     <width>197</width>
+     <width>262</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
     <string>Wind direction search interval (degrees):</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButtonHelp">
@@ -181,7 +193,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>10</x>
      <y>57</y>
-     <width>145</width>
+     <width>208</width>
      <height>18</height>
     </rect>
    </property>
@@ -192,7 +204,7 @@ p, li { white-space: pre-wrap; }
   <widget class="QPushButton" name="runButton">
    <property name="geometry">
     <rect>
-     <x>306</x>
+     <x>378</x>
      <y>254</y>
      <width>75</width>
      <height>23</height>
@@ -207,12 +219,15 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>206</x>
      <y>61</y>
-     <width>99</width>
+     <width>166</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
     <string>Search distance (m):</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
    </property>
   </widget>
   <widget class="QSpinBox" name="spinBoxDistance">
@@ -221,7 +236,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="geometry">
     <rect>
-     <x>308</x>
+     <x>375</x>
      <y>59</y>
      <width>73</width>
      <height>22</height>
@@ -251,7 +266,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>10</x>
      <y>39</y>
-     <width>189</width>
+     <width>253</width>
      <height>18</height>
     </rect>
    </property>
@@ -267,7 +282,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>10</x>
      <y>254</y>
-     <width>173</width>
+     <width>211</width>
      <height>23</height>
     </rect>
    </property>
@@ -278,7 +293,7 @@ p, li { white-space: pre-wrap; }
   <widget class="QPushButton" name="pushButtonSave">
    <property name="geometry">
     <rect>
-     <x>306</x>
+     <x>378</x>
      <y>226</y>
      <width>75</width>
      <height>23</height>
@@ -293,7 +308,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>6</x>
      <y>228</y>
-     <width>71</width>
+     <width>142</width>
      <height>16</height>
     </rect>
    </property>
@@ -306,7 +321,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>165</x>
      <y>204</y>
-     <width>71</width>
+     <width>142</width>
      <height>16</height>
     </rect>
    </property>
@@ -320,7 +335,7 @@ p, li { white-space: pre-wrap; }
   <widget class="QLineEdit" name="textOutput_prefix">
    <property name="geometry">
     <rect>
-     <x>237</x>
+     <x>309</x>
      <y>202</y>
      <width>59</width>
      <height>20</height>

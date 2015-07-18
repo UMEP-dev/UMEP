@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>361</height>
+    <width>476</width>
+    <height>382</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <rect>
      <x>109</x>
      <y>10</y>
-     <width>277</width>
+     <width>358</width>
      <height>20</height>
     </rect>
    </property>
@@ -26,9 +26,9 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>21</x>
+     <x>9</x>
      <y>12</y>
-     <width>85</width>
+     <width>97</width>
      <height>16</height>
     </rect>
    </property>
@@ -47,8 +47,8 @@
     <rect>
      <x>6</x>
      <y>39</y>
-     <width>382</width>
-     <height>229</height>
+     <width>463</width>
+     <height>247</height>
     </rect>
    </property>
    <property name="frameShape">
@@ -77,10 +77,10 @@ p, li { white-space: pre-wrap; }
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>285</x>
+      <x>330</x>
       <y>42</y>
-      <width>55</width>
-      <height>178</height>
+      <width>64</width>
+      <height>198</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -159,9 +159,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>171</x>
+      <x>189</x>
       <y>24</y>
-      <width>67</width>
+      <width>97</width>
       <height>16</height>
      </rect>
     </property>
@@ -175,9 +175,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>261</x>
+      <x>291</x>
       <y>24</y>
-      <width>109</width>
+      <width>151</width>
       <height>16</height>
      </rect>
     </property>
@@ -193,8 +193,8 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>9</x>
       <y>42</y>
-      <width>111</width>
-      <height>178</height>
+      <width>157</width>
+      <height>198</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -511,10 +511,10 @@ p, li { white-space: pre-wrap; }
    <widget class="QWidget" name="layoutWidget_3">
     <property name="geometry">
      <rect>
-      <x>174</x>
+      <x>207</x>
       <y>42</y>
-      <width>55</width>
-      <height>178</height>
+      <width>64</width>
+      <height>198</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -600,8 +600,8 @@ p, li { white-space: pre-wrap; }
   <widget class="QPushButton" name="runButton">
    <property name="geometry">
     <rect>
-     <x>310</x>
-     <y>302</y>
+     <x>390</x>
+     <y>326</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -614,8 +614,8 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>15</x>
-     <y>276</y>
-     <width>71</width>
+     <y>300</y>
+     <width>94</width>
      <height>16</height>
     </rect>
    </property>
@@ -629,9 +629,9 @@ p, li { white-space: pre-wrap; }
   <widget class="QLineEdit" name="textOutput">
    <property name="geometry">
     <rect>
-     <x>88</x>
-     <y>274</y>
-     <width>211</width>
+     <x>112</x>
+     <y>298</y>
+     <width>265</width>
      <height>20</height>
     </rect>
    </property>
@@ -639,8 +639,8 @@ p, li { white-space: pre-wrap; }
   <widget class="QPushButton" name="pushButtonSave">
    <property name="geometry">
     <rect>
-     <x>310</x>
-     <y>274</y>
+     <x>390</x>
+     <y>298</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -655,8 +655,8 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="geometry">
     <rect>
-     <x>310</x>
-     <y>330</y>
+     <x>390</x>
+     <y>354</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -669,7 +669,7 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>12</x>
-     <y>330</y>
+     <y>354</y>
      <width>75</width>
      <height>23</height>
     </rect>

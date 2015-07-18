@@ -15,7 +15,8 @@
 # scale = 1/pixel resolution (m)
 # dtheta = 5.  # degree interval
 # import Image
-from scipy import misc as sc
+import scipy.ndimage.interpolation as sc
+# from scipy import misc as sc
 import numpy as np
 # import scipy.ndimage.interpolation as sc
 # import PIL
@@ -54,7 +55,9 @@ def landcover_v1(lc_grid, mid, dtheta, dlg, imp_point):
         if imp_point == 1:
             dlg.progressBar.setValue(angle)
 
-        d = sc.imrotate(lc_grid, angle, 'nearest')
+        d = sc.rotate(lc_grid, angle, reshape=False, mode='nearest')
+        # b = ((build.max()-build.min())/d.max())*d+build.min()
+        # d = sc.imrotate(lc_grid, angle, 'nearest')
 
         # d = sc.rotate(lc_grid, angle, reshape=False, mode='nearest')
         b = np.round(((lc_grid.max()-lc_grid.min())/d.max())*d+lc_grid.min(), 0)

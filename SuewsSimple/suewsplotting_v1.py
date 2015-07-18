@@ -40,8 +40,6 @@ class SuewsPlotting:
         dectime = make_dectime(dataout)
         dates = dt.num2date(dectime)
 
-        plt.title('Model Output of Radiation balance, Energy budget and Water Balance')
-
         plt.figure(1, figsize=(15, 7), facecolor='white')
         ax1 = plt.subplot(3, 1, 1)
         ax1.plot(dates, dataout[:, 5], 'r', label='$K_{down}$')
@@ -51,8 +49,9 @@ class SuewsPlotting:
         ax1.plot(dates, dataout[:, 10], 'k', label='$Q*$')
         ax1.set_ylim([-100, 1000])
         ax1.set_ylabel('$W$'' ''$m ^{-2}$', fontsize=14)
+        plt.title('Model output of radiation balance, energy budget and water balance')
         pos1 = ax1.get_position()
-        pos2 = [pos1.x0 - 0.07, pos1.y0 + 0.05, pos1.width * 1.05, pos1.height * 1.1]
+        pos2 = [pos1.x0 - 0.07, pos1.y0 + 0.04, pos1.width * 1.05, pos1.height * 1.1]
         ax1.set_position(pos2)
         plt.legend(bbox_to_anchor=(1.13, 1.08))
 
@@ -71,6 +70,7 @@ class SuewsPlotting:
         ax3 = plt.subplot(3, 1, 3, sharex=ax1)
         ax4 = ax3.twinx()
         ax3.plot(dates, dataout[:, 57], 'g-', label='$LAI$')
+        ax3.legend(bbox_to_anchor=(1.16, 0.5))
         ax4.bar(dectime, datain[:, 13], width=0.0, edgecolor='b' , label='$Precip$')
         ax4.plot(dectime, dataout[:, 43], 'k', label='$SMD$')
         ax3.set_xlabel('Time', fontsize=14)
@@ -81,7 +81,8 @@ class SuewsPlotting:
         pos2 = [pos1.x0 - 0.07, pos1.y0 - 0.02, pos1.width * 1.05, pos1.height * 1.1]
         ax3.set_position(pos2)
         ax4.set_position(pos2)
-        plt.legend(bbox_to_anchor=(1.16, 1.0))
+        # plt.legend(bbox_to_anchor=(1.16, 1.0))
+        ax4.legend(bbox_to_anchor=(1.16, 1.0))
 
 
     def plotmonthlystatistics(self, dataout, datain):
@@ -122,12 +123,11 @@ class SuewsPlotting:
             evap[i - 1] = np.sum(dataout[month == i, 19])  #Evaporation (E/i)
             drain[i - 1] = np.sum(dataout[month == i, 25]) #runoff (RO/i)
 
-
         totch = precip + wu - st - evap - drain
 
         plt.figure(2, figsize=(15, 7), facecolor='white')
         ax1 = plt.subplot(1, 2, 1)
-        ax1.plot(pltmonth, Qstar, 'ro-', label='$Q*$')
+        ax1.plot(pltmonth, Qstar, 'go-', label='$Q*$')
         ax1.plot(pltmonth, -Qh, 'ro-', label='$Q_H$')
         ax1.plot(pltmonth, -Qe, 'bo-', label='$Q_E$')
         ax1.plot(pltmonth, -Qs, 'ko-', label='$\Delta Q_S$')

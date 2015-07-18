@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>381</width>
+    <width>477</width>
     <height>267</height>
    </rect>
   </property>
@@ -24,7 +24,7 @@
     <rect>
      <x>16</x>
      <y>246</y>
-     <width>137</width>
+     <width>250</width>
      <height>18</height>
     </rect>
    </property>
@@ -35,7 +35,7 @@
   <widget class="QPushButton" name="pushButtonSave">
    <property name="geometry">
     <rect>
-     <x>300</x>
+     <x>396</x>
      <y>176</y>
      <width>75</width>
      <height>23</height>
@@ -48,9 +48,9 @@
   <widget class="QLineEdit" name="textOutput">
    <property name="geometry">
     <rect>
-     <x>88</x>
+     <x>124</x>
      <y>176</y>
-     <width>203</width>
+     <width>259</width>
      <height>20</height>
     </rect>
    </property>
@@ -58,14 +58,17 @@
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>14</x>
+     <x>8</x>
      <y>178</y>
-     <width>71</width>
+     <width>112</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
     <string>Output folder:</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
    </property>
   </widget>
   <widget class="QSpinBox" name="spinBoxTrunkHeight">
@@ -74,8 +77,8 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>298</x>
-     <y>130</y>
+     <x>390</x>
+     <y>132</y>
      <width>77</width>
      <height>22</height>
     </rect>
@@ -89,7 +92,7 @@
     <rect>
      <x>10</x>
      <y>206</y>
-     <width>281</width>
+     <width>373</width>
      <height>23</height>
     </rect>
    </property>
@@ -103,10 +106,10 @@
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>224</x>
+     <x>228</x>
      <y>126</y>
-     <width>75</width>
-     <height>27</height>
+     <width>157</width>
+     <height>34</height>
     </rect>
    </property>
    <property name="text">
@@ -117,14 +120,17 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Percent of &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;canopy height:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
   </widget>
   <widget class="QLabel" name="label_8">
    <property name="geometry">
     <rect>
      <x>16</x>
      <y>128</y>
-     <width>117</width>
-     <height>27</height>
+     <width>172</width>
+     <height>34</height>
     </rect>
    </property>
    <property name="text">
@@ -135,6 +141,9 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Transmissivity of light&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;through vegetation (%):&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
   </widget>
   <widget class="QSpinBox" name="spinBoxTrans">
    <property name="enabled">
@@ -142,8 +151,8 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="geometry">
     <rect>
-     <x>140</x>
-     <y>130</y>
+     <x>189</x>
+     <y>132</y>
      <width>55</width>
      <height>22</height>
     </rect>
@@ -155,7 +164,7 @@ p, li { white-space: pre-wrap; }
   <widget class="QPushButton" name="runButton">
    <property name="geometry">
     <rect>
-     <x>300</x>
+     <x>396</x>
      <y>208</y>
      <width>75</width>
      <height>23</height>
@@ -171,7 +180,7 @@ p, li { white-space: pre-wrap; }
   <widget class="QPushButton" name="pushButton">
    <property name="geometry">
     <rect>
-     <x>300</x>
+     <x>396</x>
      <y>240</y>
      <width>75</width>
      <height>23</height>
@@ -186,7 +195,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>1</x>
      <y>1</y>
-     <width>381</width>
+     <width>472</width>
      <height>121</height>
     </rect>
    </property>
@@ -204,7 +213,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>244</x>
       <y>100</y>
-      <width>127</width>
+      <width>214</width>
       <height>18</height>
      </rect>
     </property>
@@ -218,7 +227,7 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="geometry">
      <rect>
-      <x>148</x>
+      <x>240</x>
       <y>66</y>
       <width>223</width>
       <height>22</height>
@@ -229,13 +238,16 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>22</x>
-      <y>10</y>
-      <width>129</width>
-      <height>13</height>
+      <y>9</y>
+      <width>217</width>
+      <height>16</height>
      </rect>
     </property>
     <property name="text">
      <string>Building and ground DSM:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="label_2">
@@ -246,12 +258,15 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>24</x>
       <y>42</y>
-      <width>129</width>
-      <height>13</height>
+      <width>214</width>
+      <height>16</height>
      </rect>
     </property>
     <property name="text">
      <string>Vegetation Canopy DSM:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
    </widget>
    <widget class="QComboBox" name="comboBox_vegdsm">
@@ -260,7 +275,7 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="geometry">
      <rect>
-      <x>148</x>
+      <x>240</x>
       <y>38</y>
       <width>223</width>
       <height>22</height>
@@ -275,7 +290,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>10</x>
       <y>100</y>
-      <width>137</width>
+      <width>223</width>
       <height>18</height>
      </rect>
     </property>
@@ -289,7 +304,7 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="geometry">
      <rect>
-      <x>148</x>
+      <x>240</x>
       <y>6</y>
       <width>223</width>
       <height>22</height>
@@ -304,12 +319,15 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>10</x>
       <y>70</y>
-      <width>137</width>
+      <width>229</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
      <string>Vegetation Trunk zone DSM:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
    </widget>
   </widget>

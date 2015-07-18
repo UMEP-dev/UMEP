@@ -612,7 +612,20 @@ class SuewsSimple:
         nml.write(self.plugin_dir + '/Input/InitialConditionsKc1_2012.nml', force=True)
 
         # self.iface.messageBar().pushMessage("test: ", str(LeafCycle / 8.))
-        Suews_wrapper_v7.wrapper(self.plugin_dir)
+        try:
+            # self.iface.messageBar().pushMessage("Model run started", "Process will take a couple of minutes based on "
+            #             "length of meteorological data and computer resources.", level=QgsMessageBar.INFO, duration=10)
+            Suews_wrapper_v7.wrapper(self.plugin_dir)
+        except:
+            f = open(self.plugin_dir + '/problems.txt')
+            lines = f.readlines()
+            QMessageBox.critical(None, "Model run unsuccessful", str(lines))
+            return
+
+        self.iface.messageBar().pushMessage("Model run sucessful", "Check problems.txt in " + self.plugin_dir + " for "
+                            "additional information about the run", level=QgsMessageBar.INFO)
+
+        # QMessageBox.information(None, "Image Morphometric Parameters", "Process successful!")
 
     def help(self):
         url = "file://" + self.plugin_dir + "/help/build/html/index.html"

@@ -9,13 +9,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>393</width>
+    <width>430</width>
     <height>409</height>
    </rect>
   </property>
   <property name="maximumSize">
    <size>
-    <width>400</width>
+    <width>430</width>
     <height>410</height>
    </size>
   </property>
@@ -28,7 +28,7 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>308</x>
+     <x>346</x>
      <y>348</y>
      <width>75</width>
      <height>23</height>
@@ -43,7 +43,7 @@
     <rect>
      <x>10</x>
      <y>346</y>
-     <width>181</width>
+     <width>221</width>
      <height>23</height>
     </rect>
    </property>
@@ -54,7 +54,7 @@
   <widget class="QPushButton" name="pushButtonSave">
    <property name="geometry">
     <rect>
-     <x>308</x>
+     <x>346</x>
      <y>318</y>
      <width>75</width>
      <height>23</height>
@@ -69,20 +69,23 @@
     <rect>
      <x>8</x>
      <y>322</y>
-     <width>71</width>
+     <width>93</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
     <string>Output folder:</string>
    </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
   </widget>
   <widget class="QLineEdit" name="textOutput">
    <property name="geometry">
     <rect>
-     <x>78</x>
+     <x>102</x>
      <y>318</y>
-     <width>219</width>
+     <width>237</width>
      <height>20</height>
     </rect>
    </property>
@@ -92,7 +95,7 @@
     <rect>
      <x>2</x>
      <y>154</y>
-     <width>387</width>
+     <width>423</width>
      <height>133</height>
     </rect>
    </property>
@@ -108,7 +111,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>182</x>
+      <x>214</x>
       <y>104</y>
       <width>199</width>
       <height>20</height>
@@ -118,14 +121,17 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>14</x>
+      <x>4</x>
       <y>40</y>
-      <width>165</width>
+      <width>207</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
      <string>Raster DSM (building and ground):</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
     <property name="buddy">
      <cstring>comboBox_DSMbuildground</cstring>
@@ -137,14 +143,17 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>46</x>
+      <x>10</x>
       <y>106</y>
-      <width>135</width>
+      <width>203</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
      <string>Raster DSM (only buildings):</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
     <property name="buddy">
      <cstring>comboBox_DSMbuild</cstring>
@@ -153,7 +162,7 @@
    <widget class="QComboBox" name="comboBox_DSMbuildground">
     <property name="geometry">
      <rect>
-      <x>182</x>
+      <x>214</x>
       <y>38</y>
       <width>199</width>
       <height>20</height>
@@ -163,14 +172,17 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>52</x>
+      <x>4</x>
       <y>76</y>
-      <width>128</width>
+      <width>209</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
      <string>Raster DEM (only ground):</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
     <property name="buddy">
      <cstring>comboBox_DEM</cstring>
@@ -179,7 +191,7 @@
    <widget class="QComboBox" name="comboBox_DEM">
     <property name="geometry">
      <rect>
-      <x>182</x>
+      <x>214</x>
       <y>74</y>
       <width>199</width>
       <height>20</height>
@@ -191,7 +203,7 @@
      <rect>
       <x>8</x>
       <y>12</y>
-      <width>181</width>
+      <width>329</width>
       <height>18</height>
      </rect>
     </property>
@@ -209,7 +221,7 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>308</x>
+     <x>346</x>
      <y>378</y>
      <width>75</width>
      <height>23</height>
@@ -237,7 +249,7 @@
     <rect>
      <x>2</x>
      <y>6</y>
-     <width>387</width>
+     <width>421</width>
      <height>69</height>
     </rect>
    </property>
@@ -252,7 +264,7 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>203</width>
+      <width>243</width>
       <height>18</height>
      </rect>
     </property>
@@ -269,7 +281,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>182</x>
+      <x>216</x>
       <y>39</y>
       <width>197</width>
       <height>20</height>
@@ -286,9 +298,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QPushButton" name="selectpoint">
     <property name="geometry">
      <rect>
-      <x>244</x>
+      <x>256</x>
       <y>8</y>
-      <width>133</width>
+      <width>159</width>
       <height>23</height>
      </rect>
     </property>
@@ -313,12 +325,15 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>90</x>
       <y>40</y>
-      <width>96</width>
+      <width>125</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
      <string>Vector point layer:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
     <property name="buddy">
      <cstring>comboBox_Point</cstring>
@@ -330,7 +345,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>2</x>
      <y>82</y>
-     <width>387</width>
+     <width>423</width>
      <height>65</height>
     </rect>
    </property>
@@ -351,6 +366,9 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="text">
      <string>Wind direction search interval (degrees):</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
    </widget>
    <widget class="QPushButton" name="generateArea">
@@ -378,7 +396,7 @@ p, li { white-space: pre-wrap; }
    <widget class="QSpinBox" name="spinBox">
     <property name="geometry">
      <rect>
-      <x>304</x>
+      <x>342</x>
       <y>8</y>
       <width>73</width>
       <height>22</height>
@@ -412,11 +430,14 @@ p, li { white-space: pre-wrap; }
     <property name="text">
      <string>Search distance (m):</string>
     </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
    </widget>
    <widget class="QComboBox" name="degreeBox">
     <property name="geometry">
      <rect>
-      <x>304</x>
+      <x>342</x>
       <y>36</y>
       <width>74</width>
       <height>22</height>
@@ -429,7 +450,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>166</x>
      <y>294</y>
-     <width>71</width>
+     <width>115</width>
      <height>16</height>
     </rect>
    </property>
@@ -443,7 +464,7 @@ p, li { white-space: pre-wrap; }
   <widget class="QLineEdit" name="textOutput_prefix">
    <property name="geometry">
     <rect>
-     <x>238</x>
+     <x>280</x>
      <y>292</y>
      <width>59</width>
      <height>20</height>
