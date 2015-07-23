@@ -20,7 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from PyQt4.QtCore import *  #QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
 from qgis.core import *
 from qgis.gui import *
@@ -35,6 +35,7 @@ from ..LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionP
 import webbrowser
 import numpy as np
 import shutil
+from suewssimpleworker import Worker
 import time
 
 #from f90nml import *
@@ -97,6 +98,8 @@ class SuewsSimple:
         self.fileDialogOut.setFileMode(4)
         self.fileDialogOut.setAcceptMode(1)
 
+        self.ret = 0
+
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&Suews Simple')
@@ -118,7 +121,6 @@ class SuewsSimple:
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('SuewsSimple', message)
-
 
     def add_action(
         self,
@@ -489,7 +491,7 @@ class SuewsSimple:
         zHveg = self.dlg.lineEdit_zHveg.text()
         faiveg = float(self.dlg.lineEdit_faiveg.text())
         paiveg = self.dlg.lineEdit_paiveg.text()
-        lat =self.dlg.Latitude.text()
+        lat = self.dlg.Latitude.text()
         lon = self.dlg.Longitude.text()
 
         # Create new SiteSelect
@@ -516,6 +518,17 @@ class SuewsSimple:
         newdata[28] = faiveg
         self.write_site_select(1, newdata)
         f.close()
+
+        # Plots or not
+        if self.dlg.checkBoxPlots.isChecked():
+            plot = 1
+        else:
+            plot = 0
+        # self.iface.messageBar().pushMessage("Warning", str(plot), level=QgsMessageBar.WARNING)
+        plotnml = f90nml.read(self.plugin_dir + '/plot.nml')
+        plotnml['plot']['plotbasic'] = plot
+        plotnml['plot']['plotmonthlystat'] = plot
+        plotnml.write(self.plugin_dir + '/plot.nml', force=True)
 
         # Create new RunControl
         utc = self.dlg.UTC.text()
@@ -560,6 +573,7 @@ class SuewsSimple:
                                                            "choosen. Preferably start the model run during Winter or "
                                                            "Summer.", level=QgsMessageBar.WARNING)
 
+        # nml = self.leaf_cycle(nml,LeafCycle) ### TRY THIS LATER
         if LeafCycle == 0: # Winter
             nml['initialconditions']['gdd_1_0'] = 0
             nml['initialconditions']['gdd_2_0'] = -450
@@ -612,9 +626,17 @@ class SuewsSimple:
         nml.write(self.plugin_dir + '/Input/InitialConditionsKc1_2012.nml', force=True)
 
         # self.iface.messageBar().pushMessage("test: ", str(LeafCycle / 8.))
+        # self.startWorker(self.iface, self.plugin_dir, self.dlg)
+        # QMessageBox.information(None, "Model run ready to start", "Process will take a couple of minutes based on "
+        #                 "length of meteorological data and computer resources.",)
+        # time.sleep(1)
         try:
             # self.iface.messageBar().pushMessage("Model run started", "Process will take a couple of minutes based on "
             #             "length of meteorological data and computer resources.", level=QgsMessageBar.INFO, duration=10)
+            # QMessageBox.information(None, "Model run started", "Process will take a couple of minutes based on "
+            #             "length of meteorological data and computer resources.")
+            # test = 4
+
             Suews_wrapper_v7.wrapper(self.plugin_dir)
         except:
             f = open(self.plugin_dir + '/problems.txt')
@@ -622,11 +644,126 @@ class SuewsSimple:
             QMessageBox.critical(None, "Model run unsuccessful", str(lines))
             return
 
-        self.iface.messageBar().pushMessage("Model run sucessful", "Check problems.txt in " + self.plugin_dir + " for "
-                            "additional information about the run", level=QgsMessageBar.INFO)
+        # if self.ret == 1:
+        #     self.iface.messageBar().pushMessage("Model run successful", "Check problems.txt in " + self.plugin_dir + " for "
+        #                     "additional information about the run", level=QgsMessageBar.INFO)
 
         # QMessageBox.information(None, "Image Morphometric Parameters", "Process successful!")
 
     def help(self):
         url = "file://" + self.plugin_dir + "/help/build/html/index.html"
         webbrowser.open_new_tab(url)
+
+    def startWorker(self, iface, plugin_dir, dlg):
+
+        worker = Worker(iface, plugin_dir, dlg)
+
+        self.dlg.runButton.setText('Cancel')
+        self.dlg.runButton.clicked.disconnect()
+        self.dlg.runButton.clicked.connect(worker.kill)
+        self.dlg.closeButton.setEnabled(False)
+
+        thread = QThread(self.dlg)
+        worker.moveToThread(thread)
+        worker.finished.connect(self.workerFinished)
+        worker.error.connect(self.workerError)
+        # worker.progress.connect(self.progress_update)
+        thread.started.connect(worker.run)
+        thread.start()
+        self.thread = thread
+        self.worker = worker
+
+    def workerFinished(self, ret):
+        # Tar bort arbetaren (Worker) och traden den kors i
+        try:
+            self.worker.deleteLater()
+        except RuntimeError:
+             pass
+        self.thread.quit()
+        self.thread.wait()
+        self.thread.deleteLater()
+
+        #andra tillbaka Run-knappen till sitt vanliga tillstand och skicka ett meddelande till anvanderen.
+        if ret == 0:
+            self.dlg.runButton.setText('Run')
+            self.dlg.runButton.clicked.disconnect()
+            self.dlg.runButton.clicked.connect(self.start_progress)
+            self.dlg.closeButton.setEnabled(True)
+            # self.dlg.progressBar.setValue(0)
+            QMessageBox.information(None, "Suews Simple", "Operations cancelled, process unsuccessful!")
+        else:
+            self.dlg.runButton.setText('Run')
+            self.dlg.runButton.clicked.disconnect()
+            self.dlg.runButton.clicked.connect(self.start_progress)
+            self.dlg.closeButton.setEnabled(True)
+            # self.dlg.progressBar.setValue(0)
+            self.iface.messageBar().pushMessage("Model run successful", "Check problems.txt in " + self.plugin_dir + " for "
+                            "additional information about the run", level=QgsMessageBar.INFO)
+            # self.iface.messageBar().pushMessage("Suews Simple",
+            #                         "Process finished! Check General Messages (speech bubble, lower left) "
+            #                         "to obtain information of the process.")
+
+        self.ret = ret
+
+    def workerError(self, e, exception_string):
+        strerror = "Worker thread raised an exception: " + str(e)
+        QgsMessageLog.logMessage(strerror.format(exception_string), level=QgsMessageLog.CRITICAL)
+        f = open(self.plugin_dir + '/problems.txt')
+        lines = f.readlines()
+        QMessageBox.critical(None, "Model run unsuccessful", str(lines))
+
+    # def progress_update(self):
+    #     self.steps +=1
+    #     self.dlg.progressBar.setValue(self.steps)
+
+    def leaf_cycle(self, nml, LeafCycle):
+        if LeafCycle == 0: # Winter
+            nml['initialconditions']['gdd_1_0'] = 0
+            nml['initialconditions']['gdd_2_0'] = -450
+            nml['initialconditions']['laiinitialevetr'] = 4
+            nml['initialconditions']['laiinitialdectr'] = 1
+            nml['initialconditions']['laiinitialgrass'] = 1.6
+        elif LeafCycle == 1:
+            nml['initialconditions']['gdd_1_0'] = 50
+            nml['initialconditions']['gdd_2_0'] = -400
+            nml['initialconditions']['laiinitialevetr'] = 4.2
+            nml['initialconditions']['laiinitialdectr'] = 2.0
+            nml['initialconditions']['laiinitialgrass'] = 2.6
+        elif LeafCycle == 2:
+            nml['initialconditions']['gdd_1_0'] = 150
+            nml['initialconditions']['gdd_2_0'] = -300
+            nml['initialconditions']['laiinitialevetr'] = 4.6
+            nml['initialconditions']['laiinitialdectr'] = 3.0
+            nml['initialconditions']['laiinitialgrass'] = 3.6
+        elif LeafCycle == 3:
+            nml['initialconditions']['gdd_1_0'] = 225
+            nml['initialconditions']['gdd_2_0'] = -150
+            nml['initialconditions']['laiinitialevetr'] = 4.9
+            nml['initialconditions']['laiinitialdectr'] = 4.5
+            nml['initialconditions']['laiinitialgrass'] = 4.6
+        elif LeafCycle == 4: # Summer
+            nml['initialconditions']['gdd_1_0'] = 300
+            nml['initialconditions']['gdd_2_0'] = 0
+            nml['initialconditions']['laiinitialevetr'] = 5.1
+            nml['initialconditions']['laiinitialdectr'] = 5.5
+            nml['initialconditions']['laiinitialgrass'] = 5.9
+        elif LeafCycle == 5:
+            nml['initialconditions']['gdd_1_0'] = 225
+            nml['initialconditions']['gdd_2_0'] = -150
+            nml['initialconditions']['laiinitialevetr'] = 4.9
+            nml['initialconditions']['laiinitialdectr'] = 4,5
+            nml['initialconditions']['laiinitialgrass'] = 4.6
+        elif LeafCycle == 6:
+            nml['initialconditions']['gdd_1_0'] = 150
+            nml['initialconditions']['gdd_2_0'] = -300
+            nml['initialconditions']['laiinitialevetr'] = 4.6
+            nml['initialconditions']['laiinitialdectr'] = 3.0
+            nml['initialconditions']['laiinitialgrass'] = 3.6
+        elif LeafCycle == 7:
+            nml['initialconditions']['gdd_1_0'] = 50
+            nml['initialconditions']['gdd_2_0'] = -400
+            nml['initialconditions']['laiinitialevetr'] = 4.2
+            nml['initialconditions']['laiinitialdectr'] = 2.0
+            nml['initialconditions']['laiinitialgrass'] = 2.6
+
+        return nml

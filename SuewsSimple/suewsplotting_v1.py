@@ -84,7 +84,6 @@ class SuewsPlotting:
         # plt.legend(bbox_to_anchor=(1.16, 1.0))
         ax4.legend(bbox_to_anchor=(1.16, 1.0))
 
-
     def plotmonthlystatistics(self, dataout, datain):
 
         dectime = make_dectime(dataout)
@@ -138,7 +137,7 @@ class SuewsPlotting:
         ax1.set_ylabel('$W$'' ''$m ^{-2}$', fontsize=14)
         plt.title('Monthly  partition of the surface energy balance')
         pos1 = ax1.get_position()
-        pos2 = [pos1.x0 - 0.06, pos1.y0 + 0.00, pos1.width * 1.00, pos1.height * 1.0]
+        pos2 = [pos1.x0 - 0.035, pos1.y0 + 0.00, pos1.width * 1.00, pos1.height * 1.0]
         ax1.set_position(pos2)
         plt.legend(bbox_to_anchor=(1.25, 1.0))
 
@@ -154,7 +153,7 @@ class SuewsPlotting:
         ax3.set_xticks(pltmonth)
         plt.title('Monthly water balance')
         pos1 = ax3.get_position()
-        pos2 = [pos1.x0 - 0.01, pos1.y0 - 0.00, pos1.width * 1.00, pos1.height * 1.0]
+        pos2 = [pos1.x0 - 0.00, pos1.y0 - 0.00, pos1.width * 1.00, pos1.height * 1.0]
         ax3.set_position(pos2)
         ax3.set_position(pos2)
         plt.legend(bbox_to_anchor=(1.3, 1.0))

@@ -5,16 +5,9 @@ from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
 from qgis.core import *  # QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsRasterLayer, QgsGeometry, QgsMessageLog
 import traceback
 from ..Utilities.landCoverFractions_v1 import *
-# import Image
-# from scipy import *
 import numpy as np
 from osgeo import gdal
 import subprocess
-# import os
-# import PIL
-# from paramWorker import ParamWorker
-# from pydev import pydevd
-# import sys
 
 class Worker(QtCore.QObject):
 

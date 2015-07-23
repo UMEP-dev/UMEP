@@ -10,10 +10,6 @@ def wrapper(pathtoplugin):
     import sys
     sys.path.append(pathtoplugin)
     import f90nml
-    #import Tkinter
-    #import FileDialog
-    #import tkFileDialog
-    # import matplotlib.pylab as plt
     try:
         import matplotlib.pyplot as plt
     except ImportError:
@@ -106,13 +102,24 @@ def wrapper(pathtoplugin):
         index += 1
 
     ### This part runs the model ###
-    suewsstring1 = 'cd ' + os.path.dirname(os.path.abspath(__file__)) + '\n'
-    suewsstring2 = os.path.dirname(os.path.abspath(__file__)) + os.path.sep + prog_name
-    suewsbat = wf + '/runsuews.bat'
+    if pf == 'win32':
+        suewsstring0 = 'REM' + '\n'
+        suewsstring1 = 'cd ' + os.path.dirname(os.path.abspath(__file__)) + '\n'
+        suewsstring2 = os.path.dirname(os.path.abspath(__file__)) + os.path.sep + prog_name
+        suewsbat = wf + '/runsuews.bat'
+
+    if (pf == 'darwin' or pf == 'linux'):
+        suewsstring0 = '#!/bin/bash' + '\n'
+        suewsstring1 = 'cd ' + os.path.dirname(os.path.abspath(__file__)) + '\n'
+        suewsstring2 = os.path.dirname(os.path.abspath(__file__)) + os.path.sep + prog_name
+        suewsbat = wf + '/runsuews.sh'
+
     f = open(suewsbat, 'w')
+    f.write(suewsstring0)
     f.write(suewsstring1)
     f.write(suewsstring2)
     f.close()
+
     #suewsstring = wf + '/' + prog_name
     #f = open('workfile23.txt', 'w')
     #f.write(suewsstring)
@@ -298,7 +305,7 @@ def wrapper(pathtoplugin):
             if snowuse == 1:
                 os.remove(suews_5min_snow)
 
-    ### plot results ###
+    ### plot results ###  MOVED OUTSIDE
     # read namelist, plot.nml
     plotnml = f90nml.read(pathtoplugin + '/plot.nml')
     plotbasic = plotnml['plot']['plotbasic']
@@ -338,10 +345,15 @@ def wrapper(pathtoplugin):
 
         pl.plotmonthlystatistics(suews_1hour, met_old)
 
+    wrapperresult = {'plotmonthlystat': plotmonthlystat, 'plotbasic': plotbasic, 'suews_1hour': suews_1hour, 'met_old': met_old}
+
+    ### MOVED OUTSIDE
     if plotmonthlystat == 1:
+        pl.plotmonthlystatistics(suews_1hour, met_old)
         plt.show()
 
     if plotbasic == 1:   # or plotmonthlystat == 1
+        pl.plotbasic(suews_1hour, met_old)
         plt.show()
 
     # precip = (suews_1hour[:, 17])  #Precipitation (P/i)
