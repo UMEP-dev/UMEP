@@ -438,7 +438,7 @@ class SkyViewFactorCalculator:
 
             if (sizex * sizey) > 250000 and (sizex * sizey) <= 1000000:
                 QMessageBox.warning(None, "Semi lage grid", "This process will take a couple of minutes. "
-                                                        "Go and make yourself a cup of tee...")
+                                                        "Go and make yourself a cup of tea...")
 
             if (sizex * sizey) > 1000000 and (sizex * sizey) <= 4000000:
                 QMessageBox.warning(None, "Large grid", "This process will take some time. "

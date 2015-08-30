@@ -110,6 +110,9 @@ class LandCoverFractionPoint:
         self.layerComboManagerLCgrid = RasterLayerCombo(self.dlg.comboBox_lcgrid)
         RasterLayerCombo(self.dlg.comboBox_lcgrid, initLayer="")
 
+        if not (os.path.isdir(self.plugin_dir + '/data')):
+            os.mkdir(self.plugin_dir + '/data')
+
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
         """Get the translation for a string using Qt translation API.

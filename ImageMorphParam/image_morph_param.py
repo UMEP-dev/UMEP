@@ -105,6 +105,9 @@ class ImageMorphParam:
         self.layerComboManagerDSMbuild = RasterLayerCombo(self.dlg.comboBox_DSMbuild)
         RasterLayerCombo(self.dlg.comboBox_DSMbuild, initLayer="")
 
+        if not (os.path.isdir(self.plugin_dir + '/data')):
+            os.mkdir(self.plugin_dir + '/data')
+
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
