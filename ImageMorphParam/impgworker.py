@@ -166,7 +166,7 @@ class Worker(QtCore.QObject):
                     # QgsMessageLog.logMessage("dsm: " + str(dsm_array[100,100]), level=QgsMessageLog.CRITICAL)
                     # QgsMessageLog.logMessage("dem: " + str(dem_array[100,100]), level=QgsMessageLog.CRITICAL)
 
-                    immorphresult = imagemorphparam_v1(dsm_array, dem_array, scale, self.imid, self.degree, self.dlg, imp_point)
+                    immorphresult = imagemorphparam_v2(dsm_array, dem_array, scale, self.imid, self.degree, self.dlg, imp_point)
 
                     # save to file
                     pre = self.dlg.textOutput_prefix.text()

@@ -35,14 +35,13 @@ from LandCoverFractionGrid.landcoverfraction_grid import LandCoverFractionGrid
 from LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
 from LandCoverReclassifier.land_cover_reclassifier import LandCoverReclassifier
 from SuewsSimple.suews_simple import SuewsSimple
+from about_dialog import AboutDialog
 import os.path
+
+# # Uncomment this section if you want to debug in QGIS
 # import sys
-# sys.path.append('C:/Program Files (x86)/JetBrains/PyCharm 4.5.2/helpers/pydev')
-# from pydev import pydevd
-#try:
-#    import matplotlib.pyplot as plt
-#except ImportError:
-#    pass
+# sys.path.append('C:/OSGeo4W64/apps/Python27/Lib/site-packages/pydev')
+# import pydevd
 
 
 class UMEP:
@@ -193,8 +192,7 @@ class UMEP:
         # Sub-menus to About
         self.About_Action = QAction("About", self.iface.mainWindow())
         self.About_Menu.addAction(self.About_Action)
-        self.About_Action.setEnabled(False)
-        self.Manual_Action = QAction("Manual", self.iface.mainWindow())
+        self.Manual_Action = QAction("Manual (online)", self.iface.mainWindow())
         self.About_Menu.addAction(self.Manual_Action)
         self.Manual_Action.setEnabled(False)
 
@@ -208,6 +206,7 @@ class UMEP:
         self.ULCUEBRC_Action.setIcon(QIcon(self.plugin_dir + "/Icons/LandCoverReclassifierIcon.png"))
 
         self.iface.mainWindow().menuBar().insertMenu(self.iface.firstRightStandardMenu().menuAction(), self.UMEP_Menu)
+        self.dlgAbout = AboutDialog()
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -308,6 +307,9 @@ class UMEP:
             callback=self.run,
             parent=self.iface.mainWindow())
 
+        # Code to show the about dialog
+        QObject.connect(self.About_Action, SIGNAL("triggered()"), self.dlgAbout, SLOT("show()"))
+
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
@@ -331,6 +333,7 @@ class UMEP:
 
     def IMCP(self):
         sg = ImageMorphParmsPoint(self.iface)
+        # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True) #used for debugging
         sg.run()
 
     def SVF(self):
@@ -351,14 +354,11 @@ class UMEP:
 
     def LCRC(self):
         sg = LandCoverReclassifier(self.iface)
-        # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True) #used for debugging
         sg.run()
 
     def run(self):
-        """Run method that performs all the real work"""
-        # show the dialog
+        # This function starts the plugin
         self.dlg.show()
-        # Run the dialog event loop
         self.dlg.exec_()
 
 

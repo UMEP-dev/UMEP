@@ -469,7 +469,7 @@ class ImageMorphParmsPoint:
             QMessageBox.critical(None, "Error", "Grids includes nodata pixels")
             return
         else:
-            immorphresult = imagemorphparam_v1(dsm, dem, scale, 1, self.degree, self.dlg, 1)
+            immorphresult = imagemorphparam_v2(dsm, dem, scale, 1, self.degree, self.dlg, 1)
 
         # save to file
         pre = self.dlg.textOutput_prefix.text()

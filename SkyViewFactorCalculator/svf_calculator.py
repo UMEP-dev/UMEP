@@ -572,12 +572,9 @@ class SkyViewFactorCalculator:
 
             # load result into canvas
 
-
     def run(self):
         """Run method that performs all the real work"""
-        # show the dialog
         self.dlg.show()
-        # Run the dialog event loop
         self.dlg.exec_()
 
 
