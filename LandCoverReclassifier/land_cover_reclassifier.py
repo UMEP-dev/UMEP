@@ -31,6 +31,7 @@ from ..Utilities.qgiscombomanager import *
 from land_cover_reclassifier_dialog import LandCoverReclassifierDialog
 import os.path
 import numpy as np
+from ..Utilities.misc import *
 from osgeo.gdalconst import *
 
 
@@ -198,6 +199,7 @@ class LandCoverReclassifier:
         # filename = QFileDialog.getSaveFileName(self.dlg, "Save as geotiff ", '*.tif')
         if result == 1:
             self.filePath = self.fileDialog.selectedFiles()
+            self.filePath[0] = self.filePath[0] + '.tif'
             self.dlg.textOutput.setText(self.filePath[0])
 
     def start_progress(self):
@@ -240,7 +242,7 @@ class LandCoverReclassifier:
             lc_type[5, 2] = self.dlg.pai_6_s.text()
         lc_type[6, 0] = float(self.dlg.Box_7.currentIndex())
         if lc_type[6, 0] > 0:
-            lc_type[6, 1] = self.dlg.pai_7_s.text()
+            lc_type[6, 1] = self.dlg.pai_7_g.text()
             lc_type[6, 2] = self.dlg.pai_7_s.text()
 
         provider = lc_grid.dataProvider()
@@ -252,11 +254,17 @@ class LandCoverReclassifier:
         sizey = lc_grid.shape[1]
         lc_grid_rc = np.zeros((sizex, sizey))
 
-        for i in range(0, 6):  # populating new grid with values
-            lc_grid_rc[np.where((lc_grid > lc_type[i, 1]) &(lc_grid <= lc_type[i, 2]))] = lc_type[i, 0]
+        for i in range(lc_type.shape[0]):  # populating new grid with values
+            lc_grid_rc[np.where((lc_grid > lc_type[i, 1]) & (lc_grid <= lc_type[i, 2]))] = lc_type[i, 0]
+        # lc_grid_rc[np.where((lc_grid > lc_type[1, 1]) & (lc_grid <= lc_type[1, 2]))] = lc_type[1, 0]
+        # lc_grid_rc[np.where((lc_grid > lc_type[2, 1]) & (lc_grid <= lc_type[2, 2]))] = lc_type[2, 0]
+        # lc_grid_rc[np.where((lc_grid > lc_type[3, 1]) & (lc_grid <= lc_type[3, 2]))] = lc_type[3, 0]
+        # lc_grid_rc[np.where((lc_grid > lc_type[4, 1]) & (lc_grid <= lc_type[4, 2]))] = lc_type[4, 0]
+        # lc_grid_rc[np.where((lc_grid > lc_type[5, 1]) & (lc_grid <= lc_type[5, 2]))] = lc_type[5, 0]
+        # lc_grid_rc[np.where((lc_grid > lc_type[6, 1]) & (lc_grid <= lc_type[6, 2]))] = lc_type[6, 0]
 
         filename = self.filePath[0]
-        self.saveraster(gdal_lc_grid, filename, lc_grid_rc)
+        saveraster(gdal_lc_grid, filename, lc_grid_rc)
 
         # load result into canvas
         rlayer = self.iface.addRasterLayer(filename)
@@ -270,17 +278,17 @@ class LandCoverReclassifier:
             rlayer.setCacheImage(None)
         rlayer.triggerRepaint()
 
-    def saveraster(self, gdal_data, filename, raster):
-        rows = gdal_data.RasterYSize
-        cols = gdal_data.RasterXSize
-        outDs = gdal.GetDriverByName("GTiff").Create(filename, cols, rows, int(1), GDT_Float32)
-        outBand = outDs.GetRasterBand(1)
-        outBand.WriteArray(raster, 0, 0)
-        outBand.FlushCache()
-        outBand.SetNoDataValue(-9999)
-        outDs.SetGeoTransform(gdal_data.GetGeoTransform())
-        outDs.SetProjection(gdal_data.GetProjection())
-        del outDs, outBand
+    # def saveraster(self, gdal_data, filename, raster):
+    #     rows = gdal_data.RasterYSize
+    #     cols = gdal_data.RasterXSize
+    #     outDs = gdal.GetDriverByName("GTiff").Create(filename, cols, rows, int(1), GDT_Float32)
+    #     outBand = outDs.GetRasterBand(1)
+    #     outBand.WriteArray(raster, 0, 0)
+    #     outBand.FlushCache()
+    #     outBand.SetNoDataValue(-9999)
+    #     outDs.SetGeoTransform(gdal_data.GetGeoTransform())
+    #     outDs.SetProjection(gdal_data.GetProjection())
+    #     del outDs, outBand
 
     def run(self):
         self.dlg.show()

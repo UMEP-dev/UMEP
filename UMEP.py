@@ -34,11 +34,15 @@ from ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
 from LandCoverFractionGrid.landcoverfraction_grid import LandCoverFractionGrid
 from LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
 from LandCoverReclassifier.land_cover_reclassifier import LandCoverReclassifier
+from WallHeight.wall_height import WallHeight
+from SEBE.sebe import SEBE
 from SuewsSimple.suews_simple import SuewsSimple
-from about_dialog import AboutDialog
+from SUEWS.suews import SUEWS
+# from about_dialog import AboutDialog
+from UMEP_about import UMEPDialogAbout
 import os.path
 
-# # Uncomment this section if you want to debug in QGIS
+# Uncomment this section if you want to debug in QGIS
 # import sys
 # sys.path.append('C:/OSGeo4W64/apps/Python27/Lib/site-packages/pydev')
 # import pydevd
@@ -127,6 +131,12 @@ class UMEP:
         self.SVF_Action = QAction("Sky View Factor", self.iface.mainWindow())
         self.UG_Menu.addAction(self.SVF_Action)
         self.SVF_Action.triggered.connect(self.SVF)
+        self.HW_Action = QAction("Height/Width Ratio", self.iface.mainWindow())
+        self.UG_Menu.addAction(self.HW_Action)
+        self.HW_Action.setEnabled(False)
+        self.WH_Action = QAction("Wall Height and Aspect", self.iface.mainWindow())
+        self.UG_Menu.addAction(self.WH_Action)
+        self.WH_Action.triggered.connect(self.WH)
 
         # Sub-actions to Urban Land Cover
         self.ULCUEBRC_Action = QAction("Land Cover Reclassifier", self.iface.mainWindow())
@@ -138,10 +148,6 @@ class UMEP:
         self.ULCUEBG_Action = QAction("Land Cover Fraction (Grid)", self.iface.mainWindow())
         self.ULC_Menu.addAction(self.ULCUEBG_Action)
         self.ULCUEBG_Action.triggered.connect(self.LCG)
-
-        self.HW_Action = QAction("Height/Width Ratio", self.iface.mainWindow())
-        self.UG_Menu.addAction(self.HW_Action)
-        self.HW_Action.setEnabled(False)
 
         # Sub-menus to Processor
         self.OTC_Menu = QMenu("Outdoor Thermal Comfort")
@@ -171,20 +177,21 @@ class UMEP:
         self.SUEWSSIMPLE_Action = QAction("Urban Energy Balance (SUEWS, Simple)", self.iface.mainWindow())
         self.UEB_Menu.addAction(self.SUEWSSIMPLE_Action)
         self.SUEWSSIMPLE_Action.triggered.connect(self.SUEWS_simple)
-        self.SUEWS_Action = QAction("Urban Energy Balance (SUEWS, Advanced)", self.iface.mainWindow())
+        self.SUEWS_Action = QAction("Urban Energy Balance (SUEWS/BLUEWS, Advanced)", self.iface.mainWindow())
         self.UEB_Menu.addAction(self.SUEWS_Action)
-        self.SUEWS_Action.setEnabled(False)
+        self.SUEWS_Action.triggered.connect(self.SUEWS_advanced)
+        # self.SUEWS_Action.setEnabled(False)
         self.LUMPS_Action = QAction("Urban Energy Balance (LUMPS)", self.iface.mainWindow())
         self.UEB_Menu.addAction(self.LUMPS_Action)
         self.LUMPS_Action.setEnabled(False)
-        self.CBL_Action = QAction("UEB + CBL (BLUEWS/BLUMPS)", self.iface.mainWindow())
-        self.UEB_Menu.addAction(self.CBL_Action)
-        self.CBL_Action.setEnabled(False)
+        # self.CBL_Action = QAction("UEB + CBL (BLUEWS/BLUMPS)", self.iface.mainWindow())
+        # self.UEB_Menu.addAction(self.CBL_Action)
+        # self.CBL_Action.setEnabled(False)
 
         # Sub-menus to Solar radiation
         self.SEBE_Action = QAction("Solar Energy on Building Envelopes (SEBE)", self.iface.mainWindow())
         self.SUN_Menu.addAction(self.SEBE_Action)
-        self.SEBE_Action.setEnabled(False)
+        self.SEBE_Action.triggered.connect(self.SE)
         self.DSP_Action = QAction("Daily Shadow Pattern", self.iface.mainWindow())
         self.SUN_Menu.addAction(self.DSP_Action)
         self.DSP_Action.triggered.connect(self.SH)
@@ -204,9 +211,11 @@ class UMEP:
         self.ULCUEBG_Action.setIcon(QIcon(self.plugin_dir + "/Icons/LandCoverFractionGridIcon.png"))
         self.ULCUEBP_Action.setIcon(QIcon(self.plugin_dir + "/Icons/LandCoverFractionPointIcon.png"))
         self.ULCUEBRC_Action.setIcon(QIcon(self.plugin_dir + "/Icons/LandCoverReclassifierIcon.png"))
+        self.WH_Action.setIcon(QIcon(self.plugin_dir + "/Icons/WallsIcon.png"))
+        self.SEBE_Action.setIcon(QIcon(self.plugin_dir + "/Icons/sebeIcon.png"))
 
         self.iface.mainWindow().menuBar().insertMenu(self.iface.firstRightStandardMenu().menuAction(), self.UMEP_Menu)
-        self.dlgAbout = AboutDialog()
+        self.dlgAbout = UMEPDialogAbout()
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -333,7 +342,6 @@ class UMEP:
 
     def IMCP(self):
         sg = ImageMorphParmsPoint(self.iface)
-        # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True) #used for debugging
         sg.run()
 
     def SVF(self):
@@ -342,6 +350,10 @@ class UMEP:
 
     def SUEWS_simple(self):
         sg = SuewsSimple(self.iface)
+        sg.run()
+
+    def SUEWS_advanced(self):
+        sg = SUEWS(self.iface)
         sg.run()
 
     def LCG(self):
@@ -354,6 +366,15 @@ class UMEP:
 
     def LCRC(self):
         sg = LandCoverReclassifier(self.iface)
+        # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)  #used for debugging
+        sg.run()
+
+    def WH(self):
+        sg = WallHeight(self.iface)
+        sg.run()
+
+    def SE(self):
+        sg = SEBE(self.iface)
         sg.run()
 
     def run(self):

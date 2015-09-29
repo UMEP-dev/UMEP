@@ -3,7 +3,8 @@ from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
 # from qgis.gui import *
 from qgis.core import *
 import traceback
-import Suews_wrapper_v7
+# import Suews_wrapper_v7
+
 
 class Worker(QtCore.QObject):
 
@@ -24,7 +25,7 @@ class Worker(QtCore.QObject):
         ret = 0
 
         try:
-            wrapperresult = Suews_wrapper_v7.wrapper(self.plugin_dir)
+            # wrapperresult = Suews_wrapper_v7.wrapper(self.plugin_dir)
             # self.progress.emit()
 
             if self.killed is False:

@@ -1,14 +1,10 @@
 __author__ = 'xlinfr'
-
-import numpy as np
-#import shadowingfunctions as shadow
 from ..Utilities import shadowingfunctions as shadow
 import Pysolarn.solar as pys
 import datetime as dt
-from osgeo import gdal
-from osgeo.gdalconst import *
 from PyQt4.QtGui import *
-
+from ..Utilities.misc import *
+# import numpy as np
 
 
 def dailyshading(dsm, vegdsm, vegdsm2, scale, lonlat, sizex, sizey, tv, UTC, usevegdem, timeInterval, onetime, dlg, folder, gdal_data, trans):
@@ -111,26 +107,26 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lonlat, sizex, sizey, tv, UTC, use
     return shadowresult
 
 
-def saveraster(gdal_data, filename, raster):
-    rows = gdal_data.RasterYSize
-    cols = gdal_data.RasterXSize
-
-    # outDs = gdal.GetDriverByName("GTiff").Create(folder + 'shadow' + tv + '.tif', cols, rows, int(1), GDT_Float32)
-    outDs = gdal.GetDriverByName("GTiff").Create(filename, cols, rows, int(1), GDT_Float32)
-    # outDs = gdal.GetDriverByName(gdal_data.GetDriver().LongName).Create(filename, cols, rows, int(1), GDT_Float32)
-    outBand = outDs.GetRasterBand(1)
-
-    # write the data
-    outBand.WriteArray(raster, 0, 0)
-    # flush data to disk, set the NoData value and calculate stats
-    outBand.FlushCache()
-    outBand.SetNoDataValue(-9999)
-
-    # georeference the image and set the projection
-    outDs.SetGeoTransform(gdal_data.GetGeoTransform())
-    outDs.SetProjection(gdal_data.GetProjection())
-
-    del outDs, outBand
+# def saveraster(gdal_data, filename, raster):
+#     rows = gdal_data.RasterYSize
+#     cols = gdal_data.RasterXSize
+#
+#     # outDs = gdal.GetDriverByName("GTiff").Create(folder + 'shadow' + tv + '.tif', cols, rows, int(1), GDT_Float32)
+#     outDs = gdal.GetDriverByName("GTiff").Create(filename, cols, rows, int(1), GDT_Float32)
+#     # outDs = gdal.GetDriverByName(gdal_data.GetDriver().LongName).Create(filename, cols, rows, int(1), GDT_Float32)
+#     outBand = outDs.GetRasterBand(1)
+#
+#     # write the data
+#     outBand.WriteArray(raster, 0, 0)
+#     # flush data to disk, set the NoData value and calculate stats
+#     outBand.FlushCache()
+#     outBand.SetNoDataValue(-9999)
+#
+#     # georeference the image and set the projection
+#     outDs.SetGeoTransform(gdal_data.GetGeoTransform())
+#     outDs.SetProjection(gdal_data.GetProjection())
+#
+#     del outDs, outBand
 
 
 def day_of_year(yy, month, day):

@@ -1134,7 +1134,7 @@ p, li { white-space: pre-wrap; }
      <item row="0" column="0">
       <widget class="QLabel" name="label_6">
        <property name="text">
-        <string>Year column:</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Year column:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>

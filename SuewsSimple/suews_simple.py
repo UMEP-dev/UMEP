@@ -28,17 +28,17 @@ from qgis.gui import *
 import resources_rc
 # Import the code for the dialog
 from suews_simple_dialog import SuewsSimpleDialog
+# from ..Utilities import f90nml
 import os.path
-import Suews_wrapper_v7
+from ..suewsmodel import Suews_wrapper_v10
 from ..ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
 from ..LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
 import webbrowser
 import numpy as np
 import shutil
 from suewssimpleworker import Worker
-import time
 
-#from f90nml import *
+import time
 
 class SuewsSimple:
     """QGIS Plugin Implementation."""
@@ -106,6 +106,8 @@ class SuewsSimple:
         # TODO: We are going to let the user set this up in a future iteration
         # self.toolbar = self.iface.addToolBar(u'SuewsSimple')
         # self.toolbar.setObjectName(u'SuewsSimple')
+
+        self.model_dir = os.path.normpath(self.plugin_dir + os.sep + os.pardir + os.sep + 'suewsmodel')
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -320,7 +322,7 @@ class SuewsSimple:
 
     def import_initial(self):
         import sys
-        sys.path.append(self.plugin_dir)
+        sys.path.append(self.model_dir)
         import f90nml
         self.fileDialogInit.open()
         result = self.fileDialogInit.exec_()
@@ -335,7 +337,7 @@ class SuewsSimple:
 
     def export_initial(self):
         import sys
-        sys.path.append(self.plugin_dir)
+        sys.path.append(self.model_dir)
         import f90nml
         self.fileDialogInit.open()
         result = self.fileDialogInit.exec_()
@@ -348,7 +350,7 @@ class SuewsSimple:
             SoilMoisture = self.dlg.spinBoxSoilMoisture.value()
             moist = int(SoilMoisture * 1.5)
 
-            nml = f90nml.read(self.plugin_dir + '/BaseFiles/InitialConditionsKc1_2012.nml')
+            nml = f90nml.read(self.model_dir + '/BaseFiles/InitialConditionsKc1_2012.nml')
             nml['initialconditions']['dayssincerain'] = int(DaysSinceRain)
             nml['initialconditions']['temp_c0'] = float(DailyMeanT)
             nml['initialconditions']['soilstorepavedstate'] = moist
@@ -410,9 +412,9 @@ class SuewsSimple:
 
     def set_default_settings(self):
         import sys
-        sys.path.append(self.plugin_dir)
+        sys.path.append(self.model_dir)
         import f90nml
-        f = open(self.plugin_dir + '/BaseFiles/SUEWS_SiteSelect.txt')
+        f = open(self.model_dir + '/BaseFiles/SUEWS_SiteSelect.txt')
         lin = f.readlines()
         index = 2
         lines = lin[index].split()
@@ -432,8 +434,9 @@ class SuewsSimple:
         self.dlg.lineEdit_paiveg.setText(str((float(lines[13]) + float(lines[14])) / 2))
         self.dlg.Latitude.setText(lines[4])
         self.dlg.Longitude.setText(lines[5])
+        self.dlg.PopDensNight.setText(lines[30])
 
-        nml = f90nml.read(self.plugin_dir + '/BaseFiles/InitialConditionsKc1_2012.nml')
+        nml = f90nml.read(self.model_dir + '/BaseFiles/InitialConditionsKc1_2012.nml')
         dayssincerain = nml['initialconditions']['dayssincerain']
         dailymeantemperature = nml['initialconditions']['temp_c0']
         self.dlg.DaysSinceRain.setText(str(dayssincerain))
@@ -442,16 +445,16 @@ class SuewsSimple:
 
         self.dlg.UTC.setText('0')
 
-        self.dlg.textInputMetdata.setText(self.plugin_dir + '/BaseFiles/Kc1_data.txt')
-        self.dlg.textOutput.setText(self.plugin_dir + '/Output/')
+        self.dlg.textInputMetdata.setText(self.model_dir + '/BaseFiles/Kc1_data.txt')
+        self.dlg.textOutput.setText(self.model_dir + '/Output/')
         self.dlg.spinBoxSoilMoisture.setValue(100)
 
         self.dlg.runButton.setEnabled(True)
 
     def write_site_select(self, numoflines, newdata):
-        f = open(self.plugin_dir + '/BaseFiles/SUEWS_SiteSelect.txt', 'r')
+        f = open(self.model_dir + '/BaseFiles/SUEWS_SiteSelect.txt', 'r')
         lin = f.readlines()
-        f2 = open(self.plugin_dir + '/Input/SUEWS_SiteSelect.txt', 'w')
+        f2 = open(self.model_dir + '/Input/SUEWS_SiteSelect.txt', 'w')
 
         # write to file
         f2.write(lin[0])
@@ -468,13 +471,23 @@ class SuewsSimple:
 
     def start_progress(self):
         import sys
-        sys.path.append(self.plugin_dir)
+        sys.path.append(self.model_dir)
         import f90nml
         try:
             import matplotlib.pyplot
         except ImportError:
             pass
             self.iface.messageBar().pushMessage("Unable to import Matplotlib module", "Plots will not be produced", level=QgsMessageBar.WARNING)
+
+        # Checking consistency between fractions
+        if np.abs(float(self.dlg.pai_build.text()) - float(self.dlg.lineEdit_paiBuild.text())) > 0.05:
+            QMessageBox.critical(None, "Non-consistency Error", "A relatively large difference in "
+                "building fraction between the DSM and the landcover grid was found: " + str(float(self.dlg.pai_build.text()) - float(self.dlg.lineEdit_paiBuild.text())))
+            return
+        if np.abs(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - float(self.dlg.lineEdit_paiveg.text())) > 0.05:
+            QMessageBox.critical(None, "Non-consistency Error", "A relatively large difference in "
+                "building fraction between the DSM and the landcover grid was found: " + str(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - float(self.dlg.lineEdit_paiveg.text())))
+            return
 
         # Getting values from GUI
         YYYY = self.dlg.lineEdit_YYYY.text()
@@ -493,9 +506,10 @@ class SuewsSimple:
         paiveg = self.dlg.lineEdit_paiveg.text()
         lat = self.dlg.Latitude.text()
         lon = self.dlg.Longitude.text()
+        popdens = float(self.dlg.PopDensNight.text())
 
         # Create new SiteSelect
-        f = open(self.plugin_dir + '/BaseFiles/SUEWS_SiteSelect.txt', 'r')
+        f = open(self.model_dir + '/BaseFiles/SUEWS_SiteSelect.txt', 'r')
         lin = f.readlines()
         index = 2
         lines = np.array(lin[index].split())
@@ -516,6 +530,7 @@ class SuewsSimple:
         newdata[26] = faiBuild
         newdata[27] = faiveg
         newdata[28] = faiveg
+        newdata[30] = popdens
         self.write_site_select(1, newdata)
         f.close()
 
@@ -525,24 +540,24 @@ class SuewsSimple:
         else:
             plot = 0
         # self.iface.messageBar().pushMessage("Warning", str(plot), level=QgsMessageBar.WARNING)
-        plotnml = f90nml.read(self.plugin_dir + '/plot.nml')
+        plotnml = f90nml.read(self.model_dir + '/plot.nml')
         plotnml['plot']['plotbasic'] = plot
         plotnml['plot']['plotmonthlystat'] = plot
-        plotnml.write(self.plugin_dir + '/plot.nml', force=True)
+        plotnml.write(self.model_dir + '/plot.nml', force=True)
 
         # Create new RunControl
         utc = self.dlg.UTC.text()
         inmetfile = self.dlg.textInputMetdata.text()
         outfolder = self.dlg.textOutput.text()
-        nml = f90nml.read(self.plugin_dir + '/BaseFiles/RunControl.nml')
+        nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
         nml['runcontrol']['timezone'] = int(utc)
         if not (faiBuild == -999.0 or faiveg == -999.0):
             nml['runcontrol']['z0_method'] = 3
-        shutil.copy(inmetfile, self.plugin_dir + '/Input')
+        shutil.copy(inmetfile, self.model_dir + '/Input')
         #os.rename() FIXTHIS!!!
         nml['runcontrol']['fileoutputpath'] = str(outfolder)
-        nml['runcontrol']['fileinputpath'] = './Input/'
-        nml.write(self.plugin_dir + '/RunControl.nml', force=True)
+        nml['runcontrol']['fileinputpath'] = self.model_dir + '/Input/'
+        nml.write(self.model_dir + '/RunControl.nml', force=True)
 
         # Initial conditions
         DaysSinceRain = self.dlg.DaysSinceRain.text()
@@ -551,7 +566,7 @@ class SuewsSimple:
         SoilMoisture = self.dlg.spinBoxSoilMoisture.value()
         moist = int(SoilMoisture * 1.5)
 
-        nml = f90nml.read(self.plugin_dir + '/BaseFiles/InitialConditionsKc1_2012.nml')
+        nml = f90nml.read(self.model_dir + '/BaseFiles/InitialConditionsKc1_2012.nml')
         nml['initialconditions']['dayssincerain'] = int(DaysSinceRain)
         nml['initialconditions']['temp_c0'] = float(DailyMeanT)
         nml['initialconditions']['soilstorepavedstate'] = moist
@@ -561,7 +576,7 @@ class SuewsSimple:
         nml['initialconditions']['soilstoregrassstate'] = moist
         nml['initialconditions']['soilstorebsoilstate'] = moist
 
-        f = open(self.plugin_dir + '/Input/Kc1_data.txt', 'r')
+        f = open(self.model_dir + '/Input/Kc1_data.txt', 'r')
         lin = f.readlines()
         index = 1
         lines = np.array(lin[index].split())
@@ -623,23 +638,24 @@ class SuewsSimple:
             nml['initialconditions']['laiinitialdectr'] = 2.0
             nml['initialconditions']['laiinitialgrass'] = 2.6
 
-        nml.write(self.plugin_dir + '/Input/InitialConditionsKc1_2012.nml', force=True)
+        nml.write(self.model_dir + '/Input/InitialConditionsKc1_2012.nml', force=True)
 
+        # TODO: Put suews in a worker
         # self.iface.messageBar().pushMessage("test: ", str(LeafCycle / 8.))
         # self.startWorker(self.iface, self.plugin_dir, self.dlg)
         # QMessageBox.information(None, "Model run ready to start", "Process will take a couple of minutes based on "
         #                 "length of meteorological data and computer resources.",)
         # time.sleep(1)
+
         try:
             # self.iface.messageBar().pushMessage("Model run started", "Process will take a couple of minutes based on "
             #             "length of meteorological data and computer resources.", level=QgsMessageBar.INFO, duration=10)
             # QMessageBox.information(None, "Model run started", "Process will take a couple of minutes based on "
             #             "length of meteorological data and computer resources.")
             # test = 4
-
-            Suews_wrapper_v7.wrapper(self.plugin_dir)
+            Suews_wrapper_v10.wrapper(self.model_dir)
         except:
-            f = open(self.plugin_dir + '/problems.txt')
+            f = open(self.model_dir + '/problems.txt')
             lines = f.readlines()
             QMessageBox.critical(None, "Model run unsuccessful", str(lines))
             return
@@ -654,9 +670,9 @@ class SuewsSimple:
         url = "file://" + self.plugin_dir + "/help/build/html/index.html"
         webbrowser.open_new_tab(url)
 
-    def startWorker(self, iface, plugin_dir, dlg):
+    def startWorker(self, iface, model_dir, dlg):
 
-        worker = Worker(iface, plugin_dir, dlg)
+        worker = Worker(iface, model_dir, dlg)
 
         self.dlg.runButton.setText('Cancel')
         self.dlg.runButton.clicked.disconnect()
@@ -697,7 +713,7 @@ class SuewsSimple:
             self.dlg.runButton.clicked.connect(self.start_progress)
             self.dlg.closeButton.setEnabled(True)
             # self.dlg.progressBar.setValue(0)
-            self.iface.messageBar().pushMessage("Model run successful", "Check problems.txt in " + self.plugin_dir + " for "
+            self.iface.messageBar().pushMessage("Model run successful", "Check problems.txt in " + self.model_dir + " for "
                             "additional information about the run", level=QgsMessageBar.INFO)
             # self.iface.messageBar().pushMessage("Suews Simple",
             #                         "Process finished! Check General Messages (speech bubble, lower left) "
@@ -708,7 +724,7 @@ class SuewsSimple:
     def workerError(self, e, exception_string):
         strerror = "Worker thread raised an exception: " + str(e)
         QgsMessageLog.logMessage(strerror.format(exception_string), level=QgsMessageLog.CRITICAL)
-        f = open(self.plugin_dir + '/problems.txt')
+        f = open(self.model_dir + '/problems.txt')
         lines = f.readlines()
         QMessageBox.critical(None, "Model run unsuccessful", str(lines))
 
