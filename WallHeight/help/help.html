@@ -1,0 +1,317 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>Sky View Factor Calculator</title>
+<style type="text/css">
+h1
+	{margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:10.0pt;
+	margin-left:0cm;
+	page-break-after:avoid;
+	font-size:18.0pt;
+	font-family:"Arial Narrow","sans-serif";
+	}
+ p.MsoNormal
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:10.0pt;
+	margin-left:0cm;
+	font-size:11.0pt;
+	font-family:"Times New Roman","serif";
+	}
+h2
+	{margin-top:10.0pt;
+	margin-right:0cm;
+	margin-bottom:6.0pt;
+	margin-left:0cm;
+	page-break-after:avoid;
+	font-size:15.0pt;
+	font-family:"Arial Narrow","sans-serif";
+	font-weight:normal;
+	}
+h3
+	{margin-top:10.0pt;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:0cm;
+	margin-bottom:.0001pt;
+	page-break-after:avoid;
+	font-size:12.0pt;
+	font-family:"Cambria","serif";
+	}
+p.MsoToc1
+	{margin-top:18.0pt;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:0cm;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Cambria","serif";
+	text-transform:uppercase;
+	font-weight:bold;
+}
+a:link
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;
+}
+p.MsoToc2
+	{margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:0cm;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Calibri","sans-serif";
+	font-weight:bold;
+}
+p.MsoToc3
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:11.0pt;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Calibri","sans-serif";
+	}
+</style>
+</head>
+
+<body>
+
+<h1 style="margin-bottom:0cm;margin-bottom:.0001pt"><a name="_Toc431452177">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Wall Height and Aspect</span></a><span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h1>
+<p class="MsoNormal">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">The Wall height and aspect plugin can be used to identify wall pixels and 
+their height using ground and building digital surface models (DSM) by using a 
+filter as presented by Lindberg et al. (2015a). Optionally, wall aspect can also 
+be estimated using a specific linear filter as presented by Goodwin et al. 
+(1999) and further developed by Lindberg et al. (2015b) to obtain the wall 
+aspect. Wall aspect is given in degrees where a north facing wall pixel has a 
+value of zero. The output of this plugin is used in other UMEP plugins such as 
+SEBE (Solar Energy on Building Envelopes) and height to width ratio. <o:p></o:p>
+</span></p>
+<h2 style="margin-bottom:0cm;margin-bottom:.0001pt"><a name="_Toc431452178"></a>
+<a name="_Toc431370467"><span style="mso-bookmark:_Toc431452178">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Location</span></span></a><span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h2>
+<p class="MsoNormal">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">The Sky View Factor Calculator is located at
+<i style="mso-bidi-font-style:
+normal">UMEP -&gt; Pre-Processor -&gt; Urban Geometry -&gt; Wall Height and Aspect</i>.<o:p></o:p></span></p>
+<h1 style="margin-bottom:0cm;margin-bottom:.0001pt"><a name="_Toc431452179"></a>
+<a name="_Toc431370468"><span style="mso-bookmark:_Toc431452179">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Running the plugin</span></span></a><span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h1>
+<p class="MsoNormal">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">When you run plugin, you will see the dialog shown below. <o:p></o:p>
+</span></p>
+<p class="MsoNormal"><span style="mso-fareast-language:SV;mso-no-proof:yes"><!--[if gte vml 1]><v:shapetype
+ id="_x0000_t75" coordsize="21600,21600" o:spt="75" o:preferrelative="t"
+ path="m@4@5l@4@11@9@11@9@5xe" filled="f" stroked="f">
+ <v:stroke joinstyle="miter" xmlns:v="urn:schemas-microsoft-com:vml"/>
+ <v:formulas>
+  <v:f eqn="if lineDrawn pixelLineWidth 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @0 1 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum 0 0 @1" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @2 1 2" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @3 21600 pixelWidth" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @3 21600 pixelHeight" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @0 0 1" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @6 1 2" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @7 21600 pixelWidth" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @8 21600 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @7 21600 pixelHeight" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @10 21600 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+ </v:formulas>
+ <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect" xmlns:v="urn:schemas-microsoft-com:vml"/>
+ <o:lock v:ext="edit" aspectratio="t" xmlns:o="urn:schemas-microsoft-com:office:office"/>
+</v:shapetype><v:shape id="Picture_x0020_4" o:spid="_x0000_i1026" type="#_x0000_t75"
+ style='width:378.75pt;height:173.25pt;visibility:visible;mso-wrap-style:square'>
+ <v:imagedata src="../../../../../AppData/Local/Temp/msohtmlclip1/01/clip_image001.png"
+  o:title="" xmlns:v="urn:schemas-microsoft-com:vml"/>
+</v:shape><![endif]--><![if !vml]>
+<img height="231" src="img/img1.png" v:shapes="Picture_x0020_4" width="505" /><![endif]></span><span lang="EN-US" style="font-family:
+&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:
+minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></p>
+<p class="MsoNormal">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p>&nbsp;</o:p></span></p>
+<h3><a name="_Toc431452180"></a><a name="_Toc431370469">
+<span style="mso-bookmark:
+_Toc431452180">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Building and ground DSM</span></span></a><span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">A DSM (geoTIFF) consisting of ground and building heights.<o:p></o:p></span></p>
+<h3><a name="_Toc431452181">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Calculate wall aspect</span></a><span lang="EN-US" style="font-family:
+&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:
+minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Tick this box if you want to include estimation and output of a wall 
+aspect grid. This calculation is computational intensive and will make your 
+computer work for a while (depending on the size of the input DSM).<o:p></o:p></span></p>
+<h3><a name="_Toc431452182">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Lower limit for wall height (m)</span></a><span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">This limit gives the lowest height of a building wall.<o:p></o:p></span></p>
+<h3><a name="_Toc431452183"></a><a name="_Toc431370476">
+<span style="mso-bookmark:
+_Toc431452183">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Output f</span></span></a><span style="mso-bookmark:_Toc431452183"><span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">ile for wall aspect 
+raster</span></span><span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Name of the output file of the aspect raster.<o:p></o:p></span></p>
+<h3><a name="_Toc431452184">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Output file for wall height raster</span></a><span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Name of the output file of the aspect raster.<o:p></o:p></span></p>
+<h3><a name="_Toc431452185"></a><a name="_Toc431370477">
+<span style="mso-bookmark:
+_Toc431452185">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Run</span></span></a><span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">This starts the calculations.<o:p></o:p></span></p>
+<h3><a name="_Toc431452186"></a><a name="_Toc431370478">
+<span style="mso-bookmark:
+_Toc431452186">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Add result to project</span></span></a><span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">If this is ticked in, the raster(s) will be added to the map canvas.<o:p></o:p></span></p>
+<h3><a name="_Toc431452187"></a><a name="_Toc431370479">
+<span style="mso-bookmark:
+_Toc431452187">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Close</span></span></a><span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">This button closes the plugin.<o:p></o:p></span></p>
+<h1 style="margin-bottom:0cm;margin-bottom:.0001pt"><a name="_Toc431452188"></a>
+<a name="_Toc431370480"><span style="mso-bookmark:_Toc431452188">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Output</span></span></a><span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h1>
+<p class="MsoNormal">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Two different files (geoTIFF) will be saved if also wall aspect is 
+calculated. <span style="mso-spacerun:yes">&nbsp;&nbsp;&nbsp;</span><o:p></o:p></span></p>
+<p class="MsoNormal">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">The figure below shows an example of input data (left) and the resulting 
+wall height raster (right). <o:p></o:p></span></p>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-fareast-language:SV;
+mso-no-proof:yes"><!--[if gte vml 1]><v:shape id="Picture_x0020_5" o:spid="_x0000_i1025"
+ type="#_x0000_t75" style='width:453.75pt;height:202.5pt;visibility:visible;
+ mso-wrap-style:square'>
+ <v:imagedata src="../../../../../AppData/Local/Temp/msohtmlclip1/01/clip_image002.jpg"
+  o:title="" xmlns:v="urn:schemas-microsoft-com:vml"/>
+</v:shape><![endif]--><![if !vml]>
+<img height="312" src="img/img2.jpg" v:shapes="Picture_x0020_5" width="700" /><![endif]></span><span lang="EN-US" style="font-family:
+&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:
+minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></p>
+<h1 style="margin-bottom:0cm;margin-bottom:.0001pt"><a name="_Toc431452189"></a>
+<a name="_Toc431370481"><span style="mso-bookmark:_Toc431452189">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Remarks</span></span></a><span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h1>
+<p class="MsoNormal">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">- Wall pixels will be located ‘inside’ of the building footprint<o:p></o:p></span></p>
+<p class="MsoNormal">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">- The aspect algorithm gives reasonable result but improvements could be 
+made by e.g. using a vector line layer which could be used to populate the wall 
+pixels with aspect values.<o:p></o:p></span></p>
+<h1 style="margin-bottom:0cm;margin-bottom:.0001pt"><a name="_Toc431452190"></a>
+<a name="_Toc431370482"><span style="mso-bookmark:_Toc431452190">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">References</span></span></a><span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h1>
+<p class="MsoNormal">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Goodwin NR, Coops NC, Tooke TR, Christen A, Voogt JA (2009) 
+Characterizing urban surface cover and structure with airborne lidar technology. 
+Can J Remote Sens 35:297–309 (<a href="http://www.tandfonline.com/doi/abs/10.5589/m09-015" target="_blank"><span style="mso-ansi-language:EN-US">link 
+to paper</span></a>)<o:p></o:p></span></p>
+<p class="MsoNormal">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Lindberg, F., Jonsson, P. &amp; Honjo, T. and Wästberg, D. (2015) Solar 
+energy on building envelopes - 3D modelling in a 2D environment. Solar Energy. 
+115 (2015) 369–378 (<a href="http://www.sciencedirect.com/science/article/pii/S0038092X15001164" target="_blank"><span style="mso-ansi-language:EN-US">link 
+to paper</span></a>)<o:p></o:p></span></p>
+<p class="MsoNormal">
+<span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Lindberg, F., Grimmond, C.S.B. and Martilli, A. (2015) Sunlit fractions 
+on urban facets - Impact of spatial resolution and approach. Urban Climate. DOI 
+10.1016/j.uclim.2014.11.006 (<a href="http://www.sciencedirect.com/science/article/pii/S221209551400090X" target="_blank"><span style="mso-ansi-language:EN-US">link 
+to paper</span></a>)<o:p></o:p></span></p>
+<p class="MsoNormal">&nbsp;</p>
+
+</body>
+
+</html>

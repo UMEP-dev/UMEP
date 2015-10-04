@@ -427,9 +427,9 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="geometry">
     <rect>
-     <x>8</x>
+     <x>87</x>
      <y>444</y>
-     <width>244</width>
+     <width>277</width>
      <height>18</height>
     </rect>
    </property>
@@ -472,6 +472,19 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="alignment">
     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButtonHelp">
+   <property name="geometry">
+    <rect>
+     <x>6</x>
+     <y>441</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Help</string>
    </property>
   </widget>
  </widget>

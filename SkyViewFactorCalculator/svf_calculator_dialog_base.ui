@@ -22,7 +22,7 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>16</x>
+     <x>84</x>
      <y>246</y>
      <width>250</width>
      <height>18</height>
@@ -331,6 +331,19 @@ p, li { white-space: pre-wrap; }
     </property>
    </widget>
   </widget>
+  <widget class="QPushButton" name="pushButtonHelp">
+   <property name="geometry">
+    <rect>
+     <x>3</x>
+     <y>243</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Help</string>
+   </property>
+  </widget>
   <zorder>frame</zorder>
   <zorder>checkBoxIntoCanvas</zorder>
   <zorder>pushButtonSave</zorder>
@@ -339,6 +352,7 @@ p, li { white-space: pre-wrap; }
   <zorder>progressBar</zorder>
   <zorder>runButton</zorder>
   <zorder>pushButton</zorder>
+  <zorder>pushButtonHelp</zorder>
  </widget>
  <resources/>
  <connections>

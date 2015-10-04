@@ -33,6 +33,7 @@ from osgeo import gdal, osr
 import os.path
 import dailyshading as dsh
 import numpy as np
+import webbrowser
 
 
 class ShadowGenerator:
@@ -68,6 +69,7 @@ class ShadowGenerator:
         self.dlg = ShadowGeneratorDialog()
         self.dlg.runButton.clicked.connect(self.start_progress)
         self.dlg.shadowCheckBox.stateChanged.connect(self.checkbox_changed)
+        self.dlg.pushButtonHelp.clicked.connect(self.help)
         self.dlg.pushButtonSave.clicked.connect(self.folder_path)
         self.fileDialog = QFileDialog()
         self.fileDialog.setFileMode(4)
@@ -379,4 +381,8 @@ class ShadowGenerator:
         self.dlg.show()
         # Run the dialog event loop
         self.dlg.exec_()
+
+    def help(self):
+        url = "file://" + self.plugin_dir + "/help/index.html"
+        webbrowser.open_new_tab(url)
 

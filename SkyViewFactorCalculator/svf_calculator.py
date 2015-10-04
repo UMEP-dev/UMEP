@@ -37,6 +37,7 @@ import Skyviewfactor4d as svf
 from svfworker import Worker
 from svfvegworker import VegWorker
 from osgeo.gdalconst import *
+import webbrowser
 
 class SkyViewFactorCalculator:
     """QGIS Plugin Implementation."""
@@ -70,6 +71,7 @@ class SkyViewFactorCalculator:
         # Create the dialog (after translation) and keep reference
         self.dlg = SkyViewFactorCalculatorDialog()
         self.dlg.runButton.clicked.connect(self.start_progress)
+        self.dlg.pushButtonHelp.clicked.connect(self.help)
         self.dlg.pushButtonSave.clicked.connect(self.folder_path)
         self.dlg.checkBoxUseVeg.toggled.connect(self.text_enable)
         self.dlg.checkBoxTrunkExist.toggled.connect(self.text_enable2)
@@ -576,5 +578,9 @@ class SkyViewFactorCalculator:
         """Run method that performs all the real work"""
         self.dlg.show()
         self.dlg.exec_()
+
+    def help(self):
+        url = "file://" + self.plugin_dir + "/help/index.html"
+        webbrowser.open_new_tab(url)
 
 

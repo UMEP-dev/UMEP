@@ -36,6 +36,7 @@ import wallalgorithms as wa
 from ..Utilities.qgiscombomanager import *
 from ..Utilities.misc import *
 from wallworker import Worker
+import webbrowser
 
 
 class WallHeight:
@@ -72,6 +73,7 @@ class WallHeight:
         self.dlg.runButton.clicked.connect(self.start_progress)
         self.dlg.pushButtonSaveHeight.clicked.connect(self.save_file_place_height)
         self.dlg.pushButtonSaveAspect.clicked.connect(self.save_file_place_aspect)
+        self.dlg.pushButtonHelp.clicked.connect(self.help)
         self.fileDialog = QFileDialog()
         self.fileDialog.setFileMode(0)
         self.fileDialog.setAcceptMode(1)  # Save
@@ -301,3 +303,7 @@ class WallHeight:
     def progress_update(self):
         self.steps += 1
         self.dlg.progressBar.setValue(self.steps)
+
+    def help(self):
+        url = "file://" + self.plugin_dir + "/help/index.html"
+        webbrowser.open_new_tab(url)
