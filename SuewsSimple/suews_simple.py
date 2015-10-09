@@ -20,25 +20,29 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import *  #QSettings, QTranslator, qVersion, QCoreApplication
+# Import QGIS and PyQt
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QThread
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
 from qgis.core import *
 from qgis.gui import *
 # Initialize Qt resources from file resources.py
-import resources_rc
-# Import the code for the dialog
+# import resources_rc
+# Import the code for the dialog and other parts of the plugin
 from suews_simple_dialog import SuewsSimpleDialog
-# from ..Utilities import f90nml
-import os.path
-from ..suewsmodel import Suews_wrapper_v10
+from ..suewsmodel import Suews_wrapper_v11
 from ..ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
 from ..LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
-import webbrowser
-import numpy as np
-import shutil
 from suewssimpleworker import Worker
 
+# Import other python stuff
+import urllib
+import numpy as np
+import shutil
+import sys
+import os.path
+import webbrowser
 import time
+
 
 class SuewsSimple:
     """QGIS Plugin Implementation."""
@@ -135,44 +139,6 @@ class SuewsSimple:
         status_tip=None,
         whats_this=None,
         parent=None):
-        """Add a toolbar icon to the toolbar.
-
-        :param icon_path: Path to the icon for this action. Can be a resource
-            path (e.g. ':/plugins/foo/bar.png') or a normal file system path.
-        :type icon_path: str
-
-        :param text: Text that should be shown in menu items for this action.
-        :type text: str
-
-        :param callback: Function to be called when the action is triggered.
-        :type callback: function
-
-        :param enabled_flag: A flag indicating if the action should be enabled
-            by default. Defaults to True.
-        :type enabled_flag: bool
-
-        :param add_to_menu: Flag indicating whether the action should also
-            be added to the menu. Defaults to True.
-        :type add_to_menu: bool
-
-        :param add_to_toolbar: Flag indicating whether the action should also
-            be added to the toolbar. Defaults to True.
-        :type add_to_toolbar: bool
-
-        :param status_tip: Optional text to show in a popup when mouse pointer
-            hovers over the action.
-        :type status_tip: str
-
-        :param parent: Parent widget for the new action. Defaults None.
-        :type parent: QWidget
-
-        :param whats_this: Optional text to show in the status bar when the
-            mouse pointer hovers over the action.
-
-        :returns: The action that was created. Note that the action is also
-            added to self.actions list.
-        :rtype: QAction
-        """
 
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
@@ -199,7 +165,6 @@ class SuewsSimple:
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
-
         icon_path = ':/plugins/SuewsSimple/icon.png'
         self.add_action(
             icon_path,
@@ -218,10 +183,31 @@ class SuewsSimple:
         del self.toolbar
 
     def run(self):
-        """Run method that performs all the real work"""
-        # show the dialog
+        if os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2015a') or os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2015a.exe'):
+            test = 4
+        else:
+            QMessageBox.information(self.iface.mainWindow(),
+                                 "OS specific binaries missing",
+                                 "Before you start to use this plugin for the very first time, the OS specific suews program\r\n"
+                                 "will automatically be download from the UMEP repository and stored in your plugin directory:\r\n"
+                                 "(" + self.model_dir + ").", QMessageBox.Ok)
+            testfile = urllib.URLopener()
+            if sys.platform == 'win32':
+                testfile.retrieve('http://rcg.gvc.gu.se/~urban-net/executablesTest/win32/SUEWS_V2015a.exe', self.model_dir + os.sep + 'SUEWS_V2015a.exe')
+                testfile2 = urllib.URLopener()
+                testfile2.retrieve('http://rcg.gvc.gu.se/~urban-net/executablesTest/win32/cyggcc_s-seh-1.dll', self.model_dir + os.sep + 'cyggcc_s-seh-1.dll')
+                testfile3 = urllib.URLopener()
+                testfile3.retrieve('http://rcg.gvc.gu.se/~urban-net/executablesTest/win32/cyggfortran-3.dll', self.model_dir + os.sep + 'cyggfortran-3.dll')
+                testfile4 = urllib.URLopener()
+                testfile4.retrieve('http://rcg.gvc.gu.se/~urban-net/executablesTest/win32/cygquadmath-0.dll', self.model_dir + os.sep + 'cygquadmath-0.dll')
+                testfile5 = urllib.URLopener()
+                testfile5.retrieve('http://rcg.gvc.gu.se/~urban-net/executablesTest/win32/cygwin1.dll', self.model_dir + os.sep + 'cygwin1.dll')
+            if sys.platform == 'linux':
+                testfile.retrieve('http://rcg.gvc.gu.se/~urban-net/executablesTest/linux/SUEWS_V2015a', self.model_dir + os.sep + 'SUEWS_V2015a')
+            if sys.platform == 'darwin':
+                testfile.retrieve('http://rcg.gvc.gu.se/~urban-net/executablesTest/darwin/SUEWS_V2015a', self.model_dir + os.sep + 'SUEWS_V2015a')
+
         self.dlg.show()
-        # Run the dialog event loop
         self.dlg.exec_()
 
     def IMCP(self):
@@ -302,7 +288,7 @@ class SuewsSimple:
             try:
                 data = np.loadtxt(self.folderPath[0],skiprows=headernum, delimiter=delim)
             except:
-                QMessageBox.critical(None, "Import Error", "The file does not have the correct format")
+                QMessageBox.critical(self.iface.mainWindow(), "Import Error", "The file does not have the correct format")
                 return
             self.dlg.pai_paved.setText(str(data[0]))
             self.dlg.pai_build.setText(str(data[1]))
@@ -481,11 +467,11 @@ class SuewsSimple:
 
         # Checking consistency between fractions
         if np.abs(float(self.dlg.pai_build.text()) - float(self.dlg.lineEdit_paiBuild.text())) > 0.05:
-            QMessageBox.critical(None, "Non-consistency Error", "A relatively large difference in "
+            QMessageBox.critical(self.iface.mainWindow(), "Non-consistency Error", "A relatively large difference in "
                 "building fraction between the DSM and the landcover grid was found: " + str(float(self.dlg.pai_build.text()) - float(self.dlg.lineEdit_paiBuild.text())))
             return
         if np.abs(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - float(self.dlg.lineEdit_paiveg.text())) > 0.05:
-            QMessageBox.critical(None, "Non-consistency Error", "A relatively large difference in "
+            QMessageBox.critical(self.iface.mainWindow(), "Non-consistency Error", "A relatively large difference in "
                 "building fraction between the DSM and the landcover grid was found: " + str(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - float(self.dlg.lineEdit_paiveg.text())))
             return
 
@@ -647,17 +633,21 @@ class SuewsSimple:
         #                 "length of meteorological data and computer resources.",)
         # time.sleep(1)
 
+        QMessageBox.information(None,
+                                "Model information", "Model run will now start. QGIS might freeze during calcualtion."
+                                "This will be fixed in future versions")
+        Suews_wrapper_v11.wrapper(self.model_dir)
         try:
             # self.iface.messageBar().pushMessage("Model run started", "Process will take a couple of minutes based on "
             #             "length of meteorological data and computer resources.", level=QgsMessageBar.INFO, duration=10)
             # QMessageBox.information(None, "Model run started", "Process will take a couple of minutes based on "
             #             "length of meteorological data and computer resources.")
-            # test = 4
-            Suews_wrapper_v10.wrapper(self.model_dir)
+            test = 4
+            # Suews_wrapper_v11.wrapper(self.model_dir)
         except:
             f = open(self.model_dir + '/problems.txt')
             lines = f.readlines()
-            QMessageBox.critical(None, "Model run unsuccessful", str(lines))
+            QMessageBox.critical(self.iface.mainWindow(), "Model run unsuccessful", str(lines))
             return
 
         # if self.ret == 1:
@@ -668,7 +658,7 @@ class SuewsSimple:
 
     def help(self):
         url = "file://" + self.plugin_dir + "/help/build/html/index.html"
-        webbrowser.open_new_tab(url)
+        # webbrowser.open_new_tab(url)
 
     def startWorker(self, iface, model_dir, dlg):
 
@@ -706,7 +696,7 @@ class SuewsSimple:
             self.dlg.runButton.clicked.connect(self.start_progress)
             self.dlg.closeButton.setEnabled(True)
             # self.dlg.progressBar.setValue(0)
-            QMessageBox.information(None, "Suews Simple", "Operations cancelled, process unsuccessful!")
+            QMessageBox.information(self.iface.mainWindow(), "Suews Simple", "Operations cancelled, process unsuccessful!")
         else:
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
@@ -726,7 +716,7 @@ class SuewsSimple:
         QgsMessageLog.logMessage(strerror.format(exception_string), level=QgsMessageLog.CRITICAL)
         f = open(self.model_dir + '/problems.txt')
         lines = f.readlines()
-        QMessageBox.critical(None, "Model run unsuccessful", str(lines))
+        QMessageBox.critical(self.iface.mainWindow(), "Model run unsuccessful", str(lines))
 
     # def progress_update(self):
     #     self.steps +=1

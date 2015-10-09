@@ -20,7 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QThread
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QThread, QUrl
 from PyQt4.QtGui import *
 from qgis.core import *
 from qgis.gui import *
@@ -317,7 +317,7 @@ class SkyViewFactorCalculator:
                         #rlayer.setCacheImage(None)
                     rlayer.triggerRepaint()
 
-                QMessageBox.information(None, "Sky View Factor Calculator", "SVF grid(s) successfully generated")
+                QMessageBox.information(self.iface.mainWindow(), "Sky View Factor Calculator", "SVF grid(s) successfully generated")
                 self.dlg.runButton.setText('Run')
                 self.dlg.runButton.clicked.disconnect()
                 self.dlg.runButton.clicked.connect(self.start_progress)
@@ -386,7 +386,7 @@ class SkyViewFactorCalculator:
                     rlayer.repaintRequested.emit()
                 rlayer.triggerRepaint()
 
-            QMessageBox.information(None, "Sky View Factor Calculator", "SVF grid(s) successfully generated")
+            QMessageBox.information(self.iface.mainWindow(), "Sky View Factor Calculator", "SVF grid(s) successfully generated")
 
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
@@ -419,14 +419,14 @@ class SkyViewFactorCalculator:
     def start_progress(self):
         self.steps = 0
         if self.folderPath is None:
-            QMessageBox.critical(None, "Error", "No save folder selected")
+            QMessageBox.critical(self.iface.mainWindow(), "Error", "No save folder selected")
 
         else:
         #self.dlg.textOutput.setText(self.folderPath[0])
             dsmlayer = self.layerComboManagerDSM.getLayer()
 
             if dsmlayer is None:
-                    QMessageBox.critical(None, "Error", "No valid raster layer is selected")
+                    QMessageBox.critical(self.iface.mainWindow(), "Error", "No valid raster layer is selected")
                     return
 
             provider = dsmlayer.dataProvider()
@@ -439,19 +439,19 @@ class SkyViewFactorCalculator:
             self.scale = 1 / geotransform[1]
 
             if (sizex * sizey) > 250000 and (sizex * sizey) <= 1000000:
-                QMessageBox.warning(None, "Semi lage grid", "This process will take a couple of minutes. "
+                QMessageBox.warning(self.iface.mainWindow(), "Semi lage grid", "This process will take a couple of minutes. "
                                                         "Go and make yourself a cup of tea...")
 
             if (sizex * sizey) > 1000000 and (sizex * sizey) <= 4000000:
-                QMessageBox.warning(None, "Large grid", "This process will take some time. "
+                QMessageBox.warning(self.iface.mainWindow(), "Large grid", "This process will take some time. "
                                                         "Go for lunch...")
 
             if (sizex * sizey) > 4000000 and (sizex * sizey) <= 16000000:
-                QMessageBox.warning(None, "Very large grid", "This process will take a long time. "
+                QMessageBox.warning(self.iface.mainWindow(), "Very large grid", "This process will take a long time. "
                                                         "Go for lunch and for a walk...")
 
             if (sizex * sizey) > 16000000:
-                QMessageBox.warning(None, "Huge grid", "This process will take a very long time. "
+                QMessageBox.warning(self.iface.mainWindow(), "Huge grid", "This process will take a very long time. "
                                                         "Go home for the weekend or consider to tile your grid")
 
             if self.dlg.checkBoxUseVeg.isChecked():
@@ -580,7 +580,8 @@ class SkyViewFactorCalculator:
         self.dlg.exec_()
 
     def help(self):
-        url = "file://" + self.plugin_dir + "/help/index.html"
+        url = "file://" + self.plugin_dir + "/help/Index.html"
+        # QDesktopServices.openUrl(QUrl(url))
         webbrowser.open_new_tab(url)
 
 

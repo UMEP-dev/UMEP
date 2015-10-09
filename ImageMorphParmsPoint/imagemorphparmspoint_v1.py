@@ -33,6 +33,7 @@ from ..Utilities.imageMorphometricParms_v1 import *
 # from ..pydev import pydevd
 # Initialize Qt resources from file resources.py
 import resources_rc
+import sys
 
 # Import the code for the dialog
 from imagemorphparmspoint_v1_dialog import ImageMorphParmsPointDialog
@@ -105,7 +106,6 @@ class ImageMorphParmsPoint:
 
         # #g pin tool
         self.pointTool = QgsMapToolEmitPoint(self.canvas)
-        #self.toolPan = QgsMapToolPan(self.canvas)
         self.pointTool.canvasClicked.connect(self.create_point)
 
         self.layerComboManagerPoint = VectorLayerCombo(self.dlg.comboBox_Point)
@@ -389,8 +389,11 @@ class ImageMorphParmsPoint:
             writer.addFeature(feature)
         del writer
 
-        si = subprocess.STARTUPINFO()
-        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        if sys.platform == 'win32':
+            si = subprocess.STARTUPINFO()
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        else:
+            si = None
 
         x = self.pointx
         y = self.pointy
@@ -411,7 +414,11 @@ class ImageMorphParmsPoint:
             # gdalruntextdsm_build = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + dir_poly + \
             #                        ' -crop_to_cutline -of GTiff ' + filePath_dsm_build + \
             #                        ' ' + self.plugin_dir + '/data/clipdsm.tif'
-            subprocess.call(gdalruntextdsm_build, startupinfo=si)
+            if sys.platform == 'win32':
+                subprocess.call(gdalruntextdsm_build, startupinfo=si)
+            else:
+                os.system(gdalruntextdsm_build)
+
             dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
             dsm = dataset.ReadAsArray().astype(np.float)
             sizex = dsm.shape[0]
@@ -441,15 +448,15 @@ class ImageMorphParmsPoint:
             gdalruntextdem = 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
                                    ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff ' + \
                                    filePath_dem + ' ' + self.plugin_dir + '/data/clipdem.tif'
-            # gdalruntextdsm = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + dir_poly + \
-            #                  ' -crop_to_cutline -of GTiff ' + filePath_dsm + \
-            #                  ' ' + self.plugin_dir + '/data/clipdsm.tif'
-            # gdalruntextdem = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + dir_poly + \
-            #                  ' -crop_to_cutline -of GTiff ' + filePath_dem + \
-            #                  ' ' + self.plugin_dir + '/data/clipdem.tif'
 
-            subprocess.call(gdalruntextdsm, startupinfo=si)
-            subprocess.call(gdalruntextdem, startupinfo=si)
+            if sys.platform == 'win32':
+                si = subprocess.STARTUPINFO()
+                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                subprocess.call(gdalruntextdsm, startupinfo=si)
+                subprocess.call(gdalruntextdem, startupinfo=si)
+            else:
+                os.system(gdalruntextdsm)
+                os.system(gdalruntextdem)
 
             dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
             dsm = dataset.ReadAsArray().astype(np.float)
@@ -495,12 +502,7 @@ class ImageMorphParmsPoint:
         QMessageBox.information(None, "Image Morphometric Parameters", "Process successful!")
 
     def run(self):
-        """Run method that performs all the real work"""
-        # show the dialog
         self.dlg.show()
-
-        # Run the dialog event loop
         self.dlg.exec_()
-
         gdal.UseExceptions()
         gdal.AllRegister()

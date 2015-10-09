@@ -29,7 +29,7 @@ from ..Utilities.qgiscombomanager import *
 from ..Utilities.landCoverFractions_v1 import *
 from osgeo import gdal
 import subprocess
-
+import sys
 # Initialize Qt resources from file resources.py
 import resources_rc
 # Import the code for the dialog
@@ -371,8 +371,11 @@ class LandCoverFractionPoint:
             writer.addFeature(feature)
         del writer
 
-        si = subprocess.STARTUPINFO()
-        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        if sys.platform == 'win32':
+            si = subprocess.STARTUPINFO()
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        else:
+            si = None
 
         x = self.pointx
         y = self.pointy
@@ -388,7 +391,10 @@ class LandCoverFractionPoint:
         gdalruntextdsm_build = 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
                                ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff ' + \
                                filePath_dsm_build + ' ' + self.plugin_dir + '/data/clipdsm.tif'
-        subprocess.call(gdalruntextdsm_build, startupinfo=si)
+        if sys.platform == 'win32':
+            subprocess.call(gdalruntextdsm_build, startupinfo=si)
+        else:
+            os.system(gdalruntextdsm_build)
         dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
         dsm = dataset.ReadAsArray().astype(np.float)
 

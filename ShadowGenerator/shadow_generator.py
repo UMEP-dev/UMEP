@@ -383,6 +383,6 @@ class ShadowGenerator:
         self.dlg.exec_()
 
     def help(self):
-        url = "file://" + self.plugin_dir + "/help/index.html"
+        url = "file://" + self.plugin_dir + "/help/Index.html"
         webbrowser.open_new_tab(url)
 

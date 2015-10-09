@@ -1,5 +1,5 @@
-from importdata import importdata
-from sun_position import sun_position
+# from importdata import importdata
+import sun_position as sp
 import numpy as np
 import datetime
 
@@ -64,7 +64,7 @@ def Solweig_2015a_metdata_noload(inputdata, location, UTC):
                 time['hour'] = YMDHM.hour
                 time['min'] = YMDHM.minute
                 # [time.year,time.month,time.day,time.hour,time.min,time.sec]=datevec(datenum([met[i,0],1,0])+np.floor(dectime(i,1))+(10*60)/1440+fifteen)
-                sunmax = sun_position(time,location)
+                sunmax = sp.sun_position(time,location)
         altmax[0, i] = sunmaximum
 
         # time['year'] = float(met[i, 0])
@@ -79,7 +79,7 @@ def Solweig_2015a_metdata_noload(inputdata, location, UTC):
         time['day'] = YMDHM.day
         time['hour'] = YMDHM.hour
         time['min'] = YMDHM.minute
-        sun = sun_position(time, location)
+        sun = sp.sun_position(time, location)
         altitude[0, i] = 90 - sun['zenith']
         azimuth[0, i] = sun['azimuth']
         zen[0, i] = sun['zenith'] * (np.pi/180)

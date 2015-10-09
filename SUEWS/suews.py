@@ -30,7 +30,7 @@ from suews_dialog import SUEWSDialog
 import os.path
 
 # from ..Utilities import *
-from ..suewsmodel import Suews_wrapper_v10
+from ..suewsmodel import Suews_wrapper_v11
 
 
 class SUEWS:
@@ -239,13 +239,15 @@ class SUEWS:
         # QMessageBox.information(None, "Model run ready to start", "Process will take a couple of minutes based on "
         #                 "length of meteorological data and computer resources.",)
         # time.sleep(1)
+        QMessageBox.information(None, "Model information", "Model run will now start. QGIS might freeze during calcualtion."
+                                                           "This will be fixed in future versions")
         try:
             # self.iface.messageBar().pushMessage("Model run started", "Process will take a couple of minutes based on "
             #             "length of meteorological data and computer resources.", level=QgsMessageBar.INFO, duration=10)
             # QMessageBox.information(None, "Model run started", "Process will take a couple of minutes based on "
             #             "length of meteorological data and computer resources.")
             test = 4
-            Suews_wrapper_v10.wrapper(self.model_dir)
+            Suews_wrapper_v11.wrapper(self.model_dir)
         except:
             f = open(self.model_dir + '/problems.txt')
             lines = f.readlines()

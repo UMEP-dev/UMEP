@@ -34,6 +34,8 @@ def wrapper(pathtoplugin):
 
     # Working folder
     #wf = os.getcwd()
+    if not os.path.exists(fileoutputpath):
+        os.mkdir(fileoutputpath)
     wf = pathtoplugin
     prog_name = 'SUEWS_V2015a'
     # fileinputpath = wf + fileoutputpath[1:] # comment out in UMEP version
@@ -120,23 +122,28 @@ def wrapper(pathtoplugin):
         suewsstring1 = 'cd ' + os.path.dirname(os.path.abspath(__file__)) + '\n'
         suewsstring2 = os.path.dirname(os.path.abspath(__file__)) + os.path.sep + prog_name
         suewsbat = wf + '/runsuews.bat'
+        f = open(suewsbat, 'w')
 
-    if (pf == 'darwin' or pf == 'linux'):
+    if pf == 'darwin' or pf == 'linux2':
         suewsstring0 = '#!/bin/bash' + '\n'
         suewsstring1 = 'cd ' + os.path.dirname(os.path.abspath(__file__)) + '\n'
         suewsstring2 = os.path.dirname(os.path.abspath(__file__)) + os.path.sep + prog_name
         suewsbat = wf + '/runsuews.sh'
+        f = open(suewsbat, 'w')
         st = os.stat(wf + '/runsuews.sh')
         os.chmod(wf + '/runsuews.sh', st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        st2 = os.stat(wf + '/SUEWS_V2015a')
+        os.chmod(wf + '/SUEWS_V2015a', st2.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
-    f = open(suewsbat, 'w')
     f.write(suewsstring0)
     f.write(suewsstring1)
     f.write(suewsstring2)
     f.close()
 
-    si = subprocess.STARTUPINFO()
-    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    if pf == 'win32':
+        si = subprocess.STARTUPINFO()
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
     subprocess.call(suewsbat)
 
     ### This part makes hourly averages from SUEWS 5 min output ###
@@ -379,5 +386,6 @@ def wrapper(pathtoplugin):
     # ax3.plot(precip + wu - st - drain - evap)
 
     # plt.show()
+
 
 

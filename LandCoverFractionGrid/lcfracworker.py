@@ -8,6 +8,8 @@ from ..Utilities.landCoverFractions_v1 import *
 import numpy as np
 from osgeo import gdal
 import subprocess
+import sys
+import os
 
 class Worker(QtCore.QObject):
 
@@ -84,9 +86,12 @@ class Worker(QtCore.QObject):
                                            ' -crop_to_cutline -of GTiff ' + filePath_lc_grid + ' ' + \
                                            self.plugin_dir + '/data/clipdsm.tif'
 
-                si = subprocess.STARTUPINFO()
-                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                subprocess.call(gdalruntextlc_grid, startupinfo=si)
+                if sys.platform == 'win32':
+                    si = subprocess.STARTUPINFO()
+                    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                    subprocess.call(gdalruntextlc_grid, startupinfo=si)
+                else:
+                    os.system(gdalruntextlc_grid)
 
                 dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
                 lc_grid_array = dataset.ReadAsArray().astype(np.float)

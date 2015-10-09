@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Ready for python action!
 import numpy as np
-import matplotlib.pylab as plt
+# import matplotlib.pylab as plt
 
 
 def shadowingfunctionglobalradiation(a, azimuth, altitude, scale, dlg, forsvf):

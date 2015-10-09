@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from PyQt4 import QtCore
 # from PyQt4.QtCore import *
 from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
@@ -15,7 +16,8 @@ import subprocess
 # import PIL
 # from paramWorker import ParamWorker
 # from pydev import pydevd
-# import sys
+import sys
+import os
 
 class Worker(QtCore.QObject):
 
@@ -104,9 +106,12 @@ class Worker(QtCore.QObject):
                                                ' -crop_to_cutline -of GTiff ' + filePath_dsm_build + ' ' + \
                                                self.plugin_dir + '/data/clipdsm.tif'
 
-                    si = subprocess.STARTUPINFO()
-                    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                    subprocess.call(gdalruntextdsm_build, startupinfo=si)
+                    if sys.platform == 'win32':
+                        si = subprocess.STARTUPINFO()
+                        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                        subprocess.call(gdalruntextdsm_build, startupinfo=si)
+                    else:
+                        os.system(gdalruntextdsm_build)
 
                     # os.system(gdalruntextdsm_build)
                     dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
@@ -137,10 +142,14 @@ class Worker(QtCore.QObject):
                                          ' -crop_to_cutline -of GTiff ' + filePath_dem + \
                                          ' ' + self.plugin_dir + '/data/clipdem.tif'
 
-                    si = subprocess.STARTUPINFO()
-                    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                    subprocess.call(gdalruntextdsm, startupinfo=si)
-                    subprocess.call(gdalruntextdem, startupinfo=si)
+                    if sys.platform == 'win32':
+                        si = subprocess.STARTUPINFO()
+                        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                        subprocess.call(gdalruntextdsm, startupinfo=si)
+                        subprocess.call(gdalruntextdem, startupinfo=si)
+                    else:
+                        os.system(gdalruntextdsm)
+                        os.system(gdalruntextdem)
 
                     dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
                     dsm_array = dataset.ReadAsArray().astype(np.float)

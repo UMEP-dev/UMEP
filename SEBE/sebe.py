@@ -34,9 +34,8 @@ from ..Utilities.misc import *
 from osgeo import gdal, osr
 import numpy as np
 from sebeworker import Worker
-from SEBEfiles import SEBE_2015a_calc
 # from SEBEfiles.get_ders import get_slope_aspect
-from data_io.Solweig_v2015_metdata_noload import Solweig_2015a_metdata_noload
+from SEBEfiles.Solweig_v2015_metdata_noload import Solweig_2015a_metdata_noload
 from SEBEfiles.sunmapcreator_2015a import sunmapcreator_2015a
 
 
