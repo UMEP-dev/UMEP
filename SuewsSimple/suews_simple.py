@@ -202,7 +202,7 @@ class SuewsSimple:
                 testfile4.retrieve('http://rcg.gvc.gu.se/~urban-net/executablesTest/win32/cygquadmath-0.dll', self.model_dir + os.sep + 'cygquadmath-0.dll')
                 testfile5 = urllib.URLopener()
                 testfile5.retrieve('http://rcg.gvc.gu.se/~urban-net/executablesTest/win32/cygwin1.dll', self.model_dir + os.sep + 'cygwin1.dll')
-            if sys.platform == 'linux':
+            if sys.platform == 'linux2':
                 testfile.retrieve('http://rcg.gvc.gu.se/~urban-net/executablesTest/linux/SUEWS_V2015a', self.model_dir + os.sep + 'SUEWS_V2015a')
             if sys.platform == 'darwin':
                 testfile.retrieve('http://rcg.gvc.gu.se/~urban-net/executablesTest/darwin/SUEWS_V2015a', self.model_dir + os.sep + 'SUEWS_V2015a')
