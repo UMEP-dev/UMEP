@@ -99,44 +99,6 @@ class MetdataProcessor:
         status_tip=None,
         whats_this=None,
         parent=None):
-        """Add a toolbar icon to the toolbar.
-
-        :param icon_path: Path to the icon for this action. Can be a resource
-            path (e.g. ':/plugins/foo/bar.png') or a normal file system path.
-        :type icon_path: str
-
-        :param text: Text that should be shown in menu items for this action.
-        :type text: str
-
-        :param callback: Function to be called when the action is triggered.
-        :type callback: function
-
-        :param enabled_flag: A flag indicating if the action should be enabled
-            by default. Defaults to True.
-        :type enabled_flag: bool
-
-        :param add_to_menu: Flag indicating whether the action should also
-            be added to the menu. Defaults to True.
-        :type add_to_menu: bool
-
-        :param add_to_toolbar: Flag indicating whether the action should also
-            be added to the toolbar. Defaults to True.
-        :type add_to_toolbar: bool
-
-        :param status_tip: Optional text to show in a popup when mouse pointer
-            hovers over the action.
-        :type status_tip: str
-
-        :param parent: Parent widget for the new action. Defaults None.
-        :type parent: QWidget
-
-        :param whats_this: Optional text to show in the status bar when the
-            mouse pointer hovers over the action.
-
-        :returns: The action that was created. Note that the action is also
-            added to self.actions list.
-        :rtype: QAction
-        """
 
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
@@ -194,13 +156,15 @@ class MetdataProcessor:
             if delimnum == 0:
                 delim = ','
             elif delimnum == 1:
-                delim = ' '
-            elif delimnum == 1:
-                delim = '/t'
-            elif delimnum == 1:
+                delim = None  # space
+            elif delimnum == 2:
+                delim = '\t'
+            elif delimnum == 3:
                 delim = ';'
-            else:
+            elif delimnum == 4:
                 delim = ':'
+
+            # QMessageBox.information(None, "Metdata pre-processor", delim)
 
             f = open(self.folderPath[0])
             header = f.readline().split()
@@ -234,7 +198,7 @@ class MetdataProcessor:
                 self.dlg.comboBox_xsmd.addItem(header[i])
 
             try:
-                self.data = np.loadtxt(self.folderPath[0],skiprows=headernum, delimiter=delim)
+                self.data = np.loadtxt(self.folderPath[0], skiprows=headernum, delimiter=delim)
             except:
                 QMessageBox.critical(None, "Import Error", "Check number of header lines and delimiter format")
                 return
@@ -530,8 +494,10 @@ class MetdataProcessor:
         header = '%iy  id  it imin   Q*      QH      QE      Qs      Qf    Wind    RH     Td     press   rain ' \
                  '   Kdn    snow    ldown   fcld    wuh     xsmd    lai_hr  Kdiff   Kdir    Wd'
         # #Save as text files
-        numformat = '%3d %2d %3d %2d %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f ' \
-                    '%6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f'
+        # numformat = '%3d %2d %3d %2d %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f ' \
+        #             '%6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f'
+        numformat = '%d %d %d %d %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f ' \
+                    '%.2f %.2f %.2f %.2f %.2f %.2f %.2f'
         np.savetxt(outputfile, met_new, fmt=numformat, header=header, comments='')
 
         self.dlg.progressBar.setValue(10)

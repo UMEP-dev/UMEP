@@ -64,9 +64,9 @@
   <widget class="QPushButton" name="pushButtonSave">
    <property name="geometry">
     <rect>
-     <x>360</x>
+     <x>300</x>
      <y>480</y>
-     <width>103</width>
+     <width>163</width>
      <height>23</height>
     </rect>
    </property>
@@ -92,7 +92,7 @@
     <rect>
      <x>6</x>
      <y>480</y>
-     <width>349</width>
+     <width>289</width>
      <height>20</height>
     </rect>
    </property>
@@ -121,7 +121,7 @@
     <rect>
      <x>6</x>
      <y>453</y>
-     <width>349</width>
+     <width>289</width>
      <height>20</height>
     </rect>
    </property>
@@ -129,14 +129,14 @@
   <widget class="QPushButton" name="pushButtonLoad">
    <property name="geometry">
     <rect>
-     <x>360</x>
+     <x>300</x>
      <y>453</y>
-     <width>103</width>
+     <width>163</width>
      <height>23</height>
     </rect>
    </property>
    <property name="text">
-    <string>Inpot folder</string>
+    <string>Input folder</string>
    </property>
   </widget>
   <widget class="QCheckBox" name="checkBoxCBL">
@@ -599,9 +599,9 @@
   <widget class="QLabel" name="label_36">
    <property name="geometry">
     <rect>
-     <x>165</x>
+     <x>6</x>
      <y>426</y>
-     <width>232</width>
+     <width>391</width>
      <height>16</height>
     </rect>
    </property>

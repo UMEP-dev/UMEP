@@ -190,7 +190,13 @@ class SuewsSimple:
                                  "OS specific binaries missing",
                                  "Before you start to use this plugin for the very first time, the OS specific suews program\r\n"
                                  "will automatically be download from the UMEP repository and stored in your plugin directory:\r\n"
-                                 "(" + self.model_dir + ").", QMessageBox.Ok)
+                                 "(" + self.model_dir + ").\r\n"
+                                                        "\r\n"
+                                 "Join the email-list for updates and other information:\r\n"
+                                 "http://www.lists.rdg.ac.uk/mailman/listinfo/met-umep.\r\n"
+                                                        "\r\n"
+                                 "UMEP on the web:\r\n"
+                                 "http://www.met.reading.ac.uk/umep/", QMessageBox.Ok)
             testfile = urllib.URLopener()
             if sys.platform == 'win32':
                 testfile.retrieve('http://rcg.gvc.gu.se/~urban-net/executablesTest/win32/SUEWS_V2015a.exe', self.model_dir + os.sep + 'SUEWS_V2015a.exe')
@@ -252,7 +258,7 @@ class SuewsSimple:
             self.dlg.lineEdit_faiBuild.setText(str(data[1]))
             self.dlg.lineEdit_paiBuild.setText(str(data[0]))
             if self.dlg.pai_build.text():
-                if np.abs(float(self.dlg.pai_build.text()) - data[0]) > 0.05:
+                if np.abs(float(self.dlg.pai_build.text()) - data[0]) > 0.01:
                     self.iface.messageBar().pushMessage("Non-consistency warning", "A relatively large difference in "
                     "building fraction between the DSM and the landcover grid was found: " + str(float(self.dlg.pai_build.text())
                                 - data[0]), level=QgsMessageBar.WARNING)
@@ -273,7 +279,7 @@ class SuewsSimple:
             self.dlg.lineEdit_faiveg.setText(str(data[1]))
             self.dlg.lineEdit_paiveg.setText(str(data[0]))
             if self.dlg.pai_evergreen.text() or self.dlg.pai_decid.text():
-                if np.abs(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - data[0]) > 0.05:
+                if np.abs(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - data[0]) > 0.01:
                     self.iface.messageBar().pushMessage("Non-consistency warning", "A relatively large difference in "
                     "vegetation fraction between the canopy DSM and the landcover grid was found: " + str(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text())
                                 - data[0]), level=QgsMessageBar.WARNING)
@@ -298,16 +304,16 @@ class SuewsSimple:
             self.dlg.pai_baresoil.setText(str(data[5]))
             self.dlg.pai_water.setText(str(data[6]))
             if self.dlg.lineEdit_paiBuild.text():
-                if np.abs(float(self.dlg.lineEdit_paiBuild.text()) - data[1]) > 0.05:
+                if np.abs(float(self.dlg.lineEdit_paiBuild.text()) - data[1]) > 0.01:
                     self.iface.messageBar().pushMessage("Non-consistency warning", "A relatively large difference in "
                     "building fraction between the DSM and the landcover grid was found: " + str(float(self.dlg.lineEdit_paiBuild.text()) - data[1]), level=QgsMessageBar.WARNING)
             if self.dlg.lineEdit_paiveg.text():
-                if np.abs(float(self.dlg.lineEdit_paiveg.text()) - data[2] - data[3]) > 0.05:
+                if np.abs(float(self.dlg.lineEdit_paiveg.text()) - data[2] - data[3]) > 0.01:
                     self.iface.messageBar().pushMessage("Non-consistency warning", "A relatively large difference in "
                     "vegetation fraction between the canopy DSM and the landcover grid was found: " + str(float(self.dlg.lineEdit_paiveg.text()) - data[2] - data[3]), level=QgsMessageBar.WARNING)
 
     def import_initial(self):
-        import sys
+        # import sys
         sys.path.append(self.model_dir)
         import f90nml
         self.fileDialogInit.open()
@@ -322,7 +328,7 @@ class SuewsSimple:
             self.dlg.comboBoxLeafCycle.setCurrentIndex(1)
 
     def export_initial(self):
-        import sys
+        # import sys
         sys.path.append(self.model_dir)
         import f90nml
         self.fileDialogInit.open()
@@ -429,6 +435,9 @@ class SuewsSimple:
         self.dlg.DailyMeanT.setText(str(dailymeantemperature))
         self.dlg.comboBoxLeafCycle.setCurrentIndex(1)
 
+        nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
+        self.dlg.Height.setText(str(nml['runcontrol']['z']))
+
         self.dlg.UTC.setText('0')
 
         self.dlg.textInputMetdata.setText(self.model_dir + '/BaseFiles/Kc1_data.txt')
@@ -533,10 +542,12 @@ class SuewsSimple:
 
         # Create new RunControl
         utc = self.dlg.UTC.text()
+        z = self.dlg.Height.text()
         inmetfile = self.dlg.textInputMetdata.text()
         outfolder = self.dlg.textOutput.text()
         nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
         nml['runcontrol']['timezone'] = int(utc)
+        nml['runcontrol']['z'] = float(z)
         if not (faiBuild == -999.0 or faiveg == -999.0):
             nml['runcontrol']['z0_method'] = 3
         shutil.copy(inmetfile, self.model_dir + '/Input')
