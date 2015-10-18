@@ -97,7 +97,7 @@ class UMEP:
         self.UMEP_Menu.addMenu(self.Pro_Menu)
         self.Pos_Menu = QMenu("Post-Processor")
         self.UMEP_Menu.addMenu(self.Pos_Menu)
-        self.Pos_Menu.setEnabled(False)
+        # self.Pos_Menu.setEnabled(False)
         self.About_Menu = QMenu("Help")
         self.UMEP_Menu.addMenu(self.About_Menu)
 
@@ -195,6 +195,15 @@ class UMEP:
         self.DSP_Action = QAction("Daily Shadow Pattern", self.iface.mainWindow())
         self.SUN_Menu.addAction(self.DSP_Action)
         self.DSP_Action.triggered.connect(self.SH)
+
+        # Sub-menus to Post-processing
+        self.SUNpos_Menu = QMenu("Solar Radiation")
+        self.Pos_Menu.addMenu(self.SUNpos_Menu)
+
+        # Sub-menus to Solar radiation, post processing
+        self.SEBEv_Action = QAction("SEBE (Visualisation)", self.iface.mainWindow())
+        self.SUNpos_Menu.addAction(self.SEBEv_Action)
+        self.SEBEv_Action.setEnabled(False)
 
         # Sub-menus to About
         self.About_Action = QAction("About", self.iface.mainWindow())
@@ -366,7 +375,6 @@ class UMEP:
 
     def LCRC(self):
         sg = LandCoverReclassifier(self.iface)
-        # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)  #used for debugging
         sg.run()
 
     def WH(self):
@@ -375,6 +383,7 @@ class UMEP:
 
     def SE(self):
         sg = SEBE(self.iface)
+        # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)  #used for debugging
         sg.run()
 
     def run(self):

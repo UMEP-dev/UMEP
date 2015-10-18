@@ -28,6 +28,7 @@ from qgis.gui import QgsMessageBar
 # Import the code for the dialog
 from suews_dialog import SUEWSDialog
 import os.path
+import sys
 
 # from ..Utilities import *
 from ..suewsmodel import Suews_wrapper_v11
@@ -170,7 +171,6 @@ class SUEWS:
             self.dlg.textInput.setText(self.folderPathOut[0])
 
     def start_progress(self):
-        import sys
         sys.path.append(self.model_dir)
         import f90nml
 
@@ -241,21 +241,21 @@ class SUEWS:
         # time.sleep(1)
         QMessageBox.information(None, "Model information", "Model run will now start. QGIS might freeze during calcualtion."
                                                            "This will be fixed in future versions")
+
         try:
-            # self.iface.messageBar().pushMessage("Model run started", "Process will take a couple of minutes based on "
-            #             "length of meteorological data and computer resources.", level=QgsMessageBar.INFO, duration=10)
-            # QMessageBox.information(None, "Model run started", "Process will take a couple of minutes based on "
-            #             "length of meteorological data and computer resources.")
-            test = 4
             Suews_wrapper_v11.wrapper(self.model_dir)
+            test = 1
         except:
+            test = 0
+
+        if test == 1:
+            self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.plugin_dir + " for "
+                            "additional information about the run", level=QgsMessageBar.INFO)
+        elif test == 0:
             f = open(self.model_dir + '/problems.txt')
             lines = f.readlines()
             QMessageBox.critical(None, "Model run unsuccessful", str(lines))
             return
 
         # if self.ret == 1:
-        self.iface.messageBar().pushMessage("Model run successful", "Check problems.txt in " + self.plugin_dir + " for "
-                            "additional information about the run", level=QgsMessageBar.INFO)
-
         # QMessageBox.information(None, "Image Morphometric Parameters", "Process successful!")

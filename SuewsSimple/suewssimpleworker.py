@@ -3,7 +3,7 @@ from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
 # from qgis.gui import *
 from qgis.core import *
 import traceback
-# import Suews_wrapper_v7
+from ..suewsmodel import Suews_wrapper_v11
 
 
 class Worker(QtCore.QObject):
@@ -12,25 +12,22 @@ class Worker(QtCore.QObject):
     error = QtCore.pyqtSignal(Exception, basestring)
     progress = QtCore.pyqtSignal()
 
-    def __init__(self, iface, plugin_dir, dlg):
+    def __init__(self, iface, model_dir, dlg):
 
         QtCore.QObject.__init__(self)
         self.killed = False
         self.iface = iface
-        self.plugin_dir = plugin_dir
+        self.model_dir = model_dir
         self.dlg = dlg
 
     def run(self):
 
-        ret = 0
+        ret = 1
 
         try:
-            # wrapperresult = Suews_wrapper_v7.wrapper(self.plugin_dir)
-            # self.progress.emit()
+            Suews_wrapper_v11.wrapper(self.model_dir)
 
             if self.killed is False:
-                # self.progress.emit()
-                # ret = wrapperresult  ### THIS DOES NOT WORK
                 ret = 1
 
         except Exception, e:

@@ -32,7 +32,7 @@ from suews_simple_dialog import SuewsSimpleDialog
 from ..suewsmodel import Suews_wrapper_v11
 from ..ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
 from ..LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
-from suewssimpleworker import Worker
+# from suewssimpleworker import Worker
 
 # Import other python stuff
 import urllib
@@ -40,8 +40,6 @@ import numpy as np
 import shutil
 import sys
 import os.path
-import webbrowser
-import time
 
 
 class SuewsSimple:
@@ -403,7 +401,7 @@ class SuewsSimple:
             nml.write(self.folderPathInit[0], force=True)
 
     def set_default_settings(self):
-        import sys
+        # import sys
         sys.path.append(self.model_dir)
         import f90nml
         f = open(self.model_dir + '/BaseFiles/SUEWS_SiteSelect.txt')
@@ -465,7 +463,7 @@ class SuewsSimple:
         f2.close()
 
     def start_progress(self):
-        import sys
+        # import sys
         sys.path.append(self.model_dir)
         import f90nml
         try:
@@ -639,7 +637,7 @@ class SuewsSimple:
 
         # TODO: Put suews in a worker
         # self.iface.messageBar().pushMessage("test: ", str(LeafCycle / 8.))
-        # self.startWorker(self.iface, self.plugin_dir, self.dlg)
+        # self.startWorker(self.iface, self.model_dir, self.dlg)
         # QMessageBox.information(None, "Model run ready to start", "Process will take a couple of minutes based on "
         #                 "length of meteorological data and computer resources.",)
         # time.sleep(1)
@@ -647,19 +645,36 @@ class SuewsSimple:
         QMessageBox.information(None,
                                 "Model information", "Model run will now start. QGIS might freeze during calcualtion."
                                 "This will be fixed in future versions")
-        Suews_wrapper_v11.wrapper(self.model_dir)
+
         try:
-            # self.iface.messageBar().pushMessage("Model run started", "Process will take a couple of minutes based on "
-            #             "length of meteorological data and computer resources.", level=QgsMessageBar.INFO, duration=10)
-            # QMessageBox.information(None, "Model run started", "Process will take a couple of minutes based on "
-            #             "length of meteorological data and computer resources.")
-            test = 4
-            # Suews_wrapper_v11.wrapper(self.model_dir)
+            # self.startWorker(self.iface, self.model_dir)
+            Suews_wrapper_v11.wrapper(self.model_dir)
+            self.test = 1
         except:
+            self.test = 0
+
+        if self.test == 1:
+            self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.plugin_dir + " for "
+                            "additional information about the run", level=QgsMessageBar.INFO)
+        elif self.test == 0:
             f = open(self.model_dir + '/problems.txt')
             lines = f.readlines()
-            QMessageBox.critical(self.iface.mainWindow(), "Model run unsuccessful", str(lines))
+            QMessageBox.critical(None, "Model run unsuccessful", str(lines))
             return
+
+        # Suews_wrapper_v11.wrapper(self.model_dir)
+        # try:
+        #     # self.iface.messageBar().pushMessage("Model run started", "Process will take a couple of minutes based on "
+        #     #             "length of meteorological data and computer resources.", level=QgsMessageBar.INFO, duration=10)
+        #     # QMessageBox.information(None, "Model run started", "Process will take a couple of minutes based on "
+        #     #             "length of meteorological data and computer resources.")
+        #     test = 4
+        #     # Suews_wrapper_v11.wrapper(self.model_dir)
+        # except:
+        #     f = open(self.model_dir + '/problems.txt')
+        #     lines = f.readlines()
+        #     QMessageBox.critical(self.iface.mainWindow(), "Model run unsuccessful", str(lines))
+        #     return
 
         # if self.ret == 1:
         #     self.iface.messageBar().pushMessage("Model run successful", "Check problems.txt in " + self.plugin_dir + " for "
@@ -670,68 +685,6 @@ class SuewsSimple:
     def help(self):
         url = "file://" + self.plugin_dir + "/help/build/html/index.html"
         # webbrowser.open_new_tab(url)
-
-    def startWorker(self, iface, model_dir, dlg):
-
-        worker = Worker(iface, model_dir, dlg)
-
-        self.dlg.runButton.setText('Cancel')
-        self.dlg.runButton.clicked.disconnect()
-        self.dlg.runButton.clicked.connect(worker.kill)
-        self.dlg.closeButton.setEnabled(False)
-
-        thread = QThread(self.dlg)
-        worker.moveToThread(thread)
-        worker.finished.connect(self.workerFinished)
-        worker.error.connect(self.workerError)
-        # worker.progress.connect(self.progress_update)
-        thread.started.connect(worker.run)
-        thread.start()
-        self.thread = thread
-        self.worker = worker
-
-    def workerFinished(self, ret):
-        # Tar bort arbetaren (Worker) och traden den kors i
-        try:
-            self.worker.deleteLater()
-        except RuntimeError:
-             pass
-        self.thread.quit()
-        self.thread.wait()
-        self.thread.deleteLater()
-
-        #andra tillbaka Run-knappen till sitt vanliga tillstand och skicka ett meddelande till anvanderen.
-        if ret == 0:
-            self.dlg.runButton.setText('Run')
-            self.dlg.runButton.clicked.disconnect()
-            self.dlg.runButton.clicked.connect(self.start_progress)
-            self.dlg.closeButton.setEnabled(True)
-            # self.dlg.progressBar.setValue(0)
-            QMessageBox.information(self.iface.mainWindow(), "Suews Simple", "Operations cancelled, process unsuccessful!")
-        else:
-            self.dlg.runButton.setText('Run')
-            self.dlg.runButton.clicked.disconnect()
-            self.dlg.runButton.clicked.connect(self.start_progress)
-            self.dlg.closeButton.setEnabled(True)
-            # self.dlg.progressBar.setValue(0)
-            self.iface.messageBar().pushMessage("Model run successful", "Check problems.txt in " + self.model_dir + " for "
-                            "additional information about the run", level=QgsMessageBar.INFO)
-            # self.iface.messageBar().pushMessage("Suews Simple",
-            #                         "Process finished! Check General Messages (speech bubble, lower left) "
-            #                         "to obtain information of the process.")
-
-        self.ret = ret
-
-    def workerError(self, e, exception_string):
-        strerror = "Worker thread raised an exception: " + str(e)
-        QgsMessageLog.logMessage(strerror.format(exception_string), level=QgsMessageLog.CRITICAL)
-        f = open(self.model_dir + '/problems.txt')
-        lines = f.readlines()
-        QMessageBox.critical(self.iface.mainWindow(), "Model run unsuccessful", str(lines))
-
-    # def progress_update(self):
-    #     self.steps +=1
-    #     self.dlg.progressBar.setValue(self.steps)
 
     def leaf_cycle(self, nml, LeafCycle):
         if LeafCycle == 0: # Winter
@@ -784,3 +737,66 @@ class SuewsSimple:
             nml['initialconditions']['laiinitialgrass'] = 2.6
 
         return nml
+
+ # def startWorker(self, iface, model_dir, dlg):
+    #
+    #     worker = Worker(iface, model_dir, dlg)
+    #
+    #     self.dlg.runButton.setText('Cancel')
+    #     self.dlg.runButton.clicked.disconnect()
+    #     self.dlg.runButton.clicked.connect(worker.kill)
+    #     self.dlg.closeButton.setEnabled(False)
+    #
+    #     thread = QThread(self.dlg)
+    #     worker.moveToThread(thread)
+    #     worker.finished.connect(self.workerFinished)
+    #     worker.error.connect(self.workerError)
+    #     # worker.progress.connect(self.progress_update)
+    #     thread.started.connect(worker.run)
+    #     thread.start()
+    #     self.thread = thread
+    #     self.worker = worker
+    #
+    # def workerFinished(self, ret):
+    #     # Tar bort arbetaren (Worker) och traden den kors i
+    #     try:
+    #         self.worker.deleteLater()
+    #     except RuntimeError:
+    #          pass
+    #     self.thread.quit()
+    #     self.thread.wait()
+    #     self.thread.deleteLater()
+    #
+    #     self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.plugin_dir + " for "
+    #                         "additional information about the run", level=QgsMessageBar.INFO)
+    #
+    #     #andra tillbaka Run-knappen till sitt vanliga tillstand och skicka ett meddelande till anvanderen.
+    #     if ret == 0:
+    #         # self.dlg.runButton.setText('Run')
+    #         # self.dlg.runButton.clicked.disconnect()
+    #         # self.dlg.runButton.clicked.connect(self.start_progress)
+    #         # self.dlg.closeButton.setEnabled(True)
+    #         # # self.dlg.progressBar.setValue(0)
+    #         # QMessageBox.information(self.iface.mainWindow(), "Suews Simple", "Operations cancelled, process unsuccessful!")
+    #         self.test = 1
+    #     else:
+    #         self.test = 0
+    #         # self.dlg.runButton.setText('Run')
+    #         # self.dlg.runButton.clicked.disconnect()
+    #         # self.dlg.runButton.clicked.connect(self.start_progress)
+    #         # self.dlg.closeButton.setEnabled(True)
+    #         # # self.dlg.progressBar.setValue(0)
+    #         # self.iface.messageBar().pushMessage("Model run successful", "Check problems.txt in " + self.model_dir + " for "
+    #         #                 "additional information about the run", level=QgsMessageBar.INFO)
+    #         # self.iface.messageBar().pushMessage("Suews Simple",
+    #         #                         "Process finished! Check General Messages (speech bubble, lower left) "
+    #         #                         "to obtain information of the process.")
+    #
+    #     self.ret = ret
+    #
+    # def workerError(self, e, exception_string):
+    #     strerror = "Worker thread raised an exception: " + str(e)
+    #     QgsMessageLog.logMessage(strerror.format(exception_string), level=QgsMessageLog.CRITICAL)
+    #     f = open(self.model_dir + '/problems.txt')
+    #     lines = f.readlines()
+    #     QMessageBox.critical(self.iface.mainWindow(), "Model run unsuccessful", str(lines))

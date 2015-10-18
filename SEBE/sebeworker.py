@@ -99,8 +99,8 @@ class Worker(QtCore.QObject):
                 psi = 1
 
             # Creating wallmatrix (1 meter interval)
-            #wallcol, wallrow = np.where(np.transpose(walls) > 0)    #row and col for each wall pixel
-            wallrow, wallcol = np.where(walls > 0)    #row and col for each wall pixel
+            wallcol, wallrow = np.where(np.transpose(walls) > 0)    #row and col for each wall pixel
+            # wallrow, wallcol = np.where(walls > 0.2)    #row and col for each wall pixel
             wallstot = np.floor(walls*(1/voxelheight)) * voxelheight
             wallsections = np.floor(np.max(walls) * (1/voxelheight))     # finding tallest wall
             wallmatrix = np.zeros((np.shape(wallrow)[0], wallsections))
@@ -145,11 +145,11 @@ class Worker(QtCore.QObject):
                     if usevegdem == 1:
                         vegsh, sh, _, wallsh, wallsun, wallshve, _, facesun = shadowingfunction_wallheight_23(a,
                                             vegdem, vegdem2, radmatI[index, 1], radmatI[index, 0], scale, amaxvalue,
-                                                                                            bush, walls, dirwalls)
+                                                                                            bush, walls, dirwalls*deg2rad)
                         shadow = np.copy(sh-(1.-vegsh)*(1.-psi))
                     else:
                         sh, wallsh, wallsun, facesh, facesun = shadowingfunction_wallheight_13(a, radmatI[index, 1],
-                                                                        radmatI[index, 0], scale, walls, dirwalls)
+                                                                        radmatI[index, 0], scale, walls, dirwalls*deg2rad)
                         shadow = np.copy(sh)
 
                     # roof irradiance calculation

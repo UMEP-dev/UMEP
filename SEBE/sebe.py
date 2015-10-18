@@ -114,9 +114,6 @@ class SEBE:
         self.worker = None
         self.steps = 0
 
-
-
-
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
@@ -370,7 +367,7 @@ class SEBE:
             provider = whlayer.dataProvider()
             filepath_wh= str(provider.dataSourceUri())
             self.gdal_wh = gdal.Open(filepath_wh)
-            self.wheight = self.gdal_dsm.ReadAsArray().astype(np.float)
+            self.wheight = self.gdal_wh.ReadAsArray().astype(np.float)
             vhsizex = self.wheight.shape[0]
             vhsizey = self.wheight.shape[1]
             if not (vhsizex == sizex) & (vhsizey == sizey):  # &
@@ -385,7 +382,7 @@ class SEBE:
             provider = walayer.dataProvider()
             filepath_wa= str(provider.dataSourceUri())
             self.gdal_wa = gdal.Open(filepath_wa)
-            self.waspect = self.gdal_dsm.ReadAsArray().astype(np.float)
+            self.waspect = self.gdal_wa.ReadAsArray().astype(np.float)
             vasizex = self.waspect.shape[0]
             vasizey = self.waspect.shape[1]
             if not (vasizex == sizex) & (vasizey == sizey):
