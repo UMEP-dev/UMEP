@@ -6,6 +6,7 @@ from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
 from qgis.core import QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsRasterLayer, QgsGeometry, QgsMessageLog
 import traceback
 from ..Utilities.imageMorphometricParms_v1 import *
+from ..Utilities import RoughnessCalcFunction as rg
 # import Image
 from scipy import *
 import numpy as np
@@ -27,7 +28,7 @@ class Worker(QtCore.QObject):
     progress = QtCore.pyqtSignal()
 
     def __init__(self, dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, iface, plugin_dir,
-                 folderPath, dlg, imid, radius, degree):
+                 folderPath, dlg, imid, radius, degree, rm):
         QtCore.QObject.__init__(self)
         # Boolean som berattar for traden ifall den har avbrutits
         self.killed = False
@@ -50,6 +51,7 @@ class Worker(QtCore.QObject):
         self.imid = imid
         self.radius = radius
         self.degree = degree
+        self.rm = rm
 
         # Forsok till att skapa ytterligare tradar, anvands inte for tillfallet.
         self.paramthread = None
@@ -59,6 +61,13 @@ class Worker(QtCore.QObject):
         # ska nagot returneras fran traden sker detta genom denna ret-variabel och retuneras till image_morph_param.py
         # genom finished signalen ovan. bool skickas for tillfallet, kan bytas ut mot tex Object for att skicka diverse
         # data. Behovs inte for just detta verktyg.
+
+        #Check OS and dep
+        if sys.platform == 'darwin':
+            gdalwarp_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdalwarp'
+        else:
+            gdalwarp_os_dep = 'gdalwarp'
+
         ret = 0
         imp_point = 0
 
@@ -98,13 +107,13 @@ class Worker(QtCore.QObject):
                     filePath_dsm_build = str(provider.dataSourceUri())
 
                     if self.imid == 1:
-                        gdalruntextdsm_build = 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-                                               ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff ' + \
-                                               filePath_dsm_build + ' ' + self.plugin_dir + '/data/clipdsm.tif'
+                        gdalruntextdsm_build = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+                                               ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+                                               filePath_dsm_build + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
                     else:
-                        gdalruntextdsm_build = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + self.dir_poly + \
-                                               ' -crop_to_cutline -of GTiff ' + filePath_dsm_build + ' ' + \
-                                               self.plugin_dir + '/data/clipdsm.tif'
+                        gdalruntextdsm_build = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -cutline ' + self.dir_poly + \
+                                               ' -crop_to_cutline -of GTiff "' + filePath_dsm_build + '" "' + \
+                                               self.plugin_dir + '/data/clipdsm.tif"'
 
                     if sys.platform == 'win32':
                         si = subprocess.STARTUPINFO()
@@ -128,19 +137,19 @@ class Worker(QtCore.QObject):
 
                     # # get raster source - gdalwarp
                     if self.imid == 1:
-                        gdalruntextdsm = 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-                                               ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff ' + \
-                                               filePath_dsm + ' ' + self.plugin_dir + '/data/clipdsm.tif'
-                        gdalruntextdem = 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-                                               ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff ' + \
-                                               filePath_dem + ' ' + self.plugin_dir + '/data/clipdem.tif'
+                        gdalruntextdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+                                               ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+                                               filePath_dsm + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
+                        gdalruntextdem = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+                                               ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+                                               filePath_dem + '" "' + self.plugin_dir + '/data/clipdem.tif"'
                     else:
-                        gdalruntextdsm = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + self.dir_poly + \
-                                         ' -crop_to_cutline -of GTiff ' + filePath_dsm + \
-                                         ' ' + self.plugin_dir + '/data/clipdsm.tif'
-                        gdalruntextdem = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + self.dir_poly + \
-                                         ' -crop_to_cutline -of GTiff ' + filePath_dem + \
-                                         ' ' + self.plugin_dir + '/data/clipdem.tif'
+                        gdalruntextdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -cutline ' + self.dir_poly + \
+                                         ' -crop_to_cutline -of GTiff "' + filePath_dsm + \
+                                         '" "' + self.plugin_dir + '/data/clipdsm.tif"'
+                        gdalruntextdem = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -cutline ' + self.dir_poly + \
+                                         ' -crop_to_cutline -of GTiff "' + filePath_dem + \
+                                         '" "' + self.plugin_dir + '/data/clipdem.tif"'
 
                     if sys.platform == 'win32':
                         si = subprocess.STARTUPINFO()
@@ -162,8 +171,8 @@ class Worker(QtCore.QObject):
 
                 geotransform = dataset.GetGeoTransform()
                 scale = 1 / geotransform[1]
-
-                nodata_test = (dsm_array == -9999)
+                nd = dataset.GetRasterBand(1).GetNoDataValue()
+                nodata_test = (dsm_array == nd)
                 if nodata_test.any():  # == True
                     # QgsMessageBar.pushInfo(self.iface,"Grid " + str(f.attributes()[self.idx]) + " not calculated", "Includes NoData Pixels") #  Funkar inte
                     # QgsMessageBar(self.iface).pushMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated", "Includes NoData Pixels") # funkar inte
@@ -177,19 +186,34 @@ class Worker(QtCore.QObject):
 
                     immorphresult = imagemorphparam_v2(dsm_array, dem_array, scale, self.imid, self.degree, self.dlg, imp_point)
 
+                    zH = immorphresult["zH"]
+                    fai = immorphresult["fai"]
+                    pai = immorphresult["pai"]
+                    zMax = immorphresult["zHmax"]
+                    zSdev = immorphresult["zH_sd"]
+
+                    zd,z0 = rg.RoughnessCalc(self.rm,zH,fai,pai,zMax,zSdev)
+
                     # save to file
                     pre = self.dlg.textOutput_prefix.text()
-                    header = ' Wd pai   fai   zH  zHmax   zHstd'
-                    numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f'
+                    header = ' Wd pai   fai   zH  zHmax   zHstd zd z0'
+                    numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
                     arr = np.concatenate((immorphresult["deg"], immorphresult["pai"], immorphresult["fai"],
-                                        immorphresult["zH"], immorphresult["zHmax"], immorphresult["zH_sd"]), axis=1)
+                                        immorphresult["zH"], immorphresult["zHmax"], immorphresult["zH_sd"],zd,z0), axis=1)
                     np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'IMPGrid_anisotropic_' + str(f.attributes()[self.idx]) + '.txt', arr,
                                fmt=numformat, delimiter=' ', header=header, comments='')
 
-                    header = ' pai  fai   zH    zHmax    zHstd '
-                    numformat = '%4.3f %4.3f %5.3f %5.3f %5.3f'
+                    zHall = immorphresult["zH_all"]
+                    faiall = immorphresult["fai_all"]
+                    paiall = immorphresult["pai_all"]
+                    zMaxall = immorphresult["zHmax_all"]
+                    zSdevall = immorphresult["zH_sd_all"]
+                    zdall,z0all = rg.RoughnessCalc(self.rm,zHall,faiall,paiall,zMaxall,zSdevall)
+
+                    header = ' pai  fai   zH    zHmax    zHstd zd z0'
+                    numformat = '%4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
                     arr2 = np.array([[immorphresult["pai_all"], immorphresult["fai_all"], immorphresult["zH_all"],
-                                      immorphresult["zHmax_all"], immorphresult["zH_sd_all"]]])
+                                      immorphresult["zHmax_all"], immorphresult["zH_sd_all"],zdall,z0all]])
                     np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'IMPGrid_isotropic_' + str(f.attributes()[self.idx]) + '.txt', arr2,
                                 fmt=numformat, delimiter=' ', header=header, comments='')
 

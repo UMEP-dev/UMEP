@@ -16,7 +16,7 @@ def diffusefraction(radG,altitude,Kt,Ta,RH):
 
     alfa = altitude*(np.pi/180)
 
-    if Ta <= -99or RH <= -99 or np.isnan(Ta) or np.isnan(RH):
+    if Ta <= -999.00 or RH <= -999.00 or np.isnan(Ta) or np.isnan(RH):
         if Kt <= 0.3:
             radD = radG*(1.020-0.248*Kt)
         elif Kt > 0.3 and Kt < 0.78:

@@ -1,0 +1,369 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>Sky View Factor Calculator</title>
+<style type="text/css">
+h1
+	{margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:10.0pt;
+	margin-left:0cm;
+	page-break-after:avoid;
+	font-size:18.0pt;
+	font-family:"Arial Narrow","sans-serif";
+	}
+ p.MsoNormal
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:10.0pt;
+	margin-left:0cm;
+	font-size:11.0pt;
+	font-family:"Times New Roman","serif";
+	}
+h2
+	{margin-top:10.0pt;
+	margin-right:0cm;
+	margin-bottom:6.0pt;
+	margin-left:0cm;
+	page-break-after:avoid;
+	font-size:15.0pt;
+	font-family:"Arial Narrow","sans-serif";
+	font-weight:normal;
+	}
+h3
+	{margin-top:10.0pt;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:0cm;
+	margin-bottom:.0001pt;
+	page-break-after:avoid;
+	font-size:12.0pt;
+	font-family:"Cambria","serif";
+	}
+p.MsoToc1
+	{margin-top:18.0pt;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:0cm;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Cambria","serif";
+	text-transform:uppercase;
+	font-weight:bold;
+}
+a:link
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;
+}
+p.MsoToc2
+	{margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:0cm;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Calibri","sans-serif";
+	font-weight:bold;
+}
+p.MsoToc3
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:11.0pt;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Calibri","sans-serif";
+	}
+p.MsoListParagraphCxSpFirst
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:36.0pt;
+	margin-bottom:.0001pt;
+	text-indent:-18.0pt;
+	line-height:14.0pt;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";
+	}
+p.MsoListParagraphCxSpMiddle
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:36.0pt;
+	margin-bottom:.0001pt;
+	text-indent:-18.0pt;
+	line-height:14.0pt;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";
+	}
+p.MsoListParagraphCxSpLast
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:10.0pt;
+	margin-left:36.0pt;
+	text-indent:-18.0pt;
+	line-height:14.0pt;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";
+	}
+</style>
+</head>
+
+<body>
+
+<h1 style="margin-bottom:0cm;margin-bottom:.0001pt"><a name="_Toc433486518">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Land Cover Fraction 
+(Grid)</span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h1>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">The Land 
+Cover Fraction (Grid) plugin calculates land cover fractions from a point 
+location based on a land cover raster grid. The land cover fractions included in 
+UMEP are:<o:p></o:p></span></p>
+<p class="MsoListParagraphCxSpFirst" style="mso-list:l0 level1 lfo2"><![if !supportLists]>
+<span style="mso-ascii-font-family:Calibri;mso-fareast-font-family:Calibri;
+mso-hansi-font-family:Calibri;mso-bidi-font-family:Calibri;mso-ansi-language:
+EN-US"><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style="mso-ansi-language:EN-US">Paved (1)<o:p></o:p></span></p>
+<p class="MsoListParagraphCxSpMiddle" style="mso-list:l0 level1 lfo2"><![if !supportLists]>
+<span style="mso-ascii-font-family:Calibri;mso-fareast-font-family:Calibri;
+mso-hansi-font-family:Calibri;mso-bidi-font-family:Calibri;mso-ansi-language:
+EN-US"><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style="mso-ansi-language:EN-US">Buildings 
+(2)<o:p></o:p></span></p>
+<p class="MsoListParagraphCxSpMiddle" style="mso-list:l0 level1 lfo2"><![if !supportLists]>
+<span style="mso-ascii-font-family:Calibri;mso-fareast-font-family:Calibri;
+mso-hansi-font-family:Calibri;mso-bidi-font-family:Calibri;mso-ansi-language:
+EN-US"><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style="mso-ansi-language:EN-US">Evergreen 
+trees (3)<o:p></o:p></span></p>
+<p class="MsoListParagraphCxSpMiddle" style="mso-list:l0 level1 lfo2"><![if !supportLists]>
+<span style="mso-ascii-font-family:Calibri;mso-fareast-font-family:Calibri;
+mso-hansi-font-family:Calibri;mso-bidi-font-family:Calibri;mso-ansi-language:
+EN-US"><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style="mso-ansi-language:EN-US">Deciduous 
+trees (4)<o:p></o:p></span></p>
+<p class="MsoListParagraphCxSpMiddle" style="mso-list:l0 level1 lfo2"><![if !supportLists]>
+<span style="mso-ascii-font-family:Calibri;mso-fareast-font-family:Calibri;
+mso-hansi-font-family:Calibri;mso-bidi-font-family:Calibri;mso-ansi-language:
+EN-US"><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style="mso-ansi-language:EN-US">Grass (5)<o:p></o:p></span></p>
+<p class="MsoListParagraphCxSpMiddle" style="mso-list:l0 level1 lfo2"><![if !supportLists]>
+<span style="mso-ascii-font-family:Calibri;mso-fareast-font-family:Calibri;
+mso-hansi-font-family:Calibri;mso-bidi-font-family:Calibri;mso-ansi-language:
+EN-US"><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style="mso-ansi-language:EN-US">Bare soil 
+(6)<o:p></o:p></span></p>
+<p class="MsoListParagraphCxSpLast" style="mso-list:l0 level1 lfo2"><![if !supportLists]>
+<span style="mso-ascii-font-family:Calibri;mso-fareast-font-family:Calibri;
+mso-hansi-font-family:Calibri;mso-bidi-font-family:Calibri;mso-ansi-language:
+EN-US"><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style="mso-ansi-language:EN-US">Water (7)<o:p></o:p></span></p>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">A land 
+cover grid suitable for the processor in UMEP can be derived using the
+<b style="mso-bidi-font-weight:normal"><i style="mso-bidi-font-style:normal">
+Land Cover Classifier</i></b>. The fraction will vary depending on what angle 
+(wind direction) you are interested in. Thus, this plugin is able to derive the 
+land cover fractions for different directions. This plugin is the same as the
+<b style="mso-bidi-font-weight:normal"><i style="mso-bidi-font-style:normal">
+Land Cover Fraction (Point)</i></b> except that this plugin calculates the 
+fractions for each polygon object in polygon vector layer. The polygons should 
+preferable be squares or any other regular shape. To create such a grid, built 
+in functions in QGIS can be used (see <i style="mso-bidi-font-style:normal">
+Vector -&gt; Research Tools -&gt; Vector Grid...</i>).</span><span style="mso-ansi-language:
+EN-US"><o:p></o:p></span></p>
+<h2 style="margin-bottom:0cm;margin-bottom:.0001pt"><a name="_Toc433486519"></a>
+<a name="_Toc431370467"><span style="mso-bookmark:_Toc433486519">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Location</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h2>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">The Image 
+Morphometric Parameters (Point) is located at
+<i style="mso-bidi-font-style:
+normal">UMEP -&gt; Pre-Processor -&gt; Urban Morphology -&gt; Land Cover Fraction (Grid)</i>.<o:p></o:p></span></p>
+<h1 style="margin-bottom:0cm;margin-bottom:.0001pt"><a name="_Toc433486520"></a>
+<a name="_Toc431370468"><span style="mso-bookmark:_Toc433486520">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Running the plugin</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h1>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">When you 
+run plugin, you will see the dialog shown below. It consists of three sections. 
+The top section sets the parameters for the area of interest where the fractions 
+are calculated. You also set the search interval in degrees and from where the 
+search should take place within each grid. The next section lets you specify the 
+input data regarding polygon layer and the land cover raster grid that should be 
+used. The bottom section is for specifying output and for running the 
+calculations.<o:p></o:p></span></p>
+<p class="MsoNormal"><span style="mso-ansi-language:EN-US;mso-no-proof:yes"><!--[if gte vml 1]><v:shapetype
+ id="_x0000_t75" coordsize="21600,21600" o:spt="75" o:preferrelative="t"
+ path="m@4@5l@4@11@9@11@9@5xe" filled="f" stroked="f">
+ <v:stroke joinstyle="miter" xmlns:v="urn:schemas-microsoft-com:vml"/>
+ <v:formulas>
+  <v:f eqn="if lineDrawn pixelLineWidth 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @0 1 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum 0 0 @1" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @2 1 2" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @3 21600 pixelWidth" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @3 21600 pixelHeight" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @0 0 1" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @6 1 2" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @7 21600 pixelWidth" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @8 21600 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @7 21600 pixelHeight" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @10 21600 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+ </v:formulas>
+ <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect" xmlns:v="urn:schemas-microsoft-com:vml"/>
+ <o:lock v:ext="edit" aspectratio="t" xmlns:o="urn:schemas-microsoft-com:office:office"/>
+</v:shapetype><v:shape id="Picture_x0020_3" o:spid="_x0000_i1026" type="#_x0000_t75"
+ style='width:354pt;height:259.5pt;visibility:visible;mso-wrap-style:square'>
+ <v:imagedata src="../../../../../AppData/Local/Temp/msohtmlclip1/01/clip_image001.png"
+  o:title="" xmlns:v="urn:schemas-microsoft-com:vml"/>
+</v:shape><![endif]--><![if !vml]>
+<img height="346" src="img/img_1.png" v:shapes="Picture_x0020_3" width="472" /><![endif]></span><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></p>
+<h3><a name="_Toc433486521">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Search throughout the grid extent</span></a><span style="font-family:
+&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:
+minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Tick this 
+in if the search should be performed from one side of the grid to the opposite 
+side. Tick the other option (Search from grid centroid if the search should 
+start from the centroid of the grid. Setting the
+<b style="mso-bidi-font-weight:
+normal"><i style="mso-bidi-font-style:normal">Search distance</i></b> can then 
+allow for the search to extent beyond the grid. See the figure below for 
+illustration. The left one performs a search using the grid extent whereas the 
+right illustrates a search from the centroid and extending outside of the grid.<o:p></o:p></span></p>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US;
+mso-no-proof:yes"><!--[if gte vml 1]><v:shape id="Picture_x0020_2" o:spid="_x0000_i1025"
+ type="#_x0000_t75" style='width:288.75pt;height:178.5pt;visibility:visible;
+ mso-wrap-style:square'>
+ <v:imagedata src="../../../../../AppData/Local/Temp/msohtmlclip1/01/clip_image002.png"
+  o:title="" xmlns:v="urn:schemas-microsoft-com:vml"/>
+</v:shape><![endif]--><![if !vml]>
+<img height="238" src="img/img2.png" v:shapes="Picture_x0020_2" width="385" /><![endif]></span><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><span style="mso-spacerun:yes">&nbsp;</span><o:p></o:p></span></p>
+<h3><a name="_Toc433486522">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Wind direction search interval (degrees)</span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">This 
+decides the interval in search directions for which the morphometric parameters 
+will be calculated.<o:p></o:p></span></p>
+<h3><a name="_Toc433486523">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Vector polygon grid</span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Here the 
+grid polygon layer should be specified<o:p></o:p></span></p>
+<h3><a name="_Toc433486524">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">ID field</span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Choose an 
+attribute from the selected polygon layer that will be used to separate the 
+different polygon objects from each other. An attribute field of unique numbers 
+or letters should be used.<o:p></o:p></span></p>
+<h3><a name="_Toc433486525"></a><a name="_Toc433484893">
+<span style="mso-bookmark:
+_Toc433486525">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">UMEP Land 
+cover grid</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">A integer 
+raster land cover grid (e.g. geoTIFF) consisting of the various land covers 
+specified above.<o:p></o:p></span></p>
+<h3><a name="_Toc433486526">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">File prefix</span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">A prefix 
+that will be included in the beginning of the output files.<o:p></o:p></span></p>
+<h3><a name="_Toc433486527"></a><a name="_Toc431370476">
+<span style="mso-bookmark:
+_Toc433486527">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Output 
+folder</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">A 
+specified folder where result will be saved.<o:p></o:p></span></p>
+<h3><a name="_Toc433486528"></a><a name="_Toc431370477">
+<span style="mso-bookmark:
+_Toc433486528">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Run</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">This 
+starts the calculations.<o:p></o:p></span></p>
+<h3><a name="_Toc433486529"></a><a name="_Toc431370479">
+<span style="mso-bookmark:
+_Toc433486529">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Close</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">This 
+button closes the plugin.<o:p></o:p></span></p>
+<h1 style="margin-bottom:0cm;margin-bottom:.0001pt"><a name="_Toc433486530"></a>
+<a name="_Toc431370480"><span style="mso-bookmark:_Toc433486530">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Output</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h1>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Two 
+different files per polygon objects are saved after a successful run. The first 
+one includes anisotropic result where the land cover fractions for each wind 
+direction as specified are included. The second one includes isotropic results 
+where all directions are integrated into one value for each fraction. If the 
+raster data includes no data values within a polygon object, this grid will not 
+be considered in the calculation.<o:p></o:p></span></p>
+
+</body>
+
+</html>

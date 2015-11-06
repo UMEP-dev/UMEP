@@ -42,6 +42,13 @@ class Worker(QtCore.QObject):
         # ska nagot returneras fran traden sker detta genom denna ret-variabel och retuneras till image_morph_param.py
         # genom finished signalen ovan. bool skickas for tillfallet, kan bytas ut mot tex Object for att skicka diverse
         # data. Behovs inte for just detta verktyg.
+
+        #Check OS and dep
+        if sys.platform == 'darwin':
+            gdalwarp_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdalwarp'
+        else:
+            gdalwarp_os_dep = 'gdalwarp'
+
         ret = 0
         imp_point = 0
 
@@ -78,11 +85,11 @@ class Worker(QtCore.QObject):
                 filePath_lc_grid = str(provider.dataSourceUri())
 
                 if self.imid == 1:
-                    gdalruntextlc_grid = 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+                    gdalruntextlc_grid = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
                                            ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff ' + \
                                            filePath_lc_grid + ' ' + self.plugin_dir + '/data/clipdsm.tif'
                 else:
-                    gdalruntextlc_grid = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + self.dir_poly + \
+                    gdalruntextlc_grid = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -cutline ' + self.dir_poly + \
                                            ' -crop_to_cutline -of GTiff ' + filePath_lc_grid + ' ' + \
                                            self.plugin_dir + '/data/clipdsm.tif'
 
@@ -95,8 +102,8 @@ class Worker(QtCore.QObject):
 
                 dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
                 lc_grid_array = dataset.ReadAsArray().astype(np.float)
-
-                nodata_test = (lc_grid_array == -9999)
+                nd = dataset.GetRasterBand(1).GetNoDataValue()
+                nodata_test = (lc_grid_array == nd)
                 if nodata_test.any():  # == True
                     # QgsMessageBar.pushInfo(self.iface,"Grid " + str(f.attributes()[self.idx]) + " not calculated", "Includes NoData Pixels") #  Funkar inte
                     # QgsMessageBar(self.iface).pushMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated", "Includes NoData Pixels") # funkar inte

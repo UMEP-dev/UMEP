@@ -34,9 +34,9 @@ from ..Utilities.misc import *
 from osgeo import gdal, osr
 import numpy as np
 from sebeworker import Worker
-# from SEBEfiles.get_ders import get_slope_aspect
 from SEBEfiles.Solweig_v2015_metdata_noload import Solweig_2015a_metdata_noload
 from SEBEfiles.sunmapcreator_2015a import sunmapcreator_2015a
+import webbrowser
 
 
 class SEBE:
@@ -71,6 +71,7 @@ class SEBE:
         # Create the dialog (after translation) and keep reference
         self.dlg = SEBEDialog()
         self.dlg.runButton.clicked.connect(self.start_progress)
+        self.dlg.pushButtonHelp.clicked.connect(self.help)
         # self.dlg.shadowCheckBox.stateChanged.connect(self.checkbox_changed)
         self.dlg.pushButtonSave.clicked.connect(self.folder_path)
         self.dlg.pushButtonImport.clicked.connect(self.read_metdata)
@@ -219,7 +220,7 @@ class SEBE:
                 self.iface.messageBar().pushMessage("SEBE", "Meteorological data succefully loaded",
                                                     level=QgsMessageBar.INFO, duration=3)
             else:
-                QMessageBox.critical(None, "Import Error", "Wrong number of columns in meteorological data. You can"
+                QMessageBox.critical(None, "Import Error", "Wrong number of columns in meteorological data. You can "
                                                            "prepare your data by using 'Prepare Existing Data' in "
                                                            "the Pre-processor")
                 return
@@ -246,6 +247,7 @@ class SEBE:
 
             provider = dsmlayer.dataProvider()
             filepath_dsm = str(provider.dataSourceUri())
+            # self.dsmpath = filepath_dsm
             self.gdal_dsm = gdal.Open(filepath_dsm)
             self.dsm = self.gdal_dsm.ReadAsArray().astype(np.float)
             sizex = self.dsm.shape[0]
@@ -281,6 +283,7 @@ class SEBE:
             lon = lonlat[0]
             lat = lonlat[1]
             self.scale = 1 / geotransform[1]
+            # self.iface.messageBar().pushMessage("SEBE", str(lonlat),level=QgsMessageBar.INFO)
 
             if (sizex * sizey) > 250000 and (sizex * sizey) <= 1000000:
                 QMessageBox.warning(None, "Semi lage grid", "This process will take a couple of minutes. "
@@ -492,6 +495,7 @@ class SEBE:
             Energyyearwall = ret["Energyyearwall"]
             vegdata = ret["vegdata"]
             # layer, total_area = ret
+            saveraster(self.gdal_dsm, self.folderPath[0] + '/dsm.tif', self.dsm)
             filenameroof = self.folderPath[0] + '/Energyyearroof.tif'
             saveraster(self.gdal_dsm, filenameroof, Energyyearroof)
             filenamewall = self.folderPath[0] + '/Energyyearwall.txt'
@@ -545,3 +549,7 @@ class SEBE:
     def run(self):
         self.dlg.show()
         self.dlg.exec_()
+
+    def help(self):
+        url = "file://" + self.plugin_dir + "/help/Index.html"
+        webbrowser.open_new_tab(url)

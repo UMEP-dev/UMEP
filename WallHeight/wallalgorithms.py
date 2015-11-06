@@ -71,8 +71,8 @@ def filter1Goodwin_as_aspect_v3(walls, scale, a):
     row = a.shape[0]
     col = a.shape[1]
 
-    filtersize = np.floor(scale * 9)
-    if scale != 1:
+    filtersize = np.floor((scale + 0.0000000001) * 9)  # numpy crazyness rounding
+    if filtersize != 9:
         if np.mod(filtersize, scale) == 0:
             filtersize = filtersize - 1
 
@@ -92,7 +92,7 @@ def filter1Goodwin_as_aspect_v3(walls, scale, a):
     walls[walls > 0] = 1
 
     for h in range(0, 180):  #=0:1:180 #%increased resolution to 1 deg 20140911
-        print h
+        # print h
         filtmatrix1temp = sc.imrotate(filtmatrix, h, 'bilinear')
         filtmatrix1 = np.round(filtmatrix1temp / 255.)
         filtmatrixbuildtemp = sc.imrotate(buildfilt, h, 'nearest')

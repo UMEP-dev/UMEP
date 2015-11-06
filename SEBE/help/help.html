@@ -1,0 +1,483 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>Sky View Factor Calculator</title>
+<style type="text/css">
+h1
+	{margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:10.0pt;
+	margin-left:0cm;
+	page-break-after:avoid;
+	font-size:18.0pt;
+	font-family:"Arial Narrow","sans-serif";
+	}
+ p.MsoNormal
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:10.0pt;
+	margin-left:0cm;
+	font-size:11.0pt;
+	font-family:"Times New Roman","serif";
+	}
+h2
+	{margin-top:10.0pt;
+	margin-right:0cm;
+	margin-bottom:6.0pt;
+	margin-left:0cm;
+	page-break-after:avoid;
+	font-size:15.0pt;
+	font-family:"Arial Narrow","sans-serif";
+	font-weight:normal;
+	}
+h3
+	{margin-top:10.0pt;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:0cm;
+	margin-bottom:.0001pt;
+	page-break-after:avoid;
+	font-size:12.0pt;
+	font-family:"Cambria","serif";
+	}
+p.MsoToc1
+	{margin-top:18.0pt;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:0cm;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Cambria","serif";
+	text-transform:uppercase;
+	font-weight:bold;
+}
+a:link
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;
+}
+p.MsoToc2
+	{margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:0cm;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Calibri","sans-serif";
+	font-weight:bold;
+}
+p.MsoToc3
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:11.0pt;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Calibri","sans-serif";
+	}
+</style>
+</head>
+
+<body>
+
+<h1><a name="_Toc433225568">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">SEBE</span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h1>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">The
+<b style="mso-bidi-font-weight:normal"><i style="mso-bidi-font-style:normal">
+SEBE</i></b> plugin (Solar Energy on Building Envelopes) can be used to 
+calculate pixel wise potential solar energy using ground and building digital 
+surface models (DSM). SEBE is also able to estimate irradiance on building 
+walls. Optionally, vegetation DSMs could also be used. The methodology that is 
+used to generate irradiance is presented in Lindberg et al. (2015). <o:p></o:p>
+</span></p>
+<h2><a name="_Toc433225569"></a><a name="_Toc431370467">
+<span style="mso-bookmark:_Toc433225569">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Location</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h2>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">The SEBE 
+plugin is located at <i style="mso-bidi-font-style:normal">UMEP -&gt; Processor -&gt; 
+Solar Radiation -&gt; Solar Energy on Building Envelopes (SEBE)</i>.<o:p></o:p></span></p>
+<h1><a name="_Toc433225570"></a><a name="_Toc431370468">
+<span style="mso-bookmark:_Toc433225570">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Running the plugin</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h1>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">When you 
+run plugin, you will see the dialog shown below. It consists of a top section 
+where input data is specified and a bottom section for specifying output and for 
+running the calculations.<o:p></o:p></span></p>
+<p class="MsoNormal"><span style="mso-ansi-language:EN-US;mso-no-proof:yes"><!--[if gte vml 1]><v:shapetype
+ id="_x0000_t75" coordsize="21600,21600" o:spt="75" o:preferrelative="t"
+ path="m@4@5l@4@11@9@11@9@5xe" filled="f" stroked="f">
+ <v:stroke joinstyle="miter" xmlns:v="urn:schemas-microsoft-com:vml"/>
+ <v:formulas>
+  <v:f eqn="if lineDrawn pixelLineWidth 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @0 1 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum 0 0 @1" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @2 1 2" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @3 21600 pixelWidth" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @3 21600 pixelHeight" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @0 0 1" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @6 1 2" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @7 21600 pixelWidth" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @8 21600 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @7 21600 pixelHeight" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @10 21600 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+ </v:formulas>
+ <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect" xmlns:v="urn:schemas-microsoft-com:vml"/>
+ <o:lock v:ext="edit" aspectratio="t" xmlns:o="urn:schemas-microsoft-com:office:office"/>
+</v:shapetype><v:shape id="Picture_x0020_1" o:spid="_x0000_i1026" type="#_x0000_t75"
+ style='width:385.5pt;height:360.75pt;visibility:visible;mso-wrap-style:square'>
+ <v:imagedata src="../../../../../AppData/Local/Temp/msohtmlclip1/01/clip_image001.png"
+  o:title="" xmlns:v="urn:schemas-microsoft-com:vml"/>
+</v:shape><![endif]--><![if !vml]>
+<img height="481" src="img/img_1.png" v:shapes="Picture_x0020_1" width="514" /><![endif]></span><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></p>
+<h3><a name="_Toc433225571"></a><a name="_Toc431370469">
+<span style="mso-bookmark:
+_Toc433225571">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Building 
+and ground DSM</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">A DSM 
+consisting of ground and building heights. This dataset also decides the 
+latitude and longitude used doe calculation of Sun position.<o:p></o:p></span></p>
+<h3><a name="_Toc433225572"></a><a name="_Toc431370470">
+<span style="mso-bookmark:
+_Toc433225572">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Vegetation 
+Canopy DSM</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">A DSM 
+consisting of pixels with vegetation heights above ground. Pixels where no 
+vegetation is present should be set to zero.<o:p></o:p></span></p>
+<h3><a name="_Toc433225573"></a><a name="_Toc431370471">
+<span style="mso-bookmark:
+_Toc433225573">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Vegetation 
+Trunk zone DSM</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">A DSM 
+(geoTIFF) consisting of pixels with vegetation trunk zone heights above ground. 
+Pixels where no vegetation is present should be set to zero.<o:p></o:p></span></p>
+<h3><a name="_Toc433225574"></a><a name="_Toc431370472">
+<span style="mso-bookmark:
+_Toc433225574">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Use 
+vegetation DSMs</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Tick this 
+box if you want to include vegetation in the final SVF.<o:p></o:p></span></p>
+<h3><a name="_Toc433225575"></a><a name="_Toc431370473">
+<span style="mso-bookmark:
+_Toc433225575">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Trunk zone 
+DSM exist</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Tick this 
+in if a trunk zone DSM already exist.<o:p></o:p></span></p>
+<h3><a name="_Toc433225576"></a><a name="_Toc431370474">
+<span style="mso-bookmark:
+_Toc433225576">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">
+Transmissivity of light through vegetation (%)</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Percentage 
+of light that is penetrating through vegetation. Default value is set to 3 % 
+according to Konarska et al. (2013).<o:p></o:p></span></p>
+<h3><a name="_Toc433225577"></a><a name="_Toc431370475">
+<span style="mso-bookmark:
+_Toc433225577">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Percent of 
+canopy height</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">If a trunk 
+zone vegetation DSM is absent, this can be generated based on the height of the 
+Canopy DSM. The default percentage is set to 25%.<o:p></o:p></span></p>
+<h3><a name="_Toc433225578">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Wall height raster</span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">A raster 
+of the same size and extent as the ground and building DSM including information 
+of the wall pixels and its height in meters above ground should be specified 
+here. Non wall pixels should be set to zero. This raster are used to estimate 
+irradiance on building walls and can be generated using the
+<i style="mso-bidi-font-style:normal">Wall Height and Aspect </i>plugin located 
+at <i style="mso-bidi-font-style:normal">UMEP -&gt; Pre-processing -&gt; Urban 
+Geometry -&gt; Wall Height and Aspect</i>. <o:p></o:p></span></p>
+<h3><a name="_Toc433225579">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Wall aspect raster</span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">A raster 
+of the same size and extent as the ground and building DSM including information 
+of the wall pixels and its aspect, i.e. angle, should be specified here. For 
+example a wall facing towards the south has a value of 180°. Non wall pixels 
+should be set to zero. This raster are used to estimate irradiance on building 
+walls and can be generated using the <i style="mso-bidi-font-style:normal">Wall 
+Height and Aspect </i>plugin located at <i style="mso-bidi-font-style:normal">
+UMEP -&gt; Pre-processing -&gt; Urban Geometry -&gt; Wall Height and Aspect</i>. <o:p></o:p>
+</span></p>
+<h3><a name="_Toc433225580">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Albedo</span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">This 
+parameter specifies the reflectivity of shortwave radiation of all surfaces 
+(ground, roofs, walls and vegetation). It should be a value between 0 and 1. The 
+default value is set to 0.15.<o:p></o:p></span></p>
+<h3><a name="_Toc433225581">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">UTC offset (hours)</span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Time zone 
+needs to be specified. Positive numbers increase when moving west (e.g. 
+Stockholm UTC +1).<o:p></o:p></span></p>
+<h3><a name="_Toc433225582">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Estimate diffuse and direct shortwave components from global radiation 
+from</span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Tick this 
+in if only global radiation is present. Diffuse and direct shortwave components 
+will then be estimated from global radiation based on the statistical model 
+presented by Reindl et al. (1990). If air temperature and relative humidity is 
+present, the statistical model will perform better but it is able to estimate 
+the components using only global shortwave radiation.<o:p></o:p></span></p>
+<h3><a name="_Toc433225583">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Input meteorological file:</span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Input 
+meteorological data specifically formatted to be used in UMEP. This specific 
+format can be created using <i style="mso-bidi-font-style:normal">UMEP -&gt; 
+Pre-processing -&gt; Meteorological data -&gt; Prepare existing data</i>. A yearly 
+dataset with hourly time resolution should be used for SEBE. Multiple years can 
+also be used to improve the model outcome. Model output is dependent on the 
+meteorological input data so if a short dataset is used, potential solar energy 
+would be valid for the time period only. <o:p></o:p></span></p>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">
+<span style="mso-spacerun:yes">&nbsp;</span>Mandatory data is global shortwave 
+radiation, but model will perform best is also diffuse and direct components are 
+available. <o:p></o:p></span></p>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">The direct 
+radiation component used as input in the SOLWEIG model is not the direct 
+shortwave radiation on a horizontal surface but on a surface perpendicular to 
+the light source. Hence, the relationship between global radiation and the two 
+separate components are:<o:p></o:p></span></p>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Global 
+radiation = direct radiation * sin(h) + diffuse radiation<o:p></o:p></span></p>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">where h is 
+the sun altitude. Since diffuse and direct components of short wave radiation is 
+not common data, it is also possible to calculate diffuse and direct shortwave 
+radiation (see above).<o:p></o:p></span></p>
+<h3><a name="_Toc431370476"></a><a name="_Toc433225584">
+<span style="mso-bookmark:
+_Toc431370476">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Save sky 
+irradiance distribution</span></span></a><span style="mso-bookmark:_Toc431370476"><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></span></h3>
+<p class="MsoNormal"><span style="mso-bookmark:_Toc431370476">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">When the box is ticked 
+in, it is possible to save the radiation distribution from the sky vault 
+calculated from the meteorological file. SEBE first distributes the radiation on 
+145 sky patches on the sky vault and then generates shadows on the DSMs based on 
+these patches, i.e. the core loop in the model iterates 145 times. For more 
+detailed information on this, see Lindberg et al. (2015).<o:p></o:p></span></span></p>
+<h3><span style="mso-bookmark:_Toc431370476"><a name="_Toc433225585">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Output folder</span></a></span><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">A 
+specified folder where result will be saved should be specified here. One raster 
+showing irradiance on ground and building roofs named
+<b style="mso-bidi-font-weight:normal">Energyyearroof.tif</b> is saved as well 
+as a text file of wall irradiances (<b style="mso-bidi-font-weight:normal">Energyyearwall.txt</b>). 
+Also, the ground and building DSM is saved in the output folder to be used later 
+in a SEBE visualization plugin (<i style="mso-bidi-font-style:normal">UMEP -&gt; 
+Post-processing -&gt; Solar Energy -&gt; SEBE (Visualisation)</i>).<o:p></o:p></span></p>
+<h3><a name="_Toc433225586"></a><a name="_Toc431370477">
+<span style="mso-bookmark:
+_Toc433225586">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Run</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">This 
+starts the calculations<o:p></o:p></span></p>
+<h3><a name="_Toc433225587"></a><a name="_Toc431370478">
+<span style="mso-bookmark:
+_Toc433225587">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Add roof 
+and ground irradiance result raster to project</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">If this is 
+ticked in, <b style="mso-bidi-font-weight:normal">Energyyearroof.tif</b> will be 
+loaded into to the map canvas<o:p></o:p></span></p>
+<h3><a name="_Toc433225588"></a><a name="_Toc431370479">
+<span style="mso-bookmark:
+_Toc433225588">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Close</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">This 
+button closes the plugin.<o:p></o:p></span></p>
+<h1><a name="_Toc433225589"></a><a name="_Toc431370480">
+<span style="mso-bookmark:_Toc433225589">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Output</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h1>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">As 
+mentioned earlier, three mandatory datasets are save is the model was 
+successful. The geoTIFF <b style="mso-bidi-font-weight:normal">
+Energyyearroof.tif</b> show pixel wise total irradiance in kWh.
+<b style="mso-bidi-font-weight:normal">Energyyearwall.txt</b> show total wall 
+irradiance for each wall column. The column voxel is decided based on the pixel 
+resolution of the input data. Also, the ground and building DSM is saved in the 
+output folder for later use. If the vegetation DSMs were added, one additional 
+file (<b style="mso-bidi-font-weight:normal">Vegetationdata.txt</b>) including 
+information of vegetation height and location are also saved. This file is also 
+be used in the SBEB visualization plugin.<o:p></o:p></span></p>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">The figure 
+below shows an example of input data and the resulting irradiance image in 
+Gothenburg using data from 1977.<o:p></o:p></span></p>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US;
+mso-no-proof:yes"><!--[if gte vml 1]><v:shape id="Picture_x0020_2" o:spid="_x0000_i1025"
+ type="#_x0000_t75" style='width:453.75pt;height:202.5pt;visibility:visible;
+ mso-wrap-style:square'>
+ <v:imagedata src="../../../../../AppData/Local/Temp/msohtmlclip1/01/clip_image002.jpg"
+  o:title="" xmlns:v="urn:schemas-microsoft-com:vml"/>
+</v:shape><![endif]--><![if !vml]>
+<img height="313" src="img/img_2.jpg" v:shapes="Picture_x0020_2" width="700" /><![endif]></span><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></p>
+<h1><a name="_Toc433225590"></a><a name="_Toc431370481">
+<span style="mso-bookmark:_Toc433225590">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Remarks</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h1>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">- All DSMs 
+need to have the same extent and pixel size.<o:p></o:p></span></p>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">- This 
+plugin is computationally intensive i.e. large grids will take a lot of time and 
+very large grids will not be possible to use. Large grids e.g. larger than 
+4000000 pixels should be tiled before.<o:p></o:p></span></p>
+<h1><a name="_Toc433225591"></a><a name="_Toc431370482">
+<span style="mso-bookmark:_Toc433225591">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">References</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h1>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Konarska 
+J, Lindberg F, Larsson A, Thorsson S, Holmer B 2013. Transmissivity of solar 
+radiation through crowns of single urban trees—application for outdoor thermal 
+comfort modelling. Theoret. Appl. Climatol., 1–14 (</span><span lang="SV"><a href="http://link.springer.com/article/10.1007/s00704-013-1000-3"><span lang="EN-US" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">link to paper</span></a></span><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">)<o:p></o:p></span></p>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Lindberg, 
+F., Jonsson, P. &amp; Honjo, T. and Wästberg, D. (2015) Solar energy on building 
+envelopes - 3D modelling in a 2D environment. Solar Energy. 115 (2015) 369–378 
+(<a href="http://www.sciencedirect.com/science/article/pii/S0038092X15001164" target="_blank">link to paper</a>)<o:p></o:p></span></p>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Reindl DT, 
+Beckman WA, Duffie JA (1990) Diffuse fraction correlation. Sol Energy 45:1–7<o:p></o:p></span></p>
+
+</body>
+
+</html>

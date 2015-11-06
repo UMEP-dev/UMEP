@@ -22,16 +22,14 @@
 """
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from qgis.gui import *
 from qgis.core import *
 import os
 from ..Utilities.qgiscombomanager import *
 from osgeo import gdal
 from landcoverfraction_grid_dialog import LandCoverFractionGridDialog
 import os.path
-import numpy as np
 from lcfracworker import Worker
-from osgeo.gdalconst import *
+import webbrowser
 
 # Initialize Qt resources from file resources.py
 import resources_rc
@@ -69,6 +67,7 @@ class LandCoverFractionGrid:
         self.dlg = LandCoverFractionGridDialog()
         self.dlg.runButton.clicked.connect(self.start_progress)
         self.dlg.pushButtonSave.clicked.connect(self.folder_path)
+        self.dlg.helpButton.clicked.connect(self.help)
         self.dlg.progressBar.setValue(0)
         # self.dlg.Box_1.currentIndexChanged.connect(self.text_enable)
 
@@ -316,7 +315,7 @@ class LandCoverFractionGrid:
             #                         "to obtain information of the process.")
             self.iface.messageBar().pushMessage("Land Cover Fraction Grid",
                                     "Process finished! Check General Messages (speech bubble, lower left) "
-                                    "to obtain information of the process.")
+                                    "to obtain information of the process.", duration=5)
         else:
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
@@ -351,3 +350,7 @@ class LandCoverFractionGrid:
         self.dlg.exec_()
         gdal.UseExceptions()
         gdal.AllRegister()
+
+    def help(self):
+        url = "file://" + self.plugin_dir + "/help/Index.html"
+        webbrowser.open_new_tab(url)

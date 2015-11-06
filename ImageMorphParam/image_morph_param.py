@@ -30,6 +30,7 @@ from osgeo import gdal
 from ..Utilities.imageMorphometricParms_v1 import *
 from impgworker import Worker
 from image_morph_param_dialog import ImageMorphParamDialog
+import webbrowser
 
 # Initialize Qt resources from file resources.py
 import resources_rc
@@ -67,6 +68,7 @@ class ImageMorphParam:
         self.dlg = ImageMorphParamDialog()
         self.dlg.runButton.clicked.connect(self.start_progress)
         self.dlg.pushButtonSave.clicked.connect(self.folder_path)
+        self.dlg.helpButton.clicked.connect(self.help)
         self.dlg.progressBar.setValue(0)
         self.dlg.checkBoxOnlyBuilding.toggled.connect(self.text_enable)
 
@@ -134,44 +136,6 @@ class ImageMorphParam:
         status_tip=None,
         whats_this=None,
         parent=None):
-        """Add a toolbar icon to the toolbar.
-
-        :param icon_path: Path to the icon for this action. Can be a resource
-            path (e.g. ':/plugins/foo/bar.png') or a normal file system path.
-        :type icon_path: str
-
-        :param text: Text that should be shown in menu items for this action.
-        :type text: str
-
-        :param callback: Function to be called when the action is triggered.
-        :type callback: function
-
-        :param enabled_flag: A flag indicating if the action should be enabled
-            by default. Defaults to True.
-        :type enabled_flag: bool
-
-        :param add_to_menu: Flag indicating whether the action should also
-            be added to the menu. Defaults to True.
-        :type add_to_menu: bool
-
-        :param add_to_toolbar: Flag indicating whether the action should also
-            be added to the toolbar. Defaults to True.
-        :type add_to_toolbar: bool
-
-        :param status_tip: Optional text to show in a popup when mouse pointer
-            hovers over the action.
-        :type status_tip: str
-
-        :param parent: Parent widget for the new action. Defaults None.
-        :type parent: QWidget
-
-        :param whats_this: Optional text to show in the status bar when the
-            mouse pointer hovers over the action.
-
-        :returns: The action that was created. Note that the action is also
-            added to self.actions list.
-        :rtype: QAction
-        """
 
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
@@ -206,7 +170,6 @@ class ImageMorphParam:
             callback=self.run,
             parent=self.iface.mainWindow())
 
-
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
@@ -234,12 +197,12 @@ class ImageMorphParam:
 
     # Metod som startar traden, knyter signaler fran traden till metoder. Se impgworker.py for det arbete som traden utfor.
     def startWorker(self, dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, iface, plugin_dir,
-                    folderPath, dlg, imid, radius, degree):
+                    folderPath, dlg, imid, radius, degree, rm):
         # create a new worker instance
         # Skapar en instans av metoden som innehaller det arbete som ska utforas i en trad
 
         worker = Worker(dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, iface,
-                        plugin_dir, folderPath, dlg, imid, radius, degree)
+                        plugin_dir, folderPath, dlg, imid, radius, degree, rm)
 
         # andrar knappen som startar verktyget till en knapp som avbryter tradens arbete.
         self.dlg.runButton.setText('Cancel')
@@ -284,7 +247,7 @@ class ImageMorphParam:
             #                         "to obtain information of the process.")
             self.iface.messageBar().pushMessage("Image Morphometric Parameters",
                                     "Process finished! Check General Messages (speech bubble, lower left) "
-                                    "to obtain information of the process.")
+                                    "to obtain information of the process.", duration=5)
         else:
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
@@ -321,7 +284,7 @@ class ImageMorphParam:
         if poly_field is None:
             QMessageBox.critical(None, "Error", "An attribute filed with unique fields must be selected")
             return
-
+        # QMessageBox.information(None, "TEst", str(poly_field) )
         vlayer = QgsVectorLayer(poly.source(), "polygon", "ogr")
         prov = vlayer.dataProvider()
         fields = prov.fields()
@@ -356,6 +319,21 @@ class ImageMorphParam:
         else:
             imid = 1
 
+        # #Calculate Z0m and Zdm depending on the Z0 method
+        ro = self.dlg.comboBox_Roughness.currentIndex()
+        if ro == 0:
+            rm = 'RT'
+        elif ro == 1:
+            rm = 'Rau'
+        elif ro == 2:
+            rm = 'Bot'
+        elif ro == 3:
+            rm = 'Mac'
+        elif ro == 4:
+            rm = 'Mho'
+        else:
+            rm = 'Kan'
+
         if self.folderPath == 'None':
             QMessageBox.critical(None, "Error", "Select a valid output folder")
             return
@@ -365,11 +343,10 @@ class ImageMorphParam:
 
         # Startar arbetarmetoden och traden, se startworker metoden ovan.
         self.startWorker(dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, self.iface,
-                         self.plugin_dir, self.folderPath, self.dlg, imid, radius, degree)
+                         self.plugin_dir, self.folderPath, self.dlg, imid, radius, degree, rm)
 
         # Allt som ska ske efter att arbetaren startats hanteras genom metoderna som tar emot signaler fran traden.
         # Framforallt workerFinished metoden. Se impgworker.py filen for implementering av det arbete som traden utfor.
-
 
     def run(self):
         """Run method that performs all the real work"""
@@ -380,3 +357,7 @@ class ImageMorphParam:
 
         gdal.UseExceptions()
         gdal.AllRegister()
+
+    def help(self):
+        url = "file://" + self.plugin_dir + "/help/Index.html"
+        webbrowser.open_new_tab(url)

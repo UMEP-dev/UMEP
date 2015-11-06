@@ -29,6 +29,8 @@ from qgis.gui import QgsMessageBar
 from suews_dialog import SUEWSDialog
 import os.path
 import sys
+import webbrowser
+import urllib
 
 # from ..Utilities import *
 from ..suewsmodel import Suews_wrapper_v11
@@ -68,6 +70,7 @@ class SUEWS:
         self.dlg.runButton.clicked.connect(self.start_progress)
         self.dlg.pushButtonLoad.clicked.connect(self.folder_path_in)
         self.dlg.pushButtonSave.clicked.connect(self.folder_path_out)
+        self.dlg.helpButton.clicked.connect(self.help)
         self.fileDialog = QFileDialog()
         self.fileDialog.setFileMode(4)
         self.fileDialog.setAcceptMode(1)
@@ -153,8 +156,42 @@ class SUEWS:
         # del self.toolbar
 
     def run(self):
+        if os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2015a') or os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2015a.exe'):
+            test = 4
+        else:
+            QMessageBox.information(self.iface.mainWindow(),
+                                 "OS specific binaries missing",
+                                 "Before you start to use this plugin for the very first time, the OS specific suews program\r\n"
+                                 "will automatically be download from the UMEP repository and stored in your plugin directory:\r\n"
+                                 "(" + self.model_dir + ").\r\n"
+                                                        "\r\n"
+                                 "Join the email-list for updates and other information:\r\n"
+                                 "http://www.lists.rdg.ac.uk/mailman/listinfo/met-umep.\r\n"
+                                                        "\r\n"
+                                 "UMEP on the web:\r\n"
+                                 "http://www.met.reading.ac.uk/umep/", QMessageBox.Ok)
+            testfile = urllib.URLopener()
+            if sys.platform == 'win32':
+                testfile.retrieve('http://www.met.reading.ac.uk/umep/docs/nib/win/SUEWS_V2015a.exe', self.model_dir + os.sep + 'SUEWS_V2015a.exe')
+                testfile2 = urllib.URLopener()
+                testfile2.retrieve('http://www.met.reading.ac.uk/umep/docs/nib/win/cyggcc_s-seh-1.dll', self.model_dir + os.sep + 'cyggcc_s-seh-1.dll')
+                testfile3 = urllib.URLopener()
+                testfile3.retrieve('http://www.met.reading.ac.uk/umep/docs/nib/win/cyggfortran-3.dll', self.model_dir + os.sep + 'cyggfortran-3.dll')
+                testfile4 = urllib.URLopener()
+                testfile4.retrieve('http://www.met.reading.ac.uk/umep/docs/nib/win/cygquadmath-0.dll', self.model_dir + os.sep + 'cygquadmath-0.dll')
+                testfile5 = urllib.URLopener()
+                testfile5.retrieve('http://www.met.reading.ac.uk/umep/docs/nib/win/cygwin1.dll', self.model_dir + os.sep + 'cygwin1.dll')
+            if sys.platform == 'linux2':
+                testfile.retrieve('http://www.met.reading.ac.uk/umep/docs/nib/linux/SUEWS_V2015a', self.model_dir + os.sep + 'SUEWS_V2015a')
+            if sys.platform == 'darwin':
+                testfile.retrieve('http://www.met.reading.ac.uk/umep/docs/nib/mac/SUEWS_V2015a', self.model_dir + os.sep + 'SUEWS_V2015a')
+
         self.dlg.show()
         self.dlg.exec_()
+
+    def help(self):
+        url = "file://" + self.plugin_dir + "/help/Index.html"
+        webbrowser.open_new_tab(url)
 
     def folder_path_out(self):
         self.fileDialog.open()

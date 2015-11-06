@@ -175,7 +175,7 @@ p, li { white-space: pre-wrap; }
     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButtonHelp">
+  <widget class="QPushButton" name="helpButton">
    <property name="geometry">
     <rect>
      <x>8</x>

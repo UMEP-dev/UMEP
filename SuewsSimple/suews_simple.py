@@ -32,7 +32,7 @@ from suews_simple_dialog import SuewsSimpleDialog
 from ..suewsmodel import Suews_wrapper_v11
 from ..ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
 from ..LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
-# from suewssimpleworker import Worker
+from suewssimpleworker import Worker
 
 # Import other python stuff
 import urllib
@@ -40,6 +40,7 @@ import numpy as np
 import shutil
 import sys
 import os.path
+import webbrowser
 
 
 class SuewsSimple:
@@ -80,7 +81,7 @@ class SuewsSimple:
         self.dlg.pushButtonImport_IMPV.clicked.connect(self.import_file_IMPV)
         self.dlg.pushButtonImport_LCFP.clicked.connect(self.import_file_LCFP)
         self.dlg.defaultButton.clicked.connect(self.set_default_settings)
-        self.dlg.pushButtonHelp.clicked.connect(self.help)
+        self.dlg.helpButton.clicked.connect(self.help)
         self.dlg.runButton.clicked.connect(self.start_progress)
         self.dlg.pushButtonSave.clicked.connect(self.folder_path)
         self.dlg.pushButtonImport.clicked.connect(self.met_file)
@@ -197,22 +198,26 @@ class SuewsSimple:
                                  "http://www.met.reading.ac.uk/umep/", QMessageBox.Ok)
             testfile = urllib.URLopener()
             if sys.platform == 'win32':
-                testfile.retrieve('http://rcg.gvc.gu.se/~urban-net/executablesTest/win32/SUEWS_V2015a.exe', self.model_dir + os.sep + 'SUEWS_V2015a.exe')
+                testfile.retrieve('http://www.met.reading.ac.uk/umep/docs/nib/win/SUEWS_V2015a.exe', self.model_dir + os.sep + 'SUEWS_V2015a.exe')
                 testfile2 = urllib.URLopener()
-                testfile2.retrieve('http://rcg.gvc.gu.se/~urban-net/executablesTest/win32/cyggcc_s-seh-1.dll', self.model_dir + os.sep + 'cyggcc_s-seh-1.dll')
+                testfile2.retrieve('http://www.met.reading.ac.uk/umep/docs/nib/win/cyggcc_s-seh-1.dll', self.model_dir + os.sep + 'cyggcc_s-seh-1.dll')
                 testfile3 = urllib.URLopener()
-                testfile3.retrieve('http://rcg.gvc.gu.se/~urban-net/executablesTest/win32/cyggfortran-3.dll', self.model_dir + os.sep + 'cyggfortran-3.dll')
+                testfile3.retrieve('http://www.met.reading.ac.uk/umep/docs/nib/win/cyggfortran-3.dll', self.model_dir + os.sep + 'cyggfortran-3.dll')
                 testfile4 = urllib.URLopener()
-                testfile4.retrieve('http://rcg.gvc.gu.se/~urban-net/executablesTest/win32/cygquadmath-0.dll', self.model_dir + os.sep + 'cygquadmath-0.dll')
+                testfile4.retrieve('http://www.met.reading.ac.uk/umep/docs/nib/win/cygquadmath-0.dll', self.model_dir + os.sep + 'cygquadmath-0.dll')
                 testfile5 = urllib.URLopener()
-                testfile5.retrieve('http://rcg.gvc.gu.se/~urban-net/executablesTest/win32/cygwin1.dll', self.model_dir + os.sep + 'cygwin1.dll')
+                testfile5.retrieve('http://www.met.reading.ac.uk/umep/docs/nib/win/cygwin1.dll', self.model_dir + os.sep + 'cygwin1.dll')
             if sys.platform == 'linux2':
-                testfile.retrieve('http://rcg.gvc.gu.se/~urban-net/executablesTest/linux/SUEWS_V2015a', self.model_dir + os.sep + 'SUEWS_V2015a')
+                testfile.retrieve('http://www.met.reading.ac.uk/umep/docs/nib/linux/SUEWS_V2015a', self.model_dir + os.sep + 'SUEWS_V2015a')
             if sys.platform == 'darwin':
-                testfile.retrieve('http://rcg.gvc.gu.se/~urban-net/executablesTest/darwin/SUEWS_V2015a', self.model_dir + os.sep + 'SUEWS_V2015a')
+                testfile.retrieve('http://www.met.reading.ac.uk/umep/docs/nib/mac/SUEWS_V2015a', self.model_dir + os.sep + 'SUEWS_V2015a')
 
         self.dlg.show()
         self.dlg.exec_()
+
+    def help(self):
+        url = "file://" + self.plugin_dir + "/help/Index.html"
+        webbrowser.open_new_tab(url)
 
     def IMCP(self):
         sg = ImageMorphParmsPoint(self.iface)
@@ -233,12 +238,16 @@ class SuewsSimple:
             self.folderPathOut = self.fileDialogOut.selectedFiles()
             self.dlg.textOutput.setText(self.folderPathOut[0])
 
+        self.dlg.runButton.setEnabled(True)
+
     def met_file(self):
         self.fileDialogMet.open()
         result = self.fileDialogMet.exec_()
         if result == 1:
             self.folderPathMet = self.fileDialogMet.selectedFiles()
             self.dlg.textInputMetdata.setText(self.folderPathMet[0])
+
+        self.dlg.runButton.setEnabled(True)
 
     def import_file_IMPB(self):
         self.fileDialog.open()
@@ -481,6 +490,13 @@ class SuewsSimple:
             QMessageBox.critical(self.iface.mainWindow(), "Non-consistency Error", "A relatively large difference in "
                 "building fraction between the DSM and the landcover grid was found: " + str(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - float(self.dlg.lineEdit_paiveg.text())))
             return
+        # self.iface.messageBar().pushMessage("test", self.dlg.textInputMetdata.text(), level=QgsMessageBar.INFO)
+
+        # Checking consistency between fractions
+        # if isinstance(s, basestring)self.dlg.textInputMetdata.text():
+        #     QMessageBox.critical(self.iface.mainWindow(), "Information missing", "Both meteorological file and output directory "
+        #                                                                          "needs to be specified.")
+        #     return
 
         # Getting values from GUI
         YYYY = self.dlg.lineEdit_YYYY.text()
@@ -637,7 +653,6 @@ class SuewsSimple:
 
         # TODO: Put suews in a worker
         # self.iface.messageBar().pushMessage("test: ", str(LeafCycle / 8.))
-        # self.startWorker(self.iface, self.model_dir, self.dlg)
         # QMessageBox.information(None, "Model run ready to start", "Process will take a couple of minutes based on "
         #                 "length of meteorological data and computer resources.",)
         # time.sleep(1)
@@ -646,8 +661,9 @@ class SuewsSimple:
                                 "Model information", "Model run will now start. QGIS might freeze during calcualtion."
                                 "This will be fixed in future versions")
 
+        # self.startWorker(self.iface, self.model_dir, self.dlg)
+
         try:
-            # self.startWorker(self.iface, self.model_dir)
             Suews_wrapper_v11.wrapper(self.model_dir)
             self.test = 1
         except:
@@ -661,30 +677,6 @@ class SuewsSimple:
             lines = f.readlines()
             QMessageBox.critical(None, "Model run unsuccessful", str(lines))
             return
-
-        # Suews_wrapper_v11.wrapper(self.model_dir)
-        # try:
-        #     # self.iface.messageBar().pushMessage("Model run started", "Process will take a couple of minutes based on "
-        #     #             "length of meteorological data and computer resources.", level=QgsMessageBar.INFO, duration=10)
-        #     # QMessageBox.information(None, "Model run started", "Process will take a couple of minutes based on "
-        #     #             "length of meteorological data and computer resources.")
-        #     test = 4
-        #     # Suews_wrapper_v11.wrapper(self.model_dir)
-        # except:
-        #     f = open(self.model_dir + '/problems.txt')
-        #     lines = f.readlines()
-        #     QMessageBox.critical(self.iface.mainWindow(), "Model run unsuccessful", str(lines))
-        #     return
-
-        # if self.ret == 1:
-        #     self.iface.messageBar().pushMessage("Model run successful", "Check problems.txt in " + self.plugin_dir + " for "
-        #                     "additional information about the run", level=QgsMessageBar.INFO)
-
-        # QMessageBox.information(None, "Image Morphometric Parameters", "Process successful!")
-
-    def help(self):
-        url = "file://" + self.plugin_dir + "/help/build/html/index.html"
-        # webbrowser.open_new_tab(url)
 
     def leaf_cycle(self, nml, LeafCycle):
         if LeafCycle == 0: # Winter
@@ -738,65 +730,65 @@ class SuewsSimple:
 
         return nml
 
- # def startWorker(self, iface, model_dir, dlg):
-    #
-    #     worker = Worker(iface, model_dir, dlg)
-    #
-    #     self.dlg.runButton.setText('Cancel')
-    #     self.dlg.runButton.clicked.disconnect()
-    #     self.dlg.runButton.clicked.connect(worker.kill)
-    #     self.dlg.closeButton.setEnabled(False)
-    #
-    #     thread = QThread(self.dlg)
-    #     worker.moveToThread(thread)
-    #     worker.finished.connect(self.workerFinished)
-    #     worker.error.connect(self.workerError)
-    #     # worker.progress.connect(self.progress_update)
-    #     thread.started.connect(worker.run)
-    #     thread.start()
-    #     self.thread = thread
-    #     self.worker = worker
-    #
-    # def workerFinished(self, ret):
-    #     # Tar bort arbetaren (Worker) och traden den kors i
-    #     try:
-    #         self.worker.deleteLater()
-    #     except RuntimeError:
-    #          pass
-    #     self.thread.quit()
-    #     self.thread.wait()
-    #     self.thread.deleteLater()
-    #
-    #     self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.plugin_dir + " for "
-    #                         "additional information about the run", level=QgsMessageBar.INFO)
-    #
-    #     #andra tillbaka Run-knappen till sitt vanliga tillstand och skicka ett meddelande till anvanderen.
-    #     if ret == 0:
-    #         # self.dlg.runButton.setText('Run')
-    #         # self.dlg.runButton.clicked.disconnect()
-    #         # self.dlg.runButton.clicked.connect(self.start_progress)
-    #         # self.dlg.closeButton.setEnabled(True)
-    #         # # self.dlg.progressBar.setValue(0)
-    #         # QMessageBox.information(self.iface.mainWindow(), "Suews Simple", "Operations cancelled, process unsuccessful!")
-    #         self.test = 1
-    #     else:
-    #         self.test = 0
-    #         # self.dlg.runButton.setText('Run')
-    #         # self.dlg.runButton.clicked.disconnect()
-    #         # self.dlg.runButton.clicked.connect(self.start_progress)
-    #         # self.dlg.closeButton.setEnabled(True)
-    #         # # self.dlg.progressBar.setValue(0)
-    #         # self.iface.messageBar().pushMessage("Model run successful", "Check problems.txt in " + self.model_dir + " for "
-    #         #                 "additional information about the run", level=QgsMessageBar.INFO)
-    #         # self.iface.messageBar().pushMessage("Suews Simple",
-    #         #                         "Process finished! Check General Messages (speech bubble, lower left) "
-    #         #                         "to obtain information of the process.")
-    #
-    #     self.ret = ret
-    #
-    # def workerError(self, e, exception_string):
-    #     strerror = "Worker thread raised an exception: " + str(e)
-    #     QgsMessageLog.logMessage(strerror.format(exception_string), level=QgsMessageLog.CRITICAL)
-    #     f = open(self.model_dir + '/problems.txt')
-    #     lines = f.readlines()
-    #     QMessageBox.critical(self.iface.mainWindow(), "Model run unsuccessful", str(lines))
+    def startWorker(self, iface, model_dir, dlg):
+
+        worker = Worker(iface, model_dir, dlg)
+
+        self.dlg.runButton.setText('Cancel')
+        self.dlg.runButton.clicked.disconnect()
+        self.dlg.runButton.clicked.connect(worker.kill)
+        self.dlg.closeButton.setEnabled(False)
+
+        thread = QThread(self.dlg)
+        worker.moveToThread(thread)
+        worker.finished.connect(self.workerFinished)
+        worker.error.connect(self.workerError)
+        # worker.progress.connect(self.progress_update)
+        thread.started.connect(worker.run)
+        thread.start()
+        self.thread = thread
+        self.worker = worker
+
+    def workerFinished(self, ret):
+        # Tar bort arbetaren (Worker) och traden den kors i
+        try:
+            self.worker.deleteLater()
+        except RuntimeError:
+             pass
+        self.thread.quit()
+        self.thread.wait()
+        self.thread.deleteLater()
+
+        self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.plugin_dir + " for "
+                            "additional information about the run", level=QgsMessageBar.INFO)
+
+        #andra tillbaka Run-knappen till sitt vanliga tillstand och skicka ett meddelande till anvanderen.
+        if ret == 0:
+            # self.dlg.runButton.setText('Run')
+            # self.dlg.runButton.clicked.disconnect()
+            # self.dlg.runButton.clicked.connect(self.start_progress)
+            # self.dlg.closeButton.setEnabled(True)
+            # # self.dlg.progressBar.setValue(0)
+            # QMessageBox.information(self.iface.mainWindow(), "Suews Simple", "Operations cancelled, process unsuccessful!")
+            self.test = 1
+        else:
+            self.test = 0
+            # self.dlg.runButton.setText('Run')
+            # self.dlg.runButton.clicked.disconnect()
+            # self.dlg.runButton.clicked.connect(self.start_progress)
+            # self.dlg.closeButton.setEnabled(True)
+            # # self.dlg.progressBar.setValue(0)
+            # self.iface.messageBar().pushMessage("Model run successful", "Check problems.txt in " + self.model_dir + " for "
+            #                 "additional information about the run", level=QgsMessageBar.INFO)
+            # self.iface.messageBar().pushMessage("Suews Simple",
+            #                         "Process finished! Check General Messages (speech bubble, lower left) "
+            #                         "to obtain information of the process.")
+
+        self.ret = ret
+
+    def workerError(self, e, exception_string):
+        strerror = "Worker thread raised an exception: " + str(e)
+        QgsMessageLog.logMessage(strerror.format(exception_string), level=QgsMessageLog.CRITICAL)
+        f = open(self.model_dir + '/problems.txt')
+        lines = f.readlines()
+        QMessageBox.critical(self.iface.mainWindow(), "Model run unsuccessful", str(lines))

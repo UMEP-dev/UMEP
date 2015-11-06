@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>427</width>
-    <height>394</height>
+    <width>574</width>
+    <height>417</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,8 +17,8 @@
    <property name="geometry">
     <rect>
      <x>8</x>
-     <y>336</y>
-     <width>233</width>
+     <y>360</y>
+     <width>471</width>
      <height>23</height>
     </rect>
    </property>
@@ -29,8 +29,8 @@
   <widget class="QPushButton" name="runButton">
    <property name="geometry">
     <rect>
-     <x>344</x>
-     <y>336</y>
+     <x>492</x>
+     <y>360</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -45,8 +45,8 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>344</x>
-     <y>364</y>
+     <x>492</x>
+     <y>388</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -58,8 +58,8 @@
   <widget class="QLineEdit" name="textOutput">
    <property name="geometry">
     <rect>
-     <x>108</x>
-     <y>308</y>
+     <x>264</x>
+     <y>332</y>
      <width>225</width>
      <height>20</height>
     </rect>
@@ -68,8 +68,8 @@
   <widget class="QPushButton" name="pushButtonSave">
    <property name="geometry">
     <rect>
-     <x>344</x>
-     <y>308</y>
+     <x>492</x>
+     <y>332</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -82,8 +82,8 @@
    <property name="geometry">
     <rect>
      <x>4</x>
-     <y>308</y>
-     <width>101</width>
+     <y>334</y>
+     <width>259</width>
      <height>16</height>
     </rect>
    </property>
@@ -99,7 +99,7 @@
     <rect>
      <x>2</x>
      <y>92</y>
-     <width>421</width>
+     <width>565</width>
      <height>181</height>
     </rect>
    </property>
@@ -115,7 +115,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>364</x>
       <y>154</y>
       <width>193</width>
       <height>20</height>
@@ -125,9 +125,9 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>22</x>
+      <x>8</x>
       <y>120</y>
-      <width>197</width>
+      <width>353</width>
       <height>16</height>
      </rect>
     </property>
@@ -147,9 +147,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>38</x>
+      <x>8</x>
       <y>156</y>
-      <width>181</width>
+      <width>353</width>
       <height>16</height>
      </rect>
     </property>
@@ -166,7 +166,7 @@
    <widget class="QComboBox" name="comboBox_Polygrid">
     <property name="geometry">
      <rect>
-      <x>216</x>
+      <x>360</x>
       <y>5</y>
       <width>197</width>
       <height>20</height>
@@ -183,7 +183,7 @@ p, li { white-space: pre-wrap; }
    <widget class="QComboBox" name="comboBox_DSMbuildground">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>364</x>
       <y>82</y>
       <width>193</width>
       <height>20</height>
@@ -193,9 +193,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>4</x>
+      <x>6</x>
       <y>84</y>
-      <width>217</width>
+      <width>357</width>
       <height>16</height>
      </rect>
     </property>
@@ -212,7 +212,7 @@ p, li { white-space: pre-wrap; }
    <widget class="QComboBox" name="comboBox_Field">
     <property name="geometry">
      <rect>
-      <x>288</x>
+      <x>432</x>
       <y>36</y>
       <width>125</width>
       <height>20</height>
@@ -225,7 +225,7 @@ p, li { white-space: pre-wrap; }
    <widget class="QComboBox" name="comboBox_DEM">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>364</x>
       <y>118</y>
       <width>193</width>
       <height>20</height>
@@ -237,7 +237,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>8</x>
       <y>60</y>
-      <width>341</width>
+      <width>547</width>
       <height>18</height>
      </rect>
     </property>
@@ -248,9 +248,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>80</x>
+      <x>22</x>
       <y>6</y>
-      <width>135</width>
+      <width>337</width>
       <height>16</height>
      </rect>
     </property>
@@ -267,9 +267,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>210</x>
+      <x>184</x>
       <y>38</y>
-      <width>77</width>
+      <width>247</width>
       <height>16</height>
      </rect>
     </property>
@@ -284,9 +284,9 @@ p, li { white-space: pre-wrap; }
   <widget class="QLabel" name="label_8">
    <property name="geometry">
     <rect>
-     <x>18</x>
+     <x>34</x>
      <y>18</y>
-     <width>323</width>
+     <width>457</width>
      <height>16</height>
     </rect>
    </property>
@@ -300,7 +300,7 @@ p, li { white-space: pre-wrap; }
   <widget class="QComboBox" name="degreeBox">
    <property name="geometry">
     <rect>
-     <x>344</x>
+     <x>494</x>
      <y>14</y>
      <width>74</width>
      <height>22</height>
@@ -310,9 +310,9 @@ p, li { white-space: pre-wrap; }
   <widget class="QLabel" name="label_7">
    <property name="geometry">
     <rect>
-     <x>204</x>
+     <x>306</x>
      <y>68</y>
-     <width>139</width>
+     <width>187</width>
      <height>16</height>
     </rect>
    </property>
@@ -329,7 +329,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="geometry">
     <rect>
-     <x>344</x>
+     <x>494</x>
      <y>66</y>
      <width>73</width>
      <height>22</height>
@@ -359,7 +359,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>8</x>
      <y>46</y>
-     <width>265</width>
+     <width>331</width>
      <height>18</height>
     </rect>
    </property>
@@ -375,7 +375,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>8</x>
      <y>64</y>
-     <width>203</width>
+     <width>291</width>
      <height>18</height>
     </rect>
    </property>
@@ -383,14 +383,14 @@ p, li { white-space: pre-wrap; }
     <string>Search from grid centroid</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="closeButton_2">
+  <widget class="QPushButton" name="helpButton">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="geometry">
     <rect>
      <x>6</x>
-     <y>364</y>
+     <y>388</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -402,8 +402,8 @@ p, li { white-space: pre-wrap; }
   <widget class="QLabel" name="label_9">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>284</y>
+     <x>392</x>
+     <y>308</y>
      <width>113</width>
      <height>16</height>
     </rect>
@@ -418,11 +418,70 @@ p, li { white-space: pre-wrap; }
   <widget class="QLineEdit" name="textOutput_prefix">
    <property name="geometry">
     <rect>
-     <x>274</x>
-     <y>282</y>
+     <x>506</x>
+     <y>306</y>
      <width>59</width>
      <height>20</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="comboBox_Roughness">
+   <property name="geometry">
+    <rect>
+     <x>366</x>
+     <y>280</y>
+     <width>199</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <item>
+    <property name="text">
+     <string>Rule of thumb</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Raupach (1994/95)</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Simplified Bottema (1995)</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>MacDonald et al. (1998)</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Millward-Hopkins et al. (2011)</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Kanda et al. (2013)</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QLabel" name="label_10">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>282</y>
+     <width>355</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Roughness calculation method:</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+   <property name="buddy">
+    <cstring>comboBox_DEM</cstring>
    </property>
   </widget>
  </widget>

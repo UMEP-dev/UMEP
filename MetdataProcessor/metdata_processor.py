@@ -28,6 +28,7 @@ from PyQt4.QtGui import *
 from metdata_processor_dialog import MetdataProcessorDialog
 import os.path
 import numpy as np
+import webbrowser
 #import suewsdataprocessing_v4 as su
 
 
@@ -64,6 +65,7 @@ class MetdataProcessor:
         self.dlg = MetdataProcessorDialog()
         self.dlg.pushButtonImport.clicked.connect(self.import_file)
         self.dlg.pushButtonExport.clicked.connect(self.start_progress)
+        self.dlg.helpButton.clicked.connect(self.help)
         self.fileDialog = QFileDialog()
 
         # Declare instance attributes
@@ -196,11 +198,11 @@ class MetdataProcessor:
                 self.dlg.comboBox_snow.addItem(header[i])
                 self.dlg.comboBox_ws.addItem(header[i])
                 self.dlg.comboBox_xsmd.addItem(header[i])
-
+            self.data = np.loadtxt(self.folderPath[0], skiprows=headernum, delimiter=delim)
             try:
                 self.data = np.loadtxt(self.folderPath[0], skiprows=headernum, delimiter=delim)
             except:
-                QMessageBox.critical(None, "Import Error", "Check number of header lines and delimiter format")
+                QMessageBox.critical(None, "Import Error", "Check number of header lines, delimiter format and if nodata are present")
                 return
 
     def start_progress(self):
@@ -303,7 +305,7 @@ class MetdataProcessor:
         if self.dlg.checkBox_RH.isChecked():
             met_new[:, 10] = met_old[:, self.dlg.comboBox_RH.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
-                testwhere = np.where((met_new[:, 10] < 0.0) | (met_new[:, 10] > 100.2))
+                testwhere = np.where((met_new[:, 10] < 0.01) | (met_new[:, 10] > 100.0))
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Relative humidity - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
@@ -509,3 +511,7 @@ class MetdataProcessor:
         # show the dialog
         self.dlg.show()
         self.dlg.exec_()
+
+    def help(self):
+        url = "file://" + self.plugin_dir + "/help/Index.html"
+        webbrowser.open_new_tab(url)

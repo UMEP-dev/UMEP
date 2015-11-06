@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/plugins/sun" >
+		<file>initicon.png</file>
+	</qresource>
+	<qresource prefix="/plugins/sun" >
+		<file>modicon.png</file>
+	</qresource>
+	<qresource prefix="/plugins/sun" >
+		<file>staticon.png</file>
+	</qresource>
+    
+</RCC>

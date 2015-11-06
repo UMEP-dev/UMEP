@@ -21,16 +21,17 @@
  ***************************************************************************/
 """
 from PyQt4.QtCore import *  # QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QAction, QIcon, QMessageBox, QProgressBar, QFileDialog
+from PyQt4.QtGui import QAction, QMessageBox, QProgressBar, QFileDialog
 from qgis.gui import *
 from qgis.core import *
 import os
 from ..Utilities.qgiscombomanager import *
+from ..Utilities import RoughnessCalcFunction as rg
+
 from osgeo import gdal
 import subprocess
 import webbrowser
 from ..Utilities.imageMorphometricParms_v1 import *
-# from ..pydev import pydevd
 # Initialize Qt resources from file resources.py
 import resources_rc
 import sys
@@ -356,6 +357,13 @@ class ImageMorphParmsPoint:
             self.dlg.label_4.setEnabled(False)
 
     def start_process(self):
+
+        #Check OS and dep
+        if sys.platform == 'darwin':
+            gdalwarp_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdalwarp'
+        else:
+            gdalwarp_os_dep = 'gdalwarp'
+
         # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
         self.dlg.progressBar.setValue(0)
 
@@ -408,9 +416,9 @@ class ImageMorphParmsPoint:
             provider = dsm_build.dataProvider()
             filePath_dsm_build = str(provider.dataSourceUri())
             # Kolla om memorylayer går att användas istället för dir_poly tempfilen.
-            gdalruntextdsm_build = 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff ' + \
-                                   filePath_dsm_build + ' ' + self.plugin_dir + '/data/clipdsm.tif'
+            gdalruntextdsm_build = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+                                   filePath_dsm_build + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
             # gdalruntextdsm_build = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + dir_poly + \
             #                        ' -crop_to_cutline -of GTiff ' + filePath_dsm_build + \
             #                        ' ' + self.plugin_dir + '/data/clipdsm.tif'
@@ -442,12 +450,12 @@ class ImageMorphParmsPoint:
             provider = dem.dataProvider()
             filePath_dem = str(provider.dataSourceUri())
 
-            gdalruntextdsm = 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-                                               ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff ' + \
-                                               filePath_dsm + ' ' + self.plugin_dir + '/data/clipdsm.tif'
-            gdalruntextdem = 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff ' + \
-                                   filePath_dem + ' ' + self.plugin_dir + '/data/clipdem.tif'
+            gdalruntextdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+                                               ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+                                               filePath_dsm + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
+            gdalruntextdem = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+                                   filePath_dem + '" "' + self.plugin_dir + '/data/clipdem.tif"'
 
             if sys.platform == 'win32':
                 si = subprocess.STARTUPINFO()
@@ -470,27 +478,57 @@ class ImageMorphParmsPoint:
         geotransform = dataset.GetGeoTransform()
         scale = 1 / geotransform[1]
         self.degree = float(self.dlg.degreeBox.currentText())
-
-        nodata_test = (dsm == -9999)
+        nd = dataset.GetRasterBand(1).GetNoDataValue()
+        nodata_test = (dsm == nd)
         if nodata_test.any():
-            QMessageBox.critical(None, "Error", "Grids includes nodata pixels")
+            QMessageBox.critical(None, "Error", "Clipped grid includes nodata pixels")
             return
         else:
             immorphresult = imagemorphparam_v2(dsm, dem, scale, 1, self.degree, self.dlg, 1)
 
+        # #Calculate Z0m and Zdm depending on the Z0 method
+        ro = self.dlg.comboBox_Roughness.currentIndex()
+        if ro == 0:
+            Roughnessmethod = 'RT'
+        elif ro == 1:
+            Roughnessmethod = 'Rau'
+        elif ro == 2:
+            Roughnessmethod = 'Bot'
+        elif ro == 3:
+            Roughnessmethod = 'Mac'
+        elif ro == 4:
+            Roughnessmethod = 'Mho'
+        else:
+            Roughnessmethod = 'Kan'
+
+        # QMessageBox.information(None, "Test", Roughnessmethod)
+
+        zH = immorphresult["zH"]
+        fai = immorphresult["fai"]
+        pai = immorphresult["pai"]
+        zMax = immorphresult["zHmax"]
+        zSdev = immorphresult["zH_sd"]
+        zd,z0 = rg.RoughnessCalc(Roughnessmethod,zH,fai,pai,zMax,zSdev)
+
         # save to file
         pre = self.dlg.textOutput_prefix.text()
-        header = ' Wd pai   fai   zH  zHmax   zHstd'
-        numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f'
+        header = ' Wd pai   fai   zH  zHmax   zHstd zd z0'
+        numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
         arr = np.concatenate((immorphresult["deg"], immorphresult["pai"], immorphresult["fai"],
-                            immorphresult["zH"], immorphresult["zHmax"], immorphresult["zH_sd"]), axis=1)
+                            immorphresult["zH"], immorphresult["zHmax"], immorphresult["zH_sd"],zd,z0), axis=1)
         np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'IMPPoint_anisotropic.txt', arr,
                    fmt=numformat, delimiter=' ', header=header, comments='')
 
-        header = ' pai  fai   zH    zHmax    zHstd '
-        numformat = '%4.3f %4.3f %5.3f %5.3f %5.3f'
+        zHall = immorphresult["zH_all"]
+        faiall = immorphresult["fai_all"]
+        paiall = immorphresult["pai_all"]
+        zMaxall = immorphresult["zHmax_all"]
+        zSdevall = immorphresult["zH_sd_all"]
+        zdall,z0all = rg.RoughnessCalc(Roughnessmethod,zHall,faiall,paiall,zMaxall,zSdevall)
+        header = ' pai  fai   zH    zHmax    zHstd zd z0'
+        numformat = '%4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
         arr2 = np.array([[immorphresult["pai_all"], immorphresult["fai_all"], immorphresult["zH_all"],
-                          immorphresult["zHmax_all"], immorphresult["zH_sd_all"]]])
+                          immorphresult["zHmax_all"], immorphresult["zH_sd_all"],zdall,z0all]])
         np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'IMPPoint_isotropic.txt', arr2,
                    fmt=numformat, delimiter=' ', header=header, comments='')
 
@@ -506,3 +544,7 @@ class ImageMorphParmsPoint:
         self.dlg.exec_()
         gdal.UseExceptions()
         gdal.AllRegister()
+
+    def help(self):
+        url = "file://" + self.plugin_dir + "/help/Index.html"
+        webbrowser.open_new_tab(url)

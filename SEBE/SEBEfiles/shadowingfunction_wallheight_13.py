@@ -66,7 +66,7 @@ def shadowingfunction_wallheight_13(a, azimuth, altitude, scale, walls, aspect):
     index = 1
     wallbol = (walls > 0).astype(float)
     #wallbol[wallbol == 0] = np.nan
-    np.savetxt("wallbol.txt",wallbol)
+    # np.savetxt("wallbol.txt",wallbol)
     # other loop parameters
     amaxvalue = np.max(a)
     pibyfour = np.pi/4

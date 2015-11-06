@@ -36,11 +36,15 @@ from LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoi
 from LandCoverReclassifier.land_cover_reclassifier import LandCoverReclassifier
 from WallHeight.wall_height import WallHeight
 from SEBE.sebe import SEBE
+from SEBEVisual.sun import Sun
 from SuewsSimple.suews_simple import SuewsSimple
 from SUEWS.suews import SUEWS
+from FootprintModel.footprint_model import FootprintModel
+
 # from about_dialog import AboutDialog
 from UMEP_about import UMEPDialogAbout
 import os.path
+import webbrowser
 
 # Uncomment this section if you want to debug in QGIS
 # import sys
@@ -97,19 +101,18 @@ class UMEP:
         self.UMEP_Menu.addMenu(self.Pro_Menu)
         self.Pos_Menu = QMenu("Post-Processor")
         self.UMEP_Menu.addMenu(self.Pos_Menu)
-        # self.Pos_Menu.setEnabled(False)
         self.About_Menu = QMenu("Help")
         self.UMEP_Menu.addMenu(self.About_Menu)
 
         # Sub-menus to Pre-processor
-        self.SM_Menu = QMenu("Urban Morphology")
-        self.Pre_Menu.addMenu(self.SM_Menu)
         self.MD_Menu = QMenu("Meteorological Data")
         self.Pre_Menu.addMenu(self.MD_Menu)
         self.UG_Menu = QMenu("Urban Geometry")
         self.Pre_Menu.addMenu(self.UG_Menu)
         self.ULC_Menu = QMenu("Urban Land Cover")
         self.Pre_Menu.addMenu(self.ULC_Menu)
+        self.SM_Menu = QMenu("Urban Morphology")
+        self.Pre_Menu.addMenu(self.SM_Menu)
 
         # Sub-actions to Surface Morphology
         self.IMCG_Action = QAction("Image Morphometric Calculator (Grid)", self.iface.mainWindow())
@@ -118,6 +121,9 @@ class UMEP:
         self.IMCP_Action = QAction("Image Morphometric Calculator (Point)", self.iface.mainWindow())
         self.SM_Menu.addAction(self.IMCP_Action)
         self.IMCP_Action.triggered.connect(self.IMCP)
+        self.FP_Action = QAction("Source Area Model (Point)", self.iface.mainWindow())
+        self.SM_Menu.addAction(self.FP_Action)
+        self.FP_Action.triggered.connect(self.FP)
 
         # Sub-actions to Meteorological Data Preparation
         self.PED_Action = QAction("Prepare Existing Data", self.iface.mainWindow())
@@ -180,10 +186,9 @@ class UMEP:
         self.SUEWS_Action = QAction("Urban Energy Balance (SUEWS/BLUEWS, Advanced)", self.iface.mainWindow())
         self.UEB_Menu.addAction(self.SUEWS_Action)
         self.SUEWS_Action.triggered.connect(self.SUEWS_advanced)
-        # self.SUEWS_Action.setEnabled(False)
-        self.LUMPS_Action = QAction("Urban Energy Balance (LUMPS)", self.iface.mainWindow())
-        self.UEB_Menu.addAction(self.LUMPS_Action)
-        self.LUMPS_Action.setEnabled(False)
+        # self.LUMPS_Action = QAction("Urban Energy Balance (LUMPS)", self.iface.mainWindow())
+        # self.UEB_Menu.addAction(self.LUMPS_Action)
+        # self.LUMPS_Action.setEnabled(False)
         # self.CBL_Action = QAction("UEB + CBL (BLUEWS/BLUMPS)", self.iface.mainWindow())
         # self.UEB_Menu.addAction(self.CBL_Action)
         # self.CBL_Action.setEnabled(False)
@@ -203,14 +208,15 @@ class UMEP:
         # Sub-menus to Solar radiation, post processing
         self.SEBEv_Action = QAction("SEBE (Visualisation)", self.iface.mainWindow())
         self.SUNpos_Menu.addAction(self.SEBEv_Action)
-        self.SEBEv_Action.setEnabled(False)
+        self.SEBEv_Action.triggered.connect(self.SEv)
 
         # Sub-menus to About
         self.About_Action = QAction("About", self.iface.mainWindow())
         self.About_Menu.addAction(self.About_Action)
         self.Manual_Action = QAction("Manual (online)", self.iface.mainWindow())
         self.About_Menu.addAction(self.Manual_Action)
-        self.Manual_Action.setEnabled(False)
+        self.Manual_Action.triggered.connect(self.help)
+        # self.Manual_Action.setEnabled(False)
 
         # Icons
         self.SVF_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_svf.png"))
@@ -222,6 +228,8 @@ class UMEP:
         self.ULCUEBRC_Action.setIcon(QIcon(self.plugin_dir + "/Icons/LandCoverReclassifierIcon.png"))
         self.WH_Action.setIcon(QIcon(self.plugin_dir + "/Icons/WallsIcon.png"))
         self.SEBE_Action.setIcon(QIcon(self.plugin_dir + "/Icons/sebeIcon.png"))
+        self.SEBEv_Action.setIcon(QIcon(self.plugin_dir + "/Icons/sebeIcon.png"))
+        self.FP_Action.setIcon(QIcon(self.plugin_dir + "/Icons/FootPrint.png"))
 
         self.iface.mainWindow().menuBar().insertMenu(self.iface.firstRightStandardMenu().menuAction(), self.UMEP_Menu)
         self.dlgAbout = UMEPDialogAbout()
@@ -379,16 +387,28 @@ class UMEP:
 
     def WH(self):
         sg = WallHeight(self.iface)
+        # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)  #used for debugging
         sg.run()
 
     def SE(self):
         sg = SEBE(self.iface)
-        # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)  #used for debugging
+        sg.run()
+
+    def SEv(self):
+        sg = Sun(self.iface)
+        sg.run()
+
+    def FP(self):
+        sg = FootprintModel(self.iface)
         sg.run()
 
     def run(self):
         # This function starts the plugin
         self.dlg.show()
         self.dlg.exec_()
+
+    def help(self):
+        url = "http://www.met.reading.ac.uk/umep/"
+        webbrowser.open_new_tab(url)
 
 

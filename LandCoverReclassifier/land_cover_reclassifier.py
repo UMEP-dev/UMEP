@@ -32,8 +32,7 @@ from land_cover_reclassifier_dialog import LandCoverReclassifierDialog
 import os.path
 import numpy as np
 from ..Utilities.misc import *
-from osgeo.gdalconst import *
-
+import webbrowser
 
 class LandCoverReclassifier:
     """QGIS Plugin Implementation."""
@@ -68,6 +67,7 @@ class LandCoverReclassifier:
         self.dlg = LandCoverReclassifierDialog()
         self.dlg.runButton.clicked.connect(self.start_progress)
         self.dlg.pushButtonSave.clicked.connect(self.save_file_place)
+        self.dlg.helpButton.clicked.connect(self.help)
 
         self.fileDialog = QFileDialog()
         self.fileDialog.setFileMode(0)
@@ -278,19 +278,11 @@ class LandCoverReclassifier:
             rlayer.setCacheImage(None)
         rlayer.triggerRepaint()
 
-    # def saveraster(self, gdal_data, filename, raster):
-    #     rows = gdal_data.RasterYSize
-    #     cols = gdal_data.RasterXSize
-    #     outDs = gdal.GetDriverByName("GTiff").Create(filename, cols, rows, int(1), GDT_Float32)
-    #     outBand = outDs.GetRasterBand(1)
-    #     outBand.WriteArray(raster, 0, 0)
-    #     outBand.FlushCache()
-    #     outBand.SetNoDataValue(-9999)
-    #     outDs.SetGeoTransform(gdal_data.GetGeoTransform())
-    #     outDs.SetProjection(gdal_data.GetProjection())
-    #     del outDs, outBand
-
     def run(self):
         self.dlg.show()
         self.dlg.exec_()
+
+    def help(self):
+        url = "file://" + self.plugin_dir + "/help/Index.html"
+        webbrowser.open_new_tab(url)
 

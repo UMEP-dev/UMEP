@@ -35,8 +35,8 @@ class Worker(QtCore.QObject):
             row = a.shape[0]
             col = a.shape[1]
 
-            filtersize = np.floor(scale * 9)
-            if scale != 1:
+            filtersize = np.floor((scale + 0.0000000001) * 9)
+            if filtersize != 9:
                 if np.mod(filtersize, scale) == 0:
                     filtersize = filtersize - 1
 

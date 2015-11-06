@@ -30,10 +30,12 @@ from ..Utilities.landCoverFractions_v1 import *
 from osgeo import gdal
 import subprocess
 import sys
+import webbrowser
 # Initialize Qt resources from file resources.py
 import resources_rc
 # Import the code for the dialog
 from landcover_fraction_point_dialog import LandCoverFractionPointDialog
+
 
 class LandCoverFractionPoint:
     """QGIS Plugin Implementation."""
@@ -339,6 +341,13 @@ class LandCoverFractionPoint:
 
     def start_process(self):
         # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
+
+        #Check OS and dep
+        if sys.platform == 'darwin':
+            gdalwarp_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdalwarp'
+        else:
+            gdalwarp_os_dep = 'gdalwarp'
+
         self.dlg.progressBar.setValue(0)
 
         if self.folderPath == 'None':
@@ -388,21 +397,23 @@ class LandCoverFractionPoint:
 
         provider = dsm_build.dataProvider()
         filePath_dsm_build = str(provider.dataSourceUri())
-        gdalruntextdsm_build = 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-                               ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff ' + \
-                               filePath_dsm_build + ' ' + self.plugin_dir + '/data/clipdsm.tif'
+        gdalruntextdsm_build = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+                               ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+                               filePath_dsm_build + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
+
         if sys.platform == 'win32':
             subprocess.call(gdalruntextdsm_build, startupinfo=si)
         else:
             os.system(gdalruntextdsm_build)
+
         dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
         dsm = dataset.ReadAsArray().astype(np.float)
 
         self.degree = float(self.dlg.degreeBox.currentText())
-
-        nodata_test = (dsm == -9999)
+        nd = dataset.GetRasterBand(1).GetNoDataValue()
+        nodata_test = (dsm == nd)
         if nodata_test.any():
-            QMessageBox.critical(None, "Error", "Grids includes nodata pixels")
+            QMessageBox.critical(None, "Error", "Clipped grid includes nodata pixels")
             return
         else:
             landcoverresult = landcover_v1(dsm, 1, self.degree, self.dlg, 1)
@@ -431,4 +442,8 @@ class LandCoverFractionPoint:
         """Run method that performs all the real work"""
         self.dlg.show()
         self.dlg.exec_()
+
+    def help(self):
+        url = "file://" + self.plugin_dir + "/help/Index.html"
+        webbrowser.open_new_tab(url)
 

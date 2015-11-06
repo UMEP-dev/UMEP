@@ -693,7 +693,7 @@ p, li { white-space: pre-wrap; }
     </property>
    </widget>
   </widget>
-  <widget class="QPushButton" name="pushButtonHelp">
+  <widget class="QPushButton" name="helpButton">
    <property name="geometry">
     <rect>
      <x>6</x>

@@ -210,7 +210,7 @@ class WallHeight:
             # self.iface.messageBar().pushMessage("SEBE", str(walllimit))
             self.walls = wa.findwalls(self.dsm, walllimit)
             saveraster(self.gdal_dsm, self.filePathH[0], self.walls)
-
+            # dirwalls = wa.filter1Goodwin_as_aspect_v3(self.walls, self.scale, self.dsm)
             if self.dlg.checkBoxAspect.isChecked():
                 self.startWorker(self.walls, self.scale, self.dsm, self.dlg)
                 # dirwalls = wa.filter1Goodwin_as_aspect_v3(walls, self.scale, self.dsm)

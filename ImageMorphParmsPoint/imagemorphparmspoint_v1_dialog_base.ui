@@ -9,14 +9,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>430</width>
-    <height>409</height>
+    <width>550</width>
+    <height>433</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="maximumSize">
    <size>
-    <width>430</width>
-    <height>410</height>
+    <width>550</width>
+    <height>460</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -28,8 +34,8 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>346</x>
-     <y>348</y>
+     <x>470</x>
+     <y>376</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -42,8 +48,8 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>346</y>
-     <width>221</width>
+     <y>374</y>
+     <width>439</width>
      <height>23</height>
     </rect>
    </property>
@@ -54,8 +60,8 @@
   <widget class="QPushButton" name="pushButtonSave">
    <property name="geometry">
     <rect>
-     <x>346</x>
-     <y>318</y>
+     <x>470</x>
+     <y>346</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -67,9 +73,9 @@
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>8</x>
-     <y>322</y>
-     <width>93</width>
+     <x>10</x>
+     <y>348</y>
+     <width>183</width>
      <height>16</height>
     </rect>
    </property>
@@ -83,9 +89,9 @@
   <widget class="QLineEdit" name="textOutput">
    <property name="geometry">
     <rect>
-     <x>102</x>
-     <y>318</y>
-     <width>237</width>
+     <x>194</x>
+     <y>346</y>
+     <width>275</width>
      <height>20</height>
     </rect>
    </property>
@@ -95,7 +101,7 @@
     <rect>
      <x>2</x>
      <y>154</y>
-     <width>423</width>
+     <width>543</width>
      <height>133</height>
     </rect>
    </property>
@@ -111,7 +117,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>214</x>
+      <x>336</x>
       <y>104</y>
       <width>199</width>
       <height>20</height>
@@ -123,12 +129,12 @@
      <rect>
       <x>4</x>
       <y>40</y>
-      <width>207</width>
+      <width>329</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Raster DSM (building and ground):</string>
+     <string>Raster DSM (3D objects  and ground):</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -145,12 +151,12 @@
      <rect>
       <x>10</x>
       <y>106</y>
-      <width>203</width>
+      <width>325</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Raster DSM (only buildings):</string>
+     <string>Raster DSM (only 3D objects):</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -162,7 +168,7 @@
    <widget class="QComboBox" name="comboBox_DSMbuildground">
     <property name="geometry">
      <rect>
-      <x>214</x>
+      <x>336</x>
       <y>38</y>
       <width>199</width>
       <height>20</height>
@@ -174,7 +180,7 @@
      <rect>
       <x>4</x>
       <y>76</y>
-      <width>209</width>
+      <width>331</width>
       <height>16</height>
      </rect>
     </property>
@@ -191,7 +197,7 @@
    <widget class="QComboBox" name="comboBox_DEM">
     <property name="geometry">
      <rect>
-      <x>214</x>
+      <x>336</x>
       <y>74</y>
       <width>199</width>
       <height>20</height>
@@ -203,7 +209,7 @@
      <rect>
       <x>8</x>
       <y>12</y>
-      <width>329</width>
+      <width>437</width>
       <height>18</height>
      </rect>
     </property>
@@ -211,7 +217,7 @@
      <enum>Qt::LeftToRight</enum>
     </property>
     <property name="text">
-     <string>Raster DSM (only buildings) exist</string>
+     <string>Raster DSM (only 3building or vegetation objects) exist</string>
     </property>
    </widget>
   </widget>
@@ -221,8 +227,8 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>346</x>
-     <y>378</y>
+     <x>470</x>
+     <y>406</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -235,7 +241,7 @@
    <property name="geometry">
     <rect>
      <x>8</x>
-     <y>378</y>
+     <y>406</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -249,7 +255,7 @@
     <rect>
      <x>2</x>
      <y>6</y>
-     <width>421</width>
+     <width>543</width>
      <height>69</height>
     </rect>
    </property>
@@ -264,7 +270,7 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>239</width>
+      <width>325</width>
       <height>18</height>
      </rect>
     </property>
@@ -281,9 +287,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>216</x>
+      <x>312</x>
       <y>39</y>
-      <width>197</width>
+      <width>223</width>
       <height>20</height>
      </rect>
     </property>
@@ -298,9 +304,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QPushButton" name="selectpoint">
     <property name="geometry">
      <rect>
-      <x>246</x>
+      <x>336</x>
       <y>8</y>
-      <width>169</width>
+      <width>201</width>
       <height>23</height>
      </rect>
     </property>
@@ -325,7 +331,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>90</x>
       <y>40</y>
-      <width>125</width>
+      <width>219</width>
       <height>16</height>
      </rect>
     </property>
@@ -345,7 +351,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>2</x>
      <y>82</y>
-     <width>423</width>
+     <width>543</width>
      <height>65</height>
     </rect>
    </property>
@@ -358,9 +364,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_8">
     <property name="geometry">
      <rect>
-      <x>64</x>
+      <x>18</x>
       <y>40</y>
-      <width>277</width>
+      <width>441</width>
       <height>16</height>
      </rect>
     </property>
@@ -375,8 +381,8 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>6</x>
-      <y>8</y>
-      <width>151</width>
+      <y>6</y>
+      <width>155</width>
       <height>23</height>
      </rect>
     </property>
@@ -396,7 +402,7 @@ p, li { white-space: pre-wrap; }
    <widget class="QSpinBox" name="spinBox">
     <property name="geometry">
      <rect>
-      <x>342</x>
+      <x>462</x>
       <y>8</y>
       <width>73</width>
       <height>22</height>
@@ -421,9 +427,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>150</x>
+      <x>186</x>
       <y>10</y>
-      <width>191</width>
+      <width>273</width>
       <height>16</height>
      </rect>
     </property>
@@ -437,7 +443,7 @@ p, li { white-space: pre-wrap; }
    <widget class="QComboBox" name="degreeBox">
     <property name="geometry">
      <rect>
-      <x>342</x>
+      <x>462</x>
       <y>36</y>
       <width>74</width>
       <height>22</height>
@@ -448,8 +454,8 @@ p, li { white-space: pre-wrap; }
   <widget class="QLabel" name="label_9">
    <property name="geometry">
     <rect>
-     <x>166</x>
-     <y>294</y>
+     <x>366</x>
+     <y>322</y>
      <width>115</width>
      <height>16</height>
     </rect>
@@ -464,11 +470,70 @@ p, li { white-space: pre-wrap; }
   <widget class="QLineEdit" name="textOutput_prefix">
    <property name="geometry">
     <rect>
-     <x>280</x>
-     <y>292</y>
+     <x>482</x>
+     <y>320</y>
      <width>59</width>
      <height>20</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="comboBox_Roughness">
+   <property name="geometry">
+    <rect>
+     <x>336</x>
+     <y>294</y>
+     <width>199</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <item>
+    <property name="text">
+     <string>Rule of thumb</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Raupach (1994/95)</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Simplified Bottema (1995)</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>MacDonald et al. (1998)</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Millward-Hopkins et al. (2011)</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Kanda et al. (2013)</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QLabel" name="label_7">
+   <property name="geometry">
+    <rect>
+     <x>4</x>
+     <y>296</y>
+     <width>331</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Roughness calculation method:</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+   <property name="buddy">
+    <cstring>comboBox_DEM</cstring>
    </property>
   </widget>
   <zorder>frame</zorder>
@@ -483,6 +548,8 @@ p, li { white-space: pre-wrap; }
   <zorder>frame_3</zorder>
   <zorder>label_9</zorder>
   <zorder>textOutput_prefix</zorder>
+  <zorder>comboBox_Roughness</zorder>
+  <zorder>label_7</zorder>
  </widget>
  <resources/>
  <connections>
