@@ -19,6 +19,7 @@ import scipy.misc as sc
 # from matplotlib.patches import Circle
 from scipy.optimize import fsolve
 # import copy as copy
+import scipy.ndimage.interpolation as scnd
 from osgeo import gdal
 from osgeo.gdalconst import *
 from ..Utilities import RoughnessCalcFunction as rg
@@ -153,16 +154,15 @@ def footprintiter(iterations,z_0_input,z_d_input,z_m_input,wind,sigv,Obukhov,ust
         full[np.isnan(full)]=0
 
         ##Rotation for wind angle for absolute plot and correction for rotation algorithm
-        rotang =180-wd_input
-        rotated=sc.imrotate(full, rotang,interp='bicubic')
-        rotatedphi=rotated/(np.nansum(rotated)/np.nansum(phi))
+        rotang =180 - wd_input
+        rotatedphi = scnd.rotate(full, rotang, reshape=False, mode='nearest')
 
         #Conversion into percentages in each grid square
         rotatedphiPerc = (rotatedphi/np.nanmax(rotatedphi))*100
         totRotatedphiPerc = totRotatedphiPerc + rotatedphiPerc
 
         #Calculate weighted morphometry and therefore weighted zo and zd
-        Wfai[i],Wpai[i],WzH[i],WzMax[i],WzSdev[i] = CalcWeightedMorph(dsm,dem,rotatedphiPerc,wd_input,scale)
+        Wfai[i],Wpai[i],WzH[i],WzMax[i],WzSdev[i] = CalcWeightedMorph(dsm, dem, rotatedphiPerc, wd_input, scale)
         # Wz_m_output[i] = z_m - Wz_d_output[i]
         Wz_d_output[i],Wz_0_output[i] = rg.RoughnessCalc(rm,WzH[i],Wfai[i],Wpai[i],WzMax[i],WzSdev[i])
 
@@ -221,14 +221,14 @@ def CalcWeightedMorph(dsm,dem,rotatedphiPerc,wd_input,scale):
     build_fp[np.where(build_fp<2)] = np.nan
     zSdev = np.nanstd(build_fp*( rotatedphiPerc/100))
     #Ground height
-    ground_fp = dem*fpA;                               #Ground in source area
+    ground_fp = dem*fpA                               #Ground in source area
     W_ground_fp = np.nansum(ground_fp* rotatedphiPerc)      #weighted by footprint function
     grd=W_ground_fp/W_totalA
 
     #Frontal area index
-    rot_dsm =sc.imrotate(dsm, wd_input,interp='nearest')                #rotated buildings into wind direction
-    rot_build =sc.imrotate(build, wd_input,interp='nearest')                #rotated buildings into wind direction
-    rot_phi = sc.imrotate( rotatedphiPerc, -wd_input-180,interp='nearest')       #rotate footprint function into wind direction
+    rot_dsm = sc.imrotate(dsm, wd_input, interp='nearest')                #rotated buildings into wind direction
+    rot_build = sc.imrotate(build, wd_input, interp='nearest')                #rotated buildings into wind direction
+    rot_phi = sc.imrotate(rotatedphiPerc, -wd_input-180, interp='nearest')       #rotate footprint function into wind direction
     n=dsm.shape[0]
     filt1 = np.ones((n, 1.)) * -1.
     filt2 = np.ones((n, 1.))
@@ -328,7 +328,7 @@ def f_z_phi_c(z,z_m,L):
 # #Save ouput phi as percentage
 # np.savetxt('UMEPTestfile-PHIPERC_OUTPUT.txt',rotatedphi)
 
-def saveraster(gdal_data, filename, raster):
+def saveraster(gdal_data, filename, raster):  ## This should move at some point (Utilities.misc)
     rows = gdal_data.RasterYSize
     cols = gdal_data.RasterXSize
 
