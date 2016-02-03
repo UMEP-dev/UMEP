@@ -15,9 +15,7 @@ version=0.1.3
 author=Fredrik Lindberg - Niklas Krave - Sue Grimmond - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent
 email=fredrikl@gvc.gu.se
 
-about=UMEP is an extensive plugin designed for urban climate in general and climate sensitive planning applications
-      in particular. The plugin consist of a pre-processor, a processor and a post-processor. This plugin is a
-      collaboration between University of Gothenburg, University of Helsinki and University of Reading.
+about=UMEP is an extensive plugin designed for urban climate in general and climate sensitive planning applications in particular. The plugin consist of a pre-processor, a processor and a post-processor. This plugin is a collaboration between University of Gothenburg, University of Helsinki and University of Reading.
       
 tracker=https://bitbucket.org/fredrik_ucg/umep/issues
 repository=https://bitbucket.org/fredrik_ucg/umep
@@ -39,7 +37,7 @@ tags=urban climate, urban planning
 
 homepage=http://www.met.reading.ac.uk/umep/
 category=Plugins
-icon=/Icons/icon_umep.png
+icon=Icons/icon_umep.png
 
 # experimental flag
 experimental=True

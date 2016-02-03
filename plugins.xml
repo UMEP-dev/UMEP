@@ -1,15 +1,16 @@
 <?xml version = '1.0' encoding = 'ISO-8859-1'?>
 <?xml-stylesheet type='text/xsl' href='plugins.xsl' ?>
 <plugins>
-    <pyqgis_plugin name = 'UMEP' version = '0.1.1'>
+    <pyqgis_plugin name = 'UMEP' version = '0.1.3'>
         <description> Urban Multi-scale Environmental Predictor </description>
-        <version>0.1.1</version>
+        <about> UMEP is an extensive plugin designed for urban climate in general and climate sensitive planning applications in particular. The plugin consist of a pre-processor, a processor and a post-processor. This plugin is a collaboration between University of Gothenburg, University of Helsinki and University of Reading. </about>
+        <version>0.1.3</version>
         <qgis_minimum_version> 2.0.0 </qgis_minimum_version>
         <qgis_maximum_version> 2.99.0 </qgis_maximum_version>
         <homepage> http://www.met.reading.ac.uk/umep/ </homepage>
-        <file_name> fredrik_ucg-umep-4331fc176b4d.zip </file_name>
-        <author_name> Fredrik Lindberg, Sue Grimmond, Niklas Krave, Helen Ward, Leena Järvi, Christoph Kent, Shiho Onomura </author_name>
-        <download_url> https://bitbucket.org/fredrik_ucg/umep/downloads/fredrik_ucg-umep-4331fc176b4d.zip </download_url>  
+        <file_name> UMEP.zip </file_name>
+        <author_name> Fredrik Lindberg, Sue Grimmond, Niklas Krave, Helen Ward, Leena Jarvi, Christoph Kent, Shiho Onomura </author_name>
+        <download_url> http://www.met.reading.ac.uk/umep/docs/repo/UMEP.zip </download_url>  
         <uploaded_by>Fredrik Lindberg</uploaded_by>
 	<create_date>2016-02-03</create_date>
         <update_date>2016-02-03</update_date>
