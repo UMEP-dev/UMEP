@@ -54,7 +54,7 @@ def wrapper(pathtoplugin):
         if multiplemetfiles == 0: # one metfile
             if index == 2:
                 gridcode1 = lines[0]
-                data_in = fileinputpath + filecode + gridcode1 + '_data.txt'
+                data_in = fileinputpath + filecode + '_data.txt' # No grid code in the name, nov 2015
                 met_old = np.loadtxt(data_in, skiprows=1)
                 if met_old[1, 3] - met_old[0, 3] == 5:
                     met_new = met_old
@@ -95,7 +95,7 @@ def wrapper(pathtoplugin):
         else:
             ending = posend[0]
 
-        met_save = met_new[starting:ending + fixpos, :]  ## original for on full year
+        met_save = met_new[starting:ending + fixpos, :]  ## originally for one full year
 
         ### save file
         data_out = fileinputpath + filecode + gridcode1 + '_' + str(YYYY) + '_data_5.txt'
@@ -230,7 +230,7 @@ def wrapper(pathtoplugin):
     '%9.3f ' * 2  + '%9.4f ' * 4 +\
     '%10.5f ' * 3 + '%14.7g ' * 1 + '%10.5f ' * 1 +\
     '%10.4f ' * 2 + '%10.5f ' * 6 + '%10.5f ' * 7 +\
-    '%10.4f ' * 1 +\
+    '%10.4f ' * 3 +\
     '%10.4f ' * 5 + '%10.6f ' * 6 +\
     '%8.4f' * 1
 
@@ -275,17 +275,18 @@ def wrapper(pathtoplugin):
         else:
             headend = 1
 
-    # header = '%iy id it imin dectime ' \
-    #          'kdown kup ldown lup Tsurf qn h_mod e_mod qs QF QH QE ' \
-    #          'P/i Ie/i E/i Dr/i ' \
-    #          'St/i NWSt/i surfCh/i totCh/i ' \
-    #          'RO/i ROsoil/i ROpipe ROpav ROveg ROwater ' \
-    #          'AdditionalWater FlowChange WU_int WU_EveTr WU_DecTr WU_Grass ' \
-    #          'RA RS ustar L_mod Fcld ' \
-    #          'SoilSt smd smd_Paved smd_Bldgs smd_EveTr smd_DecTr smd_Grass smd_BSoil ' \
-    #          'St_Paved St_Bldgs St_EveTr St_DecTr St_Grass St_BSoil St_Water ' \
-    #          'LAI ' \
-    #          'qn1_SF qn1_S Qm QmFreez Qmrain SWE Mw MwStore snowRem_Paved snowRem_Bldgs ChSnow/i alb_snow '
+    header = '%iy id it imin dectime ' \
+             'kdown kup ldown lup Tsurf qn h_mod e_mod qs QF QH QE ' \
+             'P/i Ie/i E/i Dr/i ' \
+             'St/i NWSt/i surfCh/i totCh/i ' \
+             'RO/i ROsoil/i ROpipe ROpav ROveg ROwater ' \
+             'AdditionalWater FlowChange WU_int WU_EveTr WU_DecTr WU_Grass ' \
+             'RA RS ustar L_mod Fcld ' \
+             'SoilSt smd smd_Paved smd_Bldgs smd_EveTr smd_DecTr smd_Grass smd_BSoil ' \
+             'St_Paved St_Bldgs St_EveTr St_DecTr St_Grass St_BSoil St_Water ' \
+             'LAI z0m zdm ' \
+             'qn1_SF qn1_S Qm QmFreez Qmrain SWE Mw MwStore snowRem_Paved snowRem_Bldgs ChSnow/i ' \
+             'SnowAlb '
 
     TimeCol_snow = np.array([1, 2, 3, 4, 5]) - 1
     SumCol_snow = np.array([13, 14, 15, 16, 17, 18, 19, 47, 48, 49, 50, 51, 52, 53, 68, 69, 70, 71, 72, 73, 74]) - 1

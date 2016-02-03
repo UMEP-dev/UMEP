@@ -1175,25 +1175,6 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QCheckBox" name="checkBoxSOLWEIG">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>490</y>
-     <width>279</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Convert from SOLWEIG model (&gt;v2014a)</string>
-   </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
-  </widget>
   <widget class="QPushButton" name="helpButton">
    <property name="enabled">
     <bool>true</bool>

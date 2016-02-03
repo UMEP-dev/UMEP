@@ -459,7 +459,7 @@ class FootprintModel:
             # QMessageBox.critical(None, "Test", str(mat))
             # rotatedphiPerc[rotatedphiPerc == 0] = -999
             rotatedphiPerc = (rotatedphiPerc - 100) * - 1
-            rotatedphiPerc[rotatedphiPerc == 100] = -9999
+            rotatedphiPerc[rotatedphiPerc >= 100] = -9999
             fp.saveraster(dataset, self.folderPath[0] + '/' + pre + '_' + 'SourceAreaCumulativePercentage.tif', rotatedphiPerc)
 
             # load roof irradiance result into map canvas

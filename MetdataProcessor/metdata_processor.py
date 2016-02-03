@@ -185,6 +185,7 @@ class MetdataProcessor:
                 self.dlg.comboBox_Wuh.addItem(header[i])
                 self.dlg.comboBox_fcld.addItem(header[i])
                 self.dlg.comboBox_kdiff.addItem(header[i])
+                self.dlg.comboBox_kdir.addItem(header[i])
                 self.dlg.comboBox_kdown.addItem(header[i])
                 self.dlg.comboBox_lai.addItem(header[i])
                 self.dlg.comboBox_ldown.addItem(header[i])

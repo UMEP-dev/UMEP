@@ -1,0 +1,17 @@
+<?xml version = '1.0' encoding = 'ISO-8859-1'?>
+<?xml-stylesheet type='text/xsl' href='plugins.xsl' ?>
+<plugins>
+    <pyqgis_plugin name = 'UMEP' version = '0.1.1'>
+        <description> Urban Multi-scale Environmental Predictor </description>
+        <version>0.1.1</version>
+        <qgis_minimum_version> 2.0.0 </qgis_minimum_version>
+        <qgis_maximum_version> 2.99.0 </qgis_maximum_version>
+        <homepage> http://www.met.reading.ac.uk/umep/ </homepage>
+        <file_name> fredrik_ucg-umep-4331fc176b4d.zip </file_name>
+        <author_name> Fredrik Lindberg, Sue Grimmond, Niklas Krave, Helen Ward, Leena Järvi, Christoph Kent, Shiho Onomura </author_name>
+        <download_url> https://bitbucket.org/fredrik_ucg/umep/downloads/fredrik_ucg-umep-4331fc176b4d.zip </download_url>  
+        <uploaded_by>Fredrik Lindberg</uploaded_by>
+	<create_date>2016-02-03</create_date>
+        <update_date>2016-02-03</update_date>
+    </pyqgis_plugin>
+</plugins>

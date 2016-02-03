@@ -69,8 +69,6 @@ class LandCoverFractionGrid:
         self.dlg.pushButtonSave.clicked.connect(self.folder_path)
         self.dlg.helpButton.clicked.connect(self.help)
         self.dlg.progressBar.setValue(0)
-        # self.dlg.Box_1.currentIndexChanged.connect(self.text_enable)
-
 
         self.fileDialog = QFileDialog()
         self.fileDialog.setFileMode(4)
@@ -86,14 +84,11 @@ class LandCoverFractionGrid:
         self.dsm = None
         self.dem = None
         self.scale = None
-        # self.thread = None
-        # self.worker = None
         self.steps = 0
 
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&Land Cover Fraction Grid')
-        # TODO: We are going to let the user set this up in a future iteration
         # self.toolbar = self.iface.addToolBar(u'LandCoverFractionGrid')
         # self.toolbar.setObjectName(u'LandCoverFractionGrid')
 
@@ -106,7 +101,6 @@ class LandCoverFractionGrid:
         if not (os.path.isdir(self.plugin_dir + '/data')):
             os.mkdir(self.plugin_dir + '/data')
 
-    # noinspection PyMethodMayBeStatic
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
 
@@ -121,7 +115,6 @@ class LandCoverFractionGrid:
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('LandCoverFractionGrid', message)
 
-
     def add_action(
         self,
         icon_path,
@@ -133,44 +126,6 @@ class LandCoverFractionGrid:
         status_tip=None,
         whats_this=None,
         parent=None):
-        """Add a toolbar icon to the toolbar.
-
-        :param icon_path: Path to the icon for this action. Can be a resource
-            path (e.g. ':/plugins/foo/bar.png') or a normal file system path.
-        :type icon_path: str
-
-        :param text: Text that should be shown in menu items for this action.
-        :type text: str
-
-        :param callback: Function to be called when the action is triggered.
-        :type callback: function
-
-        :param enabled_flag: A flag indicating if the action should be enabled
-            by default. Defaults to True.
-        :type enabled_flag: bool
-
-        :param add_to_menu: Flag indicating whether the action should also
-            be added to the menu. Defaults to True.
-        :type add_to_menu: bool
-
-        :param add_to_toolbar: Flag indicating whether the action should also
-            be added to the toolbar. Defaults to True.
-        :type add_to_toolbar: bool
-
-        :param status_tip: Optional text to show in a popup when mouse pointer
-            hovers over the action.
-        :type status_tip: str
-
-        :param parent: Parent widget for the new action. Defaults None.
-        :type parent: QWidget
-
-        :param whats_this: Optional text to show in the status bar when the
-            mouse pointer hovers over the action.
-
-        :returns: The action that was created. Note that the action is also
-            added to self.actions list.
-        :rtype: QAction
-        """
 
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
@@ -204,7 +159,6 @@ class LandCoverFractionGrid:
             text=self.tr(u'Calculates fraction of land cover types on a vector grid'),
             callback=self.run,
             parent=self.iface.mainWindow())
-
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
@@ -244,10 +198,8 @@ class LandCoverFractionGrid:
         idx = vlayer.fieldNameIndex(poly_field)
 
         dir_poly = self.plugin_dir + '/data/poly_temp.shp'
-        # j = 0
         self.dlg.progressBar.setMaximum(vlayer.featureCount())
 
-        # skapar referenser till lagern som laddas in av anvandaren i comboboxes
         lc_grid = self.layerComboManagerLCgrid.getLayer()
         if lc_grid is None:
             QMessageBox.critical(None, "Error", "No valid raster layer is selected")
@@ -264,8 +216,15 @@ class LandCoverFractionGrid:
 
         radius = self.dlg.spinBoxDistance.value()
         degree = float(self.dlg.degreeBox.currentText())
-        # self.iface.messageBar().pushMessage("landtest: ", str(lc_grid2.dataProvider()))
-        # Startar arbetarmetoden och traden, se startworker metoden ovan.
+
+        # test to add attribute
+
+        vlayer.dataProvider().addAttributes([QgsField("TESTAR", QVariant.Int)])
+        vlayer.updateFields()
+        test = vlayer.fieldNameIndex("TESTAR")
+
+        # self.iface.messageBar().pushMessage("test: ", str(test))
+
         self.startWorker(lc_grid, poly, poly_field, vlayer, prov, fields, idx, dir_poly, self.iface,
                          self.plugin_dir, self.folderPath, self.dlg, imid, radius, degree)
 
@@ -280,21 +239,17 @@ class LandCoverFractionGrid:
         self.dlg.runButton.clicked.connect(worker.kill)
         self.dlg.closeButton.setEnabled(False)
 
-        # Skapar en trad som arbetet fran worker ska utforas i.
         thread = QThread(self.dlg)
         worker.moveToThread(thread)
-        # kopplar signaler fran traden till metoder i denna "fil"
         worker.finished.connect(self.workerFinished)
         worker.error.connect(self.workerError)
         worker.progress.connect(self.progress_update)
         thread.started.connect(worker.run)
-        # startar traden
         thread.start()
         self.thread = thread
         self.worker = worker
 
     def workerFinished(self, ret):
-        # Tar bort arbetaren (Worker) och traden den kors i
         try:
             self.worker.deleteLater()
         except RuntimeError:
@@ -303,7 +258,6 @@ class LandCoverFractionGrid:
         self.thread.wait()
         self.thread.deleteLater()
 
-        #andra tillbaka Run-knappen till sitt vanliga tillstand och skicka ett meddelande till anvanderen.
         if ret == 1:
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()

@@ -33,7 +33,7 @@ import webbrowser
 import urllib
 
 # from ..Utilities import *
-from ..suewsmodel import Suews_wrapper_v11
+from ..suewsmodel import Suews_wrapper_v12
 
 
 class SUEWS:
@@ -279,20 +279,33 @@ class SUEWS:
         QMessageBox.information(None, "Model information", "Model run will now start. QGIS might freeze during calcualtion."
                                                            "This will be fixed in future versions")
 
-        try:
-            Suews_wrapper_v11.wrapper(self.model_dir)
-            test = 1
-        except:
-            test = 0
 
-        if test == 1:
+        try:
+            Suews_wrapper_v12.wrapper(self.model_dir)
             self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.plugin_dir + " for "
                             "additional information about the run", level=QgsMessageBar.INFO)
-        elif test == 0:
-            f = open(self.model_dir + '/problems.txt')
-            lines = f.readlines()
-            QMessageBox.critical(None, "Model run unsuccessful", str(lines))
+            # self.test = 1
+        except Exception as e:
+            # self.test = 0
+            QMessageBox.critical(None, "An error occurred", str(e) + "\r\n\r\n"
+                                        "Also check problems.txt in " + self.plugin_dir + "\r\n\r\n"
+                                        "Please report any errors to https://bitbucket.org/fredrik_ucg/umep/issues")
             return
+
+        # try:
+        #     Suews_wrapper_v12.wrapper(self.model_dir)
+        #     test = 1
+        # except:
+        #     test = 0
+        #
+        # if test == 1:
+        #     self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.plugin_dir + " for "
+        #                     "additional information about the run", level=QgsMessageBar.INFO)
+        # elif test == 0:
+        #     f = open(self.model_dir + '/problems.txt')
+        #     lines = f.readlines()
+        #     QMessageBox.critical(None, "Model run unsuccessful", str(lines))
+        #     return
 
         # if self.ret == 1:
         # QMessageBox.information(None, "Image Morphometric Parameters", "Process successful!")

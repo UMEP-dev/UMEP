@@ -3,7 +3,7 @@ from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
 # from qgis.gui import *
 from qgis.core import *
 import traceback
-from ..suewsmodel import Suews_wrapper_v11
+from ..suewsmodel import Suews_wrapper_v12
 
 
 class Worker(QtCore.QObject):
@@ -25,7 +25,7 @@ class Worker(QtCore.QObject):
         ret = 1
 
         try:
-            Suews_wrapper_v11.wrapper(self.model_dir)
+            Suews_wrapper_v12.wrapper(self.model_dir)
 
             if self.killed is False:
                 ret = 1

@@ -1,5 +1,5 @@
 from PyQt4 import QtCore
-# from PyQt4.QtCore import *
+from PyQt4.QtCore import QVariant
 from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
 # from qgis.gui import *
 from qgis.core import *  # QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsRasterLayer, QgsGeometry, QgsMessageLog
@@ -39,9 +39,6 @@ class Worker(QtCore.QObject):
         self.degree = degree
 
     def run(self):
-        # ska nagot returneras fran traden sker detta genom denna ret-variabel och retuneras till image_morph_param.py
-        # genom finished signalen ovan. bool skickas for tillfallet, kan bytas ut mot tex Object for att skicka diverse
-        # data. Behovs inte for just detta verktyg.
 
         #Check OS and dep
         if sys.platform == 'darwin':
@@ -52,11 +49,9 @@ class Worker(QtCore.QObject):
         ret = 0
         imp_point = 0
 
-        # Allt arbete en trad ska utforas maste goras i en try-sats
         try:
             # j = 0
             for f in self.vlayer.getFeatures():  # looping through each grid polygon
-                # Kollar sa att traden inte har avbrutits, ifall den har det sa slutar loopning.
                 if self.killed is True:
                     break
 
@@ -80,7 +75,6 @@ class Worker(QtCore.QObject):
                     writer.addFeature(feature)
                     del writer
 
-                # if self.dlg.checkBoxOnlyBuilding.isChecked():  # Only building heights
                 provider = self.lc_grid.dataProvider()
                 filePath_lc_grid = str(provider.dataSourceUri())
 
@@ -109,7 +103,6 @@ class Worker(QtCore.QObject):
                     # QgsMessageBar(self.iface).pushMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated", "Includes NoData Pixels") # funkar inte
                     QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes NoData Pixels", level=QgsMessageLog.CRITICAL)
                 else:
-                    # degree = float(self.dlg.degreeBox.currentText())
                     landcoverresult = landcover_v1(lc_grid_array, self.imid, self.degree, self.dlg, imp_point)
 
                     # save to file
@@ -124,7 +117,10 @@ class Worker(QtCore.QObject):
                     numformat = '%5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
                     arr2 = np.array(landcoverresult["lc_frac_all"])
                     np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'LCFG_isotropic_result_' + str(f.attributes()[self.idx]) + '.txt', arr2,
-                                fmt=numformat, delimiter=' ', header=header, comments='')
+                                fmt=numformat, delimiter=' ', header=header, comments='') #TODO FREDRIK. Spara som en fil
+
+                    self.vlayer.changeAttributeValue(4, 6, f.attributes()[self.idx] + 6)  # TODO NIKLAS
+                    self.vlayer.updateFields()
 
                 dataset = None
                 dataset2 = None

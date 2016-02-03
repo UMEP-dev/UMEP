@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from PyQt4 import QtCore
-# from PyQt4.QtCore import *
-from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
+from PyQt4.QtCore import QVariant
+from PyQt4.QtGui import QMessageBox # QFileDialog, QAction, QIcon,
 # from qgis.gui import *
 from qgis.core import QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsRasterLayer, QgsGeometry, QgsMessageLog
+from qgis.core import *
 import traceback
 from ..Utilities.imageMorphometricParms_v1 import *
 from ..Utilities import RoughnessCalcFunction as rg
@@ -61,6 +62,8 @@ class Worker(QtCore.QObject):
         # ska nagot returneras fran traden sker detta genom denna ret-variabel och retuneras till image_morph_param.py
         # genom finished signalen ovan. bool skickas for tillfallet, kan bytas ut mot tex Object for att skicka diverse
         # data. Behovs inte for just detta verktyg.
+        index = 0
+        arrmat = np.empty((1, 8))
 
         #Check OS and dep
         if sys.platform == 'darwin':
@@ -70,6 +73,11 @@ class Worker(QtCore.QObject):
 
         ret = 0
         imp_point = 0
+
+        # res = self.vlayer.dataProvider().addAttributes([QgsField("myint", QVariant.Int)])
+        # self.vlayer.addAttribute(QgsField("testa", QVariant.Int))
+        # self.vlayer.updateFields()
+        # self.vlayer.fieldNameIndex()
 
         # Allt arbete en trad ska utforas maste goras i en try-sats
         try:
@@ -177,6 +185,10 @@ class Worker(QtCore.QObject):
                     # QgsMessageBar.pushInfo(self.iface,"Grid " + str(f.attributes()[self.idx]) + " not calculated", "Includes NoData Pixels") #  Funkar inte
                     # QgsMessageBar(self.iface).pushMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated", "Includes NoData Pixels") # funkar inte
                     QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes NoData Pixels", level=QgsMessageLog.CRITICAL)
+                    arr = np.array([f.attributes()[self.idx], -99, -99, -99, -99, -99, -99, -99])
+                    arrmat = np.vstack([arrmat,arr])
+                    # arrmat[index,:]=np.concatenate((f.attributes()[self.idx], arr))
+                    index = index + 1
                 else:
                     # degree = float(self.dlg.degreeBox.currentText())
                     # Hade varit bra om ytterligare en trad hade kunnit anvandas istallet for imagemorphparam_v1
@@ -208,20 +220,33 @@ class Worker(QtCore.QObject):
                     paiall = immorphresult["pai_all"]
                     zMaxall = immorphresult["zHmax_all"]
                     zSdevall = immorphresult["zH_sd_all"]
-                    zdall,z0all = rg.RoughnessCalc(self.rm,zHall,faiall,paiall,zMaxall,zSdevall)
+                    zdall, z0all = rg.RoughnessCalc(self.rm, zHall, faiall, paiall, zMaxall, zSdevall)
 
-                    header = ' pai  fai   zH    zHmax    zHstd zd z0'
-                    numformat = '%4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
-                    arr2 = np.array([[immorphresult["pai_all"], immorphresult["fai_all"], immorphresult["zH_all"],
-                                      immorphresult["zHmax_all"], immorphresult["zH_sd_all"],zdall,z0all]])
-                    np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'IMPGrid_isotropic_' + str(f.attributes()[self.idx]) + '.txt', arr2,
-                                fmt=numformat, delimiter=' ', header=header, comments='')
+                    # header = ' pai  fai   zH    zHmax    zHstd zd z0'
+                    # numformat = '%4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
+                    arr2 = np.array([[f.attributes()[self.idx], immorphresult["pai_all"], immorphresult["fai_all"], immorphresult["zH_all"],
+                                      immorphresult["zHmax_all"], immorphresult["zH_sd_all"], zdall, z0all]])
+                    # arr2 = np.array([[immorphresult["pai_all"], immorphresult["fai_all"], immorphresult["zH_all"],
+                    #                   immorphresult["zHmax_all"], immorphresult["zH_sd_all"],zdall,z0all]])
+                    # np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'IMPGrid_isotropic_' + str(f.attributes()[self.idx]) + '.txt', arr2,
+                    #             fmt=numformat, delimiter=' ', header=header, comments='')
+
+                    arrmat = np.vstack([arrmat, arr2])
+
+                    # self.vlayer.changeAttributeValue(testa, f, immorphresult["pai_all"])
 
                 dataset = None
                 dataset2 = None
                 dataset3 = None
                 self.progress.emit()
                 # j += 1
+
+            header = ' id  pai   fai   zH  zHmax   zHstd  zd  z0'
+            numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
+            arrmatsave = arrmat[1: arrmat.shape[0], :]
+            np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'IMPGrid_isotropic.txt', arrmatsave,
+                                fmt=numformat, delimiter=' ', header=header, comments='')
+
             # Nas om hela loopen utforts, kan anvandas for att tilldela ret-variabeln resultatet av arbetet som ska
             # ska skickas tillbaka till image_morph_param.py
             if self.killed is False:

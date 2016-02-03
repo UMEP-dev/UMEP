@@ -93,7 +93,6 @@ class ImageMorphParam:
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&Image Morphometric Parameters')
-        # TODO: We are going to let the user set this up in a future iteration
         # self.toolbar = self.iface.addToolBar(u'ImageMorphParam')
         # self.toolbar.setObjectName(u'ImageMorphParam')
 

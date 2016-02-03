@@ -392,7 +392,7 @@ class LandCoverFractionPoint:
 
         dsm_build = self.layerComboManagerLCgrid.getLayer()
         if dsm_build is None:
-            QMessageBox.critical(None, "Error", "No valid building DSM raster layer is selected")
+            QMessageBox.critical(None, "Error", "No valid land cover raster layer is selected")
             return
 
         provider = dsm_build.dataProvider()
