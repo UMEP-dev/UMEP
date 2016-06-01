@@ -254,12 +254,12 @@ class ImageMorphParam:
             self.dlg.closeButton.setEnabled(True)
             self.dlg.progressBar.setValue(0)
             QMessageBox.information(None, "Image Morphometric Parameters", "Operations cancelled, "
-                                                                           "process unsuccessful!")
+                                                                           "process unsuccessful! See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.")
 
     #Metod som tar emot en signal fran traden ifall nagot gick fel, felmeddelanden skrivs till QGIS message log.
-    def workerError(self, e, exception_string):
-        strerror = "Worker thread raised an exception: " + str(e)
-        QgsMessageLog.logMessage(strerror.format(exception_string), level=QgsMessageLog.CRITICAL)
+    def workerError(self, errorstring):
+        #strerror = str(errorstring)
+        QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
 
     #Metod som tar emot signaler koontinuerligt fran traden som berattar att ett berakningsframsteg gjorts, uppdaterar
     #progressbar

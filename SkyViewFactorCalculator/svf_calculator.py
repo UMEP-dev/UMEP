@@ -327,7 +327,7 @@ class SkyViewFactorCalculator:
 
         else:
             # notify the user that something went wrong
-            self.iface.messageBar().pushMessage('Operations cancelled either by user or error.', level=QgsMessageBar.CRITICAL, duration=3)
+            self.iface.messageBar().pushMessage('Operations cancelled either by user or error. See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.', level=QgsMessageBar.CRITICAL, duration=3)
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
@@ -395,21 +395,19 @@ class SkyViewFactorCalculator:
 
         else:
             # notify the user that something went wrong
-            self.iface.messageBar().pushMessage('Operations cancelled either by user or error.', level=QgsMessageBar.CRITICAL, duration=3)
+            self.iface.messageBar().pushMessage('Operations cancelled either by user or error. See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.', level=QgsMessageBar.CRITICAL, duration=3)
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
             self.dlg.pushButton.setEnabled(True)
             self.dlg.progressBar.setValue(0)
 
-    def workerError(self, e, exception_string):
-        strerror = "Worker thread raised an exception: " + str(e)
-        QgsMessageLog.logMessage(strerror.format(exception_string), level=QgsMessageLog.CRITICAL)
+    def workerError(self, errorstring):
+        QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
 
-    def vegWorkerError(self, e, exception_string):
+    def vegWorkerError(self, errorstring):
         #QgsMessageLog.logMessage('Vegetation Worker thread raised an exception:\n'.format(exception_string), level=QgsMessageLog.CRITICAL)
-        strerror = "Vegetation Worker thread raised an exception: " + str(e)
-        QgsMessageLog.logMessage(strerror.format(exception_string), level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
         #QMessageBox.information(None, "Sky View Factor Calculator", str(e))
 
     def progress_update(self):

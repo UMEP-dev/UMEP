@@ -109,14 +109,710 @@ p.MsoListParagraphCxSpLast
 	font-size:11.0pt;
 	font-family:"Calibri","sans-serif";
 	}
+table.MsoTableLightShading
+	{border-top:solid black 1.0pt;
+	border-bottom:solid black 1.0pt;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";
+	color:black;
+	border-left-style: none;
+	border-left-color: inherit;
+	border-left-width: medium;
+	border-right-style: none;
+	border-right-color: inherit;
+	border-right-width: medium;
+}
 </style>
 </head>
 
 <body>
 
-<h1 style="margin-bottom:0cm;margin-bottom:.0001pt">Documentation under 
-construction<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
-minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"> </span></h1>
+<h1><a name="_Toc444074588">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Metdata Processor</span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h1>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">This 
+plugin can be used to transform temporal meteorological data into the specific 
+format used in UMEP. The format used is a space separated format where the time 
+related variables are separated into year, day of year, hour and minute. 
+However, the plugin is able to process other time formats such as month, day of 
+month etc. The variables currently included are:<o:p></o:p></span></p>
+<div align="center">
+	<table border="1" cellpadding="0" cellspacing="0" class="MsoTableLightShading" style="width: 676px">
+		<tr style="mso-yfti-irow:-1;mso-yfti-firstrow:yes">
+			<td style="width:43.0pt;border-top:solid black 1.0pt;mso-border-top-themecolor:
+  text1;border-left:none;border-bottom:solid black 1.0pt;mso-border-bottom-themecolor:
+  text1;border-right:none;padding:0cm 5.4pt 0cm 5.4pt" width="57">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<b><i style="mso-bidi-font-style:normal">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+  mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:minor-fareast;
+  mso-hansi-theme-font:minor-latin">No.<o:p></o:p></span></i></b></p>
+			</td>
+			<td style="width:3.0cm;border-top:solid black 1.0pt;mso-border-top-themecolor:
+  text1;border-left:none;border-bottom:solid black 1.0pt;mso-border-bottom-themecolor:
+  text1;border-right:none;padding:0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<b><i style="mso-bidi-font-style:normal">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+  mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:minor-fareast;
+  mso-hansi-theme-font:minor-latin">Header name<o:p></o:p></span></i></b></p>
+			</td>
+			<td style="width:209.9pt;border-top:solid black 1.0pt;
+  mso-border-top-themecolor:text1;border-left:none;border-bottom:solid black 1.0pt;
+  mso-border-bottom-themecolor:text1;border-right:none;padding:0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<b><i style="mso-bidi-font-style:normal">
+			<span lang="SV" style="font-family:
+  &quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;mso-fareast-font-family:
+  &quot;Times New Roman&quot;;mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:
+  minor-latin">Description<o:p></o:p></span></i></b></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:0">
+			<td style="width: 43.0pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="57">
+			<p align="center" class="MsoNormal" style="margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin;
+  mso-bidi-font-weight:bold">1<o:p></o:p></span></p>
+			</td>
+			<td style="width: 3.0cm; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin;
+  mso-bidi-font-family:&quot;Times New Roman&quot;">iy</span><span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+  mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:minor-fareast;
+  mso-hansi-theme-font:minor-latin"><o:p></o:p></span></p>
+			</td>
+			<td style="width: 209.9pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+  minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:
+  minor-fareast;mso-hansi-theme-font:minor-latin">Year [YYYY]<o:p></o:p></span></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:1">
+			<td style="width:43.0pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="57">
+			<p align="center" class="MsoNormal" style="margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin;
+  mso-bidi-font-weight:bold">2<o:p></o:p></span></p>
+			</td>
+			<td style="width:3.0cm;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">id<o:p></o:p></span></p>
+			</td>
+			<td style="width:209.9pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+  mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:minor-fareast;
+  mso-hansi-theme-font:minor-latin">Day of year [DOY]<o:p></o:p></span></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:2">
+			<td style="width: 43.0pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="57">
+			<p align="center" class="MsoNormal" style="margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin;
+  mso-bidi-font-weight:bold">3<o:p></o:p></span></p>
+			</td>
+			<td style="width: 3.0cm; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">it<o:p></o:p></span></p>
+			</td>
+			<td style="width: 209.9pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+  minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:
+  minor-fareast;mso-hansi-theme-font:minor-latin">Hour [H]<o:p></o:p></span></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:3">
+			<td style="width:43.0pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="57">
+			<p align="center" class="MsoNormal" style="margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin;
+  mso-bidi-font-weight:bold">4<o:p></o:p></span></p>
+			</td>
+			<td style="width:3.0cm;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">imin<o:p></o:p></span></p>
+			</td>
+			<td style="width:209.9pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+  mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:minor-fareast;
+  mso-hansi-theme-font:minor-latin">Minute [M]<o:p></o:p></span></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:4">
+			<td style="width: 43.0pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="57">
+			<p align="center" class="MsoNormal" style="margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin;
+  mso-bidi-font-weight:bold">5<o:p></o:p></span></p>
+			</td>
+			<td style="width: 3.0cm; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">qn<o:p></o:p></span></p>
+			</td>
+			<td style="width: 209.9pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+  minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:
+  minor-fareast;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Net 
+			all-wave radiation [W m<sup>-2</sup>]<o:p></o:p></span></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:5">
+			<td style="width:43.0pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="57">
+			<p align="center" class="MsoNormal" style="margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin;
+  mso-bidi-font-weight:bold">6<o:p></o:p></span></p>
+			</td>
+			<td style="width:3.0cm;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">qh<o:p></o:p></span></p>
+			</td>
+			<td style="width:209.9pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+  mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:minor-fareast;
+  mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Sensible heat flux 
+			[W m<sup>-2</sup>]<o:p></o:p></span></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:6">
+			<td style="width: 43.0pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="57">
+			<p align="center" class="MsoNormal" style="margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin;
+  mso-bidi-font-weight:bold">7<o:p></o:p></span></p>
+			</td>
+			<td style="width: 3.0cm; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">qe<o:p></o:p></span></p>
+			</td>
+			<td style="width: 209.9pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+  minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:
+  minor-fareast;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Latent 
+			heat flux [W m<sup>-2</sup>]<o:p></o:p></span></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:7">
+			<td style="width:43.0pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="57">
+			<p align="center" class="MsoNormal" style="margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin;
+  mso-bidi-font-weight:bold">8<o:p></o:p></span></p>
+			</td>
+			<td style="width:3.0cm;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">qs<o:p></o:p></span></p>
+			</td>
+			<td style="width:209.9pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+  mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:minor-fareast;
+  mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Storage heat flux [W 
+			m<sup>-2</sup>]<o:p></o:p></span></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:8">
+			<td style="width: 43.0pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="57">
+			<p align="center" class="MsoNormal" style="margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin;
+  mso-bidi-font-weight:bold">9<o:p></o:p></span></p>
+			</td>
+			<td style="width: 3.0cm; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">qf<o:p></o:p></span></p>
+			</td>
+			<td style="width: 209.9pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+  minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:
+  minor-fareast;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">
+			Anthrpogenic heat flux [W m<sup>-2</sup>]<o:p></o:p></span></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:9">
+			<td style="width:43.0pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="57">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<b>
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">10<o:p></o:p></span></b></p>
+			</td>
+			<td style="width:3.0cm;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="113">
+			<p align="center" class="MsoNormal" style="margin-bottom: 0pt">
+			<b style="mso-bidi-font-weight:normal">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+  mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:minor-fareast;
+  mso-hansi-theme-font:minor-latin">U<o:p></o:p></span></b></p>
+			</td>
+			<td style="width:209.9pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<b style="mso-bidi-font-weight:normal">
+			<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin;
+  mso-ansi-language:EN-US">Wind speed [m s<sup>-1</sup>]<o:p></o:p></span></b></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:10">
+			<td style="width: 43.0pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="57">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<b>
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">11<o:p></o:p></span></b></p>
+			</td>
+			<td style="width: 3.0cm; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<b style="mso-bidi-font-weight:normal">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+  mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:minor-fareast;
+  mso-hansi-theme-font:minor-latin">RH<o:p></o:p></span></b></p>
+			</td>
+			<td style="width: 209.9pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<b style="mso-bidi-font-weight:normal">
+			<span lang="SV" style="font-family:
+  &quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;mso-fareast-font-family:
+  &quot;Times New Roman&quot;;mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:
+  minor-latin">Relative Humidity [%]<o:p></o:p></span></b></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:11">
+			<td style="width:43.0pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="57">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<b>
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">12<o:p></o:p></span></b></p>
+			</td>
+			<td style="width:3.0cm;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<b style="mso-bidi-font-weight:normal">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+  mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:minor-fareast;
+  mso-hansi-theme-font:minor-latin">Tair<o:p></o:p></span></b></p>
+			</td>
+			<td style="width:209.9pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<b style="mso-bidi-font-weight:normal">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">Air 
+			temperature [°C]<o:p></o:p></span></b></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:12">
+			<td style="width: 43.0pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="57">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<b>
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">13<o:p></o:p></span></b></p>
+			</td>
+			<td style="width: 3.0cm; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<b style="mso-bidi-font-weight:normal">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+  mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:minor-fareast;
+  mso-hansi-theme-font:minor-latin">pres<o:p></o:p></span></b></p>
+			</td>
+			<td style="width: 209.9pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<b style="mso-bidi-font-weight:normal">
+			<span lang="SV" style="font-family:
+  &quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;mso-fareast-font-family:
+  &quot;Times New Roman&quot;;mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:
+  minor-latin">Barometric pressure [kPa]<o:p></o:p></span></b></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:13">
+			<td style="width:43.0pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="57">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<b>
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">14<o:p></o:p></span></b></p>
+			</td>
+			<td style="width:3.0cm;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<b style="mso-bidi-font-weight:normal">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+  mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:minor-fareast;
+  mso-hansi-theme-font:minor-latin">rain<o:p></o:p></span></b></p>
+			</td>
+			<td style="width:209.9pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<b style="mso-bidi-font-weight:normal">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">
+			Rainfall [mm]<o:p></o:p></span></b></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:14">
+			<td style="width: 43.0pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="57">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<b>
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">15<o:p></o:p></span></b></p>
+			</td>
+			<td style="width: 3.0cm; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<b style="mso-bidi-font-weight:normal">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+  mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:minor-fareast;
+  mso-hansi-theme-font:minor-latin">kdown<o:p></o:p></span></b></p>
+			</td>
+			<td style="width: 209.9pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<b style="mso-bidi-font-weight:normal">
+			<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin;
+  mso-ansi-language:EN-US">Incoming shortwave radiation [W m<sup>-2</sup>]<o:p></o:p></span></b></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:15">
+			<td style="width:43.0pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="57">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin;
+  mso-bidi-font-weight:bold">16<o:p></o:p></span></p>
+			</td>
+			<td style="width:3.0cm;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">snow<o:p></o:p></span></p>
+			</td>
+			<td style="width:209.9pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+  mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:minor-fareast;
+  mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Snow [mm]<o:p></o:p></span></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:16">
+			<td style="width: 43.0pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="57">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin;
+  mso-bidi-font-weight:bold">17<o:p></o:p></span></p>
+			</td>
+			<td style="width: 3.0cm; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">ldown<o:p></o:p></span></p>
+			</td>
+			<td style="width: 209.9pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+  minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:
+  minor-fareast;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">
+			Incoming longwave radiation [W m<sup>-2</sup>]<o:p></o:p></span></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:17">
+			<td style="width:43.0pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="57">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin;
+  mso-bidi-font-weight:bold">18<o:p></o:p></span></p>
+			</td>
+			<td style="width:3.0cm;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">fcld<o:p></o:p></span></p>
+			</td>
+			<td style="width:209.9pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+  mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:minor-fareast;
+  mso-hansi-theme-font:minor-latin">Cloud fraction [tenths]<o:p></o:p></span></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:18">
+			<td style="width: 43.0pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="57">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin;
+  mso-bidi-font-weight:bold">19<o:p></o:p></span></p>
+			</td>
+			<td style="width: 3.0cm; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">Wuh<o:p></o:p></span></p>
+			</td>
+			<td style="width: 209.9pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+  minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:
+  minor-fareast;mso-hansi-theme-font:minor-latin">External water use [m<sup>3</sup>]<o:p></o:p></span></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:19">
+			<td style="width:43.0pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="57">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin;
+  mso-bidi-font-weight:bold">20<o:p></o:p></span></p>
+			</td>
+			<td style="width:3.0cm;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">xsmd<o:p></o:p></span></p>
+			</td>
+			<td style="width:209.9pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+  mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:minor-fareast;
+  mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Observed soil 
+			moisture [m<sup>3</sup> m<sup>-3</sup> or kg kg<sup>-1</sup>]<o:p></o:p></span></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:20">
+			<td style="width: 43.0pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="57">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin;
+  mso-bidi-font-weight:bold">21<o:p></o:p></span></p>
+			</td>
+			<td style="width: 3.0cm; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">lai<o:p></o:p></span></p>
+			</td>
+			<td style="width: 209.9pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+  minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:
+  minor-fareast;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">
+			Observed leaf area index [m<sup>2</sup> m<sup>-2</sup>]<o:p></o:p></span></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:21">
+			<td style="width:43.0pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="57">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin;
+  mso-bidi-font-weight:bold">22<o:p></o:p></span></p>
+			</td>
+			<td style="width:3.0cm;border:none;padding:0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">kdiff<o:p></o:p></span></p>
+			</td>
+			<td style="width:209.9pt;border:none;padding:0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+  mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:minor-fareast;
+  mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Diffuse radiation [W 
+			m<sup>-2</sup>]<o:p></o:p></span></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:22">
+			<td style="width: 43.0pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="57">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin;
+  mso-bidi-font-weight:bold">23<o:p></o:p></span></p>
+			</td>
+			<td style="width: 3.0cm; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">kdir<o:p></o:p></span></p>
+			</td>
+			<td style="width: 209.9pt; border: none; background: silver; mso-background-themecolor: text1; mso-background-themetint: 63; padding: 0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+  minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:
+  minor-fareast;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Direct 
+			radiation [W m<sup>-2</sup>]<o:p></o:p></span></p>
+			</td>
+		</tr>
+		<tr style="mso-yfti-irow:23;mso-yfti-lastrow:yes">
+			<td style="width:43.0pt;border:none;border-bottom:solid black 1.0pt;
+  mso-border-bottom-themecolor:text1;padding:0cm 5.4pt 0cm 5.4pt" width="57">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin;
+  mso-bidi-font-weight:bold">24<o:p></o:p></span></p>
+			</td>
+			<td style="width:3.0cm;border:none;border-bottom:solid black 1.0pt;
+  mso-border-bottom-themecolor:text1;padding:0cm 5.4pt 0cm 5.4pt" width="113">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span lang="SV" style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+  mso-ascii-theme-font:minor-latin;mso-fareast-font-family:&quot;Times New Roman&quot;;
+  mso-fareast-theme-font:minor-fareast;mso-hansi-theme-font:minor-latin">wdir<o:p></o:p></span></p>
+			</td>
+			<td style="width:209.9pt;border:none;border-bottom:solid black 1.0pt;
+  mso-border-bottom-themecolor:text1;padding:0cm 5.4pt 0cm 5.4pt" valign="top" width="280">
+			<p class="MsoNormal" style="text-align: center; margin-bottom: 0pt">
+			<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+  mso-fareast-font-family:&quot;Times New Roman&quot;;mso-fareast-theme-font:minor-fareast;
+  mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Wind direction [°]<o:p></o:p></span></p>
+			</td>
+		</tr>
+	</table>
+</div>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p>&nbsp;</o:p></span></p>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">The 
+variables in bold are usually required to run most of the tools included in the 
+UMEP processor. The four time-related columns are always required. <o:p></o:p>
+</span></p>
+<h2><a name="_Toc444074589"></a><a name="_Toc431370467">
+<span style="mso-bookmark:_Toc444074589">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Location</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h2>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">The 
+Metdata Processor is located at <i style="mso-bidi-font-style:normal">UMEP -&gt; 
+Pre-Processor -&gt;Meteorological Data -&gt; Prepare Existing Data</i>.<o:p></o:p></span></p>
+<h1><a name="_Toc444074590"></a><a name="_Toc431370468">
+<span style="mso-bookmark:_Toc444074590">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Running the plugin</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h1>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">When you 
+run plugin, you will see the dialog shown below. It consists of four sections. 
+The top left section let you select an existing text file including 
+meteorological data of any time resolution. However, at least hourly resolution 
+is recommended. The data can separated by a number of general separators and 
+include any number of header lines. The middle left section let you specify time 
+related columns of your imported data file. The right section lets you choose 
+the columns of your imported data file that corresponds with the meteorological 
+variables used in UMEP. <span style="mso-spacerun:yes">&nbsp;</span>The lower left 
+section lets is where you perform the export, close the plugin etc.<o:p></o:p></span></p>
+<p class="MsoNormal">
+<o:p></o:p>
+</p>
+<p class="MsoNormal">
+<o:p><img alt="" height="651" src="img/img_1.png" width="704" /></o:p></p>
+<p class="MsoNormal"><span style="mso-ansi-language:EN-US;mso-no-proof:yes"><v:shapetype
+ id="_x0000_t75" coordsize="21600,21600" o:spt="75" o:preferrelative="t"
+ path="m@4@5l@4@11@9@11@9@5xe" filled="f" stroked="f">
+ <v:stroke joinstyle="miter" xmlns:v="urn:schemas-microsoft-com:vml"/>
+ <v:formulas>
+  <v:f eqn="if lineDrawn pixelLineWidth 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @0 1 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum 0 0 @1" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @2 1 2" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @3 21600 pixelWidth" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @3 21600 pixelHeight" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @0 0 1" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @6 1 2" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @7 21600 pixelWidth" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @8 21600 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @7 21600 pixelHeight" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @10 21600 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+ </v:formulas>
+ <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect" xmlns:v="urn:schemas-microsoft-com:vml"/>
+ <o:lock v:ext="edit" aspectratio="t" xmlns:o="urn:schemas-microsoft-com:office:office"/>
+</v:shapetype><v:shape id="Picture_x0020_1" o:spid="_x0000_i1025" type="#_x0000_t75"
+ style='width:453.75pt;height:419.25pt;visibility:visible;mso-wrap-style:square'>
+ <v:imagedata src="../../../../../AppData/Local/Temp/msohtmlclip1/01/clip_image001.png"
+  o:title="" xmlns:v="urn:schemas-microsoft-com:vml"/>
+</v:shape></span>
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p>
+</span></p>
+<h3><a name="_Toc444074591">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Perform quality control (recommended)</span></a><span style="font-family:
+&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:
+minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Tick this 
+in if you want to perform a simple quality control where the plugin search for 
+unreasonable values for the specific variables that you want to include. If a 
+variable is included, no values out of range can be included.<o:p></o:p></span></p>
+<h3><a name="_Toc444074592">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Export data</span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Clicking 
+this button will first provide you with a window that let you specify the 
+location of your output file. Then the export process starts<o:p></o:p></span></p>
+<h3><a name="_Toc444074593"></a><a name="_Toc431370479">
+<span style="mso-bookmark:
+_Toc444074593">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Close</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">This 
+button closes the plugin.<o:p></o:p></span></p>
 
 </body>
 

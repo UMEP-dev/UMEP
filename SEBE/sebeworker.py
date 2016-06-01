@@ -13,7 +13,7 @@ from SEBEfiles.shadowingfunction_wallheight_23 import shadowingfunction_wallheig
 class Worker(QtCore.QObject):
 
     finished = QtCore.pyqtSignal(object)
-    error = QtCore.pyqtSignal(Exception, basestring)
+    error = QtCore.pyqtSignal(object)
     progress = QtCore.pyqtSignal()
 
     def __init__(self, dsm, scale, building_slope,building_aspect, voxelheight, sizey, sizex, vegdsm, vegdsm2, wheight,waspect, albedo, psi, radmatI, radmatD, radmatR, usevegdem, calc_month, dlg):
@@ -304,9 +304,21 @@ class Worker(QtCore.QObject):
             if self.killed is False:
                 self.progress.emit()
                 ret = seberesult
-        except Exception, e:
-            self.error.emit(e, traceback.format_exc())
+        except Exception:
+            errorstring = self.print_exception()
+            self.error.emit(errorstring)
+
         self.finished.emit(ret)
+
+    def print_exception(self):
+        exc_type, exc_obj, tb = sys.exc_info()
+        f = tb.tb_frame
+        lineno = tb.tb_lineno
+        filename = f.f_code.co_filename
+        linecache.checkcache(filename)
+        line = linecache.getline(filename, lineno, f.f_globals)
+        return 'EXCEPTION IN {}, \nLINE {} "{}" \nERROR MESSAGE: {}'.format(filename, lineno, line.strip(), exc_obj)
+
 
     def kill(self):
         self.killed = True

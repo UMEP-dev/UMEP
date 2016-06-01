@@ -111,44 +111,6 @@ class LandCoverReclassifier:
         status_tip=None,
         whats_this=None,
         parent=None):
-        """Add a toolbar icon to the toolbar.
-
-        :param icon_path: Path to the icon for this action. Can be a resource
-            path (e.g. ':/plugins/foo/bar.png') or a normal file system path.
-        :type icon_path: str
-
-        :param text: Text that should be shown in menu items for this action.
-        :type text: str
-
-        :param callback: Function to be called when the action is triggered.
-        :type callback: function
-
-        :param enabled_flag: A flag indicating if the action should be enabled
-            by default. Defaults to True.
-        :type enabled_flag: bool
-
-        :param add_to_menu: Flag indicating whether the action should also
-            be added to the menu. Defaults to True.
-        :type add_to_menu: bool
-
-        :param add_to_toolbar: Flag indicating whether the action should also
-            be added to the toolbar. Defaults to True.
-        :type add_to_toolbar: bool
-
-        :param status_tip: Optional text to show in a popup when mouse pointer
-            hovers over the action.
-        :type status_tip: str
-
-        :param parent: Parent widget for the new action. Defaults None.
-        :type parent: QWidget
-
-        :param whats_this: Optional text to show in the status bar when the
-            mouse pointer hovers over the action.
-
-        :returns: The action that was created. Note that the action is also
-            added to self.actions list.
-        :rtype: QAction
-        """
 
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
@@ -215,7 +177,7 @@ class LandCoverReclassifier:
 
         # Reclass
         # self.dlg.pai_1_g.setInputMask("0.00")
-        lc_type = np.zeros((7, 3))
+        lc_type = np.zeros((14, 3))
         lc_type[0, 0] = float(self.dlg.Box_1.currentIndex())
         if lc_type[0, 0] > 0:
             lc_type[0, 1] = self.dlg.pai_1_g.text()
@@ -245,6 +207,35 @@ class LandCoverReclassifier:
             lc_type[6, 1] = self.dlg.pai_7_g.text()
             lc_type[6, 2] = self.dlg.pai_7_s.text()
 
+        lc_type[7, 0] = float(self.dlg.Box_8.currentIndex())
+        if lc_type[7, 0] > 0:
+            lc_type[7, 1] = self.dlg.pai_8_g.text()
+            lc_type[7, 2] = self.dlg.pai_8_s.text()
+        lc_type[8, 0] = float(self.dlg.Box_9.currentIndex())
+        if lc_type[8, 0] > 0:
+            lc_type[8, 1] = self.dlg.pai_9_g.text()
+            lc_type[8, 2] = self.dlg.pai_9_s.text()
+        lc_type[9, 0] = float(self.dlg.Box_10.currentIndex())
+        if lc_type[9, 0] > 0:
+            lc_type[9, 1] = self.dlg.pai_10_g.text()
+            lc_type[9, 2] = self.dlg.pai_10_s.text()
+        lc_type[10, 0] = float(self.dlg.Box_11.currentIndex())
+        if lc_type[10, 0] > 0:
+            lc_type[10, 1] = self.dlg.pai_11_g.text()
+            lc_type[10, 2] = self.dlg.pai_11_s.text()
+        lc_type[11, 0] = float(self.dlg.Box_12.currentIndex())
+        if lc_type[11, 0] > 0:
+            lc_type[11, 1] = self.dlg.pai_12_g.text()
+            lc_type[11, 2] = self.dlg.pai_12_s.text()
+        lc_type[12, 0] = float(self.dlg.Box_13.currentIndex())
+        if lc_type[12, 0] > 0:
+            lc_type[12, 1] = self.dlg.pai_13_g.text()
+            lc_type[12, 2] = self.dlg.pai_13_s.text()
+        lc_type[13, 0] = float(self.dlg.Box_14.currentIndex())
+        if lc_type[13, 0] > 0:
+            lc_type[13, 1] = self.dlg.pai_14_g.text()
+            lc_type[13, 2] = self.dlg.pai_14_s.text()
+
         provider = lc_grid.dataProvider()
         filepath_lc_grid= str(provider.dataSourceUri())
         gdal_lc_grid = gdal.Open(filepath_lc_grid)
@@ -254,14 +245,9 @@ class LandCoverReclassifier:
         sizey = lc_grid.shape[1]
         lc_grid_rc = np.zeros((sizex, sizey))
 
-        for i in range(lc_type.shape[0]):  # populating new grid with values
+        # populating new grid with values
+        for i in range(lc_type.shape[0]):
             lc_grid_rc[np.where((lc_grid > lc_type[i, 1]) & (lc_grid <= lc_type[i, 2]))] = lc_type[i, 0]
-        # lc_grid_rc[np.where((lc_grid > lc_type[1, 1]) & (lc_grid <= lc_type[1, 2]))] = lc_type[1, 0]
-        # lc_grid_rc[np.where((lc_grid > lc_type[2, 1]) & (lc_grid <= lc_type[2, 2]))] = lc_type[2, 0]
-        # lc_grid_rc[np.where((lc_grid > lc_type[3, 1]) & (lc_grid <= lc_type[3, 2]))] = lc_type[3, 0]
-        # lc_grid_rc[np.where((lc_grid > lc_type[4, 1]) & (lc_grid <= lc_type[4, 2]))] = lc_type[4, 0]
-        # lc_grid_rc[np.where((lc_grid > lc_type[5, 1]) & (lc_grid <= lc_type[5, 2]))] = lc_type[5, 0]
-        # lc_grid_rc[np.where((lc_grid > lc_type[6, 1]) & (lc_grid <= lc_type[6, 2]))] = lc_type[6, 0]
 
         filename = self.filePath[0]
         saveraster(gdal_lc_grid, filename, lc_grid_rc)

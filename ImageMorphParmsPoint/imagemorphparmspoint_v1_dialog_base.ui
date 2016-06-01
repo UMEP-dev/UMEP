@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>550</width>
-    <height>433</height>
+    <height>451</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -28,528 +28,349 @@
   <property name="windowTitle">
    <string>Image Morphometric Parameters</string>
   </property>
-  <widget class="QPushButton" name="runButton">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>470</x>
-     <y>376</y>
-     <width>75</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Run</string>
-   </property>
-  </widget>
-  <widget class="QProgressBar" name="progressBar">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>374</y>
-     <width>439</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="value">
-    <number>24</number>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushButtonSave">
-   <property name="geometry">
-    <rect>
-     <x>470</x>
-     <y>346</y>
-     <width>75</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Select</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_5">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>348</y>
-     <width>183</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Output folder:</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="textOutput">
-   <property name="geometry">
-    <rect>
-     <x>194</x>
-     <y>346</y>
-     <width>275</width>
-     <height>20</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QFrame" name="frame">
-   <property name="geometry">
-    <rect>
-     <x>2</x>
-     <y>154</y>
-     <width>543</width>
-     <height>133</height>
-    </rect>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::Box</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Sunken</enum>
-   </property>
-   <widget class="QComboBox" name="comboBox_DSMbuild">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>336</x>
-      <y>104</y>
-      <width>199</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>4</x>
-      <y>40</y>
-      <width>329</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Raster DSM (3D objects  and ground):</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-    <property name="buddy">
-     <cstring>comboBox_DSMbuildground</cstring>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_4">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>106</y>
-      <width>325</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Raster DSM (only 3D objects):</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-    <property name="buddy">
-     <cstring>comboBox_DSMbuild</cstring>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="comboBox_DSMbuildground">
-    <property name="geometry">
-     <rect>
-      <x>336</x>
-      <y>38</y>
-      <width>199</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>4</x>
-      <y>76</y>
-      <width>331</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Raster DEM (only ground):</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-    <property name="buddy">
-     <cstring>comboBox_DEM</cstring>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="comboBox_DEM">
-    <property name="geometry">
-     <rect>
-      <x>336</x>
-      <y>74</y>
-      <width>199</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxOnlyBuilding">
-    <property name="geometry">
-     <rect>
-      <x>8</x>
-      <y>12</y>
-      <width>437</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="layoutDirection">
-     <enum>Qt::LeftToRight</enum>
-    </property>
-    <property name="text">
-     <string>Raster DSM (only 3building or vegetation objects) exist</string>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QPushButton" name="closeButton">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>470</x>
-     <y>406</y>
-     <width>75</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Close</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="helpButton">
-   <property name="geometry">
-    <rect>
-     <x>8</x>
-     <y>406</y>
-     <width>75</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Help</string>
-   </property>
-  </widget>
-  <widget class="QFrame" name="frame_2">
-   <property name="geometry">
-    <rect>
-     <x>2</x>
-     <y>6</y>
-     <width>543</width>
-     <height>69</height>
-    </rect>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::Box</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Sunken</enum>
-   </property>
-   <widget class="QCheckBox" name="checkBoxVectorLayer">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>325</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="layoutDirection">
-     <enum>Qt::LeftToRight</enum>
-    </property>
-    <property name="text">
-     <string>Use existing single point vector layer</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="comboBox_Point">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>312</x>
-      <y>39</y>
-      <width>223</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="toolTip">
-     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QFrame" name="frame_2">
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxVectorLayer">
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="text">
+         <string>Use existing single point vector layer</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="selectpoint">
+        <property name="contextMenuPolicy">
+         <enum>Qt::DefaultContextMenu</enum>
+        </property>
+        <property name="toolTip">
+         <string>Select point on canvas</string>
+        </property>
+        <property name="whatsThis">
+         <string>Select a point on the canvas &lt;a href=README.html&gt; Click here for more info! &lt;/a href&gt;</string>
+        </property>
+        <property name="text">
+         <string>Select point on canvas</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Vector point layer:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>comboBox_Point</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" colspan="2">
+       <widget class="QComboBox" name="comboBox_Point">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;This Polygon layer could include one single or mutiple squares &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="selectpoint">
-    <property name="geometry">
-     <rect>
-      <x>336</x>
-      <y>8</y>
-      <width>201</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="contextMenuPolicy">
-     <enum>Qt::DefaultContextMenu</enum>
-    </property>
-    <property name="toolTip">
-     <string>Select point on canvas</string>
-    </property>
-    <property name="whatsThis">
-     <string>Select a point on the canvas &lt;a href=README.html&gt; Click here for more info! &lt;/a href&gt;</string>
-    </property>
-    <property name="text">
-     <string>Select point on canvas</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_6">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>40</y>
-      <width>219</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Vector point layer:</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-    <property name="buddy">
-     <cstring>comboBox_Point</cstring>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QFrame" name="frame_3">
-   <property name="geometry">
-    <rect>
-     <x>2</x>
-     <y>82</y>
-     <width>543</width>
-     <height>65</height>
-    </rect>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::Box</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Sunken</enum>
-   </property>
-   <widget class="QLabel" name="label_8">
-    <property name="geometry">
-     <rect>
-      <x>18</x>
-      <y>40</y>
-      <width>441</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Wind direction search interval (degrees):</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="generateArea">
-    <property name="geometry">
-     <rect>
-      <x>6</x>
-      <y>6</y>
-      <width>155</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="contextMenuPolicy">
-     <enum>Qt::DefaultContextMenu</enum>
-    </property>
-    <property name="toolTip">
-     <string>Select point on canvas</string>
-    </property>
-    <property name="whatsThis">
-     <string>Select a point on the canvas &lt;a href=README.html&gt; Click here for more info! &lt;/a href&gt;</string>
-    </property>
-    <property name="text">
-     <string>Generate study area</string>
-    </property>
-   </widget>
-   <widget class="QSpinBox" name="spinBox">
-    <property name="geometry">
-     <rect>
-      <x>462</x>
-      <y>8</y>
-      <width>73</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-    <property name="suffix">
-     <string/>
-    </property>
-    <property name="maximum">
-     <number>5000</number>
-    </property>
-    <property name="singleStep">
-     <number>10</number>
-    </property>
-    <property name="value">
-     <number>200</number>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>186</x>
-      <y>10</y>
-      <width>273</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Search distance (m):</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="degreeBox">
-    <property name="geometry">
-     <rect>
-      <x>462</x>
-      <y>36</y>
-      <width>74</width>
-      <height>22</height>
-     </rect>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QLabel" name="label_9">
-   <property name="geometry">
-    <rect>
-     <x>366</x>
-     <y>322</y>
-     <width>115</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>File prefix:</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="textOutput_prefix">
-   <property name="geometry">
-    <rect>
-     <x>482</x>
-     <y>320</y>
-     <width>59</width>
-     <height>20</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="comboBox_Roughness">
-   <property name="geometry">
-    <rect>
-     <x>336</x>
-     <y>294</y>
-     <width>199</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <item>
-    <property name="text">
-     <string>Rule of thumb</string>
-    </property>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
-    <property name="text">
-     <string>Raupach (1994/95)</string>
-    </property>
+    <widget class="QFrame" name="frame_3">
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QPushButton" name="generateArea">
+        <property name="contextMenuPolicy">
+         <enum>Qt::DefaultContextMenu</enum>
+        </property>
+        <property name="toolTip">
+         <string>Select point on canvas</string>
+        </property>
+        <property name="whatsThis">
+         <string>Select a point on the canvas &lt;a href=README.html&gt; Click here for more info! &lt;/a href&gt;</string>
+        </property>
+        <property name="text">
+         <string>Generate study area</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Search distance (m):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QSpinBox" name="spinBox">
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="suffix">
+         <string/>
+        </property>
+        <property name="maximum">
+         <number>5000</number>
+        </property>
+        <property name="singleStep">
+         <number>10</number>
+        </property>
+        <property name="value">
+         <number>200</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Wind direction search interval (degrees):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QComboBox" name="degreeBox"/>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
-    <property name="text">
-     <string>Simplified Bottema (1995)</string>
-    </property>
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxOnlyBuilding">
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="text">
+         <string>Raster DSM (only 3building or vegetation objects) exist</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Raster DSM (3D objects  and ground):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>comboBox_DSMbuildground</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="comboBox_DSMbuildground"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Raster DEM (only ground):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>comboBox_DEM</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="comboBox_DEM"/>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Raster DSM (only 3D objects):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>comboBox_DSMbuild</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QComboBox" name="comboBox_DSMbuild">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
-    <property name="text">
-     <string>MacDonald et al. (1998)</string>
-    </property>
+    <widget class="QFrame" name="frame_4">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="1" column="3">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>File prefix:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QLineEdit" name="textOutput_prefix"/>
+      </item>
+      <item row="2" column="4">
+       <widget class="QPushButton" name="pushButtonSave">
+        <property name="text">
+         <string>Select</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="4">
+       <widget class="QProgressBar" name="progressBar">
+        <property name="value">
+         <number>24</number>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="4">
+       <widget class="QPushButton" name="runButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Run</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QPushButton" name="helpButton">
+        <property name="text">
+         <string>Help</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="4">
+       <widget class="QPushButton" name="closeButton">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Close</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>Roughness calculation method:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>comboBox_DEM</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="comboBox_Roughness">
+        <item>
+         <property name="text">
+          <string>Rule of thumb</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Raupach (1994/95)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Simplified Bottema (1995)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>MacDonald et al. (1998)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Millward-Hopkins et al. (2011)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Kanda et al. (2013)</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Output folder:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" colspan="3">
+       <widget class="QLineEdit" name="textOutput"/>
+      </item>
+     </layout>
+    </widget>
    </item>
-   <item>
-    <property name="text">
-     <string>Millward-Hopkins et al. (2011)</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>Kanda et al. (2013)</string>
-    </property>
-   </item>
-  </widget>
-  <widget class="QLabel" name="label_7">
-   <property name="geometry">
-    <rect>
-     <x>4</x>
-     <y>296</y>
-     <width>331</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Roughness calculation method:</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-   </property>
-   <property name="buddy">
-    <cstring>comboBox_DEM</cstring>
-   </property>
-  </widget>
-  <zorder>frame</zorder>
-  <zorder>runButton</zorder>
-  <zorder>progressBar</zorder>
-  <zorder>pushButtonSave</zorder>
-  <zorder>label_5</zorder>
-  <zorder>textOutput</zorder>
-  <zorder>closeButton</zorder>
-  <zorder>helpButton</zorder>
-  <zorder>frame_2</zorder>
-  <zorder>frame_3</zorder>
-  <zorder>label_9</zorder>
-  <zorder>textOutput_prefix</zorder>
-  <zorder>comboBox_Roughness</zorder>
-  <zorder>label_7</zorder>
+  </layout>
  </widget>
  <resources/>
  <connections>
@@ -560,12 +381,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>44</x>
-     <y>216</y>
+     <x>63</x>
+     <y>190</y>
     </hint>
     <hint type="destinationlabel">
-     <x>199</x>
-     <y>327</y>
+     <x>477</x>
+     <y>268</y>
     </hint>
    </hints>
   </connection>
@@ -576,12 +397,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>74</x>
-     <y>229</y>
+     <x>93</x>
+     <y>190</y>
     </hint>
     <hint type="destinationlabel">
-     <x>186</x>
-     <y>297</y>
+     <x>464</x>
+     <y>242</y>
     </hint>
    </hints>
   </connection>
@@ -592,28 +413,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>70</x>
+     <x>89</x>
+     <y>190</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>471</x>
      <y>216</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>193</x>
-     <y>255</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>closeButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ImageMorphParamDialogBase</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>342</x>
-     <y>420</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>200</x>
-     <y>277</y>
     </hint>
    </hints>
   </connection>
@@ -624,12 +429,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>17</x>
-     <y>21</y>
+     <x>36</x>
+     <y>39</y>
     </hint>
     <hint type="destinationlabel">
-     <x>274</x>
-     <y>24</y>
+     <x>530</x>
+     <y>43</y>
     </hint>
    </hints>
   </connection>
@@ -640,12 +445,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>16</x>
-     <y>26</y>
+     <x>35</x>
+     <y>39</y>
     </hint>
     <hint type="destinationlabel">
-     <x>111</x>
-     <y>47</y>
+     <x>130</x>
+     <y>69</y>
     </hint>
    </hints>
   </connection>
@@ -656,12 +461,28 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>13</x>
-     <y>23</y>
+     <x>32</x>
+     <y>39</y>
     </hint>
     <hint type="destinationlabel">
      <x>213</x>
      <y>59</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>closeButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ImageMorphParamDialogBase</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>469</x>
+     <y>430</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>275</x>
+     <y>447</y>
     </hint>
    </hints>
   </connection>

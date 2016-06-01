@@ -7,12 +7,13 @@ import Skyviewfactor4d as svf
 #from osgeo import gdal
 #from osgeo.gdalconst import *
 
-#import sys
+import sys
+import linecache
 
 class Worker(QtCore.QObject):
 
     finished = QtCore.pyqtSignal(object)
-    error = QtCore.pyqtSignal(Exception, basestring)
+    error = QtCore.pyqtSignal(object)
     progress = QtCore.pyqtSignal()
 
     def __init__(self, a, scale, dlg):
@@ -94,10 +95,21 @@ class Worker(QtCore.QObject):
             if self.killed is False:
                 self.progress.emit()
                 ret = svfresult
-        except Exception, e:
+        except Exception:
             # forward the exception upstream
-            self.error.emit(e, traceback.format_exc())
+            errorstring = self.print_exception()
+            self.error.emit(errorstring)
         self.finished.emit(ret)
+
+    def print_exception(self):
+        exc_type, exc_obj, tb = sys.exc_info()
+        f = tb.tb_frame
+        lineno = tb.tb_lineno
+        filename = f.f_code.co_filename
+        linecache.checkcache(filename)
+        line = linecache.getline(filename, lineno, f.f_globals)
+        return 'EXCEPTION IN {}, \nLINE {} "{}" \nERROR MESSAGE: {}'.format(filename, lineno, line.strip(), exc_obj)
+
 
     def kill(self):
         self.killed = True

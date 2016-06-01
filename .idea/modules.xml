@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/UMPE.iml" filepath="$PROJECT_DIR$/.idea/UMPE.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/UMEP.iml" filepath="$PROJECT_DIR$/.idea/UMEP.iml" />
     </modules>
   </component>
 </project>
-

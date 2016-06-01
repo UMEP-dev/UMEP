@@ -23,7 +23,7 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 # Initialize Qt resources from file resources.py
-import resources_rc
+# import resources_rc
 # Import the code for the dialog
 from UMEP_dialog import UMEPDialog
 from MetdataProcessor.metdata_processor import MetdataProcessor
@@ -38,6 +38,7 @@ from WallHeight.wall_height import WallHeight
 from SEBE.sebe import SEBE
 from SEBEVisual.sun import Sun
 from SuewsSimple.suews_simple import SuewsSimple
+from SUEWSPrepare.suews_prepare import SUEWSPrepare
 from SUEWS.suews import SUEWS
 from FootprintModel.footprint_model import FootprintModel
 
@@ -46,7 +47,7 @@ from UMEP_about import UMEPDialogAbout
 import os.path
 import webbrowser
 
-# Uncomment this section if you want to debug in QGIS
+# Uncomment the section below if you want to debug in QGIS
 # import sys
 # sys.path.append('C:/OSGeo4W64/apps/Python27/Lib/site-packages/pydev')
 # import pydevd
@@ -104,7 +105,7 @@ class UMEP:
         self.About_Menu = QMenu("Help")
         self.UMEP_Menu.addMenu(self.About_Menu)
 
-        # Sub-menus to Pre-processor
+        # Sub-menus and actions to Pre-processor
         self.MD_Menu = QMenu("Meteorological Data")
         self.Pre_Menu.addMenu(self.MD_Menu)
         self.UG_Menu = QMenu("Urban Geometry")
@@ -113,6 +114,9 @@ class UMEP:
         self.Pre_Menu.addMenu(self.ULC_Menu)
         self.SM_Menu = QMenu("Urban Morphology")
         self.Pre_Menu.addMenu(self.SM_Menu)
+        self.SUEWSPrepare_Action = QAction("SUEWS Prepare", self.iface.mainWindow())
+        self.Pre_Menu.addAction(self.SUEWSPrepare_Action)
+        self.SUEWSPrepare_Action.triggered.connect(self.SUEWS_Prepare)
 
         # Sub-actions to Surface Morphology
         self.IMCG_Action = QAction("Image Morphometric Calculator (Grid)", self.iface.mainWindow())
@@ -213,12 +217,14 @@ class UMEP:
         # Sub-menus to About
         self.About_Action = QAction("About", self.iface.mainWindow())
         self.About_Menu.addAction(self.About_Action)
-        self.Manual_Action = QAction("Manual (online)", self.iface.mainWindow())
+        self.Manual_Action = QAction("UMEP on the web", self.iface.mainWindow())
         self.About_Menu.addAction(self.Manual_Action)
         self.Manual_Action.triggered.connect(self.help)
-        # self.Manual_Action.setEnabled(False)
 
         # Icons
+        self.SUEWSPrepare_Action.setIcon(QIcon(self.plugin_dir + "/Icons/SuewsLogo.png"))
+        self.SUEWSSIMPLE_Action.setIcon(QIcon(self.plugin_dir + "/Icons/SuewsLogo.png"))
+        self.SUEWS_Action.setIcon(QIcon(self.plugin_dir + "/Icons/SuewsLogo.png"))
         self.SVF_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_svf.png"))
         self.IMCG_Action.setIcon(QIcon(self.plugin_dir + "/Icons/ImageMorphIcon.png"))
         self.IMCP_Action.setIcon(QIcon(self.plugin_dir + "/Icons/ImageMorphIconPoint.png"))
@@ -230,6 +236,9 @@ class UMEP:
         self.SEBE_Action.setIcon(QIcon(self.plugin_dir + "/Icons/sebeIcon.png"))
         self.SEBEv_Action.setIcon(QIcon(self.plugin_dir + "/Icons/sebeIcon.png"))
         self.FP_Action.setIcon(QIcon(self.plugin_dir + "/Icons/FootPrint.png"))
+        self.About_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_umep.png"))
+        self.Manual_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_umep.png"))
+        self.PED_Action.setIcon(QIcon(self.plugin_dir + "/Icons/metdata.png"))
 
         self.iface.mainWindow().menuBar().insertMenu(self.iface.firstRightStandardMenu().menuAction(), self.UMEP_Menu)
         self.dlgAbout = UMEPDialogAbout()
@@ -373,6 +382,10 @@ class UMEP:
         sg = SUEWS(self.iface)
         sg.run()
 
+    def SUEWS_Prepare(self):
+        sg = SUEWSPrepare(self.iface)
+        sg.run()
+
     def LCG(self):
         sg = LandCoverFractionGrid(self.iface)
         sg.run()
@@ -408,7 +421,7 @@ class UMEP:
         self.dlg.exec_()
 
     def help(self):
-        url = "http://www.met.reading.ac.uk/umep/"
+        url = "http://urban-climate.net/umep/"
         webbrowser.open_new_tab(url)
 
 

@@ -1,0 +1,50 @@
+1	2	3	4					
+Code	a1	a2	a3	!	Surface type	Reference	Not recommended (NR)	
+10	0.71	0.04	-39.7	!	"Canyon (E-W), Japan"	Yosheida (1990/91)		
+11	0.32	0.01	-27.7	!	"Canyon, Vancouver"	Nunez (1974)		
+100	0.515	0.025	-33.7	!	Canyon (average)			
+200	0.336	0.313	-31.4	!	Vegetation (average)			
+20	0.11	0.11	-12.3	!	Mixed Forest	McCaughey (1985)		
+30	0.32	0.54	-27.4	!	Short grass	Doll et al. (1985)		
+50	0.38	0.56	-27.3	!	Bare soil	Novak (1982)		
+51	0.33	0.07	-34.9	!	Bare soil (wet)	Fuchs & Hadas (1972)		
+52	0.35	0.43	-36.5	!	Bare soil (dry)	Fuchs & Hadas (1972)		
+53	0.36	0.27	-42.4	!	Bare soil	Asaeda & Ca (1983)		
+55	0.355	0.335	-35.275	!	Bare soil (mean)			
+60	0.5	0.21	-39.1	!	Water (shallow - turbid)	Souch et al. (1998)		
+61	0.25	0.6	-30	!	Snow	Järvi et al. (2014)		
+713	0.17	0.1	-17	!	"Roof (tar and gravel, summer)"	summer		
+701	0.3	0.96	-24	!	"Roof (commerical or industrial, gravel, dry, WS < 1 m/s, Vancouver)"	"Meyn & Oke (2009) Table 4, Pg 750"		
+702	0.26	0.89	-21	!	"Roof (commerical or industrial, gravel, dry, WS 1-1.4 m/s, Vancouver)"	"Meyn & Oke (2009) Table 4, Pg 750"		
+703	0.23	0.87	-24	!	"Roof (commerical or industrial, gravel, dry, WS 1.5-2 m/s, Vancouver)"	"Meyn & Oke (2009) Table 4, Pg 750"		
+704	0.23	0.69	-21	!	"Roof (commerical or industrial, gravel, wet, WS 0.9-1.9 m/s, Vancouver)"	"Meyn & Oke (2009) Table 4, Pg 750"		
+705	0.06	0.28	-3	!	"Roof (commerical or industrial, bitumen spread over flat industrial membrane, wet & dry, WS 1.1-2 m/s, Vancouver)"	"Meyn & Oke (2009) Table 4, Pg 750"		
+706	0.15	0.28	-6	!	"Roof (residential, asphalt shingle on plywood, dry, WS < 1 m/s, Vancouver)"	"Meyn & Oke (2009) Table 4, Pg 750"		
+707	0.12	0.25	-5	!	"Roof (residential, asphalt shingle on plywood, dry, WS < 1.0-1.4 m/s, Vancouver)"	"Meyn & Oke (2009) Table 4, Pg 750"		
+708	0.1	0.23	-6	!	"Roof (residential, asphalt shingle on plywood, dry, WS < 2 m/s, Vancouver)"	"Meyn & Oke (2009) Table 4, Pg 750"		
+709	0.09	0.18	-1	!	"Roof (STAR, residential, high albedo asphalt shingle, dry, WS 1.0-1.4 m/s)"	"Meyn & Oke (2009) Table 4, Pg 750"		
+710	0.07	0.26	-6	!	"Roof (STAR, Japanese ceramic tile)"	"Meyn & Oke (2009) Table 4, Pg 750"		
+711	0.06	0.43	-4	!	"Roof (STAR, slate tile, dry, WS 1.0-1.4 m/s)"	"Meyn & Oke (2009) Table 4, Pg 750"		
+712	0.07	0.06	-5	!	"Roof (STAR, clay tile, dry, WS 1.0-1.4 m/s)"	"Meyn & Oke (2009) Table 4, Pg 750"		
+750	0.19	0.54	-15.125	!	"Roof (own for SMEAR III, Helsinki)"	Järvi et al. (2014)		
+751	0.12	0.24	-4.5	!	Own for Montreal suburban (calculated as a average from shingle types) 	Järvi et al. (2014)		
+752	0.26	0.85	-21.4	!	Own for Montreal urban (calculated as a average from gravel)	Järvi et al. (2014)		
+790	0.44	0.57	-28.9	!	Roof (Uppsala)	Taseler (1980)	NR	
+791	0.82	0.34	-55.7	!	Roof (membrane & concrete)	Yoshida et al. (1990/91) 	NR	
+799	0.238	0.427	-16.7	!	Original roof average (inlcudes two not recommended - Meyn 2001 and old Meyn 2001 coefficients)			
+800	0.719	0.194	-36.6	!	Impervious (average)			
+801	0.81	0.1	-79.9	!	Concrete	Doll et al. (1985)		
+802	0.85	0.32	-28.5	!	Concrete	Asaeda & Ca (1993)		
+901	0.36	0.23	-19.3	!	Asphalt	Narita et al. (1984)		
+902	0.64	0.32	-43.6	!	Asphalt	Asaeda & Ca (1993)		
+903	0.82	0.68	-20.1	!	Asphalt	Anandakumar (1998) 		
+905	0.72	0.54	-40.2	!	Asphalt (winter)	Anandakumar (1998) 		
+906	0.83	-0.83	-24.6	!	Asphalt (summer)	Anandakumar (1998) 		
+-9								
+-9								
+								
+								
+!	1	Code	Code for storage heat flux estimation using OHM					"Links to OHM_Code_ columns in SUEWS_NonVeg, SUEWS_Veg, SUEWS_Water, SUEWS_Snow"
+!	2	a1	Coefficient for Q* term			[-]		
+!	3	a2	Coefficient for dQ*/dt term			[h]		
+!	4	a3	Constant			[W m-2]		

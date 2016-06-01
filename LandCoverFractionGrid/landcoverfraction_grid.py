@@ -217,12 +217,6 @@ class LandCoverFractionGrid:
         radius = self.dlg.spinBoxDistance.value()
         degree = float(self.dlg.degreeBox.currentText())
 
-        # test to add attribute
-
-        vlayer.dataProvider().addAttributes([QgsField("TESTAR", QVariant.Int)])
-        vlayer.updateFields()
-        test = vlayer.fieldNameIndex("TESTAR")
-
         # self.iface.messageBar().pushMessage("test: ", str(test))
 
         self.startWorker(lc_grid, poly, poly_field, vlayer, prov, fields, idx, dir_poly, self.iface,
@@ -277,11 +271,11 @@ class LandCoverFractionGrid:
             self.dlg.closeButton.setEnabled(True)
             self.dlg.progressBar.setValue(0)
             QMessageBox.information(None, "Land Cover Fraction Grid", "Operations cancelled, "
-                                                                           "process unsuccessful!")
+                                                                           "process unsuccessful! See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.")
 
-    def workerError(self, e, exception_string):
-        strerror = "Worker thread raised an exception: " + str(e)
-        QgsMessageLog.logMessage(strerror.format(exception_string), level=QgsMessageLog.CRITICAL)
+    def workerError(self, errorstring):
+        #strerror = "Worker thread raised an exception: " + str(e)
+        QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
 
     def progress_update(self):
         self.steps +=1

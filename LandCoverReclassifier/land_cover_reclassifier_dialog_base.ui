@@ -7,677 +7,1075 @@
     <x>0</x>
     <y>0</y>
     <width>476</width>
-    <height>382</height>
+    <height>585</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Land Cover Reclassifier</string>
   </property>
-  <widget class="QComboBox" name="comboBox_lcgrid">
-   <property name="geometry">
-    <rect>
-     <x>109</x>
-     <y>10</y>
-     <width>358</width>
-     <height>20</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_2">
-   <property name="geometry">
-    <rect>
-     <x>9</x>
-     <y>12</y>
-     <width>97</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Inout raster:</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-   </property>
-   <property name="buddy">
-    <cstring>comboBox_lcgrid</cstring>
-   </property>
-  </widget>
-  <widget class="QFrame" name="frame_2">
-   <property name="geometry">
-    <rect>
-     <x>6</x>
-     <y>39</y>
-     <width>463</width>
-     <height>247</height>
-    </rect>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::Box</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Sunken</enum>
-   </property>
-   <widget class="QLabel" name="label_14">
-    <property name="geometry">
-     <rect>
-      <x>6</x>
-      <y>3</y>
-      <width>173</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Input raster:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy">
+      <cstring>comboBox_lcgrid</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" colspan="2">
+    <widget class="QComboBox" name="comboBox_lcgrid"/>
+   </item>
+   <item row="1" column="0" colspan="3">
+    <widget class="QFrame" name="frame_2">
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="3" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <item>
+         <widget class="QComboBox" name="Box_8">
+          <item>
+           <property name="text">
+            <string/>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Paved</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Buildings</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Evergreen trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Decidious trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Grass</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Bare soil</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Water</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="Box_9">
+          <item>
+           <property name="text">
+            <string/>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Paved</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Buildings</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Evergreen trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Decidious trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Grass</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Bare soil</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Water</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="Box_10">
+          <item>
+           <property name="text">
+            <string/>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Paved</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Buildings</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Evergreen trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Decidious trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Grass</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Bare soil</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Water</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="Box_11">
+          <item>
+           <property name="text">
+            <string/>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Paved</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Buildings</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Evergreen trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Decidious trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Grass</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Bare soil</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Water</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="Box_12">
+          <item>
+           <property name="text">
+            <string/>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Paved</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Buildings</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Evergreen trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Decidious trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Grass</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Bare soil</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Water</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="Box_13">
+          <item>
+           <property name="text">
+            <string/>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Paved</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Buildings</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Evergreen trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Decidious trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Grass</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Bare soil</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Water</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="Box_14">
+          <item>
+           <property name="text">
+            <string/>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Paved</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Buildings</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Evergreen trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Decidious trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Grass</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Bare soil</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Water</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="5">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QLineEdit" name="pai_1_s">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_2_s">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_3_s">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_4_s">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_5_s">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_6_s">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_7_s">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="3" column="3">
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <widget class="QLineEdit" name="pai_8_g">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="inputMethodHints">
+           <set>Qt::ImhNone</set>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_9_g">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_10_g">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_11_g">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_12_g">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_13_g">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_14_g">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="3" column="5">
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <widget class="QLineEdit" name="pai_8_s">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_9_s">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_10_s">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_11_s">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_12_s">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_13_s">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_7_s_2">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QComboBox" name="Box_1">
+          <item>
+           <property name="text">
+            <string/>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Paved</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Buildings</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Evergreen trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Decidious trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Grass</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Bare soil</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Water</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="Box_2">
+          <item>
+           <property name="text">
+            <string/>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Paved</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Buildings</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Evergreen trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Decidious trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Grass</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Bare soil</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Water</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="Box_3">
+          <item>
+           <property name="text">
+            <string/>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Paved</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Buildings</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Evergreen trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Decidious trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Grass</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Bare soil</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Water</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="Box_4">
+          <item>
+           <property name="text">
+            <string/>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Paved</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Buildings</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Evergreen trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Decidious trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Grass</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Bare soil</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Water</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="Box_5">
+          <item>
+           <property name="text">
+            <string/>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Paved</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Buildings</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Evergreen trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Decidious trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Grass</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Bare soil</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Water</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="Box_6">
+          <item>
+           <property name="text">
+            <string/>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Paved</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Buildings</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Evergreen trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Decidious trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Grass</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Bare soil</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Water</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="Box_7">
+          <item>
+           <property name="text">
+            <string/>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Paved</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Buildings</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Evergreen trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Decidious trees</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Grass</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Bare soil</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Water</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="3">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QLineEdit" name="pai_1_g">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="inputMethodHints">
+           <set>Qt::ImhNone</set>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_2_g">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_3_g">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_4_g">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_5_g">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_6_g">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pai_7_g">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="5">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>smaller or equal than:</string>
+        </property>
+        <property name="buddy">
+         <cstring>comboBox_lcgrid</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>greater than:</string>
+        </property>
+        <property name="buddy">
+         <cstring>comboBox_lcgrid</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_14">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Land cover classes&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>330</x>
-      <y>42</y>
-      <width>64</width>
-      <height>198</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout_3">
-     <item>
-      <widget class="QLineEdit" name="pai_1_s">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="pai_2_s">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="pai_3_s">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="pai_4_s">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="pai_5_s">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="pai_6_s">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="pai_7_s">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>189</x>
-      <y>24</y>
-      <width>97</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>greater than:</string>
-    </property>
-    <property name="buddy">
-     <cstring>comboBox_lcgrid</cstring>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_4">
-    <property name="geometry">
-     <rect>
-      <x>291</x>
-      <y>24</y>
-      <width>151</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>smaller or equal than:</string>
-    </property>
-    <property name="buddy">
-     <cstring>comboBox_lcgrid</cstring>
-    </property>
-   </widget>
-   <widget class="QWidget" name="layoutWidget_2">
-    <property name="geometry">
-     <rect>
-      <x>9</x>
-      <y>42</y>
-      <width>157</width>
-      <height>198</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="QComboBox" name="Box_1">
-       <item>
-        <property name="text">
-         <string/>
         </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Paved</string>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Buildings</string>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
         </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Evergreen trees</string>
+       </spacer>
+      </item>
+      <item row="0" column="1">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Decidious trees</string>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
         </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Grass</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Bare soil</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Water</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="Box_2">
-       <item>
-        <property name="text">
-         <string/>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Paved</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Buildings</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Evergreen trees</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Decidious trees</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Grass</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Bare soil</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Water</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="Box_3">
-       <item>
-        <property name="text">
-         <string/>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Paved</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Buildings</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Evergreen trees</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Decidious trees</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Grass</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Bare soil</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Water</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="Box_4">
-       <item>
-        <property name="text">
-         <string/>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Paved</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Buildings</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Evergreen trees</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Decidious trees</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Grass</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Bare soil</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Water</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="Box_5">
-       <item>
-        <property name="text">
-         <string/>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Paved</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Buildings</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Evergreen trees</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Decidious trees</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Grass</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Bare soil</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Water</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="Box_6">
-       <item>
-        <property name="text">
-         <string/>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Paved</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Buildings</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Evergreen trees</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Decidious trees</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Grass</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Bare soil</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Water</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="Box_7">
-       <item>
-        <property name="text">
-         <string/>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Paved</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Buildings</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Evergreen trees</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Decidious trees</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Grass</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Bare soil</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Water</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="layoutWidget_3">
-    <property name="geometry">
-     <rect>
-      <x>207</x>
-      <y>42</y>
-      <width>64</width>
-      <height>198</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <item>
-      <widget class="QLineEdit" name="pai_1_g">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="inputMethodHints">
-        <set>Qt::ImhNone</set>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="pai_2_g">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="pai_3_g">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="pai_4_g">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="pai_5_g">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="pai_6_g">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="pai_7_g">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-  </widget>
-  <widget class="QPushButton" name="runButton">
-   <property name="geometry">
-    <rect>
-     <x>390</x>
-     <y>326</y>
-     <width>75</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Run</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_6">
-   <property name="geometry">
-    <rect>
-     <x>15</x>
-     <y>300</y>
-     <width>94</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Output file:</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="textOutput">
-   <property name="geometry">
-    <rect>
-     <x>112</x>
-     <y>298</y>
-     <width>265</width>
-     <height>20</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushButtonSave">
-   <property name="geometry">
-    <rect>
-     <x>390</x>
-     <y>298</y>
-     <width>75</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Save as</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="closeButton">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>390</x>
-     <y>354</y>
-     <width>75</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Close</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="helpButton">
-   <property name="geometry">
-    <rect>
-     <x>12</x>
-     <y>354</y>
-     <width>75</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Help</string>
-   </property>
-  </widget>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Output file:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLineEdit" name="textOutput"/>
+   </item>
+   <item row="2" column="2">
+    <widget class="QPushButton" name="pushButtonSave">
+     <property name="text">
+      <string>Save as</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <widget class="QPushButton" name="runButton">
+     <property name="text">
+      <string>Run</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QPushButton" name="helpButton">
+     <property name="text">
+      <string>Help</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="2">
+    <widget class="QPushButton" name="closeButton">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string>Close</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections>
@@ -688,8 +1086,8 @@ p, li { white-space: pre-wrap; }
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>347</x>
-     <y>341</y>
+     <x>466</x>
+     <y>575</y>
     </hint>
     <hint type="destinationlabel">
      <x>199</x>

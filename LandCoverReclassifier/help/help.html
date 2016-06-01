@@ -114,9 +114,174 @@ p.MsoListParagraphCxSpLast
 
 <body>
 
-<h1 style="margin-bottom:0cm;margin-bottom:.0001pt">Documentation under 
-construction<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
-minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"> </span></h1>
+<h1 style="margin-bottom:0cm;margin-bottom:.0001pt">&nbsp;</h1>
+<h1><a name="_Toc444008957">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Land Cover 
+Reclassifier</span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h1>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">The Land 
+Cover Reclassifier is a simple plugin that can be used to create a UMEP land 
+cover raster grid. The land cover fractions included in UMEP are:<o:p></o:p></span></p>
+<p class="MsoListParagraphCxSpFirst"><![if !supportLists]>
+<span style="mso-ascii-font-family:Calibri;mso-fareast-font-family:Calibri;
+mso-hansi-font-family:Calibri;mso-bidi-font-family:Calibri;mso-ansi-language:
+EN-US"><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style="mso-ansi-language:EN-US">Paved (1)<o:p></o:p></span></p>
+<p class="MsoListParagraphCxSpMiddle"><![if !supportLists]>
+<span style="mso-ascii-font-family:Calibri;mso-fareast-font-family:Calibri;
+mso-hansi-font-family:Calibri;mso-bidi-font-family:Calibri;mso-ansi-language:
+EN-US"><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style="mso-ansi-language:EN-US">Buildings 
+(2)<o:p></o:p></span></p>
+<p class="MsoListParagraphCxSpMiddle"><![if !supportLists]>
+<span style="mso-ascii-font-family:Calibri;mso-fareast-font-family:Calibri;
+mso-hansi-font-family:Calibri;mso-bidi-font-family:Calibri;mso-ansi-language:
+EN-US"><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style="mso-ansi-language:EN-US">Evergreen 
+trees (3)<o:p></o:p></span></p>
+<p class="MsoListParagraphCxSpMiddle"><![if !supportLists]>
+<span style="mso-ascii-font-family:Calibri;mso-fareast-font-family:Calibri;
+mso-hansi-font-family:Calibri;mso-bidi-font-family:Calibri;mso-ansi-language:
+EN-US"><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style="mso-ansi-language:EN-US">Deciduous 
+trees (4)<o:p></o:p></span></p>
+<p class="MsoListParagraphCxSpMiddle"><![if !supportLists]>
+<span style="mso-ascii-font-family:Calibri;mso-fareast-font-family:Calibri;
+mso-hansi-font-family:Calibri;mso-bidi-font-family:Calibri;mso-ansi-language:
+EN-US"><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style="mso-ansi-language:EN-US">Grass (5)<o:p></o:p></span></p>
+<p class="MsoListParagraphCxSpMiddle"><![if !supportLists]>
+<span style="mso-ascii-font-family:Calibri;mso-fareast-font-family:Calibri;
+mso-hansi-font-family:Calibri;mso-bidi-font-family:Calibri;mso-ansi-language:
+EN-US"><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style="mso-ansi-language:EN-US">Bare soil 
+(6)<o:p></o:p></span></p>
+<p class="MsoListParagraphCxSpLast"><![if !supportLists]>
+<span style="mso-ascii-font-family:Calibri;mso-fareast-font-family:Calibri;
+mso-hansi-font-family:Calibri;mso-bidi-font-family:Calibri;mso-ansi-language:
+EN-US"><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span style="mso-ansi-language:EN-US">Water (7)<o:p></o:p></span></p>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">It is not 
+necessary to use this plugin to reclassify into a UMEP land cover dataset. This 
+reclassification can also be done in other reclassification tools such a 
+r.reclass in GRASS etc., just as long as the seven different land cover types is 
+populated with the correct values (in parentheses above). <o:p></o:p></span></p>
+<h2><a name="_Toc444008958"></a><a name="_Toc431370467">
+<span style="mso-bookmark:_Toc444008958">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Location</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h2>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">The Land 
+Cover Reclassifier is located at <i style="mso-bidi-font-style:normal">UMEP -&gt; 
+Pre-Processor -&gt; Urban Land Cover -&gt; Land Cover Reclassifier</i>.<o:p></o:p></span></p>
+<h1><a name="_Toc444008959"></a><a name="_Toc431370468">
+<span style="mso-bookmark:_Toc444008959">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Running the plugin</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h1>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">When you 
+run plugin, you will see the dialog shown below. It consists of three sections. 
+The top section let you select raster land cover dataset that you want to 
+reclassify into the UMEP land cover classes. The next section let you choose 
+interval values to be classified into a certain UMEP land cover class. Not all 
+lines and boxes need to be filled in, but in case many different intervals are 
+to be classified as the same land cover class, many lines has been added. The 
+last section lets you to specify the output file (.tiff) etc.<o:p></o:p></span></p>
+<p class="MsoNormal"><span style="mso-ansi-language:EN-US;mso-no-proof:yes"><!--[if gte vml 1]><v:shapetype
+ id="_x0000_t75" coordsize="21600,21600" o:spt="75" o:preferrelative="t"
+ path="m@4@5l@4@11@9@11@9@5xe" filled="f" stroked="f">
+ <v:stroke joinstyle="miter" xmlns:v="urn:schemas-microsoft-com:vml"/>
+ <v:formulas>
+  <v:f eqn="if lineDrawn pixelLineWidth 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @0 1 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum 0 0 @1" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @2 1 2" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @3 21600 pixelWidth" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @3 21600 pixelHeight" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @0 0 1" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @6 1 2" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @7 21600 pixelWidth" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @8 21600 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @7 21600 pixelHeight" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @10 21600 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+ </v:formulas>
+ <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect" xmlns:v="urn:schemas-microsoft-com:vml"/>
+ <o:lock v:ext="edit" aspectratio="t" xmlns:o="urn:schemas-microsoft-com:office:office"/>
+</v:shapetype><v:shape id="Picture_x0020_1" o:spid="_x0000_i1025" type="#_x0000_t75"
+ style='width:364.5pt;height:469.5pt;visibility:visible;mso-wrap-style:square'>
+ <v:imagedata src="../../../../../AppData/Local/Temp/msohtmlclip1/01/clip_image001.png"
+  o:title="" xmlns:v="urn:schemas-microsoft-com:vml"/>
+</v:shape><![endif]--><![if !vml]>
+<img height="626" src="img/img_1.png" v:shapes="Picture_x0020_1" width="486" /><![endif]></span><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></p>
+<h3><a name="_Toc444008960">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Input raster</span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Any valid 
+raster dataset (float or integer) loaded into QGIS will appear in this dropdown 
+list. Choose the one that includes your land cover information.<o:p></o:p></span></p>
+<h3><a name="_Toc444008961">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">Land cover classes</span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Here you 
+fill the interval values that you want to reclassify into a certain cover class. 
+All values not included will appear as 0 in the output land cover raster. This 
+should be avoided.<o:p></o:p></span></p>
+<h3><a name="_Toc444008962"></a><a name="_Toc431370476">
+<span style="mso-bookmark:
+_Toc444008962">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Output
+</span></span></a><span style="mso-bookmark:_Toc444008962">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US">file</span></span><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;
+mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:
+EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">The 
+location and filename (geoTIFF) will be specified here.<o:p></o:p></span></p>
+<h3><a name="_Toc444008963"></a><a name="_Toc431370477">
+<span style="mso-bookmark:
+_Toc444008963">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Run</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">This 
+starts the reclassification.<o:p></o:p></span></p>
+<h3><a name="_Toc444008964"></a><a name="_Toc431370479">
+<span style="mso-bookmark:
+_Toc444008964">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Close</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h3>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">This 
+button closes the plugin.<o:p></o:p></span></p>
 
 </body>
 

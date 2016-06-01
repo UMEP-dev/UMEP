@@ -183,7 +183,7 @@ class SuewsSimple:
         del self.toolbar
 
     def run(self):
-        if os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2015a') or os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2015a.exe'):
+        if os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2016a') or os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2016a.exe'):
             test = 4
         else:
             QMessageBox.information(self.iface.mainWindow(),
@@ -196,22 +196,22 @@ class SuewsSimple:
                                  "http://www.lists.rdg.ac.uk/mailman/listinfo/met-umep.\r\n"
                                                         "\r\n"
                                  "UMEP on the web:\r\n"
-                                 "http://www.met.reading.ac.uk/umep/", QMessageBox.Ok)
+                                 "http://www.urban-climate.net/umep/", QMessageBox.Ok)
             testfile = urllib.URLopener()
             if sys.platform == 'win32':
-                testfile.retrieve('http://www.met.reading.ac.uk/umep/docs/nib/win/SUEWS_V2015a.exe', self.model_dir + os.sep + 'SUEWS_V2015a.exe')
+                testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/win/SUEWS_V2016a.exe', self.model_dir + os.sep + 'SUEWS_V2016a.exe')
                 testfile2 = urllib.URLopener()
-                testfile2.retrieve('http://www.met.reading.ac.uk/umep/docs/nib/win/cyggcc_s-seh-1.dll', self.model_dir + os.sep + 'cyggcc_s-seh-1.dll')
+                testfile2.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cyggcc_s-seh-1.dll', self.model_dir + os.sep + 'cyggcc_s-seh-1.dll')
                 testfile3 = urllib.URLopener()
-                testfile3.retrieve('http://www.met.reading.ac.uk/umep/docs/nib/win/cyggfortran-3.dll', self.model_dir + os.sep + 'cyggfortran-3.dll')
+                testfile3.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cyggfortran-3.dll', self.model_dir + os.sep + 'cyggfortran-3.dll')
                 testfile4 = urllib.URLopener()
-                testfile4.retrieve('http://www.met.reading.ac.uk/umep/docs/nib/win/cygquadmath-0.dll', self.model_dir + os.sep + 'cygquadmath-0.dll')
+                testfile4.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cygquadmath-0.dll', self.model_dir + os.sep + 'cygquadmath-0.dll')
                 testfile5 = urllib.URLopener()
-                testfile5.retrieve('http://www.met.reading.ac.uk/umep/docs/nib/win/cygwin1.dll', self.model_dir + os.sep + 'cygwin1.dll')
+                testfile5.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cygwin1.dll', self.model_dir + os.sep + 'cygwin1.dll')
             if sys.platform == 'linux2':
-                testfile.retrieve('http://www.met.reading.ac.uk/umep/docs/nib/linux/SUEWS_V2015a', self.model_dir + os.sep + 'SUEWS_V2015a')
+                testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/linux/SUEWS_V2016a', self.model_dir + os.sep + 'SUEWS_V2016a')
             if sys.platform == 'darwin':
-                testfile.retrieve('http://www.met.reading.ac.uk/umep/docs/nib/mac/SUEWS_V2015a', self.model_dir + os.sep + 'SUEWS_V2015a')
+                testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/mac/SUEWS_V2016a', self.model_dir + os.sep + 'SUEWS_V2016a')
 
         self.dlg.show()
         self.dlg.exec_()
@@ -321,7 +321,6 @@ class SuewsSimple:
                     "vegetation fraction between the canopy DSM and the landcover grid was found: " + str(float(self.dlg.lineEdit_paiveg.text()) - data[2] - data[3]), level=QgsMessageBar.WARNING)
 
     def import_initial(self):
-        # import sys
         sys.path.append(self.model_dir)
         import f90nml
         self.fileDialogInit.open()
@@ -336,7 +335,6 @@ class SuewsSimple:
             self.dlg.comboBoxLeafCycle.setCurrentIndex(1)
 
     def export_initial(self):
-        # import sys
         sys.path.append(self.model_dir)
         import f90nml
         self.fileDialogInit.open()
@@ -411,7 +409,6 @@ class SuewsSimple:
             nml.write(self.folderPathInit[0], force=True)
 
     def set_default_settings(self):
-        # import sys
         sys.path.append(self.model_dir)
         import f90nml
         f = open(self.model_dir + '/BaseFiles/SUEWS_SiteSelect.txt')

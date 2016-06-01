@@ -531,16 +531,15 @@ class SEBE:
             self.dlg.pushButtonClose.setEnabled(True)
         else:
             # notify the user that something went wrong
-            self.iface.messageBar().pushMessage('Operations cancelled either by user or error.', level=QgsMessageBar.CRITICAL, duration=3)
+            self.iface.messageBar().pushMessage('Operations cancelled either by user or error. See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.', level=QgsMessageBar.CRITICAL, duration=3)
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
             self.dlg.pushButtonClose.setEnabled(True)
             self.dlg.progressBar.setValue(0)
 
-    def workerError(self, e, exception_string):
-        strerror = "SEBE worker thread raised an exception: " + str(e)
-        QgsMessageLog.logMessage(strerror.format(exception_string), level=QgsMessageLog.CRITICAL)
+    def workerError(self, errorstring):
+        QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
 
     def progress_update(self):
         self.steps += 1

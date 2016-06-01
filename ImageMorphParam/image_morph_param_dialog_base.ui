@@ -6,484 +6,341 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>574</width>
-    <height>417</height>
+    <width>572</width>
+    <height>426</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Image Morphometric Parameters</string>
   </property>
-  <widget class="QProgressBar" name="progressBar">
-   <property name="geometry">
-    <rect>
-     <x>8</x>
-     <y>360</y>
-     <width>471</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="value">
-    <number>24</number>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="runButton">
-   <property name="geometry">
-    <rect>
-     <x>492</x>
-     <y>360</y>
-     <width>75</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Run</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="closeButton">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>492</x>
-     <y>388</y>
-     <width>75</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Close</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="textOutput">
-   <property name="geometry">
-    <rect>
-     <x>264</x>
-     <y>332</y>
-     <width>225</width>
-     <height>20</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushButtonSave">
-   <property name="geometry">
-    <rect>
-     <x>492</x>
-     <y>332</y>
-     <width>75</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Select</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_6">
-   <property name="geometry">
-    <rect>
-     <x>4</x>
-     <y>334</y>
-     <width>259</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Output folder:</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-   </property>
-  </widget>
-  <widget class="QFrame" name="frame">
-   <property name="geometry">
-    <rect>
-     <x>2</x>
-     <y>92</y>
-     <width>565</width>
-     <height>181</height>
-    </rect>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::Box</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Sunken</enum>
-   </property>
-   <widget class="QComboBox" name="comboBox_DSMbuild">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>364</x>
-      <y>154</y>
-      <width>193</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>8</x>
-      <y>120</y>
-      <width>353</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Raster DEM (only ground):</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-    <property name="buddy">
-     <cstring>comboBox_DEM</cstring>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_4">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>8</x>
-      <y>156</y>
-      <width>353</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Raster DSM (only 3D objects):</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-    <property name="buddy">
-     <cstring>comboBox_DSMbuild</cstring>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="comboBox_Polygrid">
-    <property name="geometry">
-     <rect>
-      <x>360</x>
-      <y>5</y>
-      <width>197</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="toolTip">
-     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="1" column="0" colspan="5">
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="2" column="0" colspan="3">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>ID field:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QComboBox" name="comboBox_Field">
+        <property name="toolTip">
+         <string>Attribut ID should be a unique number or string for each polygon </string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="4">
+       <widget class="QCheckBox" name="checkBoxOnlyBuilding">
+        <property name="text">
+         <string>Raster DSM (only buildings or vegetation) exist</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2" colspan="2">
+       <widget class="QComboBox" name="comboBox_DSMbuildground"/>
+      </item>
+      <item row="5" column="2" colspan="2">
+       <widget class="QComboBox" name="comboBox_DEM"/>
+      </item>
+      <item row="6" column="2" colspan="2">
+       <widget class="QComboBox" name="comboBox_DSMbuild">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2" colspan="2">
+       <widget class="QComboBox" name="comboBox_Polygrid">
+        <property name="toolTip">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;This Polygon layer could include one single or mutiple squares &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="comboBox_DSMbuildground">
-    <property name="geometry">
-     <rect>
-      <x>364</x>
-      <y>82</y>
-      <width>193</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>6</x>
-      <y>84</y>
-      <width>357</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Raster DSM (3D objects + ground):</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-    <property name="buddy">
-     <cstring>comboBox_DSMbuildground</cstring>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="comboBox_Field">
-    <property name="geometry">
-     <rect>
-      <x>432</x>
-      <y>36</y>
-      <width>125</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="toolTip">
-     <string>Attribut ID should be a unique number or string for each polygon </string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="comboBox_DEM">
-    <property name="geometry">
-     <rect>
-      <x>364</x>
-      <y>118</y>
-      <width>193</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxOnlyBuilding">
-    <property name="geometry">
-     <rect>
-      <x>8</x>
-      <y>60</y>
-      <width>547</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Raster DSM (only buildings or vegetation) exist</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>22</x>
-      <y>6</y>
-      <width>337</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Vector polygon grid:</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-    <property name="buddy">
-     <cstring>comboBox_Polygrid</cstring>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_5">
-    <property name="geometry">
-     <rect>
-      <x>184</x>
-      <y>38</y>
-      <width>247</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>ID field:</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QLabel" name="label_8">
-   <property name="geometry">
-    <rect>
-     <x>34</x>
-     <y>18</y>
-     <width>457</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Wind direction search interval (degrees):</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="degreeBox">
-   <property name="geometry">
-    <rect>
-     <x>494</x>
-     <y>14</y>
-     <width>74</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_7">
-   <property name="geometry">
-    <rect>
-     <x>306</x>
-     <y>68</y>
-     <width>187</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Search distance (m):</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-   </property>
-  </widget>
-  <widget class="QSpinBox" name="spinBoxDistance">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>494</x>
-     <y>66</y>
-     <width>73</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignCenter</set>
-   </property>
-   <property name="suffix">
-    <string/>
-   </property>
-   <property name="minimum">
-    <number>1</number>
-   </property>
-   <property name="maximum">
-    <number>10000</number>
-   </property>
-   <property name="singleStep">
-    <number>10</number>
-   </property>
-   <property name="value">
-    <number>200</number>
-   </property>
-  </widget>
-  <widget class="QRadioButton" name="radioButtonExtent">
-   <property name="geometry">
-    <rect>
-     <x>8</x>
-     <y>46</y>
-     <width>331</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Search throughout the grid extent</string>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QRadioButton" name="radioButtonCenter">
-   <property name="geometry">
-    <rect>
-     <x>8</x>
-     <y>64</y>
-     <width>291</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Search from grid centroid</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="helpButton">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>6</x>
-     <y>388</y>
-     <width>75</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Help</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_9">
-   <property name="geometry">
-    <rect>
-     <x>392</x>
-     <y>308</y>
-     <width>113</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>File prefix:</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="textOutput_prefix">
-   <property name="geometry">
-    <rect>
-     <x>506</x>
-     <y>306</y>
-     <width>59</width>
-     <height>20</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="comboBox_Roughness">
-   <property name="geometry">
-    <rect>
-     <x>366</x>
-     <y>280</y>
-     <width>199</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <item>
-    <property name="text">
-     <string>Rule of thumb</string>
-    </property>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Vector polygon grid:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>comboBox_Polygrid</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="addResultToGrid">
+        <property name="text">
+         <string>Add result to polygon grid</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Raster DEM (only ground):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>comboBox_DEM</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="2">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Raster DSM (3D objects + ground):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>comboBox_DSMbuildground</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QLabel" name="label_4">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Raster DSM (only 3D objects):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>comboBox_DSMbuild</cstring>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
-   <item>
-    <property name="text">
-     <string>Raupach (1994/95)</string>
-    </property>
+   <item row="0" column="0" colspan="5">
+    <widget class="QFrame" name="frame_2">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0" colspan="2">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Wind direction search interval (degrees):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QComboBox" name="degreeBox"/>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QRadioButton" name="radioButtonExtent">
+        <property name="text">
+         <string>Search throughout the grid extent</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QRadioButton" name="radioButtonCenter">
+        <property name="text">
+         <string>Search from grid centroid</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>Search distance (m):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QSpinBox" name="spinBoxDistance">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="suffix">
+         <string/>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>10000</number>
+        </property>
+        <property name="singleStep">
+         <number>10</number>
+        </property>
+        <property name="value">
+         <number>200</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
-   <item>
-    <property name="text">
-     <string>Simplified Bottema (1995)</string>
-    </property>
+   <item row="8" column="4">
+    <widget class="QPushButton" name="closeButton">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string>Close</string>
+     </property>
+    </widget>
    </item>
-   <item>
-    <property name="text">
-     <string>MacDonald et al. (1998)</string>
-    </property>
+   <item row="8" column="0">
+    <widget class="QPushButton" name="helpButton">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string>Help</string>
+     </property>
+    </widget>
    </item>
-   <item>
-    <property name="text">
-     <string>Millward-Hopkins et al. (2011)</string>
-    </property>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_10">
+     <property name="text">
+      <string>Roughness calculation method:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy">
+      <cstring>comboBox_DEM</cstring>
+     </property>
+    </widget>
    </item>
-   <item>
-    <property name="text">
-     <string>Kanda et al. (2013)</string>
-    </property>
+   <item row="2" column="1">
+    <widget class="QComboBox" name="comboBox_Roughness">
+     <item>
+      <property name="text">
+       <string>Rule of thumb</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Raupach (1994/95)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Simplified Bottema (1995)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>MacDonald et al. (1998)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Millward-Hopkins et al. (2011)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Kanda et al. (2013)</string>
+      </property>
+     </item>
+    </widget>
    </item>
-  </widget>
-  <widget class="QLabel" name="label_10">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>282</y>
-     <width>355</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Roughness calculation method:</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-   </property>
-   <property name="buddy">
-    <cstring>comboBox_DEM</cstring>
-   </property>
-  </widget>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Output folder:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1" colspan="3">
+    <widget class="QLineEdit" name="textOutput"/>
+   </item>
+   <item row="4" column="4">
+    <widget class="QPushButton" name="pushButtonSave">
+     <property name="text">
+      <string>Select</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="4">
+    <widget class="QPushButton" name="runButton">
+     <property name="text">
+      <string>Run</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="4">
+    <widget class="QLineEdit" name="textOutput_prefix"/>
+   </item>
+   <item row="3" column="3">
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string>File prefix:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="6" column="0" colspan="4">
+    <widget class="QProgressBar" name="progressBar">
+     <property name="value">
+      <number>24</number>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections>
@@ -494,12 +351,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>49</x>
-     <y>150</y>
+     <x>58</x>
+     <y>166</y>
     </hint>
     <hint type="destinationlabel">
-     <x>198</x>
-     <y>246</y>
+     <x>300</x>
+     <y>242</y>
     </hint>
    </hints>
   </connection>
@@ -510,12 +367,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>114</x>
-     <y>150</y>
+     <x>123</x>
+     <y>166</y>
     </hint>
     <hint type="destinationlabel">
-     <x>187</x>
-     <y>210</y>
+     <x>300</x>
+     <y>216</y>
     </hint>
    </hints>
   </connection>
@@ -526,12 +383,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>75</x>
-     <y>150</y>
+     <x>84</x>
+     <y>166</y>
     </hint>
     <hint type="destinationlabel">
-     <x>197</x>
-     <y>174</y>
+     <x>300</x>
+     <y>190</y>
     </hint>
    </hints>
   </connection>
@@ -542,8 +399,8 @@ p, li { white-space: pre-wrap; }
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>332</x>
-     <y>367</y>
+     <x>486</x>
+     <y>392</y>
     </hint>
     <hint type="destinationlabel">
      <x>220</x>
@@ -558,12 +415,12 @@ p, li { white-space: pre-wrap; }
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>42</x>
-     <y>50</y>
+     <x>52</x>
+     <y>48</y>
     </hint>
     <hint type="destinationlabel">
-     <x>31</x>
-     <y>72</y>
+     <x>36</x>
+     <y>70</y>
     </hint>
    </hints>
   </connection>
@@ -574,12 +431,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>80</x>
-     <y>69</y>
+     <x>90</x>
+     <y>74</y>
     </hint>
     <hint type="destinationlabel">
-     <x>343</x>
-     <y>75</y>
+     <x>383</x>
+     <y>71</y>
     </hint>
    </hints>
   </connection>
@@ -590,12 +447,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>68</x>
-     <y>54</y>
+     <x>73</x>
+     <y>46</y>
     </hint>
     <hint type="destinationlabel">
-     <x>347</x>
-     <y>82</y>
+     <x>472</x>
+     <y>68</y>
     </hint>
    </hints>
   </connection>

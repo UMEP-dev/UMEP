@@ -1,0 +1,26 @@
+1	2	3	4	5	6	7	8	9	10	11	12	13	14	15					
+Code	AlbedoMin	AlbedoMax	Emissivity	StorageMin	StorageMax	WetThreshold	StateLimit	DrainageEq	DrainageCoef1	DrainageCoef2	OHMCode_SummerWet	OHMCode_SummerDry	OHMCode_WinterWet	OHMCode_WinterDry					
+1000	0.08	0.08	0.95	0.5	0.5	0.5	2000	0	0	0	60	60	60	60	!	Helsinki	Jarvi et al. (2014)		
+551	0.1	0.1	0.95	0.5	0.5	0.5	1000	-999	-999	-999	60	60	60	60	!	Swindon (no water)	Ward et al. (2013)		
+661	0.1	0.1	0.95	0.5	0.5	0.5	30000	0	0	0	60	60	60	60	!	London			
+33661	0.1	0.1	0.95	0.5	0.5	0.5	30000	0	0	0	60	60	60	60	!	LoBo			
+-9																			
+-9																			
+																			
+																			
+!				For Water surface															
+!	1		Code	Code for Water surface							Links to Code_Water in SUEWS_SiteSelect								
+!	2		AlbedoMin (not currently used)	Albedo of this surface															
+!	3		AlbedoMax	Albedo of this surface (this value is used)															
+!	4		Emissivity	Emissivity of this surface															
+!	5		StorageMin	Minimum storage capacity of this surface					[mm]										
+!	6		StorageMax	Maximum storage capacity of this surface					[mm]										
+!	7		WetThreshold	Threshold for wet evaporation limit					[mm]										
+!	8		StateLimit	Maximum amount of water in the surface state for this surface					[mm]										
+!	9		DrainageEq	Drainage equation to use for this surface							Not currently implemented								
+!	10		DrainageCoef1	Coefficient for drainage equation							Not currently implemented								
+!	11		DrainageCoef2	Coefficient for drainage equation							Not currently implemented								
+!	12		OHMCode_SummerWet								"Links to SUEWS_OHMCoefficients, col. 1"								
+!	13		OHMCode_SummerDry																
+!	14		OHMCode_WinterWet																
+!	15		OHMCode_WinterDry																

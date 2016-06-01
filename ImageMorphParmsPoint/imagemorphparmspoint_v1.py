@@ -501,14 +501,17 @@ class ImageMorphParmsPoint:
         else:
             Roughnessmethod = 'Kan'
 
-        # QMessageBox.information(None, "Test", Roughnessmethod)
-
         zH = immorphresult["zH"]
         fai = immorphresult["fai"]
         pai = immorphresult["pai"]
         zMax = immorphresult["zHmax"]
         zSdev = immorphresult["zH_sd"]
-        zd,z0 = rg.RoughnessCalc(Roughnessmethod,zH,fai,pai,zMax,zSdev)
+
+        # self.iface.messageBar().pushMessage("fai", str(fai.shape[0]), level=QgsMessageBar.INFO)
+        zd,z0 = rg.RoughnessCalcMany(Roughnessmethod,zH,fai,pai,zMax,zSdev)
+        # self.iface.messageBar().pushMessage("Model run finished", "zH=" + str(zH) + "fai=" + str(fai) + "pai=" + str(pai) + "zMax=" + str(zMax) + "zSdev=" + str(zSdev) , level=QgsMessageBar.INFO)
+        # self.iface.messageBar().pushMessage("z0", str(z0), level=QgsMessageBar.INFO)
+        # self.iface.messageBar().pushMessage("zH", str(zH), level=QgsMessageBar.INFO)
 
         # save to file
         pre = self.dlg.textOutput_prefix.text()

@@ -7,614 +7,527 @@
     <x>0</x>
     <y>0</y>
     <width>466</width>
-    <height>561</height>
+    <height>573</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>SUEWS</string>
   </property>
-  <widget class="QPushButton" name="closeButton">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>387</x>
-     <y>534</y>
-     <width>75</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Close</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="UTC">
-   <property name="geometry">
-    <rect>
-     <x>399</x>
-     <y>396</y>
-     <width>60</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="toolTip">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Time zone relative to UTC (Note: east is positive)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignCenter</set>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="runButton">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>387</x>
-     <y>507</y>
-     <width>75</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Run</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushButtonSave">
-   <property name="geometry">
-    <rect>
-     <x>300</x>
-     <y>480</y>
-     <width>163</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Output folder</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="helpButton">
-   <property name="geometry">
-    <rect>
-     <x>3</x>
-     <y>534</y>
-     <width>75</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Help</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="textOutput">
-   <property name="geometry">
-    <rect>
-     <x>6</x>
-     <y>480</y>
-     <width>289</width>
-     <height>20</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_24">
-   <property name="geometry">
-    <rect>
-     <x>168</x>
-     <y>399</y>
-     <width>229</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>UTC offset (hour):</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-   </property>
-   <property name="buddy">
-    <cstring></cstring>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="textInput">
-   <property name="geometry">
-    <rect>
-     <x>6</x>
-     <y>453</y>
-     <width>289</width>
-     <height>20</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushButtonLoad">
-   <property name="geometry">
-    <rect>
-     <x>300</x>
-     <y>453</y>
-     <width>163</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Input folder</string>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="checkBoxCBL">
-   <property name="geometry">
-    <rect>
-     <x>3</x>
-     <y>294</y>
-     <width>355</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Couple with convective boundary model</string>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="checkBoxSnow">
-   <property name="geometry">
-    <rect>
-     <x>3</x>
-     <y>273</y>
-     <width>400</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Use snow module</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_35">
-   <property name="geometry">
-    <rect>
-     <x>165</x>
-     <y>372</y>
-     <width>232</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>File code (e.g. SSss):</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-   </property>
-   <property name="buddy">
-    <cstring></cstring>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="FileCode">
-   <property name="geometry">
-    <rect>
-     <x>399</x>
-     <y>369</y>
-     <width>60</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="maxLength">
-    <number>8</number>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignCenter</set>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushButtonCBL">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>3</x>
-     <y>315</y>
-     <width>115</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>CBL setup</string>
-   </property>
-  </widget>
-  <widget class="QWidget" name="layoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>210</x>
-     <y>9</y>
-     <width>252</width>
-     <height>256</height>
-    </rect>
-   </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QComboBox" name="comboBoxQf">
-      <property name="currentIndex">
-       <number>2</number>
-      </property>
-      <item>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QLabel" name="label_25">
        <property name="text">
-        <string>[0] Observed data</string>
+        <string>Anthropogenic heat flux:</string>
        </property>
-      </item>
-      <item>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="buddy">
+        <cstring></cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_26">
        <property name="text">
-        <string>[1] Lordian et al. 2011 (NOT RECOMMENDED)</string>
+        <string>Net radiation:</string>
        </property>
-      </item>
-      <item>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="buddy">
+        <cstring></cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_27">
        <property name="text">
-        <string>[2] Järvi et al. 2011 (RECOMMENDED)</string>
+        <string>Surface conductance:</string>
        </property>
-      </item>
-     </widget>
-    </item>
-    <item>
-     <widget class="QComboBox" name="comboBoxNet">
-      <property name="currentIndex">
-       <number>3</number>
-      </property>
-      <item>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="buddy">
+        <cstring></cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_28">
        <property name="text">
-        <string>[0] Observed data</string>
+        <string>Storage heat flux:</string>
        </property>
-      </item>
-      <item>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="buddy">
+        <cstring></cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_29">
        <property name="text">
-        <string>[1] Modelled but Ldown observed</string>
+        <string>OHM option:</string>
        </property>
-      </item>
-      <item>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="buddy">
+        <cstring></cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_30">
        <property name="text">
-        <string>[2] Modelled, Ldown from cloud cover</string>
+        <string>Roughness length of heat:</string>
        </property>
-      </item>
-      <item>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="buddy">
+        <cstring></cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_31">
        <property name="text">
-        <string>[3] Modelled, Ldown from Ta and RH</string>
+        <string>Soil moisture deficit:</string>
        </property>
-      </item>
-     </widget>
-    </item>
-    <item>
-     <widget class="QComboBox" name="comboBoxGs">
-      <property name="currentIndex">
-       <number>1</number>
-      </property>
-      <item>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="buddy">
+        <cstring></cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_32">
        <property name="text">
-        <string>[1] From Järvi et al. (2011)</string>
+        <string>Atmospheric stability: </string>
        </property>
-      </item>
-      <item>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="buddy">
+        <cstring></cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_33">
        <property name="text">
-        <string>[2] From Ward et al. (2015)</string>
+        <string>External water use: </string>
        </property>
-      </item>
-     </widget>
-    </item>
-    <item>
-     <widget class="QComboBox" name="comboBoxQs">
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <item>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="buddy">
+        <cstring></cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_34">
        <property name="text">
-        <string>[1] Objective hysteresis model (OHM)</string>
+        <string>Aerodynamic properties:</string>
        </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>[2] Observed data</string>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
-      </item>
-     </widget>
-    </item>
-    <item>
-     <widget class="QComboBox" name="comboBoxOHM">
-      <property name="currentIndex">
-       <number>1</number>
-      </property>
-      <item>
-       <property name="text">
-        <string>[0] From Q*</string>
+       <property name="buddy">
+        <cstring></cstring>
        </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>[1] From Q* + Qf (RECOMMENDED)</string>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="1">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QComboBox" name="comboBoxQf">
+       <property name="currentIndex">
+        <number>2</number>
        </property>
-      </item>
-     </widget>
-    </item>
-    <item>
-     <widget class="QComboBox" name="comboBoxZ0">
-      <property name="currentIndex">
-       <number>1</number>
-      </property>
-      <item>
-       <property name="text">
-        <string>[1] as 0.1 * roughness length for momentum</string>
+       <item>
+        <property name="text">
+         <string>[0] Observed data</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>[1] Lordian et al. 2011 (NOT RECOMMENDED)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>[2] Järvi et al. 2011 (RECOMMENDED)</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBoxNet">
+       <property name="currentIndex">
+        <number>3</number>
        </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>[2] Kawai et al. (2009) (RECOMMENDED)</string>
+       <item>
+        <property name="text">
+         <string>[0] Observed data</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>[1] Modelled but Ldown observed</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>[2] Modelled, Ldown from cloud cover</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>[3] Modelled, Ldown from Ta and RH</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBoxGs">
+       <property name="currentIndex">
+        <number>1</number>
        </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>[3] Voogt and Grimmond (2000)</string>
+       <item>
+        <property name="text">
+         <string>[1] From Järvi et al. (2011)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>[2] From Ward et al. (2015)</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBoxQs">
+       <property name="currentIndex">
+        <number>0</number>
        </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>[4] Kanda et al. (2007)</string>
+       <item>
+        <property name="text">
+         <string>[1] Objective hysteresis model (OHM)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>[2] Observed data</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBoxOHM">
+       <property name="currentIndex">
+        <number>1</number>
        </property>
-      </item>
-     </widget>
-    </item>
-    <item>
-     <widget class="QComboBox" name="comboBoxSMD">
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <item>
-       <property name="text">
-        <string>[0] Modelled (RECOMMENDED)</string>
+       <item>
+        <property name="text">
+         <string>[0] From Q*</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>[1] From Q* + Qf (RECOMMENDED)</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBoxZ0">
+       <property name="currentIndex">
+        <number>1</number>
        </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>[1] Measured, volumetric data</string>
+       <item>
+        <property name="text">
+         <string>[1] as 0.1 * roughness length for momentum</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>[2] Kawai et al. (2009) (RECOMMENDED)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>[3] Voogt and Grimmond (2000)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>[4] Kanda et al. (2007)</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBoxSMD">
+       <property name="currentIndex">
+        <number>0</number>
        </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>[2] MEasured, gravimetric data</string>
+       <item>
+        <property name="text">
+         <string>[0] Modelled (RECOMMENDED)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>[1] Measured, volumetric data</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>[2] MEasured, gravimetric data</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBoxStab">
+       <property name="currentIndex">
+        <number>0</number>
        </property>
-      </item>
-     </widget>
-    </item>
-    <item>
-     <widget class="QComboBox" name="comboBoxStab">
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <item>
-       <property name="text">
-        <string>[2] Dyer (1974) etc. (RECOMMENDED)</string>
+       <item>
+        <property name="text">
+         <string>[2] Dyer (1974) etc. (RECOMMENDED)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>[3] Campbell &amp; Norman (1998) etc.</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>[4] Businger et al. (1971)</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBoxWU">
+       <property name="currentIndex">
+        <number>0</number>
        </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>[3] Campbell &amp; Norman (1998) etc.</string>
+       <item>
+        <property name="text">
+         <string>[0] Modelled</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>[1] Observed</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBoxAeroD">
+       <property name="currentIndex">
+        <number>0</number>
        </property>
+       <item>
+        <property name="text">
+         <string>[1] Observed</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>[2] Rule of Thumb, Grimmond and Oke (1999)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>[3] Macdonald et al. (1998)</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="3" column="4">
+       <widget class="QLineEdit" name="FileCode">
+        <property name="maxLength">
+         <number>8</number>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
       </item>
-      <item>
-       <property name="text">
-        <string>[4] Businger et al. (1971)</string>
-       </property>
+      <item row="3" column="1" colspan="3">
+       <widget class="QLabel" name="label_35">
+        <property name="text">
+         <string>File code (e.g. SSss):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring></cstring>
+        </property>
+       </widget>
       </item>
-     </widget>
-    </item>
-    <item>
-     <widget class="QComboBox" name="comboBoxWU">
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <item>
-       <property name="text">
-        <string>[0] Modelled</string>
-       </property>
+      <item row="8" column="4">
+       <widget class="QPushButton" name="runButton">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Run</string>
+        </property>
+       </widget>
       </item>
-      <item>
-       <property name="text">
-        <string>[1] Observed</string>
-       </property>
+      <item row="9" column="0">
+       <widget class="QPushButton" name="helpButton">
+        <property name="text">
+         <string>Help</string>
+        </property>
+       </widget>
       </item>
-     </widget>
-    </item>
-    <item>
-     <widget class="QComboBox" name="comboBoxAeroD">
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <item>
-       <property name="text">
-        <string>[1] Observed</string>
-       </property>
+      <item row="5" column="0" colspan="4">
+       <widget class="QLabel" name="label_36">
+        <property name="text">
+         <string>Height of the meteorological forcing data (m):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring></cstring>
+        </property>
+       </widget>
       </item>
-      <item>
-       <property name="text">
-        <string>[2] Rule of Thumb, Grimmond and Oke (1999)</string>
-       </property>
+      <item row="5" column="4">
+       <widget class="QLineEdit" name="Height">
+        <property name="maxLength">
+         <number>8</number>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
       </item>
-      <item>
-       <property name="text">
-        <string>[3] Macdonald et al. (1998)</string>
-       </property>
+      <item row="0" column="0" colspan="5">
+       <widget class="QCheckBox" name="checkBoxSnow">
+        <property name="text">
+         <string>Use snow module</string>
+        </property>
+       </widget>
       </item>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QWidget" name="layoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>9</y>
-     <width>208</width>
-     <height>256</height>
-    </rect>
-   </property>
-   <layout class="QVBoxLayout" name="verticalLayout_2">
-    <item>
-     <widget class="QLabel" name="label_25">
-      <property name="text">
-       <string>Anthropogenic heat flux:</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-      <property name="buddy">
-       <cstring></cstring>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_26">
-      <property name="text">
-       <string>Net radiation:</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-      <property name="buddy">
-       <cstring></cstring>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_27">
-      <property name="text">
-       <string>Surface conductance:</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-      <property name="buddy">
-       <cstring></cstring>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_28">
-      <property name="text">
-       <string>Storage heat flux:</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-      <property name="buddy">
-       <cstring></cstring>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_29">
-      <property name="text">
-       <string>OHM option:</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-      <property name="buddy">
-       <cstring></cstring>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_30">
-      <property name="text">
-       <string>Roughness length of heat:</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-      <property name="buddy">
-       <cstring></cstring>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_31">
-      <property name="text">
-       <string>Soil moisture deficit:</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-      <property name="buddy">
-       <cstring></cstring>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_32">
-      <property name="text">
-       <string>Atmospheric stability: </string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-      <property name="buddy">
-       <cstring></cstring>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_33">
-      <property name="text">
-       <string>External water use: </string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-      <property name="buddy">
-       <cstring></cstring>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_34">
-      <property name="text">
-       <string>Aerodynamic properties:</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-      <property name="buddy">
-       <cstring></cstring>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QLineEdit" name="Height">
-   <property name="geometry">
-    <rect>
-     <x>399</x>
-     <y>423</y>
-     <width>60</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="maxLength">
-    <number>8</number>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignCenter</set>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_36">
-   <property name="geometry">
-    <rect>
-     <x>6</x>
-     <y>426</y>
-     <width>391</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Height of the meteorological forcing data (m):</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-   </property>
-   <property name="buddy">
-    <cstring></cstring>
-   </property>
-  </widget>
+      <item row="4" column="1" colspan="3">
+       <widget class="QLabel" name="label_24">
+        <property name="text">
+         <string>UTC offset (hour):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring></cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="4">
+       <widget class="QLineEdit" name="UTC">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Time zone relative to UTC (Note: east is positive)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="3">
+       <widget class="QCheckBox" name="checkBoxCBL">
+        <property name="text">
+         <string>Couple with convective boundary model</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="4">
+       <widget class="QPushButton" name="closeButton">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Close</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="4">
+       <widget class="QPushButton" name="pushButtonLoad">
+        <property name="text">
+         <string>Input folder</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="4">
+       <widget class="QPushButton" name="pushButtonSave">
+        <property name="text">
+         <string>Output folder</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="3">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="6" column="0" colspan="4">
+       <widget class="QLineEdit" name="textInput"/>
+      </item>
+      <item row="7" column="0" colspan="4">
+       <widget class="QLineEdit" name="textOutput"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QPushButton" name="pushButtonCBL">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>CBL setup</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections>
@@ -625,12 +538,12 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>424</x>
-     <y>545</y>
+     <x>365</x>
+     <y>540</y>
     </hint>
     <hint type="destinationlabel">
-     <x>373</x>
-     <y>547</y>
+     <x>406</x>
+     <y>568</y>
     </hint>
    </hints>
   </connection>
@@ -641,12 +554,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>14</x>
-     <y>303</y>
+     <x>42</x>
+     <y>310</y>
     </hint>
     <hint type="destinationlabel">
-     <x>24</x>
-     <y>318</y>
+     <x>53</x>
+     <y>341</y>
     </hint>
    </hints>
   </connection>

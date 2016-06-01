@@ -114,9 +114,144 @@ p.MsoListParagraphCxSpLast
 
 <body>
 
-<h1 style="margin-bottom:0cm;margin-bottom:.0001pt">Documentation under 
-construction<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
-minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"> </span></h1>
+<h1><a name="_Toc446057841">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">SUEWS</span></a></h1>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">This 
+plugin makes it possible to run the Surface Urban Energy 
+and Water Balance Scheme (SUEWS). SUEWS is also available as a separate program 
+and a simplified version within UMEP (SUEWS Simple).<span style="mso-spacerun:yes">&nbsp;
+</span><o:p></o:p></span></p>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">SUEWS 
+(Järvi et al. 2011, 2014, Ward et al. 2016a, b) simulates the urban radiation, 
+energy and water balances using commonly measured/modelled meteorological 
+variables and information about the surface cover. It utilizes an 
+evaporation-interception approach (Grimmond et al. 1991), similar to that used 
+in forests, to model evaporation from urban surfaces.<span style="mso-spacerun:yes">&nbsp;&nbsp;
+</span><o:p></o:p></span></p>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">The model 
+uses seven surface types: paved, buildings, evergreen trees/shrubs, deciduous 
+trees/shrubs, grass, bare soil and water. The surface state for each surface 
+type at each time step is calculated from the running water balance of the 
+canopy where the evaporation is calculated from the Penman-Monteith equation. 
+The soil moisture below each surface type (excluding water) is taken into 
+account.<span style="mso-spacerun:yes">&nbsp;&nbsp; </span><o:p></o:p></span>
+</p>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Model 
+applicability: Local scale – so forcing data should be above the height of the 
+roughness elements (trees, buildings) <o:p></o:p></span></p>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">SUEWS 
+Simple is designed to be executed for a single location but the model is also 
+able to be executed on a grid.<o:p></o:p></span></p>
+<h2><a name="_Toc446057842"></a><a name="_Toc431370467">
+<span style="mso-bookmark:_Toc446057842">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Location</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h2>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">The SUEWS 
+Simple plugin is located at <i style="mso-bidi-font-style:normal">UMEP -&gt; 
+Processor -&gt; Urban Energy Balance -&gt; Urban Energy Balance (SUEWS/BLUEWS, 
+Advanced)</i>.<o:p></o:p></span></p>
+<h1><a name="_Toc446057843"></a><a name="_Toc431370468">
+<span style="mso-bookmark:_Toc446057843">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Running the plugin</span></span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h1>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">When you 
+run plugin, you will see the dialog shown below. To use this plugin, all input 
+data needs to be prepared beforehand.<o:p> This can be done using the various 
+plugin in the pre-processor in UMEP. The settings available in this plugin is 
+used for specifying the settings for a specific model run. You should consult 
+the manual (<a href="http://www.urban-climate.net/umep/SUEWS" target="_blank">http://www.urban-climate.net/umep/SUEWS</a>) 
+for instructions and information on what settings to use. For extensive models 
+run it is recommended to execute the model outside of QGIS (see manual). The 
+interface below creates a so-called namelist (RunControl.nml) that is used be 
+the model for general settings. After running the model, this file can be found 
+in the suewsmodel directory in the UMEP plugin directory.</o:p></span></p>
+<p class="MsoNormal">
+<o:p></o:p>
+</p>
+<p class="MsoNormal">
+<o:p></o:p>
+</p>
+<p class="MsoNormal">
+<o:p>
+</o:p>
+</p>
+<p class="MsoNormal">
+<o:p><img alt="" height="640" src="img/img_1.png" width="478" /></o:p></p>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US;
+mso-no-proof:yes"><v:shapetype id="_x0000_t75" coordsize="21600,21600" o:spt="75"
+ o:preferrelative="t" path="m@4@5l@4@11@9@11@9@5xe" filled="f" stroked="f">
+ <v:stroke joinstyle="miter" xmlns:v="urn:schemas-microsoft-com:vml"/>
+ <v:formulas>
+  <v:f eqn="if lineDrawn pixelLineWidth 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @0 1 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum 0 0 @1" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @2 1 2" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @3 21600 pixelWidth" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @3 21600 pixelHeight" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @0 0 1" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @6 1 2" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @7 21600 pixelWidth" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @8 21600 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="prod @7 21600 pixelHeight" xmlns:v="urn:schemas-microsoft-com:vml"/>
+  <v:f eqn="sum @10 21600 0" xmlns:v="urn:schemas-microsoft-com:vml"/>
+ </v:formulas>
+ <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect" xmlns:v="urn:schemas-microsoft-com:vml"/>
+ <o:lock v:ext="edit" aspectratio="t" xmlns:o="urn:schemas-microsoft-com:office:office"/>
+</v:shapetype><v:shape id="Picture_x0020_1" o:spid="_x0000_i1025" type="#_x0000_t75"
+ style='width:453.75pt;height:351.75pt;visibility:visible;mso-wrap-style:square'>
+ <v:imagedata src="../../../../../AppData/Local/Temp/msohtmlclip1/01/clip_image001.png"
+  o:title="" xmlns:v="urn:schemas-microsoft-com:vml"/>
+</v:shape></span>
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p>
+</span></p>
+<h1><a name="_Toc446057860">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">References</span></a><span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US"><o:p></o:p></span></h1>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Järvi L, Grimmond CSB 
+&amp; Christen A (2011) The Surface Urban Energy and Water Balance Scheme (SUEWS): 
+Evaluation in Los Angeles and Vancouver J. Hydrol. 411, 219-237. <o:p></o:p>
+</span></p>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Järvi L, Grimmond CSB, 
+Taka M, Nordbo A, Setälä H &amp;Strachan IB (2014) Development of the Surface Urban 
+Energy and Water balance Scheme (SUEWS) for cold climate cities, Geosci. Model 
+Dev. 7, 1691-1711, doi:10.5194/gmd-7-1691-2014.<o:p></o:p></span></p>
+<p class="MsoNormal">
+<span style="font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-ansi-language:EN-US">Ward HC, L Järvi, S 
+Onomura, F Lindberg, CSB Grimmond (2016a) SUEWS Manual: Version 2016a (Available 
+from UMEP website).<o:p></o:p></span></p>
+<span style="font-size:11.0pt;font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;mso-ascii-theme-font:
+minor-latin;mso-fareast-font-family:Calibri;mso-fareast-theme-font:minor-latin;
+mso-hansi-theme-font:minor-latin;mso-bidi-font-family:&quot;Times New Roman&quot;;
+mso-bidi-theme-font:minor-bidi;mso-ansi-language:EN-US;mso-fareast-language:
+EN-US;mso-bidi-language:AR-SA">Ward HC. S Kotthaus, L Järvi, CSB Grimmond<sup>
+</sup>(2016b) Surface Urban Energy and Water Balance Scheme (SUEWS): development 
+and evaluation at two UK sites (in review).</span>
 
 </body>
 
