@@ -83,12 +83,12 @@ class Worker(QtCore.QObject):
 
                 if self.imid == 1:
                     gdalruntextlc_grid = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-                                           ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff ' + \
-                                           filePath_lc_grid + ' ' + self.plugin_dir + '/data/clipdsm.tif'
+                                           ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+                                           filePath_lc_grid + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
                 else:
                     gdalruntextlc_grid = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -cutline ' + self.dir_poly + \
-                                           ' -crop_to_cutline -of GTiff ' + filePath_lc_grid + ' ' + \
-                                           self.plugin_dir + '/data/clipdsm.tif'
+                                           ' -crop_to_cutline -of GTiff "' + filePath_lc_grid + '" "' + \
+                                           self.plugin_dir + '/data/clipdsm.tif"'
 
                 if sys.platform == 'win32':
                     si = subprocess.STARTUPINFO()
@@ -235,19 +235,21 @@ class Worker(QtCore.QObject):
                             print line,
                         else:
                             diff = total - 1.0
-                            QgsMessageLog.logMessage("Diff: " + str(diff), level=QgsMessageLog.CRITICAL)
+                            # QgsMessageLog.logMessage("Diff: " + str(diff), level=QgsMessageLog.CRITICAL)
                             max_number = max(line_split[1:])
-                            QgsMessageLog.logMessage("Max number: " + str(max_number), level=QgsMessageLog.CRITICAL)
+                            # QgsMessageLog.logMessage("Max number: " + str(max_number), level=QgsMessageLog.CRITICAL)
 
                             for x in range(1, len(line_split)):
                                 if float(max_number) == float(line_split[x]):
                                     line_split[x] = float(line_split[x]) - diff
                                     break
                             string_to_print = '  '
+
                             for element in line_split[:-1]:
                                 string_to_print += str(element) + ' '
-                            string_to_print + line_split[-1]
+                            string_to_print += line_split[-1]
                             string_to_print += '\n'
+
                             print string_to_print,
 
     def kill(self):

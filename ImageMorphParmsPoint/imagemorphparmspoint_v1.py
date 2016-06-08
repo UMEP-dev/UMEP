@@ -527,6 +527,7 @@ class ImageMorphParmsPoint:
         paiall = immorphresult["pai_all"]
         zMaxall = immorphresult["zHmax_all"]
         zSdevall = immorphresult["zH_sd_all"]
+        # self.iface.messageBar().pushMessage("Model run finished", "zH=" + str(zHall) + "fai=" + str(faiall) + "pai=" + str(paiall) + "zMax=" + str(zMaxall) + "zSdev=" + str(zSdevall) , level=QgsMessageBar.INFO)
         zdall,z0all = rg.RoughnessCalc(Roughnessmethod,zHall,faiall,paiall,zMaxall,zSdevall)
         header = ' pai  fai   zH    zHmax    zHstd zd z0'
         numformat = '%4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'

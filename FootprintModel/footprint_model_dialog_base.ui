@@ -802,5 +802,117 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>checkBoxOnlyBuilding</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>comboBox_DSMbuildground</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>25</x>
+     <y>134</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>311</x>
+     <y>165</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxOnlyBuilding</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>comboBox_DEM</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>43</x>
+     <y>137</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>323</x>
+     <y>191</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxOnlyBuilding</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>comboBox_DSMbuild</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>35</x>
+     <y>137</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>311</x>
+     <y>214</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxVectorLayer</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_6</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>26</x>
+     <y>40</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>319</x>
+     <y>81</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxOnlyBuilding</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_2</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>53</x>
+     <y>137</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>136</x>
+     <y>159</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxOnlyBuilding</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_3</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>64</x>
+     <y>137</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>201</x>
+     <y>187</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxOnlyBuilding</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_4</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>88</x>
+     <y>133</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>186</x>
+     <y>215</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>

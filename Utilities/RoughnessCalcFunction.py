@@ -163,8 +163,12 @@ def RoughnessCalc(Roughnessmethod,zH,fai,pai,zMax,zSdev):
         #Alph = 3.59
         #Beet = 0.55
         z_d_output = (1+((Alph**-pai)*(pai-1)))*zH
-        Macexp = 0.5*Beet*(Clb/k**2)*(1-z_d_output/zH)*fai
-        z_0_output= (zH*((1-z_d_output/zH))*np.exp(-(0.5*(1.2/0.4**2)*(1-(z_d_output/zH))*fai)**-0.5))
+        if zH > 0.:
+            Macexp = 0.5*Beet*(Clb/k**2)*(1-z_d_output/zH)*fai
+            z_0_output= (zH*((1-z_d_output/zH))*np.exp(-(0.5*(1.2/0.4**2)*(1-(z_d_output/zH))*fai)**-0.5))
+        else:
+            z_0_output = 0.
+            z_d_output = 0.
     elif Roughnessmethod == 'Kan':
         #Kanda
         Kanmeth = 1
@@ -192,19 +196,23 @@ def RoughnessCalc(Roughnessmethod,zH,fai,pai,zMax,zSdev):
         #Square array
         #Alph = 3.59
         #Beet = 0.55
-        z_d_output = (1+((Alph**-pai)*(pai-1)))*zH
-        Macexp = 0.5*Beet*(Clb/k**2)*(1-z_d_output/zH)*fai
-        z0Mac= (zH*((1-z_d_output/zH))*np.exp(-(0.5*(1.2/0.4**2)*(1-(z_d_output/zH))*fai)**-0.5))
-        X=(zSdev+zH)/zMax
-        if (0<X<=1):
-            z_d_output = ((Co*(X**2))+((((Ao*(pai**Bo))-Co))*X))*zMax
+        if zH > 0.:
+            z_d_output = (1+((Alph**-pai)*(pai-1)))*zH
+            Macexp = 0.5*Beet*(Clb/k**2)*(1-z_d_output/zH)*fai
+            z0Mac= (zH*((1-z_d_output/zH))*np.exp(-(0.5*(1.2/0.4**2)*(1-(z_d_output/zH))*fai)**-0.5))
+            X=(zSdev+zH)/zMax
+            if (0<X<=1):
+                z_d_output = ((Co*(X**2))+((((Ao*(pai**Bo))-Co))*X))*zMax
+            else:
+                z_d_output = (Ao*(pai**Bo))*zH
+            Y = (pai*zSdev)/zH
+            if Y >= 0:
+                z_0_output = ((B1*(Y**2))+(C1*Y)+A1)*z0Mac
+            else:
+                z_0_output = A1*z0Mac
         else:
-            z_d_output = (Ao*(pai**Bo))*zH
-        Y = (pai*zSdev)/zH
-        if Y >= 0:
-            z_0_output = ((B1*(Y**2))+(C1*Y)+A1)*z0Mac
-        else:
-            z_0_output = A1*z0Mac
+            z_0_output = 0.
+            z_d_output = 0.
     elif Roughnessmethod == 'Mho':
         #Millward Hopkins
         #### MHO - Heterogenous - Displacement Height ####
@@ -219,9 +227,13 @@ def RoughnessCalc(Roughnessmethod,zH,fai,pai,zMax,zSdev):
         elif pai < 0.19:
             ZdMho_U = (((117*pai) + ((187.2*(pai**3))-6.1)*(1-np.exp(-19.2*pai)))/((1+(114*pai)+(187*pai**3))*(1-(np.exp(-19.2*pai)))))*zH
         ZoMhoexp_U = np.exp(-((0.5*CD*(k**-2)*fai)**-0.5))
-        ZoMho_U=((1-(ZdMho_U/zH))* ZoMhoexp_U)*zH
-        ZdMho_UCor=zH*((ZdMho_U/zH)+((0.2375*np.log(pai)+1.1738)*(zSdev/zH)))
-        ZoMho_UCor= zH*((ZoMho_U/zH)+ (np.exp((0.8867*fai)-1)*((zSdev/zH)**np.exp(2.3271*fai))))
-        z_d_output = ZdMho_UCor
-        z_0_output = ZoMho_UCor
+        if zH>0.:
+            ZoMho_U=((1-(ZdMho_U/zH))* ZoMhoexp_U)*zH
+            ZdMho_UCor=zH*((ZdMho_U/zH)+((0.2375*np.log(pai)+1.1738)*(zSdev/zH)))
+            ZoMho_UCor= zH*((ZoMho_U/zH)+ (np.exp((0.8867*fai)-1)*((zSdev/zH)**np.exp(2.3271*fai))))
+            z_d_output = ZdMho_UCor
+            z_0_output = ZoMho_UCor
+        else:
+            z_0_output = 0.
+            z_d_output = 0.
     return(z_d_output,z_0_output)
