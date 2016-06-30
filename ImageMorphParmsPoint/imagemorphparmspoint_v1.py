@@ -550,5 +550,7 @@ class ImageMorphParmsPoint:
         gdal.AllRegister()
 
     def help(self):
-        url = "file://" + self.plugin_dir + "/help/Index.html"
+        # url = "file://" + self.plugin_dir + "/help/Index.html"
+        url = "http://www.urban-climate.net/umep/UMEP_Manual#Pre-Processor:" \
+              "_Urban_Morphology:_Image_Morphometric_Calculator_.28Point.29"
         webbrowser.open_new_tab(url)

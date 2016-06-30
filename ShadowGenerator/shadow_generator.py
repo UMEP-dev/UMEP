@@ -383,6 +383,7 @@ class ShadowGenerator:
         self.dlg.exec_()
 
     def help(self):
-        url = "file://" + self.plugin_dir + "/help/Index.html"
+        # url = "file://" + self.plugin_dir + "/help/Index.html"
+        url = "http://www.urban-climate.net/umep/UMEP_Manual#Processor:_Solar_Radiation:_Daily_Shadow_Pattern"
         webbrowser.open_new_tab(url)
 

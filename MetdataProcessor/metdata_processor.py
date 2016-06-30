@@ -199,7 +199,7 @@ class MetdataProcessor:
                 self.dlg.comboBox_snow.addItem(header[i])
                 self.dlg.comboBox_ws.addItem(header[i])
                 self.dlg.comboBox_xsmd.addItem(header[i])
-            self.data = np.loadtxt(self.folderPath[0], skiprows=headernum, delimiter=delim)
+            # self.data = np.loadtxt(self.folderPath[0], skiprows=headernum, delimiter=delim)
             try:
                 self.data = np.loadtxt(self.folderPath[0], skiprows=headernum, delimiter=delim)
             except:
@@ -250,7 +250,7 @@ class MetdataProcessor:
                     dayspermonth = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
                 else:
                     dayspermonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-                met_new[:, 1] = sum(dayspermonth[0:int(mm[i] - 1)]) + dd[i]
+                met_new[i, 1] = sum(dayspermonth[0:int(mm[i] - 1)]) + dd[i]
 
         self.dlg.progressBar.setValue(2)
 
@@ -514,5 +514,6 @@ class MetdataProcessor:
         self.dlg.exec_()
 
     def help(self):
-        url = "file://" + self.plugin_dir + "/help/Index.html"
+        # url = "file://" + self.plugin_dir + "/help/Index.html"
+        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Pre-Processor:_Meteorological_Data:_MetPreprocessor'
         webbrowser.open_new_tab(url)

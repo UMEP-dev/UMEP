@@ -444,6 +444,8 @@ class LandCoverFractionPoint:
         self.dlg.exec_()
 
     def help(self):
-        url = "file://" + self.plugin_dir + "/help/Index.html"
+        # url = "file://" + self.plugin_dir + "/help/Index.html"
+        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Pre-Processor:_' \
+              'Urban_Land_Cover:_Land_Cover_Fraction_.28Point.29'
         webbrowser.open_new_tab(url)
 

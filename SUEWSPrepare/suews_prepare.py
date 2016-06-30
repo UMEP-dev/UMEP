@@ -112,8 +112,6 @@ class SUEWSPrepare:
         # Create the dialog (after translation) and keep reference
         self.output_file_list = []
 
-
-
         self.input_path = self.plugin_dir + '/Input/'
         self.output_path = self.plugin_dir + '/Output/'
         self.output_heat = 'SUEWS_AnthropogenicHeat.txt'
@@ -138,14 +136,19 @@ class SUEWSPrepare:
         self.output_file_list.append(self.output_veg)
         self.output_watergrid = 'SUEWS_WithinGridWaterDist.txt'
         self.output_file_list.append(self.output_watergrid)
+        self.output_ESTMcoeff = 'SUEWS_ESTMCoefficients.txt'
+        self.output_file_list.append(self.output_ESTMcoeff)
         self.output_dir = None
         self.LCFfile_path = None
         self.IMPfile_path = None
         self.IMPvegfile_path = None
         self.Metfile_path = None
+        self.land_use_file_path = None
         self.LCF_from_file = True
         self.IMP_from_file = True
         self.IMPveg_from_file = True
+        self.wall_area_info = False
+        self.land_use_from_file = False
 
         self.file_path = self.plugin_dir + '/Input/SUEWS_SiteLibrary.xls'
         self.init_path = self.plugin_dir + '/Input/SUEWS_init.xlsx'
@@ -212,6 +215,7 @@ class SUEWSPrepare:
         self.IMPveg_mean_height_eve = None
         self.IMPveg_fai_dec = None
         self.IMPveg_fai_eve = None
+        self.wall_area = None
 
         self.start_DLS = 85
         self.end_DLS = 302
@@ -385,7 +389,7 @@ class SUEWSPrepare:
                 try:
                     sitelist_pos = int(values[5])
                 except ValueError as e:
-                    QgsMessageLog.logMessage("Value error for plugin titled " + title + " for default combo: " + str(e), level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage("Value error for plugin titled " + title + " for site list position: " + str(e), level=QgsMessageLog.CRITICAL)
                     sitelist_pos = None
 
             widget = TemplateWidget(input_sheet, file_path, widget_title, code, default_combo, sitelist_pos)
@@ -675,12 +679,15 @@ class SUEWSPrepare:
         widget.LCF_checkBox.stateChanged.connect(lambda: self.hide_show_LCF(widget))
         widget.IMP_checkBox.stateChanged.connect(lambda: self.hide_show_IMP(widget))
         widget.IMPveg_checkBox.stateChanged.connect(lambda: self.hide_show_IMPveg(widget))
+        widget.LUF_checkBox.stateChanged.connect(lambda: self.LUF_file(widget))
+        widget.WallArea_checkBox.stateChanged.connect(lambda: self.enable_wall_area(widget))
 
         self.layerComboManagerPolygrid = VectorLayerCombo(widget.comboBox_Polygrid)
         self.fieldgen = VectorLayerCombo(widget.comboBox_Polygrid, initLayer="", options={"geomType": QGis.Polygon})
         self.layerComboManagerPolyField = FieldCombo(widget.comboBox_Field, self.fieldgen, initField="")
 
         self.pop_density = FieldCombo(widget.comboBox_popdens, self.fieldgen, initField="")
+        self.wall_area = FieldCombo(widget.comboBox_wallArea, self.fieldgen, initField="")
 
         self.LCF_Paved = FieldCombo(widget.LCF_Paved, self.fieldgen, initField="")
         self.LCF_Buildings = FieldCombo(widget.LCF_Buildings, self.fieldgen, initField="")
@@ -704,6 +711,7 @@ class SUEWSPrepare:
         widget.pushButtonImportIMPVeg.clicked.connect(lambda: self.set_IMPvegfile_path(widget))
         widget.pushButtonImportIMPBuild.clicked.connect(lambda: self.set_IMPfile_path(widget))
         widget.pushButtonImportMet.clicked.connect(lambda: self.set_metfile_path(widget))
+        widget.pushButtonImportLUF.clicked.connect(lambda: self.set_LUFfile_path(widget))
 
         widget.spinBoxStartDLS.valueChanged.connect(lambda: self.start_DLS_changed(widget.spinBoxStartDLS.value()))
         widget.spinBoxEndDLS.valueChanged.connect(lambda: self.end_DLS_changed(widget.spinBoxEndDLS.value()))
@@ -751,6 +759,24 @@ class SUEWSPrepare:
             widget.checkBox_files.show()
             widget.pushButtonImportIMPVeg_eve.show()
             widget.pushButtonImportIMPVeg_dec.show()
+
+    def LUF_file(self, widget):
+        if widget.LUF_checkBox.isChecked():
+            self.land_use_info = True
+            self.land_use_from_file = True
+            widget.pushButtonImportLUF.setEnabled(1)
+        else:
+            self.land_use_info = False
+            self.land_use_from_file = False
+            widget.pushButtonImportLUF.setEnabled(0)
+
+    def enable_wall_area(self, widget):
+        if widget.WallArea_checkBox.isChecked():
+            self.wall_area_info = True
+            widget.comboBox_wallArea.setEnabled(1)
+        else:
+            self.wall_area_info = False
+            widget.comboBox_wallArea.setEnabled(0)
 
     def setup_widget(self, widget, sheet, outputfile, title, code=None, default_combo=None):
         widget.tab_name.setText(title)
@@ -1223,6 +1249,10 @@ class SUEWSPrepare:
     def set_metfile_path(self, widget):
         self.Metfile_path = self.fileDialog.getOpenFileName()
         widget.textInputMetData.setText(self.Metfile_path)
+
+    def set_LUFfile_path(self, widget):
+        self.land_use_file_path = self.fileDialog.getOpenFileName()
+        widget.textInputLUFData.setText(self.land_use_file_path)
 
     def start_DLS_changed(self, value):
         self.start_DLS = value
@@ -1763,6 +1793,133 @@ class SUEWSPrepare:
             index = self.find_index(code)
             new_line.insert(index, WhitinGridWaterCode)
 
+            if self.wall_area_info:
+                wall_area = feature.attribute(self.wall_area.getFieldName())
+            else:
+                wall_area = -999
+
+            code = "wallarea"
+            index = self.find_index(code)
+            new_line.insert(index, wall_area)
+
+            # TODO fix so that it optional
+            if self.land_use_from_file:
+                if self.land_use_file_path is None:
+                    QMessageBox.critical(None, "Error", "Land use fractions file has not been provided,"
+                                                        " please check the main tab")
+                    return
+                elif os.path.isfile(self.land_use_file_path):
+                    with open(self.land_use_file_path) as file:
+                        next(file)
+                        for line in file:
+                            split = line.split()
+                            if feat_id == int(split[0]):
+                                flub1 = split[1]
+                                Code_LUbuilding1 = split[2]
+                                flub2 = split[3]
+                                Code_LUbuilding2 = split[4]
+                                flub3 = split[5]
+                                Code_LUbuilding3 = split[6]
+                                flub4 = split[7]
+                                Code_LUbuilding4 = split[8]
+                                flub5 = split[7]
+                                Code_LUbuilding5 = split[8]
+                                fLUp1 = split[9]
+                                Code_LUpaved1 = split[10]
+                                fLUp2 = split[11]
+                                Code_LUpaved2 = split[12]
+                                fLUp3 = split[13]
+                                Code_LUpaved3 = split[14]
+
+                                found_LCF_line = True
+                                break
+                        if not found_LCF_line:
+                                flub1 = -999
+                                Code_LUbuilding1 = -999
+                                flub2 = split[3]
+                                Code_LUbuilding2 = -999
+                                flub3 = split[5]
+                                Code_LUbuilding3 = -999
+                                flub4 = split[7]
+                                Code_LUbuilding4 = -999
+                                flub5 = split[7]
+                                Code_LUbuilding5 = -999
+                                fLUp1 = split[9]
+                                Code_LUpaved1 = -999
+                                fLUp2 = split[11]
+                                Code_LUpaved2 = -999
+                                fLUp3 = split[13]
+                                Code_LUpaved3 = -999
+                else:
+                    QMessageBox.critical(None, "Error", "Could not find the file containing land use cover fractions")
+                    return
+            else:
+                flub1 = -999
+                Code_LUbuilding1 = -999
+                flub2 = -999
+                Code_LUbuilding2 = -999
+                flub3 = -999
+                Code_LUbuilding3 = -999
+                flub4 = -999
+                Code_LUbuilding4 = -999
+                flub5 = -999
+                Code_LUbuilding5 = -999
+                fLUp1 = -999
+                Code_LUpaved1 = -999
+                fLUp2 = -999
+                Code_LUpaved2 = -999
+                fLUp3 = -999
+                Code_LUpaved3 = -999
+
+            code = "fLUb1"
+            index = self.find_index(code)
+            new_line.insert(index, flub1)
+            code = "fLUb2"
+            index = self.find_index(code)
+            new_line.insert(index, flub2)
+            code = "fLUb3"
+            index = self.find_index(code)
+            new_line.insert(index, flub3)
+            code = "fLUb4"
+            index = self.find_index(code)
+            new_line.insert(index, flub4)
+            code = "fLUb5"
+            index = self.find_index(code)
+            new_line.insert(index, flub5)
+            code = "fLUp1"
+            index = self.find_index(code)
+            new_line.insert(index, fLUp1)
+            code = "fLUp2"
+            index = self.find_index(code)
+            new_line.insert(index, fLUp2)
+            code = "fLUp3"
+            index = self.find_index(code)
+            new_line.insert(index, fLUp3)
+            code = "Code_LUbuilding1"
+            index = self.find_index(code)
+            new_line.insert(index, Code_LUbuilding1)
+            code = "Code_LUbuilding2"
+            index = self.find_index(code)
+            new_line.insert(index, Code_LUbuilding2)
+            code = "Code_LUbuilding3"
+            index = self.find_index(code)
+            new_line.insert(index, Code_LUbuilding3)
+            code = "Code_LUbuilding4"
+            index = self.find_index(code)
+            new_line.insert(index, Code_LUbuilding4)
+            code = "Code_LUbuilding5"
+            index = self.find_index(code)
+            new_line.insert(index, Code_LUbuilding5)
+            code = "Code_LUpaved1"
+            index = self.find_index(code)
+            new_line.insert(index, Code_LUpaved1)
+            code = "Code_LUpaved2"
+            index = self.find_index(code)
+            new_line.insert(index, Code_LUpaved2)
+            code = "Code_LUpaved3"
+            index = self.find_index(code)
+            new_line.insert(index, Code_LUpaved3)
+
             new_line.append("!")
 
             #QgsMessageLog.logMessage(str(new_line), level=QgsMessageLog.CRITICAL)
@@ -1803,6 +1960,7 @@ class SUEWSPrepare:
         self.LCFfile_path = None
         self.IMPfile_path = None
         self.IMPvegfile_path = None
+        self.land_use_file_path = None
         #self.dlg.runButton.setEnabled(0)
         self.dlg.textOutput.clear()
 
@@ -1833,6 +1991,7 @@ class SUEWSPrepare:
         self.IMPveg_mean_height_eve = None
         self.IMPveg_fai_dec = None
         self.IMPveg_fai_eve = None
+        self.wall_area = None
 
         # See if OK was pressed
         #if result:
@@ -1848,5 +2007,6 @@ class SUEWSPrepare:
 
 
     def help(self):
-        url = "file://" + self.plugin_dir + "/help/Index.html"
+        # url = "file://" + self.plugin_dir + "/help/Index.html"
+        url = "http://www.urban-climate.net/umep/UMEP_Manual#PrePreprocessor:_SUEWS_Prepare"
         webbrowser.open_new_tab(url)

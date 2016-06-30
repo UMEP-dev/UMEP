@@ -133,7 +133,7 @@ class UMEP:
         self.PED_Action = QAction("Prepare Existing Data", self.iface.mainWindow())
         self.MD_Menu.addAction(self.PED_Action)
         self.PED_Action.triggered.connect(self.PED)
-        self.PFD_Action = QAction("Prepare Fictitious Data", self.iface.mainWindow())
+        self.PFD_Action = QAction("Prepare WATCH Data", self.iface.mainWindow())
         self.MD_Menu.addAction(self.PFD_Action)
         self.PFD_Action.setEnabled(False)
 

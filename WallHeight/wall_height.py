@@ -304,5 +304,6 @@ class WallHeight:
         self.dlg.progressBar.setValue(self.steps)
 
     def help(self):
-        url = "file://" + self.plugin_dir + "/help/Index.html"
+        # url = "file://" + self.plugin_dir + "/help/Index.html"
+        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Pre-Processor:_Urban_Geometry:_Wall_Height_Aspect'
         webbrowser.open_new_tab(url)

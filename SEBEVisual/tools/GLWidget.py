@@ -24,6 +24,7 @@ g_farPlane = 1000.
 zoom = 65.
 viewdistance = 100
 horizonview = 0
+verticalview = 0
 startgroup1 = "200"
 startgroup2 = "400"
 startgroup3 = "600"
@@ -128,7 +129,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         global hideveg, hideground
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
         GL.glLoadIdentity()
-        gluLookAt(0, 0, -viewdistance, horizonview, 0, 0, 0, 1, 0)
+        gluLookAt(0, 0, -viewdistance, horizonview, verticalview, 0, 0, 1, 0)
 
         GL.glRotated(self.xRot / 16.0, 1.0, 0.0, 0.0)
         GL.glRotated(self.yRot / 16.0, 0.0, 1.0, 0.0)
@@ -155,6 +156,14 @@ class GLWidget(QtOpenGL.QGLWidget):
     def mousePressEvent(self, event):
         self.lastPos = event.pos()
 
+    def wheelEvent(self, event):
+
+        dz = event.delta()/6
+        global viewdistance
+        viewdistance -= dz
+        self.updateGL()
+
+
     #Create camera movements
     def mouseMoveEvent(self, event):
         global zoom
@@ -165,8 +174,9 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.setXRotation(self.xRot + 8 * dy)
             self.setYRotation(self.yRot + 8 * dx)
         elif event.buttons() & QtCore.Qt.RightButton:
-            global viewdistance, horizonview
-            viewdistance -= dy
+            global viewdistance, horizonview, verticalview
+            #viewdistance -= dy
+            verticalview -= dy
             horizonview -= dx
             self.updateGL()
 

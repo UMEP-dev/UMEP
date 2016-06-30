@@ -231,6 +231,11 @@
          <string>[2] Observed data</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>[4] Element Surface Temperature Model</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>

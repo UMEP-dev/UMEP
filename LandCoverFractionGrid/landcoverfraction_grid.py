@@ -94,7 +94,7 @@ class LandCoverFractionGrid:
 
         self.layerComboManagerPolygrid = VectorLayerCombo(self.dlg.comboBox_Polygrid)
         fieldgen = VectorLayerCombo(self.dlg.comboBox_Polygrid, initLayer="", options={"geomType": QGis.Polygon})
-        self.layerComboManagerPolyField = FieldCombo(self.dlg.comboBox_Field, fieldgen, initField="")
+        self.layerComboManagerPolyField = FieldCombo(self.dlg.comboBox_Field, fieldgen) #, options={"fieldType":QGis.Float32}
         self.layerComboManagerLCgrid = RasterLayerCombo(self.dlg.comboBox_lcgrid)
         RasterLayerCombo(self.dlg.comboBox_lcgrid, initLayer="")
 
@@ -196,6 +196,11 @@ class LandCoverFractionGrid:
         prov = vlayer.dataProvider()
         fields = prov.fields()
         idx = vlayer.fieldNameIndex(poly_field)
+
+        typetest = fields.at(idx).type()
+        if typetest == 10:
+            QMessageBox.critical(None, "ID field is sting type", "ID field must be either integer or float")
+            return
 
         dir_poly = self.plugin_dir + '/data/poly_temp.shp'
         self.dlg.progressBar.setMaximum(vlayer.featureCount())
@@ -300,5 +305,7 @@ class LandCoverFractionGrid:
         gdal.AllRegister()
 
     def help(self):
-        url = "file://" + self.plugin_dir + "/help/Index.html"
+        # url = "file://" + self.plugin_dir + "/help/Index.html"
+        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Pre-Processor:' \
+              '_Urban_Land_Cover:_Land_Cover_Fraction_.28Grid.29'
         webbrowser.open_new_tab(url)

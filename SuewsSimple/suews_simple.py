@@ -29,10 +29,11 @@ from qgis.gui import *
 # import resources_rc
 # Import the code for the dialog and other parts of the plugin
 from suews_simple_dialog import SuewsSimpleDialog
-from ..suewsmodel import Suews_wrapper_v12
+# from ..suewsmodel import Suews_wrapper_v12
+from ..suewsmodel import Suews_wrapper_v2016b
 from ..ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
 from ..LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
-from suewssimpleworker import Worker
+# from suewssimpleworker import Worker
 
 # Import other python stuff
 import urllib
@@ -41,6 +42,7 @@ import shutil
 import sys
 import os.path
 import webbrowser
+import time
 import traceback
 
 
@@ -183,7 +185,7 @@ class SuewsSimple:
         del self.toolbar
 
     def run(self):
-        if os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2016a') or os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2016a.exe'):
+        if os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2016b') or os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2016b.exe'):
             test = 4
         else:
             QMessageBox.information(self.iface.mainWindow(),
@@ -199,7 +201,7 @@ class SuewsSimple:
                                  "http://www.urban-climate.net/umep/", QMessageBox.Ok)
             testfile = urllib.URLopener()
             if sys.platform == 'win32':
-                testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/win/SUEWS_V2016a.exe', self.model_dir + os.sep + 'SUEWS_V2016a.exe')
+                testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/win/SUEWS_V2016b.exe', self.model_dir + os.sep + 'SUEWS_V2016b.exe')
                 testfile2 = urllib.URLopener()
                 testfile2.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cyggcc_s-seh-1.dll', self.model_dir + os.sep + 'cyggcc_s-seh-1.dll')
                 testfile3 = urllib.URLopener()
@@ -209,9 +211,9 @@ class SuewsSimple:
                 testfile5 = urllib.URLopener()
                 testfile5.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cygwin1.dll', self.model_dir + os.sep + 'cygwin1.dll')
             if sys.platform == 'linux2':
-                testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/linux/SUEWS_V2016a', self.model_dir + os.sep + 'SUEWS_V2016a')
+                testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/linux/SUEWS_V2016b', self.model_dir + os.sep + 'SUEWS_V2016b')
             if sys.platform == 'darwin':
-                testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/mac/SUEWS_V2016a', self.model_dir + os.sep + 'SUEWS_V2016a')
+                testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/mac/SUEWS_V2016b', self.model_dir + os.sep + 'SUEWS_V2016b')
 
         self.dlg.show()
         self.dlg.exec_()
@@ -655,16 +657,19 @@ class SuewsSimple:
         QMessageBox.information(None,
                                 "Model information", "Model run will now start. QGIS might freeze during calcualtion."
                                 "This will be fixed in future versions")
-
+        # Suews_wrapper_v2016b.wrapper(self.model_dir)
         try:
-            Suews_wrapper_v12.wrapper(self.model_dir)
-            self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.plugin_dir + " for "
+            # Suews_wrapper_v12.wrapper(self.model_dir)
+            Suews_wrapper_v2016b.wrapper(self.model_dir)
+            time.sleep(1)
+            self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.model_dir + " for "
                             "additional information about the run", level=QgsMessageBar.INFO)
             # self.test = 1
         except Exception as e:
             # self.test = 0
+            time.sleep(1)
             QMessageBox.critical(None, "An error occurred", str(e) + "\r\n\r\n"
-                                        "Also check problems.txt in " + self.plugin_dir + "\r\n\r\n"
+                                        "Also check problems.txt in " + self.model_dir + "\r\n\r\n"
                                         "Please report any errors to https://bitbucket.org/fredrik_ucg/umep/issues")
             return
 
@@ -728,6 +733,12 @@ class SuewsSimple:
             nml['initialconditions']['laiinitialgrass'] = 2.6
 
         return nml
+
+    def help(self):
+        # url = "file://" + self.plugin_dir + "/help/Index.html"
+        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Processor:' \
+              '_Urban_Energy_Balance:_Urban_Energy_Balance_.28SUEWS.2C_simple.29'
+        webbrowser.open_new_tab(url)
 
     # def startWorker(self, iface, model_dir, dlg):
     #

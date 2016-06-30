@@ -51,6 +51,7 @@ class Worker(QtCore.QObject):
         ret = 0
         imp_point = 0
         arrmat = np.empty((1, 8))
+        pre = str(self.dlg.textOutput_prefix.text())
 
         try:
             # j = 0
@@ -108,10 +109,12 @@ class Worker(QtCore.QObject):
                 else:
                     landcoverresult = landcover_v1(lc_grid_array, self.imid, self.degree, self.dlg, imp_point)
 
+                    #Makes sure that each row in the matrix has a sum of 1, a security check before the result is added
+                    #to the polygon in case the user checks the checkbox.
                     landcoverresult = self.resultcheck(landcoverresult)
 
                     # save to file
-                    pre = self.dlg.textOutput_prefix.text()
+                    # pre = self.dlg.textOutput_prefix.text()
                     header = 'Wd Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
                     numformat = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
                     arr = np.concatenate((landcoverresult["deg"], landcoverresult["lc_frac"]), axis=1)
@@ -139,9 +142,13 @@ class Worker(QtCore.QObject):
             numformat = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
             #numformat = '%3d %5f %5f %5f %5f %5f %5f %5f'
             arrmatsave = arrmat[1: arrmat.shape[0], :]
+            # QgsMessageLog.logMessage(str(arrmatsave), level=QgsMessageLog.CRITICAL)
             np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'LCFG_isotropic.txt', arrmatsave,
                                 fmt=numformat, delimiter=' ', header=header, comments='')
 
+            #when files are saved through the np.savetext method the values are rounded according to the information in
+            #the numformat variable. This can cause the total sum of the values in a line in the text file to not be 1
+            #this method reads through the text file after it has been generated to make sure every line has a sum of 1.
             self.textFileCheck(pre)
 
             if self.dlg.addResultToGrid.isChecked():
@@ -218,6 +225,7 @@ class Worker(QtCore.QObject):
         return landcoverresult
 
     def textFileCheck(self, pre):
+        try:
             file_path = self.folderPath[0] + '/' + pre + '_' + 'LCFG_isotropic.txt'
             if os.path.isfile(file_path):
                 wrote_header = False
@@ -228,6 +236,7 @@ class Worker(QtCore.QObject):
                     else:
                         line_split = line.split()
                         total = 0.
+                        # QgsMessageLog.logMessage(str(line), level=QgsMessageLog.CRITICAL)
                         for x in range(1, len(line_split)):
                             total += float(line_split[x])
 
@@ -243,14 +252,24 @@ class Worker(QtCore.QObject):
                                 if float(max_number) == float(line_split[x]):
                                     line_split[x] = float(line_split[x]) - diff
                                     break
-                            string_to_print = '  '
+                            if int(line_split[0]) < 10:
+                                string_to_print = '  '
+                            elif int(line_split[0]) < 100:
+                                string_to_print = ' '
+                            else:
+                                string_to_print = ''
 
                             for element in line_split[:-1]:
                                 string_to_print += str(element) + ' '
-                            string_to_print += line_split[-1]
+                            string_to_print += str(line_split[-1])
                             string_to_print += '\n'
 
                             print string_to_print,
+                fileinput.close()
+        except Exception, e:
+            errorstring = self.print_exception()
+            QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
+            fileinput.close()
 
     def kill(self):
         self.killed = True

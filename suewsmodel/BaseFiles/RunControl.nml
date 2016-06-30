@@ -16,6 +16,7 @@ FileOutputPath="./KCL2012_Output/"
 SkipHeaderSiteInfo=2
 SkipHeaderMet=1
 MultipleMetFiles=0
+MultipleESTMFiles=0
 KeepTstepFilesIn=0
 KeepTstepFilesOut=0
 WriteSurfsFile=0

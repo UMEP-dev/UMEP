@@ -286,5 +286,37 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>radioButtonCenter</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spinBoxDistance</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>149</x>
+     <y>82</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>347</x>
+     <y>84</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonExtent</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spinBoxDistance</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>268</x>
+     <y>56</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>371</x>
+     <y>70</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>
