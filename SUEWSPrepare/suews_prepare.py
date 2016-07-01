@@ -56,11 +56,13 @@ from tabs.photodialog import PhotoDialog
 
 #from tabs.testwidget import TestTab
 #from tabs.test import Test
+import numpy as np
 import sys
 import os.path
 sys.path.insert(0, os.path.dirname(__file__) + '/Modules')
 # from Modules import xlrd
 from Modules.xlutils.copy import copy
+from ..Utilities import f90nml
 import xlrd  # from QGIS installation
 
 #import setup_maintab as sm
@@ -71,6 +73,7 @@ import xlrd  # from QGIS installation
 # from Modules import openpyxl
 # from Modules.qgiscombomanager import *
 from ..Utilities.qgiscombomanager import *
+
 # import urllib
 import urllib2
 import fileinput
@@ -220,6 +223,11 @@ class SUEWSPrepare:
         self.start_DLS = 85
         self.end_DLS = 302
 
+        self.day_since_rain = 0
+        self.leaf_cycle = 0
+        self.soil_moisture = 100
+        self.file_code = ''
+
         # Declare instance attributes
 
         self.actions = []
@@ -352,12 +360,13 @@ class SUEWSPrepare:
             self.setup_tab(title, sheet)
 
     def setup_tab(self, title, sheet):
+        QgsMessageLog.logMessage("Setting up tab: " + str(title), level=QgsMessageLog.CRITICAL)
         tab = TemplateTab()
         x = 0
         y = 0
         for row in xrange(0, sheet.nrows):
             values = sheet.row_values(row)
-            QgsMessageLog.logMessage(str(values), level=QgsMessageLog.CRITICAL)
+            #QgsMessageLog.logMessage(str(values), level=QgsMessageLog.CRITICAL)
             input_sheet = self.data.sheet_by_name(str(values[0]))
             file_path = str(values[1])
             widget_title = str(values[2])
@@ -716,6 +725,26 @@ class SUEWSPrepare:
         widget.spinBoxStartDLS.valueChanged.connect(lambda: self.start_DLS_changed(widget.spinBoxStartDLS.value()))
         widget.spinBoxEndDLS.valueChanged.connect(lambda: self.end_DLS_changed(widget.spinBoxEndDLS.value()))
 
+        widget.daySinceRainSpinBox.valueChanged.connect(lambda: self.day_since_rain_changed(widget.daySinceRainSpinBox.
+                                                                                            value()))
+        widget.spinBoxSoilMoisture.valueChanged.connect(lambda: self.soil_moisture_changed(widget.spinBoxSoilMoisture.
+                                                                                           value()))
+        widget.comboBoxLeafCycle.currentIndexChanged.connect(lambda: self.leaf_cycle_changed(widget.comboBoxLeafCycle.
+                                                                                             currentIndex()))
+        widget.fileCodeLineEdit.textChanged.connect(lambda: self.file_code_changed(widget.fileCodeLineEdit.text()))
+
+    def day_since_rain_changed(self, value):
+        self.day_since_rain = value
+
+    def soil_moisture_changed(self, value):
+        self.soil_moisture = value
+
+    def leaf_cycle_changed(self, index):
+        self.leaf_cycle = index
+
+    def file_code_changed(self, code):
+        self.file_code = code
+
     def hide_show_LCF(self, widget):
         if widget.LCF_checkBox.isChecked():
             self.LCF_from_file = False
@@ -762,11 +791,11 @@ class SUEWSPrepare:
 
     def LUF_file(self, widget):
         if widget.LUF_checkBox.isChecked():
-            self.land_use_info = True
+            #self.land_use_info = True
             self.land_use_from_file = True
             widget.pushButtonImportLUF.setEnabled(1)
         else:
-            self.land_use_info = False
+            #self.land_use_info = False
             self.land_use_from_file = False
             widget.pushButtonImportLUF.setEnabled(0)
 
@@ -1256,11 +1285,11 @@ class SUEWSPrepare:
 
     def start_DLS_changed(self, value):
         self.start_DLS = value
-        QgsMessageLog.logMessage(str(self.start_DLS), level=QgsMessageLog.CRITICAL)
+        #QgsMessageLog.logMessage(str(self.start_DLS), level=QgsMessageLog.CRITICAL)
 
     def end_DLS_changed(self, value):
         self.end_DLS = value
-        QgsMessageLog.logMessage(str(self.end_DLS), level=QgsMessageLog.CRITICAL)
+        #QgsMessageLog.logMessage(str(self.end_DLS), level=QgsMessageLog.CRITICAL)
 
     def generate(self):
 
@@ -1312,20 +1341,18 @@ class SUEWSPrepare:
         for feature in vlayer.getFeatures():
             #QgsMessageLog.logMessage(str(feature.attribute(poly_field)), level=QgsMessageLog.CRITICAL)
 
-            new_line = []
+            #new_line = [None] * len(nbr_header)
+            new_line = [None] * len(nbr_header)
             #new_line = empty_line
             print_line = True
             feat_id = int(feature.attribute(poly_field))
             code = "Grid"
             index = self.find_index(code)
-            new_line.insert(index, str(feat_id))
+            #new_line.insert(index, str(feat_id))
+            new_line[index] = str(feat_id)
 
             year = None
             year2 = None
-
-            #REMOVE BEFORE RELEASE
-            #self.Metfile_path = "C:/test/Kc_data.txt"
-            #REMOVE BEFORE RELEASE
 
             if self.Metfile_path is None:
                 QMessageBox.critical(None, "Error", "Meteorological data file has not been provided,"
@@ -1353,13 +1380,16 @@ class SUEWSPrepare:
 
             code = "Year"
             index = self.find_index(code)
-            new_line.insert(index, str(year))
+            #new_line.insert(index, str(year))
+            new_line[index] = str(year)
             code = "StartDLS"
             index = self.find_index(code)
-            new_line.insert(index, str(self.start_DLS))
+            #new_line.insert(index, str(self.start_DLS))
+            new_line[index] = str(self.start_DLS)
             code = "EndDLS"
             index = self.find_index(code)
-            new_line.insert(index, str(self.end_DLS))
+            #new_line.insert(index, str(self.end_DLS))
+            new_line[index] = str(self.end_DLS)
 
             old_cs = osr.SpatialReference()
             old_cs_area = vlayer.crs()
@@ -1422,13 +1452,16 @@ class SUEWSPrepare:
             lonlat = transform.TransformPoint(centroid.x(), centroid.y())
             code = "lat"
             index = self.find_index(code)
-            new_line.insert(index, str(lonlat[1]))
+            #new_line.insert(index, str(lonlat[1]))
+            new_line[index] = str(lonlat[1])
             code = "lng"
             index = self.find_index(code)
-            new_line.insert(index, str(lonlat[0]))
+            #new_line.insert(index, str(lonlat[0]))
+            new_line[index] = str(lonlat[0])
             code = "SurfaceArea"
             index = self.find_index(code)
-            new_line.insert(index, str(hectare))
+            #new_line.insert(index, str(hectare))
+            new_line[index] = str(hectare)
 
             altitude = 0
             day = 1
@@ -1437,19 +1470,21 @@ class SUEWSPrepare:
 
             code = "Alt"
             index = self.find_index(code)
-            new_line.insert(index, str(altitude))
+            #new_line.insert(index, str(altitude))
+            new_line[index] = str(altitude)
             code = "id"
             index = self.find_index(code)
-            new_line.insert(index, str(day))
+            #new_line.insert(index, str(day))
+            new_line[index] = str(day)
             code = "ih"
             index = self.find_index(code)
-            new_line.insert(index, str(hour))
+            #new_line.insert(index, str(hour))
+            new_line[index] = str(hour)
             code = "imin"
             index = self.find_index(code)
-            new_line.insert(index, str(minute))
+            #new_line.insert(index, str(minute))
+            new_line[index] = str(minute)
 
-            #TA BORT INNAN RELEASE
-            #self.LCFfile_path = "C:/test/barb_LCFG_isotropic.txt"
             if self.LCF_from_file:
                 found_LCF_line = False
 
@@ -1473,13 +1508,13 @@ class SUEWSPrepare:
                                 found_LCF_line = True
                                 break
                         if not found_LCF_line:
-                                #LCF_paved = -999
-                                #LCF_buildings = -999
-                                #LCF_evergreen = -999
-                                #LCF_decidious = -999
-                                #LCF_grass = -999
-                                #LCF_baresoil = -999
-                                #LCF_water = -999
+                                LCF_paved = -999
+                                LCF_buildings = -999
+                                LCF_evergreen = -999
+                                LCF_decidious = -999
+                                LCF_grass = -999
+                                LCF_baresoil = -999
+                                LCF_water = -999
                                 print_line = False
                 else:
                     QMessageBox.critical(None, "Error", "Could not find the file containing land cover fractions")
@@ -1495,25 +1530,32 @@ class SUEWSPrepare:
 
             code = "Fr_Paved"
             index = self.find_index(code)
-            new_line.insert(index, str(LCF_paved))
+            #new_line.insert(index, str(LCF_paved))
+            new_line[index] = str(LCF_paved)
             code = "Fr_Bldgs"
             index = self.find_index(code)
-            new_line.insert(index, str(LCF_buildings))
+            #new_line.insert(index, str(LCF_buildings))
+            new_line[index] = str(LCF_buildings)
             code = "Fr_EveTr"
             index = self.find_index(code)
-            new_line.insert(index, str(LCF_evergreen))
+            #new_line.insert(index, str(LCF_evergreen))
+            new_line[index] = str(LCF_evergreen)
             code = "Fr_DecTr"
             index = self.find_index(code)
-            new_line.insert(index, str(LCF_decidious))
+            #new_line.insert(index, str(LCF_decidious))
+            new_line[index] = str(LCF_decidious)
             code = "Fr_Grass"
             index = self.find_index(code)
-            new_line.insert(index, str(LCF_grass))
+            #new_line.insert(index, str(LCF_grass))
+            new_line[index] = str(LCF_grass)
             code = "Fr_Bsoil"
             index = self.find_index(code)
-            new_line.insert(index, str(LCF_baresoil))
+            #new_line.insert(index, str(LCF_baresoil))
+            new_line[index] = str(LCF_baresoil)
             code = "Fr_Water"
             index = self.find_index(code)
-            new_line.insert(index, str(LCF_water))
+            #new_line.insert(index, str(LCF_water))
+            new_line[index] = str(LCF_water)
 
             irrFr_EveTr = 0
             irrFr_DecTr = 0
@@ -1521,16 +1563,17 @@ class SUEWSPrepare:
 
             code = "IrrFr_EveTr"
             index = self.find_index(code)
-            new_line.insert(index, str(irrFr_EveTr))
+            #new_line.insert(index, str(irrFr_EveTr))
+            new_line[index] = str(irrFr_EveTr)
             code = "IrrFr_DecTr"
             index = self.find_index(code)
-            new_line.insert(index, str(irrFr_DecTr))
+            #new_line.insert(index, str(irrFr_DecTr))
+            new_line[index] = str(irrFr_DecTr)
             code = "IrrFr_Grass"
             index = self.find_index(code)
-            new_line.insert(index, str(irrFr_Grass))
+            #new_line.insert(index, str(irrFr_Grass))
+            new_line[index] = str(irrFr_Grass)
 
-            #TA BORT INNAN RELEASE
-            #self.IMPfile_path = "C:/test/barb_IMPGrid_isotropic.txt"
             if self.IMP_from_file:
                 found_IMP_line = False
 
@@ -1548,13 +1591,13 @@ class SUEWSPrepare:
                                 IMP_z0 = split[6]
                                 IMP_zd = split[7]
                                 IMP_fai = split[2]
-                                found_LCF_line = True
+                                found_IMP_line = True
                                 break
-                        if not found_LCF_line:
-                                #IMP_heights_mean = -999
-                                #IMP_z0 = -999
-                                #IMP_zd = -999
-                                #IMP_fai = -999
+                        if not found_IMP_line:
+                                IMP_heights_mean = -999
+                                IMP_z0 = -999
+                                IMP_zd = -999
+                                IMP_fai = -999
                                 print_line = False
                 else:
                     QMessageBox.critical(None, "Error", "Could not find the file containing building morphology")
@@ -1565,12 +1608,9 @@ class SUEWSPrepare:
                 IMP_zd = feature.attribute(self.IMP_zd.getFieldName())
                 IMP_fai = feature.attribute(self.IMP_fai.getFieldName())
 
-
-            #REMOVE BEFORE RELEASE
-            #self.IMPvegfile_path = "C:/test/barbveg_IMPGrid_isotropic.txt"
-
-            found_IMPveg_line = False
             if self.IMPveg_from_file:
+                found_IMPveg_line = False
+
                 if self.IMPvegfile_path is None:
                     QMessageBox.critical(None, "Error", "Building morphology file has not been provided,"
                                                         " please check the main tab")
@@ -1585,13 +1625,13 @@ class SUEWSPrepare:
                                 IMPveg_heights_mean_dec = split[3]
                                 IMPveg_fai_eve = split[2]
                                 IMPveg_fai_dec = split[2]
-                                found_LCF_line = True
+                                found_IMPveg_line = True
                                 break
-                        if not found_LCF_line:
-                                #IMPveg_heights_mean_eve = -999
-                                #IMPveg_heights_mean_dec = -999
-                                #IMPveg_fai_eve = -999
-                                #IMPveg_fai_dec = -999
+                        if not found_IMPveg_line:
+                                IMPveg_heights_mean_eve = -999
+                                IMPveg_heights_mean_dec = -999
+                                IMPveg_fai_eve = -999
+                                IMPveg_fai_dec = -999
                                 print_line = False
                 else:
                     QMessageBox.critical(None, "Error", "Could not find the file containing building morphology")
@@ -1604,28 +1644,36 @@ class SUEWSPrepare:
 
             code = "H_Bldgs"
             index = self.find_index(code)
-            new_line.insert(index, str(IMP_heights_mean))
+            #new_line.insert(index, str(IMP_heights_mean))
+            new_line[index] = str(IMP_heights_mean)
             code = "H_EveTr"
             index = self.find_index(code)
-            new_line.insert(index, str(IMPveg_heights_mean_eve))
+            #new_line.insert(index, str(IMPveg_heights_mean_eve))
+            new_line[index] = str(IMPveg_heights_mean_eve)
             code = "H_DecTr"
             index = self.find_index(code)
-            new_line.insert(index, str(IMPveg_heights_mean_dec))
+            #new_line.insert(index, str(IMPveg_heights_mean_dec))
+            new_line[index] = str(IMPveg_heights_mean_dec)
             code = "z0"
             index = self.find_index(code)
-            new_line.insert(index, str(IMP_z0))
+            #new_line.insert(index, str(IMP_z0))
+            new_line[index] = str(IMP_z0)
             code = "zd"
             index = self.find_index(code)
-            new_line.insert(index, str(IMP_zd))
+            #new_line.insert(index, str(IMP_zd))
+            new_line[index] = str(IMP_zd)
             code = "FAI_Bldgs"
             index = self.find_index(code)
-            new_line.insert(index, str(IMP_fai))
+            #new_line.insert(index, str(IMP_fai))
+            new_line[index] = str(IMP_fai)
             code = "FAI_EveTr"
             index = self.find_index(code)
-            new_line.insert(index, str(IMPveg_fai_eve))
+            #new_line.insert(index, str(IMPveg_fai_eve))
+            new_line[index] = str(IMPveg_fai_eve)
             code = "FAI_DecTr"
             index = self.find_index(code)
-            new_line.insert(index, str(IMPveg_fai_dec))
+            #new_line.insert(index, str(IMPveg_fai_dec))
+            new_line[index] = str(IMPveg_fai_dec)
 
             if self.pop_density is not None:
                 pop_density_day = feature.attribute(self.pop_density.getFieldName())
@@ -1636,10 +1684,12 @@ class SUEWSPrepare:
 
             code = "PopDensDay"
             index = self.find_index(code)
-            new_line.insert(index, str(pop_density_day))
+            #new_line.insert(index, str(pop_density_day))
+            new_line[index] = str(pop_density_day)
             code = "PopDensNight"
             index = self.find_index(code)
-            new_line.insert(index, str(pop_density_night))
+            #new_line.insert(index, str(pop_density_night))
+            new_line[index] = str(pop_density_night)
 
             for widget in self.widget_list:
                 if widget.get_checkstate():
@@ -1656,12 +1706,14 @@ class SUEWSPrepare:
                                              " contains one or more codes with no match in site library")
                         return
                     index = widget.get_sitelistpos()
-                    new_line.insert(index - 1, str(code))
+                    #new_line.insert(index - 1, str(code))
+                    new_line[index-1] = str(code)
 
                 else:
                     code = widget.get_combo_text()
                     index = widget.get_sitelistpos()
-                    new_line.insert(index - 1, str(code))
+                    #new_line.insert(index - 1, str(code))
+                    new_line[index-1] = str(code)
 
             LUMPS_drate = 0.25
             LUMPS_Cover = 1
@@ -1670,16 +1722,20 @@ class SUEWSPrepare:
 
             code = "LUMPS_DrRate"
             index = self.find_index(code)
-            new_line.insert(index, str(LUMPS_drate))
+            #new_line.insert(index, str(LUMPS_drate))
+            new_line[index] = str(LUMPS_drate)
             code = "LUMPS_Cover"
             index = self.find_index(code)
-            new_line.insert(index, str(LUMPS_Cover))
+            #new_line.insert(index, str(LUMPS_Cover))
+            new_line[index] = str(LUMPS_Cover)
             code = "LUMPS_MaxRes"
             index = self.find_index(code)
-            new_line.insert(index, str(LUMPS_MaxRes))
+            #new_line.insert(index, str(LUMPS_MaxRes))
+            new_line[index] = str(LUMPS_MaxRes)
             code = "NARP_Trans"
             index = self.find_index(code)
-            new_line.insert(index, str(NARP_Trans))
+            #new_line.insert(index, str(NARP_Trans))
+            new_line[index] = str(NARP_Trans)
 
             #for x in xrange(7, 19):
                 #code = self.widget_list[x].get_combo_text()
@@ -1707,61 +1763,80 @@ class SUEWSPrepare:
 
             code = "FlowChange"
             index = self.find_index(code)
-            new_line.insert(index, flow_change)
+            #new_line.insert(index, flow_change)
+            new_line[index] = str(flow_change)
             code = "RunoffToWater"
             index = self.find_index(code)
-            new_line.insert(index, RunoffToWater)
+            #new_line.insert(index, RunoffToWater)
+            new_line[index] = str(RunoffToWater)
             code = "PipeCapacity"
             index = self.find_index(code)
-            new_line.insert(index, PipeCap)
+            #new_line.insert(index, PipeCap)
+            new_line[index] = str(PipeCap)
             code = "GridConnection1of8"
             index = self.find_index(code)
-            new_line.insert(index, GridConn1of8)
+            #new_line.insert(index, GridConn1of8)
+            new_line[index] = str(GridConn1of8)
             code = "Fraction1of8"
             index = self.find_index(code)
-            new_line.insert(index, Fraction1of8)
+            #new_line.insert(index, Fraction1of8)
+            new_line[index] = str(Fraction1of8)
             code = "GridConnection2of8"
             index = self.find_index(code)
-            new_line.insert(index, GridConn2of8)
+            #new_line.insert(index, GridConn2of8)
+            new_line[index] = str(GridConn2of8)
             code = "Fraction2of8"
             index = self.find_index(code)
-            new_line.insert(index, Fraction2of8)
+            #new_line.insert(index, Fraction2of8)
+            new_line[index] = str(Fraction2of8)
             code = "GridConnection3of8"
             index = self.find_index(code)
-            new_line.insert(index, GridConn3of8)
+            #new_line.insert(index, GridConn3of8)
+            new_line[index] = str(GridConn3of8)
             code = "Fraction3of8"
             index = self.find_index(code)
-            new_line.insert(index, Fraction3of8)
+            #new_line.insert(index, Fraction3of8)
+            new_line[index] = str(Fraction3of8)
             code = "GridConnection4of8"
             index = self.find_index(code)
-            new_line.insert(index, GridConn4of8)
+            #new_line.insert(index, GridConn4of8)
+            new_line[index] = str(GridConn4of8)
             code = "Fraction4of8"
             index = self.find_index(code)
-            new_line.insert(index, Fraction4of8)
+            #new_line.insert(index, Fraction4of8)
+            new_line[index] = str(Fraction4of8)
             code = "GridConnection5of8"
             index = self.find_index(code)
-            new_line.insert(index, GridConn5of8)
+            #new_line.insert(index, GridConn5of8)
+            new_line[index] = str(GridConn5of8)
             code = "Fraction5of8"
             index = self.find_index(code)
-            new_line.insert(index, Fraction5of8)
+            #new_line.insert(index, Fraction5of8)
+            new_line[index] = str(Fraction5of8)
             code = "GridConnection6of8"
             index = self.find_index(code)
-            new_line.insert(index, GridConn6of8)
+            #new_line.insert(index, GridConn6of8)
+            new_line[index] = str(GridConn6of8)
             code = "Fraction6of8"
             index = self.find_index(code)
-            new_line.insert(index, Fraction6of8)
+            #new_line.insert(index, Fraction6of8)
+            new_line[index] = str(Fraction6of8)
             code = "GridConnection7of8"
             index = self.find_index(code)
-            new_line.insert(index, GridConn7of8)
+            #new_line.insert(index, GridConn7of8)
+            new_line[index] = str(GridConn7of8)
             code = "Fraction7of8"
             index = self.find_index(code)
-            new_line.insert(index, Fraction7of8)
+            #new_line.insert(index, Fraction7of8)
+            new_line[index] = str(Fraction7of8)
             code = "GridConnection8of8"
             index = self.find_index(code)
-            new_line.insert(index, GridConn8of8)
+            #new_line.insert(index, GridConn8of8)
+            new_line[index] = str(GridConn8of8)
             code = "Fraction8of8"
             index = self.find_index(code)
-            new_line.insert(index, Fraction8of8)
+            #new_line.insert(index, Fraction8of8)
+            new_line[index] = str(Fraction8of8)
 
             WhitinGridPav = 661
             WhitinGridBldg = 662
@@ -1773,36 +1848,43 @@ class SUEWSPrepare:
 
             code = "WithinGridPavedCode"
             index = self.find_index(code)
-            new_line.insert(index, WhitinGridPav)
+            #new_line.insert(index, WhitinGridPav)
+            new_line[index] = str(WhitinGridPav)
             code = "WithinGridBldgsCode"
             index = self.find_index(code)
-            new_line.insert(index, WhitinGridBldg)
+            #new_line.insert(index, WhitinGridBldg)
+            new_line[index] = str(WhitinGridBldg)
             code = "WithinGridEveTrCode"
             index = self.find_index(code)
-            new_line.insert(index, WhitinGridEve)
+            #new_line.insert(index, WhitinGridEve)
+            new_line[index] = str(WhitinGridEve)
             code = "WithinGridDecTrCode"
             index = self.find_index(code)
-            new_line.insert(index, WhitinGridDec)
+            #new_line.insert(index, WhitinGridDec)
+            new_line[index] = str(WhitinGridDec)
             code = "WithinGridGrassCode"
             index = self.find_index(code)
-            new_line.insert(index, WhitinGridGrass)
+            #new_line.insert(index, WhitinGridGrass)
+            new_line[index] = str(WhitinGridGrass)
             code = "WithinGridUnmanBSoilCode"
             index = self.find_index(code)
-            new_line.insert(index, WhitinGridUnmanBsoil)
+            #new_line.insert(index, WhitinGridUnmanBsoil)
+            new_line[index] = str(WhitinGridUnmanBsoil)
             code = "WithinGridWaterCode"
             index = self.find_index(code)
-            new_line.insert(index, WhitinGridWaterCode)
+            #new_line.insert(index, WhitinGridWaterCode)
+            new_line[index] = str(WhitinGridWaterCode)
 
             if self.wall_area_info:
                 wall_area = feature.attribute(self.wall_area.getFieldName())
             else:
                 wall_area = -999
 
-            code = "wallarea"
+            code = "AreaWall"
             index = self.find_index(code)
-            new_line.insert(index, wall_area)
+            #new_line.insert(index, wall_area)
+            new_line[index] = str(wall_area)
 
-            # TODO fix so that it optional
             if self.land_use_from_file:
                 if self.land_use_file_path is None:
                     QMessageBox.critical(None, "Error", "Land use fractions file has not been provided,"
@@ -1811,122 +1893,139 @@ class SUEWSPrepare:
                 elif os.path.isfile(self.land_use_file_path):
                     with open(self.land_use_file_path) as file:
                         next(file)
+                        found_LUF_line = False
                         for line in file:
                             split = line.split()
                             if feat_id == int(split[0]):
-                                flub1 = split[1]
-                                Code_LUbuilding1 = split[2]
-                                flub2 = split[3]
-                                Code_LUbuilding2 = split[4]
-                                flub3 = split[5]
-                                Code_LUbuilding3 = split[6]
-                                flub4 = split[7]
-                                Code_LUbuilding4 = split[8]
-                                flub5 = split[7]
-                                Code_LUbuilding5 = split[8]
-                                fLUp1 = split[9]
-                                Code_LUpaved1 = split[10]
-                                fLUp2 = split[11]
-                                Code_LUpaved2 = split[12]
-                                fLUp3 = split[13]
-                                Code_LUpaved3 = split[14]
+                                Fr_ESTMClass_Paved1 = split[1]
+                                Fr_ESTMClass_Paved2 = split[2]
+                                Fr_ESTMClass_Paved3 = split[3]
+                                Code_ESTMClass_Paved1 = split[4]
+                                Code_ESTMClass_Paved2 = split[5]
+                                Code_ESTMClass_Paved3 = split[6]
+                                Fr_ESTMClass_Bldgs1 = split[7]
+                                Fr_ESTMClass_Bldgs2 = split[8]
+                                Fr_ESTMClass_Bldgs3 = split[9]
+                                Fr_ESTMClass_Bldgs4 = split[10]
+                                Fr_ESTMClass_Bldgs5 = split[11]
+                                Code_ESTMClass_Bldgs1 = split[12]
+                                Code_ESTMClass_Bldgs2 = split[13]
+                                Code_ESTMClass_Bldgs3 = split[14]
+                                Code_ESTMClass_Bldgs4 = split[15]
+                                Code_ESTMClass_Bldgs5 = split[16]
 
-                                found_LCF_line = True
+                                found_LUF_line = True
                                 break
-                        if not found_LCF_line:
-                                flub1 = -999
-                                Code_LUbuilding1 = -999
-                                flub2 = split[3]
-                                Code_LUbuilding2 = -999
-                                flub3 = split[5]
-                                Code_LUbuilding3 = -999
-                                flub4 = split[7]
-                                Code_LUbuilding4 = -999
-                                flub5 = split[7]
-                                Code_LUbuilding5 = -999
-                                fLUp1 = split[9]
-                                Code_LUpaved1 = -999
-                                fLUp2 = split[11]
-                                Code_LUpaved2 = -999
-                                fLUp3 = split[13]
-                                Code_LUpaved3 = -999
+
+                        if not found_LUF_line:
+                                Fr_ESTMClass_Paved1 = -999
+                                Fr_ESTMClass_Paved2 = -999
+                                Fr_ESTMClass_Paved3 = -999
+                                Code_ESTMClass_Paved1 = -999
+                                Code_ESTMClass_Paved2 = -999
+                                Code_ESTMClass_Paved3 = -999
+                                Fr_ESTMClass_Bldgs1 = -999
+                                Fr_ESTMClass_Bldgs2 = -999
+                                Fr_ESTMClass_Bldgs3 = -999
+                                Fr_ESTMClass_Bldgs4 = -999
+                                Fr_ESTMClass_Bldgs5 = -999
+                                Code_ESTMClass_Bldgs1 = -999
+                                Code_ESTMClass_Bldgs2 = -999
+                                Code_ESTMClass_Bldgs3 = -999
+                                Code_ESTMClass_Bldgs4 = -999
+                                Code_ESTMClass_Bldgs5 = -999
                 else:
                     QMessageBox.critical(None, "Error", "Could not find the file containing land use cover fractions")
                     return
             else:
-                flub1 = -999
-                Code_LUbuilding1 = -999
-                flub2 = -999
-                Code_LUbuilding2 = -999
-                flub3 = -999
-                Code_LUbuilding3 = -999
-                flub4 = -999
-                Code_LUbuilding4 = -999
-                flub5 = -999
-                Code_LUbuilding5 = -999
-                fLUp1 = -999
-                Code_LUpaved1 = -999
-                fLUp2 = -999
-                Code_LUpaved2 = -999
-                fLUp3 = -999
-                Code_LUpaved3 = -999
+                Fr_ESTMClass_Paved1 = -999
+                Fr_ESTMClass_Paved2 = -999
+                Fr_ESTMClass_Paved3 = -999
+                Code_ESTMClass_Paved1 = -999
+                Code_ESTMClass_Paved2 = -999
+                Code_ESTMClass_Paved3 = -999
+                Fr_ESTMClass_Bldgs1 = -999
+                Fr_ESTMClass_Bldgs2 = -999
+                Fr_ESTMClass_Bldgs3 = -999
+                Fr_ESTMClass_Bldgs4 = -999
+                Fr_ESTMClass_Bldgs5 = -999
+                Code_ESTMClass_Bldgs1 = -999
+                Code_ESTMClass_Bldgs2 = -999
+                Code_ESTMClass_Bldgs3 = -999
+                Code_ESTMClass_Bldgs4 = -999
+                Code_ESTMClass_Bldgs5 = -999
 
-            code = "fLUb1"
+            code = "Fr_ESTMClass_Bldgs1"
             index = self.find_index(code)
-            new_line.insert(index, flub1)
-            code = "fLUb2"
+            #new_line.insert(index, Fr_ESTMClass_Bldgs1)
+            new_line[index] = str(Fr_ESTMClass_Bldgs1)
+            code = "Fr_ESTMClass_Bldgs2"
             index = self.find_index(code)
-            new_line.insert(index, flub2)
-            code = "fLUb3"
+            #new_line.insert(index, Fr_ESTMClass_Bldgs2)
+            new_line[index] = str(Fr_ESTMClass_Bldgs2)
+            code = "Fr_ESTMClass_Bldgs3"
             index = self.find_index(code)
-            new_line.insert(index, flub3)
-            code = "fLUb4"
+            #new_line.insert(index, Fr_ESTMClass_Bldgs3)
+            new_line[index] = str(Fr_ESTMClass_Bldgs3)
+            code = "Fr_ESTMClass_Bldgs4"
             index = self.find_index(code)
-            new_line.insert(index, flub4)
-            code = "fLUb5"
+            #new_line.insert(index, Fr_ESTMClass_Bldgs4)
+            new_line[index] = str(Fr_ESTMClass_Bldgs4)
+            code = "Fr_ESTMClass_Bldgs5"
             index = self.find_index(code)
-            new_line.insert(index, flub5)
-            code = "fLUp1"
+            #new_line.insert(index, Fr_ESTMClass_Bldgs5)
+            new_line[index] = str(Fr_ESTMClass_Bldgs5)
+            code = "Fr_ESTMClass_Paved1"
             index = self.find_index(code)
-            new_line.insert(index, fLUp1)
-            code = "fLUp2"
+            #new_line.insert(index, Fr_ESTMClass_Paved1)
+            new_line[index] = str(Fr_ESTMClass_Paved1)
+            code = "Fr_ESTMClass_Paved2"
             index = self.find_index(code)
-            new_line.insert(index, fLUp2)
-            code = "fLUp3"
+            #new_line.insert(index, Fr_ESTMClass_Paved2)
+            new_line[index] = str(Fr_ESTMClass_Paved2)
+            code = "Fr_ESTMClass_Paved3"
             index = self.find_index(code)
-            new_line.insert(index, fLUp3)
-            code = "Code_LUbuilding1"
+            #new_line.insert(index, Fr_ESTMClass_Paved3)
+            new_line[index] = str(Fr_ESTMClass_Paved3)
+            code = "Code_ESTMClass_Bldgs1"
             index = self.find_index(code)
-            new_line.insert(index, Code_LUbuilding1)
-            code = "Code_LUbuilding2"
+            #new_line.insert(index, Code_ESTMClass_Bldgs1)
+            new_line[index] = str(Code_ESTMClass_Bldgs1)
+            code = "Code_ESTMClass_Bldgs2"
             index = self.find_index(code)
-            new_line.insert(index, Code_LUbuilding2)
-            code = "Code_LUbuilding3"
+            #new_line.insert(index, Code_ESTMClass_Bldgs2)
+            new_line[index] = str(Code_ESTMClass_Bldgs2)
+            code = "Code_ESTMClass_Bldgs3"
             index = self.find_index(code)
-            new_line.insert(index, Code_LUbuilding3)
-            code = "Code_LUbuilding4"
+            #new_line.insert(index, Code_ESTMClass_Bldgs3)
+            new_line[index] = str(Code_ESTMClass_Bldgs3)
+            code = "Code_ESTMClass_Bldgs4"
             index = self.find_index(code)
-            new_line.insert(index, Code_LUbuilding4)
-            code = "Code_LUbuilding5"
+            #new_line.insert(index, Code_ESTMClass_Bldgs4)
+            new_line[index] = str(Code_ESTMClass_Bldgs4)
+            code = "Code_ESTMClass_Bldgs5"
             index = self.find_index(code)
-            new_line.insert(index, Code_LUbuilding5)
-            code = "Code_LUpaved1"
+            #new_line.insert(index, Code_ESTMClass_Bldgs5)
+            new_line[index] = str(Code_ESTMClass_Bldgs5)
+            code = "Code_ESTMClass_Paved1"
             index = self.find_index(code)
-            new_line.insert(index, Code_LUpaved1)
-            code = "Code_LUpaved2"
+            #new_line.insert(index, Code_ESTMClass_Paved1)
+            new_line[index] = str(Code_ESTMClass_Paved1)
+            code = "Code_ESTMClass_Paved2"
             index = self.find_index(code)
-            new_line.insert(index, Code_LUpaved2)
-            code = "Code_LUpaved3"
+            #new_line.insert(index, Code_ESTMClass_Paved2)
+            new_line[index] = str(Code_ESTMClass_Paved2)
+            code = "Code_ESTMClass_Paved3"
             index = self.find_index(code)
-            new_line.insert(index, Code_LUpaved3)
+            #new_line.insert(index, Code_ESTMClass_Paved3)
+            new_line[index] = str(Code_ESTMClass_Paved3)
 
             new_line.append("!")
 
-            #QgsMessageLog.logMessage(str(new_line), level=QgsMessageLog.CRITICAL)
             if print_line:
                 lines_to_write.append(new_line)
+                self.initial_conditions(year, feat_id)
 
-        #QgsMessageLog.logMessage(str(lines_to_write), level=QgsMessageLog.CRITICAL)
         output_lines = []
         output_file = self.output_dir[0] + "/SUEWS_SiteSelect.txt"
         with open(output_file, 'w+') as ofile:
@@ -1951,6 +2050,106 @@ class SUEWSPrepare:
         values = self.header_sheet.row_values(1)
         index = values.index(code)
         return index
+
+    def initial_conditions(self, year, gridid):
+        nml = f90nml.read(self.input_path + 'InitialConditions.nml')
+        DaysSinceRain = self.day_since_rain
+        LeafCycle = self.leaf_cycle
+        SoilMoisture = self.soil_moisture
+        moist = int(int(SoilMoisture) * 1.5)
+
+        DailyMeanT = self.find_daily_mean_temp()
+
+        nml['initialconditions']['dayssincerain'] = int(DaysSinceRain)
+        nml['initialconditions']['temp_c0'] = float(DailyMeanT)
+        nml['initialconditions']['soilstorepavedstate'] = moist
+        nml['initialconditions']['soilstorebldgsstate'] = moist
+        nml['initialconditions']['soilstoreevetrstate'] = moist
+        nml['initialconditions']['soilstoredectrstate'] = moist
+        nml['initialconditions']['soilstoregrassstate'] = moist
+        nml['initialconditions']['soilstorebsoilstate'] = moist
+
+        f = open(self.Metfile_path, 'r')
+        lin = f.readlines()
+        index = 1
+        lines = np.array(lin[index].split())
+        nml['initialconditions']['id_prev'] = int(lines[1]) - 1
+        f.close()
+
+        # if not (LeafCycle == 0 or LeafCycle == 4):
+        #     self.iface.messageBar().pushMessage("Warning", "A transition period between Winter and Summer has been "
+        #                                                    "choosen. Preferably start the model run during Winter or "
+        #                                                    "Summer.", level=QgsMessageBar.WARNING)
+
+        if LeafCycle == 0: # Winter
+            nml['initialconditions']['gdd_1_0'] = 0
+            nml['initialconditions']['gdd_2_0'] = -450
+            nml['initialconditions']['laiinitialevetr'] = 4
+            nml['initialconditions']['laiinitialdectr'] = 1
+            nml['initialconditions']['laiinitialgrass'] = 1.6
+        elif LeafCycle == 1:
+            nml['initialconditions']['gdd_1_0'] = 50
+            nml['initialconditions']['gdd_2_0'] = -400
+            nml['initialconditions']['laiinitialevetr'] = 4.2
+            nml['initialconditions']['laiinitialdectr'] = 2.0
+            nml['initialconditions']['laiinitialgrass'] = 2.6
+        elif LeafCycle == 2:
+            nml['initialconditions']['gdd_1_0'] = 150
+            nml['initialconditions']['gdd_2_0'] = -300
+            nml['initialconditions']['laiinitialevetr'] = 4.6
+            nml['initialconditions']['laiinitialdectr'] = 3.0
+            nml['initialconditions']['laiinitialgrass'] = 3.6
+        elif LeafCycle == 3:
+            nml['initialconditions']['gdd_1_0'] = 225
+            nml['initialconditions']['gdd_2_0'] = -150
+            nml['initialconditions']['laiinitialevetr'] = 4.9
+            nml['initialconditions']['laiinitialdectr'] = 4.5
+            nml['initialconditions']['laiinitialgrass'] = 4.6
+        elif LeafCycle == 4: # Summer
+            nml['initialconditions']['gdd_1_0'] = 300
+            nml['initialconditions']['gdd_2_0'] = 0
+            nml['initialconditions']['laiinitialevetr'] = 5.1
+            nml['initialconditions']['laiinitialdectr'] = 5.5
+            nml['initialconditions']['laiinitialgrass'] = 5.9
+        elif LeafCycle == 5:
+            nml['initialconditions']['gdd_1_0'] = 225
+            nml['initialconditions']['gdd_2_0'] = -150
+            nml['initialconditions']['laiinitialevetr'] = 4.9
+            nml['initialconditions']['laiinitialdectr'] = 4,5
+            nml['initialconditions']['laiinitialgrass'] = 4.6
+        elif LeafCycle == 6:
+            nml['initialconditions']['gdd_1_0'] = 150
+            nml['initialconditions']['gdd_2_0'] = -300
+            nml['initialconditions']['laiinitialevetr'] = 4.6
+            nml['initialconditions']['laiinitialdectr'] = 3.0
+            nml['initialconditions']['laiinitialgrass'] = 3.6
+        elif LeafCycle == 7:
+            nml['initialconditions']['gdd_1_0'] = 50
+            nml['initialconditions']['gdd_2_0'] = -400
+            nml['initialconditions']['laiinitialevetr'] = 4.2
+            nml['initialconditions']['laiinitialdectr'] = 2.0
+            nml['initialconditions']['laiinitialgrass'] = 2.6
+
+        nml.write(self.output_dir[0] + '/InitialConditions' + str(self.file_code) + str(gridid) + '_' + str(year) +
+                  '.nml', force=True)
+
+    def find_daily_mean_temp(self):
+        if os.path.isfile(self.Metfile_path):
+            with open(self.Metfile_path) as file:
+                next(file)
+                line = next(file)
+                split = line.split()
+                day = int(split[1])
+                number_of_hours = 1
+                total_temp = float(split[11])
+                for line in file:
+                    split = line.split()
+                    if day == int(split[1]):
+                        total_temp += float(split[11])
+                        number_of_hours += 1
+
+                mean_temp = float(total_temp)/int(number_of_hours)
+                return mean_temp
 
     def unload_widget(self):
         self.dlg.tabWidget.clear()

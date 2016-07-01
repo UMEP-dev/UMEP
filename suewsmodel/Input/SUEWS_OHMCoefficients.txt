@@ -5,8 +5,8 @@ Code	a1	a2	a3	!	Surface type	Reference	Not recommended (NR)
 100	0.515	0.025	-33.7	!	Canyon (average)			
 200	0.336	0.313	-31.4	!	"Vegetation (average). This is the average of Codes 20, 30, 50, 51, 52, 53, 60 (i.e. includes soil and water)."			
 201	0.215	0.325	-19.85	!	NEW Vegetation only (average of codes 20 and 30).			
-2011	0.230	0.276	-16.91	!	Code 201 x Mulitplier for summer			
-2012	0.270	-0.435	6.62	!	Code 201 x Multiplier for winter			
+2011	0.230	0.325	-16.91	!	Code 201 x Mulitplier for summer (not a2)			
+2012	0.270	0.325	6.62	!	Code 201 x Multiplier for winter (not a2)			
 20	0.11	0.11	-12.3	!	Mixed Forest	McCaughey (1985)		
 30	0.32	0.54	-27.4	!	Short grass	Doll et al. (1985)		
 50	0.38	0.56	-27.3	!	Bare soil	Novak (1982)		
@@ -14,11 +14,11 @@ Code	a1	a2	a3	!	Surface type	Reference	Not recommended (NR)
 52	0.35	0.43	-36.5	!	Bare soil (dry)	Fuchs & Hadas (1972)		
 53	0.36	0.27	-42.4	!	Bare soil	Asaeda & Ca (1983)		
 55	0.355	0.335	-35.275	!	"Bare soil (average). This is the average of Codes 50, 51, 52, 53."			
-551	0.379	0.284	-30.05	!	Code 55 x Mulitplier for summer			
-552	0.445	-0.448	11.77	!	Code 55 x Mulitplier for winter			
+551	0.379	0.335	-30.05	!	Code 55 x Mulitplier for summer  (not a2)			
+552	0.445	0.335	11.77	!	Code 55 x Mulitplier for winter (not a2)			
 60	0.5	0.21	-39.1	!	Water (shallow - turbid)	Souch et al. (1998)		
-601	0.534	0.178	-33.31	!	Code 60 x Multiplier for summer			
-602	0.627	-0.281	13.05	!	Code 60 x Multiplier for winter			
+601	0.534	0.210	-33.31	!	Code 60 x Multiplier for summer (not a2)			
+602	0.627	0.210	13.05	!	Code 60 x Multiplier for winter (not a2)			
 61	0.25	0.6	-30	!	Snow	Järvi et al. (2014)		
 713	0.17	0.1	-17	!	"Roof (tar and gravel, summer)"	summer		
 701	0.3	0.96	-24	!	"Roof (commerical or industrial, gravel, dry, WS < 1 m/s, Vancouver)"	"Meyn & Oke (2009) Table 4, Pg 750"		
@@ -39,8 +39,8 @@ Code	a1	a2	a3	!	Surface type	Reference	Not recommended (NR)
 790	0.44	0.57	-28.9	!	Roof (Uppsala)	Taseler (1980)	NR	
 791	0.82	0.34	-55.7	!	Roof (membrane & concrete)	Yoshida et al. (1990/91) 	NR	
 798	0.477	0.337	-33.87	!	"Rooftop average (of Taesler, Yap and Yoshida, as in Grimmond et al. 1992)"	Keogh et al. (2012)		
-7981	0.510	0.286	-28.85	!	Code 798 x Multiplier for summer			
-7982	0.598	-0.451	11.30	!	Code 798 x Multiplier for winter			
+7981	0.510	0.337	-28.85	!	Code 798 x Multiplier for summer (not a2)			
+7982	0.598	0.337	11.30	!	Code 798 x Multiplier for winter (not a2)			
 799	0.238	0.427	-16.7	!	Original roof average (inlcudes two not recommended - Meyn 2001 and old Meyn 2001 coefficients)			
 800	0.719	0.194	-36.6	!	"Impervious (average). This is the average of Codes 801, 802, 901, 902, 903, 905, 906."			
 801	0.81	0.1	-79.9	!	Concrete	Doll et al. (1985)		
@@ -57,8 +57,8 @@ Code	a1	a2	a3	!	Surface type	Reference	Not recommended (NR)
 910	0.718	0.532	-40.81	!	An99 JJA average - calculated by HCW			
 850	0.665	0.243	-42.825	!	"Impervious (average) excluding all An99 values, i.e. average of Codes 801, 802, 901, 902."			
 851	0.676	0.300	-42.42	!	"NEW Impervious (average). This is the average of Codes 801, 802, 901, 902, 910."	Ward et al. (2015)		
-8511	0.722	0.255	-36.14	!	Code 851 x Multiplier for summer			
-8512	0.848	-0.402	14.16	!	Code 851 x Multiplier for winter			
+8511	0.722	0.300	-36.14	!	Code 851 x Multiplier for summer (not a2)			
+8512	0.848	0.300	14.16	!	Code 851 x Multiplier for winter (not a2)			
 -9								
 -9								
 								

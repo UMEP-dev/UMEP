@@ -2,6 +2,6 @@
 Code	G1	G2	G3	G4	G5	G6	TH	TL	S1	S2	Kmax			
 100	16.4764	566.0923	0.2163	3.3649	11.0764	0.0176	40	0	0.45	15	1200	!	Default	Jarvi et al. (2011)
 101	23.53	104.4	0.0812	9.44	18.35	0.081	40	0	1.08	69.7	1000	!	Thetford Forest	Stewart (1988)
-200	3.5	200	0.13	0.7	30	0.05	55	-10	5.56	0	1200	!	New coefficients - Use with gsChoice = 2 (HCW 18 Jun 2015)	
+200	3.5	200	0.13	0.7	30	0.05	55	-10	5.56	0	1200	!	New coefficients - Use with gsChoice = 2 (Ward et al. 2016)	
 -9														
 -9														

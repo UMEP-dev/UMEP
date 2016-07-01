@@ -1,32 +1,8 @@
 1	2	3	4	5	6	7	8	9	10	11			
 Code	BaseTHDD	QF_A_Weekday	QF_B_Weekday	QF_C_Weekday	QF_A_Weekend	QF_B_Weekend	QF_C_Weekend	AHMin	AHSlope	TCritic			
 10	18.2	0.1	0.00986	0.0102	0.1	0.00986	0.0102	15	2.7	7	!	Helsinki	Jarvi et al 2014
-11	18.2	0.3081	0.0099	0.0102	0.3081	0.0099	0.0102	-999	-999	-999	!	Jarvi et al. (2011) - MD	
-551	18.2	0.3081357	0.0098631	0.0101826	0.3081357	0.0098631	0.0101826	-999	-999	-999	!	Swindon	Ward et al. (2013)
-661	18.2	0.3081357	0.0098631	0.0101826	0.3081357	0.0098631	0.0101826	-999	-999	-999	!	London	
-33661	18.2	0.3081357	0.0098631	0.0101826	0.3081357	0.0098631	0.0101826	-999	-999	-999	!	LoBo	
+11	18.2	0.3081	0.0099	0.0102	0.3081	0.0099	0.0102	-999	-999	-999	!	Järvi et al. (2011) - MD	
+551	18.2	0.1446	0.0000	0.0037	0.1329	0.0000	0.0038	-999	-999	-999	!	"Swindon (fit, Ward et al. 2016)"	
+661	18.2	0.3743	0.0000	0.0073	0.3412	0.0000	0.0067	-999	-999	-999	!	"London (fit with QF corrected by 25%, Ward et al. 2016)"	
 -9													
 -9													
-													
-													
-													
-!	1	Code	Code for anthropogenic heat modelling										
-!	2	BaseTHDD	Base temperature for heating degree days			[degC]							
-!	3	QF_A_Weekday	Base value for QF on weekdays			[W m-2 (Cap ha-1)-1]		Use with AnthropHeatChoice = 2					
-!	4	QF_B_Weekday	Related to cooling degree days on weekdays			[W m-2 K-1 (Cap ha-1)-1]		Use with AnthropHeatChoice = 2					
-!	5	QF_C_Weekday	Related to heating degree days on weekdays			[W m-2 K-1 (Cap ha-1)-1]		Use with AnthropHeatChoice = 2					
-!	6	QF_A_Weekend	Base value for QF on weekends			[W m-2 (Cap ha-1)-1]		Use with AnthropHeatChoice = 2					
-!	7	QF_B_Weekend	Related to cooling degree days on weekends			[W m-2 K-1 (Cap ha-1)-1]		Use with AnthropHeatChoice = 2					
-!	8	QF_C_Weekend	Related to heating degree days on weekends			[W m-2 K-1 (Cap ha-1)-1]		Use with AnthropHeatChoice = 2					
-!	9	AHMin	Minimum QF			[W m-2]		Use with AnthropHeatChoice = 1					
-!	10	AHSlope	Slope of QF versus Tair			[W m-2 K-1]		Use with AnthropHeatChoice = 1					
-!	11	TCritic	Critical temperature			[degC]		Use with AnthropHeatChoice = 1					
-													
-													
-													
-													
-													
-													
-													
-													
-													

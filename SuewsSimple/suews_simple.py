@@ -573,7 +573,7 @@ class SuewsSimple:
         # Initial conditions
         DaysSinceRain = self.dlg.DaysSinceRain.text()
         DailyMeanT = self.dlg.DailyMeanT.text()
-        LeafCycle = self.dlg.comboBoxLeafCycle.currentIndex() - 1.
+        LeafCycle = self.dlg.comboBoxLeafCycle.currentIndex()
         SoilMoisture = self.dlg.spinBoxSoilMoisture.value()
         moist = int(SoilMoisture * 1.5)
 
@@ -594,55 +594,55 @@ class SuewsSimple:
         nml['initialconditions']['id_prev'] = int(lines[1]) - 1
         f.close()
 
-        if not (LeafCycle == 0 or LeafCycle == 4):
+        if not (LeafCycle == 1 or LeafCycle == 5):
             self.iface.messageBar().pushMessage("Warning", "A transition period between Winter and Summer has been "
                                                            "choosen. Preferably start the model run during Winter or "
                                                            "Summer.", level=QgsMessageBar.WARNING)
 
         # nml = self.leaf_cycle(nml,LeafCycle) ### TRY THIS LATER
-        if LeafCycle == 0: # Winter
+        if LeafCycle == 1: # Winter
             nml['initialconditions']['gdd_1_0'] = 0
             nml['initialconditions']['gdd_2_0'] = -450
             nml['initialconditions']['laiinitialevetr'] = 4
             nml['initialconditions']['laiinitialdectr'] = 1
             nml['initialconditions']['laiinitialgrass'] = 1.6
-        elif LeafCycle == 1:
+        elif LeafCycle == 2:
             nml['initialconditions']['gdd_1_0'] = 50
             nml['initialconditions']['gdd_2_0'] = -400
             nml['initialconditions']['laiinitialevetr'] = 4.2
             nml['initialconditions']['laiinitialdectr'] = 2.0
             nml['initialconditions']['laiinitialgrass'] = 2.6
-        elif LeafCycle == 2:
+        elif LeafCycle == 3:
             nml['initialconditions']['gdd_1_0'] = 150
             nml['initialconditions']['gdd_2_0'] = -300
             nml['initialconditions']['laiinitialevetr'] = 4.6
             nml['initialconditions']['laiinitialdectr'] = 3.0
             nml['initialconditions']['laiinitialgrass'] = 3.6
-        elif LeafCycle == 3:
+        elif LeafCycle == 4:
             nml['initialconditions']['gdd_1_0'] = 225
             nml['initialconditions']['gdd_2_0'] = -150
             nml['initialconditions']['laiinitialevetr'] = 4.9
             nml['initialconditions']['laiinitialdectr'] = 4.5
             nml['initialconditions']['laiinitialgrass'] = 4.6
-        elif LeafCycle == 4: # Summer
+        elif LeafCycle == 5: # Summer
             nml['initialconditions']['gdd_1_0'] = 300
             nml['initialconditions']['gdd_2_0'] = 0
             nml['initialconditions']['laiinitialevetr'] = 5.1
             nml['initialconditions']['laiinitialdectr'] = 5.5
             nml['initialconditions']['laiinitialgrass'] = 5.9
-        elif LeafCycle == 5:
+        elif LeafCycle == 6:
             nml['initialconditions']['gdd_1_0'] = 225
             nml['initialconditions']['gdd_2_0'] = -150
             nml['initialconditions']['laiinitialevetr'] = 4.9
             nml['initialconditions']['laiinitialdectr'] = 4,5
             nml['initialconditions']['laiinitialgrass'] = 4.6
-        elif LeafCycle == 6:
+        elif LeafCycle == 7:
             nml['initialconditions']['gdd_1_0'] = 150
             nml['initialconditions']['gdd_2_0'] = -300
             nml['initialconditions']['laiinitialevetr'] = 4.6
             nml['initialconditions']['laiinitialdectr'] = 3.0
             nml['initialconditions']['laiinitialgrass'] = 3.6
-        elif LeafCycle == 7:
+        elif LeafCycle == 8: # Late Autumn
             nml['initialconditions']['gdd_1_0'] = 50
             nml['initialconditions']['gdd_2_0'] = -400
             nml['initialconditions']['laiinitialevetr'] = 4.2
