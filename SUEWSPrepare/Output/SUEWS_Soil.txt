@@ -10,6 +10,11 @@ Code	SoilDepth	SoilStoreCap	SatHydraulicCond	SoilDensity	InfiltrationRate	OBS_SM
 55	-999	-999	-999	-999	0.5	-999	-999	-999	!	sodic clayey soils	
 56	-999	-999	-999	-999	-999	150	0.425	0.85	!	OBS	
 55661	350	150	5.00E-04	-999	-999	-999	-999	-999	!		
+551	350	150	0.0005	-999	-999	-999	-999	-999	!	Swindon		Ward et al. (2013)	 (below Paved)		
+552	350	150	0.0005	-999	-999	-999	-999	-999	!	Swindon		Ward et al. (2013)	 (below Built)		
+553	350	150	0.0005	-999	-999	-999	-999	-999	!	Swindon		Ward et al. (2013)	 (below others)		
+661	350	150	0.0005	-999	-999	-999	-999	-999	!	London					
+33661	350	150	0.0005	-999	-999	-999	-999	-999	!	London	GLA/Boroughs			http://www.gu.se/digitalAssets/1548/1548593_grafiskt-element-agecap.png		
 -9											
 -9											
 											

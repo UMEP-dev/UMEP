@@ -480,5 +480,5 @@ class FootprintModel:
     def help(self):
         # url = "file://" + self.plugin_dir + "/help/Index.html"
         url = "http://www.urban-climate.net/umep/UMEP_Manual#Pre-Processor:" \
-              "_Urban_Morphology:_Source_Area_Model_.28Point.29_-_Footprint_Model"
+              "_Urban_Morphology:_Footprint_Model_.28Point.29"
         webbrowser.open_new_tab(url)

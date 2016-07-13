@@ -305,5 +305,5 @@ class WallHeight:
 
     def help(self):
         # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Pre-Processor:_Urban_Geometry:_Wall_Height_Aspect'
+        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Pre-Processor:_Urban_Geometry:_Wall_Height_and_Aspect'
         webbrowser.open_new_tab(url)

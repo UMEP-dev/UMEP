@@ -32,7 +32,7 @@ import sys
 import webbrowser
 import urllib
 
-# from ..Utilities import *
+from ..Utilities import f90nml
 from ..suewsmodel import Suews_wrapper_v2016b
 
 
@@ -210,8 +210,8 @@ class SUEWS:
             self.dlg.textInput.setText(self.folderPathOut[0])
 
     def start_progress(self):
-        sys.path.append(self.model_dir)
-        import f90nml
+        # sys.path.append(self.model_dir)
+        # import f90nml
 
         # No Plots
         plot = 0

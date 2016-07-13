@@ -41,6 +41,8 @@ from SuewsSimple.suews_simple import SuewsSimple
 from SUEWSPrepare.suews_prepare import SUEWSPrepare
 from SUEWS.suews import SUEWS
 from FootprintModel.footprint_model import FootprintModel
+from WATCHData.watch import WATCHData
+from GreaterQF.greater_qf import GreaterQF
 
 # from about_dialog import AboutDialog
 from UMEP_about import UMEPDialogAbout
@@ -135,7 +137,8 @@ class UMEP:
         self.PED_Action.triggered.connect(self.PED)
         self.PFD_Action = QAction("Prepare WATCH Data", self.iface.mainWindow())
         self.MD_Menu.addAction(self.PFD_Action)
-        self.PFD_Action.setEnabled(False)
+        self.PFD_Action.triggered.connect(self.WA)
+        # self.PFD_Action.setEnabled(False)
 
         # Sub-actions to Urban Geometry
         self.SVF_Action = QAction("Sky View Factor", self.iface.mainWindow())
@@ -181,7 +184,10 @@ class UMEP:
         self.PWS_Action.setEnabled(False)
 
         # Sub-menus to Urban Energy Balance
-        self.QF_Action = QAction("Antropogenic heat (Qf) (LUCY)", self.iface.mainWindow())
+        self.QFL_Action = QAction("Antropogenic heat - London (GreaterQf)", self.iface.mainWindow())
+        self.UEB_Menu.addAction(self.QFL_Action)
+        self.QFL_Action.triggered.connect(self.GF)
+        self.QF_Action = QAction("Antropogenic heat - Global (LUCY)", self.iface.mainWindow())
         self.UEB_Menu.addAction(self.QF_Action)
         self.QF_Action.setEnabled(False)
         self.SUEWSSIMPLE_Action = QAction("Urban Energy Balance (SUEWS, Simple)", self.iface.mainWindow())
@@ -413,6 +419,14 @@ class UMEP:
 
     def FP(self):
         sg = FootprintModel(self.iface)
+        sg.run()
+
+    def WA(self):
+        sg = WATCHData(self.iface)
+        sg.run()
+
+    def GF(self):
+        sg = GreaterQF(self.iface)
         sg.run()
 
     def run(self):

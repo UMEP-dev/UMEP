@@ -1,6 +1,7 @@
 __author__ = 'xlinfr'
 from ..Utilities import shadowingfunctions as shadow
-import Pysolarn.solar as pys
+# import Pysolarn.solar as pys
+from ..Utilities import Pysolarn as pys
 import datetime as dt
 from PyQt4.QtGui import *
 from ..Utilities.misc import *

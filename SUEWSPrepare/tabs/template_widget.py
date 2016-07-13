@@ -29,7 +29,7 @@ from qgis.gui import *
 from qgis.utils import *
 import os
 
-import xlrd
+# import xlrd
 
 import urllib2
 

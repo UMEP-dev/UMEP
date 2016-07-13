@@ -1,8 +1,9 @@
 1	2	3	4	5	6	7	8	9	10	11	12	13	14	15	16	17	18	19					
 Code	AlbedoMin	AlbedoMax	Emissivity	StorageMin	StorageMax	WetThreshold	StateLimit	DrainageEq	DrainageCoef1	DrainageCoef2	OHMCode_SummerWet	OHMCode_SummerDry	OHMCode_WinterWet	OHMCode_WinterDry	ESTMCode	AnOHM_Cp	AnOHM_Kk	AnOHM_Ch					
-1000	0.08	0.08	0.95	0.5	0.5	0.5	2000	0	0	0	60	60	60	60	813	100000	1.2	4	!	Helsinki	Jarvi et al. (2014)		
-551	0.1	0.1	0.95	0.5	0.5	0.5	1000	-999	-999	-999	601	601	602	602	813	100000	1.2	4	!	Swindon (no water)	Sw (Ward et al. 2016)		
-661	0.1	0.1	0.95	0.5	0.5	0.5	30000	-999	-999	-999	601	601	602	602	813	100000	1.2	4	!	London	Kc (Ward et al. 2016)		
+1000	0.08	0.08	0.95	0.5	0.5	0.5	2000	0	0	0	60	60	60	60	813	100000	1.2	4	!		Jarvi et al. (2014)		Helsinki	http://www.gu.se/digitalAssets/1548/1548593_grafiskt-element-agecap.png		7
+551	0.1	0.1	0.95	0.5	0.5	0.5	1000	-999	-999	-999	60	60	60	60	813	100000	1.2	4	!		Ward et al. (2013)		Swindon (no water)	http://www.gu.se/digitalAssets/1548/1548593_grafiskt-element-agecap.png		7
+661	0.1	0.1	0.95	0.5	0.5	0.5	30000	0	0	0	60	60	60	60	813	100000	1.2	4	!				London	http://www.gu.se/digitalAssets/1548/1548593_grafiskt-element-agecap.png		7
+33661	0.1	0.1	0.95	0.5	0.5	0.5	30000	0	0	0	60	60	60	60	813	100000	1.2	4	!			GLA/Boroughs	London	http://www.gu.se/digitalAssets/1548/1548593_grafiskt-element-agecap.png		7
 -9																							
 -9																							
 																							

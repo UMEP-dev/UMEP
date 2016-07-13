@@ -4,5 +4,6 @@ Code	RadMeltFactor	TempMeltFactor	AlbedoMin	AlbedoMax	Emissivity	tau_a	tau_f	Pre
 55661	0.001	0.14	0.18	0.8	0.99	0.01	0.1	2	100	450	0.02	0.03	0.1	2.2	61	61	61	61	61	100000	1.2	4	!	South England generic (not used)	
 550	0.001	0.14	0.18	0.8	0.99	0.01	0.1	2	100	450	0.02	0.03	0.1	2.2	61	61	61	61	61	100000	1.2	4	!	Swindon	
 660	0.001	0.14	0.18	0.8	0.99	0.01	0.1	2	100	450	0.02	0.03	0.1	2.2	61	61	61	61	61	100000	1.2	4	!	London	
+33660	0.001	0.14	0.18	0.8	0.99	0.01	0.1	2	100	450	0.02	0.03	0.1	2.2	61	61	61	61	813	100000	1.2	4	!			GLA/Boroughs	London	http://www.gu.se/digitalAssets/1548/1548593_grafiskt-element-agecap.png		
 -9																									
 -9																									

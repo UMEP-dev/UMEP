@@ -1,0 +1,10 @@
+&input_nml
+    spatial_domain='Gridkm2Data'
+    start_date=2005-01-01
+    end_date=2005-01-02
+    all_qf=1
+    sensible_qf=1
+    latent_qf=0
+    wastewater_qf=0
+    input_data_dir='InputData/'
+/

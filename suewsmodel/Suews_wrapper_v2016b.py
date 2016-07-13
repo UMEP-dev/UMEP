@@ -7,7 +7,7 @@ def wrapper(pathtoplugin):
     import suewsdataprocessing
     import suewsplotting
     import subprocess
-    import f90nml
+    from ..Utilities import f90nml
     import os
     import sys
     import stat
@@ -53,43 +53,46 @@ def wrapper(pathtoplugin):
         if multiplemetfiles == 0: # one file
             if index == 2:
                 gridcodemet = ''
-                # data_in = fileinputpath + filecode + '_data.txt' # No grid code in the name, nov 2015
-                # met_old = np.loadtxt(data_in, skiprows=1)
-                # if met_old[1, 3] - met_old[0, 3] == 5:
-                #     met_new = met_old
-                # else:
-                #     met_new = su.tofivemin_v1(met_old)
+                data_in = fileinputpath + filecode + gridcodemet + '_data.txt' # No grid code in the name, nov 2015
+                met_old = np.loadtxt(data_in, skiprows=1)
+                if met_old[1, 3] - met_old[0, 3] == 5:
+                    met_new = met_old
+                else:
+                    met_new = su.tofivemin_v1(met_old)
         else:  # multiple files
             gridcodemet = lines[0]
-        data_in = fileinputpath + filecode + gridcodemet + '_data.txt'
-        met_old = np.loadtxt(data_in, skiprows=1)
+            data_in = fileinputpath + filecode + gridcodemet + '_data.txt'
+            met_old = np.loadtxt(data_in, skiprows=1)
+            if met_old[1, 3] - met_old[0, 3] == 5:
+                met_new = met_old
+            else:
+                met_new = su.tofivemin_v1(met_old)
+
         if index == 2:
             dectime0 = met_old[0, 1] + met_old[0, 2] / 24 + met_old[0, 3] / (60 * 24)
             dectime1 = met_old[1, 1] + met_old[1, 2] / 24 + met_old[1, 3] / (60 * 24)
-            timeres_old = int(np.round((dectime1 - dectime0) * (60. * 24.)))
-        if met_old[1, 3] - met_old[0, 3] == 5:
-            met_new = met_old
-        else:
-            met_new = su.tofivemin_v1(met_old)
+            # timeres_old = int(np.round((dectime1 - dectime0) * (60. * 24.))) # moved to runcontrol
 
         if qschoice == 4 or qschoice == 14:
             if multipleestmfiles == 0: # one ts file
                 if index == 2:
                     gridcodeestm = ''
-                    # ts_in = fileinputpath + filecode + '_Ts_data.txt' # No grid code in the name, nov 2015
-                # ts_old = np.loadtxt(ts_in, skiprows=1)
-                # if ts_old[1, 3] - ts_old[0, 3] == 5:
-                #     ts_new = ts_old
-                # else:
-                #     ts_new = su.ts_tofivemin_v1(ts_old)
+                    ts_in = fileinputpath + filecode + gridcodeestm +'_Ts_data.txt' # No grid code in the name, nov 2015
+                ts_old = np.loadtxt(ts_in, skiprows=1)
+                if ts_old[1, 3] - ts_old[0, 3] == 5:
+                    ts_new = ts_old
+                else:
+                    ts_new = su.ts_tofivemin_v1(ts_old)
             else:  # multiple ts files
                 gridcodeestm = lines[0]
-            ts_in = fileinputpath + filecode + gridcodeestm + '_Ts_data.txt'
-            ts_old = np.loadtxt(ts_in, skiprows=1)
-            if ts_old[1, 3] - ts_old[0, 3] == 5:
-                ts_new = ts_old
-            else:
-                ts_new = su.ts_tofivemin_v1(ts_old)
+                ts_in = fileinputpath + filecode + gridcodeestm + '_Ts_data.txt'
+                ts_old = np.loadtxt(ts_in, skiprows=1)
+                if ts_old[1, 3] - ts_old[0, 3] == 5:
+                    ts_new = ts_old
+                else:
+                    ts_new = su.ts_tofivemin_v1(ts_old)
+        else:
+            gridcodeestm = ''
 
         # find start end end of 5 min file for each year
         posstart = np.where((met_new[:, 0] == YYYY) & (met_new[:, 1] == 1) & (met_new[:, 2] == 0) & (met_new[:, 3] == 5))
@@ -113,11 +116,20 @@ def wrapper(pathtoplugin):
         header = 'iy id it imin qn qh qe qs qf U RH Tair pres rain kdown snow ldown fcld wuh xsmd lai kdiff kdir wdir'
         numformat = '%3d %2d %3d %2d %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f ' \
                     '%6.4f %6.2f %6.2f %6.2f %6.2f %6.2f'
-        np.savetxt(data_out, met_save, fmt=numformat, delimiter=' ', header=header, comments='')
-        f_handle = file(data_out, 'a')
-        endoffile = [-9, -9]
-        np.savetxt(f_handle, endoffile, fmt='%2d')
-        f_handle.close()
+
+        if multiplemetfiles == 0: # one file
+            if index == 2:
+                np.savetxt(data_out, met_save, fmt=numformat, delimiter=' ', header=header, comments='')
+                f_handle = file(data_out, 'a')
+                endoffile = [-9, -9]
+                np.savetxt(f_handle, endoffile, fmt='%2d')
+                f_handle.close()
+        else:
+            np.savetxt(data_out, met_save, fmt=numformat, delimiter=' ', header=header, comments='')
+            f_handle = file(data_out, 'a')
+            endoffile = [-9, -9]
+            np.savetxt(f_handle, endoffile, fmt='%2d')
+            f_handle.close()
 
         if qschoice == 4 or qschoice == 14:
             # find start end end of 5 min ts file for each year
@@ -191,13 +203,14 @@ def wrapper(pathtoplugin):
     # Hard-coded python numformat
     pynumformat = '%4i ' + '%3i ' * 3 + '%8.5f ' +\
         '%9.4f ' * 5 + '%9.4f ' * 7 +\
+        '%9.4f ' +\
         '%10.6f ' * 4 +\
         '%10.5f ' * 1 + '%10.6f ' * 3 +\
         '%10.6f ' * 6 +\
         '%9.3f ' * 2 + '%9.4f ' * 4 +\
         '%10.5f ' * 3 + '%14.7g ' * 1 + '%10.5f ' * 1 +\
         '%10.4f ' * 2 + '%10.5f ' * 6 + '%10.5f ' * 7 +\
-        '%10.4f ' * 3 +\
+        '%10.4f ' * 4 +\
         '%10.4f ' * 5 + '%10.6f ' * 6 +\
         '%8.4f' * 1
 
@@ -223,11 +236,12 @@ def wrapper(pathtoplugin):
     pynumformat_estm = '%4i ' + '%3i ' * 3 + '%8.5f ' + '%10.4f ' * 27
 
     TimeCol = np.array([1, 2, 3, 4, 5]) -1
-    SumCol = np.array([18, 19, 20, 21, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 69, 70, 71]) -1
-    LastCol = np.array([22, 23, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 66, 67, 68, 72]) -1
+    SumCol = np.array([19,20,21,22,  25,26, 27,28,29,30,31,32,  33,34,35,36,37,38,  71,72,73]) -1
+    LastCol = np.array( [23,24,  44,45,46,47,48,49,50,51,  52,53,54,55,56,57,58,  59,60,61,62,  68,69,70,  74]) -1
 
     header = '%iy id it imin dectime '\
              'kdown kup ldown lup Tsurf qn h_mod e_mod qs qf qh qe '\
+             'qh_r '\
              'P/i Ie/i E/i Dr/i '\
              'St/i NWSt/i surfCh/i totCh/i '\
              'RO/i ROsoil/i ROpipe ROpav ROveg ROwater '\
@@ -235,13 +249,16 @@ def wrapper(pathtoplugin):
              'ra rs ustar L_Ob Fcld '\
              'SoilSt smd smd_Paved smd_Bldgs smd_EveTr smd_DecTr smd_Grass smd_BSoil '\
              'St_Paved St_Bldgs St_EveTr St_DecTr St_Grass St_BSoil St_Water '\
-             'LAI z0m zdm '\
+             'LAI z0m zdm bulkalbedo '\
              'qn1_SF qn1_S Qm QmFreez QmRain SWE Mw MwStore snowRem_Paved snowRem_Bldgs ChSnow/i '\
-             'SnowAlb '
+             'SnowAlb'
 
     TimeCol_snow = np.array([1, 2, 3, 4, 5]) - 1
     SumCol_snow = np.array([13, 14, 15, 16, 17, 18, 19, 47, 48, 49, 50, 51, 52, 53, 68, 69, 70, 71, 72, 73, 74]) - 1
-    LastCol_snow = np.array([6, 7, 8, 9, 10, 11, 12, 75, 76, 77, 78, 79, 80, 81]) - 1
+    LastCol_snow = np.array([6, 7, 8, 9, 10, 11, 12, 62, 75, 76, 77, 78, 79, 80, 81]) - 1
+
+    resolutionfilesout = nml['runcontrol']['resolutionfilesout']
+    timeres_min = resolutionfilesout / 60
 
     for j in range(2, index):
         lines = lin[j].split()
@@ -250,30 +267,30 @@ def wrapper(pathtoplugin):
         data_out = fileinputpath + filecode + gridcode + '_' + str(YYYY) + '_data_5.txt'
         suews_5min = fileoutputpath + filecode + gridcode + '_' + str(YYYY) + '_5.txt'
         suews_in = np.loadtxt(suews_5min, skiprows=1)
-        suews_out = fileoutputpath + filecode + gridcode + '_' + str(YYYY) + '_' + str(timeres_old) + '.txt'
+        suews_out = fileoutputpath + filecode + gridcode + '_' + str(YYYY) + '_' + str(timeres_min) + '.txt'
 
         # suews_1hour = su.from5minto1hour_v1(suews_in, SumCol, LastCol, TimeCol)
-        suews_result = su.from5mintoanytime(suews_in, SumCol, LastCol, TimeCol,timeres_old)
+        suews_result = su.from5mintoanytime(suews_in, SumCol, LastCol, TimeCol, timeres_min)
         np.savetxt(suews_out, suews_result, fmt=pynumformat, delimiter=' ', header=header, comments='')
 
         if qschoice == 4 or qschoice == 14:
             estm_5min = fileoutputpath + filecode + gridcode + '_' + str(YYYY) + '_ESTM_5.txt'
             estm_in = np.loadtxt(estm_5min, skiprows=1)
-            estm_out = fileoutputpath + filecode + gridcode + '_' + str(YYYY) + '_ESTM_' + str(timeres_old) + '.txt'
-            estm_result = su.from5mintoanytime(estm_in, [], [], TimeCol, timeres_old)
+            estm_out = fileoutputpath + filecode + gridcode + '_' + str(YYYY) + '_ESTM_' + str(timeres_min) + '.txt'
+            estm_result = su.from5mintoanytime(estm_in, [], [], TimeCol, timeres_min)
             np.savetxt(estm_out, estm_result, fmt=pynumformat_estm, delimiter=' ', header=header_estm, comments='')
 
         if snowuse == 1:
             suews_5min_snow = fileoutputpath + filecode + gridcode + '_' + str(YYYY) + '_snow_5.txt'
-            suews_out_snow = fileoutputpath + filecode + gridcode + '_' + str(YYYY) + '_snow_' + str(timeres_old) + '.txt'
+            suews_out_snow = fileoutputpath + filecode + gridcode + '_' + str(YYYY) + '_snow_' + str(timeres_min) + '.txt'
             suews_in_snow = np.loadtxt(suews_5min_snow, skiprows=1)
-            suews_1hour_snow = su.from5mintoanytime(suews_in_snow, SumCol_snow, LastCol_snow, TimeCol_snow, timeres_old)
+            suews_1hour_snow = su.from5mintoanytime(suews_in_snow, SumCol_snow, LastCol_snow, TimeCol_snow, timeres_min)
             np.savetxt(suews_out_snow, suews_1hour_snow, fmt=pynumformat_snow, delimiter=' ', header=header_snow, comments='')
 
         if KeepTstepFilesIn == 0 and multiplemetfiles == 1:
             os.remove(data_out)
 
-        if KeepTstepFilesIn == 0 and multiplemetfiles == 0 and gridcode==gridcodemet:
+        if KeepTstepFilesIn == 0 and multiplemetfiles == 0 and gridcode == gridcodemet:
             os.remove(fileinputpath + filecode + gridcode + '_' + str(YYYY) + '_data_5.txt')
 
         if KeepTstepFilesOut == 0:
@@ -288,37 +305,49 @@ def wrapper(pathtoplugin):
         plotbasic = plotnml['plot']['plotbasic']
         choosegridbasic = plotnml['plot']['choosegridbasic']
         chooseyearbasic = plotnml['plot']['chooseyearbasic']
+        timeaggregation = plotnml['plot']['timeaggregation']
         plotmonthlystat = plotnml['plot']['plotmonthlystat']
         choosegridstat = plotnml['plot']['choosegridstat']
         chooseyearstat = plotnml['plot']['chooseyearstat']
+        TimeCol_plot = np.array([1, 2, 3, 4]) - 1
+        SumCol_plot = np.array([14]) - 1
+        LastCol_plot = np.array([16]) - 1
 
         if plotbasic == 1:
             if choosegridbasic:
-                gridcodemet = choosegridbasic
+                gridcode = choosegridbasic
 
             if chooseyearbasic:
                 YYYY = chooseyearbasic
 
-            suews_out = fileoutputpath + filecode + gridcodemet + '_' + str(YYYY) + '_' + str(timeres_old) + '.txt'
+            suews_out = fileoutputpath + filecode + gridcode + '_' + str(YYYY) + '_5.txt'
+            suews_res = np.loadtxt(suews_out, skiprows=1)
 
-            if chooseyearbasic or choosegridbasic:
-                suews_result = np.loadtxt(suews_out, skiprows=1)
+            suews_plottime = su.from5mintoanytime(suews_res, SumCol, LastCol, TimeCol, timeaggregation)
+            suews_plottimeold = su.from5mintoanytime(met_new, SumCol_plot, LastCol_plot, TimeCol_plot, timeaggregation)
 
-            pl.plotbasic(suews_result, met_old)
+            pl.plotbasic(suews_plottime, suews_plottimeold)
+            # pl.plotbasic(suews_result, met_old)
 
         if plotmonthlystat == 1:
             if choosegridstat:
-                gridcodemet = choosegridstat
+                gridcode = choosegridstat
 
             if chooseyearstat:
                 YYYY = chooseyearstat
 
-            suews_out = fileoutputpath + filecode + gridcodemet + '_' + str(YYYY) + '_' + str(timeres_old) + '.txt'
+            suews_out = fileoutputpath + filecode + gridcode + '_' + str(YYYY) + '_5.txt'
+            suews_res = np.loadtxt(suews_out, skiprows=1)
 
-            if chooseyearbasic or choosegridbasic:
-                suews_result = np.loadtxt(suews_out, skiprows=1)
+            suews_plottime = su.from5mintoanytime(suews_res, SumCol, LastCol, TimeCol, timeaggregation)
+            suews_plottimeold = su.from5mintoanytime(met_new, SumCol_plot, LastCol_plot, TimeCol_plot, timeaggregation)
 
-            pl.plotmonthlystatistics(suews_result, met_old)
+            # suews_out = fileoutputpath + filecode + gridcode + '_' + str(YYYY) + '_' + str(timeres_min) + '.txt'
+            #
+            # suews_resu = np.loadtxt(suews_out, skiprows=1)
+
+            # pl.plotmonthlystatistics(suews_result, met_old)
+            pl.plotmonthlystatistics(suews_plottime, suews_plottimeold)
 
         if plotmonthlystat == 1:
             plt.show()

@@ -34,6 +34,7 @@ from ..suewsmodel import Suews_wrapper_v2016b
 from ..ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
 from ..LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
 # from suewssimpleworker import Worker
+from ..Utilities import f90nml
 
 # Import other python stuff
 import urllib
@@ -114,6 +115,7 @@ class SuewsSimple:
         # self.toolbar.setObjectName(u'SuewsSimple')
 
         self.model_dir = os.path.normpath(self.plugin_dir + os.sep + os.pardir + os.sep + 'suewsmodel')
+        # sys.path.append(self.model_dir)
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -323,8 +325,9 @@ class SuewsSimple:
                     "vegetation fraction between the canopy DSM and the landcover grid was found: " + str(float(self.dlg.lineEdit_paiveg.text()) - data[2] - data[3]), level=QgsMessageBar.WARNING)
 
     def import_initial(self):
-        sys.path.append(self.model_dir)
-        import f90nml
+        # sys.path.append(self.model_dir)
+        # from ..Utilities import f90nml
+        # import f90nml
         self.fileDialogInit.open()
         result = self.fileDialogInit.exec_()
         if result == 1:
@@ -337,8 +340,8 @@ class SuewsSimple:
             self.dlg.comboBoxLeafCycle.setCurrentIndex(1)
 
     def export_initial(self):
-        sys.path.append(self.model_dir)
-        import f90nml
+        # sys.path.append(self.model_dir)
+        # import f90nml
         self.fileDialogInit.open()
         result = self.fileDialogInit.exec_()
         if result == 1:
@@ -411,8 +414,8 @@ class SuewsSimple:
             nml.write(self.folderPathInit[0], force=True)
 
     def set_default_settings(self):
-        sys.path.append(self.model_dir)
-        import f90nml
+        # sys.path.append(self.model_dir)
+        # import f90nml
         f = open(self.model_dir + '/BaseFiles/SUEWS_SiteSelect.txt')
         lin = f.readlines()
         index = 2
@@ -473,13 +476,14 @@ class SuewsSimple:
 
     def start_progress(self):
         # import sys
-        sys.path.append(self.model_dir)
-        import f90nml
+        # sys.path.append(self.model_dir)
+        # import f90nml
         try:
             import matplotlib.pyplot
         except ImportError:
             pass
-            self.iface.messageBar().pushMessage("Unable to import Matplotlib module", "Plots will not be produced", level=QgsMessageBar.WARNING)
+            self.iface.messageBar().pushMessage("Unable to import Matplotlib module. Plots will not be produced",
+                                                "Visit UMEP webpage for installation instructions.", level=QgsMessageBar.WARNING)
 
         # Checking consistency between fractions
         if np.abs(float(self.dlg.pai_build.text()) - float(self.dlg.lineEdit_paiBuild.text())) > 0.05:

@@ -12,8 +12,8 @@ import itertools
 import shlex
 from string import whitespace
 
-from f90nml.fpy import pyfloat, pycomplex, pybool, pystr
-from f90nml.namelist import NmlDict
+from fpy import pyfloat, pycomplex, pybool, pystr
+from namelist import NmlDict
 
 
 class Parser(object):
@@ -32,7 +32,7 @@ class Parser(object):
     def read(self, nml_fname, nml_patch_in=None, patch_fname=None):
         """Parse a Fortran 90 namelist file and store the contents.
 
-        >>> from f90nml.parser import Parser
+        >>> from parser import Parser
         >>> parser = Parser()
         >>> data_nml = parser.read('data.nml')"""
 

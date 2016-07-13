@@ -24,5 +24,12 @@ Code	ToPaved	ToBldgs	ToEveTr	ToDecTr	ToGrass	ToBSoil	ToWater	ToRunoff	ToSoilStor
 665	0	0	0	0	0	0	0	0	1	!	Grass	London	
 666	0	0	0	0	0	0	0	0	1	!	Bsoil	London	(not present)
 667	0	0	0	0	0	0	0	0	0	!	Water	London	
+33661	0	0	0	0	0.05	0	0	0.95	0	!	London	GLA/Boroughs			http://www.gu.se/digitalAssets/1548/1548593_grafiskt-element-agecap.png	Paved	1
+33662	0.1	0	0	0	0	0	0	0.9	0	!	London	GLA/Boroughs			http://www.gu.se/digitalAssets/1548/1548593_grafiskt-element-agecap.png	Bldgs	2
+33663	0	0	0	0	0	0	0	0	1	!	London	GLA/Boroughs			http://www.gu.se/digitalAssets/1548/1548593_grafiskt-element-agecap.png	EveTr	3
+33664	0.1	0	0	0	0.2	0	0	0	0.7	!	London	GLA/Boroughs			http://www.gu.se/digitalAssets/1548/1548593_grafiskt-element-agecap.png	DecTr	4
+33665	0	0	0	0	0	0	0	0	1	!	London	GLA/Boroughs			http://www.gu.se/digitalAssets/1548/1548593_grafiskt-element-agecap.png	Grass	5
+33666	0	0	0	0	0	0	0	0	1	!	London	GLA/Boroughs			http://www.gu.se/digitalAssets/1548/1548593_grafiskt-element-agecap.png	Bsoil	6
+33667	0	0	0	0	0	0	0	0	0	!	London	GLA/Boroughs			http://www.gu.se/digitalAssets/1548/1548593_grafiskt-element-agecap.png	Water	7
 -9													
 -9													

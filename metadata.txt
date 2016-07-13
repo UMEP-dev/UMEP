@@ -11,8 +11,8 @@ name=UMEP
 qgisMinimumVersion=2.0
 description=Urban Multi-scale Environmental Predictor
 
-version=0.1.5
-author=Fredrik Lindberg - Niklas Krave - Sue Grimmond - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent
+version=0.2.0
+author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey
 email=fredrikl@gvc.gu.se
 
 about=UMEP is an extensive plugin designed for urban climate in general and climate sensitive planning applications in particular. The plugin consist of a pre-processor, a processor and a post-processor. This plugin is a collaboration between University of Gothenburg, University of Helsinki and University of Reading.
@@ -26,8 +26,9 @@ repository=https://bitbucket.org/fredrik_ucg/umep
 
 # Uncomment the following line and add your changelog:
 changelog=
-	0.1.4 : BETA. Inclusion of SUEWS v2016b. Bug fixes
-	0.1.4 : Layouts added, many bug fixes, more documentation. New plugin: SUEWSPrepare
+	0.2.0 : LONG TERM RELEASE. Bug fixes. New Plugins: WATCHData and GreaterQF (London)
+	0.1.5 : BETA. Inclusion of SUEWS v2016b. Bug fixes.
+	0.1.4 : LONG TERM RELEASE. Layouts added, many bug fixes, more documentation. New plugin: SUEWSPrepare
 	0.1.3 : Bug in SuewsSimple fixed.
 	0.1.2 : Bug in Image morphometric where building heights were underestimated is now fixed.
 	0.1.1 : Bug fix issue #2 and #3. Data-folders are now created if missing. 

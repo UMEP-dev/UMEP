@@ -63,7 +63,15 @@ sys.path.insert(0, os.path.dirname(__file__) + '/Modules')
 # from Modules import xlrd
 from Modules.xlutils.copy import copy
 from ..Utilities import f90nml
-import xlrd  # from QGIS installation
+
+
+try:
+    import xlrd
+except ImportError:
+    QMessageBox.critical(None, 'Missing Python library', 'SUEWS Prepare requires the xlrd package to be installed. Please consult the WATCHData manual for further information')
+    pass
+
+# import xlrd  # from QGIS installation
 
 #import setup_maintab as sm
 #import xlrd
@@ -2117,12 +2125,18 @@ class SUEWSPrepare:
             nml['initialconditions']['laiinitialevetr'] = 4.9
             nml['initialconditions']['laiinitialdectr'] = 4,5
             nml['initialconditions']['laiinitialgrass'] = 4.6
-        elif LeafCycle == 6:
+        # elif LeafCycle == 6:
+        #     nml['initialconditions']['gdd_1_0'] = 150
+        #     nml['initialconditions']['gdd_2_0'] = -300
+        #     nml['initialconditions']['laiinitialevetr'] = 4.6
+        #     nml['initialconditions']['laiinitialdectr'] = 3.0
+        #     nml['initialconditions']['laiinitialgrass'] = 3.6
+        elif LeafCycle == 6: # dummy for londonsmall
             nml['initialconditions']['gdd_1_0'] = 150
             nml['initialconditions']['gdd_2_0'] = -300
             nml['initialconditions']['laiinitialevetr'] = 4.6
-            nml['initialconditions']['laiinitialdectr'] = 3.0
-            nml['initialconditions']['laiinitialgrass'] = 3.6
+            nml['initialconditions']['laiinitialdectr'] = 5.0
+            nml['initialconditions']['laiinitialgrass'] = 5.6
         elif LeafCycle == 7:
             nml['initialconditions']['gdd_1_0'] = 50
             nml['initialconditions']['gdd_2_0'] = -400
@@ -2207,5 +2221,5 @@ class SUEWSPrepare:
 
     def help(self):
         # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = "http://www.urban-climate.net/umep/UMEP_Manual#PrePreprocessor:_SUEWS_Prepare"
+        url = "http://www.urban-climate.net/umep/UMEP_Manual#Pre-Processor:_SUEWS_Prepare"
         webbrowser.open_new_tab(url)
