@@ -1684,11 +1684,13 @@ class SUEWSPrepare:
             new_line[index] = str(IMPveg_fai_dec)
 
             if self.pop_density is not None:
-                pop_density_day = feature.attribute(self.pop_density.getFieldName())
+                # pop_density_day = feature.attribute(self.pop_density.getFieldName())
                 pop_density_night = feature.attribute(self.pop_density.getFieldName())
             else:
-                pop_density_day = -999
+                # pop_density_day = -999
                 pop_density_night = -999
+
+            pop_density_day = -999
 
             code = "PopDensDay"
             index = self.find_index(code)

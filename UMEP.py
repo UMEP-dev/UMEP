@@ -43,6 +43,7 @@ from SUEWS.suews import SUEWS
 from FootprintModel.footprint_model import FootprintModel
 from WATCHData.watch import WATCHData
 from GreaterQF.greater_qf import GreaterQF
+from SOLWEIG.solweig import SOLWEIG
 
 # from about_dialog import AboutDialog
 from UMEP_about import UMEPDialogAbout
@@ -135,7 +136,7 @@ class UMEP:
         self.PED_Action = QAction("Prepare Existing Data", self.iface.mainWindow())
         self.MD_Menu.addAction(self.PED_Action)
         self.PED_Action.triggered.connect(self.PED)
-        self.PFD_Action = QAction("Prepare WATCH Data", self.iface.mainWindow())
+        self.PFD_Action = QAction("Download data (WATCH)", self.iface.mainWindow())
         self.MD_Menu.addAction(self.PFD_Action)
         self.PFD_Action.triggered.connect(self.WA)
         # self.PFD_Action.setEnabled(False)
@@ -178,7 +179,7 @@ class UMEP:
         self.PET_Action.setEnabled(False)
         self.MRT_Action = QAction("Mean Radiant Temperature (SOLWEIG)", self.iface.mainWindow())
         self.OTC_Menu.addAction(self.MRT_Action)
-        self.MRT_Action.setEnabled(False)
+        self.MRT_Action.triggered.connect(self.SO)
         self.PWS_Action = QAction("Pedestrian Wind Speed", self.iface.mainWindow())
         self.OTC_Menu.addAction(self.PWS_Action)
         self.PWS_Action.setEnabled(False)
@@ -214,11 +215,25 @@ class UMEP:
         # Sub-menus to Post-processing
         self.SUNpos_Menu = QMenu("Solar Radiation")
         self.Pos_Menu.addMenu(self.SUNpos_Menu)
+        self.OTCpos_Menu = QMenu("Outdoor Thermal Comfort")
+        self.Pos_Menu.addMenu(self.OTCpos_Menu)
+        self.UEBpos_Menu = QMenu("Urban Energy Balance")
+        self.Pos_Menu.addMenu(self.UEBpos_Menu)
 
         # Sub-menus to Solar radiation, post processing
         self.SEBEv_Action = QAction("SEBE (Visualisation)", self.iface.mainWindow())
         self.SUNpos_Menu.addAction(self.SEBEv_Action)
         self.SEBEv_Action.triggered.connect(self.SEv)
+
+        # Sub-menus to Outdoor thermal comfort, post processing
+        self.SOLWEIGa_Action = QAction("SOLWEIG Analyzer", self.iface.mainWindow())
+        self.OTCpos_Menu.addAction(self.SOLWEIGa_Action)
+        self.SOLWEIGa_Action.setEnabled(False)
+
+        # Sub-menus to Urban Energy Balance, post processing
+        self.SUEWSa_Action = QAction("SUEWS Analyzer", self.iface.mainWindow())
+        self.UEBpos_Menu.addAction(self.SUEWSa_Action)
+        self.SUEWSa_Action.setEnabled(False)
 
         # Sub-menus to About
         self.About_Action = QAction("About", self.iface.mainWindow())
@@ -245,6 +260,8 @@ class UMEP:
         self.About_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_umep.png"))
         self.Manual_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_umep.png"))
         self.PED_Action.setIcon(QIcon(self.plugin_dir + "/Icons/metdata.png"))
+        self.PFD_Action.setIcon(QIcon(self.plugin_dir + "/Icons/watch.png"))
+        self.MRT_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_solweig.png"))
 
         self.iface.mainWindow().menuBar().insertMenu(self.iface.firstRightStandardMenu().menuAction(), self.UMEP_Menu)
         self.dlgAbout = UMEPDialogAbout()
@@ -427,6 +444,10 @@ class UMEP:
 
     def GF(self):
         sg = GreaterQF(self.iface)
+        sg.run()
+
+    def SO(self):
+        sg = SOLWEIG(self.iface)
         sg.run()
 
     def run(self):

@@ -128,9 +128,9 @@
        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
      </widget>
-     <widget class="QPushButton" name="pushButton_2">
+     <widget class="QPushButton" name="selectpoint">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="geometry">
        <rect>
@@ -141,7 +141,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>Get coordinates from map canvas</string>
+       <string>Fetch coordinates from map canvas</string>
       </property>
      </widget>
     </widget>
@@ -307,7 +307,7 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>pushButton_2</tabstop>
+  <tabstop>selectpoint</tabstop>
   <tabstop>textOutput_lat</tabstop>
   <tabstop>textOutput_lon</tabstop>
   <tabstop>pushButtonRaw</tabstop>

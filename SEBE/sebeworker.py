@@ -5,6 +5,8 @@ import numpy as np
 from SEBEfiles.shadowingfunction_wallheight_13 import shadowingfunction_wallheight_13
 from SEBEfiles.shadowingfunction_wallheight_23 import shadowingfunction_wallheight_23
 # from ..Utilities import shadowingfunctions as shadow
+import linecache
+import sys
 
 #from osgeo import gdal
 #from osgeo.gdalconst import *

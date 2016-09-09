@@ -38,6 +38,7 @@ from svfworker import Worker
 from svfvegworker import VegWorker
 from osgeo.gdalconst import *
 import webbrowser
+import zipfile
 
 class SkyViewFactorCalculator:
     """QGIS Plugin Implementation."""
@@ -293,11 +294,34 @@ class SkyViewFactorCalculator:
 
             svfbuname = ret.keys()
 
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfbuname[0] + '.tif', self.svfbu)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfbuname[1] + '.tif', svfbuE)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfbuname[2] + '.tif', svfbuS)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfbuname[3] + '.tif', svfbuW)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfbuname[4] + '.tif', svfbuN)
+            # svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfbuname[0] + '.tif', self.svfbu)
+            # svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfbuname[1] + '.tif', svfbuE)
+            # svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfbuname[2] + '.tif', svfbuS)
+            # svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfbuname[3] + '.tif', svfbuW)
+            # svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfbuname[4] + '.tif', svfbuN)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svf.tif', self.svfbu)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfE.tif', svfbuE)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfS.tif', svfbuS)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfW.tif', svfbuW)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfN.tif', svfbuN)
+
+            if os.path.isfile(self.folderPath[0] + '/' + 'svfs.zip'):
+                os.remove(self.folderPath[0] + '/' + 'svfs.zip')
+
+            zip = zipfile.ZipFile(self.folderPath[0] + '/' + 'svfs.zip', 'a')
+            zip.write(self.folderPath[0] + '/' + 'svf.tif', 'svf.tif')
+            zip.write(self.folderPath[0] + '/' + 'svfE.tif', 'svfE.tif')
+            zip.write(self.folderPath[0] + '/' + 'svfS.tif', 'svfS.tif')
+            zip.write(self.folderPath[0] + '/' + 'svfW.tif', 'svfW.tif')
+            zip.write(self.folderPath[0] + '/' + 'svfN.tif', 'svfN.tif')
+            zip.close()
+
+            os.remove(self.folderPath[0] + '/' + 'svf.tif')
+            os.remove(self.folderPath[0] + '/' + 'svfE.tif')
+            os.remove(self.folderPath[0] + '/' + 'svfS.tif')
+            os.remove(self.folderPath[0] + '/' + 'svfW.tif')
+            os.remove(self.folderPath[0] + '/' + 'svfN.tif')
+
             if self.usevegdem == 0:
                 self.svftotal = self.svfbu
 
@@ -359,16 +383,40 @@ class SkyViewFactorCalculator:
 
             svfvegname = ret.keys()
 
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfvegname[0] + '.tif', svfveg)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfvegname[1] + '.tif', svfEveg)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfvegname[2] + '.tif', svfSveg)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfvegname[3] + '.tif', svfWveg)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfvegname[4] + '.tif', svfNveg)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfvegname[5] + '.tif', svfaveg)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfvegname[6] + '.tif', svfEaveg)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfvegname[7] + '.tif', svfSaveg)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfvegname[8] + '.tif', svfWaveg)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfvegname[9] + '.tif', svfNaveg)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfveg.tif', svfveg)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfEveg.tif', svfEveg)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfSveg.tif', svfSveg)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfWveg.tif', svfWveg)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfNveg.tif', svfNveg)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfaveg.tif', svfaveg)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfEaveg.tif', svfEaveg)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfSaveg.tif', svfSaveg)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfWaveg.tif', svfWaveg)
+            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfNaveg.tif', svfNaveg)
+
+            zip = zipfile.ZipFile(self.folderPath[0] + '/' + 'svfs.zip', 'a')
+            zip.write(self.folderPath[0] + '/' + 'svfveg.tif', 'svfveg.tif')
+            zip.write(self.folderPath[0] + '/' + 'svfEveg.tif', 'svfEveg.tif')
+            zip.write(self.folderPath[0] + '/' + 'svfSveg.tif', 'svfSveg.tif')
+            zip.write(self.folderPath[0] + '/' + 'svfWveg.tif', 'svfWveg.tif')
+            zip.write(self.folderPath[0] + '/' + 'svfNveg.tif', 'svfNveg.tif')
+            zip.write(self.folderPath[0] + '/' + 'svfaveg.tif', 'svfaveg.tif')
+            zip.write(self.folderPath[0] + '/' + 'svfEaveg.tif', 'svfEaveg.tif')
+            zip.write(self.folderPath[0] + '/' + 'svfSaveg.tif', 'svfSaveg.tif')
+            zip.write(self.folderPath[0] + '/' + 'svfWaveg.tif', 'svfWaveg.tif')
+            zip.write(self.folderPath[0] + '/' + 'svfNaveg.tif', 'svfNaveg.tif')
+            zip.close()
+
+            os.remove(self.folderPath[0] + '/' + 'svfveg.tif')
+            os.remove(self.folderPath[0] + '/' + 'svfEveg.tif')
+            os.remove(self.folderPath[0] + '/' + 'svfSveg.tif')
+            os.remove(self.folderPath[0] + '/' + 'svfWveg.tif')
+            os.remove(self.folderPath[0] + '/' + 'svfNveg.tif')
+            os.remove(self.folderPath[0] + '/' + 'svfaveg.tif')
+            os.remove(self.folderPath[0] + '/' + 'svfEaveg.tif')
+            os.remove(self.folderPath[0] + '/' + 'svfSaveg.tif')
+            os.remove(self.folderPath[0] + '/' + 'svfWaveg.tif')
+            os.remove(self.folderPath[0] + '/' + 'svfNaveg.tif')
 
             trans = self.dlg.spinBoxTrans.value() / 100.0
 

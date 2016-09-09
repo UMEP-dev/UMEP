@@ -23,7 +23,10 @@
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
 from PyQt4.QtCore import QThread
-from qgis.gui import QgsMessageBar
+# from qgis.gui import QgsMessageBar
+from qgis.gui import *
+from qgis.core import *
+from osgeo import osr, ogr
 # Import the code for the dialog
 from watch_dialog import WATCHDataDialog
 import os.path
@@ -65,6 +68,7 @@ class WATCHData:
 
         # Create the dialog (after translation) and keep reference
         self.dlg = WATCHDataDialog()
+        self.dlg.selectpoint.clicked.connect(self.select_point)
         # Check dependencies first
 
         # connections to buttons
@@ -84,6 +88,17 @@ class WATCHData:
         # TODO: We are going to let the user set this up in a future iteration
         # self.toolbar = self.iface.addToolBar(u'WATCHData')
         # self.toolbar.setObjectName(u'WATCHData')
+
+        # get reference to the canvas
+        self.canvas = self.iface.mapCanvas()
+        self.degree = 5.0
+        self.point = None
+        self.pointx = None
+        self.pointy = None
+
+        # #g pin tool
+        self.pointTool = QgsMapToolEmitPoint(self.canvas)
+        self.pointTool.canvasClicked.connect(self.create_point)
 
         # Inflate mappings file if needed
 
@@ -170,24 +185,54 @@ class WATCHData:
                 action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
-        del self.toolbar
+        # del self.toolbar
+
+    def select_point(self):  # Connected to "Secelct Point on Canves"
+        self.canvas.setMapTool(self.pointTool)  # Calls a canvas click and create_point
+        self.dlg.setEnabled(False)
+
+    def create_point(self, point):  # Var kommer point ifran???
+        # report map coordinates from a canvas click
+        self.dlg.setEnabled(True)
+        self.dlg.activateWindow()
+
+        canvas = self.iface.mapCanvas()
+        srs = canvas.mapSettings().destinationCrs()
+        crs = str(srs.authid())
+        # self.iface.messageBar().pushMessage("Coordinate selected", str(crs[5:]))
+        old_cs = osr.SpatialReference()
+        old_cs.ImportFromEPSG(int(crs[5:]))
+
+        new_cs = osr.SpatialReference()
+        new_cs.ImportFromEPSG(4326)
+
+        transform = osr.CoordinateTransformation(old_cs, new_cs)
+
+        latlon = ogr.CreateGeometryFromWkt('POINT (' + str(point.x()) + ' ' + str(point.y()) + ')')
+        latlon.Transform(transform)
+
+        self.dlg.textOutput_lon.setText(str(latlon.GetX()))
+        self.dlg.textOutput_lat.setText(str(latlon.GetY()))
 
     def run(self):
         # Check the more unusual dependencies to prevent confusing errors later
         try:
             import pandas
         except Exception, e:
-            QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the pandas   package to be installed. Please consult the manual for further information')
+            QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the pandas package '
+                                                'to be installed. Please consult the manual for further information')
             return
         try:
             import ftplib
         except Exception, e:
-            QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the ftplib package to be installed. Please consult the manual for further information')
+            QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the ftplib package '
+                                                'to be installed. Please consult the manual for further information')
             return
         try:
             import scipy
         except Exception, e:
-            QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the scipy package to be installed. Please consult the manual for further information')
+            QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the scipy package '
+                                                'to be installed. Please consult the manual for further information')
             return
 
         self.dlg.show()

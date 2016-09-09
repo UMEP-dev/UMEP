@@ -65,16 +65,16 @@ class Worker(QtCore.QObject):
 
                         weight = self.annulus_weight(k, aziinterval[i])*sh
                         svf = svf + weight
-                        if azimuth >= 0 and azimuth < 180:
+                        if (azimuth >= 0) and (azimuth < 180):
                             weight = self.annulus_weight(k, aziintervalaniso[i])*sh
                             svfE = svfE + weight
-                        if azimuth >= 90 and azimuth < 270:
+                        if (azimuth >= 90) and (azimuth < 270):
                             weight = self.annulus_weight(k, aziintervalaniso[i])*sh
                             svfS = svfS + weight
-                        if azimuth >= 180 and azimuth < 360:
+                        if (azimuth >= 180) and (azimuth < 360):
                             weight = self.annulus_weight(k, aziintervalaniso[i])*sh
                             svfW = svfW + weight
-                        if azimuth >= 270 or azimuth < 90:
+                        if (azimuth >= 270) or (azimuth < 90):
                             weight = self.annulus_weight(k, aziintervalaniso[i])*sh
                             svfN = svfN + weight
                     index += 1

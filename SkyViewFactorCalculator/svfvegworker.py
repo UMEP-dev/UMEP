@@ -37,15 +37,15 @@ class VegWorker(QtCore.QObject):
             sizex = self.a.shape[0]
             sizey = self.a.shape[1]
             svfveg = np.zeros((sizex, sizey))
-            svfEveg = svfveg
-            svfSveg = svfveg
-            svfWveg = svfveg
-            svfNveg = svfveg
-            svfaveg = svfveg
-            svfEaveg = svfveg
-            svfSaveg = svfveg
-            svfWaveg = svfveg
-            svfNaveg = svfveg
+            svfEveg = np.zeros((sizex, sizey))
+            svfSveg = np.zeros((sizex, sizey))
+            svfWveg = np.zeros((sizex, sizey))
+            svfNveg = np.zeros((sizex, sizey))
+            svfaveg = np.zeros((sizex, sizey))
+            svfEaveg = np.zeros((sizex, sizey))
+            svfSaveg = np.zeros((sizex, sizey))
+            svfWaveg = np.zeros((sizex, sizey))
+            svfNaveg = np.zeros((sizex, sizey))
 
             #% amaxvalue
             vegmax = self.vegdem.max()
@@ -90,16 +90,17 @@ class VegWorker(QtCore.QObject):
                         weight = self.annulus_weight(k, aziinterval[i])
                         svfveg = svfveg +  weight * vegsh
                         svfaveg = svfaveg + weight * vbshvegsh
-                        if azimuth >= 0 and azimuth < 180:
+                        weight = self.annulus_weight(k, aziintervalaniso[i])
+                        if (azimuth >= 0) and (azimuth < 180):
                             svfEveg = svfEveg + weight * vegsh
                             svfEaveg = svfEaveg + weight * vbshvegsh
-                        if azimuth >= 90 and azimuth < 270:
+                        if (azimuth >= 90) and (azimuth < 270):
                             svfSveg = svfSveg + weight * vegsh
                             svfSaveg = svfSaveg + weight * vbshvegsh
-                        if azimuth >= 180 and azimuth < 360:
+                        if (azimuth >= 180) and (azimuth < 360):
                             svfWveg = svfWveg + weight * vegsh
                             svfWaveg = svfWaveg + weight * vbshvegsh
-                        if azimuth >= 270 or azimuth < 90:
+                        if (azimuth >= 270) or (azimuth < 90):
                             svfNveg = svfNveg + weight * vegsh
                             svfNaveg = svfNaveg + weight * vbshvegsh
                     index += 1
