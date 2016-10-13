@@ -241,7 +241,7 @@ class SuewsSimple:
         result = self.fileDialogOut.exec_()
         if result == 1:
             self.folderPathOut = self.fileDialogOut.selectedFiles()
-            self.dlg.textOutput.setText(self.folderPathOut[0])
+            self.dlg.textOutput.setText(self.folderPathOut[0] + '/')
 
         self.dlg.runButton.setEnabled(True)
 
@@ -562,14 +562,19 @@ class SuewsSimple:
         utc = self.dlg.UTC.text()
         z = self.dlg.Height.text()
         inmetfile = self.dlg.textInputMetdata.text()
-        outfolder = self.dlg.textOutput.text()
+        outfolder = self.dlg.textOutput.text() + '/'
         nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
         nml['runcontrol']['timezone'] = int(utc)
         nml['runcontrol']['z'] = float(z)
         if not (faiBuild == -999.0 or faiveg == -999.0):
             nml['runcontrol']['z0_method'] = 3
-        shutil.copy(inmetfile, self.model_dir + '/Input')
-        #os.rename() FIXTHIS!!!
+
+        try:
+            shutil.copy(inmetfile, self.model_dir + '/Input')
+        except:
+            os.remove(inmetfile)
+            shutil.copy(inmetfile, self.model_dir + '/Input')
+
         nml['runcontrol']['fileoutputpath'] = str(outfolder)
         nml['runcontrol']['fileinputpath'] = self.model_dir + '/Input/'
         nml.write(self.model_dir + '/RunControl.nml', force=True)

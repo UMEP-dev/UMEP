@@ -182,7 +182,7 @@ p, li { white-space: pre-wrap; }
          <enum>Qt::LeftToRight</enum>
         </property>
         <property name="text">
-         <string>Raster DSM (only 3building or vegetation objects) exist</string>
+         <string>Raster DSM (only 3D building or vegetation objects) exist</string>
         </property>
        </widget>
       </item>

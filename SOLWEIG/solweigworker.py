@@ -27,7 +27,7 @@ class Worker(QtCore.QObject):
                         bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, dlg,
-                        YYYY, DOY, hours, minu, gdal_dsm, folderPath):
+                        YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname):
 
         QtCore.QObject.__init__(self)
         self.killed = False
@@ -117,6 +117,8 @@ class Worker(QtCore.QObject):
         self.minu = minu
         self.gdal_dsm = gdal_dsm
         self.folderPath = folderPath
+        self.poisxy = poisxy
+        self.poiname = poiname
 
 
     def run(self):
@@ -206,8 +208,12 @@ class Worker(QtCore.QObject):
             minu = self.minu
             gdal_dsm = self.gdal_dsm
             folderPath = self.folderPath
+            poisxy = self.poisxy
+            poiname = self.poiname
 
             tmrtplot = np.zeros((rows, cols))
+
+            numformat = '%3d %2d %3d %2d %6.5f ' + '%6.2f ' * 28
 
             for i in np.arange(0, Ta.__len__()):
                 self.progress.emit()  # move progressbar forward
@@ -228,10 +234,10 @@ class Worker(QtCore.QObject):
                     if (CI > 1) or (CI == np.inf):
                         CI = 1
                 # self.iface.messageBar().pushMessage("__len__", str(Ta.__len__()))
-                # self.iface.messageBar().pushMessage("len", str(len(Ta)))
-                # self.iface.messageBar().pushMessage("Test", str(Ta.__len__()))
+
                 Tmrt, Kdown, Kup, Ldown, Lup, Tg, ea, esky, I0, CI, shadow, firstdaytime, timestepdec, timeadd, \
-                Tgmap1, timeaddE, Tgmap1E, timeaddS, Tgmap1S, timeaddW, Tgmap1W, timeaddN, Tgmap1N \
+                Tgmap1, timeaddE, Tgmap1E, timeaddS, Tgmap1S, timeaddW, Tgmap1W, timeaddN, Tgmap1N, \
+                Keast, Ksouth, Kwest, Knorth, Least, Lsouth, Lwest, Lnorth, KsideI \
                     = so.Solweig_2015a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
                         svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
                         vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, altitude[0][i],
@@ -243,7 +249,49 @@ class Worker(QtCore.QObject):
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI)
 
                 tmrtplot = tmrtplot + Tmrt
-                # self.iface.messageBar().pushMessage("__len__", str(int(YYYY[0, i])))
+
+                # Write to POIs
+                if not poisxy is None:
+                    for k in range(0, self.poisxy.shape[0]):
+                        poi_save = np.zeros((1, 33))
+                        poi_save[0, 0] = YYYY[0][i]
+                        poi_save[0, 1] = jday[0][i]
+                        poi_save[0, 2] = hours[i]
+                        poi_save[0, 3] = minu[i]
+                        poi_save[0, 4] = dectime[i]
+                        poi_save[0, 5] = altitude[0][i]
+                        poi_save[0, 6] = azimuth[0][i]
+                        poi_save[0, 7] = radI[i]
+                        poi_save[0, 8] = radD[i]
+                        poi_save[0, 9] = radG[i]
+                        poi_save[0, 10] = Kdown[poisxy[k, 2], poisxy[k, 1]]
+                        poi_save[0, 11] = Kup[poisxy[k, 2], poisxy[k, 1]]
+                        poi_save[0, 12] = Keast[poisxy[k, 2], poisxy[k, 1]]
+                        poi_save[0, 13] = Ksouth[poisxy[k, 2], poisxy[k, 1]]
+                        poi_save[0, 14] = Kwest[poisxy[k, 2], poisxy[k, 1]]
+                        poi_save[0, 15] = Knorth[poisxy[k, 2], poisxy[k, 1]]
+                        poi_save[0, 16] = Ldown[poisxy[k, 2], poisxy[k, 1]]
+                        poi_save[0, 17] = Lup[poisxy[k, 2], poisxy[k, 1]]
+                        poi_save[0, 18] = Least[poisxy[k, 2], poisxy[k, 1]]
+                        poi_save[0, 19] = Lsouth[poisxy[k, 2], poisxy[k, 1]]
+                        poi_save[0, 20] = Lwest[poisxy[k, 2], poisxy[k, 1]]
+                        poi_save[0, 21] = Lnorth[poisxy[k, 2], poisxy[k, 1]]
+                        poi_save[0, 22] = Ta[i]
+                        poi_save[0, 23] = Tg[poisxy[k, 2], poisxy[k, 1]] + Ta[i]
+                        poi_save[0, 24] = RH[i]
+                        poi_save[0, 25] = esky
+                        poi_save[0, 26] = Tmrt[poisxy[k, 2], poisxy[k, 1]]
+                        poi_save[0, 27] = I0
+                        poi_save[0, 28] = CI
+                        poi_save[0, 29] = shadow[poisxy[k, 2], poisxy[k, 1]]
+                        poi_save[0, 30] = svf[poisxy[k, 2], poisxy[k, 1]]
+                        poi_save[0, 31] = svfbuveg[poisxy[k, 2], poisxy[k, 1]]
+                        poi_save[0, 32] = KsideI[poisxy[k, 2], poisxy[k, 1]]
+
+                        data_out = self.folderPath[0] + '/POI_' + str(self.poiname[k]) + '.txt'
+                        f_handle = file(data_out, 'a')
+                        np.savetxt(f_handle, poi_save, fmt=numformat)
+                        f_handle.close()
 
                 if hours[i] < 10:
                     XH = '0'

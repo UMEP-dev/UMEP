@@ -109,6 +109,9 @@ class SOLWEIG:
         RasterLayerCombo(self.dlg.comboBox_wallheight, initLayer="")
         self.layerComboManagerWA = RasterLayerCombo(self.dlg.comboBox_wallaspect)
         RasterLayerCombo(self.dlg.comboBox_wallaspect, initLayer="")
+        self.layerComboManagerPOI = VectorLayerCombo(self.dlg.comboBox_POIlayer)
+        fieldgen = VectorLayerCombo(self.dlg.comboBox_POIlayer, initLayer="", options={"geomType": QGis.Point})
+        self.layerComboManagerPOIfield = FieldCombo(self.dlg.comboBox_POIfield, fieldgen, initField="") #, options={"fieldType": int}
 
         self.folderPath = None
         self.folderPathSVF = None
@@ -124,6 +127,8 @@ class SOLWEIG:
         self.dem = None
         self.lcgrid = None
         self.trans = None
+        self.poisxy = None
+        self.poiname = None
 
         self.thread = None
         self.worker = None
@@ -217,7 +222,7 @@ class SOLWEIG:
         try:
             self.metdata = np.loadtxt(self.folderPathMet[0], skiprows=headernum, delimiter=delim)
         except:
-            QMessageBox.critical(None, "Import Error",
+            QMessageBox.critical(self.dlg, "Import Error",
                                  "Make sure format of meteorological file is correct. You can"
                                  "prepare your data by using 'Prepare Existing Data' in "
                                  "the Pre-processor")
@@ -227,7 +232,7 @@ class SOLWEIG:
             self.iface.messageBar().pushMessage("SOLWEIG", "Meteorological data succesfully loaded",
                                                 level=QgsMessageBar.INFO, duration=3)
         else:
-            QMessageBox.critical(None, "Import Error",
+            QMessageBox.critical(self.dlg, "Import Error",
                                  "Wrong number of columns in meteorological data. You can "
                                  "prepare your data by using 'Prepare Existing Data' in "
                                  "the Pre-processor")
@@ -261,13 +266,13 @@ class SOLWEIG:
     def start_progress(self):
         self.steps = 0
         if self.folderPath is None:
-            QMessageBox.critical(self.iface.mainWindow(), "Error", "No save folder selected")
+            QMessageBox.critical(self.dlg, "Error", "No save folder selected")
         else:
             # self.dlg.textOutput.setText(self.folderPath[0])
             dsmlayer = self.layerComboManagerDSM.getLayer()
 
             if dsmlayer is None:
-                QMessageBox.critical(self.iface.mainWindow(), "Error", "No valid raster layer is selected")
+                QMessageBox.critical(self.dlg, "Error", "No valid ground and building DSM is selected")
                 return
 
             provider = dsmlayer.dataProvider()
@@ -313,20 +318,20 @@ class SOLWEIG:
             UTC = self.dlg.spinBoxUTC.value()
 
             if (sizex * sizey) > 250000 and (sizex * sizey) <= 1000000:
-                QMessageBox.warning(self.iface.mainWindow(), "Semi lage grid",
+                QMessageBox.warning(self.dlg, "Semi lage grid",
                                     "This process will take a couple of minutes. "
                                     "Go and make yourself a cup of tea...")
 
             if (sizex * sizey) > 1000000 and (sizex * sizey) <= 4000000:
-                QMessageBox.warning(self.iface.mainWindow(), "Large grid", "This process will take some time. "
+                QMessageBox.warning(self.dlg, "Large grid", "This process will take some time. "
                                                                            "Go for lunch...")
 
             if (sizex * sizey) > 4000000 and (sizex * sizey) <= 16000000:
-                QMessageBox.warning(self.iface.mainWindow(), "Very large grid", "This process will take a long time. "
+                QMessageBox.warning(self.dlg, "Very large grid", "This process will take a long time. "
                                                                                 "Go for lunch and for a walk...")
 
             if (sizex * sizey) > 16000000:
-                QMessageBox.warning(self.iface.mainWindow(), "Huge grid", "This process will take a very long time. "
+                QMessageBox.warning(self.dlg, "Huge grid", "This process will take a very long time. "
                                                                           "Go home for the weekend or consider to tile your grid")
 
             # Vegetation DSMs #
@@ -337,7 +342,7 @@ class SOLWEIG:
                 self.vegdsm = self.layerComboManagerVEGDSM.getLayer()
 
                 if self.vegdsm is None:
-                    QMessageBox.critical(None, "Error", "No valid vegetation canopy DSM selected")
+                    QMessageBox.critical(self.dlg, "Error", "No valid vegetation canopy DSM selected")
                     return
 
                 # load raster
@@ -351,7 +356,7 @@ class SOLWEIG:
                 vegsizey = self.vegdsm.shape[1]
 
                 if not (vegsizex == sizex) & (vegsizey == sizey):  # &
-                    QMessageBox.critical(None, "Error in vegetation canopy DSM",
+                    QMessageBox.critical(self.dlg, "Error in vegetation canopy DSM",
                                          "All grids must be of same extent and resolution")
                     return
 
@@ -359,7 +364,7 @@ class SOLWEIG:
                     self.vegdsm2 = self.layerComboManagerVEGDSM2.getLayer()
 
                     if self.vegdsm2 is None:
-                        QMessageBox.critical(None, "Error", "No valid trunk zone DSM selected")
+                        QMessageBox.critical(self.dlg, "Error", "No valid trunk zone DSM selected")
                         return
 
                     # load raster
@@ -376,7 +381,7 @@ class SOLWEIG:
                 vegsizey = self.vegdsm2.shape[1]
 
                 if not (vegsizex == sizex) & (vegsizey == sizey):  # &
-                    QMessageBox.critical(None, "Error in trunk zone DSM",
+                    QMessageBox.critical(self.dlg, "Error in trunk zone DSM",
                                          "All grids must be of same extent and resolution")
                     return
 
@@ -393,7 +398,7 @@ class SOLWEIG:
                 self.lcgrid = self.layerComboManagerLC.getLayer()
 
                 if self.lcgrid is None:
-                    QMessageBox.critical(None, "Error", "No valid land cover grid is selected")
+                    QMessageBox.critical(self.dlg, "Error", "No valid land cover grid is selected")
                     return
 
                 # load raster
@@ -407,7 +412,7 @@ class SOLWEIG:
                 lcsizey = self.lcgrid.shape[1]
 
                 if not (lcsizex == sizex) & (lcsizey == sizey):
-                    QMessageBox.critical(None, "Error in land cover grid",
+                    QMessageBox.critical(self.dlg, "Error in land cover grid",
                                          "All grids must be of same extent and resolution")
                     return
 
@@ -418,7 +423,7 @@ class SOLWEIG:
                 self.dem = self.layerComboManagerDEM.getLayer()
 
                 if self.dem is None:
-                    QMessageBox.critical(None, "Error", "No valid DEM selected")
+                    QMessageBox.critical(self.dlg, "Error", "No valid DEM selected")
                     return
 
                 # load raster
@@ -432,14 +437,15 @@ class SOLWEIG:
                 demsizey = self.dem.shape[1]
 
                 if not (demsizex == sizex) & (demsizey == sizey):
-                    QMessageBox.critical(None, "Error in DEM", "All grids must be of same extent and resolution")
+                    QMessageBox.critical(self.dlg, "Error in DEM", "All grids must be of same extent and resolution")
                     return
 
                 alt = self.dem.mean()
 
             # SVFs #
             if self.folderPathSVF is None:
-                QMessageBox.critical(self.iface.mainWindow(), "Error", "No SVF zipfile is selected")
+                QMessageBox.critical(self.dlg, "Error", "No SVF zipfile is selected. Use the Sky View Factor"
+                                                        "Calculator to generate svf.zip")
                 return
             else:
                 zip = zipfile.ZipFile(self.folderPathSVF[0], 'r')
@@ -492,7 +498,7 @@ class SOLWEIG:
                         svfEaveg = np.ones((rows, cols))
                         svfWaveg = np.ones((rows, cols))
                 except:
-                    QMessageBox.critical(None, "SVF import error", "The zipfile including the SVFs seems corrupt. "
+                    QMessageBox.critical(self.dlg, "SVF import error", "The zipfile including the SVFs seems corrupt. "
                                                                    "Retry calcualting the SVFs in the Pre-processor or choose "
                                                                    "another file ")
                     return
@@ -501,7 +507,7 @@ class SOLWEIG:
                 svfsizey = svf.shape[1]
 
                 if not (svfsizex == sizex) & (svfsizey == sizey):  # &
-                    QMessageBox.critical(None, "Error in vegetation canopy DSM",
+                    QMessageBox.critical(self.dlg, "Error in vegetation canopy DSM",
                                          "All grids must be of same extent and resolution")
                     return
 
@@ -514,7 +520,7 @@ class SOLWEIG:
             self.wallheight = self.layerComboManagerWH.getLayer()
 
             if self.wallheight is None:
-                QMessageBox.critical(None, "Error", "No valid wall height grid is selected")
+                QMessageBox.critical(self.dlg, "Error", "No valid wall height grid is selected")
                 return
 
             gdal.AllRegister()
@@ -527,14 +533,14 @@ class SOLWEIG:
             wallheightsizey = self.wallheight.shape[1]
 
             if not (wallheightsizex == sizex) & (wallheightsizey == sizey):
-                QMessageBox.critical(None, "Error in wall height grid",
+                QMessageBox.critical(self.dlg, "Error in wall height grid",
                                      "All grids must be of same extent and resolution")
                 return
 
             self.wallaspect = self.layerComboManagerWA.getLayer()
 
             if self.wallaspect is None:
-                QMessageBox.critical(None, "Error", "No valid wall aspect grid is selected")
+                QMessageBox.critical(self.dlg, "Error", "No valid wall aspect grid is selected")
                 return
 
             gdal.AllRegister()
@@ -547,7 +553,7 @@ class SOLWEIG:
             wallaspectsizey = self.wallaspect.shape[1]
 
             if not (wallaspectsizex == sizex) & (wallaspectsizey == sizey):
-                QMessageBox.critical(None, "Error in wall aspect grid",
+                QMessageBox.critical(self.dlg, "Error in wall aspect grid",
                                      "All grids must be of same extent and resolution")
                 return
 
@@ -640,20 +646,6 @@ class SOLWEIG:
             else:
                 buildings = np.where((self.dsm - self.dem) < 2) * 1
 
-            # # Output options #
-            # if self.dlg.CheckBoxTmrt.isChecked():
-            #     outtmrt = 1
-            # if self.dlg.CheckBoxKdown.isChecked():
-            #     outkdown = 1
-            # if self.dlg.CheckBoxLup.isChecked():
-            #     outlup = 1
-            # if self.dlg.CheckBoxKup.isChecked():
-            #     outkup = 1
-            # if self.dlg.CheckBoxLdown.isChecked():
-            #     outldown = 1
-            # if self.dlg.CheckBoxShadow.isChecked():
-            #     outshadow = 1
-
             if self.dlg.checkBoxUseOnlyGlobal.isChecked():
                 onlyglobal = 1
             else:
@@ -675,6 +667,59 @@ class SOLWEIG:
             P = self.metdata[:, 12]
             Ws = self.metdata[:, 9]
             # %Wd=met(:,13);
+
+            # POIs check
+            if self.dlg.checkboxUsePOI.isChecked():
+                header = 'yyyy id   it imin dectime altitude azimuth kdir kdiff kglobal kdown   kup    keast ksouth ' \
+                         'kwest knorth ldown   lup    least lsouth lwest  lnorth   Ta      Tg     RH    Esky   Tmrt    ' \
+                         'I0     CI   Shadow  SVF_b  SVF_bv KsideI'
+
+                poilyr = self.layerComboManagerPOI.getLayer()
+                if poilyr is None:
+                    QMessageBox.critical(self.dlg, "Error", "No valid point layer is selected")
+                    return
+
+                poi_field = self.layerComboManagerPOIfield.getFieldName()
+                if poi_field is None:
+                    QMessageBox.critical(self.dlg, "Error", "An attribute with unique values must be selected")
+                    return
+                vlayer = QgsVectorLayer(poilyr.source(), "point", "ogr")
+                prov = vlayer.dataProvider()
+                #fields = prov.fields()
+                idx = vlayer.fieldNameIndex(poi_field)
+                numfeat = vlayer.featureCount()
+                self.poiname = []
+                self.poisxy = np.zeros((numfeat, 3)) - 999
+                ind = 0
+                for f in vlayer.getFeatures():  # looping through each grid polygon
+                    y = f.geometry().centroid().asPoint().y()
+                    x = f.geometry().centroid().asPoint().x()
+
+                    self.poiname.append(f.attributes()[idx])
+
+                    #self.poisxy[ind, 0] = f.attributes()[idx]
+                    self.poisxy[ind, 0] = ind
+                    self.poisxy[ind, 1] = np.round(x - minx)
+                    self.poisxy[ind, 2] = np.round(miny + rows - y)
+                    #attributes = f.attributes()
+                    ind += 1
+
+                uni = set(self.poiname)
+                #self.iface.messageBar().pushMessage("test", str(uni))
+                #self.iface.messageBar().pushMessage("test2", str(poisxy.shape[0]))
+                if not uni.__len__() == self.poisxy.shape[0]:
+                    QMessageBox.critical(self.dlg, "Error", "A POI attribute with unique values must be selected")
+                    return
+
+                for k in range(0, self.poisxy.shape[0]):
+                    poi_save = [] # np.zeros((1, 33))
+                    #data_out = self.folderPath[0] + '/POI_' + str(self.poisxy[k, 0]) + '.txt'
+                    data_out = self.folderPath[0] + '/POI_' + str(self.poiname[k]) + '.txt'
+                    np.savetxt(data_out, poi_save,  delimiter=' ', header=header, comments='')  # fmt=numformat,
+                    #f_handle = file(data_out, 'a')
+                    #endoffile = [-9, -9]
+                    #np.savetxt(f_handle, endoffile, fmt='%2d')
+                    #f_handle.close()
 
             self.dlg.progressBar.setRange(0, Ta.__len__())
 
@@ -742,6 +787,8 @@ class SOLWEIG:
             timeaddN = 0.
             firstdaytime = 1.
 
+            # self.iface.messageBar().pushMessage("Ta.__len__  ", str(int(Ta.__len__())))
+
             # If metfile starts at night
             CI = 1.
             # self.iface.messageBar().pushMessage("Ta", self.folderPath[0] + '/Tmrt_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[0, i])) + '_' + str(int(hours[0, i])) + str(int(minu[0, i])) + '.tif')
@@ -755,7 +802,7 @@ class SOLWEIG:
                         bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, self.dlg,
-                        YYYY, DOY, hours, minu, self.gdal_dsm, self.folderPath)
+                        YYYY, DOY, hours, minu, self.gdal_dsm, self.folderPath, self.poisxy, self.poiname)
 
             # # Main calcualtions
             # # Loop through time series
@@ -866,7 +913,7 @@ class SOLWEIG:
                         bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, dlg,
-                        YYYY, DOY, hours, minu, gdal_dsm, folderPath):
+                        YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname):
 
         # create a new worker instance
         worker = Worker(dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
@@ -878,7 +925,7 @@ class SOLWEIG:
                         bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, dlg,
-                        YYYY, DOY, hours, minu, gdal_dsm, folderPath)
+                        YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname)
 
         self.dlg.runButton.setText('Cancel')
         self.dlg.runButton.clicked.disconnect()

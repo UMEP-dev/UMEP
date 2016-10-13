@@ -233,6 +233,11 @@
        </item>
        <item>
         <property name="text">
+         <string>[3] Analytical Objective hysterisis model (AnOHM)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>[4] Element Surface Temperature Model</string>
         </property>
        </item>
@@ -299,7 +304,7 @@
        </item>
        <item>
         <property name="text">
-         <string>[2] MEasured, gravimetric data</string>
+         <string>[2] Measured, gravimetric data</string>
         </property>
        </item>
       </widget>

@@ -87,7 +87,7 @@ def Solweig_2015a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, s
         # Clearness Index on Earth's surface after Crawford and Dunchon (1999) with a correction
         #  factor for low sun elevations after Lindberg et al.(2008)
         I0, CI, Kt, I0et, CIuncorr = clearnessindex_2013b(zen, jday, Ta, RH / 100., radG, location, P)
-        if (CI > 1) and (CI == np.inf):
+        if (CI > 1) or (CI == np.inf):
             CI = 1
 
         # Estimation of radD and radI if not measured after Reindl et al.(1990)
@@ -226,4 +226,5 @@ def Solweig_2015a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, s
     # Tmrt = sqrt(sqrt((Sstr / (absL * SBC)))) - 273.2
 
     return Tmrt, Kdown, Kup, Ldown, Lup, Tg, ea, esky, I0, CI, shadow, firstdaytime, timestepdec, \
-           timeadd, Tgmap1, timeaddE, Tgmap1E, timeaddS, Tgmap1S, timeaddW, Tgmap1W, timeaddN, Tgmap1N
+           timeadd, Tgmap1, timeaddE, Tgmap1E, timeaddS, Tgmap1S, timeaddW, Tgmap1W, timeaddN, Tgmap1N, \
+           Keast, Ksouth, Kwest, Knorth, Least, Lsouth, Lwest, Lnorth, KsideI

@@ -97,6 +97,7 @@ class FootprintModel:
         self.dlg.helpButton.clicked.connect(self.help)
         self.dlg.progressBar.setValue(0)
         self.dlg.checkBoxOnlyBuilding.toggled.connect(self.text_enable)
+        self.dlg.comboBoxFPM.currentIndexChanged.connect(self.bl_enable)
 
         self.fileDialogOpen = QFileDialog()
         self.filePath = None
@@ -114,6 +115,8 @@ class FootprintModel:
         RasterLayerCombo(self.dlg.comboBox_DEM, initLayer="")
         self.layerComboManagerDSMbuild = RasterLayerCombo(self.dlg.comboBox_DSMbuild)
         RasterLayerCombo(self.dlg.comboBox_DSMbuild, initLayer="")
+        self.layerComboManagerVEGDSM = RasterLayerCombo(self.dlg.comboBox_vegdsm)
+        RasterLayerCombo(self.dlg.comboBox_vegdsm, initLayer="")
 
         if not (os.path.isdir(self.plugin_dir + '/data')):
             os.mkdir(self.plugin_dir + '/data')
@@ -266,6 +269,14 @@ class FootprintModel:
             self.dlg.label_3.setEnabled(True)
             self.dlg.label_4.setEnabled(False)
 
+    def bl_enable(self):
+        if self.dlg.comboBoxFPM.currentIndex() == 1:
+            self.dlg.doubleSpinBox_bl.setEnabled(True)
+            self.dlg.label_19.setEnabled(True)
+        else:
+            self.dlg.doubleSpinBox_bl.setEnabled(False)
+            self.dlg.label_19.setEnabled(False)
+
     def start_process(self):
 
         #Check OS and dep
@@ -293,6 +304,8 @@ class FootprintModel:
             Obukhov = self.data[:, 9]
             ustar = self.data[:, 10]
             wdir = self.data[:, 11]
+            pbl = self.data[:,12]
+            por = self.data[:,13]
             # QMessageBox.critical(None, "Test", str(it))
             # return
         else:
@@ -310,6 +323,11 @@ class FootprintModel:
             Obukhov = np.ones((1, 1)) * self.dlg.doubleSpinBox_L.value()
             ustar = np.ones((1, 1)) * self.dlg.doubleSpinBox_ustar.value()
             wdir = np.ones((1, 1)) * self.dlg.doubleSpinBox_wd.value()
+            pbl = np.ones((1, 1)) * self.dlg.doubleSpinBox_bl.value()
+            #por = np.ones((1, 1)) * 100.
+            por = np.ones((1, 1)) * self.dlg.spinBoxPorosity.value()
+
+        #QMessageBox.critical(None, "Error", str(por))
 
         if self.folderPath == 'None':
             QMessageBox.critical(None, "Error", "Select a valid output folder")
@@ -352,7 +370,6 @@ class FootprintModel:
 
             provider = dsm_build.dataProvider()
             filePath_dsm_build = str(provider.dataSourceUri())
-            # Kolla om memorylayer går att användas istället för dir_poly tempfilen.
             gdalruntextdsm_build = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
                                    ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
                                    filePath_dsm_build + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
@@ -411,24 +428,72 @@ class FootprintModel:
             sizex = dsm.shape[0]
             sizey = dsm.shape[1]
 
+            dsm = dsm - dem     #remove ground height
+
+
             if not (dsm.shape[0] == dem.shape[0]) & (dsm.shape[1] == dem.shape[1]):
                 QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
                 return
+
+        vegdsm = np.zeros((sizex, sizey))           #initiate zeroed vegdsm the same size of building
+
+        if self.dlg.checkBoxUseVeg.isChecked():
+
+            usevegdem = 1
+            if self.dlg.checkBoxUseFile.isChecked():
+                vegdsm = self.layerComboManagerVEGDSM.getLayer()
+            else:
+                vegdsm = self.layerComboManagerVEGDSM.getLayer()
+                por = np.ones((1, 1)) * self.dlg.spinBoxPorosity.value()
+
+            if vegdsm is None:
+                QMessageBox.critical(None, "Error", "No valid vegetation DSM selected")
+                return
+
+            # load raster
+            provider = vegdsm.dataProvider()
+            filePath_vegdsm = str(provider.dataSourceUri())
+            gdalruntextvegdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+                                   filePath_vegdsm + '" "' + self.plugin_dir + '/data/clipvegdsm.tif"'
+            # gdalruntextdsm_build = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + dir_poly + \
+            #                        ' -crop_to_cutline -of GTiff ' + filePath_dsm_build + \
+            #                        ' ' + self.plugin_dir + '/data/clipdsm.tif'
+            if sys.platform == 'win32':
+                subprocess.call(gdalruntextvegdsm, startupinfo=si)
+            else:
+                os.system(gdalruntextdvegdsm)
+
+            dataset = gdal.Open(self.plugin_dir + '/data/clipvegdsm.tif')
+            vegdsm = dataset.ReadAsArray().astype(np.float)
+            vegsizex = vegdsm.shape[0]
+            vegsizey = vegdsm.shape[1]
+
+            if not (vegsizex == sizex) & (vegsizey == sizey):
+                QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+                return
+        else:
+            vegdsm = np.zeros((sizex, sizey))           #initiate zeroed vegdsm the same size of building
+            if por == 'None':
+                por = np.ones((1, 1)) * 100.
+
+            vegsizex = vegdsm.shape[0]
+            vegsizey = vegdsm.shape[1]
+
+        por = por/100.          # convert to 0 - 1 scale
+        #QMessageBox.critical(None, "Error", str(por))
 
         geotransform = dataset.GetGeoTransform()
         # scale = 1 / geotransform[1]
         res = geotransform[1]
         # QMessageBox.critical(None, "test", str(res) + ' ' + str(sizey) + ' ' + str(sizex))
 
-
-
         nodata_test = (dsm == -9999)
         if nodata_test.any():
-            QMessageBox.critical(None, "Error", "Grids includes nodata pixels. Is your point closer than " +
+            QMessageBox.critical(None,"Error", "Grids includes nodata pixels. Is your point closer than " +
                                  str(r) + " meters (maximum fetch) from the extent of the DSM?")
             return
         else:
-
             # #Calculate Z0m and Zdm depending on the Z0 method
             ro = self.dlg.comboBox_Roughness.currentIndex()
             if ro == 0:
@@ -444,21 +509,55 @@ class FootprintModel:
             else:
                 Rm = 'Kan'
 
-            Wfai, Wpai, WzH, WzMax, WzSdev,Wz_d_output,Wz_0_output, rotatedphi, rotatedphiPerc = fp.footprintiter(it, z_0_input, z_d_input,
-                        z_m_input, wind, sigv, Obukhov, ustar, wdir, dsm, dem, sizey, sizex, res, self.dlg, r,Rm)
+            ro2 = self.dlg.comboBoxFPM.currentIndex()
+            if ro2 == 0:
+                fpm = 'KAM'
+            elif ro2 == 1:
+                fpm = 'KLJ'
+
+            #print testing parameters in QGIS
+            #QMessageBox.critical(None, "TEST 1", "res = "+str(res) + ' size x = ' + str(sizex) + ' size y = ' + str(sizey)+ ' vegsize x = ' + str(vegsizex)+ ' vegsize y = ' + str(vegsizey)+ ' max veg = ' + str(np.nanmax(vegdsm))+ ' bld max = ' + str(np.nanmax(dsm)))
+            #QMessageBox.critical(None, "TEST 2", "roughness meth = "+ str(Rm) + ' FPM = ' + str(fpm))
+
+            #Run FPR model
+            if fpm == "KAM":
+                totRotatedphi,Wz_d_output,Wz_0_output,Wz_m_output,phi_maxdist,phi_totdist,Wfai,Wpai,WzH,WzMax,WzSdev,Wfaiveg,\
+                        Wpaiveg,WzHveg,WzMaxveg,WzSdevveg,Wfaibuild,Wpaibuild,WzHbuild,WzMaxbuild,WzSdevbuild = \
+                        fp.footprintiterKAM(iterations=it,z_0_input=z_0_input,z_d_input=z_d_input,z_ag=z_m_input,wind=wind,sigv=sigv,
+                        Obukhov=Obukhov,ustar=ustar,dir=wdir,porosity=por,bld=dsm,veg=vegdsm,rows=sizey,cols=sizex,res=res,dlg=self.dlg,
+                        maxfetch=r,rm=Rm)
+            elif fpm == "KLJ":
+                totRotatedphi,Wz_d_output,Wz_0_output,Wz_m_output,phi_maxdist,phi_totdist,Wfai,Wpai,WzH,WzMax,WzSdev,Wfaiveg,\
+                        Wpaiveg,WzHveg,WzMaxveg,WzSdevveg,Wfaibuild,Wpaibuild,WzHbuild,WzMaxbuild,WzSdevbuild = \
+                        fp.footprintiterKLJ(iterations=it,z_0_input=z_0_input,z_d_input=z_d_input,z_ag=z_m_input,wind=wind,sigv=sigv,
+                        Obukhov=Obukhov,ustar=ustar,dir=wdir,porosity=por,h=pbl,bld=dsm,veg=vegdsm,rows=sizey,cols=sizex,res=res,
+                        dlg=self.dlg,maxfetch=r,rm=Rm)
+
+            #QMessageBox.critical(None, "FPR model complete")
+            #return
+
+            #If zd and z0 are lower than open country, set to open country
+            for i in np.arange(0,it,1):
+                if Wz_d_output[i]< 0.03:
+                    Wz_d_output[i] = 0.03
+                if Wz_0_output[i]< 0.03:
+                    Wz_0_output[i] = 0.03
 
             # save to file
-            header = 'iy id it imin z_0_input z_d_input z_m_input wind sigv Obukhov ustar dir fai pai zH zMax zSdev zd z0'
-            numfmt = '%3d %2d %3d %2d %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f'
+            header = 'iy id it imin z_0_input z_d_input z_m_input wind sigv Obukhov ustar dir h por fai pai zH zMax zSdev zd z0'
+            numfmt = '%3d %2d %3d %2d %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f'
             mat = np.column_stack((yyyy[0:it], doy[0:it], ih[0:it], imin[0:it], z_0_input[0:it], z_d_input[0:it],
-                                   z_m_input[0:it], wind[0:it], sigv[0:it], Obukhov[0:it], ustar[0:it], wdir[0:it],
+                                   z_m_input[0:it], wind[0:it], sigv[0:it], Obukhov[0:it], ustar[0:it], wdir[0:it],pbl[0:it],por[0:it],
                                    Wfai, Wpai, WzH, WzMax, WzSdev,Wz_d_output,Wz_0_output))
             pre = self.dlg.textOutput_prefix.text()
             np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'SourceMorphParameters.txt', mat, fmt=('%5.5f'), comments='', header=header)
 
             # QMessageBox.critical(None, "Test", str(mat))
-            # rotatedphiPerc[rotatedphiPerc == 0] = -999
-            rotatedphiPerc = (rotatedphiPerc - 100) * - 1
+            #Presentation of Source area
+            #rotatedphiPerc = totRotatedphi/np.nansum(totRotatedphi)
+            rotatedphiPerc = (totRotatedphi/np.nanmax(totRotatedphi))*100
+            rotatedphiPerc = (rotatedphiPerc - 100)*-1
+            rotatedphiPerc[rotatedphiPerc == 0] = -9999
             rotatedphiPerc[rotatedphiPerc >= 100] = -9999
             fp.saveraster(dataset, self.folderPath[0] + '/' + pre + '_' + 'SourceAreaCumulativePercentage.tif', rotatedphiPerc)
 
