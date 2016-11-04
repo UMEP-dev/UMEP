@@ -1,0 +1,25 @@
+ &time_control
+ start_year                    = 1999,
+ start_month                   = 01,
+ start_day                     = 01,
+ end_year                      = 2009,
+ end_month                     = 12,
+ end_day                       = 31,
+ reference_start_year          = 1990
+ reference_end_year            = 2010
+/
+
+ &domain_control
+ lat                           = 30.1,
+ lon                           = 120.1,
+ land_data_path = '/Users/hyacinth/Desktop/WFD-lat-long-z-land.nc'
+/
+
+ &method
+ type                          = 1,
+ option                        = 3,
+ t1_quantile                   = 97.5,
+ t2_quantile                   = 81,
+ Tmax_data_path = '/Users/hyacinth/Desktop/Tmax_Grid',
+ output_path = '/Users/hyacinth/Desktop/Heatwave',
+ /

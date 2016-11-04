@@ -376,195 +376,6 @@ p, li { white-space: pre-wrap; }
       <enum>QFrame::Sunken</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="15" column="4">
-       <widget class="QPushButton" name="pushButtonImportSVF">
-        <property name="text">
-         <string>Select</string>
-        </property>
-       </widget>
-      </item>
-      <item row="14" column="1">
-       <spacer name="verticalSpacer_5">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="3" column="0" colspan="4">
-       <widget class="QCheckBox" name="checkBoxUseVeg">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="text">
-         <string>Use vegetation scheme (Lindberg, Grimmond 2011)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="15" column="2" colspan="2">
-       <widget class="QLineEdit" name="textInputSVF"/>
-      </item>
-      <item row="9" column="0" colspan="3">
-       <widget class="QCheckBox" name="checkBoxLandCover">
-        <property name="text">
-         <string>Use land cover scheme (Lindberg et al. 2016)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="0" colspan="3">
-       <widget class="QCheckBox" name="checkBoxDEM">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Use land cover grid to derive building grid</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="4">
-       <widget class="QSpinBox" name="spinBoxTrunkHeight">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="value">
-         <number>25</number>
-        </property>
-       </widget>
-      </item>
-      <item row="12" column="3" rowspan="2" colspan="2">
-       <widget class="QComboBox" name="comboBox_dem">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
-        </property>
-        <property name="whatsThis">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
-        </property>
-       </widget>
-      </item>
-      <item row="16" column="1">
-       <spacer name="verticalSpacer_7">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="15" column="0" colspan="2">
-       <widget class="QLabel" name="label_10">
-        <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;SkyViewFactor grids (.zip):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="3" colspan="2">
-       <widget class="QComboBox" name="comboBox_vegdsm2">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>A raster grid consisting of heights of trunk zone (bottom of canopy) above ground. Should have same spatial extent and resolution as Building and Ground DSM</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="0" colspan="2">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Transmissivity of light&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;through vegetation (%):&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="3" colspan="2">
-       <widget class="QComboBox" name="comboBox_vegdsm">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>A raster grid consisting of heights of vegetation above ground. Should have same spatial extent and resolution as Building and Ground DSM</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="3" colspan="2">
-       <widget class="QComboBox" name="comboBox_landcover">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
-        </property>
-        <property name="whatsThis">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3" colspan="2">
-       <widget class="QComboBox" name="comboBox_dsm">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
-        </property>
-        <property name="whatsThis">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="3">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Percent of &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;canopy height:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="2">
-       <spacer name="verticalSpacer_4">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_13">
         <property name="text">
@@ -573,59 +384,6 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Spatial data&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="19" column="2">
-       <widget class="QLabel" name="label_31">
-        <property name="text">
-         <string>Wall aspect raster:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="19" column="3" colspan="2">
-       <widget class="QComboBox" name="comboBox_wallaspect">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>A raster grid consisting of heights of vegetation above ground. Should have same spatial extent and resolution as Building and Ground DSM</string>
-        </property>
-       </widget>
-      </item>
-      <item row="18" column="3" colspan="2">
-       <widget class="QComboBox" name="comboBox_wallheight">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
-        </property>
-        <property name="whatsThis">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
-        </property>
-       </widget>
-      </item>
-      <item row="18" column="2">
-       <widget class="QLabel" name="label_32">
-        <property name="text">
-         <string>Wall height raster:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="2">
-       <widget class="QSpinBox" name="spinBoxTrans">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="value">
-         <number>3</number>
         </property>
        </widget>
       </item>
@@ -642,40 +400,235 @@ p, li { white-space: pre-wrap; }
         </property>
        </spacer>
       </item>
-      <item row="10" column="0" colspan="3">
-       <widget class="QLabel" name="label_14">
+      <item row="3" column="0" colspan="3">
+       <widget class="QCheckBox" name="checkBoxUseVeg">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="text">
-         <string>UMEP land cover grid:</string>
+         <string>Use vegetation scheme (Lindberg, Grimmond 2011)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3" colspan="2">
+       <widget class="QCheckBox" name="checkBoxTrunkExist">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Trunk zone DSM exist</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="2">
+       <widget class="QSpinBox" name="spinBoxTrans">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="value">
+         <number>3</number>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="3">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Percent of &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;canopy height:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
-      <item row="12" column="1" colspan="2">
-       <widget class="QLabel" name="label_16">
+      <item row="6" column="4">
+       <widget class="QSpinBox" name="spinBoxTrunkHeight">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="value">
+         <number>25</number>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QCheckBox" name="checkBoxSaveTrunk">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
-         <string>Ground DEM:</string>
+         <string>Save generated Trunk zone DSM</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="2">
+       <spacer name="verticalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="11" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxDEM">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Use land cover grid to derive building grid</string>
+        </property>
+       </widget>
+      </item>
+      <item row="14" column="1">
+       <spacer name="verticalSpacer_5">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="15" column="4">
+       <widget class="QPushButton" name="pushButtonImportSVF">
+        <property name="text">
+         <string>Select</string>
+        </property>
+       </widget>
+      </item>
+      <item row="16" column="1">
+       <spacer name="verticalSpacer_7">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="3" colspan="2">
+       <widget class="QComboBox" name="comboBox_dsm">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>A raster Digital surface Model consisting of ground and building heights</string>
+        </property>
+        <property name="whatsThis">
+         <string>A raster Digital surface Model consisting of ground and building heights</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="3" colspan="2">
+       <widget class="QComboBox" name="comboBox_vegdsm">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>A raster grid consisting of heights of vegetation above ground. Should have same spatial extent and resolution as Building and Ground DSM</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="3" colspan="2">
+       <widget class="QComboBox" name="comboBox_vegdsm2">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>A raster grid consisting of heights of trunk zone (bottom of canopy) above ground. Should have same spatial extent and resolution as Building and Ground DSM</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="3" colspan="2">
+       <widget class="QComboBox" name="comboBox_landcover">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>A raster Digital surface Model consisting of ground and building heights</string>
+        </property>
+        <property name="whatsThis">
+         <string>A raster Digital surface Model consisting of ground and building heights</string>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="3" colspan="2">
+       <widget class="QComboBox" name="comboBox_dem">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>A raster Digital surface Model consisting of ground and building heights</string>
+        </property>
+        <property name="whatsThis">
+         <string>A raster Digital surface Model consisting of ground and building heights</string>
+        </property>
+       </widget>
+      </item>
+      <item row="17" column="3" colspan="2">
+       <widget class="QComboBox" name="comboBox_wallheight">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>A raster Digital surface Model consisting of ground and building heights</string>
+        </property>
+        <property name="whatsThis">
+         <string>A raster Digital surface Model consisting of ground and building heights</string>
+        </property>
+       </widget>
+      </item>
+      <item row="18" column="3" colspan="2">
+       <widget class="QComboBox" name="comboBox_wallaspect">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>A raster grid consisting of heights of vegetation above ground. Should have same spatial extent and resolution as Building and Ground DSM</string>
+        </property>
+       </widget>
+      </item>
+      <item row="15" column="2" colspan="2">
+       <widget class="QLineEdit" name="textInputSVF"/>
+      </item>
+      <item row="6" column="0" colspan="2">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Transmissivity of light&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;through vegetation (%):&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
-      <item row="6" column="0" colspan="3">
-       <widget class="QLabel" name="label_3">
+      <item row="15" column="0" colspan="2">
+       <widget class="QLabel" name="label_10">
         <property name="text">
-         <string>Vegetation Trunk zone DSM:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0" colspan="3">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Vegetation Canopy DSM:</string>
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;SkyViewFactor grids (.zip):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -692,13 +645,80 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="3" column="4">
-       <widget class="QCheckBox" name="checkBoxTrunkExist">
+      <item row="4" column="0" colspan="3">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Vegetation Canopy DSM:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0" colspan="3">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Vegetation Trunk zone DSM:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="0" colspan="3">
+       <widget class="QLabel" name="label_14">
+        <property name="text">
+         <string>UMEP land cover grid:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="0" colspan="3">
+       <widget class="QLabel" name="label_16">
+        <property name="text">
+         <string>Ground DEM:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="0" colspan="3">
+       <widget class="QCheckBox" name="checkBoxBuild">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="text">
-         <string>Trunk zone DSM exist</string>
+         <string>Save generated building grid</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0" colspan="4">
+       <widget class="QCheckBox" name="checkBoxLandCover">
+        <property name="text">
+         <string>Use land cover scheme (Lindberg et al. 2016)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="17" column="0" colspan="3">
+       <widget class="QLabel" name="label_32">
+        <property name="text">
+         <string>Wall height raster:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="18" column="0" colspan="3">
+       <widget class="QLabel" name="label_31">
+        <property name="text">
+         <string>Wall aspect raster:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -1170,7 +1190,6 @@ p, li { white-space: pre-wrap; }
      <zorder>CheckBoxBox</zorder>
      <zorder>label_29</zorder>
      <zorder>CheckBoxElvis</zorder>
-     <zorder>frame_4</zorder>
      <zorder>comboBox_POIfield</zorder>
      <zorder>comboBox_POIlayer</zorder>
      <zorder>label_34</zorder>
@@ -1359,12 +1378,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>204</x>
-     <y>123</y>
+     <x>223</x>
+     <y>113</y>
     </hint>
     <hint type="destinationlabel">
      <x>551</x>
-     <y>123</y>
+     <y>113</y>
     </hint>
    </hints>
   </connection>
@@ -1375,12 +1394,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>48</x>
-     <y>123</y>
+     <x>67</x>
+     <y>113</y>
     </hint>
     <hint type="destinationlabel">
-     <x>551</x>
-     <y>149</y>
+     <x>468</x>
+     <y>139</y>
     </hint>
    </hints>
   </connection>
@@ -1392,11 +1411,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>551</x>
-     <y>123</y>
+     <y>113</y>
     </hint>
     <hint type="destinationlabel">
-     <x>551</x>
-     <y>175</y>
+     <x>468</x>
+     <y>165</y>
     </hint>
    </hints>
   </connection>
@@ -1407,12 +1426,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>72</x>
-     <y>123</y>
+     <x>91</x>
+     <y>113</y>
     </hint>
     <hint type="destinationlabel">
-     <x>318</x>
-     <y>204</y>
+     <x>388</x>
+     <y>194</y>
     </hint>
    </hints>
   </connection>
@@ -1423,12 +1442,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>85</x>
-     <y>123</y>
+     <x>104</x>
+     <y>113</y>
     </hint>
     <hint type="destinationlabel">
      <x>551</x>
-     <y>204</y>
+     <y>194</y>
     </hint>
    </hints>
   </connection>
@@ -1440,11 +1459,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>551</x>
-     <y>123</y>
+     <y>113</y>
     </hint>
     <hint type="destinationlabel">
      <x>551</x>
-     <y>204</y>
+     <y>194</y>
     </hint>
    </hints>
   </connection>
@@ -1459,8 +1478,8 @@ p, li { white-space: pre-wrap; }
      <y>267</y>
     </hint>
     <hint type="destinationlabel">
-     <x>551</x>
-     <y>293</y>
+     <x>468</x>
+     <y>296</y>
     </hint>
    </hints>
   </connection>
@@ -1491,8 +1510,8 @@ p, li { white-space: pre-wrap; }
      <y>317</y>
     </hint>
     <hint type="destinationlabel">
-     <x>551</x>
-     <y>343</y>
+     <x>468</x>
+     <y>346</y>
     </hint>
    </hints>
   </connection>
@@ -1763,8 +1782,8 @@ p, li { white-space: pre-wrap; }
      <y>557</y>
     </hint>
     <hint type="destinationlabel">
-     <x>203</x>
-     <y>579</y>
+     <x>308</x>
+     <y>600</y>
     </hint>
    </hints>
   </connection>
@@ -1779,8 +1798,8 @@ p, li { white-space: pre-wrap; }
      <y>560</y>
     </hint>
     <hint type="destinationlabel">
-     <x>110</x>
-     <y>580</y>
+     <x>129</x>
+     <y>600</y>
     </hint>
    </hints>
   </connection>
@@ -1795,8 +1814,8 @@ p, li { white-space: pre-wrap; }
      <y>559</y>
     </hint>
     <hint type="destinationlabel">
-     <x>254</x>
-     <y>605</y>
+     <x>308</x>
+     <y>626</y>
     </hint>
    </hints>
   </connection>
@@ -1813,6 +1832,38 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>198</x>
      <y>620</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxUseVeg</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>checkBoxSaveTrunk</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>83</x>
+     <y>103</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>65</x>
+     <y>213</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxTrunkExist</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>checkBoxSaveTrunk</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>492</x>
+     <y>103</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>130</x>
+     <y>208</y>
     </hint>
    </hints>
   </connection>

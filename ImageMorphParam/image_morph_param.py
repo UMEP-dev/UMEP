@@ -273,15 +273,15 @@ class ImageMorphParam:
         self.steps = 0
         poly = self.layerComboManagerPolygrid.getLayer()
         if poly is None:
-            QMessageBox.critical(None, "Error", "No valid Polygon layer is selected")
+            QMessageBox.critical(self.dlg, "Error", "No valid Polygon layer is selected")
             return
         if not poly.geometryType() == 2:
-            QMessageBox.critical(None, "Error", "No valid Polygon layer is selected")
+            QMessageBox.critical(self.dlg, "Error", "No valid Polygon layer is selected")
             return
 
         poly_field = self.layerComboManagerPolyField.getFieldName()
         if poly_field is None:
-            QMessageBox.critical(None, "Error", "An attribute filed with unique fields must be selected")
+            QMessageBox.critical(self.dlg, "Error", "An attribute filed with unique fields must be selected")
             return
         # QMessageBox.information(None, "TEst", str(poly_field) )
         vlayer = QgsVectorLayer(poly.source(), "polygon", "ogr")
@@ -299,7 +299,7 @@ class ImageMorphParam:
             dsm = None
             dem = None
             if dsm_build is None:
-                QMessageBox.critical(None, "Error", "No valid building DSM raster layer is selected")
+                QMessageBox.critical(self.dlg, "Error", "No valid building DSM raster layer is selected")
                 return
 
         else:  # Both building ground heights

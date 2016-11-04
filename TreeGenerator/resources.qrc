@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/TreeGenerator" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>

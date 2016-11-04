@@ -271,7 +271,7 @@ class MetdataProcessor:
         if self.dlg.checkBox_kdown.isChecked():
             met_new[:, 14] = met_old[:, self.dlg.comboBox_kdown.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
-                testwhere = np.where((met_new[:, 14] < 0.0) | (met_new[:, 14] > 1300.0))
+                testwhere = np.where((met_new[:, 14] < 0.0) | (met_new[:, 14] > 1200.0))
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Kdown - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
@@ -282,7 +282,7 @@ class MetdataProcessor:
         if self.dlg.checkBox_ws.isChecked():
             met_new[:, 9] = met_old[:, self.dlg.comboBox_ws.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
-                testwhere = np.where((met_new[:, 9] < 0.0) | (met_new[:, 9] > 70.0))
+                testwhere = np.where((met_new[:, 9] < 0.0) | (met_new[:, 9] > 60.0))
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Wind speed - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
@@ -293,7 +293,7 @@ class MetdataProcessor:
         if self.dlg.checkBox_Tair.isChecked():
             met_new[:, 11] = met_old[:, self.dlg.comboBox_Tair.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
-                testwhere = np.where((met_new[:, 11] < -50.0) | (met_new[:, 11] > 60.0))
+                testwhere = np.where((met_new[:, 11] < -30.0) | (met_new[:, 11] > 55.0))
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Air temperature - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
@@ -306,7 +306,7 @@ class MetdataProcessor:
         if self.dlg.checkBox_RH.isChecked():
             met_new[:, 10] = met_old[:, self.dlg.comboBox_RH.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
-                testwhere = np.where((met_new[:, 10] < 0.01) | (met_new[:, 10] > 100.0))
+                testwhere = np.where((met_new[:, 10] < 0.00) | (met_new[:, 10] > 100.0))
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Relative humidity - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
@@ -317,7 +317,7 @@ class MetdataProcessor:
         if self.dlg.checkBox_pres.isChecked():
             met_new[:, 12] = met_old[:, self.dlg.comboBox_pres.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
-                testwhere = np.where((met_new[:, 12] < 90.0) | (met_new[:, 12] > 150.0))
+                testwhere = np.where((met_new[:, 12] < 70.0) | (met_new[:, 12] > 107.0))
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Pressure - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
@@ -328,7 +328,7 @@ class MetdataProcessor:
         if self.dlg.checkBox_rain.isChecked():
             met_new[:, 13] = met_old[:, self.dlg.comboBox_rain.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
-                testwhere = np.where((met_new[:, 13] < 0.0) | (met_new[:, 13] > 300.0))
+                testwhere = np.where((met_new[:, 13] < 0.0) | (met_new[:, 13] > 30.0))
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Rain - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
@@ -341,7 +341,7 @@ class MetdataProcessor:
         if self.dlg.checkBox_snow.isChecked():
             met_new[:, 15] = met_old[:, self.dlg.comboBox_snow.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
-                testwhere = np.where((met_new[:, 15] < 0.0) | (met_new[:, 15] > 1.01))
+                testwhere = np.where((met_new[:, 15] < 0.0) | (met_new[:, 15] > 300.0))
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Snow - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
@@ -352,7 +352,7 @@ class MetdataProcessor:
         if self.dlg.checkBox_ldown.isChecked():
             met_new[:, 16] = met_old[:, self.dlg.comboBox_ldown.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
-                testwhere = np.where((met_new[:, 16] < 0.0) | (met_new[:, 16] > 600.0))
+                testwhere = np.where((met_new[:, 16] < 100.0) | (met_new[:, 16] > 600.0))
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Ldown - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
@@ -375,11 +375,23 @@ class MetdataProcessor:
 
         if self.dlg.checkBox_Wuh.isChecked():
             met_new[:, 18] = met_old[:, self.dlg.comboBox_Wuh.currentIndex()]
+            if self.dlg.checkBoxQuality.isChecked():
+                testwhere = np.where((met_new[:, 18] < 0.0) | (met_new[:, 18] > 10.01))
+                if testwhere[0].__len__() > 0:
+                    QMessageBox.critical(None, "Value error", "External water use - beyond what is expected at line:"
+                                                              " \n" + str(testwhere[0] + 1))
+                    return
         else:
             met_new[:, 18] = -999.0
 
         if self.dlg.checkBox_xcmd.isChecked():
             met_new[:, 19] = met_old[:, self.dlg.comboBox_xcmd.currentIndex()]
+            if self.dlg.checkBoxQuality.isChecked():
+                testwhere = np.where((met_new[:, 19] < 0.01) | (met_new[:, 19] > 0.5))
+                if testwhere[0].__len__() > 0:
+                    QMessageBox.critical(None, "Value error", "Soil moisture - beyond what is expected at line:"
+                                                              " \n" + str(testwhere[0] + 1))
+                    return
         else:
             met_new[:, 19] = -999.0
 
@@ -408,7 +420,7 @@ class MetdataProcessor:
         if self.dlg.checkBox_kdir.isChecked():
             met_new[:, 22] = met_old[:, self.dlg.comboBox_kdir.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
-                testwhere = np.where((met_new[:, 22] < 0.0) | (met_new[:, 22] > 1300.0))
+                testwhere = np.where((met_new[:, 22] < 0.0) | (met_new[:, 22] > 1200.0))
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Direct shortwave radiation - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
@@ -430,7 +442,7 @@ class MetdataProcessor:
         if self.dlg.checkBox_qn.isChecked():
             met_new[:, 4] = met_old[:, self.dlg.comboBox_qn.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
-                testwhere = np.where((met_new[:, 4] < -300.0) | (met_new[:, 4] > 900.0))
+                testwhere = np.where((met_new[:, 4] < -200.0) | (met_new[:, 4] > 800.0))
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Net radiation - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
@@ -440,7 +452,7 @@ class MetdataProcessor:
         if self.dlg.checkBox_qh.isChecked():
             met_new[:, 5] = met_old[:, self.dlg.comboBox_qh.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
-                testwhere = np.where((met_new[:, 5] < -300.0) | (met_new[:, 5] > 900.0))
+                testwhere = np.where((met_new[:, 5] < -200.0) | (met_new[:, 5] > 750.0))
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Sensible heat flux - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
@@ -450,7 +462,7 @@ class MetdataProcessor:
         if self.dlg.checkBox_qe.isChecked():
             met_new[:, 6] = met_old[:, self.dlg.comboBox_qe.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
-                testwhere = np.where((met_new[:, 6] < -300.0) | (met_new[:, 6] > 900.0))
+                testwhere = np.where((met_new[:, 6] < -100.0) | (met_new[:, 6] > 650.0))
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Latent heat flux - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
@@ -462,7 +474,7 @@ class MetdataProcessor:
         if self.dlg.checkBox_qs.isChecked():
             met_new[:, 7] = met_old[:, self.dlg.comboBox_qs.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
-                testwhere = np.where((met_new[:, 7] < -300.0) | (met_new[:, 7] > 900.0))
+                testwhere = np.where((met_new[:, 7] < -200.0) | (met_new[:, 7] > 650.0))
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Storage heat flux - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
@@ -472,7 +484,7 @@ class MetdataProcessor:
         if self.dlg.checkBox_qf.isChecked():
             met_new[:, 8] = met_old[:, self.dlg.comboBox_qf.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
-                testwhere = np.where((met_new[:, 8] < -300.0) | (met_new[:, 8] > 900.0))
+                testwhere = np.where((met_new[:, 8] < 0.0) | (met_new[:, 8] > 1500.0))
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Anthropogenic heat flux - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))

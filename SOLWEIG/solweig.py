@@ -223,7 +223,7 @@ class SOLWEIG:
             self.metdata = np.loadtxt(self.folderPathMet[0], skiprows=headernum, delimiter=delim)
         except:
             QMessageBox.critical(self.dlg, "Import Error",
-                                 "Make sure format of meteorological file is correct. You can"
+                                 "Make sure format of meteorological file is correct. You can "
                                  "prepare your data by using 'Prepare Existing Data' in "
                                  "the Pre-processor")
             return
@@ -373,6 +373,8 @@ class SOLWEIG:
                     filePathOld = str(provider.dataSourceUri())
                     dataSet = gdal.Open(filePathOld)
                     self.vegdsm2 = dataSet.ReadAsArray().astype(np.float)
+                    if self.dlg.CheckBoxSaveTrunk.isChecked():
+                        self.saveraster(self.gdal_dsm, self.folderPath[0] + '/TDSM.tif', self.vegdsm2)
                 else:
                     trunkratio = self.dlg.spinBoxTrunkHeight.value() / 100.0
                     self.vegdsm2 = self.vegdsm * trunkratio
@@ -415,6 +417,8 @@ class SOLWEIG:
                     QMessageBox.critical(self.dlg, "Error in land cover grid",
                                          "All grids must be of same extent and resolution")
                     return
+            #else:
+            #    self.lcgrid = np.zeros([rows, cols])
 
             # DEM #
             if not self.dlg.checkBoxDEM.isChecked():
@@ -644,7 +648,13 @@ class SOLWEIG:
                 buildings[buildings == 3] = 1
                 buildings[buildings == 2] = 0
             else:
-                buildings = np.where((self.dsm - self.dem) < 2) * 1
+                buildings = self.dsm - self.dem
+                buildings[buildings < 2.] = 1.
+                buildings[buildings >= 2.] = 0.
+                #np.where(np.transpose(self.dsm - self.dem) < 2.)
+
+            if self.dlg.CheckBoxBuild.isChecked():
+                self.saveraster(self.gdal_dsm, self.folderPath[0] + '/buildings.tif', buildings)
 
             if self.dlg.checkBoxUseOnlyGlobal.isChecked():
                 onlyglobal = 1
@@ -788,8 +798,10 @@ class SOLWEIG:
             firstdaytime = 1.
 
             # self.iface.messageBar().pushMessage("Ta.__len__  ", str(int(Ta.__len__())))
+            #self.iface.messageBar().pushMessage("__len__", str(buildings.shape[0]))
+            #self.iface.messageBar().pushMessage("__len__", str(self.lcgrid.shape[0]))
 
-            # If metfile starts at night
+            #  If metfile starts at night
             CI = 1.
             # self.iface.messageBar().pushMessage("Ta", self.folderPath[0] + '/Tmrt_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[0, i])) + '_' + str(int(hours[0, i])) + str(int(minu[0, i])) + '.tif')
             # self.iface.messageBar().pushMessage("hour", str(hours[5]))
@@ -842,8 +854,7 @@ class SOLWEIG:
             #     tmrtplot = tmrtplot + Tmrt
             #     # self.iface.messageBar().pushMessage("__len__", str(int(YYYY[0, i])))
             #     if self.dlg.CheckBoxTmrt.isChecked():
-            #         self.saveraster(self.gdal_dsm, self.folderPath[0] + '/Tmrt_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
-            #                         + '_' + str(int(hours[i])) + str(int(minu[i])) + '.tif', Tmrt)
+            #self.saveraster(self.gdal_dsm, self.folderPath[0] + '/buildings.tif', buildings)
             #     if self.dlg.CheckBoxKup.isChecked():
             #         self.saveraster(self.gdal_dsm, self.folderPath[0] + '/Kup_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
             #                         + '_' + str(int(hours[i])) + str(int(minu[i])) + '.tif', Kup)
@@ -952,21 +963,31 @@ class SOLWEIG:
         # remove widget from message bar
         if ret is not None:
             # report the result
-            if self.dlg.CheckBoxTmrt.isChecked():
-                tmrtplot = ret["tmrtplot"]
-                self.saveraster(self.gdal_dsm, self.folderPath[0] + '/Tmrt_average.tif', tmrtplot)
-
             # load result into canvas
             if self.dlg.checkBoxIntoCanvas.isChecked():
-                rlayer = self.iface.addRasterLayer(self.folderPath[0] + '/Tmrt_average.tif')
-
-                # Set opacity
-                # rlayer.renderer().setOpacity(0.5)
+                tmrtplot = ret["tmrtplot"]
+                self.saveraster(self.gdal_dsm, self.folderPath[0] + '/Tmrt_average.tif', tmrtplot)
+                rlayer = self.iface.addRasterLayer(self.folderPath[0] + '/Tmrt_average.tif', 'Average Tmrt [degC]')
 
                 # Trigger a repaint
                 if hasattr(rlayer, "setCacheImage"):
                     rlayer.setCacheImage(None)
                 rlayer.triggerRepaint()
+
+                rlayer.loadNamedStyle(self.plugin_dir + '/tmrt.qml')
+                # self.QgsMapLayerRegistry.instance().addMapLayer(rlayer)
+
+                if hasattr(rlayer, "setCacheImage"):
+                    rlayer.setCacheImage(None)
+                rlayer.triggerRepaint()
+
+                # Set opacity
+                # rlayer.renderer().setOpacity(0.5)
+
+                # Trigger a repaint
+                # if hasattr(rlayer, "setCacheImage"):
+                #     rlayer.setCacheImage(None)
+                # rlayer.triggerRepaint()
 
             self.iface.messageBar().pushMessage("SOLWEIG", "Model calculations successful.")
             #

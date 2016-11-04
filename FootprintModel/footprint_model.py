@@ -538,8 +538,8 @@ class FootprintModel:
 
             #If zd and z0 are lower than open country, set to open country
             for i in np.arange(0,it,1):
-                if Wz_d_output[i]< 0.03:
-                    Wz_d_output[i] = 0.03
+                if Wz_d_output[i]< 0.2:
+                    Wz_d_output[i] = 0.2
                 if Wz_0_output[i]< 0.03:
                     Wz_0_output[i] = 0.03
 

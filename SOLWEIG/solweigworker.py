@@ -233,7 +233,6 @@ class Worker(QtCore.QObject):
                                                             P[i + rise + 1])  # i+rise+1 to match matlab code. correct?
                     if (CI > 1) or (CI == np.inf):
                         CI = 1
-                # self.iface.messageBar().pushMessage("__len__", str(Ta.__len__()))
 
                 Tmrt, Kdown, Kup, Ldown, Lup, Tg, ea, esky, I0, CI, shadow, firstdaytime, timestepdec, timeadd, \
                 Tgmap1, timeaddE, Tgmap1E, timeaddS, Tgmap1S, timeaddW, Tgmap1W, timeaddN, Tgmap1N, \

@@ -219,6 +219,12 @@ class Worker(QtCore.QObject):
                     zSdevall = immorphresult["zH_sd_all"]
                     zdall, z0all = rg.RoughnessCalc(self.rm, zHall, faiall, paiall, zMaxall, zSdevall)
 
+                    # If zd and z0 are lower than open country, set to open country
+                    if zdall < 0.2:
+                        zdall = 0.2
+                    if z0all < 0.03:
+                        z0all = 0.03
+
                     # header = ' pai  fai   zH    zHmax    zHstd zd z0'
                     # numformat = '%4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
                     arr2 = np.array([[f.attributes()[self.idx], immorphresult["pai_all"], immorphresult["fai_all"], immorphresult["zH_all"],

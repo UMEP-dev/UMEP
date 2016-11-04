@@ -1927,43 +1927,43 @@ class SUEWSPrepare:
                                 found_LUF_line = True
                                 break
 
-                        if not found_LUF_line:
-                                Fr_ESTMClass_Paved1 = -999
-                                Fr_ESTMClass_Paved2 = -999
-                                Fr_ESTMClass_Paved3 = -999
-                                Code_ESTMClass_Paved1 = -999
-                                Code_ESTMClass_Paved2 = -999
-                                Code_ESTMClass_Paved3 = -999
-                                Fr_ESTMClass_Bldgs1 = -999
-                                Fr_ESTMClass_Bldgs2 = -999
-                                Fr_ESTMClass_Bldgs3 = -999
-                                Fr_ESTMClass_Bldgs4 = -999
-                                Fr_ESTMClass_Bldgs5 = -999
-                                Code_ESTMClass_Bldgs1 = -999
-                                Code_ESTMClass_Bldgs2 = -999
-                                Code_ESTMClass_Bldgs3 = -999
-                                Code_ESTMClass_Bldgs4 = -999
-                                Code_ESTMClass_Bldgs5 = -999
+                        if not found_LUF_line: # 1.0	0.00	0.00	806	-999	-999	0.15	0.45	0.05	0.35	0.25	801	802	803	804	805
+                                Fr_ESTMClass_Paved1 = 1.
+                                Fr_ESTMClass_Paved2 = 0.
+                                Fr_ESTMClass_Paved3 = 0.
+                                Code_ESTMClass_Paved1 = 807
+                                Code_ESTMClass_Paved2 = 99999
+                                Code_ESTMClass_Paved3 = 99999
+                                Fr_ESTMClass_Bldgs1 = 1.0
+                                Fr_ESTMClass_Bldgs2 = 0.
+                                Fr_ESTMClass_Bldgs3 = 0.
+                                Fr_ESTMClass_Bldgs4 = 0.
+                                Fr_ESTMClass_Bldgs5 = 0.
+                                Code_ESTMClass_Bldgs1 = 801
+                                Code_ESTMClass_Bldgs2 = 99999
+                                Code_ESTMClass_Bldgs3 = 99999
+                                Code_ESTMClass_Bldgs4 = 99999
+                                Code_ESTMClass_Bldgs5 = 99999
                 else:
                     QMessageBox.critical(None, "Error", "Could not find the file containing land use cover fractions")
                     return
             else:
-                Fr_ESTMClass_Paved1 = -999
-                Fr_ESTMClass_Paved2 = -999
-                Fr_ESTMClass_Paved3 = -999
-                Code_ESTMClass_Paved1 = -999
-                Code_ESTMClass_Paved2 = -999
-                Code_ESTMClass_Paved3 = -999
-                Fr_ESTMClass_Bldgs1 = -999
-                Fr_ESTMClass_Bldgs2 = -999
-                Fr_ESTMClass_Bldgs3 = -999
-                Fr_ESTMClass_Bldgs4 = -999
-                Fr_ESTMClass_Bldgs5 = -999
-                Code_ESTMClass_Bldgs1 = -999
-                Code_ESTMClass_Bldgs2 = -999
-                Code_ESTMClass_Bldgs3 = -999
-                Code_ESTMClass_Bldgs4 = -999
-                Code_ESTMClass_Bldgs5 = -999
+                Fr_ESTMClass_Paved1 = 1.
+                Fr_ESTMClass_Paved2 = 0.
+                Fr_ESTMClass_Paved3 = 0.
+                Code_ESTMClass_Paved1 = 807
+                Code_ESTMClass_Paved2 = 99999
+                Code_ESTMClass_Paved3 = 99999
+                Fr_ESTMClass_Bldgs1 = 1.
+                Fr_ESTMClass_Bldgs2 = 0.
+                Fr_ESTMClass_Bldgs3 = 0.
+                Fr_ESTMClass_Bldgs4 = 0.
+                Fr_ESTMClass_Bldgs5 = 0.
+                Code_ESTMClass_Bldgs1 = 801
+                Code_ESTMClass_Bldgs2 = 99999
+                Code_ESTMClass_Bldgs3 = 99999
+                Code_ESTMClass_Bldgs4 = 99999
+                Code_ESTMClass_Bldgs5 = 99999
 
             code = "Fr_ESTMClass_Bldgs1"
             index = self.find_index(code)

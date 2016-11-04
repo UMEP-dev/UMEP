@@ -39,11 +39,13 @@ from SEBE.sebe import SEBE
 from SEBEVisual.sun import Sun
 from SuewsSimple.suews_simple import SuewsSimple
 from SUEWSPrepare.suews_prepare import SUEWSPrepare
+from TreeGenerator.tree_generator import TreeGenerator
 from SUEWS.suews import SUEWS
 from FootprintModel.footprint_model import FootprintModel
 from WATCHData.watch import WATCHData
 from GreaterQF.greater_qf import GreaterQF
 from SOLWEIG.solweig import SOLWEIG
+from ExtremeFinder.extreme_finder import ExtremeFinder
 
 # from about_dialog import AboutDialog
 from UMEP_about import UMEPDialogAbout
@@ -120,6 +122,10 @@ class UMEP:
         self.SUEWSPrepare_Action = QAction("SUEWS Prepare", self.iface.mainWindow())
         self.Pre_Menu.addAction(self.SUEWSPrepare_Action)
         self.SUEWSPrepare_Action.triggered.connect(self.SUEWS_Prepare)
+        self.TreeGenerator_Action = QAction("Tree Generator", self.iface.mainWindow())
+        self.Pre_Menu.addAction(self.TreeGenerator_Action)
+        self.TreeGenerator_Action.triggered.connect(self.TG)
+
 
         # Sub-actions to Surface Morphology
         self.IMCG_Action = QAction("Image Morphometric Calculator (Grid)", self.iface.mainWindow())
@@ -139,6 +145,9 @@ class UMEP:
         self.PFD_Action = QAction("Download data (WATCH)", self.iface.mainWindow())
         self.MD_Menu.addAction(self.PFD_Action)
         self.PFD_Action.triggered.connect(self.WA)
+        self.EF_Action = QAction("Extreme Finder", self.iface.mainWindow())
+        self.MD_Menu.addAction(self.EF_Action)
+        self.EF_Action.triggered.connect(self.EF)
         # self.PFD_Action.setEnabled(False)
 
         # Sub-actions to Urban Geometry
@@ -262,6 +271,7 @@ class UMEP:
         self.PED_Action.setIcon(QIcon(self.plugin_dir + "/Icons/metdata.png"))
         self.PFD_Action.setIcon(QIcon(self.plugin_dir + "/Icons/watch.png"))
         self.MRT_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_solweig.png"))
+        self.TreeGenerator_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_tree.png"))
 
         self.iface.mainWindow().menuBar().insertMenu(self.iface.firstRightStandardMenu().menuAction(), self.UMEP_Menu)
         self.dlgAbout = UMEPDialogAbout()
@@ -448,6 +458,14 @@ class UMEP:
 
     def SO(self):
         sg = SOLWEIG(self.iface)
+        sg.run()
+
+    def TG(self):
+        sg = TreeGenerator(self.iface)
+        sg.run()
+
+    def EF(self):
+        sg = ExtremeFinder(self.iface)
         sg.run()
 
     def run(self):
