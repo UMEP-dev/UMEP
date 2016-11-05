@@ -272,6 +272,7 @@ class UMEP:
         self.PFD_Action.setIcon(QIcon(self.plugin_dir + "/Icons/watch.png"))
         self.MRT_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_solweig.png"))
         self.TreeGenerator_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_tree.png"))
+        self.EF_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_extreme.png"))
 
         self.iface.mainWindow().menuBar().insertMenu(self.iface.firstRightStandardMenu().menuAction(), self.UMEP_Menu)
         self.dlgAbout = UMEPDialogAbout()

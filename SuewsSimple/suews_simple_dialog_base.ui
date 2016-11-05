@@ -674,7 +674,7 @@ Cover Fraction calculation</string>
       <item row="4" column="2">
        <widget class="QLabel" name="label_6">
         <property name="text">
-         <string>Decidious trees:</string>
+         <string>Deciduous trees:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
