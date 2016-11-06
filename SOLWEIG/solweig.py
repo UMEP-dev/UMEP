@@ -373,7 +373,7 @@ class SOLWEIG:
                     filePathOld = str(provider.dataSourceUri())
                     dataSet = gdal.Open(filePathOld)
                     self.vegdsm2 = dataSet.ReadAsArray().astype(np.float)
-                    if self.dlg.CheckBoxSaveTrunk.isChecked():
+                    if self.dlg.checkBoxSaveTrunk.isChecked():
                         self.saveraster(self.gdal_dsm, self.folderPath[0] + '/TDSM.tif', self.vegdsm2)
                 else:
                     trunkratio = self.dlg.spinBoxTrunkHeight.value() / 100.0
@@ -653,7 +653,7 @@ class SOLWEIG:
                 buildings[buildings >= 2.] = 0.
                 #np.where(np.transpose(self.dsm - self.dem) < 2.)
 
-            if self.dlg.CheckBoxBuild.isChecked():
+            if self.dlg.checkBoxBuild.isChecked():
                 self.saveraster(self.gdal_dsm, self.folderPath[0] + '/buildings.tif', buildings)
 
             if self.dlg.checkBoxUseOnlyGlobal.isChecked():
