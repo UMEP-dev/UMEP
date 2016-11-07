@@ -27,17 +27,17 @@ import resources
 # Import the code for the dialog
 from extreme_finder_dialog import ExtremeFinderDialog
 import os.path
-from datetime import datetime, timedelta, time
-import os
-import math
-import f90nml
-import webbrowser
-import datetime
-import time
-import gzip
-import StringIO
-import urllib2
-import tempfile
+# from datetime import datetime, timedelta, time
+# import os
+# import math
+# import f90nml
+# import webbrowser
+# import datetime
+# import time
+# import gzip
+# import StringIO
+# import urllib2
+# import tempfile
 from HeatWave.findHW import *
 from HeatWave.plotHW import plotHW
 #from WFDEIDownloader.WFDEI_Interpolator import *
@@ -110,10 +110,10 @@ class ExtremeFinder:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&Extreme Finder')
+        # self.menu = self.tr(u'&Extreme Finder')
         # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'ExtremeFinder')
-        self.toolbar.setObjectName(u'ExtremeFinder')
+        # self.toolbar = self.iface.addToolBar(u'ExtremeFinder')
+        # self.toolbar.setObjectName(u'ExtremeFinder')
 
         # get reference to the canvas
         self.canvas = self.iface.mapCanvas()
