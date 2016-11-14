@@ -11,8 +11,8 @@ name=UMEP
 qgisMinimumVersion=2.0
 description=Urban Multi-scale Environmental Predictor
 
-version=0.2.4
-author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson
+version=0.2.5
+author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun
 email=fredrikl@gvc.gu.se
 
 about=UMEP is an extensive plugin designed for urban climate in general and climate sensitive planning applications in particular. The plugin consist of a pre-processor, a processor and a post-processor. This plugin is a collaboration between University of Gothenburg, University of Helsinki and University of Reading.
@@ -26,6 +26,7 @@ repository=https://bitbucket.org/fredrik_ucg/umep
 
 # Uncomment the following line and add your changelog:
 changelog=
+	0.2.5 : Fixed a blocking bug where python dependencies stop the plugin to start
 	0.2.4 : New pre-prcessing plugin, TreeGenerator. General bug fixes.
 	0.2.3 : Major updates of the FootPrintModel and the SOLWEIG model.
 	0.2.2 : RunControl.nml edited online with Bitbucket

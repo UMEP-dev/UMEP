@@ -163,7 +163,6 @@ class SUEWSPrepare:
 
         self.file_path = self.plugin_dir + '/Input/SUEWS_SiteLibrary.xls'
         self.init_path = self.plugin_dir + '/Input/SUEWS_init.xlsx'
-        #self.file_path = self.plugin_dir + '/Input/SUEWS_SiteInfo18_Lo_SUEWSPrepare.xlsm'
         self.header_file_path = self.plugin_dir + '/Input/SUEWS_SiteSelect.xlsx'
         self.line_list = []
         self.widget_list = []
@@ -1301,9 +1300,6 @@ class SUEWSPrepare:
 
     def generate(self):
 
-        #Remove before release
-        #self.output_dir = "C:/test"
-
         if self.output_dir is None:
                 QMessageBox.critical(None, "Error", "No output directory selected")
                 return
@@ -1347,8 +1343,6 @@ class SUEWSPrepare:
         id_index = vlayer.fieldNameIndex(poly_field)
 
         for feature in vlayer.getFeatures():
-            #QgsMessageLog.logMessage(str(feature.attribute(poly_field)), level=QgsMessageLog.CRITICAL)
-
             #new_line = [None] * len(nbr_header)
             new_line = [None] * len(nbr_header)
             #new_line = empty_line
@@ -1571,15 +1565,12 @@ class SUEWSPrepare:
 
             code = "IrrFr_EveTr"
             index = self.find_index(code)
-            #new_line.insert(index, str(irrFr_EveTr))
             new_line[index] = str(irrFr_EveTr)
             code = "IrrFr_DecTr"
             index = self.find_index(code)
-            #new_line.insert(index, str(irrFr_DecTr))
             new_line[index] = str(irrFr_DecTr)
             code = "IrrFr_Grass"
             index = self.find_index(code)
-            #new_line.insert(index, str(irrFr_Grass))
             new_line[index] = str(irrFr_Grass)
 
             if self.IMP_from_file:

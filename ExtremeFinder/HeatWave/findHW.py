@@ -10,7 +10,7 @@ from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
 from datetime import datetime, timedelta, time
 import os
 import math
-import f90nml
+# import f90nml
 import webbrowser
 import datetime
 import time

@@ -30,7 +30,8 @@ import os.path
 # from datetime import datetime, timedelta, time
 # import os
 # import math
-# import f90nml
+from ..Utilities import f90nml
+from osgeo import osr, ogr
 # import webbrowser
 # import datetime
 # import time
@@ -262,7 +263,7 @@ class ExtremeFinder:
         url = "http://urban-climate.net/umep/UMEP_Manual#Pre-Processor:_Meteorological_Data:_ExtremeFinder"
         webbrowser.open_new_tab(url)
 
-    def create_point(self, point):  # Var kommer point ifran???
+    def create_point(self, point):
         # report map coordinates from a canvas click
         self.dlg.setEnabled(True)
         self.dlg.activateWindow()

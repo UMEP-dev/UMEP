@@ -8,7 +8,7 @@
           <item alpha="255" value="1" label="Paved" color="#bcbcbc"/>
           <item alpha="255" value="2" label="Buildings" color="#7b7b7b"/>
           <item alpha="255" value="3" label="Evergreen trees" color="#71915e"/>
-          <item alpha="255" value="4" label="Decidious trees" color="#5ca534"/>
+          <item alpha="255" value="4" label="Deciduous trees" color="#5ca534"/>
           <item alpha="255" value="5" label="Grass" color="#48e360"/>
           <item alpha="255" value="6" label="Bare soil" color="#8f8c30"/>
           <item alpha="255" value="7" label="Water" color="#0068d8"/>

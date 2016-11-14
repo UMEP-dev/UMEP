@@ -7,7 +7,7 @@ from datetime import timedelta
 import time
 import os
 import math
-import f90nml
+from ..Utilities import f90nml
 import urllib2
 
 ###########################################################################
