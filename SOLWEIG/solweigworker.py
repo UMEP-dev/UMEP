@@ -224,9 +224,13 @@ class Worker(QtCore.QObject):
 
                 # Nocturnal cloudfraction from Offerle et al. 2003
                 if (dectime[i] - np.floor(dectime[i])) == 0:
-                    alt = altitude[i:altitude.__len__()]
+                    # alt = altitude[i:altitude.__len__()]
+                    # alt2 = np.where(alt > 1)
+                    # rise = alt2[1][0]
+                    daylines = np.where(np.floor(dectime) == dectime[i])
+                    alt = altitude[0][daylines]
                     alt2 = np.where(alt > 1)
-                    rise = alt2[1][0]
+                    rise = alt2[0][0]
                     [_, CI, _, _, _] = clearnessindex_2013b(zen[0, i + rise + 1], jday[0, i + rise + 1],
                                                             Ta[i + rise + 1],
                                                             RH[i + rise + 1] / 100., radG[i + rise + 1], location,
@@ -248,6 +252,11 @@ class Worker(QtCore.QObject):
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI)
 
                 tmrtplot = tmrtplot + Tmrt
+
+                if altitude[0][i] > 0:
+                    w = 'D'
+                else:
+                    w = 'N'
 
                 # Write to POIs
                 if not poisxy is None:
@@ -303,22 +312,22 @@ class Worker(QtCore.QObject):
 
                 if self.dlg.CheckBoxTmrt.isChecked():
                     self.saveraster(gdal_dsm, folderPath[0] + '/Tmrt_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
-                                    + '_' + XH + str(int(hours[i])) + XM + str(int(minu[i])) + '.tif', Tmrt)
+                                    + '_' + XH + str(int(hours[i])) + XM + str(int(minu[i])) + w + '.tif', Tmrt)
                 if self.dlg.CheckBoxKup.isChecked():
                     self.saveraster(gdal_dsm, folderPath[0] + '/Kup_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
-                                    + '_' + str(int(hours[i])) + str(int(minu[i])) + '.tif', Kup)
+                                    + '_' + XH + str(int(hours[i])) + XM + str(int(minu[i])) + w + '.tif', Kup)
                 if self.dlg.CheckBoxKdown.isChecked():
                     self.saveraster(gdal_dsm, folderPath[0] + '/Kdown_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
-                                    + '_' + str(int(hours[i])) + str(int(minu[i])) + '.tif', Kdown)
+                                    + '_' + XH + str(int(hours[i])) + XM + str(int(minu[i])) + w + '.tif', Kdown)
                 if self.dlg.CheckBoxLup.isChecked():
                     self.saveraster(gdal_dsm, folderPath[0] + '/Lup_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
-                                    + '_' + str(int(hours[i])) + str(int(minu[i])) + '.tif', Lup)
+                                    + '_' + XH + str(int(hours[i])) + XM + str(int(minu[i])) + w + '.tif', Lup)
                 if self.dlg.CheckBoxLdown.isChecked():
                     self.saveraster(gdal_dsm, folderPath[0] + '/Ldown_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
-                                    + '_' + str(int(hours[i])) + str(int(minu[i])) + '.tif', Ldown)
+                                    + '_' + XH + str(int(hours[i])) + XM + str(int(minu[i])) + w + '.tif', Ldown)
                 if self.dlg.CheckBoxShadow.isChecked():
                     self.saveraster(gdal_dsm, folderPath[0] + '/Shadow_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
-                                    + '_' + str(int(hours[i])) + str(int(minu[i])) + '.tif', shadow)
+                                    + '_' + XH + str(int(hours[i])) + XM + str(int(minu[i])) + w + '.tif', shadow)
 
             tmrtplot = tmrtplot / Ta.__len__()
             solweigresult = {'tmrtplot': tmrtplot, 'altitude': altitude}

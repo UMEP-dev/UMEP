@@ -191,16 +191,25 @@ class WallHeight:
     def start_progress(self):
         self.dlg.progressBar.setRange(0, 180)
         if self.filePathH is None:
-            QMessageBox.critical(None, "Error", "No wall height file specified")
+            QMessageBox.critical(self.dlg, "Error", "No wall height file specified")
         else:
             dsmlayer = self.layerComboManagerDSM.getLayer()
 
             if dsmlayer is None:
-                    QMessageBox.critical(None, "Error", "No valid raster layer is selected")
+                    QMessageBox.critical(self.dlg, "Error", "No valid raster layer is selected")
                     return
 
             provider = dsmlayer.dataProvider()
             filepath_dsm = str(provider.dataSourceUri())
+
+            # self.gdal_dsm = gdal.Open(filepath_dsm, gdal.GA_ReadOnly)
+            # myBand = self.gdal_dsm.GetRasterBand(1)
+            # scanline = myBand.ReadRaster(0, 0, myBand.XSize, 1, myBand.XSize, 1, gdal.GDT_Byte)
+            # import array
+            # self.dsm = array.array('B', scanline)
+            # myBand = None
+            # myImg = None
+
             self.gdal_dsm = gdal.Open(filepath_dsm)
             self.dsm = self.gdal_dsm.ReadAsArray().astype(np.float)
             geotransform = self.gdal_dsm.GetGeoTransform()

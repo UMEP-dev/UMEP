@@ -373,11 +373,11 @@ class SOLWEIG:
                     filePathOld = str(provider.dataSourceUri())
                     dataSet = gdal.Open(filePathOld)
                     self.vegdsm2 = dataSet.ReadAsArray().astype(np.float)
-                    if self.dlg.checkBoxSaveTrunk.isChecked():
-                        self.saveraster(self.gdal_dsm, self.folderPath[0] + '/TDSM.tif', self.vegdsm2)
                 else:
                     trunkratio = self.dlg.spinBoxTrunkHeight.value() / 100.0
                     self.vegdsm2 = self.vegdsm * trunkratio
+                    if self.dlg.checkBoxSaveTrunk.isChecked():
+                        self.saveraster(self.gdal_dsm, self.folderPath[0] + '/TDSM.tif', self.vegdsm2)
 
                 vegsizex = self.vegdsm2.shape[0]
                 vegsizey = self.vegdsm2.shape[1]
