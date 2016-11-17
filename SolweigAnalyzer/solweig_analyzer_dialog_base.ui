@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>809</width>
+    <width>815</width>
     <height>498</height>
    </rect>
   </property>
@@ -882,6 +882,16 @@ p, li { white-space: pre-wrap; }
      </layout>
     </widget>
    </item>
+   <item row="2" column="2">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Output folder:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
    <item row="4" column="1" colspan="3">
     <widget class="QLabel" name="label_42">
      <property name="enabled">
@@ -905,16 +915,6 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="buddy">
       <cstring></cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="2">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Output folder:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
    </item>
