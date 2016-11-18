@@ -345,7 +345,7 @@ class TreeGenerator:
 
     def help(self):
         # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = "http://www.urban-climate.net/umep/UMEP_Manual#Pre-Processor:_Tree_Generator"
+        url = "http://www.urban-climate.net/umep/UMEP_Manual#Tree_Generator"
         webbrowser.open_new_tab(url)
 
     def saveraster(self, gdal_data, filename, raster):

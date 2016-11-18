@@ -2214,5 +2214,5 @@ class SUEWSPrepare:
 
     def help(self):
         # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = "http://www.urban-climate.net/umep/UMEP_Manual#Pre-Processor:_SUEWS_Prepare"
+        url = "http://www.urban-climate.net/umep/UMEP_Manual#SUEWS_Prepare"
         webbrowser.open_new_tab(url)

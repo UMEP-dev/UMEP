@@ -551,6 +551,5 @@ class SEBE:
 
     def help(self):
         # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = "http://www.urban-climate.net/umep/UMEP_Manual#Processor:" \
-              "_Solar_Radiation:_Solar_Energy_on_Building_Envelopes_.28SEBE.29"
+        url = "http://www.urban-climate.net/umep/UMEP_Manual#Solar_Radiation:_Solar_Energy_on_Building_Envelopes_.28SEBE.29"
         webbrowser.open_new_tab(url)

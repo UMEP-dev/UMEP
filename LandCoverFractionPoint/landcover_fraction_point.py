@@ -335,9 +335,9 @@ class LandCoverFractionPoint:
         self.polyLayer.triggerRepaint()
         #QObject.connect(self.dlg.selectpoint, SIGNAL("clicked()"), self.select_point)
 
-    def help(self):
-        url = "file://" + self.plugin_dir + "/README.html"
-        # webbrowser.open_new_tab(url)
+    # def help(self):
+    #     url = "file://" + self.plugin_dir + "/README.html"
+    #     webbrowser.open_new_tab(url)
 
     def start_process(self):
         # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
@@ -445,7 +445,6 @@ class LandCoverFractionPoint:
 
     def help(self):
         # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Pre-Processor:_' \
-              'Urban_Land_Cover:_Land_Cover_Fraction_.28Point.29'
+        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Urban_Land_Cover:_Land_Cover_Fraction_.28Point.29'
         webbrowser.open_new_tab(url)
 

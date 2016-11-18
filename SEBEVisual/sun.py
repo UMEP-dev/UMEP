@@ -148,7 +148,7 @@ class Sun:
         self.visDlg.exec_()
 
     def help(self):
-        url = "http://www.urban-climate.net/umep/UMEP_Manual#Post-Processor:_Solar_Radiation:_SEBE_.28Visualisation.29"
+        url = "http://www.urban-climate.net/umep/UMEP_Manual#Solar_Radiation:_SEBE_.28Visualisation.29"
         webbrowser.open_new_tab(url)
 
     def area(self):

@@ -282,7 +282,7 @@ class MetdataProcessor:
         if self.dlg.checkBox_ws.isChecked():
             met_new[:, 9] = met_old[:, self.dlg.comboBox_ws.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
-                testwhere = np.where((met_new[:, 9] < 0.0) | (met_new[:, 9] > 60.0))
+                testwhere = np.where((met_new[:, 9] < 0) | (met_new[:, 9] > 60.0))
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Wind speed - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
@@ -527,5 +527,5 @@ class MetdataProcessor:
 
     def help(self):
         # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Pre-Processor:_Meteorological_Data:_MetPreprocessor'
+        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Meteorological_Data:_MetPreprocessor'
         webbrowser.open_new_tab(url)

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>572</width>
+    <width>575</width>
     <height>426</height>
    </rect>
   </property>
@@ -14,7 +14,85 @@
    <string>Image Morphometric Parameters</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="1" column="0" colspan="5">
+   <item row="2" column="5">
+    <widget class="QCheckBox" name="checkBoxNoData">
+     <property name="text">
+      <string>Ignore NoData pixels</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="6">
+    <widget class="QPushButton" name="closeButton">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string>Close</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3">
+    <widget class="QComboBox" name="comboBox_Roughness">
+     <item>
+      <property name="text">
+       <string>Rule of thumb</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Raupach (1994/95)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Simplified Bottema (1995)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>MacDonald et al. (1998)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Millward-Hopkins et al. (2011)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Kanda et al. (2013)</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="5" column="6">
+    <widget class="QPushButton" name="pushButtonSave">
+     <property name="text">
+      <string>Select</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="6">
+    <widget class="QPushButton" name="runButton">
+     <property name="text">
+      <string>Run</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="6">
+    <widget class="QLineEdit" name="textOutput_prefix"/>
+   </item>
+   <item row="4" column="5">
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string>File prefix:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="7">
     <widget class="QFrame" name="frame">
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -136,7 +214,7 @@ p, li { white-space: pre-wrap; }
      </layout>
     </widget>
    </item>
-   <item row="0" column="0" colspan="5">
+   <item row="0" column="0" colspan="7">
     <widget class="QFrame" name="frame_2">
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
@@ -213,27 +291,7 @@ p, li { white-space: pre-wrap; }
      </layout>
     </widget>
    </item>
-   <item row="8" column="4">
-    <widget class="QPushButton" name="closeButton">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string>Close</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0">
-    <widget class="QPushButton" name="helpButton">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string>Help</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
+   <item row="2" column="0" colspan="3">
     <widget class="QLabel" name="label_10">
      <property name="text">
       <string>Roughness calculation method:</string>
@@ -246,41 +304,17 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="QComboBox" name="comboBox_Roughness">
-     <item>
-      <property name="text">
-       <string>Rule of thumb</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Raupach (1994/95)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Simplified Bottema (1995)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>MacDonald et al. (1998)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Millward-Hopkins et al. (2011)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Kanda et al. (2013)</string>
-      </property>
-     </item>
+   <item row="9" column="0">
+    <widget class="QPushButton" name="helpButton">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string>Help</string>
+     </property>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="5" column="1">
     <widget class="QLabel" name="label_6">
      <property name="text">
       <string>Output folder:</string>
@@ -290,53 +324,22 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="4" column="1" colspan="3">
+   <item row="5" column="3" colspan="3">
     <widget class="QLineEdit" name="textOutput"/>
    </item>
-   <item row="4" column="4">
-    <widget class="QPushButton" name="pushButtonSave">
-     <property name="text">
-      <string>Select</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="4">
-    <widget class="QPushButton" name="runButton">
-     <property name="text">
-      <string>Run</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="4">
-    <widget class="QLineEdit" name="textOutput_prefix"/>
-   </item>
-   <item row="3" column="3">
-    <widget class="QLabel" name="label_9">
-     <property name="text">
-      <string>File prefix:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="2">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="6" column="0" colspan="4">
+   <item row="7" column="0" colspan="6">
     <widget class="QProgressBar" name="progressBar">
      <property name="value">
-      <number>24</number>
+      <number>0</number>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="textVisible">
+      <bool>true</bool>
+     </property>
+     <property name="invertedAppearance">
+      <bool>false</bool>
      </property>
     </widget>
    </item>

@@ -254,7 +254,7 @@ class WATCHData:
             self.dlg.textOutput.setText(self.outputfile)
 
     def help(self):
-        url = "http://urban-climate.net/umep/UMEP_Manual#Pre-Processor:_Meteorological_Data:_WATCH_data"
+        url = "http://urban-climate.net/umep/UMEP_Manual#Meteorological_Data:_WATCH_data"
         webbrowser.open_new_tab(url)
 
     def start_progress(self):

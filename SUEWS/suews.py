@@ -191,8 +191,7 @@ class SUEWS:
 
     def help(self):
         # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = "http://www.urban-climate.net/umep/UMEP_Manual#Processor:" \
-              "_Urban_Energy_Balance:_Urban_Energy_Balance_.28SUEWS.2FBLUEWS.2C_advanced.29"
+        url = "http://www.urban-climate.net/umep/UMEP_Manual#Urban_Energy_Balance:_Urban_Energy_Balance_.28SUEWS.2FBLUEWS.2C_advanced.29"
         webbrowser.open_new_tab(url)
 
     def folder_path_out(self):

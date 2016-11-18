@@ -260,7 +260,7 @@ class ExtremeFinder:
         self.dlg.setEnabled(False)
 
     def help(self):
-        url = "http://urban-climate.net/umep/UMEP_Manual#Pre-Processor:_Meteorological_Data:_ExtremeFinder"
+        url = "http://urban-climate.net/umep/UMEP_Manual#Meteorological_Data:_ExtremeFinder"
         webbrowser.open_new_tab(url)
 
     def create_point(self, point):

@@ -166,7 +166,7 @@ class GreaterQF:
         # self.toolbar.setObjectName(u'GreaterQF')
 
     def help(self):
-        url = "http://urban-climate.net/umep/UMEP_Manual#Processor:_Urban_Energy_Balance:_GreaterQF"
+        url = "http://www.urban-climate.net/umep/UMEP_Manual#Urban_Energy_Balance:_GQF"
         webbrowser.open_new_tab(url)
 
     def raw_path(self):

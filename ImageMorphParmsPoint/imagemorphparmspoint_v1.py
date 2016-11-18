@@ -339,9 +339,9 @@ class ImageMorphParmsPoint:
         self.polyLayer.triggerRepaint()
         #QObject.connect(self.dlg.selectpoint, SIGNAL("clicked()"), self.select_point)
 
-    def help(self):
-        url = "file://" + self.plugin_dir + "/README.html"
-        webbrowser.open_new_tab(url)
+    # def help(self):
+    #     url = "file://" + self.plugin_dir + "/README.html"
+    #     webbrowser.open_new_tab(url)
 
     #def whatsthisclicked(self, href):
         #webbrowser.open_new_tab(href)
@@ -556,6 +556,6 @@ class ImageMorphParmsPoint:
 
     def help(self):
         # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = "http://www.urban-climate.net/umep/UMEP_Manual#Pre-Processor:" \
-              "_Urban_Morphology:_Image_Morphometric_Parameters_Calculator_.28Point.29"
+        url = "http://www.urban-climate.net/umep/UMEP_Manual#Urban_Morphology:" \
+              "_Image_Morphometric_Parameters_Calculator_.28Point.29"
         webbrowser.open_new_tab(url)

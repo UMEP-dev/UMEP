@@ -60,10 +60,7 @@ class Worker(QtCore.QObject):
         self.paramworker = None
 
     def run(self):
-        # ska nagot returneras fran traden sker detta genom denna ret-variabel och retuneras till image_morph_param.py
-        # genom finished signalen ovan. bool skickas for tillfallet, kan bytas ut mot tex Object for att skicka diverse
-        # data. Behovs inte for just detta verktyg.
-        index = 0
+        # index = 0
         arrmat = np.empty((1, 8))
 
         #Check OS and dep
@@ -178,21 +175,32 @@ class Worker(QtCore.QObject):
                 scale = 1 / geotransform[1]
                 nd = dataset.GetRasterBand(1).GetNoDataValue()
                 nodata_test = (dsm_array == nd)
-                if nodata_test.any():  # == True
-                    # QgsMessageBar.pushInfo(self.iface,"Grid " + str(f.attributes()[self.idx]) + " not calculated", "Includes NoData Pixels") #  Funkar inte
-                    # QgsMessageBar(self.iface).pushMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated", "Includes NoData Pixels") # funkar inte
-                    QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes NoData Pixels", level=QgsMessageLog.CRITICAL)
-                    arr = np.array([f.attributes()[self.idx], -99, -99, -99, -99, -99, -99, -99])
-                    arrmat = np.vstack([arrmat,arr])
-                    # arrmat[index,:]=np.concatenate((f.attributes()[self.idx], arr))
-                    index = index + 1
+                if self.dlg.checkBoxNoData.isChecked():
+                    if np.sum(dsm_array) == (dsm_array.shape[0] * dsm_array.shape[1] * nd):
+                        QgsMessageLog.logMessage(
+                            "Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes Only NoData Pixels",
+                            level=QgsMessageLog.CRITICAL)
+                        cal = 0
+                    else:
+                        dsm_array[dsm_array == nd] = np.mean(dem_array)
+                        dem_array[dem_array == nd] = np.mean(dem_array)
+                        cal = 1
                 else:
-                    # degree = float(self.dlg.degreeBox.currentText())
-                    # Hade varit bra om ytterligare en trad hade kunnit anvandas istallet for imagemorphparam_v1
-                    # self.startParamWorker(dsm_array, dem_array, scale, 0, degree, f, self.idx, self.dlg)
-                    # QgsMessageLog.logMessage("dsm: " + str(dsm_array[100,100]), level=QgsMessageLog.CRITICAL)
-                    # QgsMessageLog.logMessage("dem: " + str(dem_array[100,100]), level=QgsMessageLog.CRITICAL)
+                    if nodata_test.any():  # == True
+                        QgsMessageLog.logMessage(
+                            "Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes NoData Pixels",
+                            level=QgsMessageLog.CRITICAL)
+                        cal = 0
+                    else:
+                        cal = 1
 
+                if cal == 0:
+                    # QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes NoData Pixels", level=QgsMessageLog.CRITICAL)
+                    arr = np.array([f.attributes()[self.idx], -99, -99, -99, -99, -99, -99, -99])
+                    arrmat = np.vstack([arrmat, arr])
+                    # arrmat[index,:]=np.concatenate((f.attributes()[self.idx], arr))
+                    # index = index + 1
+                else:
                     immorphresult = imagemorphparam_v2(dsm_array, dem_array, scale, self.imid, self.degree, self.dlg, imp_point)
 
                     zH = immorphresult["zH"]
@@ -204,7 +212,6 @@ class Worker(QtCore.QObject):
                     zd, z0 = rg.RoughnessCalcMany(self.rm, zH, fai, pai, zMax, zSdev)
 
                     # save to file
-                    #pre = self.dlg.textOutput_prefix.text()
                     header = ' Wd pai   fai   zH  zHmax   zHstd zd z0'
                     numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
                     arr = np.concatenate((immorphresult["deg"], immorphresult["pai"], immorphresult["fai"],
@@ -220,19 +227,13 @@ class Worker(QtCore.QObject):
                     zdall, z0all = rg.RoughnessCalc(self.rm, zHall, faiall, paiall, zMaxall, zSdevall)
 
                     # If zd and z0 are lower than open country, set to open country
-                    if zdall < 0.2:
-                        zdall = 0.2
+                    if zdall < 0.1:
+                        zdall = 0.1
                     if z0all < 0.03:
                         z0all = 0.03
 
-                    # header = ' pai  fai   zH    zHmax    zHstd zd z0'
-                    # numformat = '%4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
                     arr2 = np.array([[f.attributes()[self.idx], immorphresult["pai_all"], immorphresult["fai_all"], immorphresult["zH_all"],
                                       immorphresult["zHmax_all"], immorphresult["zH_sd_all"], zdall, z0all]])
-                    # arr2 = np.array([[immorphresult["pai_all"], immorphresult["fai_all"], immorphresult["zH_all"],
-                    #                   immorphresult["zHmax_all"], immorphresult["zH_sd_all"],zdall,z0all]])
-                    # np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'IMPGrid_isotropic_' + str(f.attributes()[self.idx]) + '.txt', arr2,
-                    #             fmt=numformat, delimiter=' ', header=header, comments='')
 
                     arrmat = np.vstack([arrmat, arr2])
 
@@ -257,9 +258,6 @@ class Worker(QtCore.QObject):
                 self.progress.emit()
                 ret = 1
 
-        # Om try-statsen stoter pa error nas denna except-sats som skickar en signal med felmeddelandet till
-        # image_morph_param.py
-        #except Exception, e:
         except Exception:
             # forward the exception upstream
             ret = 0
@@ -267,13 +265,9 @@ class Worker(QtCore.QObject):
             #self.error.emit(e, traceback.format_exc())
             self.error.emit(errorstring)
 
-        # Traden ar fardig, skicka finished signalen. Skickar enbart en boolean ifall traden avbrots eller inte eftersom
-        # information skrivs till textfiler pa disken istallet for att returneras till tex QGIS. self.killed kan bytas
-        # ut mot ret-variabeln istallet for att returnera nagot annat
         self.finished.emit(ret)
         # self.finished.emit(self.killed)
 
-    # Metod som tar emot signalen som sager att traden ska avbrytas, andrar self.killed till True.
     def kill(self):
         self.killed = True
 

@@ -33,6 +33,9 @@ from osgeo import gdal
 from osgeo.gdalconst import *
 import numpy as np
 try:
+    # import matplotlib
+    # matplotlib.use("Agg")
+    # import matplotlib.animation as manimation
     import matplotlib.pylab as plt
     import matplotlib.dates as dt
     nomatplot = 0
@@ -73,12 +76,14 @@ class SolweigAnalyzer:
         # Create the dialog (after translation) and keep reference
         self.dlg = SolweigAnalyzerDialog()
         self.dlg.runButtonSpatial.clicked.connect(self.start_progress_spatial)
-        self.dlg.pushButton.clicked.connect(self.plotpoi)
+        self.dlg.runButtonPlot.clicked.connect(self.plotpoi)
+        self.dlg.runButtonMovie.clicked.connect(self.movieshow)
         # self.dlg.runButtonPOI.clicked.connect(self.start_progress_poi)
         self.dlg.pushButtonHelp.clicked.connect(self.help)
         self.dlg.pushButtonModelFolder.clicked.connect(self.folder_path_model)
         self.dlg.pushButtonSave.clicked.connect(self.folder_path_save)
         self.dlg.comboBoxSpatialVariables.currentIndexChanged.connect(self.tmrtchosen)
+        self.dlg.comboBoxSpatialVariables.currentIndexChanged.connect(self.moviescale)
         self.fileDialog = QFileDialog()
 
         self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_buildings)
@@ -86,7 +91,7 @@ class SolweigAnalyzer:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&SOLWEIG Ananlyzer')
+        self.menu = self.tr(u'&SOLWEIG Analyzer')
         # TODO: We are going to let the user set this up in a future iteration
         # self.toolbar = self.iface.addToolBar(u'SolweigAnalyzer')
         # self.toolbar.setObjectName(u'SolweigAnalyzer')
@@ -160,7 +165,7 @@ class SolweigAnalyzer:
     def unload(self):
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr(u'&SOLWEIG Ananlyzer'),
+                self.tr(u'&SOLWEIG Analyzer'),
                 action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
@@ -218,8 +223,11 @@ class SolweigAnalyzer:
             if self.tmrtPresent == 1 or self.kdownPresent == 1 or self.kupPresent == 1 or self.ldownPresent == 1 or \
                             self.lupPresent == 1 or self.shadowPresent == 1:
                 self.dlg.pushButtonSave.setEnabled(1)
-            # if self.POIPresent == 1:
-            #     self.dlg.runButtonPOI.setEnabled(1)
+            if self.POIPresent == 1:
+                self.dlg.runButtonPlot.setEnabled(1)
+                self.dlg.runButtonMovie.setEnabled(1)
+                self.dlg.spinBoxMovieMin.setEnabled(1)
+                self.dlg.spinBoxMovieMax.setEnabled(1)
 
     def tmrtchosen(self):
         if self.dlg.comboBoxSpatialVariables.currentText() == 'Tmrt':
@@ -232,6 +240,26 @@ class SolweigAnalyzer:
             self.dlg.checkboxTmrtLowRisk.setEnabled(0)
             self.dlg.doubleSpinBoxTmrtHighRisk.setEnabled(0)
             self.dlg.doubleSpinBoxTmrtLowRisk.setEnabled(0)
+
+    def moviescale(self):
+        if self.dlg.comboBoxSpatialVariables.currentText() == 'Tmrt':
+            self.dlg.spinBoxMovieMin.setValue(-10)
+            self.dlg.spinBoxMovieMax.setValue(70)
+        if self.dlg.comboBoxSpatialVariables.currentText() == 'Kdown':
+            self.dlg.spinBoxMovieMin.setValue(0)
+            self.dlg.spinBoxMovieMax.setValue(1000)
+        if self.dlg.comboBoxSpatialVariables.currentText() == 'Kup':
+            self.dlg.spinBoxMovieMin.setValue(0)
+            self.dlg.spinBoxMovieMax.setValue(200)
+        if self.dlg.comboBoxSpatialVariables.currentText() == 'Ldown':
+            self.dlg.spinBoxMovieMin.setValue(300)
+            self.dlg.spinBoxMovieMax.setValue(500)
+        if self.dlg.comboBoxSpatialVariables.currentText() == 'Lup':
+            self.dlg.spinBoxMovieMin.setValue(300)
+            self.dlg.spinBoxMovieMax.setValue(600)
+        if self.dlg.comboBoxSpatialVariables.currentText() == 'Shadow':
+            self.dlg.spinBoxMovieMin.setValue(0)
+            self.dlg.spinBoxMovieMax.setValue(1)
 
     def folder_path_save(self):
         self.fileDialog.setFileMode(4)
@@ -283,7 +311,6 @@ class SolweigAnalyzer:
             plt.title(self.dlg.comboBox_POIVariable.currentText())
             ax1 = plt.subplot(1, 1, 1)
             ax1.plot(dates, data1[:, varpos[id]], 'r', label='$' + self.dlg.comboBox_POIVariable.currentText() + '$')
-            # QMessageBox.critical(self.dlg, "Error", varunit[id])
             ax1.set_ylabel(varunit[id], fontsize=14)
             ax1.set_xlabel('Time', fontsize=14)
         else:
@@ -323,6 +350,39 @@ class SolweigAnalyzer:
 
                 ax1.set_xlabel('Time', fontsize=14)
         plt.show()
+
+    def movieshow(self):
+        self.var = self.dlg.comboBoxSpatialVariables.currentText()
+
+        if self.var == 'Not Specified':
+            QMessageBox.critical(self.dlg, "Error", "No variable is selected")
+            return
+
+        cmin = self.dlg.spinBoxMovieMin.value()
+        cmax = self.dlg.spinBoxMovieMax.value()
+
+        plt.figure(1, figsize=(9, 9), facecolor='white')
+        plt.ion()
+        index = 0
+        for file in self.l:
+            if file.startswith(self.var + '_'):
+                self.posAll.append(index)
+            index += 1
+        # QMessageBox.critical(self.dlg, "Error", str(self.posAll))
+
+        index = 0
+        for i in self.posAll:
+            gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
+            grid = gdal_dsm.ReadAsArray().astype(np.float)
+            plt.imshow(grid, clim=(cmin, cmax))
+            plt.title(self.l[i])
+            if index == 0:
+                plt.colorbar(orientation='horizontal')
+            plt.show()
+            plt.pause(0.5)
+            index += 1
+
+        del self.posAll[:]
 
     def start_progress_spatial(self):
         self.var = self.dlg.comboBoxSpatialVariables.currentText()
@@ -564,14 +624,16 @@ class SolweigAnalyzer:
                 daymean = daymean + tempgrid
                 index += 1
 
+            daymean = daymean / index
+
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 daymean[self.build == 0] = -9999
 
-            self.saveraster(gdal_dsm, self.folderPathSave[0] + '/NoHours' + self.var + 'Above_' +
+            self.saveraster(gdal_dsm, self.folderPathSave[0] + '/PercentOfTime' + self.var + 'Above_' +
                             str(self.dlg.doubleSpinBoxTmrtHighRisk.value()) + '.tif', daymean)
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
-                self.intoCanvas(self.folderPathSave[0] + '/NoHours' + self.var + 'Above_' +
+                self.intoCanvas(self.folderPathSave[0] + '/PercentOfTime' + self.var + 'Above_' +
                             str(self.dlg.doubleSpinBoxTmrtHighRisk.value()) + '.tif')
 
         # Tmrt threshold below
@@ -588,15 +650,19 @@ class SolweigAnalyzer:
                 daymean = daymean + tempgrid
                 index += 1
 
+            daymean = daymean / index
+
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 daymean[self.build == 0] = -9999
 
-            self.saveraster(gdal_dsm, self.folderPathSave[0] + '/NoHours' + self.var + 'Below_' +
+            self.saveraster(gdal_dsm, self.folderPathSave[0] + '/PercentOfTime' + self.var + 'Below_' +
                             str(self.dlg.doubleSpinBoxTmrtLowRisk.value()) + '.tif', daymean)
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
-                self.intoCanvas(self.folderPathSave[0] + '/NoHours' + self.var + 'Below_' +
+                self.intoCanvas(self.folderPathSave[0] + '/PercentOfTime' + self.var + 'Below_' +
                                 str(self.dlg.doubleSpinBoxTmrtLowRisk.value()) + '.tif')
+
+        del self.posAll[:]
 
     def intoCanvas(self, fileName):
         # load height result into canvas
@@ -610,7 +676,7 @@ class SolweigAnalyzer:
         self.steps = 0
 
     def help(self):
-        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Post-Processor:_SOLWEIG_Analyzer'
+        url = 'http://www.urban-climate.net/umep/UMEP_Manual#_SOLWEIG_Analyzer'
         webbrowser.open_new_tab(url)
 
     def saveraster(self, gdal_data, filename, raster):

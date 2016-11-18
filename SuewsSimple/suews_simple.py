@@ -220,9 +220,9 @@ class SuewsSimple:
         self.dlg.show()
         self.dlg.exec_()
 
-    def help(self):
-        url = "file://" + self.plugin_dir + "/help/Index.html"
-        webbrowser.open_new_tab(url)
+    # def help(self):
+    #     url = "file://" + self.plugin_dir + "/help/Index.html"
+    #     webbrowser.open_new_tab(url)
 
     def IMCP(self):
         sg = ImageMorphParmsPoint(self.iface)
@@ -745,8 +745,7 @@ class SuewsSimple:
 
     def help(self):
         # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Processor:' \
-              '_Urban_Energy_Balance:_Urban_Energy_Balance_.28SUEWS.2C_simple.29'
+        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Urban_Energy_Balance:_Urban_Energy_Balance_.28SUEWS.2C_simple.29'
         webbrowser.open_new_tab(url)
 
     # def startWorker(self, iface, model_dir, dlg):

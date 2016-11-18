@@ -102,19 +102,25 @@ class Worker(QtCore.QObject):
                 lc_grid_array = dataset.ReadAsArray().astype(np.float)
                 nd = dataset.GetRasterBand(1).GetNoDataValue()
                 nodata_test = (lc_grid_array == nd)
-                if nodata_test.any():  # == True
-                    # QgsMessageBar.pushInfo(self.iface,"Grid " + str(f.attributes()[self.idx]) + " not calculated", "Includes NoData Pixels") #  Funkar inte
-                    # QgsMessageBar(self.iface).pushMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated", "Includes NoData Pixels") # funkar inte
-                    QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes NoData Pixels", level=QgsMessageLog.CRITICAL)
+                if self.dlg.checkBoxNoData.isChecked():
+                    if np.sum(lc_grid_array) == (lc_grid_array.shape[0] * lc_grid_array.shape[1] * nd):
+                        QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes Only NoData Pixels", level=QgsMessageLog.CRITICAL)
+                        cal = 0
+                    else:
+                        lc_grid_array[lc_grid_array == nd] = 0
+                        cal = 1
                 else:
-                    landcoverresult = landcover_v1(lc_grid_array, self.imid, self.degree, self.dlg, imp_point)
+                    if nodata_test.any():  # == True
+                        QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes NoData Pixels", level=QgsMessageLog.CRITICAL)
+                        cal = 0
+                    else:
+                        cal = 1
 
-                    #Makes sure that each row in the matrix has a sum of 1, a security check before the result is added
-                    #to the polygon in case the user checks the checkbox.
+                if cal == 1:
+                    landcoverresult = landcover_v1(lc_grid_array, self.imid, self.degree, self.dlg, imp_point)
                     landcoverresult = self.resultcheck(landcoverresult)
 
                     # save to file
-                    # pre = self.dlg.textOutput_prefix.text()
                     header = 'Wd Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
                     numformat = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
                     arr = np.concatenate((landcoverresult["deg"], landcoverresult["lc_frac"]), axis=1)
@@ -127,12 +133,6 @@ class Worker(QtCore.QObject):
 
                     arrmat = np.vstack([arrmat, arr2])
 
-                    # header = ' Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
-                    # numformat = '%5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
-                    # arr2 = np.array(landcoverresult["lc_frac_all"])
-                    # np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'LCFG_isotropic_result_' + str(f.attributes()[self.idx]) + '.txt', arr2,
-                    #             fmt=numformat, delimiter=' ', header=header, comments='')
-
                 dataset = None
                 dataset2 = None
                 dataset3 = None
@@ -140,9 +140,7 @@ class Worker(QtCore.QObject):
 
             header = 'ID Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
             numformat = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
-            #numformat = '%3d %5f %5f %5f %5f %5f %5f %5f'
             arrmatsave = arrmat[1: arrmat.shape[0], :]
-            # QgsMessageLog.logMessage(str(arrmatsave), level=QgsMessageLog.CRITICAL)
             np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'LCFG_isotropic.txt', arrmatsave,
                                 fmt=numformat, delimiter=' ', header=header, comments='')
 
