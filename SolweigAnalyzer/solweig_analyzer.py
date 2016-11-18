@@ -45,6 +45,13 @@ class SolweigAnalyzer:
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
+        """Constructor.
+
+        :param iface: An interface instance that will be passed to this class
+            which provides the hook by which you can manipulate the QGIS
+            application at run time.
+        :type iface: QgsInterface
+        """
         # Save reference to the QGIS interface
         self.iface = iface
         # initialize plugin directory
@@ -251,7 +258,7 @@ class SolweigAnalyzer:
         varpos = [5, 6, 9, 7, 8, 10, 11, 16, 17, 22, 23, 24, 25, 26, 27, 28, 29]
         wm2 = '$W$'' ''$m ^{-2}$'
         degC = '$^{o}C$'
-        deg = '$°$'
+        deg = '$Degrees(^{o})$'
         frac = ''
         varunit = [deg, deg, wm2, wm2, wm2, wm2, wm2, wm2, wm2, degC, degC, frac, frac, degC, wm2, frac, frac]
 
@@ -279,7 +286,6 @@ class SolweigAnalyzer:
             # QMessageBox.critical(self.dlg, "Error", varunit[id])
             ax1.set_ylabel(varunit[id], fontsize=14)
             ax1.set_xlabel('Time', fontsize=14)
-            plt.show()
         else:
             # Two variables
             id1 = self.dlg.comboBox_POIVariable.currentIndex() - 1
@@ -297,20 +303,26 @@ class SolweigAnalyzer:
                 ax1.plot(data1[:, varpos[id1]], data2[:, varpos[id2]], "k.")
                 ax1.set_ylabel(varunit[id2], fontsize=14)
                 ax1.set_xlabel(varunit[id1], fontsize=14)
-                plt.show()
             else:
                 plt.figure(1, figsize=(15, 7), facecolor='white')
                 plt.title(self.dlg.comboBox_POIVariable.currentText() + '(' + self.varpoi1 + ') and ' + self.dlg.comboBox_POIVariable_2.currentText() + '(' + self.varpoi2 + ')')
                 ax1 = plt.subplot(1, 1, 1)
-                ax2 = ax1.twinx()
-                ax1.plot(dates, data1[:, varpos[id1]], 'r', label='$' + self.dlg.comboBox_POIVariable.currentText() + ' (' + self.varpoi1 + ')$')
-                ax1.legend(loc=1)
-                ax2.plot(dates, data2[:, varpos[id2]], 'b', label='$' + self.dlg.comboBox_POIVariable_2.currentText() + ' (' + self.varpoi2 + ')$')
-                ax2.legend(loc=2)
-                ax1.set_ylabel(varunit[id1], color='r', fontsize=14)
-                ax2.set_ylabel(varunit[id2], color='b', fontsize=14)
+                if not varunit[id1] == varunit[id2]:
+                    ax2 = ax1.twinx()
+                    ax1.plot(dates, data1[:, varpos[id1]], 'r', label='$' + self.dlg.comboBox_POIVariable.currentText() + ' (' + self.varpoi1 + ')$')
+                    ax1.legend(loc=1)
+                    ax2.plot(dates, data2[:, varpos[id2]], 'b', label='$' + self.dlg.comboBox_POIVariable_2.currentText() + ' (' + self.varpoi2 + ')$')
+                    ax2.legend(loc=2)
+                    ax1.set_ylabel(varunit[id1], color='r', fontsize=14)
+                    ax2.set_ylabel(varunit[id2], color='b', fontsize=14)
+                else:
+                    ax1.plot(dates, data1[:, varpos[id1]], 'r', label='$' + self.dlg.comboBox_POIVariable.currentText() + ' (' + self.varpoi1 + ')$')
+                    ax1.plot(dates, data2[:, varpos[id2]], 'b', label='$' + self.dlg.comboBox_POIVariable_2.currentText() + ' (' + self.varpoi2 + ')$')
+                    ax1.legend(loc=2)
+                    ax1.set_ylabel(varunit[id1], fontsize=14)
+
                 ax1.set_xlabel('Time', fontsize=14)
-                plt.show()
+        plt.show()
 
     def start_progress_spatial(self):
         self.var = self.dlg.comboBoxSpatialVariables.currentText()
