@@ -214,7 +214,7 @@ class MetdataProcessor:
             QMessageBox.critical(None, "Error", "An output text file (.txt) must be specified")
             return
 
-        self.dlg.progressBar.setRange(0, 10)
+        self.dlg.progressBar.setRange(0, 23)
 
         rownum = self.data.shape[0]
         met_old = self.data
@@ -279,16 +279,20 @@ class MetdataProcessor:
         else:
             met_new[:, 14] = -999.0
 
+        self.dlg.progressBar.setValue(4)
+
         if self.dlg.checkBox_ws.isChecked():
             met_new[:, 9] = met_old[:, self.dlg.comboBox_ws.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
-                testwhere = np.where((met_new[:, 9] < 0) | (met_new[:, 9] > 60.0))
+                testwhere = np.where((met_new[:, 9] <= 0) | (met_new[:, 9] > 60.0))
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Wind speed - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
                     return
         else:
             met_new[:, 9] = -999.0
+
+        self.dlg.progressBar.setValue(5)
 
         if self.dlg.checkBox_Tair.isChecked():
             met_new[:, 11] = met_old[:, self.dlg.comboBox_Tair.currentIndex()]
@@ -301,7 +305,7 @@ class MetdataProcessor:
         else:
             met_new[:, 11] = -999.0
 
-        self.dlg.progressBar.setValue(4)
+        self.dlg.progressBar.setValue(6)
 
         if self.dlg.checkBox_RH.isChecked():
             met_new[:, 10] = met_old[:, self.dlg.comboBox_RH.currentIndex()]
@@ -314,6 +318,8 @@ class MetdataProcessor:
         else:
             met_new[:, 10] = -999.0
 
+        self.dlg.progressBar.setValue(7)
+
         if self.dlg.checkBox_pres.isChecked():
             met_new[:, 12] = met_old[:, self.dlg.comboBox_pres.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
@@ -324,6 +330,8 @@ class MetdataProcessor:
                     return
         else:
             met_new[:, 12] = -999.0
+
+        self.dlg.progressBar.setValue(8)
 
         if self.dlg.checkBox_rain.isChecked():
             met_new[:, 13] = met_old[:, self.dlg.comboBox_rain.currentIndex()]
@@ -336,7 +344,7 @@ class MetdataProcessor:
         else:
             met_new[:, 13] = -999.0
 
-        self.dlg.progressBar.setValue(5)
+        self.dlg.progressBar.setValue(9)
 
         if self.dlg.checkBox_snow.isChecked():
             met_new[:, 15] = met_old[:, self.dlg.comboBox_snow.currentIndex()]
@@ -349,6 +357,8 @@ class MetdataProcessor:
         else:
             met_new[:, 15] = -999.0
 
+        self.dlg.progressBar.setValue(10)
+
         if self.dlg.checkBox_ldown.isChecked():
             met_new[:, 16] = met_old[:, self.dlg.comboBox_ldown.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
@@ -359,6 +369,8 @@ class MetdataProcessor:
                     return
         else:
             met_new[:, 16] = -999.0
+
+        self.dlg.progressBar.setValue(11)
 
         if self.dlg.checkBox_fcld.isChecked():
             met_new[:, 17] = met_old[:, self.dlg.comboBox_fcld.currentIndex()]
@@ -371,7 +383,7 @@ class MetdataProcessor:
         else:
             met_new[:, 17] = -999.0
 
-        self.dlg.progressBar.setValue(6)
+        self.dlg.progressBar.setValue(12)
 
         if self.dlg.checkBox_Wuh.isChecked():
             met_new[:, 18] = met_old[:, self.dlg.comboBox_Wuh.currentIndex()]
@@ -384,6 +396,8 @@ class MetdataProcessor:
         else:
             met_new[:, 18] = -999.0
 
+        self.dlg.progressBar.setValue(13)
+
         if self.dlg.checkBox_xcmd.isChecked():
             met_new[:, 19] = met_old[:, self.dlg.comboBox_xcmd.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
@@ -395,6 +409,8 @@ class MetdataProcessor:
         else:
             met_new[:, 19] = -999.0
 
+        self.dlg.progressBar.setValue(14)
+
         if self.dlg.checkBox_lai.isChecked():
             met_new[:, 20] = met_old[:, self.dlg.comboBox_lai.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
@@ -402,10 +418,11 @@ class MetdataProcessor:
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Leaf area index - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
+                    return
         else:
             met_new[:, 20] = -999.0
 
-        self.dlg.progressBar.setValue(7)
+        self.dlg.progressBar.setValue(15)
 
         if self.dlg.checkBox_kdiff.isChecked():
             met_new[:, 21] = met_old[:, self.dlg.comboBox_kdiff.currentIndex()]
@@ -414,8 +431,11 @@ class MetdataProcessor:
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Diffuse shortwave radiation - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
+                    return
         else:
             met_new[:, 21] = -999.0
+
+        self.dlg.progressBar.setValue(16)
 
         if self.dlg.checkBox_kdir.isChecked():
             met_new[:, 22] = met_old[:, self.dlg.comboBox_kdir.currentIndex()]
@@ -424,8 +444,11 @@ class MetdataProcessor:
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Direct shortwave radiation - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
+                    return
         else:
             met_new[:, 22] = -999.0
+
+        self.dlg.progressBar.setValue(17)
 
         if self.dlg.checkBox_Wd.isChecked():
             met_new[:, 23] = met_old[:, self.dlg.comboBox_Wd.currentIndex()]
@@ -434,10 +457,11 @@ class MetdataProcessor:
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Wind directions - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
+                    return
         else:
             met_new[:, 23] = -999.0
 
-        self.dlg.progressBar.setValue(8)
+        self.dlg.progressBar.setValue(18)
 
         if self.dlg.checkBox_qn.isChecked():
             met_new[:, 4] = met_old[:, self.dlg.comboBox_qn.currentIndex()]
@@ -446,8 +470,11 @@ class MetdataProcessor:
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Net radiation - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
+                    return
         else:
             met_new[:, 4] = -999.0
+
+        self.dlg.progressBar.setValue(19)
 
         if self.dlg.checkBox_qh.isChecked():
             met_new[:, 5] = met_old[:, self.dlg.comboBox_qh.currentIndex()]
@@ -456,8 +483,11 @@ class MetdataProcessor:
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Sensible heat flux - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
+                    return
         else:
             met_new[:, 5] = -999.0
+
+        self.dlg.progressBar.setValue(20)
 
         if self.dlg.checkBox_qe.isChecked():
             met_new[:, 6] = met_old[:, self.dlg.comboBox_qe.currentIndex()]
@@ -466,10 +496,11 @@ class MetdataProcessor:
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Latent heat flux - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
+                    return
         else:
             met_new[:, 6] = -999.0
 
-        self.dlg.progressBar.setValue(9)
+        self.dlg.progressBar.setValue(21)
 
         if self.dlg.checkBox_qs.isChecked():
             met_new[:, 7] = met_old[:, self.dlg.comboBox_qs.currentIndex()]
@@ -478,8 +509,11 @@ class MetdataProcessor:
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Storage heat flux - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
+                    return
         else:
             met_new[:, 7] = -999.0
+
+        self.dlg.progressBar.setValue(22)
 
         if self.dlg.checkBox_qf.isChecked():
             met_new[:, 8] = met_old[:, self.dlg.comboBox_qf.currentIndex()]
@@ -488,8 +522,11 @@ class MetdataProcessor:
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Anthropogenic heat flux - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
+                    return
         else:
             met_new[:, 8] = -999.0
+
+            self.dlg.progressBar.setValue(23)
 
         # if self.dlg.checkBoxSOLWEIG.isChecked(): #NOT READY
         #     # Moving one hour

@@ -161,7 +161,7 @@ class SUEWS:
         else:
             QMessageBox.information(self.iface.mainWindow(),
                                  "OS specific binaries missing",
-                                 "Before you start to use this plugin for the very first time, the OS specific suews program\r\n"
+                                 "Before you start to use this plugin for the very first time, the OS specific suews program (7Mb)\r\n"
                                  "will automatically be download from the UMEP repository and stored in your plugin directory:\r\n"
                                  "(" + self.model_dir + ").\r\n"
                                                         "\r\n"
@@ -209,11 +209,9 @@ class SUEWS:
             self.dlg.textInput.setText(self.folderPathOut[0])
 
     def start_progress(self):
-        # sys.path.append(self.model_dir)
-        # import f90nml
 
         # No Plots
-        plot = 0
+        plot = 1
         plotnml = f90nml.read(self.model_dir + '/plot.nml')
         plotnml['plot']['plotbasic'] = plot
         plotnml['plot']['plotmonthlystat'] = plot
@@ -274,38 +272,17 @@ class SUEWS:
 
         # TODO: Put suews in a worker
         # self.startWorker(self.iface, self.plugin_dir, self.dlg)
-        # QMessageBox.information(None, "Model run ready to start", "Process will take a couple of minutes based on "
-        #                 "length of meteorological data and computer resources.",)
-        # time.sleep(1)
         QMessageBox.information(None, "Model information", "Model run will now start. QGIS might freeze during calcualtion."
                                                            "This will be fixed in future versions")
-
+        Suews_wrapper_v2016b.wrapper(self.model_dir)
         try:
-            Suews_wrapper_v2016b.wrapper(self.model_dir)
+            # Suews_wrapper_v2016b.wrapper(self.model_dir)
             self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.model_dir + " for "
                             "additional information about the run", level=QgsMessageBar.INFO)
-            # self.test = 1
         except Exception as e:
-            # self.test = 0
             QMessageBox.critical(None, "An error occurred", str(e) + "\r\n\r\n"
                                         "Also check problems.txt in " + self.model_dir + "\r\n\r\n"
                                         "Please report any errors to https://bitbucket.org/fredrik_ucg/umep/issues")
             return
 
-        # try:
-        #     Suews_wrapper_v12.wrapper(self.model_dir)
-        #     test = 1
-        # except:
-        #     test = 0
-        #
-        # if test == 1:
-        #     self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.plugin_dir + " for "
-        #                     "additional information about the run", level=QgsMessageBar.INFO)
-        # elif test == 0:
-        #     f = open(self.model_dir + '/problems.txt')
-        #     lines = f.readlines()
-        #     QMessageBox.critical(None, "Model run unsuccessful", str(lines))
-        #     return
-
-        # if self.ret == 1:
-        # QMessageBox.information(None, "Image Morphometric Parameters", "Process successful!")
+        #  QMessageBox.information(None, "Image Morphometric Parameters", "Process successful!")

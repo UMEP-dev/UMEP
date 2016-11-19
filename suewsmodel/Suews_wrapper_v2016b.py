@@ -1,16 +1,19 @@
 __author__ = 'xlinfr'
 
+import numpy as np
+import suewsdataprocessing
+import suewsplotting
+import subprocess
+from ..Utilities import f90nml
+import os
+import sys
+import stat
+from PyQt4.QtGui import QMessageBox
+
 
 def wrapper(pathtoplugin):
 
-    import numpy as np
-    import suewsdataprocessing
-    import suewsplotting
-    import subprocess
-    from ..Utilities import f90nml
-    import os
-    import sys
-    import stat
+
     sys.path.append(pathtoplugin)
 
     try:
@@ -32,12 +35,12 @@ def wrapper(pathtoplugin):
     snowuse = nml['runcontrol']['snowuse']
     qschoice = nml['runcontrol']['qschoice']
     multipleestmfiles = nml['runcontrol']['multipleestmfiles']
-
     # Working folder
     if not os.path.exists(fileoutputpath):
         os.mkdir(fileoutputpath)
     wf = pathtoplugin
     prog_name = 'SUEWS_V2016b'
+    goodmetdata = 1
 
     # Open SiteSelect to get year and gridnames
     sitein = fileinputpath + 'SUEWS_SiteSelect.txt'
@@ -55,6 +58,9 @@ def wrapper(pathtoplugin):
                 gridcodemet = ''
                 data_in = fileinputpath + filecode + gridcodemet + '_data.txt' # No grid code in the name, nov 2015
                 met_old = np.loadtxt(data_in, skiprows=1)
+                goodmetdata = metdatacheck(met_old)
+                if goodmetdata == 0:
+                    return
                 if met_old[1, 3] - met_old[0, 3] == 5:
                     met_new = met_old
                 else:
@@ -63,6 +69,9 @@ def wrapper(pathtoplugin):
             gridcodemet = lines[0]
             data_in = fileinputpath + filecode + gridcodemet + '_data.txt'
             met_old = np.loadtxt(data_in, skiprows=1)
+            goodmetdata = metdatacheck(met_old)
+            if goodmetdata == 0:
+                return
             if met_old[1, 3] - met_old[0, 3] == 5:
                 met_new = met_old
             else:
@@ -192,7 +201,9 @@ def wrapper(pathtoplugin):
         si = subprocess.STARTUPINFO()
         si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
-    subprocess.call(suewsbat)
+    # QMessageBox.critical(None, "test", str(goodmetdata))
+    if goodmetdata == 1:
+        subprocess.call(suewsbat)
 
     # --- This part makes temporal averages from SUEWS 5 min output --- #
 
@@ -356,6 +367,137 @@ def wrapper(pathtoplugin):
             plt.show()
     else:
         print("No plots generated - No matplotlib installed")
+
+
+
+def metdatacheck(met_new):
+    goodmetdata = 1
+    # Met variables
+    testwhere = np.where((met_new[:, 14] < 0.0) | (met_new[:, 14] > 1200.0))
+    if testwhere[0].__len__() > 0:
+        QMessageBox.critical(None, "Value error", "Kdown - beyond what is expected at line:"
+                                                  " \n" + str(testwhere[0] + 1))
+        goodmetdata = 0
+
+    testwhere = np.where((met_new[:, 9] <= 0) | (met_new[:, 9] > 60.0))
+    if testwhere[0].__len__() > 0:
+        QMessageBox.critical(None, "Value error", "Wind speed - beyond what is expected at line:"
+                                                  " \n" + str(testwhere[0] + 1))
+        goodmetdata = 0
+
+    testwhere = np.where((met_new[:, 11] < -30.0) | (met_new[:, 11] > 55.0))
+    if testwhere[0].__len__() > 0:
+        QMessageBox.critical(None, "Value error", "Air temperature - beyond what is expected at line:"
+                                                  " \n" + str(testwhere[0] + 1))
+        goodmetdata = 0
+
+    testwhere = np.where((met_new[:, 10] < 0.00) | (met_new[:, 10] > 100.0))
+    if testwhere[0].__len__() > 0:
+        QMessageBox.critical(None, "Value error", "Relative humidity - beyond what is expected at line:"
+                                                  " \n" + str(testwhere[0] + 1))
+        goodmetdata = 0
+
+    testwhere = np.where((met_new[:, 12] < 70.0) | (met_new[:, 12] > 107.0))
+    if testwhere[0].__len__() > 0:
+        QMessageBox.critical(None, "Value error", "Pressure - beyond what is expected at line:"
+                                                  " \n" + str(testwhere[0] + 1))
+        goodmetdata = 0
+
+    testwhere = np.where((met_new[:, 13] < 0.0) | (met_new[:, 13] > 30.0))
+    if testwhere[0].__len__() > 0:
+        QMessageBox.critical(None, "Value error", "Rain - beyond what is expected at line:"
+                                                  " \n" + str(testwhere[0] + 1))
+        goodmetdata = 0
+
+    return goodmetdata
+
+    # testwhere = np.where((met_new[:, 15] < 0.0) | (met_new[:, 15] > 300.0))
+    # if testwhere[0].__len__() > 0:
+    #     QMessageBox.critical(None, "Value error", "Snow - beyond what is expected at line:"
+    #                                               " \n" + str(testwhere[0] + 1))
+    #     good = 0
+    #     return good
+    #
+    # testwhere = np.where((met_new[:, 16] < 100.0) | (met_new[:, 16] > 600.0))
+    # if testwhere[0].__len__() > 0:
+    #     QMessageBox.critical(None, "Value error", "Ldown - beyond what is expected at line:"
+    #                                               " \n" + str(testwhere[0] + 1))
+    #     return
+    #
+    # testwhere = np.where((met_new[:, 17] < 0.0) | (met_new[:, 17] > 1.01))
+    # if testwhere[0].__len__() > 0:
+    #     QMessageBox.critical(None, "Value error", "Fraction of cloud - beyond what is expected at line:"
+    #                                               " \n" + str(testwhere[0] + 1))
+    #     return
+    #
+    # testwhere = np.where((met_new[:, 18] < 0.0) | (met_new[:, 18] > 10.01))
+    # if testwhere[0].__len__() > 0:
+    #     QMessageBox.critical(None, "Value error", "External water use - beyond what is expected at line:"
+    #                                               " \n" + str(testwhere[0] + 1))
+    #     return
+    #
+    # testwhere = np.where((met_new[:, 19] < 0.01) | (met_new[:, 19] > 0.5))
+    # if testwhere[0].__len__() > 0:
+    #     QMessageBox.critical(None, "Value error", "Soil moisture - beyond what is expected at line:"
+    #                                               " \n" + str(testwhere[0] + 1))
+    #     return
+    #
+    # testwhere = np.where((met_new[:, 20] < 0.0) | (met_new[:, 20] > 15.01))
+    # if testwhere[0].__len__() > 0:
+    #     QMessageBox.critical(None, "Value error", "Leaf area index - beyond what is expected at line:"
+    #                                               " \n" + str(testwhere[0] + 1))
+    #
+    # testwhere = np.where((met_new[:, 21] < 0.0) | (met_new[:, 21] > 600.0))
+    # if testwhere[0].__len__() > 0:
+    #     QMessageBox.critical(None, "Value error",
+    #                          "Diffuse shortwave radiation - beyond what is expected at line:"
+    #                          " \n" + str(testwhere[0] + 1))
+    #     return
+    #
+    # testwhere = np.where((met_new[:, 22] < 0.0) | (met_new[:, 22] > 1200.0))
+    # if testwhere[0].__len__() > 0:
+    #     QMessageBox.critical(None, "Value error",
+    #                          "Direct shortwave radiation - beyond what is expected at line:"
+    #                          " \n" + str(testwhere[0] + 1))
+    #     return
+    #
+    # testwhere = np.where((met_new[:, 23] < 0.0) | (met_new[:, 23] > 360.01))
+    # if testwhere[0].__len__() > 0:
+    #     QMessageBox.critical(None, "Value error", "Wind directions - beyond what is expected at line:"
+    #                                               " \n" + str(testwhere[0] + 1))
+    #     return
+    #
+    # testwhere = np.where((met_new[:, 4] < -200.0) | (met_new[:, 4] > 800.0))
+    # if testwhere[0].__len__() > 0:
+    #     QMessageBox.critical(None, "Value error", "Net radiation - beyond what is expected at line:"
+    #                                               " \n" + str(testwhere[0] + 1))
+    #     return
+    #
+    # testwhere = np.where((met_new[:, 5] < -200.0) | (met_new[:, 5] > 750.0))
+    # if testwhere[0].__len__() > 0:
+    #     QMessageBox.critical(None, "Value error", "Sensible heat flux - beyond what is expected at line:"
+    #                                               " \n" + str(testwhere[0] + 1))
+    #     return
+    #
+    # testwhere = np.where((met_new[:, 6] < -100.0) | (met_new[:, 6] > 650.0))
+    # if testwhere[0].__len__() > 0:
+    #     QMessageBox.critical(None, "Value error", "Latent heat flux - beyond what is expected at line:"
+    #                                               " \n" + str(testwhere[0] + 1))
+    #     return
+    #
+    # testwhere = np.where((met_new[:, 7] < -200.0) | (met_new[:, 7] > 650.0))
+    # if testwhere[0].__len__() > 0:
+    #     QMessageBox.critical(None, "Value error", "Storage heat flux - beyond what is expected at line:"
+    #                                               " \n" + str(testwhere[0] + 1))
+    #     return
+    #
+    # testwhere = np.where((met_new[:, 8] < 0.0) | (met_new[:, 8] > 1500.0))
+    # if testwhere[0].__len__() > 0:
+    #     QMessageBox.critical(None, "Value error",
+    #                          "Anthropogenic heat flux - beyond what is expected at line:"
+    #                          " \n" + str(testwhere[0] + 1))
+    #     return
+
 
     # Plot for water related variables
     # precip = (suews_1hour[:, 17])  #Precipitation (P/i)

@@ -26,6 +26,7 @@ repository=https://bitbucket.org/fredrik_ucg/umep
 
 # Uncomment the following line and add your changelog:
 changelog=
+	0.2.8 : Bug fixes in SUEWSSimple and Metdataprocessor.
 	0.2.7 : Issue #12 fixed. Animation included in SOLWEIGAnalyzer.
 	0.2.6 : New plugin: SOLWEIGAnalyzer. Bug fix to cope with multiple days in SOLWEIG
 	0.2.5 : Fixed a blocking bug where python dependencies stop the plugin to start

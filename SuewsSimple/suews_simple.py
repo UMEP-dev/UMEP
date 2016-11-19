@@ -104,6 +104,8 @@ class SuewsSimple:
         self.fileDialogOut = QFileDialog()
         self.fileDialogOut.setFileMode(4)
         self.fileDialogOut.setAcceptMode(1)
+        self.folderPathOut = None
+        self.folderPath = None
 
         self.ret = 0
 
@@ -192,7 +194,7 @@ class SuewsSimple:
         else:
             QMessageBox.information(self.iface.mainWindow(),
                                  "OS specific binaries missing",
-                                 "Before you start to use this plugin for the very first time, the OS specific suews program\r\n"
+                                 "Before you start to use this plugin for the very first time, the OS specific suews program (7Mb)\r\n"
                                  "will automatically be download from the UMEP repository and stored in your plugin directory:\r\n"
                                  "(" + self.model_dir + ").\r\n"
                                                         "\r\n"
@@ -219,10 +221,6 @@ class SuewsSimple:
 
         self.dlg.show()
         self.dlg.exec_()
-
-    # def help(self):
-    #     url = "file://" + self.plugin_dir + "/help/Index.html"
-    #     webbrowser.open_new_tab(url)
 
     def IMCP(self):
         sg = ImageMorphParmsPoint(self.iface)
@@ -325,9 +323,6 @@ class SuewsSimple:
                     "vegetation fraction between the canopy DSM and the landcover grid was found: " + str(float(self.dlg.lineEdit_paiveg.text()) - data[2] - data[3]), level=QgsMessageBar.WARNING)
 
     def import_initial(self):
-        # sys.path.append(self.model_dir)
-        # from ..Utilities import f90nml
-        # import f90nml
         self.fileDialogInit.open()
         result = self.fileDialogInit.exec_()
         if result == 1:
@@ -340,8 +335,6 @@ class SuewsSimple:
             self.dlg.comboBoxLeafCycle.setCurrentIndex(1)
 
     def export_initial(self):
-        # sys.path.append(self.model_dir)
-        # import f90nml
         self.fileDialogInit.open()
         result = self.fileDialogInit.exec_()
         if result == 1:
@@ -363,7 +356,7 @@ class SuewsSimple:
             nml['initialconditions']['soilstoregrassstate'] = moist
             nml['initialconditions']['soilstorebsoilstate'] = moist
 
-            if LeafCycle == 0: # Winter
+            if LeafCycle == 0:  # Winter
                 nml['initialconditions']['gdd_1_0'] = 0
                 nml['initialconditions']['gdd_2_0'] = -450
                 nml['initialconditions']['laiinitialevetr'] = 4
@@ -414,8 +407,6 @@ class SuewsSimple:
             nml.write(self.folderPathInit[0], force=True)
 
     def set_default_settings(self):
-        # sys.path.append(self.model_dir)
-        # import f90nml
         f = open(self.model_dir + '/BaseFiles/SUEWS_SiteSelect.txt')
         lin = f.readlines()
         index = 2
@@ -447,6 +438,7 @@ class SuewsSimple:
 
         nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
         self.dlg.Height.setText(str(nml['runcontrol']['z']))
+        self.dlg.FileCode.setText(str(nml['runcontrol']['FileCode']))
 
         self.dlg.UTC.setText('0')
 
@@ -475,9 +467,7 @@ class SuewsSimple:
         f2.close()
 
     def start_progress(self):
-        # import sys
-        # sys.path.append(self.model_dir)
-        # import f90nml
+
         try:
             import matplotlib.pyplot
         except ImportError:
@@ -494,13 +484,6 @@ class SuewsSimple:
             QMessageBox.critical(self.iface.mainWindow(), "Non-consistency Error", "A relatively large difference in "
                 "building fraction between the DSM and the landcover grid was found: " + str(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - float(self.dlg.lineEdit_paiveg.text())))
             return
-        # self.iface.messageBar().pushMessage("test", self.dlg.textInputMetdata.text(), level=QgsMessageBar.INFO)
-
-        # Checking consistency between fractions
-        # if isinstance(s, basestring)self.dlg.textInputMetdata.text():
-        #     QMessageBox.critical(self.iface.mainWindow(), "Information missing", "Both meteorological file and output directory "
-        #                                                                          "needs to be specified.")
-        #     return
 
         # Getting values from GUI
         YYYY = self.dlg.lineEdit_YYYY.text()
@@ -520,6 +503,7 @@ class SuewsSimple:
         lat = self.dlg.Latitude.text()
         lon = self.dlg.Longitude.text()
         popdens = float(self.dlg.PopDensNight.text())
+        filecode = self.dlg.FileCode.text()
 
         # Create new SiteSelect
         f = open(self.model_dir + '/BaseFiles/SUEWS_SiteSelect.txt', 'r')
@@ -527,6 +511,7 @@ class SuewsSimple:
         index = 2
         lines = np.array(lin[index].split())
         newdata = lines
+        gridcode = newdata[0]
         newdata[1] = YYYY
         newdata[4] = lat
         newdata[5] = lon
@@ -575,6 +560,7 @@ class SuewsSimple:
             os.remove(inmetfile)
             shutil.copy(inmetfile, self.model_dir + '/Input')
 
+        nml['runcontrol']['fileCode'] = str(filecode)
         nml['runcontrol']['fileoutputpath'] = str(outfolder)
         nml['runcontrol']['fileinputpath'] = self.model_dir + '/Input/'
         nml.write(self.model_dir + '/RunControl.nml', force=True)
@@ -596,7 +582,7 @@ class SuewsSimple:
         nml['initialconditions']['soilstoregrassstate'] = moist
         nml['initialconditions']['soilstorebsoilstate'] = moist
 
-        f = open(self.model_dir + '/Input/Kc_data.txt', 'r')
+        f = open(inmetfile, 'r')
         lin = f.readlines()
         index = 1
         lines = np.array(lin[index].split())
@@ -609,7 +595,7 @@ class SuewsSimple:
                                                            "Summer.", level=QgsMessageBar.WARNING)
 
         # nml = self.leaf_cycle(nml,LeafCycle) ### TRY THIS LATER
-        if LeafCycle == 1: # Winter
+        if LeafCycle == 1:  # Winter
             nml['initialconditions']['gdd_1_0'] = 0
             nml['initialconditions']['gdd_2_0'] = -450
             nml['initialconditions']['laiinitialevetr'] = 4
@@ -633,7 +619,7 @@ class SuewsSimple:
             nml['initialconditions']['laiinitialevetr'] = 4.9
             nml['initialconditions']['laiinitialdectr'] = 4.5
             nml['initialconditions']['laiinitialgrass'] = 4.6
-        elif LeafCycle == 5: # Summer
+        elif LeafCycle == 5:  # Summer
             nml['initialconditions']['gdd_1_0'] = 300
             nml['initialconditions']['gdd_2_0'] = 0
             nml['initialconditions']['laiinitialevetr'] = 5.1
@@ -651,48 +637,36 @@ class SuewsSimple:
             nml['initialconditions']['laiinitialevetr'] = 4.6
             nml['initialconditions']['laiinitialdectr'] = 3.0
             nml['initialconditions']['laiinitialgrass'] = 3.6
-        elif LeafCycle == 8: # Late Autumn
+        elif LeafCycle == 8:  # Late Autumn
             nml['initialconditions']['gdd_1_0'] = 50
             nml['initialconditions']['gdd_2_0'] = -400
             nml['initialconditions']['laiinitialevetr'] = 4.2
             nml['initialconditions']['laiinitialdectr'] = 2.0
             nml['initialconditions']['laiinitialgrass'] = 2.6
 
-        nml.write(self.model_dir + '/Input/InitialConditionsKc1_2012.nml', force=True)
+        nml.write(self.model_dir + '/Input/InitialConditions' + str(filecode) + str(gridcode) + '_' + str(YYYY) + '.nml', force=True)
 
         # TODO: Put suews in a worker
         # self.startWorker(self.iface, self.model_dir, self.dlg)
 
-        QMessageBox.information(None,
+        QMessageBox.information(self.dlg,
                                 "Model information", "Model run will now start. QGIS might freeze during calcualtion."
                                 "This will be fixed in future versions")
         # Suews_wrapper_v2016b.wrapper(self.model_dir)
         try:
-            # Suews_wrapper_v12.wrapper(self.model_dir)
             Suews_wrapper_v2016b.wrapper(self.model_dir)
             time.sleep(1)
             self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.model_dir + " for "
                             "additional information about the run", level=QgsMessageBar.INFO)
-            # self.test = 1
         except Exception as e:
-            # self.test = 0
             time.sleep(1)
-            QMessageBox.critical(None, "An error occurred", str(e) + "\r\n\r\n"
+            QMessageBox.critical(self.dlg, "An error occurred", str(e) + "\r\n\r\n"
                                         "Also check problems.txt in " + self.model_dir + "\r\n\r\n"
                                         "Please report any errors to https://bitbucket.org/fredrik_ucg/umep/issues")
             return
 
-        # if self.test == 1:
-        #     self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.plugin_dir + " for "
-        #                     "additional information about the run", level=QgsMessageBar.INFO)
-        # elif self.test == 0:
-        #     f = open(self.model_dir + '/problems.txt')
-        #     lines = f.readlines()
-        #     QMessageBox.critical(None, "Model run unsuccessful", str(lines))
-        #     return
-
     def leaf_cycle(self, nml, LeafCycle):
-        if LeafCycle == 0: # Winter
+        if LeafCycle == 0:  # Winter
             nml['initialconditions']['gdd_1_0'] = 0
             nml['initialconditions']['gdd_2_0'] = -450
             nml['initialconditions']['laiinitialevetr'] = 4
