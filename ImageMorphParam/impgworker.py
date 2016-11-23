@@ -194,13 +194,10 @@ class Worker(QtCore.QObject):
                     else:
                         cal = 1
 
-                if cal == 0:
-                    # QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes NoData Pixels", level=QgsMessageLog.CRITICAL)
-                    arr = np.array([f.attributes()[self.idx], -99, -99, -99, -99, -99, -99, -99])
-                    arrmat = np.vstack([arrmat, arr])
-                    # arrmat[index,:]=np.concatenate((f.attributes()[self.idx], arr))
-                    # index = index + 1
-                else:
+                if cal == 1:
+                    # arr = np.array([f.attributes()[self.idx], -99, -99, -99, -99, -99, -99, -99])
+                    # arrmat = np.vstack([arrmat, arr])
+                # else:
                     immorphresult = imagemorphparam_v2(dsm_array, dem_array, scale, self.imid, self.degree, self.dlg, imp_point)
 
                     zH = immorphresult["zH"]
@@ -227,9 +224,9 @@ class Worker(QtCore.QObject):
                     zdall, z0all = rg.RoughnessCalc(self.rm, zHall, faiall, paiall, zMaxall, zSdevall)
 
                     # If zd and z0 are lower than open country, set to open country
-                    if zdall < 0.1:
+                    if zdall == 0.0:
                         zdall = 0.1
-                    if z0all < 0.03:
+                    if z0all == 0.0:
                         z0all = 0.03
 
                     arr2 = np.array([[f.attributes()[self.idx], immorphresult["pai_all"], immorphresult["fai_all"], immorphresult["zH_all"],
@@ -241,7 +238,6 @@ class Worker(QtCore.QObject):
                 dataset2 = None
                 dataset3 = None
                 self.progress.emit()
-                # j += 1
 
             header = ' id  pai   fai   zH  zHmax   zHstd  zd  z0'
             numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'

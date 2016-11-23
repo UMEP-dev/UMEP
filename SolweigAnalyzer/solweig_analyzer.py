@@ -182,17 +182,17 @@ class SolweigAnalyzer:
             self.l = os.listdir(self.folderPath[0])
             index = 0
             for file in self.l:
-                if file.startswith("Tmrt_"):
+                if file.startswith("Tmrt_") and file.endswith(".tif"):
                     self.tmrtPresent = 1
-                if file.startswith("Kdown_"):
+                if file.startswith("Kdown_") and file.endswith(".tif"):
                     self.kdownPresent = 1
-                if file.startswith("Kup_"):
+                if file.startswith("Kup_") and file.endswith(".tif"):
                     self.kupPresent = 1
-                if file.startswith("Ldown_"):
+                if file.startswith("Ldown_") and file.endswith(".tif"):
                     self.ldownPresent = 1
-                if file.startswith("Lup_"):
+                if file.startswith("Lup_") and file.endswith(".tif"):
                     self.lupPresent = 1
-                if file.startswith("Shadow_"):
+                if file.startswith("Shadow_") and file.endswith(".tif"):
                     self.shadowPresent = 1
                 if file.endswith('N.tif') or file.endswith('D.tif'):
                     self.timelist.append(file[-9:-5])
@@ -223,9 +223,9 @@ class SolweigAnalyzer:
             if self.tmrtPresent == 1 or self.kdownPresent == 1 or self.kupPresent == 1 or self.ldownPresent == 1 or \
                             self.lupPresent == 1 or self.shadowPresent == 1:
                 self.dlg.pushButtonSave.setEnabled(1)
+                self.dlg.runButtonMovie.setEnabled(1)
             if self.POIPresent == 1:
                 self.dlg.runButtonPlot.setEnabled(1)
-                self.dlg.runButtonMovie.setEnabled(1)
                 self.dlg.spinBoxMovieMin.setEnabled(1)
                 self.dlg.spinBoxMovieMax.setEnabled(1)
 
@@ -365,7 +365,7 @@ class SolweigAnalyzer:
         plt.ion()
         index = 0
         for file in self.l:
-            if file.startswith(self.var + '_'):
+            if file.startswith(self.var + '_') and file.endswith('.tif'):
                 self.posAll.append(index)
             index += 1
         # QMessageBox.critical(self.dlg, "Error", str(self.posAll))

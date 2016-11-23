@@ -391,7 +391,7 @@ def metdatacheck(met_new):
                                                   " \n" + str(testwhere[0] + 1))
         goodmetdata = 0
 
-    testwhere = np.where((met_new[:, 10] < 0.00) | (met_new[:, 10] > 100.0))
+    testwhere = np.where((met_new[:, 10] < 5.00) | (met_new[:, 10] > 100.0))
     if testwhere[0].__len__() > 0:
         QMessageBox.critical(None, "Value error", "Relative humidity - beyond what is expected at line:"
                                                   " \n" + str(testwhere[0] + 1))

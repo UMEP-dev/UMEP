@@ -126,9 +126,6 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="5" column="4">
-    <widget class="QLineEdit" name="textOutput"/>
-   </item>
    <item row="3" column="0" rowspan="5" colspan="2">
     <widget class="QFrame" name="frame_3">
      <property name="frameShape">
@@ -193,7 +190,7 @@ p, li { white-space: pre-wrap; }
          <bool>true</bool>
         </property>
         <property name="toolTip">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
+         <string>Choose between standing (default) and sitting.</string>
         </property>
         <property name="whatsThis">
          <string>A raster Digital surface Model consisting of ground and building heights</string>
@@ -225,6 +222,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="2" column="4">
        <widget class="QDoubleSpinBox" name="doubleSpinBoxLongwaveHuman">
+        <property name="toolTip">
+         <string>Amount of longwave radiation that the human body absorb.</string>
+        </property>
         <property name="decimals">
          <number>2</number>
         </property>
@@ -241,6 +241,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="1" column="4">
        <widget class="QDoubleSpinBox" name="doubleSpinBoxShortwaveHuman">
+        <property name="toolTip">
+         <string>Amount of shortwave radiation that the human body absorb.</string>
+        </property>
         <property name="decimals">
          <number>2</number>
         </property>
@@ -273,6 +276,9 @@ p, li { white-space: pre-wrap; }
    </item>
    <item row="3" column="2" rowspan="5">
     <widget class="QFrame" name="frame_6">
+     <property name="toolTip">
+      <string>A number of different outputs can be chosen here. All grids will be written out as GeoTIFFs at the location specified as the output folder.</string>
+     </property>
      <property name="frameShape">
       <enum>QFrame::Box</enum>
      </property>
@@ -405,6 +411,9 @@ p, li { white-space: pre-wrap; }
         <property name="enabled">
          <bool>true</bool>
         </property>
+        <property name="toolTip">
+         <string>Tick this box if you want to include vegetation (trees and bushes) in the calculations.</string>
+        </property>
         <property name="text">
          <string>Use vegetation scheme (Lindberg, Grimmond 2011)</string>
         </property>
@@ -414,6 +423,9 @@ p, li { white-space: pre-wrap; }
        <widget class="QCheckBox" name="checkBoxTrunkExist">
         <property name="enabled">
          <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Tick this in if a trunk zone DSM already exist.</string>
         </property>
         <property name="text">
          <string>Trunk zone DSM exist</string>
@@ -450,6 +462,9 @@ p, li { white-space: pre-wrap; }
         <property name="enabled">
          <bool>false</bool>
         </property>
+        <property name="toolTip">
+         <string>If a trunk zone vegetation DSM is absent, this can be generated based on the height of the Canopy DSM. The default percentage is set to 25%.</string>
+        </property>
         <property name="value">
          <number>25</number>
         </property>
@@ -459,6 +474,9 @@ p, li { white-space: pre-wrap; }
        <widget class="QCheckBox" name="checkBoxSaveTrunk">
         <property name="enabled">
          <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Tick this in if you want to save your TDSM that is generated (GeoTIFF).</string>
         </property>
         <property name="text">
          <string>Save generated Trunk zone DSM</string>
@@ -483,6 +501,9 @@ p, li { white-space: pre-wrap; }
         <property name="enabled">
          <bool>false</bool>
         </property>
+        <property name="toolTip">
+         <string>Tick this in if the building grid should be created from the land cover grid. Otherwise, a DEM including only ground heights must be added. This will then be used to derive a building grid together with the ground and building DSM.</string>
+        </property>
         <property name="text">
          <string>Use land cover grid to derive building grid</string>
         </property>
@@ -503,6 +524,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="15" column="4">
        <widget class="QPushButton" name="pushButtonImportSVF">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The SOLWEIG model make use of SVFs to calculate T&lt;span style=&quot; vertical-align:sub;&quot;&gt;mrt&lt;/span&gt;. The zip-file needed can be created with the SkyViewFactor calculator found in the UMEP Pre-processor. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string>Select</string>
         </property>
@@ -560,7 +584,7 @@ p, li { white-space: pre-wrap; }
          <bool>false</bool>
         </property>
         <property name="toolTip">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
+         <string>Land cover grid should be in the UMEP standard format except for the two tree classes (deciduous and conifer). UMEP land cover grid can be prepared in the Pre-processor.</string>
         </property>
         <property name="whatsThis">
          <string>A raster Digital surface Model consisting of ground and building heights</string>
@@ -586,7 +610,7 @@ p, li { white-space: pre-wrap; }
          <bool>true</bool>
         </property>
         <property name="toolTip">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The SOLWEIG model make use of wall height raster to calculate T&lt;span style=&quot; vertical-align:sub;&quot;&gt;mrt&lt;/span&gt;. This can be calculated using the Wall height and aspect plugin found in the UMEP Pre-processor. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="whatsThis">
          <string>A raster Digital surface Model consisting of ground and building heights</string>
@@ -599,7 +623,7 @@ p, li { white-space: pre-wrap; }
          <bool>true</bool>
         </property>
         <property name="toolTip">
-         <string>A raster grid consisting of heights of vegetation above ground. Should have same spatial extent and resolution as Building and Ground DSM</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The SOLWEIG model make use of wall height raster to calculate T&lt;span style=&quot; vertical-align:sub;&quot;&gt;mrt&lt;/span&gt;. This can be calculated using the Wall height and aspect plugin found in the UMEP Pre-processor. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
@@ -690,6 +714,9 @@ p, li { white-space: pre-wrap; }
         <property name="enabled">
          <bool>true</bool>
         </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tick this in if you want to save your building grid that is generated (GeoTIFF).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string>Save generated building grid</string>
         </property>
@@ -697,6 +724,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="9" column="0" colspan="4">
        <widget class="QCheckBox" name="checkBoxLandCover">
+        <property name="toolTip">
+         <string>Tick this in to included land cover information</string>
+        </property>
         <property name="text">
          <string>Use land cover scheme (Lindberg et al. 2016)</string>
         </property>
@@ -750,6 +780,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="5" column="2">
        <widget class="QDoubleSpinBox" name="doubleSpinBoxTa">
+        <property name="toolTip">
+         <string>Settings used if no meteorological dataset is used.</string>
+        </property>
         <property name="decimals">
          <number>1</number>
         </property>
@@ -769,6 +802,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="11" column="2">
        <widget class="QDoubleSpinBox" name="doubleSpinBoxradI">
+        <property name="toolTip">
+         <string>Settings used if no meteorological dataset is used.</string>
+        </property>
         <property name="decimals">
          <number>1</number>
         </property>
@@ -785,6 +821,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="4" column="0" colspan="6">
        <widget class="QCalendarWidget" name="calendarWidget">
+        <property name="toolTip">
+         <string>Settings used if no meteorological dataset is used.</string>
+        </property>
         <property name="locale">
          <locale language="English" country="UnitedStates"/>
         </property>
@@ -808,6 +847,9 @@ p, li { white-space: pre-wrap; }
         <property name="enabled">
          <bool>false</bool>
         </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tick this box if diffuse and direct shortwave radiation is unavailable. The Reindl et al. (1990) model is used to calculate diffuse radiation. Direct radiation perpendicular to the solar beam should be considered.  &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="layoutDirection">
          <enum>Qt::RightToLeft</enum>
         </property>
@@ -828,6 +870,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="9" column="2">
        <widget class="QDoubleSpinBox" name="doubleSpinBoxRH">
+        <property name="toolTip">
+         <string>Settings used if no meteorological dataset is used.</string>
+        </property>
         <property name="decimals">
          <number>1</number>
         </property>
@@ -846,6 +891,9 @@ p, li { white-space: pre-wrap; }
        <widget class="QPushButton" name="pushButtonImportMetData">
         <property name="enabled">
          <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Select meteorological file. The data should be in specific UMEP format.</string>
         </property>
         <property name="text">
          <string>Select</string>
@@ -868,6 +916,9 @@ p, li { white-space: pre-wrap; }
         <property name="enabled">
          <bool>true</bool>
         </property>
+        <property name="toolTip">
+         <string>Settings used if no meteorological dataset is used.</string>
+        </property>
         <property name="time">
          <time>
           <hour>12</hour>
@@ -882,6 +933,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="1" column="0" colspan="2">
        <widget class="QCheckBox" name="CheckBoxMetData">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tick this in if a time series of data should be used. The specific format could be prepared in the UMEP Pre-processor. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string>Use continous meteorological dataset</string>
         </property>
@@ -909,6 +963,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="10" column="2">
        <widget class="QDoubleSpinBox" name="doubleSpinBoxradG">
+        <property name="toolTip">
+         <string>Settings used if no meteorological dataset is used.</string>
+        </property>
         <property name="decimals">
          <number>1</number>
         </property>
@@ -920,13 +977,6 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="value">
          <double>810.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2" colspan="2">
-       <widget class="QLineEdit" name="textInputMetdata">
-        <property name="enabled">
-         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -946,6 +996,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="13" column="2">
        <widget class="QDoubleSpinBox" name="doubleSpinBoxradD">
+        <property name="toolTip">
+         <string>Settings used if no meteorological dataset is used.</string>
+        </property>
         <property name="decimals">
          <number>1</number>
         </property>
@@ -963,7 +1016,10 @@ p, li { white-space: pre-wrap; }
       <item row="14" column="2">
        <widget class="QDoubleSpinBox" name="doubleSpinBoxTwater">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>Settings used if no meteorological dataset is used.</string>
         </property>
         <property name="decimals">
          <number>1</number>
@@ -1067,6 +1123,13 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
+      <item row="2" column="2" colspan="3">
+       <widget class="QLineEdit" name="textInputMetdata">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -1081,6 +1144,9 @@ p, li { white-space: pre-wrap; }
      <layout class="QGridLayout" name="gridLayout_7">
       <item row="4" column="0" colspan="3">
        <widget class="QCheckBox" name="CheckBoxElvis">
+        <property name="toolTip">
+         <string>Tick this box to include adjustment (0.04) of sky emissivity which was present in the earlier versions of the SOLWEIG model (not recommended).</string>
+        </property>
         <property name="text">
          <string>Adjust sky emissivity according to Jonsson et al. (2005)</string>
         </property>
@@ -1091,6 +1157,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="1" column="0">
        <widget class="QCheckBox" name="checkboxUsePOI">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By ticking in the option to include POIs (Point of Interest), a vector point layer can be added and full model output are written out to text files for the specific POI. Multiple POIs can be used by including many points in the vector file. See the full manual for more information. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string>Include POI(s)</string>
         </property>
@@ -1165,6 +1234,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="5" column="0" colspan="3">
        <widget class="QCheckBox" name="CheckBoxBox">
+        <property name="toolTip">
+         <string>Consider human as cylinder instead of box ||Tick this box to consider man as a cylinder instead of a box according to Holmer at al. (2015).</string>
+        </property>
         <property name="text">
          <string>Consider human as cylinder instead of box</string>
         </property>
@@ -1207,51 +1279,7 @@ p, li { white-space: pre-wrap; }
       <enum>QFrame::Sunken</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_4">
-      <item row="5" column="1" colspan="2">
-       <widget class="QLabel" name="label_28">
-        <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Emissivity (ground):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="label_26">
-        <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Albedo (ground):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3" rowspan="2">
-       <widget class="QDoubleSpinBox" name="doubleSpinBoxAlbedo_g">
-        <property name="decimals">
-         <number>2</number>
-        </property>
-        <property name="maximum">
-         <double>1.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.010000000000000</double>
-        </property>
-        <property name="value">
-         <double>0.150000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0" rowspan="2">
+      <item row="4" column="0" rowspan="2">
        <spacer name="horizontalSpacer_2">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -1263,38 +1291,6 @@ p, li { white-space: pre-wrap; }
          </size>
         </property>
        </spacer>
-      </item>
-      <item row="4" column="3">
-       <widget class="QDoubleSpinBox" name="doubleSpinBoxEmis_w">
-        <property name="decimals">
-         <number>2</number>
-        </property>
-        <property name="maximum">
-         <double>1.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.010000000000000</double>
-        </property>
-        <property name="value">
-         <double>0.900000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="3">
-       <widget class="QDoubleSpinBox" name="doubleSpinBoxEmis_g">
-        <property name="decimals">
-         <number>2</number>
-        </property>
-        <property name="maximum">
-         <double>1.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.010000000000000</double>
-        </property>
-        <property name="value">
-         <double>0.950000000000000</double>
-        </property>
-       </widget>
       </item>
       <item row="0" column="0" colspan="4">
        <widget class="QLabel" name="label_24">
@@ -1309,6 +1305,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="1" column="3">
        <widget class="QDoubleSpinBox" name="doubleSpinBoxAlbedo_w">
+        <property name="toolTip">
+         <string>Albedo (buildings)||Albedo of building walls and roofs.</string>
+        </property>
         <property name="decimals">
          <number>2</number>
         </property>
@@ -1320,20 +1319,6 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="value">
          <double>0.200000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="2">
-       <widget class="QLabel" name="label_27">
-        <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Emissivity (walls):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -1351,7 +1336,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="6" column="2">
+      <item row="7" column="2">
        <spacer name="verticalSpacer_2">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -1364,8 +1349,110 @@ p, li { white-space: pre-wrap; }
         </property>
        </spacer>
       </item>
+      <item row="2" column="3">
+       <widget class="QDoubleSpinBox" name="doubleSpinBoxAlbedo_g">
+        <property name="toolTip">
+         <string>Albedo of ground surfaces. Not used if land cover scheme is active.</string>
+        </property>
+        <property name="decimals">
+         <number>2</number>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.010000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.150000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLabel" name="label_26">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Albedo (ground):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="3">
+       <widget class="QDoubleSpinBox" name="doubleSpinBoxEmis_w">
+        <property name="toolTip">
+         <string>Emissivity of building walls and roofs.</string>
+        </property>
+        <property name="decimals">
+         <number>2</number>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.010000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.900000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QLabel" name="label_27">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Emissivity (walls):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="3">
+       <widget class="QDoubleSpinBox" name="doubleSpinBoxEmis_g">
+        <property name="toolTip">
+         <string>Emissivity of ground. Not used if land cover scheme is activated.</string>
+        </property>
+        <property name="decimals">
+         <number>2</number>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.010000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.950000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QLabel" name="label_28">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Emissivity (ground):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
+   </item>
+   <item row="5" column="4" colspan="2">
+    <widget class="QLineEdit" name="textOutput"/>
    </item>
   </layout>
  </widget>

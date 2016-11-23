@@ -1611,7 +1611,7 @@ class SUEWSPrepare:
                 found_IMPveg_line = False
 
                 if self.IMPvegfile_path is None:
-                    QMessageBox.critical(None, "Error", "Building morphology file has not been provided,"
+                    QMessageBox.critical(None, "Error", "Vegetation morphology file has not been provided,"
                                                         " please check the main tab")
                     return
                 elif os.path.isfile(self.IMPvegfile_path):
@@ -1633,7 +1633,7 @@ class SUEWSPrepare:
                                 IMPveg_fai_dec = -999
                                 print_line = False
                 else:
-                    QMessageBox.critical(None, "Error", "Could not find the file containing building morphology")
+                    QMessageBox.critical(None, "Error", "Could not find the file containing vegetation morphology")
                     return
             else:
                 IMPveg_heights_mean_eve = feature.attribute(self.IMPveg_mean_height_eve.getFieldName())
@@ -2044,6 +2044,7 @@ class SUEWSPrepare:
                     copyfile(self.output_path + input_file, self.output_dir[0] + "/" + input_file)
                 except IOError as e:
                     QgsMessageLog.logMessage("Error copying output files with SUEWS_SiteSelect.txt: " + str(e), level=QgsMessageLog.CRITICAL)
+            copyfile(self.Metfile_path, self.output_dir[0] + "/" + self.file_code + '_data.txt')
             QMessageBox.information(None, "Complete", "File successfully created as SUEWS_SiteSelect.txt in Output "
                                                       "Folder: " + self.output_dir[0])
 

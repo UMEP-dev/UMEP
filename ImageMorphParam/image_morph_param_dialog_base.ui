@@ -13,9 +13,15 @@
   <property name="windowTitle">
    <string>Image Morphometric Parameters</string>
   </property>
+  <property name="toolTip">
+   <string/>
+  </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="2" column="5">
     <widget class="QCheckBox" name="checkBoxNoData">
+     <property name="toolTip">
+      <string>Tick this in if NoData pixels should be ignored and calculation of grid should be performed eventhough NoData pixels exists within that grid. Nodata pixels are set to the average pixel values of the DEM.</string>
+     </property>
      <property name="text">
       <string>Ignore NoData pixels</string>
      </property>
@@ -33,6 +39,9 @@
    </item>
    <item row="2" column="3">
     <widget class="QComboBox" name="comboBox_Roughness">
+     <property name="toolTip">
+      <string>Options to choose methods for roughness calculations regarding zero-plane displacement height (zd) and roughness length (z0) are available.</string>
+     </property>
      <item>
       <property name="text">
        <string>Rule of thumb</string>
@@ -120,21 +129,35 @@
       </item>
       <item row="3" column="0" colspan="4">
        <widget class="QCheckBox" name="checkBoxOnlyBuilding">
+        <property name="toolTip">
+         <string>Tick this in if a 3D-object DSM without ground heights is available. 3D objects (e.g. buildings) should be metres above ground.</string>
+        </property>
         <property name="text">
          <string>Raster DSM (only buildings or vegetation) exist</string>
         </property>
        </widget>
       </item>
       <item row="4" column="2" colspan="2">
-       <widget class="QComboBox" name="comboBox_DSMbuildground"/>
+       <widget class="QComboBox" name="comboBox_DSMbuildground">
+        <property name="toolTip">
+         <string>A raster DSM consisting of ground and e.g. building height (metres above sea level).</string>
+        </property>
+       </widget>
       </item>
       <item row="5" column="2" colspan="2">
-       <widget class="QComboBox" name="comboBox_DEM"/>
+       <widget class="QComboBox" name="comboBox_DEM">
+        <property name="toolTip">
+         <string>A DEM consisting of pixels with ground heights (metres above sea level).</string>
+        </property>
+       </widget>
       </item>
       <item row="6" column="2" colspan="2">
        <widget class="QComboBox" name="comboBox_DSMbuild">
         <property name="enabled">
          <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>A DSM consisting of pixels with object (e.g. buildings or vegetation) heights above ground. Pixels where no objects are present should be zero.</string>
         </property>
        </widget>
       </item>
@@ -164,6 +187,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="0" column="0">
        <widget class="QCheckBox" name="addResultToGrid">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tick this in if you would like to add the isotropic results to the attribute table for your polygon vector grid. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string>Add result to polygon grid</string>
         </property>
@@ -234,10 +260,17 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="0" column="2">
-       <widget class="QComboBox" name="degreeBox"/>
+       <widget class="QComboBox" name="degreeBox">
+        <property name="toolTip">
+         <string>The interval in search directions for which the morphometric parameters will be calculated</string>
+        </property>
+       </widget>
       </item>
       <item row="1" column="0" colspan="2">
        <widget class="QRadioButton" name="radioButtonExtent">
+        <property name="toolTip">
+         <string>See help section for explanation</string>
+        </property>
         <property name="text">
          <string>Search throughout the grid extent</string>
         </property>
@@ -248,6 +281,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="2" column="0">
        <widget class="QRadioButton" name="radioButtonCenter">
+        <property name="toolTip">
+         <string>See help section for explanation</string>
+        </property>
         <property name="text">
          <string>Search from grid centroid</string>
         </property>

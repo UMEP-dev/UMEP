@@ -42,7 +42,7 @@
          <enum>Qt::DefaultContextMenu</enum>
         </property>
         <property name="toolTip">
-         <string>Select point on canvas</string>
+         <string>Click to create a point from where the calculations will take place. When you click the button, the plugin will be disabled until you have clicked the map canvas.</string>
         </property>
         <property name="whatsThis">
          <string>Select a point on the canvas &lt;a href=README.html&gt; Click here for more info! &lt;/a href&gt;</string>
@@ -100,7 +100,7 @@ p, li { white-space: pre-wrap; }
          <enum>Qt::DefaultContextMenu</enum>
         </property>
         <property name="toolTip">
-         <string>Select point on canvas</string>
+         <string>This button is connected to the Search distance (m). When you click it, a circular polygon layer (Study area) is generated. This is the area that will be used to obtain the land cover fractions.</string>
         </property>
         <property name="whatsThis">
          <string>Select a point on the canvas &lt;a href=README.html&gt; Click here for more info! &lt;/a href&gt;</string>
@@ -121,7 +121,11 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="1" column="2">
-       <widget class="QComboBox" name="degreeBox"/>
+       <widget class="QComboBox" name="degreeBox">
+        <property name="toolTip">
+         <string>This decides the interval in search directions for which the morphometric parameters will be calculated.</string>
+        </property>
+       </widget>
       </item>
       <item row="0" column="2">
        <widget class="QSpinBox" name="spinBox">
@@ -164,21 +168,12 @@ p, li { white-space: pre-wrap; }
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="1">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>UMEP Land cover grid:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>comboBox_lcgrid</cstring>
+      <item row="0" column="2" colspan="2">
+       <widget class="QComboBox" name="comboBox_lcgrid">
+        <property name="toolTip">
+         <string>A integer raster land cover grid consisting of the various land cover. See help for more information.</string>
         </property>
        </widget>
-      </item>
-      <item row="0" column="2" colspan="2">
-       <widget class="QComboBox" name="comboBox_lcgrid"/>
       </item>
       <item row="1" column="2">
        <widget class="QLabel" name="label_9">
@@ -216,7 +211,13 @@ p, li { white-space: pre-wrap; }
       <item row="3" column="0" colspan="3">
        <widget class="QProgressBar" name="progressBar">
         <property name="value">
-         <number>24</number>
+         <number>0</number>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="format">
+         <string/>
         </property>
        </widget>
       </item>
@@ -244,6 +245,32 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="text">
          <string>Close</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>UMEP Land cover grid:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>comboBox_lcgrid</cstring>
         </property>
        </widget>
       </item>

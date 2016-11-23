@@ -11,7 +11,7 @@ name=UMEP
 qgisMinimumVersion=2.0
 description=Urban Multi-scale Environmental Predictor
 
-version=0.2.7
+version=0.2.9
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun
 email=fredrikl@gvc.gu.se
 
@@ -26,6 +26,7 @@ repository=https://bitbucket.org/fredrik_ucg/umep
 
 # Uncomment the following line and add your changelog:
 changelog=
+	0.2.9 : Improvments in ImageMorphGrid, SOLWEIGAnalyzer and the SUEWS plugins.
 	0.2.8 : Bug fixes in SUEWSSimple and Metdataprocessor.
 	0.2.7 : Issue #12 fixed. Animation included in SOLWEIGAnalyzer.
 	0.2.6 : New plugin: SOLWEIGAnalyzer. Bug fix to cope with multiple days in SOLWEIG

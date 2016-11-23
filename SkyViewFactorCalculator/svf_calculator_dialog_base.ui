@@ -41,6 +41,9 @@
         <property name="enabled">
          <bool>true</bool>
         </property>
+        <property name="toolTip">
+         <string>	A DSM consisting of ground and building heights.</string>
+        </property>
        </widget>
       </item>
       <item row="1" column="0" colspan="3">
@@ -60,6 +63,9 @@
        <widget class="QComboBox" name="comboBox_vegdsm">
         <property name="enabled">
          <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>A DSM consisting of pixels with vegetation heights above ground. Pixels where no vegetation is present should be set to zero.</string>
         </property>
        </widget>
       </item>
@@ -81,12 +87,18 @@
         <property name="enabled">
          <bool>false</bool>
         </property>
+        <property name="toolTip">
+         <string>A DSM consisting of pixels with vegetation trunk zone heights above ground. Pixels where no vegetation is present should be set to zero.</string>
+        </property>
        </widget>
       </item>
       <item row="3" column="0" colspan="3">
        <widget class="QCheckBox" name="checkBoxUseVeg">
         <property name="enabled">
          <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>Tick this box if you want to include vegetation (trees and bushes) in the final SVF.</string>
         </property>
         <property name="text">
          <string>Use vegetation DSMs</string>
@@ -97,6 +109,9 @@
        <widget class="QCheckBox" name="checkBoxTrunkExist">
         <property name="enabled">
          <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>If a trunk zone vegetation DSM is absent, this can be generated based on the height of the Canopy DSM.</string>
         </property>
         <property name="text">
          <string>Trunk zone DSM exist</string>

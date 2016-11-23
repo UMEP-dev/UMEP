@@ -28,7 +28,11 @@
     </widget>
    </item>
    <item row="0" column="1" colspan="2">
-    <widget class="QComboBox" name="comboBox_lcgrid"/>
+    <widget class="QComboBox" name="comboBox_lcgrid">
+     <property name="toolTip">
+      <string>Any valid raster dataset (float or integer) loaded into QGIS will appear in this dropdown list. Choose the one that includes your land cover information.</string>
+     </property>
+    </widget>
    </item>
    <item row="1" column="0" colspan="3">
     <widget class="QFrame" name="frame_2">
@@ -43,6 +47,9 @@
        <layout class="QVBoxLayout" name="verticalLayout_6">
         <item>
          <widget class="QComboBox" name="Box_8">
+          <property name="toolTip">
+           <string>Specify land cover</string>
+          </property>
           <item>
            <property name="text">
             <string/>
@@ -87,6 +94,9 @@
         </item>
         <item>
          <widget class="QComboBox" name="Box_9">
+          <property name="toolTip">
+           <string>Specify land cover</string>
+          </property>
           <item>
            <property name="text">
             <string/>
@@ -131,6 +141,9 @@
         </item>
         <item>
          <widget class="QComboBox" name="Box_10">
+          <property name="toolTip">
+           <string>Specify land cover</string>
+          </property>
           <item>
            <property name="text">
             <string/>
@@ -175,6 +188,9 @@
         </item>
         <item>
          <widget class="QComboBox" name="Box_11">
+          <property name="toolTip">
+           <string>Specify land cover</string>
+          </property>
           <item>
            <property name="text">
             <string/>
@@ -219,6 +235,9 @@
         </item>
         <item>
          <widget class="QComboBox" name="Box_12">
+          <property name="toolTip">
+           <string>Specify land cover</string>
+          </property>
           <item>
            <property name="text">
             <string/>
@@ -263,6 +282,9 @@
         </item>
         <item>
          <widget class="QComboBox" name="Box_13">
+          <property name="toolTip">
+           <string>Specify land cover</string>
+          </property>
           <item>
            <property name="text">
             <string/>
@@ -307,6 +329,9 @@
         </item>
         <item>
          <widget class="QComboBox" name="Box_14">
+          <property name="toolTip">
+           <string>Specify land cover</string>
+          </property>
           <item>
            <property name="text">
             <string/>
@@ -583,6 +608,9 @@
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <widget class="QComboBox" name="Box_1">
+          <property name="toolTip">
+           <string>Specify land cover</string>
+          </property>
           <item>
            <property name="text">
             <string/>
@@ -627,6 +655,9 @@
         </item>
         <item>
          <widget class="QComboBox" name="Box_2">
+          <property name="toolTip">
+           <string>Specify land cover</string>
+          </property>
           <item>
            <property name="text">
             <string/>
@@ -671,6 +702,9 @@
         </item>
         <item>
          <widget class="QComboBox" name="Box_3">
+          <property name="toolTip">
+           <string>Specify land cover</string>
+          </property>
           <item>
            <property name="text">
             <string/>
@@ -715,6 +749,9 @@
         </item>
         <item>
          <widget class="QComboBox" name="Box_4">
+          <property name="toolTip">
+           <string>Specify land cover</string>
+          </property>
           <item>
            <property name="text">
             <string/>
@@ -759,6 +796,9 @@
         </item>
         <item>
          <widget class="QComboBox" name="Box_5">
+          <property name="toolTip">
+           <string>Specify land cover</string>
+          </property>
           <item>
            <property name="text">
             <string/>
@@ -803,6 +843,9 @@
         </item>
         <item>
          <widget class="QComboBox" name="Box_6">
+          <property name="toolTip">
+           <string>Specify land cover</string>
+          </property>
           <item>
            <property name="text">
             <string/>
@@ -847,6 +890,9 @@
         </item>
         <item>
          <widget class="QComboBox" name="Box_7">
+          <property name="toolTip">
+           <string>Specify land cover</string>
+          </property>
           <item>
            <property name="text">
             <string/>

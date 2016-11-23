@@ -54,7 +54,7 @@
          <enum>Qt::DefaultContextMenu</enum>
         </property>
         <property name="toolTip">
-         <string>Select point on canvas</string>
+         <string>Click on this button to create a point from where the calculations will take place. When you click button, the plugin will be disabled until you have clicked the map canvas.</string>
         </property>
         <property name="whatsThis">
          <string>Select a point on the canvas &lt;a href=README.html&gt; Click here for more info! &lt;/a href&gt;</string>
@@ -112,7 +112,7 @@ p, li { white-space: pre-wrap; }
          <enum>Qt::DefaultContextMenu</enum>
         </property>
         <property name="toolTip">
-         <string>Select point on canvas</string>
+         <string>This button is connected to the Search distance (m) and when you click the button a circular polygon layer (Study area) is generated. This is the area that will be used to obtain the morphometric parameters.</string>
         </property>
         <property name="whatsThis">
          <string>Select a point on the canvas &lt;a href=README.html&gt; Click here for more info! &lt;/a href&gt;</string>
@@ -162,7 +162,11 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="1" column="2">
-       <widget class="QComboBox" name="degreeBox"/>
+       <widget class="QComboBox" name="degreeBox">
+        <property name="toolTip">
+         <string>his decides the interval in search directions for which the morphometric parameters will be calculated.</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -178,6 +182,9 @@ p, li { white-space: pre-wrap; }
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxOnlyBuilding">
+        <property name="toolTip">
+         <string>Select if a 3D-object DSM without ground heights is available. 3D objects (e.g. buildings) should be metres above ground.</string>
+        </property>
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>
         </property>
@@ -200,7 +207,11 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QComboBox" name="comboBox_DSMbuildground"/>
+       <widget class="QComboBox" name="comboBox_DSMbuildground">
+        <property name="toolTip">
+         <string>A raster DSM consisting of ground and e.g. building height (meters above sea level).</string>
+        </property>
+       </widget>
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="label_3">
@@ -216,7 +227,11 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QComboBox" name="comboBox_DEM"/>
+       <widget class="QComboBox" name="comboBox_DEM">
+        <property name="toolTip">
+         <string>A DEM consisting of pixels with ground heights (metres above sea level).</string>
+        </property>
+       </widget>
       </item>
       <item row="3" column="0">
        <widget class="QLabel" name="label_4">
@@ -238,6 +253,9 @@ p, li { white-space: pre-wrap; }
        <widget class="QComboBox" name="comboBox_DSMbuild">
         <property name="enabled">
          <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>A DSM consisting of pixels with object (e.g. buildings or vegetation) heights above ground. Pixels where no objects are present should be set to zero.</string>
         </property>
        </widget>
       </item>
@@ -276,7 +294,13 @@ p, li { white-space: pre-wrap; }
       <item row="3" column="0" colspan="4">
        <widget class="QProgressBar" name="progressBar">
         <property name="value">
-         <number>24</number>
+         <number>0</number>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="format">
+         <string/>
         </property>
        </widget>
       </item>
@@ -322,6 +346,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="0" column="1">
        <widget class="QComboBox" name="comboBox_Roughness">
+        <property name="toolTip">
+         <string>Options to choose methods for roughness calculations regarding zero displacement height (zd) and roughness length (z0) are available.</string>
+        </property>
         <item>
          <property name="text">
           <string>Rule of thumb</string>

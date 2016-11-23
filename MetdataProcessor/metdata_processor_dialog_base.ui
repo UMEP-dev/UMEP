@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>694</width>
+    <width>759</width>
     <height>614</height>
    </rect>
   </property>
@@ -54,6 +54,9 @@
     <widget class="QCheckBox" name="checkBoxQuality">
      <property name="enabled">
       <bool>true</bool>
+     </property>
+     <property name="toolTip">
+      <string>Select to perform a simple quality control which will check the input data for unreasonable values of each variable.</string>
      </property>
      <property name="text">
       <string>Perform quatily control (recommended)</string>
@@ -174,6 +177,9 @@ p, li { white-space: pre-wrap; }
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QPushButton" name="pushButtonImport">
+          <property name="toolTip">
+           <string>Select an existing text file with meteorological data at a temporal resolution between 5 min and 180 min (3 hours) that is divisible by 5 min. Specify column separator and number of header lines before importing data.</string>
+          </property>
           <property name="text">
            <string>Import data</string>
           </property>
@@ -393,7 +399,20 @@ p, li { white-space: pre-wrap; }
      </layout>
     </widget>
    </item>
-   <item row="0" column="3" rowspan="7">
+   <item row="6" column="3">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="3" rowspan="7" colspan="2">
     <widget class="QFrame" name="frame">
      <property name="enabled">
       <bool>true</bool>

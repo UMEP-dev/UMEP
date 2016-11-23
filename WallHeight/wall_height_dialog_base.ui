@@ -64,6 +64,9 @@ p, li { white-space: pre-wrap; }
      <property name="enabled">
       <bool>true</bool>
      </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tick this box if you want to include estimation and output of a wall aspect grid. This calculation is computational intensive and will make your computer work for a while (depending on the size of the input DSM). &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="text">
       <string>Calculate wall aspect</string>
      </property>
@@ -141,6 +144,9 @@ p, li { white-space: pre-wrap; }
    </item>
    <item row="1" column="6">
     <widget class="QDoubleSpinBox" name="doubleSpinBoxHeight">
+     <property name="toolTip">
+      <string>This limit gives the lowest height of a building wall.</string>
+     </property>
      <property name="decimals">
       <number>1</number>
      </property>

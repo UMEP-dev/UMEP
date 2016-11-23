@@ -49,7 +49,7 @@
       <item row="1" column="3">
        <widget class="QComboBox" name="comboBox_ttype">
         <property name="toolTip">
-         <string>Attribut ID should be a unique number or string for each polygon </string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Two different tree types (shapes) are currently included: 1 = conifer and 2 = decidouos. There is also a possibility to remove vegetation by setting tree type = 0 and with an appropriate diameter to remove all vegetation pixels from the DSMs. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
@@ -66,7 +66,7 @@
       <item row="2" column="3">
        <widget class="QComboBox" name="comboBox_totalheight">
         <property name="toolTip">
-         <string>Attribut ID should be a unique number or string for each polygon </string>
+         <string>This is the total height of the tree from the ground (magl).</string>
         </property>
        </widget>
       </item>
@@ -83,7 +83,7 @@
       <item row="3" column="3">
        <widget class="QComboBox" name="comboBox_trunkheight">
         <property name="toolTip">
-         <string>Attribut ID should be a unique number or string for each polygon </string>
+         <string>This is the height up to the bottom of the canopy (magl)</string>
         </property>
        </widget>
       </item>
@@ -100,12 +100,15 @@
       <item row="4" column="3">
        <widget class="QComboBox" name="comboBox_diameter">
         <property name="toolTip">
-         <string>Attribut ID should be a unique number or string for each polygon </string>
+         <string>	This is the circular diameter of the tree in meter.</string>
         </property>
        </widget>
       </item>
       <item row="5" column="0">
        <widget class="QCheckBox" name="checkBoxOnlyBuilding">
+        <property name="toolTip">
+         <string>Tick this in if a boolen building grid exist for your model domain. This can be generated from the SOLWEIG-plugin.</string>
+        </property>
         <property name="text">
          <string>Boolean building grid exist</string>
         </property>
@@ -195,24 +198,31 @@
       <item row="0" column="2" colspan="2">
        <widget class="QComboBox" name="comboBox_pointlayer">
         <property name="toolTip">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;This Polygon layer could include one single or mutiple squares &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>A point vector file including the appropriate attributes for generating the vegetation DSMs</string>
         </property>
        </widget>
       </item>
       <item row="6" column="2" colspan="2">
-       <widget class="QComboBox" name="comboBox_DSM"/>
+       <widget class="QComboBox" name="comboBox_DSM">
+        <property name="toolTip">
+         <string>A DSM consisting of ground and building heights.</string>
+        </property>
+       </widget>
       </item>
       <item row="7" column="2" colspan="2">
-       <widget class="QComboBox" name="comboBox_DEM"/>
+       <widget class="QComboBox" name="comboBox_DEM">
+        <property name="toolTip">
+         <string>A DEM cosisting of ground heights.</string>
+        </property>
+       </widget>
       </item>
       <item row="8" column="2" colspan="2">
        <widget class="QComboBox" name="comboBox_Build">
         <property name="enabled">
          <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>A grid where building pixels are 0 and all other pixels are 1.</string>
         </property>
        </widget>
       </item>
@@ -221,12 +231,18 @@ p, li { white-space: pre-wrap; }
         <property name="enabled">
          <bool>false</bool>
         </property>
+        <property name="toolTip">
+         <string>A DSM consisting of pixels with vegetation heights above ground.</string>
+        </property>
        </widget>
       </item>
       <item row="11" column="2" colspan="2">
        <widget class="QComboBox" name="comboBox_TDSM">
         <property name="enabled">
          <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>A DSM consisting of pixels with vegetation trunk zone heights above ground.</string>
         </property>
        </widget>
       </item>
@@ -248,6 +264,9 @@ p, li { white-space: pre-wrap; }
    </item>
    <item row="1" column="2">
     <widget class="QPushButton" name="pushButtonSave">
+     <property name="toolTip">
+      <string>A specified folder where the result will be saved. Two geoTIFFs are created, one CDSM and one TDSM.</string>
+     </property>
      <property name="text">
       <string>Select</string>
      </property>
@@ -257,6 +276,12 @@ p, li { white-space: pre-wrap; }
     <widget class="QProgressBar" name="progressBar">
      <property name="value">
       <number>0</number>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="format">
+      <string/>
      </property>
     </widget>
    </item>
