@@ -5,6 +5,7 @@ import scipy.misc as sc
 import math
 from wallalgorithms import get_ders
 import linecache
+import sys
 
 
 class Worker(QtCore.QObject):
@@ -36,9 +37,12 @@ class Worker(QtCore.QObject):
             col = a.shape[1]
 
             filtersize = np.floor((scale + 0.0000000001) * 9)
-            if filtersize != 9:
-                if np.mod(filtersize, scale) == 0:
-                    filtersize = filtersize - 1
+            if filtersize <= 2:
+                filtersize = 3
+            else:
+                if filtersize != 9:
+                    if filtersize % 2 == 0:
+                        filtersize = filtersize + 1
 
             filthalveceil = np.ceil(filtersize / 2)
             filthalvefloor = np.floor(filtersize / 2)
@@ -50,12 +54,12 @@ class Worker(QtCore.QObject):
             buildfilt[filthalveceil - 1, 0:filthalvefloor] = 1
             buildfilt[filthalveceil - 1, filthalveceil: filtersize] = 2
 
-            y = np.zeros((row, col)) #%final direction
-            z = np.zeros((row, col))#%temporary direction
-            x = np.zeros((row, col)) #%building side
+            y = np.zeros((row, col))  # final direction
+            z = np.zeros((row, col))  # temporary direction
+            x = np.zeros((row, col))  # building side
             walls[walls > 0] = 1
 
-            for h in range(0, 180):  #=0:1:180 #%increased resolution to 1 deg 20140911
+            for h in range(0, 180):  # =0:1:180 #%increased resolution to 1 deg 20140911
                 if self.killed is True:
                         break
                 # print h
@@ -65,9 +69,9 @@ class Worker(QtCore.QObject):
                 filtmatrixbuild = np.round(filtmatrixbuildtemp / 127.)
                 index = 270-h
                 if h == 150:
-                    filtmatrixbuild[:, 8] = 0
+                    filtmatrixbuild[:, filtmatrix.shape[0] - 1] = 0
                 if h == 30:
-                    filtmatrixbuild[:, 8] = 0
+                    filtmatrixbuild[:, filtmatrix.shape[0] - 1] = 0
                 if index == 225:
                     n = filtmatrix.shape[0] - 1  #length(filtmatrix);
                     filtmatrix1[0, 0] = 1

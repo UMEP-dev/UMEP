@@ -265,6 +265,12 @@ class MetdataProcessor:
             met_new[:, 2] = met_old[:, self.dlg.comboBox_hour.currentIndex()]
             met_new[:, 3] = met_old[:, self.dlg.comboBox_minute.currentIndex()]
 
+        # first figure out the time res of input file
+        dectime0 = met_new[0, 1] + met_new[0, 2] / 24. + met_new[0, 3] / (60. * 24.)
+        dectime1 = met_new[1, 1] + met_new[1, 2] / 24. + met_new[1, 3] / (60. * 24.)
+        timeres_old = np.round((dectime1 - dectime0) * (60. * 24.))
+        nsh = int(timeres_old / 5)
+
         self.dlg.progressBar.setValue(3)
 
         # Met variables
@@ -336,7 +342,7 @@ class MetdataProcessor:
         if self.dlg.checkBox_rain.isChecked():
             met_new[:, 13] = met_old[:, self.dlg.comboBox_rain.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
-                testwhere = np.where((met_new[:, 13] < 0.0) | (met_new[:, 13] > 30.0))
+                testwhere = np.where(((met_new[:, 13] / nsh) < 0.0) | ((met_new[:, 13] / nsh) > 30.0))
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Rain - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
@@ -349,7 +355,7 @@ class MetdataProcessor:
         if self.dlg.checkBox_snow.isChecked():
             met_new[:, 15] = met_old[:, self.dlg.comboBox_snow.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
-                testwhere = np.where((met_new[:, 15] < 0.0) | (met_new[:, 15] > 300.0))
+                testwhere = np.where(((met_new[:, 15] / nsh) < 0.0) | ((met_new[:, 15] / nsh) > 300.0))
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Snow - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))
@@ -388,7 +394,7 @@ class MetdataProcessor:
         if self.dlg.checkBox_Wuh.isChecked():
             met_new[:, 18] = met_old[:, self.dlg.comboBox_Wuh.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
-                testwhere = np.where((met_new[:, 18] < 0.0) | (met_new[:, 18] > 10.01))
+                testwhere = np.where(((met_new[:, 18] / nsh) < 0.0) | ((met_new[:, 18] / nsh) > 10.01))
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "External water use - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))

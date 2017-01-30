@@ -35,7 +35,7 @@ import time
 try:
     import pandas as pd
 except:
-    pass # Suppress warnings at QGIS loading time, but an error is shown later to make up for it
+    pass  # Suppress warnings at QGIS loading time, but an error is shown later to make up for it
 
 from ...Utilities.Pysolarn import solar
 
@@ -72,7 +72,8 @@ def lon_lat_grid(lat, lon):
 
 # Get City Index: WATCH
 def WATCH_get_city_index(lat, lon):
-    nc = Dataset(os.path.join(os.path.dirname(os.path.realpath(__file__)), "WFD-land-lat-long-z.nc"))
+    nc = Dataset(os.path.join(os.path.dirname(
+        os.path.realpath(__file__)), "WFD-land-lat-long-z.nc"))
     for i in range(0, 67420):
         if nc.variables['Latitude'][i] == lat and nc.variables['Longitude'][i] == lon:
             index = i
@@ -155,7 +156,7 @@ Md = 28.9660  # molecular weight of dry air
 
 
 def esat(T):
-    ''' get sateration pressure (units [Pa]) for a given air temperature (units [K])'''
+    ''' get saturation pressure (units [Pa]) for a given air temperature (units [K])'''
     from numpy import log10
     TK = 273.15
     e1 = 101325.0
@@ -182,6 +183,31 @@ def mixr2rh(mixr, p, T):
 def sh2rh(qv, p, T):
     '''conversion from specific humidity (units [kg/kg]) to relative humidity in percentage'''
     return mixr2rh(sh2mixr(qv), p, T)
+
+
+def correct_hgt_Tair(Tair, hgt_WFDEI_m, hgt_site_m):
+    '''correct the height effect on Tair'''
+    d_height_m = hgt_site_m - hgt_WFDEI_m
+    res = Tair - 0.0065 * d_height_m
+    return res
+
+def height_solver_WFDEI(lat,lon):
+    '''determine the original height of WFDEI grid'''
+    glat, glon = lon_lat_grid(lat, lon)
+    # xlat, xlon = WFDEI_get_city_index(glat, glon)
+    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'WFDEI-land-long-lat-height.txt')) as f:
+        ls = [line.split() for line in f]
+
+    for i in range(7, len(ls)):
+        if float(ls[i][0]) == glon and float(ls[i][1]) == glat:
+            return float(ls[i][2])
+            break
+    # oceanic grids determined as 0.0
+    return 0.0
+
+
+# def correct_hgt_PSurf(Psurf, hgt_WFDEI, hgt_site):
+#     '''correct the height effect on Tair'''
 
 
 # generate WFDEI filename
@@ -229,18 +255,18 @@ def read_WFDEI(directory, var, year_start, year_end, xlat, xlon, textObject=None
                 for i in range(0, len(nc.variables[var][:, xlat, xlon])):
                     # determine date time string
                     date = str(year) + "%02.d" % month + \
-                           "%02.d" % (i / 8 + 1) + "%02.d" % (i % 8 * 3)
+                        "%02.d" % (i / 8 + 1) + "%02.d" % (i % 8 * 3)
 
                     # note the staring index in WFDEI data is 1 whereas in python is 0
                     # so xlat-1 and xlon-1 are needed.
                     rawdata.append(
                         (date, nc.variables[var][:, xlat - 1, xlon - 1][i]))
 
-            except Exception,e:
+            except Exception, e:
                 raise Exception(str(e))
             finally:
                 nc.close()
-                os.remove(fn) # Remove unzipped file
+                os.remove(fn)  # Remove unzipped file
 
     # convert to time series
     ts_data = pd.DataFrame(rawdata, columns=['time', var])
@@ -252,7 +278,7 @@ def read_WFDEI(directory, var, year_start, year_end, xlat, xlon, textObject=None
 # load and rearrange WFDEI data for interpolation
 
 
-def load_WFDEI_3h(WFDEI_path, year_start, year_end, lat, lon, textObject = None):
+def load_WFDEI_3h(WFDEI_path, year_start, year_end, lat, lon, textObject=None):
     #print('*************** WFDEI Data Loader *************** ')
     #print('start year: ' + str(year_start))
     #print('end year: ' + str(year_end))
@@ -281,10 +307,10 @@ def load_WFDEI_3h(WFDEI_path, year_start, year_end, lat, lon, textObject = None)
 
 
 # interpolate 3-hourly raw data to hourly results for SUEWS
-def process_SUEWS_forcing_1h(data_raw_3h, lat, lon, textObject=None):
+def process_SUEWS_forcing_1h(data_raw_3h, lat, lon, hgt, textObject=None):
     #     print('*************** WFDEI Data Processor *************** ')
     # expand over the whole date range at the scale of 1 h
-    # textObject is an optional input to keep the user informed abotu progress
+    # textObject is an optional input to keep the user informed about progress
     ix = pd.date_range(data_raw_3h.index[
         0], data_raw_3h.index[-1] + timedelta(hours=3), freq="H")
     data_raw_1h = data_raw_3h.reindex(index=ix).resample('1h').mean()
@@ -360,6 +386,14 @@ def process_SUEWS_forcing_1h(data_raw_3h, lat, lon, textObject=None):
     for p in var_out_zip:
         data_out_1h[p[1]] = data_proc_1h[p[0]]
 
+    # height correction
+    hgt_WFDEI_m = height_solver_WFDEI(lat, lon)
+    hgt_site_m  = hgt
+    data_proc_1h['Tair'] = correct_hgt_Tair(data_proc_1h['Tair'],
+                                            hgt_WFDEI_m, hgt_site_m)
+    # data_proc_1h['PSurf'] = correct_hgt_PSurf(data_proc_1h['PSurf'],
+    #                                           hgt_WFDEI, hgt_site)
+
     # RH calculation:
     data_out_1h['RH'] = vq2rh(data_proc_1h['Qair'],
                               data_proc_1h['PSurf'] / 1000,
@@ -387,14 +421,15 @@ def process_SUEWS_forcing_1h(data_raw_3h, lat, lon, textObject=None):
     return data_out_1h
 
 
-def write_SUEWS_forcing_1h(input_path, output_file, year_start, year_end, lat, lon, textObject = None):
+def write_SUEWS_forcing_1h(input_path, output_file, year_start, year_end, lat, lon, hgt, textObject=None):
     # load raw 3-hourly data and write to text file
     # textObject is optional QText that has so we can keep the user informed
 
-    data_raw_3h = load_WFDEI_3h(input_path, year_start, year_end, lat, lon, textObject)
+    data_raw_3h = load_WFDEI_3h(
+        input_path, year_start, year_end, lat, lon, textObject)
 
     # process raw data to hourly forcings for SUEWS
-    data_out_1h = process_SUEWS_forcing_1h(data_raw_3h, lat, lon, textObject)
+    data_out_1h = process_SUEWS_forcing_1h(data_raw_3h, lat, lon, hgt, textObject)
 
     # output files of each year
 
@@ -402,17 +437,20 @@ def write_SUEWS_forcing_1h(input_path, output_file, year_start, year_end, lat, l
         data_out_1h_year = data_out_1h[lambda df: (
             df.index - timedelta(minutes=60)).year == year]
         filename_parts = os.path.splitext(output_file)
-        file_output_year = os.path.expanduser(filename_parts[0] + str(year) + filename_parts[1])
+        file_output_year = os.path.expanduser(
+            filename_parts[0] + str(year) + filename_parts[1])
         data_out_1h_year.to_csv(file_output_year, sep=" ",
                                 index=False, float_format='%.4f')
-        #print(file_output_year)
+        # print(file_output_year)
 
     #print('********* WFDEI Data Processing Successfully Finished *********')
+
 
 def decompress_WFDEI(filename):
     # Decompress a gzipped file to a temporary folder and return the location of the unzipped file
     # inputs: The absolute filename of the gzip'd file
-    outNcFile = os.path.join(tempfile.gettempdir(), os.path.splitext(os.path.basename(filename))[0])
+    outNcFile = os.path.join(tempfile.gettempdir(),
+                             os.path.splitext(os.path.basename(filename))[0])
     with gzip.open(filename, 'rb') as zipFile:
         a = zipFile.read()
 
@@ -422,16 +460,17 @@ def decompress_WFDEI(filename):
     return outNcFile
 
 
-def runExtraction(input_path, output_file, year_start, year_end, lat, lon, textObject = None):
+def runExtraction(input_path, output_file, year_start, year_end, lat, lon, hgt, textObject=None):
     # Extract the data.
-    # textObject is optional Q text object(write) so we can keep the user informed
+    # textObject is optional Q text object(write) so we can keep the user
+    # informed
 
-    #print input_path
+    # print input_path
     if not os.path.lexists(input_path):
         raise ValueError('No such input directory. Try again...')
     # output path:
 
-    #print output_path
+    # print output_path
     if not os.path.lexists(os.path.split(output_file)[0]):
         raise ValueError('Output directory doesn\'t exist. Try again')
 
@@ -443,7 +482,7 @@ def runExtraction(input_path, output_file, year_start, year_end, lat, lon, textO
 
     start = time.time()
 
-    write_SUEWS_forcing_1h(input_path, output_file, year_start, year_end, lat, lon, textObject)
+    write_SUEWS_forcing_1h(input_path, output_file,
+                           year_start, year_end, lat, lon, hgt, textObject)
     end = time.time()
     # Clean up decompressed files
-

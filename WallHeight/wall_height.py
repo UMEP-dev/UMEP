@@ -214,6 +214,8 @@ class WallHeight:
             self.dsm = self.gdal_dsm.ReadAsArray().astype(np.float)
             geotransform = self.gdal_dsm.GetGeoTransform()
             self.scale = 1 / geotransform[1]
+            # self.iface.messageBar().pushMessage("scale", str(self.scale))
+            # return
 
             walllimit = self.dlg.doubleSpinBoxHeight.value()
             # self.iface.messageBar().pushMessage("SEBE", str(walllimit))

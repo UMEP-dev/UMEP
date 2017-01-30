@@ -211,7 +211,7 @@ class FootprintModel:
                                             " See help section to get correct format.")
                 return
 
-            if not self.data.shape[1] == 12:
+            if not self.data.shape[1] == 14:
                 QMessageBox.critical(None, "Import Error", "Check format of textfile format."
                                             " See help section to get correct format.")
                 return
@@ -462,7 +462,7 @@ class FootprintModel:
             if sys.platform == 'win32':
                 subprocess.call(gdalruntextvegdsm, startupinfo=si)
             else:
-                os.system(gdalruntextdvegdsm)
+                os.system(gdalruntextvegdsm)
 
             dataset = gdal.Open(self.plugin_dir + '/data/clipvegdsm.tif')
             vegdsm = dataset.ReadAsArray().astype(np.float)

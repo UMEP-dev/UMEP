@@ -28,6 +28,7 @@ class WatchWorker(QObject):
         self.output_path = output_path
         self.lat = lat
         self.lon = lon
+        self.hgt = hgt
         self.textObject = textObject
 
     def kill(self):
@@ -43,7 +44,7 @@ class WatchWorker(QObject):
             self.error.emit(e, traceback.format_exc())
 
         try:
-            runExtraction(self.input_path, self.output_path, self.datestart.year, self.dateend.year, self.lat, self.lon, self.textObject)
+            runExtraction(self.input_path, self.output_path, self.datestart.year, self.dateend.year, self.lat, self.lon, self.hgt, self.textObject)
         except Exception,e:
             self.error.emit(e, traceback.format_exc())
         self.finished.emit(None)

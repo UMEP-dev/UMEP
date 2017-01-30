@@ -22,6 +22,7 @@
 """
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import *
+from qgis.core import *
 # Initialize Qt resources from file resources.py
 # import resources
 # Import the code for the dialog

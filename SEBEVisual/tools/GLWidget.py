@@ -22,13 +22,14 @@ from qgis.core import *
 g_nearPlane = 1.
 g_farPlane = 1000.
 zoom = 65.
-viewdistance = 100
+viewdistance = 200
 horizonview = 0
 verticalview = 0
-startgroup1 = "200"
-startgroup2 = "400"
+startgroup1 = "300"
+startgroup2 = "600"
 startgroup3 = "600"
-startgroup4 = "800"
+startgroup4 = "900"
+startgroup5 = "1200"
 limit = "0"
 dynamic = True
 hideveg = True
@@ -43,7 +44,7 @@ class GLWidget(QtOpenGL.QGLWidget):
     #Sets up attributes used by model
     def __init__(self, energy_array, asc_array, wall_array, cellsize, dlg, parent=None):
         super(GLWidget, self).__init__(parent)
-
+        global horizonview, verticalview
         self.object = 0
         self.veg = 0
         self.ground = 0
@@ -59,6 +60,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.group2value = float(startgroup2)
         self.group3value = float(startgroup3)
         self.group4value = float(startgroup4)
+        self.group5value = float(startgroup5)
         self.colorlimit = float(limit)
         self.energy_array = energy_array
         self.asc_array = asc_array
@@ -70,9 +72,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.minimum_energy = np.amin(self.energy_array)
         self.rangeofcolor = self.max_energy - self.minimum_energy
         self.starty = self.sizey/2
-        self.starx = self.sizex/2
+        self.startx = self.sizex/2
         self.startz = np.average(asc_array)
-
         self.lastPos = QtCore.QPoint()
 
     def minimumSizeHint(self):
@@ -127,13 +128,16 @@ class GLWidget(QtOpenGL.QGLWidget):
     #Paints the window, runs for rotation etc
     def paintGL(self):
         global hideveg, hideground
+        QgsMessageLog.logMessage('horizview: ' + str(horizonview), level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage('vertview: ' + str(verticalview), level=QgsMessageLog.CRITICAL)
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
         GL.glLoadIdentity()
-        gluLookAt(0, 0, -viewdistance, horizonview, verticalview, 0, 0, 1, 0)
+        gluLookAt(0, self.startz, -viewdistance, horizonview, verticalview, 0, 0, 1, 0)
 
         GL.glRotated(self.xRot / 16.0, 1.0, 0.0, 0.0)
         GL.glRotated(self.yRot / 16.0, 0.0, 1.0, 0.0)
         GL.glRotated(self.zRot / 16.0, 0.0, 0.0, 1.0)
+
         GL.glCallList(self.object)
         if not hideveg:
             GL.glCallList(self.veg)
@@ -243,7 +247,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             for x in xrange(0, self.sizex):
                 z = self.asc_array[y][x]
                 e = self.energy_array[y][x]
-                self.roof(x, z, y, e)
+                self.roof(x - self.startx, z, y - self.starty, e)
 
         for i in xrange(0, len(self.wall_array)):
             wall_list = self.wall_array[i]
@@ -253,7 +257,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             for j in xrange(2, len(wall_list)):
                 e = wall_list[j]
                 zveg = zveg - self.cellsize
-                self.walls(x, zveg, y, e)
+                self.walls(x - self.startx, zveg, y - self.starty, e)
 
         GL.glEnd()
         GL.glEndList()
@@ -495,15 +499,15 @@ class GLWidget(QtOpenGL.QGLWidget):
     #Sets color for voxels if grouped
     def set_colorgroup(self, e):
         if e < self.group1value:
-            return QtGui.QColor(0,0,255,255)
+            return QtGui.QColor(43,131,186,255)
         elif e < self.group2value:
-            return QtGui.QColor(0,255,0,255)
+            return QtGui.QColor(171,221,164,255)
         elif e < self.group3value:
-            return QtGui.QColor(255,255,0,255)
+            return QtGui.QColor(255,255,191,255)
         elif e < self.group4value:
-            return QtGui.QColor(255,165,0,255)
+            return QtGui.QColor(253,174,97,255)
         elif e > self.group4value:
-            return QtGui.QColor(255,0,0,255)
+            return QtGui.QColor(215,25,28,255)
 
     #sets color for voxels if dynamic
     def set_colordynamic(self, e):

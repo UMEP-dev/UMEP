@@ -371,6 +371,11 @@ def wrapper(pathtoplugin):
 
 
 def metdatacheck(met_new):
+    # first figure out the time res of input file
+    dectime0 = met_new[0, 1] + met_new[0, 2] / 24. + met_new[0, 3] / (60. * 24.)
+    dectime1 = met_new[1, 1] + met_new[1, 2] / 24. + met_new[1, 3] / (60. * 24.)
+    timeres_old = np.round((dectime1 - dectime0) * (60. * 24.))
+    nsh = int(timeres_old / 5)
     goodmetdata = 1
     # Met variables
     testwhere = np.where((met_new[:, 14] < 0.0) | (met_new[:, 14] > 1200.0))
@@ -403,7 +408,7 @@ def metdatacheck(met_new):
                                                   " \n" + str(testwhere[0] + 1))
         goodmetdata = 0
 
-    testwhere = np.where((met_new[:, 13] < 0.0) | (met_new[:, 13] > 30.0))
+    testwhere = np.where(((met_new[:, 13] / nsh) < 0.0) | ((met_new[:, 13] / nsh) > 30.0))
     if testwhere[0].__len__() > 0:
         QMessageBox.critical(None, "Value error", "Rain - beyond what is expected at line:"
                                                   " \n" + str(testwhere[0] + 1))

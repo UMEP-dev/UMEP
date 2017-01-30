@@ -773,8 +773,12 @@ class SOLWEIG:
 
             # % Ts parameterisation maps
             if self.landcover == 1.:
-                [TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST, TmaxLST_wall] = \
-                    Tgmaps_v1(self.lcgrid, lc_class)
+                if (np.max(self.lcgrid) > 7 or np.min(self.lcgrid) < 1):
+                    QMessageBox.critical(self.dlg, "Error", "The land cover grid includes values not appropriate for UMEP-formatted land cover grid")
+                    return
+                else:
+                    [TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST, TmaxLST_wall] = \
+                        Tgmaps_v1(self.lcgrid, lc_class)
             else:
                 TgK = Knight + 0.37
                 Tstart = Knight - 3.41

@@ -286,6 +286,15 @@ class WATCHData:
             self.dlg.runButton.setEnabled(True)
             return
 
+        try:
+            hgt = float(self.dlg.textOutput_hgt.text())
+            if hgt<0:
+                raise ValueError('negative site height entered')
+        except Exception,e:
+            QMessageBox.critical(None, "Error", "Invalid site height")
+            self.dlg.runButton.setEnabled(True)
+            return
+
         datestart = self.dlg.dateEditStart.text()
         datestart = datetime.datetime.strptime(datestart, '%Y-%m')
 

@@ -12,6 +12,7 @@ import sys
 import linecache
 import os
 import fileinput
+import time
 
 class Worker(QtCore.QObject):
 
@@ -52,6 +53,10 @@ class Worker(QtCore.QObject):
         imp_point = 0
         arrmat = np.empty((1, 8))
         pre = str(self.dlg.textOutput_prefix.text())
+        header = 'Wd Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
+        numformat = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
+        header2 = 'ID Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
+        numformat2 = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
 
         try:
             # j = 0
@@ -98,6 +103,7 @@ class Worker(QtCore.QObject):
                 else:
                     os.system(gdalruntextlc_grid)
 
+                time.sleep(0.05)
                 dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
                 lc_grid_array = dataset.ReadAsArray().astype(np.float)
                 nd = dataset.GetRasterBand(1).GetNoDataValue()
@@ -107,7 +113,7 @@ class Worker(QtCore.QObject):
                         QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes Only NoData Pixels", level=QgsMessageLog.CRITICAL)
                         cal = 0
                     else:
-                        lc_grid_array[lc_grid_array == nd] = 0
+                        lc_grid_array[lc_grid_array == nd] = 6
                         cal = 1
                 else:
                     if nodata_test.any():  # == True
@@ -121,12 +127,12 @@ class Worker(QtCore.QObject):
                     landcoverresult = self.resultcheck(landcoverresult)
 
                     # save to file
-                    header = 'Wd Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
-                    numformat = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
+                    # header = 'Wd Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
+                    # numformat = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
                     arr = np.concatenate((landcoverresult["deg"], landcoverresult["lc_frac"]), axis=1)
                     np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'LCFG_anisotropic_result_' + str(f.attributes()[self.idx]) + '.txt', arr,
                                fmt=numformat, delimiter=' ', header=header, comments='')
-
+                    del arr
                     arr2 = np.array([f.attributes()[self.idx], landcoverresult["lc_frac_all"][0, 0], landcoverresult["lc_frac_all"][0, 1],
                                       landcoverresult["lc_frac_all"][0, 2], landcoverresult["lc_frac_all"][0, 3], landcoverresult["lc_frac_all"][0, 4],
                                      landcoverresult["lc_frac_all"][0, 5], landcoverresult["lc_frac_all"][0, 6]])
@@ -138,11 +144,11 @@ class Worker(QtCore.QObject):
                 dataset3 = None
                 self.progress.emit()
 
-            header = 'ID Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
-            numformat = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
+            # header2 = 'ID Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
+            # numformat2 = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
             arrmatsave = arrmat[1: arrmat.shape[0], :]
             np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'LCFG_isotropic.txt', arrmatsave,
-                                fmt=numformat, delimiter=' ', header=header, comments='')
+                                fmt=numformat2, delimiter=' ', header=header2, comments='')
 
             #when files are saved through the np.savetext method the values are rounded according to the information in
             #the numformat variable. This can cause the total sum of the values in a line in the text file to not be 1

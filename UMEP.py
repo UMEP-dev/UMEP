@@ -47,6 +47,7 @@ from GreaterQF.greater_qf import GreaterQF
 from SOLWEIG.solweig import SOLWEIG
 from ExtremeFinder.extreme_finder import ExtremeFinder
 from SolweigAnalyzer.solweig_analyzer import SolweigAnalyzer
+from SUEWSAnalyzer.suews_analyzer import SUEWSAnalyzer
 
 # from about_dialog import AboutDialog
 from UMEP_about import UMEPDialogAbout
@@ -243,7 +244,7 @@ class UMEP:
         # Sub-menus to Urban Energy Balance, post processing
         self.SUEWSa_Action = QAction("SUEWS Analyzer", self.iface.mainWindow())
         self.UEBpos_Menu.addAction(self.SUEWSa_Action)
-        self.SUEWSa_Action.setEnabled(False)
+        self.SUEWSa_Action.triggered.connect(self.SUv)
 
         # Sub-menus to About
         self.About_Action = QAction("About", self.iface.mainWindow())
@@ -273,6 +274,7 @@ class UMEP:
         self.PFD_Action.setIcon(QIcon(self.plugin_dir + "/Icons/watch.png"))
         self.MRT_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_solweig.png"))
         self.SOLWEIGa_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_solweig.png"))
+        self.SUEWSa_Action.setIcon(QIcon(self.plugin_dir + "/Icons/SuewsLogo.png"))
         self.TreeGenerator_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_tree.png"))
         self.EF_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_extreme.png"))
 
@@ -473,6 +475,10 @@ class UMEP:
 
     def SOv(self):
         sg = SolweigAnalyzer(self.iface)
+        sg.run()
+
+    def SUv(self):
+        sg = SUEWSAnalyzer(self.iface)
         sg.run()
 
     def run(self):

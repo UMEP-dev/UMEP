@@ -189,7 +189,7 @@ class LandCoverFractionGrid:
 
         poly_field = self.layerComboManagerPolyField.getFieldName()
         if poly_field is None:
-            QMessageBox.critical(None, "Error", "An attribute filed with unique fields must be selected")
+            QMessageBox.critical(None, "Error", "An attribute with unique fields/records must be selected")
             return
 
         vlayer = QgsVectorLayer(poly.source(), "polygon", "ogr")
@@ -279,24 +279,11 @@ class LandCoverFractionGrid:
                                                                            "process unsuccessful! See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.")
 
     def workerError(self, errorstring):
-        #strerror = "Worker thread raised an exception: " + str(e)
         QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
 
     def progress_update(self):
-        self.steps +=1
+        self.steps += 1
         self.dlg.progressBar.setValue(self.steps)
-    #
-    # def saveraster(self, gdal_data, filename, raster):
-    #     rows = gdal_data.RasterYSize
-    #     cols = gdal_data.RasterXSize
-    #     outDs = gdal.GetDriverByName("GTiff").Create(filename, cols, rows, int(1), GDT_Float32)
-    #     outBand = outDs.GetRasterBand(1)
-    #     outBand.WriteArray(raster, 0, 0)
-    #     outBand.FlushCache()
-    #     outBand.SetNoDataValue(-9999)
-    #     outDs.SetGeoTransform(gdal_data.GetGeoTransform())
-    #     outDs.SetProjection(gdal_data.GetProjection())
-    #     del outDs, outBand
 
     def run(self):
         self.dlg.show()
@@ -305,6 +292,5 @@ class LandCoverFractionGrid:
         gdal.AllRegister()
 
     def help(self):
-        # url = "file://" + self.plugin_dir + "/help/Index.html"
         url = 'http://www.urban-climate.net/umep/UMEP_Manual#Urban_Land_Cover:_Land_Cover_Fraction_.28Grid.29'
         webbrowser.open_new_tab(url)
