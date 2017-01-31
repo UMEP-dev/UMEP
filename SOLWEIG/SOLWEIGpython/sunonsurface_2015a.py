@@ -10,6 +10,7 @@ def sunonsurface_2015a(azimuthA,scale,buildings,shadow,sunwall,first,second,aspe
     
     #sizex=size(buildings,1);sizey=size(buildings,2);
     wallbol = (walls > 0) * 1
+    sunwall[sunwall>0] = 1 # test 20160910
     
     # conversion into radians
     azimuth=azimuthA*(np.pi/180)
@@ -38,8 +39,10 @@ def sunonsurface_2015a(azimuthA,scale,buildings,shadow,sunwall,first,second,aspe
     tempwallsun = np.zeros((sizex, sizey))
     weightsumsh = np.zeros((sizex, sizey))
     weightsumwall = np.zeros((sizex, sizey))
-    first = first * scale
-    second = second * scale
+    first = np.round(first * scale)
+    if first < 1:
+        first = 1
+    second = np.round(second * scale)
     #tempTgsh=tempsh;
     weightsumLupsh = np.zeros((sizex, sizey))
     weightsumLwall = np.zeros((sizex, sizey))
@@ -114,22 +117,24 @@ def sunonsurface_2015a(azimuthA,scale,buildings,shadow,sunwall,first,second,aspe
         weightsumalbwall=weightsumalbwall+tempbub*albedo_b
         weightsumwall=weightsumwall+tempbub
         weightsumalbwallnosh=weightsumalbwallnosh+tempbubwall*albedo_b
-        
-        if ((n + 1) * scale) <= first:
-            weightsumwall_first=weightsumwall/first
-            weightsumsh_first=weightsumsh/first
-            wallsuninfluence_first=weightsumwall_first>0
-            weightsumLwall_first=(weightsumLwall)/first#*Lwall
-            weightsumLupsh_first=weightsumLupsh/first
+
+        ind = 1
+        if (n + 1) <= first:
+            weightsumwall_first = weightsumwall/ind
+            weightsumsh_first = weightsumsh/ind
+            wallsuninfluence_first = weightsumwall_first > 0
+            weightsumLwall_first = (weightsumLwall)/ind#*Lwall
+            weightsumLupsh_first = weightsumLupsh/ind
             
-            weightsumalbwall_first=weightsumalbwall/first#*albedo_b
-            weightsumalbsh_first=weightsumalbsh/first
-            weightsumalbwallnosh_first=weightsumalbwallnosh/first#*albedo_b
-            weightsumalbnosh_first=weightsumalbnosh/first
-            wallinfluence_first=weightsumalbwallnosh_first>0
+            weightsumalbwall_first = weightsumalbwall/ind#*albedo_b
+            weightsumalbsh_first = weightsumalbsh/ind
+            weightsumalbwallnosh_first = weightsumalbwallnosh/ind#*albedo_b
+            weightsumalbnosh_first = weightsumalbnosh/ind
+            wallinfluence_first = weightsumalbwallnosh_first > 0
             #         gvf1=(weightsumwall+weightsumsh)/first;
             #         gvf1(gvf1>1)=1;
-        index=index+1
+            ind += 1
+        index += 1
 
     wallsuninfluence_second=weightsumwall>0
     wallinfluence_second=weightsumalbwallnosh>0
