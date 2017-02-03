@@ -68,56 +68,62 @@ def filter1Goodwin_as_aspect_v3(walls, scale, a):
     #     walls(walls<3)=0;
     # end
     #plt.show()
+
     row = a.shape[0]
     col = a.shape[1]
 
-    filtersize = np.floor((scale + 0.0000000001) * 9)  # numpy crazyness rounding
-    if filtersize != 9:
-        if np.mod(filtersize, scale) == 0:
-            filtersize = filtersize - 1
+    filtersize = np.floor((scale + 0.0000000001) * 9)
+    if filtersize <= 2:
+        filtersize = 3
+    else:
+        if filtersize != 9:
+            if filtersize % 2 == 0:
+                filtersize = filtersize + 1
 
-    filthalveceil = np.ceil(filtersize / 2)
-    filthalvefloor = np.floor(filtersize / 2)
+    filthalveceil = int(np.ceil(filtersize / 2.))
+    filthalvefloor = int(np.floor(filtersize / 2.))
 
-    filtmatrix = np.zeros((filtersize, filtersize))
-    buildfilt = np.zeros((filtersize, filtersize))
+    filtmatrix = np.zeros((int(filtersize), int(filtersize)))
+    buildfilt = np.zeros((int(filtersize), int(filtersize)))
 
     filtmatrix[:, filthalveceil - 1] = 1
     buildfilt[filthalveceil - 1, 0:filthalvefloor] = 1
-    buildfilt[filthalveceil - 1, filthalveceil: filtersize] = 2
+    buildfilt[filthalveceil - 1, filthalveceil: int(filtersize)] = 2
 
-    y = np.zeros((row, col)) #%final direction
-    z = np.zeros((row, col))#%temporary direction
-    x = np.zeros((row, col)) #%building side
+    y = np.zeros((row, col))  # final direction
+    z = np.zeros((row, col))  # temporary direction
+    x = np.zeros((row, col))  # building side
     walls[walls > 0] = 1
 
-    for h in range(0, 180):  #=0:1:180 #%increased resolution to 1 deg 20140911
+    for h in range(0, 180):  # =0:1:180 #%increased resolution to 1 deg 20140911
         # print h
         filtmatrix1temp = sc.imrotate(filtmatrix, h, 'bilinear')
         filtmatrix1 = np.round(filtmatrix1temp / 255.)
         filtmatrixbuildtemp = sc.imrotate(buildfilt, h, 'nearest')
         filtmatrixbuild = np.round(filtmatrixbuildtemp / 127.)
-        index = 270-h
+        index = 270 - h
         if h == 150:
-            filtmatrixbuild[:, 8] = 0
+            filtmatrixbuild[:, filtmatrix.shape[0] - 1] = 0
         if h == 30:
-            filtmatrixbuild[:, 8] = 0
+            filtmatrixbuild[:, filtmatrix.shape[0] - 1] = 0
         if index == 225:
-            n = filtmatrix.shape[0] - 1  #length(filtmatrix);
+            n = filtmatrix.shape[0] - 1  # length(filtmatrix);
             filtmatrix1[0, 0] = 1
             filtmatrix1[n, n] = 1
         if index == 135:
-            n = filtmatrix.shape[0] - 1  #length(filtmatrix);
+            n = filtmatrix.shape[0] - 1  # length(filtmatrix);
             filtmatrix1[0, n] = 1
             filtmatrix1[n, 0] = 1
 
-        for i in range(int(filthalveceil)-1, row - int(filthalveceil) - 1):  #i=filthalveceil:sizey-filthalveceil
-            for j in range(int(filthalveceil)-1, col - int(filthalveceil) - 1):  #(j=filthalveceil:sizex-filthalveceil
+        for i in range(int(filthalveceil) - 1, row - int(filthalveceil) - 1):  # i=filthalveceil:sizey-filthalveceil
+            for j in range(int(filthalveceil) - 1,
+                           col - int(filthalveceil) - 1):  # (j=filthalveceil:sizex-filthalveceil
                 if walls[i, j] == 1:
-                    wallscut = walls[i-filthalvefloor:i+filthalvefloor+1, j-filthalvefloor:j+filthalvefloor+1] * filtmatrix1
-                    dsmcut = a[i-filthalvefloor:i+filthalvefloor+1, j-filthalvefloor:j+filthalvefloor+1]
-                    if z[i, j] < wallscut.sum():  #sum(sum(wallscut))
-                        z[i, j] = wallscut.sum()  #sum(sum(wallscut));
+                    wallscut = walls[i - filthalvefloor:i + filthalvefloor + 1,
+                               j - filthalvefloor:j + filthalvefloor + 1] * filtmatrix1
+                    dsmcut = a[i - filthalvefloor:i + filthalvefloor + 1, j - filthalvefloor:j + filthalvefloor + 1]
+                    if z[i, j] < wallscut.sum():  # sum(sum(wallscut))
+                        z[i, j] = wallscut.sum()  # sum(sum(wallscut));
                         if np.sum(dsmcut[filtmatrixbuild == 1]) > np.sum(dsmcut[filtmatrixbuild == 2]):
                             x[i, j] = 1
                         else:
@@ -130,18 +136,89 @@ def filter1Goodwin_as_aspect_v3(walls, scale, a):
 
     grad, asp = get_ders(a, scale)
 
-    # fx, fy = np.gradient(a)
-    # asp, _ = cart2pol(fy, fx)
-    # # grad = math.atan(grad)
-    # asp = asp * -1.
-    # temp = asp > 0
-    # temp = temp * (math.pi * 2)
-    # asp = asp + temp
-    #[~,aspect] = get_ders(a,1/scale); #% filling edges of model domain
     y = y + ((walls == 1) * 1) * ((y == 0) * 1) * (asp / (math.pi / 180.))
-    # y = y + ((walls == 1 & y == 0) * (asp / (math.pi / 180.)))
 
     dirwalls = y
+
+
+    
+    #
+    #
+    #
+    # row = a.shape[0]
+    # col = a.shape[1]
+    #
+    # filtersize = np.floor((scale + 0.0000000001) * 9)  # numpy crazyness rounding
+    # if filtersize != 9:
+    #     if np.mod(filtersize, scale) == 0:
+    #         filtersize = filtersize - 1
+    #
+    # filthalveceil = np.ceil(filtersize / 2)
+    # filthalvefloor = np.floor(filtersize / 2)
+    #
+    # filtmatrix = np.zeros((filtersize, filtersize))
+    # buildfilt = np.zeros((filtersize, filtersize))
+    #
+    # filtmatrix[:, filthalveceil - 1] = 1
+    # buildfilt[filthalveceil - 1, 0:filthalvefloor] = 1
+    # buildfilt[filthalveceil - 1, filthalveceil: filtersize] = 2
+    #
+    # y = np.zeros((row, col)) #%final direction
+    # z = np.zeros((row, col))#%temporary direction
+    # x = np.zeros((row, col)) #%building side
+    # walls[walls > 0] = 1
+    #
+    # for h in range(0, 180):  #=0:1:180 #%increased resolution to 1 deg 20140911
+    #     # print h
+    #     filtmatrix1temp = sc.imrotate(filtmatrix, h, 'bilinear')
+    #     filtmatrix1 = np.round(filtmatrix1temp / 255.)
+    #     filtmatrixbuildtemp = sc.imrotate(buildfilt, h, 'nearest')
+    #     filtmatrixbuild = np.round(filtmatrixbuildtemp / 127.)
+    #     index = 270-h
+    #     if h == 150:
+    #         filtmatrixbuild[:, 8] = 0
+    #     if h == 30:
+    #         filtmatrixbuild[:, 8] = 0
+    #     if index == 225:
+    #         n = filtmatrix.shape[0] - 1  #length(filtmatrix);
+    #         filtmatrix1[0, 0] = 1
+    #         filtmatrix1[n, n] = 1
+    #     if index == 135:
+    #         n = filtmatrix.shape[0] - 1  #length(filtmatrix);
+    #         filtmatrix1[0, n] = 1
+    #         filtmatrix1[n, 0] = 1
+    #
+    #     for i in range(int(filthalveceil)-1, row - int(filthalveceil) - 1):  #i=filthalveceil:sizey-filthalveceil
+    #         for j in range(int(filthalveceil)-1, col - int(filthalveceil) - 1):  #(j=filthalveceil:sizex-filthalveceil
+    #             if walls[i, j] == 1:
+    #                 wallscut = walls[i-filthalvefloor:i+filthalvefloor+1, j-filthalvefloor:j+filthalvefloor+1] * filtmatrix1
+    #                 dsmcut = a[i-filthalvefloor:i+filthalvefloor+1, j-filthalvefloor:j+filthalvefloor+1]
+    #                 if z[i, j] < wallscut.sum():  #sum(sum(wallscut))
+    #                     z[i, j] = wallscut.sum()  #sum(sum(wallscut));
+    #                     if np.sum(dsmcut[filtmatrixbuild == 1]) > np.sum(dsmcut[filtmatrixbuild == 2]):
+    #                         x[i, j] = 1
+    #                     else:
+    #                         x[i, j] = 2
+    #
+    #                     y[i, j] = index
+    #
+    # y[(x == 1)] = y[(x == 1)] - 180
+    # y[(y < 0)] = y[(y < 0)] + 360
+    #
+    # grad, asp = get_ders(a, scale)
+    #
+    # # fx, fy = np.gradient(a)
+    # # asp, _ = cart2pol(fy, fx)
+    # # # grad = math.atan(grad)
+    # # asp = asp * -1.
+    # # temp = asp > 0
+    # # temp = temp * (math.pi * 2)
+    # # asp = asp + temp
+    # #[~,aspect] = get_ders(a,1/scale); #% filling edges of model domain
+    # y = y + ((walls == 1) * 1) * ((y == 0) * 1) * (asp / (math.pi / 180.))
+    # # y = y + ((walls == 1 & y == 0) * (asp / (math.pi / 180.)))
+    #
+    # dirwalls = y
 
     return dirwalls
 

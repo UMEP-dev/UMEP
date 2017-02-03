@@ -44,15 +44,15 @@ class Worker(QtCore.QObject):
                     if filtersize % 2 == 0:
                         filtersize = filtersize + 1
 
-            filthalveceil = np.ceil(filtersize / 2)
-            filthalvefloor = np.floor(filtersize / 2)
+            filthalveceil = int(np.ceil(filtersize / 2.))
+            filthalvefloor = int(np.floor(filtersize / 2.))
 
-            filtmatrix = np.zeros((filtersize, filtersize))
-            buildfilt = np.zeros((filtersize, filtersize))
+            filtmatrix = np.zeros((int(filtersize), int(filtersize)))
+            buildfilt = np.zeros((int(filtersize), int(filtersize)))
 
             filtmatrix[:, filthalveceil - 1] = 1
             buildfilt[filthalveceil - 1, 0:filthalvefloor] = 1
-            buildfilt[filthalveceil - 1, filthalveceil: filtersize] = 2
+            buildfilt[filthalveceil - 1, filthalveceil: int(filtersize)] = 2
 
             y = np.zeros((row, col))  # final direction
             z = np.zeros((row, col))  # temporary direction
