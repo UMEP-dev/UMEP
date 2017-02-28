@@ -558,7 +558,7 @@ class MetdataProcessor:
                     '%.2f %.2f %.2f %.2f %.2f %.2f %.2f'
         np.savetxt(outputfile, met_new, fmt=numformat, header=header, comments='')
 
-        self.dlg.progressBar.setValue(10)
+        self.dlg.progressBar.setValue(23)
 
         QMessageBox.information(None, "Metdata pre-processor", "Input data to UMEP processor generated")
 

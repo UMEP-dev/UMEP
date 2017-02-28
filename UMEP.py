@@ -115,6 +115,8 @@ class UMEP:
         # Sub-menus and actions to Pre-processor
         self.MD_Menu = QMenu("Meteorological Data")
         self.Pre_Menu.addMenu(self.MD_Menu)
+        self.SP_Menu = QMenu("Spatial Data")
+        self.Pre_Menu.addMenu(self.SP_Menu)
         self.UG_Menu = QMenu("Urban Geometry")
         self.Pre_Menu.addMenu(self.UG_Menu)
         self.ULC_Menu = QMenu("Urban Land Cover")
@@ -124,9 +126,7 @@ class UMEP:
         self.SUEWSPrepare_Action = QAction("SUEWS Prepare", self.iface.mainWindow())
         self.Pre_Menu.addAction(self.SUEWSPrepare_Action)
         self.SUEWSPrepare_Action.triggered.connect(self.SUEWS_Prepare)
-        self.TreeGenerator_Action = QAction("Tree Generator", self.iface.mainWindow())
-        self.Pre_Menu.addAction(self.TreeGenerator_Action)
-        self.TreeGenerator_Action.triggered.connect(self.TG)
+
 
 
         # Sub-actions to Surface Morphology
@@ -151,6 +151,17 @@ class UMEP:
         self.MD_Menu.addAction(self.EF_Action)
         self.EF_Action.triggered.connect(self.EF)
         # self.PFD_Action.setEnabled(False)
+
+        # Sub-actions to Spatial Data Preparation
+        self.SDD_Action = QAction("Spatial Data Downloader", self.iface.mainWindow())
+        self.SP_Menu.addAction(self.SDD_Action)
+        self.SDD_Action.setEnabled(False)
+        self.TreeGenerator_Action = QAction("Tree Generator", self.iface.mainWindow())
+        self.SP_Menu.addAction(self.TreeGenerator_Action)
+        self.TreeGenerator_Action.triggered.connect(self.TG)
+        self.WC_Action = QAction("LCZ Converter", self.iface.mainWindow())
+        self.SP_Menu.addAction(self.WC_Action)
+        self.WC_Action.setEnabled(False)
 
         # Sub-actions to Urban Geometry
         self.SVF_Action = QAction("Sky View Factor", self.iface.mainWindow())

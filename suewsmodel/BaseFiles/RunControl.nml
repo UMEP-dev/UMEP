@@ -1,30 +1,32 @@
 &RunControl
-AnthropHeatChoice=2
-CBLuse=0
-NetRadiationChoice=3 
-gsChoice=1
-RoughLen_heat=2
-QSChoice=1
+CBLUse=0
+SnowUse=0
+SOLWEIGUse=0
+NetRadiationMethod=3 
+AnthropHeatMethod=2
+AnthropCO2Method=2
+StorageHeatMethod=1
 OHMIncQF=0
-smd_choice=0
 StabilityMethod=2
-WU_choice=0
-z0_method=1
+RoughLenHeatMethod=2
+RoughLenMomMethod=1
+SMDMethod=0
+WaterUseMethod=0
 FileCode='Kc'
 FileInputPath="./KCL2012_Input/"
 FileOutputPath="./KCL2012_Output/"
-SkipHeaderSiteInfo=2
-SkipHeaderMet=1
 MultipleMetFiles=0
+MultipleInitFiles=0
 MultipleESTMFiles=0
 KeepTstepFilesIn=0
-KeepTstepFilesOut=1
+KeepTstepFilesOut=0
+WriteOutOption=0
 ResolutionFilesOut=3600
-WriteSurfsFile=0
-SnowFractionChoice=1
-SnowUse=0
-SOLWEIGuse=0
-TIMEZONE=0
 Tstep=300
-z=50.3
+ResolutionFilesIn=3600
+ResolutionFilesInESTM=3600	!NEW
+DisaggMethod=1			!NEW  (1 = default value, so don't actually need here)
+RainDisaggMethod=100		!NEW  (100 = default value, so don't actually need here)
+DisaggMethodESTM=1		!NEW  (1 = default value, so don't actually need here)
+SuppressWarnings=1		!NEW
 /

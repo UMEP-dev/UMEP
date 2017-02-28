@@ -97,6 +97,7 @@ class TemplateWidget(QtGui.QWidget, FORM_CLASS):
         try:
             code = self.comboBox.currentText()
             code = int(code)
+            # QgsMessageLog.logMessage(str(code), level=QgsMessageLog.CRITICAL)
             for row in range(3, self.sheet.nrows):
                 #self.setup_image(row)
                 val = self.sheet.cell_value(row, 0)
@@ -116,6 +117,8 @@ class TemplateWidget(QtGui.QWidget, FORM_CLASS):
                                     explanation += "\n"
                             self.exp_label.setText(explanation)
                             break
+                        # QgsMessageLog.logMessage(str(x), level=QgsMessageLog.CRITICAL)
+                        # QgsMessageLog.logMessage(str(values[x]), level=QgsMessageLog.CRITICAL)
                         lineEdit = self.lineedit_list[x]
                         lineEdit.setText(str(values[x]))
                     break

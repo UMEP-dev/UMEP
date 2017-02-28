@@ -23,7 +23,7 @@ def gvf_2015a(wallsun,walls,buildings,scale,shadow,first,second,dirwalls,Tg,Tgwa
     gvfalbnoshN=np.zeros((rows,cols))
 
     #  sunwall=wallinsun_2015a(buildings,azimuth(i),shadow,psi(i),dirwalls,walls);
-    sunwall=(wallsun/walls*buildings)==1 # new as from 2015a
+    sunwall = (wallsun/walls*buildings) == 1  # new as from 2015a
 
     for j in np.arange(0, azimuthA.__len__()):
         _, gvfLupi, gvfalbi, gvfalbnoshi = sunonsurface_2015a(azimuthA[j], scale, buildings, shadow, sunwall, first,

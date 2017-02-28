@@ -87,7 +87,7 @@ class SUEWSAnalyzer:
 
         self.fileDialog = QFileDialog()
         self.fileDialognml = QFileDialog()
-        self.fileDialognml.setNameFilter("(RunControl.nml)")
+        self.fileDialognml.setNameFilter("(*.nml)")
 
         # Declare instance attributes
         self.actions = []
@@ -205,22 +205,30 @@ class SUEWSAnalyzer:
             self.dlg.textModelFolder.setText(self.nmlPath[0])
             nml = f90nml.read(self.nmlPath[0])
 
-            fileinputpath = nml['runcontrol']['fileinputpath']
-            if fileinputpath.startswith("."):
+            self.fileinputpath = nml['runcontrol']['fileinputpath']
+            if self.fileinputpath.startswith("."):
                 nmlfolder = self.nmlPath[0][:-15]
-                self.fileinputpath = nmlfolder + fileinputpath[1:]
+                self.fileinputpath = nmlfolder + self.fileinputpath[1:]
 
-            fileoutputpath = nml['runcontrol']['fileoutputpath']
-            if fileoutputpath.startswith("."):
+            self.fileoutputpath = nml['runcontrol']['fileoutputpath']
+            if self.fileoutputpath.startswith("."):
                 nmlfolder = self.nmlPath[0][:-15]
-                self.fileoutputpath = nmlfolder + fileoutputpath[1:]
+                self.fileoutputpath = nmlfolder + self.fileoutputpath[1:]
 
             resolutionFilesOut = nml['runcontrol']['resolutionfilesout']
             self.resout = int(float(resolutionFilesOut) / 60)
             self.fileCode = nml['runcontrol']['filecode']
             multiplemetfiles = nml['runcontrol']['multiplemetfiles']
+            resolutionFilesIn = nml['runcontrol']['resolutionFilesIn']
+            resin = int(resolutionFilesIn / 60)
+
             tstep = nml['runcontrol']['tstep']
             self.tstep = int(float(tstep) / 60)
+
+            mm = 0
+            while mm < 60:
+                self.dlg.comboBox_mm.addItem(str(mm))
+                mm += self.resout
 
             sitein = self.fileinputpath + 'SUEWS_SiteSelect.txt'
             f = open(sitein)
@@ -248,8 +256,9 @@ class SUEWSAnalyzer:
                         gridcodemet = ''
                     else:
                         gridcodemet = lines[0]
-                    data_in = self.fileinputpath + self.fileCode + gridcodemet + '_data.txt'
-                    self.met_data = np.loadtxt(data_in, skiprows=1)
+                    data_in = self.fileinputpath + self.fileCode + gridcodemet + '_' + str(self.YYYY) + '_data_' + str(resin) + '.txt'
+                    self.met_data = np.genfromtxt(data_in, skip_header=1, skip_footer=2, missing_values='**********', filling_values=-9999)
+                    # self.met_data = np.loadtxt(data_in, skiprows=1)
 
                 lines = lin[index + 1].split()
                 loop_out = lines[0]
@@ -258,8 +267,8 @@ class SUEWSAnalyzer:
             f.close()
             self.idgrid = gridcodemetmat[1:, :]
 
-            dataunit = self.fileoutputpath + '/' + self.fileCode + '_' + str(self.YYYY) + '_' + str(
-                self.tstep) + '_OutputFormat.txt'
+            dataunit = self.fileoutputpath + '/' + self.fileCode + '_YYYY_' + str(
+                self.resout) + '_OutputFormat.txt'
             f = open(dataunit)
             lin = f.readlines()
             self.lineunit = lin[3].split(";")
@@ -292,9 +301,9 @@ class SUEWSAnalyzer:
         elif uni == 'mm':
             self.unit = '$mm$'
         elif uni == 'degC':
-            self.unit = '$Degrees(^{o})$'
-        elif uni == 'deg':
             self.unit = '$^{o}C$'
+        elif uni == 'deg':
+            self.unit = '$Degrees(^{o})$'
         elif uni == '-':
             self.unit = '$-$'
         elif uni == 'm2_m-2':
@@ -370,15 +379,48 @@ class SUEWSAnalyzer:
             QMessageBox.critical(self.dlg, "Error", "Start day happens after end day")
             return
 
+        if self.dlg.checkBox_TOD.isChecked():
+            if self.dlg.comboBox_HH.currentText() == ' ':
+                QMessageBox.critical(self.dlg, "Error", "No Hour specified")
+                return
+            if self.dlg.comboBox_mm.currentText() == ' ':
+                QMessageBox.critical(self.dlg, "Error", "No Minute specified")
+                return
+
         # load, cut data and calculate statistics
         statvectemp = [0]
         statresult = [0]
         for i in range(0,self.idgrid.shape[0]):
-            datawhole = np.loadtxt(self.fileoutputpath + '/' + self.fileCode + str(self.idgrid[i, 0]) + '_'
-                                   + str(self.YYYY) + '_' + str(self.resout) + '.txt', skiprows=1)
+            datawhole = np.genfromtxt(self.fileoutputpath + '/' + self.fileCode + str(self.idgrid[i, 0]) + '_'
+                                     + str(self.YYYY) + '_' + str(self.resout) + '.txt', skip_header=1,
+                                     missing_values='**********', filling_values=-9999)
             start = np.min(np.where(datawhole[:, 1] == startday))
             ending = np.max(np.where(datawhole[:, 1] == endday))
             data1 = datawhole[start:ending, :]
+
+            if self.dlg.checkBox_TOD.isChecked():
+                hh = self.dlg.comboBox_HH.currentText()
+                hhdata = np.where(data1[:, 2] == int(hh))
+                data1 = data1[hhdata, :]
+                minute = self.dlg.comboBox_mm.currentText()
+                mmdata = np.where(data1[0][:, 3] == int(minute))
+                # QMessageBox.critical(self.dlg, "test", str(mmdata))
+                data1 = data1[0][mmdata, :]
+                data1 = data1[0][:]
+                # QMessageBox.critical(self.dlg, "test", str(data1))
+                # return
+            else:
+                if self.dlg.radioButtonDaytime.isChecked():
+                    data1 = data1[np.where(data1[:, 52] < 90.), :]
+                    data1 = data1[0][:]
+                    # QMessageBox.critical(self.dlg, "day", str(data1))
+                    # return
+                if self.dlg.radioButtonNighttime.isChecked():
+                    data1 = data1[np.where(data1[:, 52] > 90.), :]
+                    data1 = data1[0][:]
+                    # QMessageBox.critical(self.dlg, "night", str(data1))
+                    # return
+
             vardata = data1[:, self.id]
 
             if self.dlg.radioButtonMean.isChecked():
@@ -572,9 +614,13 @@ class SUEWSAnalyzer:
                 return
 
             # load and cut data
-            datawhole = np.loadtxt(
-                self.fileoutputpath + '/' + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_' + str(
-                    self.resout) + '.txt', skiprows=1)
+            # datawhole = np.loadtxt(
+            #     self.fileoutputpath + '/' + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_' + str(
+            #         self.resout) + '.txt', skiprows=1)
+            datawhole = np.genfromtxt(self.fileoutputpath + '/' + self.fileCode + self.gridcodemet + '_' +
+                                      str(self.YYYY) + '_' + str(self.resout) + '.txt', skip_header=1,
+                                      missing_values='**********', filling_values=-9999)
+
             start = np.min(np.where(datawhole[:, 1] == startday))
             ending = np.max(np.where(datawhole[:, 1] == endday))
             data1 = datawhole[start:ending, :]
@@ -620,9 +666,12 @@ class SUEWSAnalyzer:
                     return
                 # self.varpoi1 = self.dlg.comboBox_POIField.currentText()
                 self.varpoi2 = self.dlg.comboBox_POIField_2.currentText()
-                data2whole = np.loadtxt(
+                # data2whole = np.loadtxt(
+                #     self.fileoutputpath + '/' + self.fileCode + self.varpoi2 + '_' + str(self.YYYY) + '_' + str(
+                #         self.resout) + '.txt', skiprows=1)
+                data2whole = np.genfromtxt(
                     self.fileoutputpath + '/' + self.fileCode + self.varpoi2 + '_' + str(self.YYYY) + '_' + str(
-                        self.resout) + '.txt', skiprows=1)
+                        self.resout) + '.txt', skip_header=1, missing_values='**********', filling_values=-9999)
                 data2 = data2whole[start:ending, :]
 
                 if self.dlg.checkboxScatterbox.isChecked():
@@ -668,7 +717,9 @@ class SUEWSAnalyzer:
 
             met_new = su.tofivemin_v1(self.met_data)
             suews_plottimeold = su.from5mintoanytime(met_new, SumCol_plot, LastCol_plot, TimeCol_plot, timeaggregation)
-            dataplotbasic = np.loadtxt(self.fileoutputpath + '/' + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_' + str(self.resout) + '.txt', skiprows=1)
+            dataplotbasic = np.genfromtxt(self.fileoutputpath + '/' + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_' +
+                          str(self.resout) + '.txt', skip_header=1, missing_values='**********', filling_values=-9999)
+            # dataplotbasic = np.loadtxt(self.fileoutputpath + '/' + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_' + str(self.resout) + '.txt', skiprows=1)
             pl.plotbasic(dataplotbasic, suews_plottimeold)
             plt.show()
 

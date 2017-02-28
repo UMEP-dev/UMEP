@@ -22,7 +22,10 @@ def Solweig_2015a_metdata_noload(inputdata, location, UTC):
     # dectime = np.empty(shape=(1, data_len))
     dectime = met[:, 1]+met[:, 2] / 24 + met[:, 3] / (60*24.)
     dectimemin = met[:, 3] / (60*24.)
-    halftimestepdec = (dectime[1]-dectime[0]) / 2.
+    if data_len == 1:
+        halftimestepdec = 0
+    else:
+        halftimestepdec = (dectime[1] - dectime[0]) / 2.
     time = dict()
     # time['min'] = 30
     time['sec'] = 0
@@ -48,7 +51,7 @@ def Solweig_2015a_metdata_noload(inputdata, location, UTC):
     for i, row in enumerate(met[:, 0]):
         YMD = datetime.datetime(int(met[i, 0]), 1, 1) + datetime.timedelta(int(met[i, 1]) - 1)
         # Finding maximum altitude in 15 min intervals (20141027)
-        if i == 0 or np.mod(dectime[i], np.floor(dectime[i])) == 0:
+        if (i == 0) or (np.mod(dectime[i], np.floor(dectime[i])) == 0):
             fifteen = 0.
             sunmaximum = -90.
             # sunmax.zenith = 90.
@@ -72,17 +75,18 @@ def Solweig_2015a_metdata_noload(inputdata, location, UTC):
         # time['day'] = float(met[i, 2])
 
         half = datetime.timedelta(days=halftimestepdec)
-        HM = datetime.timedelta(hours=met[i, 2] + dectimemin[i])
-        YMDHM = YMD + HM - half
+        H = datetime.timedelta(hours=met[i, 2])
+        M = datetime.timedelta(minutes=met[i, 3])
+        YMDHM = YMD + H + M - half
         time['year'] = YMDHM.year
         time['month'] = YMDHM.month
         time['day'] = YMDHM.day
         time['hour'] = YMDHM.hour
         time['min'] = YMDHM.minute
         sun = sp.sun_position(time, location)
-        altitude[0, i] = 90 - sun['zenith']
+        altitude[0, i] = 90. - sun['zenith']
         azimuth[0, i] = sun['azimuth']
-        zen[0, i] = sun['zenith'] * (np.pi/180)
+        zen[0, i] = sun['zenith'] * (np.pi/180.)
 
         # day of year and check for leap year
         if isleapyear(time['year']):
@@ -92,7 +96,7 @@ def Solweig_2015a_metdata_noload(inputdata, location, UTC):
         jday[0, i] = np.sum(dayspermonth[0, 0:time['month']-1]) + time['day']
         YYYY[0, i] = met[i, 0]
         doy = YMD.timetuple().tm_yday
-        if doy > leafon1 | doy < leafoff1:
+        if (doy > leafon1) | (doy < leafoff1):
             leafon[0, i] = 1
         else:
             leafon[0, i] = 0

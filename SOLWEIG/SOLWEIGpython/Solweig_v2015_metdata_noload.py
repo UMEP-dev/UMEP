@@ -25,7 +25,7 @@ def Solweig_2015a_metdata_noload(inputdata, location, UTC):
     if data_len == 1:
         halftimestepdec = 0
     else:
-        halftimestepdec = (dectime[1]-dectime[0]) / 2.
+        halftimestepdec = (dectime[1] - dectime[0]) / 2.
     time = dict()
     # time['min'] = 30
     time['sec'] = 0
@@ -42,7 +42,7 @@ def Solweig_2015a_metdata_noload(inputdata, location, UTC):
     azimuth = np.empty(shape=(1, data_len))
     zen = np.empty(shape=(1, data_len))
     jday = np.empty(shape=(1, data_len))
-    YYYY = np.zeros((1, data_len))
+    YYYY = np.empty(shape=(1, data_len))
     leafon = np.empty(shape=(1, data_len))
     altmax = np.empty(shape=(1, data_len))
 
@@ -75,17 +75,18 @@ def Solweig_2015a_metdata_noload(inputdata, location, UTC):
         # time['day'] = float(met[i, 2])
 
         half = datetime.timedelta(days=halftimestepdec)
-        HM = datetime.timedelta(hours=met[i, 2] + dectimemin[i])
-        YMDHM = YMD + HM - half
+        H = datetime.timedelta(hours=met[i, 2])
+        M = datetime.timedelta(minutes=met[i, 3])
+        YMDHM = YMD + H + M - half
         time['year'] = YMDHM.year
         time['month'] = YMDHM.month
         time['day'] = YMDHM.day
         time['hour'] = YMDHM.hour
         time['min'] = YMDHM.minute
         sun = sp.sun_position(time, location)
-        altitude[0, i] = 90 - sun['zenith']
+        altitude[0, i] = 90. - sun['zenith']
         azimuth[0, i] = sun['azimuth']
-        zen[0, i] = sun['zenith'] * (np.pi/180)
+        zen[0, i] = sun['zenith'] * (np.pi/180.)
 
         # day of year and check for leap year
         if isleapyear(time['year']):

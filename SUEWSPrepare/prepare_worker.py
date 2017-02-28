@@ -1,7 +1,8 @@
 from PyQt4 import QtCore
-from PyQt4.QtCore import QVariant
-from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
+# from PyQt4.QtCore import QVariant
+from PyQt4.QtGui import QMessageBox  #, QFileDialog, QAction, QIcon
 from qgis.core import *  # QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsRasterLayer, QgsGeometry, QgsMessageLog
+from qgis.gui import QgsMessageBar
 import traceback
 import numpy as np
 from osgeo import gdal, osr
@@ -13,6 +14,7 @@ import os
 # import time
 from shutil import copyfile
 from ..Utilities import f90nml
+from ..Utilities import RoughnessCalcFunction as rg
 
 class Worker(QtCore.QObject):
 
@@ -22,10 +24,10 @@ class Worker(QtCore.QObject):
 
     def __init__(self, vlayer, nbr_header, poly_field, Metfile_path, start_DLS, end_DLS, LCF_from_file, LCFfile_path, LCF_Paved,
                  LCF_buildings, LCF_evergreen, LCF_decidious, LCF_grass, LCF_baresoil, LCF_water, IMP_from_file, IMPfile_path,
-                 IMP_heights_mean, IMP_z0, IMP_zd, IMP_fai, IMPveg_from_file, IMPvegfile_path, IMPveg_heights_mean_eve,
+                 IMP_heights_mean, IMP_z0, IMP_zd, IMP_fai, IMPveg_from_file, IMPvegfile_path, IMPvegfile_path_eve, IMPveg_heights_mean_eve,
                  IMPveg_heights_mean_dec, IMPveg_fai_eve, IMPveg_fai_dec, pop_density, widget_list, wall_area,
                  land_use_from_file, land_use_file_path, lines_to_write, plugin_dir, output_file_list, map_units, header_sheet, wall_area_info, output_dir,
-                 day_since_rain, leaf_cycle, soil_moisture, file_code):
+                 day_since_rain, leaf_cycle, soil_moisture, file_code, utc):
 
         QtCore.QObject.__init__(self)
         self.killed = False
@@ -52,6 +54,7 @@ class Worker(QtCore.QObject):
         self.IMP_fai = IMP_fai
         self.IMPveg_from_file = IMPveg_from_file
         self.IMPvegfile_path = IMPvegfile_path
+        self.IMPvegfile_path_eve = IMPvegfile_path_eve  # not used yet
         self.IMPveg_heights_mean_eve = IMPveg_heights_mean_eve
         self.IMPveg_heights_mean_dec = IMPveg_heights_mean_dec
         self.IMPveg_fai_eve = IMPveg_fai_eve
@@ -68,19 +71,22 @@ class Worker(QtCore.QObject):
         self.header_sheet = header_sheet
         self.wall_area_info = wall_area_info
         self.input_path = plugin_dir + '/Input/'
-        self.output_path = plugin_dir + '/Output/'
+        # self.output_path = plugin_dir + '/Output/'
+        self.output_path = plugin_dir[:-12] + 'suewsmodel/Input/'
         self.plugin_dir = plugin_dir
         self.day_since_rain = day_since_rain
         self.leaf_cycle = leaf_cycle
         self.soil_moisture = soil_moisture
         self.file_code = file_code
+        self.utc = utc
 
     def run(self):
         try:
+            ind = 1
             for feature in self.vlayer.getFeatures():
                 if self.killed is True:
                     break
-                new_line = [None] * len(self.nbr_header)
+                new_line = [None] * (len(self.nbr_header) - 3)
                 print_line = True
                 feat_id = int(feature.attribute(self.poly_field))
                 code = "Grid"
@@ -109,6 +115,17 @@ class Worker(QtCore.QObject):
                                     year = split[0]
                                 else:
                                     year2 = split[0]
+
+                    # figure out the time res of input file
+                    if ind == 1:
+                        met_old = np.genfromtxt(self.Metfile_path, skip_header=1, skip_footer=2)
+                        id = met_old[:, 1]
+                        it = met_old[:, 2]
+                        imin = met_old[:, 3]
+                        dectime0 = id[0] + it[0] / 24 + imin[0] / (60 * 24)
+                        dectime1 = id[1] + it[1] / 24 + imin[1] / (60 * 24)
+                        res = int(np.round((dectime1 - dectime0) * (60 * 24)))
+                        ind = 999
 
                 else:
                     QMessageBox.critical(None, "Error",
@@ -144,30 +161,11 @@ class Worker(QtCore.QObject):
                 new_cs = osr.SpatialReference()
                 new_cs.ImportFromWkt(wgs84_wkt)
 
-                # area_wkt = """
-                # GEOCCS["WGS 84 (geocentric)",
-                #     DATUM["World Geodetic System 1984",
-                #         SPHEROID["WGS 84",6378137.0,298.257223563,
-                #             AUTHORITY["EPSG","7030"]],
-                #         AUTHORITY["EPSG","6326"]],
-                #     PRIMEM["Greenwich",0.0,
-                #         AUTHORITY["EPSG","8901"]],
-                #     UNIT["m",1.0],
-                #     AXIS["Geocentric X",OTHER],
-                #     AXIS["Geocentric Y",EAST],
-                #     AXIS["Geocentric Z",NORTH],
-                #     AUTHORITY["EPSG","4328"]]"""
-
-                # new_cs_area = QgsCoordinateReferenceSystem(area_wkt)
-
                 transform = osr.CoordinateTransformation(old_cs, new_cs)
 
                 centroid = feature.geometry().centroid().asPoint()
-                # areatransform = QgsCoordinateTransform(old_cs_area, new_cs_area)
-                # feature.geometry().transform(areatransform)
                 area = feature.geometry().area()
-                # map_units = self.vlayer.crs().mapUnits()
-                #
+
                 if self.map_units == 0:
                     hectare = area * 0.0001
 
@@ -186,10 +184,15 @@ class Worker(QtCore.QObject):
                 lonlat = transform.TransformPoint(centroid.x(), centroid.y())
                 code = "lat"
                 index = self.find_index(code)
-                new_line[index] = str(lonlat[1])
+                new_line[index] = '%.6f' % lonlat[1]
                 code = "lng"
                 index = self.find_index(code)
-                new_line[index] = str(lonlat[0])
+                new_line[index] = '%.6f' % lonlat[0]
+
+                code = "Timezone"
+                index = self.find_index(code)
+                new_line[index] = str(self.utc)
+
                 code = "SurfaceArea"
                 index = self.find_index(code)
                 new_line[index] = str(hectare)
@@ -324,6 +327,8 @@ class Worker(QtCore.QObject):
                                 IMP_z0 = split[6]
                                 IMP_zd = split[7]
                                 IMP_fai = split[2]
+                                IMP_max = split[4]
+                                IMP_sd = split[5]
                                 found_IMP_line = True
                                 break
                         if not found_IMP_line:
@@ -345,11 +350,6 @@ class Worker(QtCore.QObject):
                 if self.IMPveg_from_file:
                     found_IMPveg_line = False
 
-                    # if self.IMPvegfile_path is None:
-                    #     QMessageBox.critical(None, "Error", "Building morphology file has not been provided,"
-                    #                                         " please check the main tab")
-                    #     return
-                    # elif os.path.isfile(self.IMPvegfile_path):
                     with open(self.IMPvegfile_path) as file:
                         next(file)
                         for line in file:
@@ -359,6 +359,10 @@ class Worker(QtCore.QObject):
                                 IMPveg_heights_mean_dec = split[3]
                                 IMPveg_fai_eve = split[2]
                                 IMPveg_fai_dec = split[2]
+                                IMPveg_max_eve = split[4]  # not used yet
+                                IMPveg_sd_eve = split[5]  # not used yet
+                                IMPveg_max_dec = split[4]
+                                IMPveg_sd_dec = split[5]
                                 found_IMPveg_line = True
                                 break
                         if not found_IMPveg_line:
@@ -377,12 +381,6 @@ class Worker(QtCore.QObject):
                     IMPveg_fai_eve = feature.attribute(self.IMPveg_fai_eve.getFieldName())
                     IMPveg_fai_dec = feature.attribute(self.IMPveg_fai_dec.getFieldName())
 
-                if IMP_z0 == 0:
-                    IMP_z0 = 0.03
-
-                if IMP_zd == 0:
-                    IMP_zd = 0.1
-
                 code = "H_Bldgs"
                 index = self.find_index(code)
                 new_line[index] = str(IMP_heights_mean)
@@ -392,12 +390,36 @@ class Worker(QtCore.QObject):
                 code = "H_DecTr"
                 index = self.find_index(code)
                 new_line[index] = str(IMPveg_heights_mean_dec)
+
+                # New calcualtion of rouhgness params v2017a (Kent et al. 2017b)
+                # sdTree = np.sqrt((IMPveg_sd_eve ^ 2 / LCF_evergreen * area) + (IMPveg_sd_dec ^ 2 / LCF_decidious * area))  # not used yet
+                sdComb = np.sqrt((float(IMPveg_sd_dec) ** 2. / (float(LCF_decidious) * area)) + (float(IMP_sd) ** 2. / (float(LCF_buildings) * area)))
+                zMax = max(float(IMPveg_max_dec),float(IMP_max))
+                pai = float(LCF_buildings) + float(LCF_evergreen) + float(LCF_decidious)
+
+                zH = (float(IMP_heights_mean) * float(LCF_buildings) + float(IMPveg_heights_mean_eve) * float(LCF_evergreen) + float(IMPveg_heights_mean_dec) * float(LCF_decidious)) / \
+                     (float(LCF_buildings) + float(LCF_evergreen) + float(LCF_decidious))
+
+                # paiall = (planareaB + planareaV) / AT
+                porosity = 0.4  # This should change with season
+                Pv = ((-1.251 * porosity ** 2) / 1.2) + ((0.489 * porosity) / 1.2) + (0.803 / 1.2)  # factor accounting for porosity to correct total fai in roughness calc Kent et al. 2017b
+                # faiall_rgh = (frontalareaB + (Pv * frontalareaV)) / (AT / (1 / scale))  # frontal area used in roughness calculation Kent et al. 2017b
+                fai = Pv * (float(IMPveg_fai_eve) + float(IMPveg_fai_dec)) + float(IMP_fai)
+
+                IMP_zd, IMP_z0 = rg.RoughnessCalc("Kan", zH, fai, pai, zMax, sdComb)
+
+                # clean up and give open country values if non-existant
+                if np.isnan(IMP_z0) or IMP_z0 < 0.03:
+                    IMP_z0 = 0.03
+                if np.isnan(IMP_zd) or IMP_zd < 0.1:
+                    IMP_zd = 0.1
+
                 code = "z0"
                 index = self.find_index(code)
-                new_line[index] = str(IMP_z0)
+                new_line[index] = '%.3f' % IMP_z0
                 code = "zd"
                 index = self.find_index(code)
-                new_line[index] = str(IMP_zd)
+                new_line[index] = '%.3f' % IMP_zd
                 code = "FAI_Bldgs"
                 index = self.find_index(code)
                 new_line[index] = str(IMP_fai)
@@ -408,6 +430,18 @@ class Worker(QtCore.QObject):
                 index = self.find_index(code)
                 new_line[index] = str(IMPveg_fai_dec)
 
+                # new for z (2017a)
+                code = "z"
+                index = self.find_index(code)
+                try:
+                    z = ((float(IMP_heights_mean) * float(LCF_buildings) + float(IMPveg_heights_mean_eve) * float(LCF_evergreen) +
+                        float(IMPveg_heights_mean_dec) * float(LCF_decidious)) / (float(LCF_buildings) + float(LCF_evergreen) + float(LCF_decidious))) * 3
+                except:
+                    z = 10.
+                if z < 10.:
+                    z = 10.
+                new_line[index] = '%.3f' % z
+
                 if self.pop_density is not None:
                     pop_density_night = feature.attribute(self.pop_density.getFieldName())
                     pop_density_day = feature.attribute(self.pop_density.getFieldName())
@@ -417,10 +451,10 @@ class Worker(QtCore.QObject):
 
                 code = "PopDensDay"
                 index = self.find_index(code)
-                new_line[index] = str(pop_density_day)
+                new_line[index] = '%.3f' % pop_density_day
                 code = "PopDensNight"
                 index = self.find_index(code)
-                new_line[index] = str(pop_density_night)
+                new_line[index] = '%.3f' % pop_density_night
 
                 for widget in self.widget_list:
                     if widget.get_checkstate():
@@ -728,93 +762,96 @@ class Worker(QtCore.QObject):
 
                 new_line.append("!")
 
-                if print_line: #TODO fix if only one init should be written.
+                if print_line:
                     self.lines_to_write.append(new_line)
-                    # self.initial_conditions(year, feat_id)
-                    nml = f90nml.read(self.input_path + 'InitialConditions.nml')
-                    DaysSinceRain = self.day_since_rain
-                    LeafCycle = self.leaf_cycle
-                    SoilMoisture = self.soil_moisture
-                    moist = int(int(SoilMoisture) * 1.5)
-
-                    DailyMeanT = self.find_daily_mean_temp()
-
-                    nml['initialconditions']['dayssincerain'] = int(DaysSinceRain)
-                    nml['initialconditions']['temp_c0'] = float(DailyMeanT)
-                    nml['initialconditions']['soilstorepavedstate'] = moist
-                    nml['initialconditions']['soilstorebldgsstate'] = moist
-                    nml['initialconditions']['soilstoreevetrstate'] = moist
-                    nml['initialconditions']['soilstoredectrstate'] = moist
-                    nml['initialconditions']['soilstoregrassstate'] = moist
-                    nml['initialconditions']['soilstorebsoilstate'] = moist
-
-                    f = open(self.Metfile_path, 'r')
-                    lin = f.readlines()
-                    index = 1
-                    lines = np.array(lin[index].split())
-                    nml['initialconditions']['id_prev'] = int(lines[1]) - 1
-                    f.close()
-
-                    if LeafCycle == 0:  # Winter
-                        nml['initialconditions']['gdd_1_0'] = 0
-                        nml['initialconditions']['gdd_2_0'] = -450
-                        nml['initialconditions']['laiinitialevetr'] = 4
-                        nml['initialconditions']['laiinitialdectr'] = 1
-                        nml['initialconditions']['laiinitialgrass'] = 1.6
-                    elif LeafCycle == 1:
-                        nml['initialconditions']['gdd_1_0'] = 50
-                        nml['initialconditions']['gdd_2_0'] = -400
-                        nml['initialconditions']['laiinitialevetr'] = 4.2
-                        nml['initialconditions']['laiinitialdectr'] = 2.0
-                        nml['initialconditions']['laiinitialgrass'] = 2.6
-                    elif LeafCycle == 2:
-                        nml['initialconditions']['gdd_1_0'] = 150
-                        nml['initialconditions']['gdd_2_0'] = -300
-                        nml['initialconditions']['laiinitialevetr'] = 4.6
-                        nml['initialconditions']['laiinitialdectr'] = 3.0
-                        nml['initialconditions']['laiinitialgrass'] = 3.6
-                    elif LeafCycle == 3:
-                        nml['initialconditions']['gdd_1_0'] = 225
-                        nml['initialconditions']['gdd_2_0'] = -150
-                        nml['initialconditions']['laiinitialevetr'] = 4.9
-                        nml['initialconditions']['laiinitialdectr'] = 4.5
-                        nml['initialconditions']['laiinitialgrass'] = 4.6
-                    elif LeafCycle == 4:  # Summer
-                        nml['initialconditions']['gdd_1_0'] = 300
-                        nml['initialconditions']['gdd_2_0'] = 0
-                        nml['initialconditions']['laiinitialevetr'] = 5.1
-                        nml['initialconditions']['laiinitialdectr'] = 5.5
-                        nml['initialconditions']['laiinitialgrass'] = 5.9
-                    elif LeafCycle == 5:
-                        nml['initialconditions']['gdd_1_0'] = 225
-                        nml['initialconditions']['gdd_2_0'] = -150
-                        nml['initialconditions']['laiinitialevetr'] = 4.9
-                        nml['initialconditions']['laiinitialdectr'] = 4, 5
-                        nml['initialconditions']['laiinitialgrass'] = 4.6
-                    # elif LeafCycle == 6:
-                    #     nml['initialconditions']['gdd_1_0'] = 150
-                    #     nml['initialconditions']['gdd_2_0'] = -300
-                    #     nml['initialconditions']['laiinitialevetr'] = 4.6
-                    #     nml['initialconditions']['laiinitialdectr'] = 3.0
-                    #     nml['initialconditions']['laiinitialgrass'] = 3.6
-                    elif LeafCycle == 6:  # dummy for londonsmall
-                        nml['initialconditions']['gdd_1_0'] = 150
-                        nml['initialconditions']['gdd_2_0'] = -300
-                        nml['initialconditions']['laiinitialevetr'] = 4.6
-                        nml['initialconditions']['laiinitialdectr'] = 5.0
-                        nml['initialconditions']['laiinitialgrass'] = 5.6
-                    elif LeafCycle == 7:
-                        nml['initialconditions']['gdd_1_0'] = 50
-                        nml['initialconditions']['gdd_2_0'] = -400
-                        nml['initialconditions']['laiinitialevetr'] = 4.2
-                        nml['initialconditions']['laiinitialdectr'] = 2.0
-                        nml['initialconditions']['laiinitialgrass'] = 2.6
-
-                    nml.write(self.output_dir[0] + '/InitialConditions' + str(self.file_code) + str(feat_id) + '_' + str(
-                        year) + '.nml', force=True)
+                #     # self.initial_conditions(year, feat_id)
+                #     nml = f90nml.read(self.input_path + 'InitialConditions.nml')
+                #     # DaysSinceRain = self.day_since_rain
+                #     LeafCycle = self.leaf_cycle
+                #     SoilMoisture = self.soil_moisture
+                #     moist = int(int(SoilMoisture) * 1.5)
+                #
+                #     DailyMeanT = self.find_daily_mean_temp()
+                #
+                #     # nml['initialconditions']['dayssincerain'] = int(DaysSinceRain)
+                #     # nml['initialconditions']['temp_c0'] = float(DailyMeanT)
+                #     nml['initialconditions']['soilstorepavedstate'] = moist
+                #     nml['initialconditions']['soilstorebldgsstate'] = moist
+                #     nml['initialconditions']['soilstoreevetrstate'] = moist
+                #     nml['initialconditions']['soilstoredectrstate'] = moist
+                #     nml['initialconditions']['soilstoregrassstate'] = moist
+                #     nml['initialconditions']['soilstorebsoilstate'] = moist
+                #
+                #     # f = open(self.Metfile_path, 'r')
+                #     # lin = f.readlines()
+                #     # index = 1
+                #     # lines = np.array(lin[index].split())
+                #     # nml['initialconditions']['id_prev'] = int(lines[1]) - 1
+                #     # f.close()
+                #
+                #     if LeafCycle == 0:  # Winter
+                #         nml['initialconditions']['gdd_1_0'] = 0
+                #         nml['initialconditions']['gdd_2_0'] = -450
+                #         nml['initialconditions']['laiinitialevetr'] = 4
+                #         nml['initialconditions']['laiinitialdectr'] = 1
+                #         nml['initialconditions']['laiinitialgrass'] = 1.6
+                #     elif LeafCycle == 1:
+                #         nml['initialconditions']['gdd_1_0'] = 50
+                #         nml['initialconditions']['gdd_2_0'] = -400
+                #         nml['initialconditions']['laiinitialevetr'] = 4.2
+                #         nml['initialconditions']['laiinitialdectr'] = 2.0
+                #         nml['initialconditions']['laiinitialgrass'] = 2.6
+                #     elif LeafCycle == 2:
+                #         nml['initialconditions']['gdd_1_0'] = 150
+                #         nml['initialconditions']['gdd_2_0'] = -300
+                #         nml['initialconditions']['laiinitialevetr'] = 4.6
+                #         nml['initialconditions']['laiinitialdectr'] = 3.0
+                #         nml['initialconditions']['laiinitialgrass'] = 3.6
+                #     elif LeafCycle == 3:
+                #         nml['initialconditions']['gdd_1_0'] = 225
+                #         nml['initialconditions']['gdd_2_0'] = -150
+                #         nml['initialconditions']['laiinitialevetr'] = 4.9
+                #         nml['initialconditions']['laiinitialdectr'] = 4.5
+                #         nml['initialconditions']['laiinitialgrass'] = 4.6
+                #     elif LeafCycle == 4:  # Summer
+                #         nml['initialconditions']['gdd_1_0'] = 300
+                #         nml['initialconditions']['gdd_2_0'] = 0
+                #         nml['initialconditions']['laiinitialevetr'] = 5.1
+                #         nml['initialconditions']['laiinitialdectr'] = 5.5
+                #         nml['initialconditions']['laiinitialgrass'] = 5.9
+                #     elif LeafCycle == 5:
+                #         nml['initialconditions']['gdd_1_0'] = 225
+                #         nml['initialconditions']['gdd_2_0'] = -150
+                #         nml['initialconditions']['laiinitialevetr'] = 4.9
+                #         nml['initialconditions']['laiinitialdectr'] = 4, 5
+                #         nml['initialconditions']['laiinitialgrass'] = 4.6
+                #     # elif LeafCycle == 6:
+                #     #     nml['initialconditions']['gdd_1_0'] = 150
+                #     #     nml['initialconditions']['gdd_2_0'] = -300
+                #     #     nml['initialconditions']['laiinitialevetr'] = 4.6
+                #     #     nml['initialconditions']['laiinitialdectr'] = 3.0
+                #     #     nml['initialconditions']['laiinitialgrass'] = 3.6
+                #     elif LeafCycle == 6:  # dummy for londonsmall
+                #         nml['initialconditions']['gdd_1_0'] = 150
+                #         nml['initialconditions']['gdd_2_0'] = -300
+                #         nml['initialconditions']['laiinitialevetr'] = 4.6
+                #         nml['initialconditions']['laiinitialdectr'] = 5.0
+                #         nml['initialconditions']['laiinitialgrass'] = 5.6
+                #     elif LeafCycle == 7:
+                #         nml['initialconditions']['gdd_1_0'] = 50
+                #         nml['initialconditions']['gdd_2_0'] = -400
+                #         nml['initialconditions']['laiinitialevetr'] = 4.2
+                #         nml['initialconditions']['laiinitialdectr'] = 2.0
+                #         nml['initialconditions']['laiinitialgrass'] = 2.6
+                #
+                #     nml.write(self.output_dir[0] + '/InitialConditions' + str(self.file_code) + str(feat_id) + '_' + str(
+                #         year) + '.nml', force=True)
 
                 # ind += 1
                 self.progress.emit()
+
+            init_out = self.output_dir[0] + '/InitialConditions' + str(self.file_code) + '_' + str(year) + '.nml'
+            self.write_to_init(self.input_path + 'InitialConditions.nml', init_out)
 
             output_lines = []
             output_file = self.output_dir[0] + "/SUEWS_SiteSelect.txt"
@@ -835,10 +872,16 @@ class Worker(QtCore.QObject):
                         QgsMessageLog.logMessage(
                             "Error copying output files with SUEWS_SiteSelect.txt: " + str(e),
                             level=QgsMessageLog.CRITICAL)
-                copyfile(self.Metfile_path, self.output_dir[0] + "/" + self.file_code + '_data.txt')
-                QMessageBox.information(None, "Complete",
-                                        "File successfully created as SUEWS_SiteSelect.txt in Output "
-                                        "Folder: " + self.output_dir[0])
+                copyfile(self.Metfile_path, self.output_dir[0] + "/" + self.file_code + '_' + str(year) + '_data_' + str(res) + '.txt')
+                # f_handle = file(self.Metfile_path, 'a')
+
+                f_handle = open((self.output_dir[0] + "/" + self.file_code + '_' + str(year) + '_data_' + str(res) + '.txt'), 'a')
+                endoffile = [-9, -9]
+                np.savetxt(f_handle, endoffile, fmt='%2d')
+                f_handle.close()
+                # QMessageBox.information(None, "Complete",
+                #                         "File successfully created as SUEWS_SiteSelect.txt in Output "
+                #                         "Folder: " + self.output_dir[0])
 
             if self.killed is False:
                 self.progress.emit()
@@ -868,17 +911,13 @@ class Worker(QtCore.QObject):
         index = values.index(code)
         return index
 
-    def initial_conditions(self, year, gridid):
-        nml = f90nml.read(self.input_path + 'InitialConditions.nml')
-        DaysSinceRain = self.day_since_rain
+    def write_to_init(self, initfilein, initfileout):
         LeafCycle = self.leaf_cycle
         SoilMoisture = self.soil_moisture
-        moist = int(int(SoilMoisture) * 1.5)
+        moist = int(SoilMoisture * 1.5)
 
-        DailyMeanT = self.find_daily_mean_temp()
+        nml = f90nml.read(initfilein)
 
-        nml['initialconditions']['dayssincerain'] = int(DaysSinceRain)
-        nml['initialconditions']['temp_c0'] = float(DailyMeanT)
         nml['initialconditions']['soilstorepavedstate'] = moist
         nml['initialconditions']['soilstorebldgsstate'] = moist
         nml['initialconditions']['soilstoreevetrstate'] = moist
@@ -886,84 +925,194 @@ class Worker(QtCore.QObject):
         nml['initialconditions']['soilstoregrassstate'] = moist
         nml['initialconditions']['soilstorebsoilstate'] = moist
 
-        f = open(self.Metfile_path, 'r')
-        lin = f.readlines()
-        index = 1
-        lines = np.array(lin[index].split())
-        nml['initialconditions']['id_prev'] = int(lines[1]) - 1
-        f.close()
-
-        if LeafCycle == 0:  # Winter
+        # Based on London data
+        if LeafCycle == 1:  # Winter
             nml['initialconditions']['gdd_1_0'] = 0
             nml['initialconditions']['gdd_2_0'] = -450
             nml['initialconditions']['laiinitialevetr'] = 4
             nml['initialconditions']['laiinitialdectr'] = 1
             nml['initialconditions']['laiinitialgrass'] = 1.6
-        elif LeafCycle == 1:
+            nml['initialconditions']['albEveTr0'] = 0.10
+            nml['initialconditions']['albDecTr0'] = 0.12
+            nml['initialconditions']['albGrass0'] = 0.18
+            nml['initialconditions']['decidCap0'] = 0.3
+            nml['initialconditions']['porosity0'] = 0.2
+        elif LeafCycle == 2:
             nml['initialconditions']['gdd_1_0'] = 50
             nml['initialconditions']['gdd_2_0'] = -400
             nml['initialconditions']['laiinitialevetr'] = 4.2
             nml['initialconditions']['laiinitialdectr'] = 2.0
             nml['initialconditions']['laiinitialgrass'] = 2.6
-        elif LeafCycle == 2:
+            nml['initialconditions']['albEveTr0'] = 0.10
+            nml['initialconditions']['albDecTr0'] = 0.12
+            nml['initialconditions']['albGrass0'] = 0.18
+            nml['initialconditions']['decidCap0'] = 0.4
+            nml['initialconditions']['porosity0'] = 0.3
+        elif LeafCycle == 3:
             nml['initialconditions']['gdd_1_0'] = 150
             nml['initialconditions']['gdd_2_0'] = -300
             nml['initialconditions']['laiinitialevetr'] = 4.6
             nml['initialconditions']['laiinitialdectr'] = 3.0
             nml['initialconditions']['laiinitialgrass'] = 3.6
-        elif LeafCycle == 3:
+            nml['initialconditions']['albEveTr0'] = 0.10
+            nml['initialconditions']['albDecTr0'] = 0.12
+            nml['initialconditions']['albGrass0'] = 0.18
+            nml['initialconditions']['decidCap0'] = 0.6
+            nml['initialconditions']['porosity0'] = 0.5
+        elif LeafCycle == 4:
             nml['initialconditions']['gdd_1_0'] = 225
             nml['initialconditions']['gdd_2_0'] = -150
             nml['initialconditions']['laiinitialevetr'] = 4.9
             nml['initialconditions']['laiinitialdectr'] = 4.5
             nml['initialconditions']['laiinitialgrass'] = 4.6
-        elif LeafCycle == 4:  # Summer
+            nml['initialconditions']['albEveTr0'] = 0.10
+            nml['initialconditions']['albDecTr0'] = 0.12
+            nml['initialconditions']['albGrass0'] = 0.18
+            nml['initialconditions']['decidCap0'] = 0.8
+            nml['initialconditions']['porosity0'] = 0.6
+        elif LeafCycle == 5:  # Summer
             nml['initialconditions']['gdd_1_0'] = 300
             nml['initialconditions']['gdd_2_0'] = 0
             nml['initialconditions']['laiinitialevetr'] = 5.1
             nml['initialconditions']['laiinitialdectr'] = 5.5
             nml['initialconditions']['laiinitialgrass'] = 5.9
-        elif LeafCycle == 5:
+            nml['initialconditions']['albEveTr0'] = 0.10
+            nml['initialconditions']['albDecTr0'] = 0.12
+            nml['initialconditions']['albGrass0'] = 0.18
+            nml['initialconditions']['decidCap0'] = 0.8
+            nml['initialconditions']['porosity0'] = 0.6
+        elif LeafCycle == 6:
             nml['initialconditions']['gdd_1_0'] = 225
             nml['initialconditions']['gdd_2_0'] = -150
             nml['initialconditions']['laiinitialevetr'] = 4.9
             nml['initialconditions']['laiinitialdectr'] = 4, 5
             nml['initialconditions']['laiinitialgrass'] = 4.6
-        # elif LeafCycle == 6:
-        #     nml['initialconditions']['gdd_1_0'] = 150
-        #     nml['initialconditions']['gdd_2_0'] = -300
-        #     nml['initialconditions']['laiinitialevetr'] = 4.6
-        #     nml['initialconditions']['laiinitialdectr'] = 3.0
-        #     nml['initialconditions']['laiinitialgrass'] = 3.6
-        elif LeafCycle == 6:  # dummy for londonsmall
+            nml['initialconditions']['albEveTr0'] = 0.10
+            nml['initialconditions']['albDecTr0'] = 0.12
+            nml['initialconditions']['albGrass0'] = 0.18
+            nml['initialconditions']['decidCap0'] = 0.8
+            nml['initialconditions']['porosity0'] = 0.5
+        elif LeafCycle == 7:
             nml['initialconditions']['gdd_1_0'] = 150
             nml['initialconditions']['gdd_2_0'] = -300
             nml['initialconditions']['laiinitialevetr'] = 4.6
-            nml['initialconditions']['laiinitialdectr'] = 5.0
-            nml['initialconditions']['laiinitialgrass'] = 5.6
-        elif LeafCycle == 7:
+            nml['initialconditions']['laiinitialdectr'] = 3.0
+            nml['initialconditions']['laiinitialgrass'] = 3.6
+            nml['initialconditions']['albEveTr0'] = 0.10
+            nml['initialconditions']['albDecTr0'] = 0.12
+            nml['initialconditions']['albGrass0'] = 0.18
+            nml['initialconditions']['decidCap0'] = 0.5
+            nml['initialconditions']['porosity0'] = 0.4
+        elif LeafCycle == 8:  # Late Autumn
             nml['initialconditions']['gdd_1_0'] = 50
             nml['initialconditions']['gdd_2_0'] = -400
             nml['initialconditions']['laiinitialevetr'] = 4.2
             nml['initialconditions']['laiinitialdectr'] = 2.0
             nml['initialconditions']['laiinitialgrass'] = 2.6
+            nml['initialconditions']['albEveTr0'] = 0.10
+            nml['initialconditions']['albDecTr0'] = 0.12
+            nml['initialconditions']['albGrass0'] = 0.18
+            nml['initialconditions']['decidCap0'] = 0.4
+            nml['initialconditions']['porosity0'] = 0.2
 
-        nml.write(self.output_dir[0] + '/InitialConditions' + str(self.file_code) + str(gridid) + '_' + str(year) + '.nml', force=True)
+        nml.write(initfileout, force=True)
 
-    def find_daily_mean_temp(self):
-        if os.path.isfile(self.Metfile_path):
-            with open(self.Metfile_path) as file:
-                next(file)
-                line = next(file)
-                split = line.split()
-                day = int(split[1])
-                number_of_hours = 1
-                total_temp = float(split[11])
-                for line in file:
-                    split = line.split()
-                    if day == int(split[1]):
-                        total_temp += float(split[11])
-                        number_of_hours += 1
+    # def initial_conditions(self, year, gridid):
+    #     nml = f90nml.read(self.input_path + 'InitialConditions.nml')
+    #     DaysSinceRain = self.day_since_rain
+    #     LeafCycle = self.leaf_cycle
+    #     SoilMoisture = self.soil_moisture
+    #     moist = int(int(SoilMoisture) * 1.5)
+    #
+    #     DailyMeanT = self.find_daily_mean_temp()
+    #
+    #     nml['initialconditions']['dayssincerain'] = int(DaysSinceRain)
+    #     nml['initialconditions']['temp_c0'] = float(DailyMeanT)
+    #     nml['initialconditions']['soilstorepavedstate'] = moist
+    #     nml['initialconditions']['soilstorebldgsstate'] = moist
+    #     nml['initialconditions']['soilstoreevetrstate'] = moist
+    #     nml['initialconditions']['soilstoredectrstate'] = moist
+    #     nml['initialconditions']['soilstoregrassstate'] = moist
+    #     nml['initialconditions']['soilstorebsoilstate'] = moist
+    #
+    #     f = open(self.Metfile_path, 'r')
+    #     lin = f.readlines()
+    #     index = 1
+    #     lines = np.array(lin[index].split())
+    #     nml['initialconditions']['id_prev'] = int(lines[1]) - 1
+    #     f.close()
+    #
+    #     if LeafCycle == 0:  # Winter
+    #         nml['initialconditions']['gdd_1_0'] = 0
+    #         nml['initialconditions']['gdd_2_0'] = -450
+    #         nml['initialconditions']['laiinitialevetr'] = 4
+    #         nml['initialconditions']['laiinitialdectr'] = 1
+    #         nml['initialconditions']['laiinitialgrass'] = 1.6
+    #     elif LeafCycle == 1:
+    #         nml['initialconditions']['gdd_1_0'] = 50
+    #         nml['initialconditions']['gdd_2_0'] = -400
+    #         nml['initialconditions']['laiinitialevetr'] = 4.2
+    #         nml['initialconditions']['laiinitialdectr'] = 2.0
+    #         nml['initialconditions']['laiinitialgrass'] = 2.6
+    #     elif LeafCycle == 2:
+    #         nml['initialconditions']['gdd_1_0'] = 150
+    #         nml['initialconditions']['gdd_2_0'] = -300
+    #         nml['initialconditions']['laiinitialevetr'] = 4.6
+    #         nml['initialconditions']['laiinitialdectr'] = 3.0
+    #         nml['initialconditions']['laiinitialgrass'] = 3.6
+    #     elif LeafCycle == 3:
+    #         nml['initialconditions']['gdd_1_0'] = 225
+    #         nml['initialconditions']['gdd_2_0'] = -150
+    #         nml['initialconditions']['laiinitialevetr'] = 4.9
+    #         nml['initialconditions']['laiinitialdectr'] = 4.5
+    #         nml['initialconditions']['laiinitialgrass'] = 4.6
+    #     elif LeafCycle == 4:  # Summer
+    #         nml['initialconditions']['gdd_1_0'] = 300
+    #         nml['initialconditions']['gdd_2_0'] = 0
+    #         nml['initialconditions']['laiinitialevetr'] = 5.1
+    #         nml['initialconditions']['laiinitialdectr'] = 5.5
+    #         nml['initialconditions']['laiinitialgrass'] = 5.9
+    #     elif LeafCycle == 5:
+    #         nml['initialconditions']['gdd_1_0'] = 225
+    #         nml['initialconditions']['gdd_2_0'] = -150
+    #         nml['initialconditions']['laiinitialevetr'] = 4.9
+    #         nml['initialconditions']['laiinitialdectr'] = 4, 5
+    #         nml['initialconditions']['laiinitialgrass'] = 4.6
+    #     # elif LeafCycle == 6:
+    #     #     nml['initialconditions']['gdd_1_0'] = 150
+    #     #     nml['initialconditions']['gdd_2_0'] = -300
+    #     #     nml['initialconditions']['laiinitialevetr'] = 4.6
+    #     #     nml['initialconditions']['laiinitialdectr'] = 3.0
+    #     #     nml['initialconditions']['laiinitialgrass'] = 3.6
+    #     elif LeafCycle == 6:  # dummy for londonsmall
+    #         nml['initialconditions']['gdd_1_0'] = 150
+    #         nml['initialconditions']['gdd_2_0'] = -300
+    #         nml['initialconditions']['laiinitialevetr'] = 4.6
+    #         nml['initialconditions']['laiinitialdectr'] = 5.0
+    #         nml['initialconditions']['laiinitialgrass'] = 5.6
+    #     elif LeafCycle == 7:
+    #         nml['initialconditions']['gdd_1_0'] = 50
+    #         nml['initialconditions']['gdd_2_0'] = -400
+    #         nml['initialconditions']['laiinitialevetr'] = 4.2
+    #         nml['initialconditions']['laiinitialdectr'] = 2.0
+    #         nml['initialconditions']['laiinitialgrass'] = 2.6
+    #
+    #     nml.write(self.output_dir[0] + '/InitialConditions' + str(self.file_code) + str(gridid) + '_' + str(year) + '.nml', force=True)
 
-                mean_temp = float(total_temp) / int(number_of_hours)
-                return mean_temp
+    # def find_daily_mean_temp(self):
+    #     if os.path.isfile(self.Metfile_path):
+    #         with open(self.Metfile_path) as file:
+    #             next(file)
+    #             line = next(file)
+    #             split = line.split()
+    #             day = int(split[1])
+    #             number_of_hours = 1
+    #             total_temp = float(split[11])
+    #             for line in file:
+    #                 split = line.split()
+    #                 if day == int(split[1]):
+    #                     total_temp += float(split[11])
+    #                     number_of_hours += 1
+    #
+    #             mean_temp = float(total_temp) / int(number_of_hours)
+    #             return mean_temp

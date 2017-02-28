@@ -286,6 +286,8 @@ class SOLWEIG:
             geotransform = self.gdal_dsm.GetGeoTransform()
             self.scale = 1 / geotransform[1]
             alt = self.dsm.mean()
+            # QMessageBox.critical(self.dlg, "TEst",str(self.scale))
+            # return
 
             old_cs = osr.SpatialReference()
             dsm_ref = dsmlayer.crs().toWkt()
@@ -444,7 +446,9 @@ class SOLWEIG:
                     QMessageBox.critical(self.dlg, "Error in DEM", "All grids must be of same extent and resolution")
                     return
 
-                alt = self.dem.mean()
+                alt = np.median(self.dem)
+                if alt > 0:
+                    alt = 3.
 
             # SVFs #
             if self.folderPathSVF is None:
@@ -665,6 +669,9 @@ class SOLWEIG:
             YYYY, altitude, azimuth, zen, jday, leafon, dectime, altmax = \
                 metload.Solweig_2015a_metdata_noload(self.metdata, location, UTC)
 
+            # QMessageBox.critical(self.dlg, "Error", str(location))
+            # return
+
             # %Creating vectors from meteorological input
             DOY = self.metdata[:, 1]
             hours = self.metdata[:, 2]
@@ -715,8 +722,6 @@ class SOLWEIG:
                     ind += 1
 
                 uni = set(self.poiname)
-                #self.iface.messageBar().pushMessage("test", str(uni))
-                #self.iface.messageBar().pushMessage("test2", str(poisxy.shape[0]))
                 if not uni.__len__() == self.poisxy.shape[0]:
                     QMessageBox.critical(self.dlg, "Error", "A POI attribute with unique values must be selected")
                     return
@@ -773,12 +778,14 @@ class SOLWEIG:
 
             # % Ts parameterisation maps
             if self.landcover == 1.:
-                if (np.max(self.lcgrid) > 7 or np.min(self.lcgrid) < 1):
+                if ((np.max(self.lcgrid) > 7 or np.min(self.lcgrid) < 1)):
                     QMessageBox.critical(self.dlg, "Error", "The land cover grid includes values not appropriate for UMEP-formatted land cover grid")
                     return
-                else:
-                    [TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST, TmaxLST_wall] = \
-                        Tgmaps_v1(self.lcgrid, lc_class)
+                if ((np.where(self.lcgrid == 3) or np.where(self.lcgrid == 4))):
+                    QMessageBox.critical(self.dlg, "Error",
+                                         "The land cover grid includes values (decidouos and/or conifer) not appropriate for SOLWEIG-formatted land cover grid")
+                    return
+                [TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST, TmaxLST_wall] = Tgmaps_v1(self.lcgrid, lc_class)
             else:
                 TgK = Knight + 0.37
                 Tstart = Knight - 3.41

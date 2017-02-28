@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>466</width>
-    <height>573</height>
+    <width>464</width>
+    <height>553</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,19 +33,6 @@
       <widget class="QLabel" name="label_26">
        <property name="text">
         <string>Net radiation:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buddy">
-        <cstring></cstring>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_27">
-       <property name="text">
-        <string>Surface conductance:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -200,23 +187,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="comboBoxGs">
-       <property name="currentIndex">
-        <number>1</number>
-       </property>
-       <item>
-        <property name="text">
-         <string>[1] From Järvi et al. (2011)</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>[2] From Ward et al. (2015)</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item>
       <widget class="QComboBox" name="comboBoxQs">
        <property name="currentIndex">
         <number>0</number>
@@ -246,16 +216,16 @@
      <item>
       <widget class="QComboBox" name="comboBoxOHM">
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <item>
         <property name="text">
-         <string>[0] From Q*</string>
+         <string>[0] From Q* (RECOMMENDED)</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>[1] From Q* + Qf (RECOMMENDED)</string>
+         <string>[1] From Q* + Qf</string>
         </property>
        </item>
       </widget>
@@ -381,7 +351,30 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="3" column="4">
+      <item row="4" column="4">
+       <widget class="QLineEdit" name="OutputRes">
+        <property name="maxLength">
+         <number>8</number>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="2">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="7" column="4">
        <widget class="QLineEdit" name="FileCode">
         <property name="maxLength">
          <number>8</number>
@@ -391,10 +384,10 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="1" colspan="3">
+      <item row="7" column="1" colspan="3">
        <widget class="QLabel" name="label_35">
         <property name="text">
-         <string>File code (e.g. SSss):</string>
+         <string>File code (e.g. SS):</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -404,43 +397,10 @@
         </property>
        </widget>
       </item>
-      <item row="8" column="4">
-       <widget class="QPushButton" name="runButton">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="text">
-         <string>Run</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="0">
+      <item row="11" column="0">
        <widget class="QPushButton" name="helpButton">
         <property name="text">
          <string>Help</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0" colspan="4">
-       <widget class="QLabel" name="label_36">
-        <property name="text">
-         <string>Height of the meteorological forcing data (m):</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring></cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="4">
-       <widget class="QLineEdit" name="Height">
-        <property name="maxLength">
-         <number>8</number>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -448,29 +408,6 @@
        <widget class="QCheckBox" name="checkBoxSnow">
         <property name="text">
          <string>Use snow module</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1" colspan="3">
-       <widget class="QLabel" name="label_24">
-        <property name="text">
-         <string>UTC offset (hour):</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring></cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="4">
-       <widget class="QLineEdit" name="UTC">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Time zone relative to UTC (Note: east is positive)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -484,7 +421,41 @@
         </property>
        </widget>
       </item>
-      <item row="9" column="4">
+      <item row="2" column="0">
+       <widget class="QPushButton" name="pushButtonCBL">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>CBL setup</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="5">
+       <widget class="QPushButton" name="pushButtonLoad">
+        <property name="text">
+         <string>Input folder</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="5">
+       <widget class="QPushButton" name="pushButtonSave">
+        <property name="text">
+         <string>Output folder</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="5">
+       <widget class="QPushButton" name="runButton">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Run</string>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="5">
        <widget class="QPushButton" name="closeButton">
         <property name="enabled">
          <bool>true</bool>
@@ -494,46 +465,45 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="4">
-       <widget class="QPushButton" name="pushButtonLoad">
-        <property name="text">
-         <string>Input folder</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="4">
-       <widget class="QPushButton" name="pushButtonSave">
-        <property name="text">
-         <string>Output folder</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="3">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="6" column="0" colspan="4">
+      <item row="8" column="2" colspan="3">
        <widget class="QLineEdit" name="textInput"/>
       </item>
-      <item row="7" column="0" colspan="4">
+      <item row="9" column="2" colspan="3">
        <widget class="QLineEdit" name="textOutput"/>
       </item>
-      <item row="2" column="0">
-       <widget class="QPushButton" name="pushButtonCBL">
-        <property name="enabled">
-         <bool>false</bool>
+      <item row="3" column="4">
+       <widget class="QLineEdit" name="InputRes">
+        <property name="maxLength">
+         <number>8</number>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="3">
+       <widget class="QLabel" name="label_38">
         <property name="text">
-         <string>CBL setup</string>
+         <string>Temporal resolution of forcing data (minutes):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring></cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1" colspan="2">
+       <widget class="QLabel" name="label_37">
+        <property name="text">
+         <string>Temporal resolution of output (minutes):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring></cstring>
         </property>
        </widget>
       </item>

@@ -44,14 +44,10 @@ from tabs.anthropogenic import AnthroTab
 from tabs.energy import EnergyTab
 from tabs.irrigation import IrrigationTab
 from tabs.wateruse import WaterUseTab
-
 from tabs.template_widget import TemplateWidget
 from tabs.template_tab import TemplateTab
-
 from tabs.main_tab import MainTab
-
 from tabs.changeDialog import ChangeDialog
-
 from tabs.photodialog import PhotoDialog
 
 #from tabs.testwidget import TestTab
@@ -124,7 +120,8 @@ class SUEWSPrepare:
         self.output_file_list = []
 
         self.input_path = self.plugin_dir + '/Input/'
-        self.output_path = self.plugin_dir + '/Output/'
+        # self.output_path = self.plugin_dir + '/Output/'
+        self.output_path = self.plugin_dir[:-12] + 'suewsmodel/'
         self.output_heat = 'SUEWS_AnthropogenicHeat.txt'
         self.output_file_list.append(self.output_heat)
         self.output_cond = 'SUEWS_Conductance.txt'
@@ -233,6 +230,7 @@ class SUEWSPrepare:
         self.day_since_rain = 0
         self.leaf_cycle = 0
         self.soil_moisture = 100
+        self.utc = 0
         self.file_code = ''
         self.steps = 0
 
@@ -733,19 +731,23 @@ class SUEWSPrepare:
         widget.spinBoxStartDLS.valueChanged.connect(lambda: self.start_DLS_changed(widget.spinBoxStartDLS.value()))
         widget.spinBoxEndDLS.valueChanged.connect(lambda: self.end_DLS_changed(widget.spinBoxEndDLS.value()))
 
-        widget.daySinceRainSpinBox.valueChanged.connect(lambda: self.day_since_rain_changed(widget.daySinceRainSpinBox.
-                                                                                            value()))
+        # widget.daySinceRainSpinBox.valueChanged.connect(lambda: self.day_since_rain_changed(widget.daySinceRainSpinBox.
+        #                                                                                     value()))
         widget.spinBoxSoilMoisture.valueChanged.connect(lambda: self.soil_moisture_changed(widget.spinBoxSoilMoisture.
                                                                                            value()))
         widget.comboBoxLeafCycle.currentIndexChanged.connect(lambda: self.leaf_cycle_changed(widget.comboBoxLeafCycle.
                                                                                              currentIndex()))
         widget.fileCodeLineEdit.textChanged.connect(lambda: self.file_code_changed(widget.fileCodeLineEdit.text()))
+        widget.lineEditUTC.textChanged.connect(lambda: self.utc_changed(widget.lineEditUTC.text()))
 
-    def day_since_rain_changed(self, value):
-        self.day_since_rain = value
+    # def day_since_rain_changed(self, value):
+    #     self.day_since_rain = value
 
     def soil_moisture_changed(self, value):
         self.soil_moisture = value
+
+    def utc_changed(self, index):
+        self.utc = index
 
     def leaf_cycle_changed(self, index):
         self.leaf_cycle = index
@@ -978,7 +980,7 @@ class SUEWSPrepare:
             wb = copy(self.data)
             wrote_line = False
             wrote_excel = False
-            file_path = self.output_path + outputfile
+            file_path = self.output_path + "Input/" + outputfile
             str_list = []
 
             self.setup_change_dialog(sheet)
@@ -1304,14 +1306,13 @@ class SUEWSPrepare:
         self.LCFfile_path = None
         self.IMPfile_path = None
         self.IMPvegfile_path = None
+        self.IMPvegfile_path_dec = None  # not used yet
+        self.IMPvegfile_path_eve = None  # not used yet
         self.land_use_file_path = None
         self.dlg.textOutput.clear()
-
         self.setup_tabs()
-
         self.dlg.show()
         self.dlg.exec_()
-
         self.layerComboManagerPolygrid = None
         self.layerComboManagerPolyField = None
         self.fieldgen = None
@@ -1401,6 +1402,14 @@ class SUEWSPrepare:
             QMessageBox.critical(self.dlg, "Error", "Could not find the file containing meteorological data")
             return
 
+        if self.leaf_cycle == 0:
+            QMessageBox.critical(self.dlg, "Error", "No leaf cycle period has been selected")
+            return
+        else:
+            if not (self.leaf_cycle == 1 or self.leaf_cycle == 5):
+                QMessageBox.critical(self.dlg,"Warning", "A transition period between Winter and Summer has been "
+                                     "choosen. Preferably start the model run during Winter or Summer.")
+
         map_units = vlayer.crs().mapUnits()
         if not map_units == 0 or map_units == 1 or map_units == 2:
             QMessageBox.critical(self.dlg, "Error", "Could not identify the map units of the polygon layer coordinate "
@@ -1449,24 +1458,25 @@ class SUEWSPrepare:
         self.startWorker(vlayer, nbr_header, poly_field, self.Metfile_path, self.start_DLS, self.end_DLS, self.LCF_from_file, self.LCFfile_path,
                          self.LCF_Paved, self.LCF_Buildings, self.LCF_Evergreen, self.LCF_Decidious, self.LCF_Grass, self.LCF_Baresoil,
                          self.LCF_Water, self.IMP_from_file, self.IMPfile_path, self.IMP_mean_height, self.IMP_z0, self.IMP_zd,
-                         self.IMP_fai, self.IMPveg_from_file, self.IMPvegfile_path, self.IMPveg_mean_height_eve,
+                         self.IMP_fai, self.IMPveg_from_file, self.IMPvegfile_path, self.IMPvegfile_path_eve,self.IMPveg_mean_height_eve,
                          self.IMPveg_mean_height_dec, self.IMPveg_fai_eve, self.IMPveg_fai_dec, self.pop_density, self.widget_list, self.wall_area,
                          self.land_use_from_file, self.land_use_file_path, lines_to_write, self.plugin_dir, self.output_file_list, map_units,
-                         self.header_sheet, self.wall_area_info, self.output_dir, self.day_since_rain, self.leaf_cycle, self.soil_moisture, self.file_code)
+                         self.header_sheet, self.wall_area_info, self.output_dir, self.day_since_rain, self.leaf_cycle, self.soil_moisture, self.file_code,
+                         self.utc)
 
     def startWorker(self, vlayer, nbr_header, poly_field, Metfile_path, start_DLS, end_DLS, LCF_from_file, LCFfile_path, LCF_Paved,
                  LCF_buildings, LCF_evergreen, LCF_decidious, LCF_grass, LCF_baresoil, LCF_water, IMP_from_file, IMPfile_path,
-                 IMP_heights_mean, IMP_z0, IMP_zd, IMP_fai, IMPveg_from_file, IMPvegfile_path, IMPveg_heights_mean_eve,
+                 IMP_heights_mean, IMP_z0, IMP_zd, IMP_fai, IMPveg_from_file, IMPvegfile_path, IMPvegfile_path_eve, IMPveg_heights_mean_eve,
                  IMPveg_heights_mean_dec, IMPveg_fai_eve, IMPveg_fai_dec, pop_density, widget_list, wall_area,
                  land_use_from_file, land_use_file_path, lines_to_write, plugin_dir, output_file_list, map_units, header_sheet, wall_area_info, output_dir,
-                 day_since_rain, leaf_cycle, soil_moisture, file_code):
+                 day_since_rain, leaf_cycle, soil_moisture, file_code, utc):
 
         worker = Worker(vlayer, nbr_header, poly_field, Metfile_path, start_DLS, end_DLS, LCF_from_file, LCFfile_path, LCF_Paved,
                  LCF_buildings, LCF_evergreen, LCF_decidious, LCF_grass, LCF_baresoil, LCF_water, IMP_from_file, IMPfile_path,
-                 IMP_heights_mean, IMP_z0, IMP_zd, IMP_fai, IMPveg_from_file, IMPvegfile_path, IMPveg_heights_mean_eve,
+                 IMP_heights_mean, IMP_z0, IMP_zd, IMP_fai, IMPveg_from_file, IMPvegfile_path, IMPvegfile_path_eve,IMPveg_heights_mean_eve,
                  IMPveg_heights_mean_dec, IMPveg_fai_eve, IMPveg_fai_dec, pop_density, widget_list, wall_area,
                  land_use_from_file, land_use_file_path, lines_to_write, plugin_dir, output_file_list, map_units, header_sheet, wall_area_info, output_dir,
-                 day_since_rain, leaf_cycle, soil_moisture, file_code)
+                 day_since_rain, leaf_cycle, soil_moisture, file_code, utc)
 
         self.dlg.runButton.setText('Cancel')
         self.dlg.runButton.clicked.disconnect()
@@ -1498,7 +1508,7 @@ class SUEWSPrepare:
             self.dlg.runButton.clicked.connect(self.generate)
             self.dlg.closeButton.setEnabled(True)
             self.dlg.progressBar.setValue(0)
-            self.iface.messageBar().pushMessage("Land Cover Fraction Grid",
+            self.iface.messageBar().pushMessage("SUEWS Prepare",
                                                 "Process finished! Check General Messages (speech bubble, lower left) "
                                                 "to obtain information of the process.", duration=5)
         else:
@@ -1507,13 +1517,12 @@ class SUEWSPrepare:
             self.dlg.runButton.clicked.connect(self.generate)
             self.dlg.closeButton.setEnabled(True)
             self.dlg.progressBar.setValue(0)
-            QMessageBox.information(None, "Land Cover Fraction Grid", "Operations cancelled, "
+            QMessageBox.information(None, "SUEWS Prepare", "Operations cancelled, "
                                     "process unsuccessful! See the General tab in Log Meassages Panel "
                                     "(speech bubble, lower right) for more information.")
 
     def workerError(self, errorstring):
         QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
-
 
     def progress_update(self):
         self.steps += 1

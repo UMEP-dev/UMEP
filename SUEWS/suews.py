@@ -33,7 +33,7 @@ import webbrowser
 import urllib
 
 from ..Utilities import f90nml
-from ..suewsmodel import Suews_wrapper_v2016b
+from ..suewsmodel import Suews_wrapper_v2017a
 
 
 class SUEWS:
@@ -156,7 +156,7 @@ class SUEWS:
         # del self.toolbar
 
     def run(self):
-        if not os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2016b') or os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2016b.exe'):
+        if not (os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2017a') or os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2017a.exe')):
             if QMessageBox.question(self.iface.mainWindow(), "OS specific binaries missing",
                                     "Before you start to use this plugin for the very first time, the OS specific suews\r\n"
                                     "program (7Mb) must be be download from the UMEP repository and stored\r\n"
@@ -174,8 +174,8 @@ class SUEWS:
                                     QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
                 testfile = urllib.URLopener()
                 if sys.platform == 'win32':
-                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/win/SUEWS_V2016b.exe',
-                                      self.model_dir + os.sep + 'SUEWS_V2016b.exe')
+                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/win/SUEWS_V2017a.exe',
+                                      self.model_dir + os.sep + 'SUEWS_V2017a.exe')
                     testfile2 = urllib.URLopener()
                     testfile2.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cyggcc_s-seh-1.dll',
                                        self.model_dir + os.sep + 'cyggcc_s-seh-1.dll')
@@ -189,11 +189,11 @@ class SUEWS:
                     testfile5.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cygwin1.dll',
                                        self.model_dir + os.sep + 'cygwin1.dll')
                 if sys.platform == 'linux2':
-                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/linux/SUEWS_V2016b',
-                                      self.model_dir + os.sep + 'SUEWS_V2016b')
+                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/linux/SUEWS_V2017a',
+                                      self.model_dir + os.sep + 'SUEWS_V2017a')
                 if sys.platform == 'darwin':
-                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/mac/SUEWS_V2016b',
-                                      self.model_dir + os.sep + 'SUEWS_V2016b')
+                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/mac/SUEWS_V2017a',
+                                      self.model_dir + os.sep + 'SUEWS_V2017a')
 
             else:
                 QMessageBox.critical(self.iface.mainWindow(), "Binaries not downloaded",
@@ -225,20 +225,19 @@ class SUEWS:
     def start_progress(self):
 
         # No Plots
-        plot = 1
+        plot = 0
         plotnml = f90nml.read(self.model_dir + '/plot.nml')
         plotnml['plot']['plotbasic'] = plot
         plotnml['plot']['plotmonthlystat'] = plot
         plotnml.write(self.model_dir + '/plot.nml', force=True)
 
         # Create modified RunControl
-        height = self.dlg.Height.text()
-        utc = self.dlg.UTC.text()
+        inputRes = self.dlg.InputRes.text()
+        outputRes = self.dlg.OutputRes.text()
         filecode = self.dlg.FileCode.text()
         infolder = self.dlg.textInput.text()
         outfolder = self.dlg.textOutput.text()
         AeroD = self.dlg.comboBoxAeroD.currentIndex()
-        Gs = self.dlg.comboBoxGs.currentIndex()
         Net = self.dlg.comboBoxNet.currentIndex()
         OHM = self.dlg.comboBoxOHM.currentIndex()
         Qf = self.dlg.comboBoxQf.currentIndex()
@@ -263,24 +262,23 @@ class SUEWS:
         usesolweig = 0
 
         nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
-        nml['runcontrol']['AnthropHeatChoice'] = int(Qf)
+        nml['runcontrol']['AnthropHeatMethod'] = int(Qf)
         nml['runcontrol']['CBLuse'] = int(usecbl)
-        nml['runcontrol']['NetRadiationChoice'] = int(Net)
-        nml['runcontrol']['gsChoice'] = int(Gs) + 1
-        nml['runcontrol']['RoughLen_heat'] = int(Z0) + 1
-        nml['runcontrol']['QSChoice'] = int(Qs) + 1
+        nml['runcontrol']['NetRadiationMethod'] = int(Net)
+        nml['runcontrol']['RoughLenHeatMethod'] = int(Z0) + 1
+        nml['runcontrol']['StorageHeatMethod'] = int(Qs) + 1
         nml['runcontrol']['OHMIncQF'] = int(OHM)
-        nml['runcontrol']['smd_choice'] = int(SMD)
+        nml['runcontrol']['SMDMethod'] = int(SMD)
         nml['runcontrol']['StabilityMethod'] = int(Stab) + 2
-        nml['runcontrol']['WU_choice'] = int(WU)
-        nml['runcontrol']['z0_method'] = int(AeroD) + 1
+        nml['runcontrol']['WaterUseMethod'] = int(WU)
+        nml['runcontrol']['RoughLenMomMethod'] = int(AeroD) + 1
         nml['runcontrol']['SnowUse'] = int(usesnow)
         nml['runcontrol']['SOLWEIGuse'] = int(usesolweig)
-        nml['runcontrol']['timezone'] = int(utc)
         nml['runcontrol']['fileCode'] = str(filecode)
         nml['runcontrol']['fileinputpath'] = str(infolder) + "/"
         nml['runcontrol']['fileoutputpath'] = str(outfolder) + "/"
-        nml['runcontrol']['z'] = float(height)
+        nml['runcontrol']['ResolutionFilesOut'] = int(int(outputRes) * 60.)
+        nml['runcontrol']['ResolutionFilesIn'] = int(int(inputRes) * 60.)
 
         nml.write(self.model_dir + '/RunControl.nml', force=True)
 
@@ -288,7 +286,7 @@ class SUEWS:
         # self.startWorker(self.iface, self.plugin_dir, self.dlg)
         QMessageBox.information(None, "Model information", "Model run will now start. QGIS might freeze during calcualtion."
                                                            "This will be fixed in future versions")
-        Suews_wrapper_v2016b.wrapper(self.model_dir)
+        Suews_wrapper_v2017a.wrapper(self.model_dir)
         try:
             # Suews_wrapper_v2016b.wrapper(self.model_dir)
             self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.model_dir + " for "

@@ -234,8 +234,8 @@ def get_Tmax(xland, year_start, year_end):
     # check if the land grid is valid
 
     # download Tmax data
-    url = "http://www.urban-climate.net/watch_data/Tmax_Land_" + \
-        str(xland) + ".nc.gz"
+    url = "http://www.urban-climate.net/watch_data/Tmax_Land/Tmax_Land_" + \
+          str(xland) + ".nc.gz"
     file_name = url.split('/')[-1]
 
     headers = {'User-Agent': 'Mozilla/5.0'}

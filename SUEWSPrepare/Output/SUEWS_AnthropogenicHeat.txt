@@ -1,9 +1,0 @@
-1	2	3	4	5	6	7	8	9	10	11			
-Code	BaseTHDD	QF_A_Weekday	QF_B_Weekday	QF_C_Weekday	QF_A_Weekend	QF_B_Weekend	QF_C_Weekend	AHMin	AHSlope	TCritic			
-10	18.2	0.1	0.00986	0.0102	0.1	0.00986	0.0102	15	2.7	7	!	Helsinki	Jarvi et al 2014
-11	18.2	0.3081	0.0099	0.0102	0.3081	0.0099	0.0102	-999	-999	-999	!	Järvi et al. (2011) - MD	
-551	18.2	0.1446	0.0000	0.0037	0.1329	0.0000	0.0038	-999	-999	-999	!	"Swindon (fit, Ward et al. 2016)"	
-661	18.2	0.3743	0.0000	0.0073	0.3412	0.0000	0.0067	-999	-999	-999	!	"London (fit with QF corrected by 25%, Ward et al. 2016)"	
-33661	18.2	0.3081357	0.0098631	0.0101826	0.3081357	0.0098631	0.0101826	-999	-999	-999	!			GLA/Boroughs	London	http://www.gu.se/digitalAssets/1548/1548593_grafiskt-element-agecap.png		
--9													
--9													

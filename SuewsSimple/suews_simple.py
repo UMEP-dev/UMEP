@@ -20,23 +20,16 @@
  *                                                                         *
  ***************************************************************************/
 """
-# Import QGIS and PyQt
+
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QThread
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
 from qgis.core import *
 from qgis.gui import *
-# Initialize Qt resources from file resources.py
-# import resources_rc
-# Import the code for the dialog and other parts of the plugin
 from suews_simple_dialog import SuewsSimpleDialog
-# from ..suewsmodel import Suews_wrapper_v12
-from ..suewsmodel import Suews_wrapper_v2016b
+from ..suewsmodel import Suews_wrapper_v2017a
 from ..ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
 from ..LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
-# from suewssimpleworker import Worker
 from ..Utilities import f90nml
-
-# Import other python stuff
 import urllib
 import numpy as np
 import shutil
@@ -44,7 +37,7 @@ import sys
 import os.path
 import webbrowser
 import time
-import traceback
+# from suewssimpleworker import Worker
 
 
 class SuewsSimple:
@@ -189,7 +182,7 @@ class SuewsSimple:
         del self.toolbar
 
     def run(self):
-        if not os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2016b') or os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2016b.exe'):
+        if not (os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2017a') or os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2017a.exe')):
             # QMessageBox.information(self.iface.mainWindow(),
             if QMessageBox.question(self.iface.mainWindow(), "OS specific binaries missing",
                                  "Before you start to use this plugin for the very first time, the OS specific suews\r\n"
@@ -207,7 +200,7 @@ class SuewsSimple:
                                  "Do you want to contiune with the download?", QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
                 testfile = urllib.URLopener()
                 if sys.platform == 'win32':
-                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/win/SUEWS_V2016b.exe', self.model_dir + os.sep + 'SUEWS_V2016b.exe')
+                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/win/SUEWS_V2017a.exe', self.model_dir + os.sep + 'SUEWS_V2017a.exe')
                     testfile2 = urllib.URLopener()
                     testfile2.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cyggcc_s-seh-1.dll', self.model_dir + os.sep + 'cyggcc_s-seh-1.dll')
                     testfile3 = urllib.URLopener()
@@ -217,9 +210,9 @@ class SuewsSimple:
                     testfile5 = urllib.URLopener()
                     testfile5.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cygwin1.dll', self.model_dir + os.sep + 'cygwin1.dll')
                 if sys.platform == 'linux2':
-                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/linux/SUEWS_V2016b', self.model_dir + os.sep + 'SUEWS_V2016b')
+                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/linux/SUEWS_V2017a', self.model_dir + os.sep + 'SUEWS_V2017a')
                 if sys.platform == 'darwin':
-                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/mac/SUEWS_V2016b', self.model_dir + os.sep + 'SUEWS_V2016b')
+                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/mac/SUEWS_V2017a', self.model_dir + os.sep + 'SUEWS_V2017a')
             else:
                 QMessageBox.critical(self.iface.mainWindow(),"Binaries not downloaded", "This plugin will not be able to start before binaries are downloaded")
                 return
@@ -333,83 +326,85 @@ class SuewsSimple:
         if result == 1:
             self.folderPathInit = self.fileDialogInit.selectedFiles()
             nml = f90nml.read(self.folderPathInit[0])
-            dayssincerain = nml['initialconditions']['dayssincerain']
-            dailymeantemperature = nml['initialconditions']['temp_c0']
-            self.dlg.DaysSinceRain.setText(str(dayssincerain))
-            self.dlg.DailyMeanT.setText(str(dailymeantemperature))
+            # dayssincerain = nml['initialconditions']['dayssincerain']
+            # dailymeantemperature = nml['initialconditions']['temp_c0']
+            # self.dlg.DaysSinceRain.setText(str(dayssincerain))
+            # self.dlg.DailyMeanT.setText(str(dailymeantemperature))
             self.dlg.comboBoxLeafCycle.setCurrentIndex(1)
 
     def export_initial(self):
-        self.fileDialogInit.open()
-        result = self.fileDialogInit.exec_()
-        if result == 1:
-            self.folderPathInit = self.fileDialogInit.selectedFiles()
+        outputfile = self.fileDialog.getSaveFileName(None, "Save As:", None, "Namelist (*.nml)")
+        # self.fileDialogInit.open()
+        # result = self.fileDialogInit.exec_()
+        if outputfile:
+            self.folderPathInit = outputfile
+            self.write_to_init(self.model_dir + '/BaseFiles/InitialConditionsKc_2012.nml', self.folderPathInit)
 
-            DaysSinceRain = self.dlg.DaysSinceRain.text()
-            DailyMeanT = self.dlg.DailyMeanT.text()
-            LeafCycle = self.dlg.comboBoxLeafCycle.currentIndex() - 1.
-            SoilMoisture = self.dlg.spinBoxSoilMoisture.value()
-            moist = int(SoilMoisture * 1.5)
-
-            nml = f90nml.read(self.model_dir + '/BaseFiles/InitialConditionsKc1_2012.nml')
-            nml['initialconditions']['dayssincerain'] = int(DaysSinceRain)
-            nml['initialconditions']['temp_c0'] = float(DailyMeanT)
-            nml['initialconditions']['soilstorepavedstate'] = moist
-            nml['initialconditions']['soilstorebldgsstate'] = moist
-            nml['initialconditions']['soilstoreevetrstate'] = moist
-            nml['initialconditions']['soilstoredectrstate'] = moist
-            nml['initialconditions']['soilstoregrassstate'] = moist
-            nml['initialconditions']['soilstorebsoilstate'] = moist
-
-            if LeafCycle == 0:  # Winter
-                nml['initialconditions']['gdd_1_0'] = 0
-                nml['initialconditions']['gdd_2_0'] = -450
-                nml['initialconditions']['laiinitialevetr'] = 4
-                nml['initialconditions']['laiinitialdectr'] = 1
-                nml['initialconditions']['laiinitialgrass'] = 1.6
-            elif LeafCycle == 1:
-                nml['initialconditions']['gdd_1_0'] = 50
-                nml['initialconditions']['gdd_2_0'] = -400
-                nml['initialconditions']['laiinitialevetr'] = 4.2
-                nml['initialconditions']['laiinitialdectr'] = 2.0
-                nml['initialconditions']['laiinitialgrass'] = 2.6
-            elif LeafCycle == 2:
-                nml['initialconditions']['gdd_1_0'] = 150
-                nml['initialconditions']['gdd_2_0'] = -300
-                nml['initialconditions']['laiinitialevetr'] = 4.6
-                nml['initialconditions']['laiinitialdectr'] = 3.0
-                nml['initialconditions']['laiinitialgrass'] = 3.6
-            elif LeafCycle == 3:
-                nml['initialconditions']['gdd_1_0'] = 225
-                nml['initialconditions']['gdd_2_0'] = -150
-                nml['initialconditions']['laiinitialevetr'] = 4.9
-                nml['initialconditions']['laiinitialdectr'] = 4.5
-                nml['initialconditions']['laiinitialgrass'] = 4.6
-            elif LeafCycle == 4: # Summer
-                nml['initialconditions']['gdd_1_0'] = 300
-                nml['initialconditions']['gdd_2_0'] = 0
-                nml['initialconditions']['laiinitialevetr'] = 5.1
-                nml['initialconditions']['laiinitialdectr'] = 5.5
-                nml['initialconditions']['laiinitialgrass'] = 5.9
-            elif LeafCycle == 5:
-                nml['initialconditions']['gdd_1_0'] = 225
-                nml['initialconditions']['gdd_2_0'] = -150
-                nml['initialconditions']['laiinitialevetr'] = 4.9
-                nml['initialconditions']['laiinitialdectr'] = 4,5
-                nml['initialconditions']['laiinitialgrass'] = 4.6
-            elif LeafCycle == 6:
-                nml['initialconditions']['gdd_1_0'] = 150
-                nml['initialconditions']['gdd_2_0'] = -300
-                nml['initialconditions']['laiinitialevetr'] = 4.6
-                nml['initialconditions']['laiinitialdectr'] = 3.0
-                nml['initialconditions']['laiinitialgrass'] = 3.6
-            elif LeafCycle == 7:
-                nml['initialconditions']['gdd_1_0'] = 50
-                nml['initialconditions']['gdd_2_0'] = -400
-                nml['initialconditions']['laiinitialevetr'] = 4.2
-                nml['initialconditions']['laiinitialdectr'] = 2.0
-                nml['initialconditions']['laiinitialgrass'] = 2.6
-            nml.write(self.folderPathInit[0], force=True)
+            # # DaysSinceRain = self.dlg.DaysSinceRain.text()
+            # # DailyMeanT = self.dlg.DailyMeanT.text()
+            # LeafCycle = self.dlg.comboBoxLeafCycle.currentIndex() - 1.
+            # SoilMoisture = self.dlg.spinBoxSoilMoisture.value()
+            # moist = int(SoilMoisture * 1.5)
+            #
+            # nml = f90nml.read(self.model_dir + '/BaseFiles/InitialConditionsKc_2012.nml')
+            # # nml['initialconditions']['dayssincerain'] = int(DaysSinceRain)
+            # # nml['initialconditions']['temp_c0'] = float(DailyMeanT)
+            # nml['initialconditions']['soilstorepavedstate'] = moist
+            # nml['initialconditions']['soilstorebldgsstate'] = moist
+            # nml['initialconditions']['soilstoreevetrstate'] = moist
+            # nml['initialconditions']['soilstoredectrstate'] = moist
+            # nml['initialconditions']['soilstoregrassstate'] = moist
+            # nml['initialconditions']['soilstorebsoilstate'] = moist
+            #
+            # if LeafCycle == 0:  # Winter
+            #     nml['initialconditions']['gdd_1_0'] = 0
+            #     nml['initialconditions']['gdd_2_0'] = -450
+            #     nml['initialconditions']['laiinitialevetr'] = 4
+            #     nml['initialconditions']['laiinitialdectr'] = 1
+            #     nml['initialconditions']['laiinitialgrass'] = 1.6
+            # elif LeafCycle == 1:
+            #     nml['initialconditions']['gdd_1_0'] = 50
+            #     nml['initialconditions']['gdd_2_0'] = -400
+            #     nml['initialconditions']['laiinitialevetr'] = 4.2
+            #     nml['initialconditions']['laiinitialdectr'] = 2.0
+            #     nml['initialconditions']['laiinitialgrass'] = 2.6
+            # elif LeafCycle == 2:
+            #     nml['initialconditions']['gdd_1_0'] = 150
+            #     nml['initialconditions']['gdd_2_0'] = -300
+            #     nml['initialconditions']['laiinitialevetr'] = 4.6
+            #     nml['initialconditions']['laiinitialdectr'] = 3.0
+            #     nml['initialconditions']['laiinitialgrass'] = 3.6
+            # elif LeafCycle == 3:
+            #     nml['initialconditions']['gdd_1_0'] = 225
+            #     nml['initialconditions']['gdd_2_0'] = -150
+            #     nml['initialconditions']['laiinitialevetr'] = 4.9
+            #     nml['initialconditions']['laiinitialdectr'] = 4.5
+            #     nml['initialconditions']['laiinitialgrass'] = 4.6
+            # elif LeafCycle == 4: # Summer
+            #     nml['initialconditions']['gdd_1_0'] = 300
+            #     nml['initialconditions']['gdd_2_0'] = 0
+            #     nml['initialconditions']['laiinitialevetr'] = 5.1
+            #     nml['initialconditions']['laiinitialdectr'] = 5.5
+            #     nml['initialconditions']['laiinitialgrass'] = 5.9
+            # elif LeafCycle == 5:
+            #     nml['initialconditions']['gdd_1_0'] = 225
+            #     nml['initialconditions']['gdd_2_0'] = -150
+            #     nml['initialconditions']['laiinitialevetr'] = 4.9
+            #     nml['initialconditions']['laiinitialdectr'] = 4,5
+            #     nml['initialconditions']['laiinitialgrass'] = 4.6
+            # elif LeafCycle == 6:
+            #     nml['initialconditions']['gdd_1_0'] = 150
+            #     nml['initialconditions']['gdd_2_0'] = -300
+            #     nml['initialconditions']['laiinitialevetr'] = 4.6
+            #     nml['initialconditions']['laiinitialdectr'] = 3.0
+            #     nml['initialconditions']['laiinitialgrass'] = 3.6
+            # elif LeafCycle == 7:
+            #     nml['initialconditions']['gdd_1_0'] = 50
+            #     nml['initialconditions']['gdd_2_0'] = -400
+            #     nml['initialconditions']['laiinitialevetr'] = 4.2
+            #     nml['initialconditions']['laiinitialdectr'] = 2.0
+            #     nml['initialconditions']['laiinitialgrass'] = 2.6
+            # nml.write(self.folderPathInit, force=True)
 
     def set_default_settings(self):
         f = open(self.model_dir + '/BaseFiles/SUEWS_SiteSelect.txt')
@@ -417,37 +412,38 @@ class SuewsSimple:
         index = 2
         lines = lin[index].split()
         self.dlg.lineEdit_YYYY.setText(lines[1])
-        self.dlg.pai_paved.setText(lines[11])
-        self.dlg.pai_build.setText(lines[12])
-        self.dlg.pai_evergreen.setText(lines[13])
-        self.dlg.pai_decid.setText(lines[14])
-        self.dlg.pai_grass.setText(lines[15])
-        self.dlg.pai_baresoil.setText(lines[16])
-        self.dlg.pai_water.setText(lines[17])
-        self.dlg.lineEdit_zHBuild.setText(lines[21])
-        self.dlg.lineEdit_faiBuild.setText(lines[26])
-        self.dlg.lineEdit_paiBuild.setText(lines[12])
-        self.dlg.lineEdit_zHveg.setText(str((float(lines[22]) + float(lines[23])) / 2))
-        self.dlg.lineEdit_faiveg.setText(str((float(lines[27]) + float(lines[28])) / 2))
-        self.dlg.lineEdit_paiveg.setText(str((float(lines[13]) + float(lines[14])) / 2))
+        self.dlg.pai_paved.setText(lines[13])
+        self.dlg.pai_build.setText(lines[14])
+        self.dlg.pai_evergreen.setText(lines[15])
+        self.dlg.pai_decid.setText(lines[16])
+        self.dlg.pai_grass.setText(lines[17])
+        self.dlg.pai_baresoil.setText(lines[18])
+        self.dlg.pai_water.setText(lines[19])
+        self.dlg.lineEdit_zHBuild.setText(lines[23])
+        self.dlg.lineEdit_faiBuild.setText(lines[28])
+        self.dlg.lineEdit_paiBuild.setText(lines[14])
+        self.dlg.lineEdit_zHveg.setText(str((float(lines[24]) + float(lines[25])) / 2))
+        self.dlg.lineEdit_faiveg.setText(str((float(lines[29]) + float(lines[30])) / 2))
+        self.dlg.lineEdit_paiveg.setText(str((float(lines[15]) + float(lines[16])) / 2))
         self.dlg.Latitude.setText(lines[4])
         self.dlg.Longitude.setText(lines[5])
-        self.dlg.PopDensNight.setText(lines[30])
+        self.dlg.PopDensNight.setText(lines[32])
+        self.dlg.Height.setText(lines[9])
 
-        nml = f90nml.read(self.model_dir + '/BaseFiles/InitialConditionsKc1_2012.nml')
-        dayssincerain = nml['initialconditions']['dayssincerain']
-        dailymeantemperature = nml['initialconditions']['temp_c0']
-        self.dlg.DaysSinceRain.setText(str(dayssincerain))
-        self.dlg.DailyMeanT.setText(str(dailymeantemperature))
+        # nml = f90nml.read(self.model_dir + '/BaseFiles/InitialConditionsKc_2012.nml')
+        # dayssincerain = nml['initialconditions']['dayssincerain']
+        # dailymeantemperature = nml['initialconditions']['temp_c0']
+        # self.dlg.DaysSinceRain.setText(str(dayssincerain))
+        # self.dlg.DailyMeanT.setText(str(dailymeantemperature))
         self.dlg.comboBoxLeafCycle.setCurrentIndex(1)
 
         nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
-        self.dlg.Height.setText(str(nml['runcontrol']['z']))
+
         self.dlg.FileCode.setText(str(nml['runcontrol']['FileCode']))
 
         self.dlg.UTC.setText('0')
 
-        self.dlg.textInputMetdata.setText(self.model_dir + '/BaseFiles/Kc_data.txt')
+        self.dlg.textInputMetdata.setText(self.model_dir + '/BaseFiles/Kc_2012_data_60.txt')
         self.dlg.textOutput.setText(self.model_dir + '/Output/')
         self.dlg.spinBoxSoilMoisture.setValue(100)
 
@@ -509,6 +505,8 @@ class SuewsSimple:
         lon = self.dlg.Longitude.text()
         popdens = float(self.dlg.PopDensNight.text())
         filecode = self.dlg.FileCode.text()
+        utc = self.dlg.UTC.text()
+        z = self.dlg.Height.text()
 
         # Create new SiteSelect
         f = open(self.model_dir + '/BaseFiles/SUEWS_SiteSelect.txt', 'r')
@@ -516,24 +514,26 @@ class SuewsSimple:
         index = 2
         lines = np.array(lin[index].split())
         newdata = lines
-        gridcode = newdata[0]
+        # gridcode = newdata[0]
         newdata[1] = YYYY
         newdata[4] = lat
         newdata[5] = lon
-        newdata[11] = pai_paved
-        newdata[12] = pai_build
-        newdata[13] = pai_evergreen
-        newdata[14] = pai_decid
-        newdata[15] = pai_grass
-        newdata[16] = pai_baresoil
-        newdata[17] = pai_water
-        newdata[21] = zHBuild
-        newdata[22] = zHveg
-        newdata[23] = zHveg
-        newdata[26] = faiBuild
-        newdata[27] = faiveg
-        newdata[28] = faiveg
-        newdata[30] = popdens
+        newdata[6] = int(utc)
+        newdata[9] = float(z)
+        newdata[13] = pai_paved
+        newdata[14] = pai_build
+        newdata[15] = pai_evergreen
+        newdata[16] = pai_decid
+        newdata[17] = pai_grass
+        newdata[18] = pai_baresoil
+        newdata[19] = pai_water
+        newdata[23] = zHBuild
+        newdata[24] = zHveg
+        newdata[25] = zHveg
+        newdata[28] = faiBuild
+        newdata[29] = faiveg
+        newdata[30] = faiveg
+        newdata[32] = popdens
         self.write_site_select(1, newdata)
         f.close()
 
@@ -542,20 +542,15 @@ class SuewsSimple:
             plot = 1
         else:
             plot = 0
-        # self.iface.messageBar().pushMessage("Warning", str(plot), level=QgsMessageBar.WARNING)
         plotnml = f90nml.read(self.model_dir + '/plot.nml')
         plotnml['plot']['plotbasic'] = plot
         plotnml['plot']['plotmonthlystat'] = plot
         plotnml.write(self.model_dir + '/plot.nml', force=True)
 
         # Create new RunControl
-        utc = self.dlg.UTC.text()
-        z = self.dlg.Height.text()
         inmetfile = self.dlg.textInputMetdata.text()
         outfolder = self.dlg.textOutput.text() + '/'
         nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
-        nml['runcontrol']['timezone'] = int(utc)
-        nml['runcontrol']['z'] = float(z)
         if not (faiBuild == -999.0 or faiveg == -999.0):
             nml['runcontrol']['z0_method'] = 3
 
@@ -570,86 +565,90 @@ class SuewsSimple:
         nml['runcontrol']['fileinputpath'] = self.model_dir + '/Input/'
         nml.write(self.model_dir + '/RunControl.nml', force=True)
 
-        # Initial conditions
-        DaysSinceRain = self.dlg.DaysSinceRain.text()
-        DailyMeanT = self.dlg.DailyMeanT.text()
-        LeafCycle = self.dlg.comboBoxLeafCycle.currentIndex()
-        SoilMoisture = self.dlg.spinBoxSoilMoisture.value()
-        moist = int(SoilMoisture * 1.5)
+        # # Initial conditions
+        # DaysSinceRain = self.dlg.DaysSinceRain.text()
+        # DailyMeanT = self.dlg.DailyMeanT.text()
+        # LeafCycle = self.dlg.comboBoxLeafCycle.currentIndex()
+        # SoilMoisture = self.dlg.spinBoxSoilMoisture.value()
+        # moist = int(SoilMoisture * 1.5)
+        #
+        # nml = f90nml.read(self.model_dir + '/BaseFiles/InitialConditionsKc_2012.nml')
+        # # nml['initialconditions']['dayssincerain'] = int(DaysSinceRain)
+        # # nml['initialconditions']['temp_c0'] = float(DailyMeanT)
+        # nml['initialconditions']['soilstorepavedstate'] = moist
+        # nml['initialconditions']['soilstorebldgsstate'] = moist
+        # nml['initialconditions']['soilstoreevetrstate'] = moist
+        # nml['initialconditions']['soilstoredectrstate'] = moist
+        # nml['initialconditions']['soilstoregrassstate'] = moist
+        # nml['initialconditions']['soilstorebsoilstate'] = moist
+        #
+        # # f = open(inmetfile, 'r')
+        # # lin = f.readlines()
+        # # index = 1
+        # # lines = np.array(lin[index].split())
+        # # nml['initialconditions']['id_prev'] = int(lines[1]) - 1
+        # # f.close()
+        #
+        # if not (LeafCycle == 1 or LeafCycle == 5):
+        #     self.iface.messageBar().pushMessage("Warning", "A transition period between Winter and Summer has been "
+        #                                                    "choosen. Preferably start the model run during Winter or "
+        #                                                    "Summer.", level=QgsMessageBar.WARNING)
+        #
+        # # nml = self.leaf_cycle(nml,LeafCycle) ### TRY THIS LATER
+        # if LeafCycle == 1:  # Winter
+        #     nml['initialconditions']['gdd_1_0'] = 0
+        #     nml['initialconditions']['gdd_2_0'] = -450
+        #     nml['initialconditions']['laiinitialevetr'] = 4
+        #     nml['initialconditions']['laiinitialdectr'] = 1
+        #     nml['initialconditions']['laiinitialgrass'] = 1.6
+        # elif LeafCycle == 2:
+        #     nml['initialconditions']['gdd_1_0'] = 50
+        #     nml['initialconditions']['gdd_2_0'] = -400
+        #     nml['initialconditions']['laiinitialevetr'] = 4.2
+        #     nml['initialconditions']['laiinitialdectr'] = 2.0
+        #     nml['initialconditions']['laiinitialgrass'] = 2.6
+        # elif LeafCycle == 3:
+        #     nml['initialconditions']['gdd_1_0'] = 150
+        #     nml['initialconditions']['gdd_2_0'] = -300
+        #     nml['initialconditions']['laiinitialevetr'] = 4.6
+        #     nml['initialconditions']['laiinitialdectr'] = 3.0
+        #     nml['initialconditions']['laiinitialgrass'] = 3.6
+        # elif LeafCycle == 4:
+        #     nml['initialconditions']['gdd_1_0'] = 225
+        #     nml['initialconditions']['gdd_2_0'] = -150
+        #     nml['initialconditions']['laiinitialevetr'] = 4.9
+        #     nml['initialconditions']['laiinitialdectr'] = 4.5
+        #     nml['initialconditions']['laiinitialgrass'] = 4.6
+        # elif LeafCycle == 5:  # Summer
+        #     nml['initialconditions']['gdd_1_0'] = 300
+        #     nml['initialconditions']['gdd_2_0'] = 0
+        #     nml['initialconditions']['laiinitialevetr'] = 5.1
+        #     nml['initialconditions']['laiinitialdectr'] = 5.5
+        #     nml['initialconditions']['laiinitialgrass'] = 5.9
+        # elif LeafCycle == 6:
+        #     nml['initialconditions']['gdd_1_0'] = 225
+        #     nml['initialconditions']['gdd_2_0'] = -150
+        #     nml['initialconditions']['laiinitialevetr'] = 4.9
+        #     nml['initialconditions']['laiinitialdectr'] = 4,5
+        #     nml['initialconditions']['laiinitialgrass'] = 4.6
+        # elif LeafCycle == 7:
+        #     nml['initialconditions']['gdd_1_0'] = 150
+        #     nml['initialconditions']['gdd_2_0'] = -300
+        #     nml['initialconditions']['laiinitialevetr'] = 4.6
+        #     nml['initialconditions']['laiinitialdectr'] = 3.0
+        #     nml['initialconditions']['laiinitialgrass'] = 3.6
+        # elif LeafCycle == 8:  # Late Autumn
+        #     nml['initialconditions']['gdd_1_0'] = 50
+        #     nml['initialconditions']['gdd_2_0'] = -400
+        #     nml['initialconditions']['laiinitialevetr'] = 4.2
+        #     nml['initialconditions']['laiinitialdectr'] = 2.0
+        #     nml['initialconditions']['laiinitialgrass'] = 2.6
+        #
+        # nml.write(self.model_dir + '/Input/InitialConditions' + str(filecode) + str(gridcode) + '_' + str(YYYY) + '.nml', force=True)
 
-        nml = f90nml.read(self.model_dir + '/BaseFiles/InitialConditionsKc1_2012.nml')
-        nml['initialconditions']['dayssincerain'] = int(DaysSinceRain)
-        nml['initialconditions']['temp_c0'] = float(DailyMeanT)
-        nml['initialconditions']['soilstorepavedstate'] = moist
-        nml['initialconditions']['soilstorebldgsstate'] = moist
-        nml['initialconditions']['soilstoreevetrstate'] = moist
-        nml['initialconditions']['soilstoredectrstate'] = moist
-        nml['initialconditions']['soilstoregrassstate'] = moist
-        nml['initialconditions']['soilstorebsoilstate'] = moist
-
-        f = open(inmetfile, 'r')
-        lin = f.readlines()
-        index = 1
-        lines = np.array(lin[index].split())
-        nml['initialconditions']['id_prev'] = int(lines[1]) - 1
-        f.close()
-
-        if not (LeafCycle == 1 or LeafCycle == 5):
-            self.iface.messageBar().pushMessage("Warning", "A transition period between Winter and Summer has been "
-                                                           "choosen. Preferably start the model run during Winter or "
-                                                           "Summer.", level=QgsMessageBar.WARNING)
-
-        # nml = self.leaf_cycle(nml,LeafCycle) ### TRY THIS LATER
-        if LeafCycle == 1:  # Winter
-            nml['initialconditions']['gdd_1_0'] = 0
-            nml['initialconditions']['gdd_2_0'] = -450
-            nml['initialconditions']['laiinitialevetr'] = 4
-            nml['initialconditions']['laiinitialdectr'] = 1
-            nml['initialconditions']['laiinitialgrass'] = 1.6
-        elif LeafCycle == 2:
-            nml['initialconditions']['gdd_1_0'] = 50
-            nml['initialconditions']['gdd_2_0'] = -400
-            nml['initialconditions']['laiinitialevetr'] = 4.2
-            nml['initialconditions']['laiinitialdectr'] = 2.0
-            nml['initialconditions']['laiinitialgrass'] = 2.6
-        elif LeafCycle == 3:
-            nml['initialconditions']['gdd_1_0'] = 150
-            nml['initialconditions']['gdd_2_0'] = -300
-            nml['initialconditions']['laiinitialevetr'] = 4.6
-            nml['initialconditions']['laiinitialdectr'] = 3.0
-            nml['initialconditions']['laiinitialgrass'] = 3.6
-        elif LeafCycle == 4:
-            nml['initialconditions']['gdd_1_0'] = 225
-            nml['initialconditions']['gdd_2_0'] = -150
-            nml['initialconditions']['laiinitialevetr'] = 4.9
-            nml['initialconditions']['laiinitialdectr'] = 4.5
-            nml['initialconditions']['laiinitialgrass'] = 4.6
-        elif LeafCycle == 5:  # Summer
-            nml['initialconditions']['gdd_1_0'] = 300
-            nml['initialconditions']['gdd_2_0'] = 0
-            nml['initialconditions']['laiinitialevetr'] = 5.1
-            nml['initialconditions']['laiinitialdectr'] = 5.5
-            nml['initialconditions']['laiinitialgrass'] = 5.9
-        elif LeafCycle == 6:
-            nml['initialconditions']['gdd_1_0'] = 225
-            nml['initialconditions']['gdd_2_0'] = -150
-            nml['initialconditions']['laiinitialevetr'] = 4.9
-            nml['initialconditions']['laiinitialdectr'] = 4,5
-            nml['initialconditions']['laiinitialgrass'] = 4.6
-        elif LeafCycle == 7:
-            nml['initialconditions']['gdd_1_0'] = 150
-            nml['initialconditions']['gdd_2_0'] = -300
-            nml['initialconditions']['laiinitialevetr'] = 4.6
-            nml['initialconditions']['laiinitialdectr'] = 3.0
-            nml['initialconditions']['laiinitialgrass'] = 3.6
-        elif LeafCycle == 8:  # Late Autumn
-            nml['initialconditions']['gdd_1_0'] = 50
-            nml['initialconditions']['gdd_2_0'] = -400
-            nml['initialconditions']['laiinitialevetr'] = 4.2
-            nml['initialconditions']['laiinitialdectr'] = 2.0
-            nml['initialconditions']['laiinitialgrass'] = 2.6
-
-        nml.write(self.model_dir + '/Input/InitialConditions' + str(filecode) + str(gridcode) + '_' + str(YYYY) + '.nml', force=True)
+        initfilein = self.model_dir + '/BaseFiles/InitialConditionsKc_2012.nml'
+        initfileout = self.model_dir + '/Input/InitialConditions' + str(filecode) + '_' + str(YYYY) + '.nml'
+        self.write_to_init(initfilein, initfileout)
 
         # TODO: Put suews in a worker
         # self.startWorker(self.iface, self.model_dir, self.dlg)
@@ -659,7 +658,7 @@ class SuewsSimple:
                                 "This will be fixed in future versions")
         # Suews_wrapper_v2016b.wrapper(self.model_dir)
         try:
-            Suews_wrapper_v2016b.wrapper(self.model_dir)
+            Suews_wrapper_v2017a.wrapper(self.model_dir)
             time.sleep(1)
             self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.model_dir + " for "
                             "additional information about the run", level=QgsMessageBar.INFO)
@@ -670,57 +669,116 @@ class SuewsSimple:
                                         "Please report any errors to https://bitbucket.org/fredrik_ucg/umep/issues")
             return
 
-    def leaf_cycle(self, nml, LeafCycle):
-        if LeafCycle == 0:  # Winter
+    def write_to_init(self, initfilein, initfileout):
+        LeafCycle = self.dlg.comboBoxLeafCycle.currentIndex()
+        SoilMoisture = self.dlg.spinBoxSoilMoisture.value()
+        moist = int(SoilMoisture * 1.5)
+
+        nml = f90nml.read(initfilein)
+
+        nml['initialconditions']['soilstorepavedstate'] = moist
+        nml['initialconditions']['soilstorebldgsstate'] = moist
+        nml['initialconditions']['soilstoreevetrstate'] = moist
+        nml['initialconditions']['soilstoredectrstate'] = moist
+        nml['initialconditions']['soilstoregrassstate'] = moist
+        nml['initialconditions']['soilstorebsoilstate'] = moist
+
+        if not (LeafCycle == 1 or LeafCycle == 5):
+            self.iface.messageBar().pushMessage("Warning", "A transition period between Winter and Summer has been "
+                                                           "choosen. Preferably start the model run during Winter or "
+                                                           "Summer.", level=QgsMessageBar.WARNING)
+
+        # Based on London data
+        if LeafCycle == 1:  # Winter
             nml['initialconditions']['gdd_1_0'] = 0
             nml['initialconditions']['gdd_2_0'] = -450
             nml['initialconditions']['laiinitialevetr'] = 4
             nml['initialconditions']['laiinitialdectr'] = 1
             nml['initialconditions']['laiinitialgrass'] = 1.6
-        elif LeafCycle == 1:
+            nml['initialconditions']['albEveTr0'] = 0.10
+            nml['initialconditions']['albDecTr0'] = 0.12
+            nml['initialconditions']['albGrass0'] = 0.18
+            nml['initialconditions']['decidCap0'] = 0.3
+            nml['initialconditions']['porosity0'] = 0.2
+        elif LeafCycle == 2:
             nml['initialconditions']['gdd_1_0'] = 50
             nml['initialconditions']['gdd_2_0'] = -400
             nml['initialconditions']['laiinitialevetr'] = 4.2
             nml['initialconditions']['laiinitialdectr'] = 2.0
             nml['initialconditions']['laiinitialgrass'] = 2.6
-        elif LeafCycle == 2:
+            nml['initialconditions']['albEveTr0'] = 0.10
+            nml['initialconditions']['albDecTr0'] = 0.12
+            nml['initialconditions']['albGrass0'] = 0.18
+            nml['initialconditions']['decidCap0'] = 0.4
+            nml['initialconditions']['porosity0'] = 0.3
+        elif LeafCycle == 3:
             nml['initialconditions']['gdd_1_0'] = 150
             nml['initialconditions']['gdd_2_0'] = -300
             nml['initialconditions']['laiinitialevetr'] = 4.6
             nml['initialconditions']['laiinitialdectr'] = 3.0
             nml['initialconditions']['laiinitialgrass'] = 3.6
-        elif LeafCycle == 3:
+            nml['initialconditions']['albEveTr0'] = 0.10
+            nml['initialconditions']['albDecTr0'] = 0.12
+            nml['initialconditions']['albGrass0'] = 0.18
+            nml['initialconditions']['decidCap0'] = 0.6
+            nml['initialconditions']['porosity0'] = 0.5
+        elif LeafCycle == 4:
             nml['initialconditions']['gdd_1_0'] = 225
             nml['initialconditions']['gdd_2_0'] = -150
             nml['initialconditions']['laiinitialevetr'] = 4.9
             nml['initialconditions']['laiinitialdectr'] = 4.5
             nml['initialconditions']['laiinitialgrass'] = 4.6
-        elif LeafCycle == 4: # Summer
+            nml['initialconditions']['albEveTr0'] = 0.10
+            nml['initialconditions']['albDecTr0'] = 0.12
+            nml['initialconditions']['albGrass0'] = 0.18
+            nml['initialconditions']['decidCap0'] = 0.8
+            nml['initialconditions']['porosity0'] = 0.6
+        elif LeafCycle == 5:  # Summer
             nml['initialconditions']['gdd_1_0'] = 300
             nml['initialconditions']['gdd_2_0'] = 0
             nml['initialconditions']['laiinitialevetr'] = 5.1
             nml['initialconditions']['laiinitialdectr'] = 5.5
             nml['initialconditions']['laiinitialgrass'] = 5.9
-        elif LeafCycle == 5:
+            nml['initialconditions']['albEveTr0'] = 0.10
+            nml['initialconditions']['albDecTr0'] = 0.12
+            nml['initialconditions']['albGrass0'] = 0.18
+            nml['initialconditions']['decidCap0'] = 0.8
+            nml['initialconditions']['porosity0'] = 0.6
+        elif LeafCycle == 6:
             nml['initialconditions']['gdd_1_0'] = 225
             nml['initialconditions']['gdd_2_0'] = -150
             nml['initialconditions']['laiinitialevetr'] = 4.9
-            nml['initialconditions']['laiinitialdectr'] = 4,5
+            nml['initialconditions']['laiinitialdectr'] = 4, 5
             nml['initialconditions']['laiinitialgrass'] = 4.6
-        elif LeafCycle == 6:
+            nml['initialconditions']['albEveTr0'] = 0.10
+            nml['initialconditions']['albDecTr0'] = 0.12
+            nml['initialconditions']['albGrass0'] = 0.18
+            nml['initialconditions']['decidCap0'] = 0.8
+            nml['initialconditions']['porosity0'] = 0.5
+        elif LeafCycle == 7:
             nml['initialconditions']['gdd_1_0'] = 150
             nml['initialconditions']['gdd_2_0'] = -300
             nml['initialconditions']['laiinitialevetr'] = 4.6
             nml['initialconditions']['laiinitialdectr'] = 3.0
             nml['initialconditions']['laiinitialgrass'] = 3.6
-        elif LeafCycle == 7:
+            nml['initialconditions']['albEveTr0'] = 0.10
+            nml['initialconditions']['albDecTr0'] = 0.12
+            nml['initialconditions']['albGrass0'] = 0.18
+            nml['initialconditions']['decidCap0'] = 0.5
+            nml['initialconditions']['porosity0'] = 0.4
+        elif LeafCycle == 8:  # Late Autumn
             nml['initialconditions']['gdd_1_0'] = 50
             nml['initialconditions']['gdd_2_0'] = -400
             nml['initialconditions']['laiinitialevetr'] = 4.2
             nml['initialconditions']['laiinitialdectr'] = 2.0
             nml['initialconditions']['laiinitialgrass'] = 2.6
+            nml['initialconditions']['albEveTr0'] = 0.10
+            nml['initialconditions']['albDecTr0'] = 0.12
+            nml['initialconditions']['albGrass0'] = 0.18
+            nml['initialconditions']['decidCap0'] = 0.4
+            nml['initialconditions']['porosity0'] = 0.2
 
-        return nml
+        nml.write(initfileout, force=True)
 
     def help(self):
         # url = "file://" + self.plugin_dir + "/help/Index.html"
