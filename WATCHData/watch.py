@@ -332,7 +332,7 @@ class WATCHData:
         input_path = os.path.join(rawdata, 'WFDEI')
         output_path = fileout
         # Set up and start worker thread
-        worker = WatchWorker(rawdata, required_variables, datestart, dateend, input_path, output_path, lat, lon, self.dlg.lblStatus)
+        worker = WatchWorker(rawdata, required_variables, datestart, dateend, input_path, output_path, lat, lon, hgt, self.dlg.lblStatus)
         thr = QThread(self.dlg)
         worker.moveToThread(thr)
         worker.finished.connect(self.workerFinished)

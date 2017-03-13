@@ -22,7 +22,7 @@ class Worker(QtCore.QObject):
     error = QtCore.pyqtSignal(object)
     progress = QtCore.pyqtSignal()
 
-    def __init__(self, vlayer, nbr_header, poly_field, Metfile_path, start_DLS, end_DLS, LCF_from_file, LCFfile_path, LCF_Paved,
+    def __init__(self, vlayer, nbr_header, poly_field, Metfile_path, start_DLS, end_DLS, LCF_from_file, LCFfile_path, LCF_paved,
                  LCF_buildings, LCF_evergreen, LCF_decidious, LCF_grass, LCF_baresoil, LCF_water, IMP_from_file, IMPfile_path,
                  IMP_heights_mean, IMP_z0, IMP_zd, IMP_fai, IMPveg_from_file, IMPvegfile_path, IMPvegfile_path_eve, IMPveg_heights_mean_eve,
                  IMPveg_heights_mean_dec, IMPveg_fai_eve, IMPveg_fai_dec, pop_density, widget_list, wall_area,
@@ -39,7 +39,7 @@ class Worker(QtCore.QObject):
         self.end_DLS = end_DLS
         self.LCF_from_file = LCF_from_file
         self.LCFfile_path = LCFfile_path
-        self.LCF_Paved = LCF_Paved
+        self.LCF_paved = LCF_paved
         self.LCF_buildings = LCF_buildings
         self.LCF_evergreen = LCF_evergreen
         self.LCF_decidious = LCF_decidious
@@ -246,13 +246,13 @@ class Worker(QtCore.QObject):
                     #                          "Could not find the file containing land cover fractions")
                     #     return
                 else:
-                    LCF_paved = feature.attribute(self.LCF_Paved.getFieldName())
-                    LCF_buildings = feature.attribute(self.LCF_Buildings.getFieldName())
-                    LCF_evergreen = feature.attribute(self.LCF_Evergreen.getFieldName())
-                    LCF_decidious = feature.attribute(self.LCF_Decidious.getFieldName())
-                    LCF_grass = feature.attribute(self.LCF_Grass.getFieldName())
-                    LCF_baresoil = feature.attribute(self.LCF_Baresoil.getFieldName())
-                    LCF_water = feature.attribute(self.LCF_Water.getFieldName())
+                    LCF_paved = feature.attribute(self.LCF_paved.getFieldName())
+                    LCF_buildings = feature.attribute(self.LCF_buildings.getFieldName())
+                    LCF_evergreen = feature.attribute(self.LCF_evergreen.getFieldName())
+                    LCF_decidious = feature.attribute(self.LCF_decidious.getFieldName())
+                    LCF_grass = feature.attribute(self.LCF_grass.getFieldName())
+                    LCF_baresoil = feature.attribute(self.LCF_baresoil.getFieldName())
+                    LCF_water = feature.attribute(self.LCF_water.getFieldName())
 
                 code = "Fr_Paved"
                 index = self.find_index(code)
@@ -392,27 +392,55 @@ class Worker(QtCore.QObject):
                 new_line[index] = str(IMPveg_heights_mean_dec)
 
                 # New calcualtion of rouhgness params v2017a (Kent et al. 2017b)
-                # sdTree = np.sqrt((IMPveg_sd_eve ^ 2 / LCF_evergreen * area) + (IMPveg_sd_dec ^ 2 / LCF_decidious * area))  # not used yet
-                sdComb = np.sqrt((float(IMPveg_sd_dec) ** 2. / (float(LCF_decidious) * area)) + (float(IMP_sd) ** 2. / (float(LCF_buildings) * area)))
-                zMax = max(float(IMPveg_max_dec),float(IMP_max))
+				# Evergreen not yet included in the calculations
+                if (float(LCF_decidious) == 0 and float(LCF_evergreen) == 0 and float(LCF_buildings) == 0):
+                    sdComb = 0
+                    zMax = 0
+                    pai = 0
+                    zH = 0
+                    fai = 0
+                    IMP_z0 = 0
+                    IMP_zd = 0
+                    # sdTree = np.sqrt((IMPveg_sd_eve ^ 2 / LCF_evergreen * area) + (IMPveg_sd_dec ^ 2 / LCF_decidious * area))  # not used yet
+                elif (float(LCF_decidious) == 0 and float(LCF_buildings) != 0):
+                    # QMessageBox.critical(None, "Error",
+                    #       "feat_id: " + str(feat_id) + "\n" + \
+					#       "float(IMP_sd): " + str(float(IMP_sd)) + "\n" + \
+					#       "float(LCF_buildings): " + str(float(LCF_buildings)) + "\n" + \
+					#       "area: " + str(area))
+                    zH = (float(IMP_heights_mean) * float(LCF_buildings) + float(IMPveg_heights_mean_eve) * float(LCF_evergreen) + float(IMPveg_heights_mean_dec) * float(LCF_decidious)) / (float(LCF_buildings) + float(LCF_evergreen) + float(LCF_decidious))
+                    zMax = max(float(IMPveg_max_dec),float(IMP_max))
+                    sdComb = np.sqrt(float(IMP_sd) ** 2. / (float(LCF_buildings) * float(area)))
+                elif (float(LCF_decidious) != 0 and float(LCF_buildings) == 0):
+                    zH = (float(IMP_heights_mean) * float(LCF_buildings) + float(IMPveg_heights_mean_eve) * float(LCF_evergreen) + float(IMPveg_heights_mean_dec) * float(LCF_decidious)) / (float(LCF_buildings) + float(LCF_evergreen) + float(LCF_decidious))
+                    zMax = max(float(IMPveg_max_dec),float(IMP_max))
+                    sdComb = np.sqrt(float(IMPveg_sd_dec) ** 2. / (float(LCF_decidious) * float(area)))
+                elif (float(LCF_decidious) != 0 and float(LCF_buildings) != 0):
+                    zH = (float(IMP_heights_mean) * float(LCF_buildings) + float(IMPveg_heights_mean_eve) * float(LCF_evergreen) + float(IMPveg_heights_mean_dec) * float(LCF_decidious)) / (float(LCF_buildings) + float(LCF_evergreen) + float(LCF_decidious))
+                    zMax = max(float(IMPveg_max_dec),float(IMP_max))
+                    sdComb = np.sqrt(float(IMPveg_sd_dec) ** 2. / (float(LCF_decidious) * float(area)) + float(IMP_sd) ** 2. / (float(LCF_buildings) * float(area)))
+
                 pai = float(LCF_buildings) + float(LCF_evergreen) + float(LCF_decidious)
-
-                zH = (float(IMP_heights_mean) * float(LCF_buildings) + float(IMPveg_heights_mean_eve) * float(LCF_evergreen) + float(IMPveg_heights_mean_dec) * float(LCF_decidious)) / \
-                     (float(LCF_buildings) + float(LCF_evergreen) + float(LCF_decidious))
-
+                
                 # paiall = (planareaB + planareaV) / AT
-                porosity = 0.4  # This should change with season
+                porosity = 0.2  # This should change with season. Net, set for Summer
                 Pv = ((-1.251 * porosity ** 2) / 1.2) + ((0.489 * porosity) / 1.2) + (0.803 / 1.2)  # factor accounting for porosity to correct total fai in roughness calc Kent et al. 2017b
                 # faiall_rgh = (frontalareaB + (Pv * frontalareaV)) / (AT / (1 / scale))  # frontal area used in roughness calculation Kent et al. 2017b
                 fai = Pv * (float(IMPveg_fai_eve) + float(IMPveg_fai_dec)) + float(IMP_fai)
-
-                IMP_zd, IMP_z0 = rg.RoughnessCalc("Kan", zH, fai, pai, zMax, sdComb)
+                if (fai == 0. and pai == 1.):
+                    IMP_z0 = 0.
+                    IMP_zd = zH
+                elif (fai == 0. and pai < 1.):
+                    IMP_z0 = 0.
+                    IMP_zd = 0.
+                else:
+                    IMP_zd, IMP_z0 = rg.RoughnessCalc("Kan", zH, fai, pai, zMax, sdComb)
 
                 # clean up and give open country values if non-existant
                 if np.isnan(IMP_z0) or IMP_z0 < 0.03:
                     IMP_z0 = 0.03
-                if np.isnan(IMP_zd) or IMP_zd < 0.1:
-                    IMP_zd = 0.1
+                if np.isnan(IMP_zd) or IMP_zd < 0.2:
+                    IMP_zd = 0.2
 
                 code = "z0"
                 index = self.find_index(code)
@@ -448,7 +476,7 @@ class Worker(QtCore.QObject):
                 else:
                     pop_density_night = -999
                     pop_density_day = -999
-
+                # include warning if pop dens is empty field - include if statement?
                 code = "PopDensDay"
                 index = self.find_index(code)
                 new_line[index] = '%.3f' % pop_density_day
@@ -615,11 +643,11 @@ class Worker(QtCore.QObject):
                 index = self.find_index(code)
                 new_line[index] = str(wall_area)
 
-                Fr_ESTMClass_Paved1 = 1.
-                Fr_ESTMClass_Paved2 = 0.
+                Fr_ESTMClass_Paved1 = 0.
+                Fr_ESTMClass_Paved2 = 1.
                 Fr_ESTMClass_Paved3 = 0.
-                Code_ESTMClass_Paved1 = 807
-                Code_ESTMClass_Paved2 = 99999
+                Code_ESTMClass_Paved1 = 99999
+                Code_ESTMClass_Paved2 = 807
                 Code_ESTMClass_Paved3 = 99999
                 Fr_ESTMClass_Bldgs1 = 1.0
                 Fr_ESTMClass_Bldgs2 = 0.
@@ -647,6 +675,10 @@ class Worker(QtCore.QObject):
                                 Fr_ESTMClass_Paved1 = split[1]
                                 Fr_ESTMClass_Paved2 = split[2]
                                 Fr_ESTMClass_Paved3 = split[3]
+                                if (float(Fr_ESTMClass_Paved1) == 0 and float(Fr_ESTMClass_Paved2) == 0 and float(Fr_ESTMClass_Paved3) == 0):
+                                    Fr_ESTMClass_Paved2 = 1.0
+                                #     QMessageBox.critical(None, "no error", "...but still return"  + "\n" + "Fr_ESTMClass_Paved2: " + str(Fr_ESTMClass_Paved2))
+                                #     return
                                 Code_ESTMClass_Paved1 = split[4]
                                 Code_ESTMClass_Paved2 = split[5]
                                 Code_ESTMClass_Paved3 = split[6]
@@ -655,6 +687,8 @@ class Worker(QtCore.QObject):
                                 Fr_ESTMClass_Bldgs3 = split[9]
                                 Fr_ESTMClass_Bldgs4 = split[10]
                                 Fr_ESTMClass_Bldgs5 = split[11]
+                                if (float(Fr_ESTMClass_Bldgs1) == 0 and float(Fr_ESTMClass_Bldgs2) == 0 and float(Fr_ESTMClass_Bldgs3) == 0 and float(Fr_ESTMClass_Bldgs4) == 0 and float(Fr_ESTMClass_Bldgs5) == 0):
+                                    Fr_ESTMClass_Bldgs3 = 1.0
                                 Code_ESTMClass_Bldgs1 = split[12]
                                 Code_ESTMClass_Bldgs2 = split[13]
                                 Code_ESTMClass_Bldgs3 = split[14]

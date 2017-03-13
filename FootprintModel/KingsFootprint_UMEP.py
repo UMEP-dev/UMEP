@@ -22,7 +22,7 @@ from scipy.optimize import fsolve
 import scipy.ndimage.interpolation as scnd
 from osgeo import gdal
 from osgeo.gdalconst import *
-from ..Utilities import RoughnessCalcFunction as rg
+from ..Utilities import RoughnessCalcFunctionV2 as rg
 
 
 ##1 - Kormann and Mexiner (2001) model functions

@@ -39,6 +39,7 @@ try:
     # import matplotlib.animation as manimation
     import matplotlib.pylab as plt
     import matplotlib.dates as dt
+    from matplotlib.dates import DayLocator, HourLocator, DateFormatter, drange
     nomatplot = 0
 except ImportError:
     nomatplot = 1
@@ -312,6 +313,16 @@ class SolweigAnalyzer:
             plt.title(self.dlg.comboBox_POIVariable.currentText())
             ax1 = plt.subplot(1, 1, 1)
             ax1.plot(dates, data1[:, varpos[id]], 'r', label='$' + self.dlg.comboBox_POIVariable.currentText() + '$')
+            plt.setp(plt.gca().xaxis.get_majorticklabels(),'rotation', 45)
+            ax1.grid(True)
+
+            if (np.max(data1[:, 1]) - np.min(data1[:, 1])) > 1:
+                ax1.xaxis.set_major_locator(DayLocator())
+                ax1.xaxis.set_major_formatter(DateFormatter("%Y-%m-%d"))
+            else:
+                ax1.xaxis.set_minor_locator(HourLocator())
+                ax1.xaxis.set_major_formatter(DateFormatter("%H:%M"))
+
             ax1.set_ylabel(varunit[id], fontsize=14)
             ax1.set_xlabel('Time', fontsize=14)
         else:
@@ -348,6 +359,16 @@ class SolweigAnalyzer:
                     ax1.plot(dates, data2[:, varpos[id2]], 'b', label='$' + self.dlg.comboBox_POIVariable_2.currentText() + ' (' + self.varpoi2 + ')$')
                     ax1.legend(loc=2)
                     ax1.set_ylabel(varunit[id1], fontsize=14)
+
+                plt.setp(plt.gca().xaxis.get_majorticklabels(), 'rotation', 45)
+                ax1.grid(True)
+
+                if (np.max(data1[:, 1]) - np.min(data1[:, 1])) > 1:
+                    ax1.xaxis.set_major_locator(DayLocator())
+                    ax1.xaxis.set_major_formatter(DateFormatter("%Y-%m-%d %H:%M"))
+                else:
+                    ax1.xaxis.set_minor_locator(HourLocator())
+                    ax1.xaxis.set_major_formatter(DateFormatter("%H:%M"))
 
                 ax1.set_xlabel('Time', fontsize=14)
         plt.show()

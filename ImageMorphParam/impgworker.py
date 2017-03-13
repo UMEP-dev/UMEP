@@ -7,7 +7,7 @@ from qgis.core import QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsRaster
 from qgis.core import *
 import traceback
 from ..Utilities.imageMorphometricParms_v1 import *
-from ..Utilities import RoughnessCalcFunction as rg
+from ..Utilities import RoughnessCalcFunctionV2 as rg
 # import Image
 from scipy import *
 import numpy as np

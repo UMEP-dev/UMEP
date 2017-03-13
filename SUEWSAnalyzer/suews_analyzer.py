@@ -651,6 +651,8 @@ class SUEWSAnalyzer:
                 self.get_unit()
                 ax1.set_ylabel(self.unit, fontsize=14)
                 ax1.set_xlabel('Time', fontsize=14)
+                # plt.setp(plt.gca().xaxis.get_majorticklabels(), 'rotation', 45)
+                ax1.grid(True)
             else:
                 # Two variables
                 id1 = self.dlg.comboBox_POIVariable.currentIndex() - 1
@@ -680,8 +682,8 @@ class SUEWSAnalyzer:
                         self.dlg.comboBox_POIVariable.currentText() + '(' + self.varpoi1 + ') vs ' + self.dlg.comboBox_POIVariable_2.currentText() + '(' + self.varpoi2 + ')')
                     ax1 = plt.subplot(1, 1, 1)
                     ax1.plot(data1[:, id1], data2[:, id2], "k.")
-                    ax1.set_ylabel(varunit1, fontsize=14)
-                    ax1.set_xlabel(varunit2, fontsize=14)
+                    ax1.set_ylabel(self.dlg.comboBox_POIVariable.currentText() + ' (' + varunit1 + ')', fontsize=14)
+                    ax1.set_xlabel(self.dlg.comboBox_POIVariable_2.currentText() + ' (' + varunit2 + ')', fontsize=14)
                 else:
                     plt.figure(1, figsize=(15, 7), facecolor='white')
                     plt.title(
@@ -705,7 +707,10 @@ class SUEWSAnalyzer:
                         ax1.legend(loc=2)
                         ax1.set_ylabel(varunit1, fontsize=14)
 
+                    # plt.setp(plt.gca().xaxis.get_majorticklabels(), 'rotation', 45)
+                    ax1.grid(True)
                     ax1.set_xlabel('Time', fontsize=14)
+
             plt.show()
         else:
             su = suewsdataprocessing.SuewsDataProcessing()

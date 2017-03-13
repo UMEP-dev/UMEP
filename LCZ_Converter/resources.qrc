@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/LCZ_test" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>

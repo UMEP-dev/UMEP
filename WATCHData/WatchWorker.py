@@ -8,7 +8,7 @@ class WatchWorker(QObject):
     finished = pyqtSignal(object)
     error = pyqtSignal(Exception, basestring)
 
-    def __init__(self, rawdata, required_variables, datestart, dateend, input_path, output_path, lat, lon, textObject=None):
+    def __init__(self, rawdata, required_variables, datestart, dateend, input_path, output_path, lat, lon, hgt, textObject=None):
         '''Instantiate Watch Worker:
         - rawData: Data source (compressed file location)
         - required_variables: Variables to download and extract

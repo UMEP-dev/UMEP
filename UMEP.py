@@ -48,6 +48,8 @@ from SOLWEIG.solweig import SOLWEIG
 from ExtremeFinder.extreme_finder import ExtremeFinder
 from SolweigAnalyzer.solweig_analyzer import SolweigAnalyzer
 from SUEWSAnalyzer.suews_analyzer import SUEWSAnalyzer
+from UMEPDownloader.umep_downloader import UMEP_Data_Download
+from LCZ_Converter.LCZ_converter import LCZ_test
 
 # from about_dialog import AboutDialog
 from UMEP_about import UMEPDialogAbout
@@ -130,10 +132,10 @@ class UMEP:
 
 
         # Sub-actions to Surface Morphology
-        self.IMCG_Action = QAction("Image Morphometric Calculator (Grid)", self.iface.mainWindow())
+        self.IMCG_Action = QAction("Morphometric Calculator (Grid)", self.iface.mainWindow())
         self.SM_Menu.addAction(self.IMCG_Action)
         self.IMCG_Action.triggered.connect(self.IMCG)
-        self.IMCP_Action = QAction("Image Morphometric Calculator (Point)", self.iface.mainWindow())
+        self.IMCP_Action = QAction("Morphometric Calculator (Point)", self.iface.mainWindow())
         self.SM_Menu.addAction(self.IMCP_Action)
         self.IMCP_Action.triggered.connect(self.IMCP)
         self.FP_Action = QAction("Source Area Model (Point)", self.iface.mainWindow())
@@ -147,21 +149,17 @@ class UMEP:
         self.PFD_Action = QAction("Download data (WATCH)", self.iface.mainWindow())
         self.MD_Menu.addAction(self.PFD_Action)
         self.PFD_Action.triggered.connect(self.WA)
-        self.EF_Action = QAction("Extreme Finder", self.iface.mainWindow())
-        self.MD_Menu.addAction(self.EF_Action)
-        self.EF_Action.triggered.connect(self.EF)
-        # self.PFD_Action.setEnabled(False)
 
         # Sub-actions to Spatial Data Preparation
         self.SDD_Action = QAction("Spatial Data Downloader", self.iface.mainWindow())
         self.SP_Menu.addAction(self.SDD_Action)
-        self.SDD_Action.setEnabled(False)
+        self.SDD_Action.triggered.connect(self.UD)
         self.TreeGenerator_Action = QAction("Tree Generator", self.iface.mainWindow())
         self.SP_Menu.addAction(self.TreeGenerator_Action)
         self.TreeGenerator_Action.triggered.connect(self.TG)
         self.WC_Action = QAction("LCZ Converter", self.iface.mainWindow())
         self.SP_Menu.addAction(self.WC_Action)
-        self.WC_Action.setEnabled(False)
+        self.WC_Action.triggered.connect(self.WC)
 
         # Sub-actions to Urban Geometry
         self.SVF_Action = QAction("Sky View Factor", self.iface.mainWindow())
@@ -205,6 +203,9 @@ class UMEP:
         self.PWS_Action = QAction("Pedestrian Wind Speed", self.iface.mainWindow())
         self.OTC_Menu.addAction(self.PWS_Action)
         self.PWS_Action.setEnabled(False)
+        self.EF_Action = QAction("Extreme Finder", self.iface.mainWindow())
+        self.OTC_Menu.addAction(self.EF_Action)
+        self.EF_Action.triggered.connect(self.EF)
 
         # Sub-menus to Urban Energy Balance
         self.QFL_Action = QAction("Antropogenic heat - London (GreaterQf)", self.iface.mainWindow())
@@ -288,6 +289,8 @@ class UMEP:
         self.SUEWSa_Action.setIcon(QIcon(self.plugin_dir + "/Icons/SuewsLogo.png"))
         self.TreeGenerator_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_tree.png"))
         self.EF_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_extreme.png"))
+        self.WC_Action.setIcon(QIcon(self.plugin_dir + "/Icons/LCZ_icon.png"))
+        self.SDD_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_spatialdownloader.png"))
 
         self.iface.mainWindow().menuBar().insertMenu(self.iface.firstRightStandardMenu().menuAction(), self.UMEP_Menu)
         self.dlgAbout = UMEPDialogAbout()
@@ -490,6 +493,14 @@ class UMEP:
 
     def SUv(self):
         sg = SUEWSAnalyzer(self.iface)
+        sg.run()
+
+    def UD(self):
+        sg = UMEP_Data_Download(self.iface)
+        sg.run()
+
+    def WC(self):
+        sg = LCZ_test(self.iface)
         sg.run()
 
     def run(self):
