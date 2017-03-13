@@ -778,12 +778,12 @@ class SOLWEIG:
 
             # % Ts parameterisation maps
             if self.landcover == 1.:
-                if ((np.max(self.lcgrid) > 7 or np.min(self.lcgrid) < 1)):
-                    QMessageBox.critical(self.dlg, "Error", "The land cover grid includes values not appropriate for UMEP-formatted land cover grid")
+                if np.max(self.lcgrid) > 7 or np.min(self.lcgrid) < 1:
+                    QMessageBox.critical(self.dlg, "Error", "The land cover grid includes values not appropriate for UMEP-formatted land cover grid (should be integer between 1 and 7).")
                     return
-                if ((np.where(self.lcgrid == 3) or np.where(self.lcgrid == 4))):
+                if np.where(self.lcgrid) == 3 or np.where(self.lcgrid) == 4:
                     QMessageBox.critical(self.dlg, "Error",
-                                         "The land cover grid includes values (decidouos and/or conifer) not appropriate for SOLWEIG-formatted land cover grid")
+                                         "The land cover grid includes values (decidouos and/or conifer) not appropriate for SOLWEIG-formatted land cover grid (should not include 3 or 4).")
                     return
                 [TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST, TmaxLST_wall] = Tgmaps_v1(self.lcgrid, lc_class)
             else:
