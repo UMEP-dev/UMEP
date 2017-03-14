@@ -22,6 +22,9 @@
 """
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
+from qgis.gui import *
+from osgeo import osr, ogr
+# from qgis.core import *
 # Initialize Qt resources from file resources.py
 import resources
 # Import the code for the dialog
@@ -30,8 +33,7 @@ import os.path
 # from datetime import datetime, timedelta, time
 # import os
 # import math
-from ..Utilities import f90nml
-from osgeo import osr, ogr
+import f90nml
 # import webbrowser
 # import datetime
 # import time
@@ -52,6 +54,7 @@ except:
 try:
     from netCDF4 import Dataset, date2num
 except:
+    raise Exception('NetCDF4 library was not found on this machine. Extremefinder will not run')
     pass  # Suppress warnings at QGIS loading time, but an error is shown later to make up for it
 
 try:
@@ -95,12 +98,12 @@ class ExtremeFinder:
                 QCoreApplication.installTranslator(self.translator)
 
         self.dlg = ExtremeFinderDialog()
-
+        self.dlg.selectpoint.clicked.connect(self.select_point)
         # Ensures "GO" button is enabled/disabled appropriately
         self.dlg.runButton.clicked.connect(self.start_progress)
         self.dlg.pushButtonHelp.clicked.connect(self.help)
         self.dlg.pushButtonClose.clicked.connect(self.dlg.close)
-        self.dlg.selectpoint.clicked.connect(self.select_point)
+        # self.dlg.selectpoint.clicked.connect(self.select_point)
         # self.dlg.pushButtonRaw.clicked.connect(self.raw_path)
         self.dlg.pushButtonSave.clicked.connect(self.outfile)
         self.fileDialog = QFileDialog()
@@ -111,10 +114,10 @@ class ExtremeFinder:
 
         # Declare instance attributes
         self.actions = []
-        # self.menu = self.tr(u'&Extreme Finder')
+        self.menu = self.tr(u'&Extreme Finder')
         # TODO: We are going to let the user set this up in a future iteration
-        # self.toolbar = self.iface.addToolBar(u'ExtremeFinder')
-        # self.toolbar.setObjectName(u'ExtremeFinder')
+        self.toolbar = self.iface.addToolBar(u'ExtremeFinder')
+        self.toolbar.setObjectName(u'ExtremeFinder')
 
         # get reference to the canvas
         self.canvas = self.iface.mapCanvas()
@@ -123,26 +126,26 @@ class ExtremeFinder:
         self.pointx = None
         self.pointy = None
 
-        '''# #g pin tool
+        # #g pin tool
         self.pointTool = QgsMapToolEmitPoint(self.canvas)
         self.pointTool.canvasClicked.connect(self.create_point)
 
         # Inflate mappings file if needed
 
-        text_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'WFDEIDownloader/WFDEI-land-long-lat-height.txt')
-        gzip_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'WFDEIDownloader/WFDEI-land-long-lat-height.txt.gz')
-        try:
-            a = open(text_file)
-        except IOError,e:
-            try:
-                import gzip
-                with gzip.open(gzip_file, 'rb') as zipFile:
-                    a = zipFile.read()
-                with open(text_file, 'wb') as outFile:
-                    outFile.write(a)
-            except Exception, e:
-                QMessageBox.critical(None, 'ha', str(e))
-                raise Exception('Could not locate mappings textfile, nor decompress its zipped copy')'''
+        # text_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'WFDEIDownloader/WFDEI-land-long-lat-height.txt')
+        # gzip_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'WFDEIDownloader/WFDEI-land-long-lat-height.txt.gz')
+        # try:
+        #     a = open(text_file)
+        # except IOError,e:
+        #     try:
+        #         import gzip
+        #         with gzip.open(gzip_file, 'rb') as zipFile:
+        #             a = zipFile.read()
+        #         with open(text_file, 'wb') as outFile:
+        #             outFile.write(a)
+        #     except Exception, e:
+        #         QMessageBox.critical(None, 'ha', str(e))
+        #         raise Exception('Could not locate mappings textfile, nor decompress its zipped copy')
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -254,16 +257,15 @@ class ExtremeFinder:
         # remove the toolbar
         del self.toolbar
 
-    def select_point(self):  # Connected to "Secelct Point on Canves"
-        # Calls a canvas click and create_point
-        self.canvas.setMapTool(self.pointTool)
-        self.dlg.setEnabled(False)
-
     def help(self):
-        url = "http://urban-climate.net/umep/UMEP_Manual#Meteorological_Data:_ExtremeFinder"
+        url = "http://urban-climate.net/umep/UMEP_Manual#Outdoor_Thermal_Comfort:_ExtremeFinder"
         webbrowser.open_new_tab(url)
 
-    def create_point(self, point):
+    def select_point(self):  # Connected to "Secelct Point on Canves"
+        self.canvas.setMapTool(self.pointTool)  # Calls a canvas click and create_point
+        self.dlg.setEnabled(False)
+
+    def create_point(self, point):  # Var kommer point ifran???
         # report map coordinates from a canvas click
         self.dlg.setEnabled(True)
         self.dlg.activateWindow()
@@ -280,8 +282,7 @@ class ExtremeFinder:
 
         transform = osr.CoordinateTransformation(old_cs, new_cs)
 
-        latlon = ogr.CreateGeometryFromWkt(
-            'POINT (' + str(point.x()) + ' ' + str(point.y()) + ')')
+        latlon = ogr.CreateGeometryFromWkt('POINT (' + str(point.x()) + ' ' + str(point.y()) + ')')
         latlon.Transform(transform)
 
         self.dlg.textOutput_lon.setText(str(latlon.GetX()))
@@ -318,8 +319,8 @@ class ExtremeFinder:
         pwd = os.path.dirname(os.path.realpath(__file__))
 
         # read the namelist file
-        with open(os.path.join(pwd, 'input.nml')) as nml_file:
-            nml = f90nml.read(nml_file)
+        # with open() as nml_file:
+        nml = f90nml.read(os.path.join(pwd, 'input.nml'))
 
         threshold_year_start = nml['time_control']['reference_start_year']
         threshold_year_end = nml['time_control']['reference_end_year']
@@ -331,8 +332,15 @@ class ExtremeFinder:
         # hw_day_end = nml['time_control']['end_day']
         #lat = nml['domain_control']['lat']
         #lon = nml['domain_control']['lon']
-        t1_quantile = nml['method']['t1_quantile']
-        t2_quantile = nml['method']['t2_quantile']
+        # t1 & t2 for Meehl; t3 for Vautard
+        t1_quantile_Meehl = nml['method']['t1_quantile_Meehl']
+        t2_quantile_Meehl = nml['method']['t2_quantile_Meehl']
+        t3_quantile_Fischer = nml['method']['t3_quantile_Fischer']
+        t4_quantile_Schoetter = nml['method']['t4_quantile_Schoetter']
+        t5_quantile_Vautard = nml['method']['t5_quantile_Vautard']
+        t6_quantile_Keevallik = nml['method']['t6_quantile_Keevallik']
+        TempDif_Srivastava = nml['method']['TempDif_Srivastava']
+        TempDif_Busuioc = nml['method']['TempDif_Busuioc']
 
         # hw_start = [hw_year_start, hw_month_start, hw_day_start]
         # hw_start = '-'.join(str(d) for d in hw_start)
@@ -390,31 +398,101 @@ class ExtremeFinder:
             ncfn = os.path.join(pwd, 'validGrid.txt')
             nc_global_land = pd.read_csv(ncfn,header=None)
             land_global = nc_global_land[0].values
-            latGrid, lonGrid = lon_lat_grid(lat, lon)
-            xland = WFD_get_city_index(latGrid, lonGrid)
-            print xland
+            xland = WFD_get_city_index(lat, lon)
             if not xland in land_global:
                 raise ValueError('Invalid WATCH co-ordinates entered')
         except Exception, e:
-            QMessageBox.critical(None, "Error", "Invalid location")
+            QMessageBox.critical(None, "Error", "Invalid location: " + str(xland))
             self.dlg.runButton.setEnabled(True)
             return
 
-        Tmax = get_Tmax(xland, hw_year_start, hw_year_end)
+        file_name = download(xland)
+
+        try:
+            if self.dlg.comboBox_HW.currentIndex()==0 and self.dlg.comboBox_CW.currentIndex()==0:
+                raise ValueError('Invalid method for extreme event')
+        except Exception, e:
+            QMessageBox.critical(None, "Error", "Please select a method for extreme event")
+            self.dlg.runButton.setEnabled(True)
+            return
+
+        try:
+            if self.dlg.comboBox_HW.currentIndex()>0 and self.dlg.comboBox_CW.currentIndex()>0:
+                raise ValueError('Invalid method for extreme event')
+        except Exception, e:
+            QMessageBox.critical(None, "Error", "Please select only one method for extreme event")
+            self.dlg.runButton.setEnabled(True)
+            return
+
 
         # identify HW periods
-        xHW = findHW(Tmax,
-                     hw_start, hw_end,
-                     threshold_year_start, threshold_year_end,
-                     t1_quantile, t2_quantile)
+        if self.dlg.comboBox_HW.currentIndex()==1:
+            Tmax = get_Tmax(file_name, threshold_year_start, threshold_year_end)
+            xHW = findHW_Meehl(Tmax,
+                         hw_start, hw_end,
+                         threshold_year_start, threshold_year_end,
+                         t1_quantile_Meehl, t2_quantile_Meehl)
+            Tplot = Tmax
+            labelsForPlot = ['Tmax','Heat Wave','HWs']
+
+        elif self.dlg.comboBox_HW.currentIndex()==2:
+            Tmax = get_Tmax(file_name, threshold_year_start, threshold_year_end)
+            xHW = findHW_Fischer(Tmax,
+                         hw_start, hw_end,
+                         threshold_year_start, threshold_year_end,
+                         t3_quantile_Fischer)
+            Tplot = Tmax
+            labelsForPlot = ['Tmax','Heat Wave','HWs']
+
+        elif self.dlg.comboBox_HW.currentIndex()==3:
+            Tmax = get_Tmax(file_name, threshold_year_start, threshold_year_end)
+            xHW = findHW_Schoetter(Tmax,
+                         hw_start, hw_end,
+                         threshold_year_start, threshold_year_end,
+                         t4_quantile_Schoetter, lat)
+            Tplot = Tmax
+            labelsForPlot = ['Tmax','Heat Wave','HWs']
+
+        elif self.dlg.comboBox_HW.currentIndex()==4:
+            Tavg = get_Tavg(file_name, threshold_year_start, threshold_year_end)
+            xHW = findHW_Vautard(Tavg,
+                         hw_start, hw_end,
+                         threshold_year_start, threshold_year_end,
+                         t5_quantile_Vautard)
+            Tplot = Tavg
+            labelsForPlot = ['Tavg','Heat Wave','HWs']
+
+        elif self.dlg.comboBox_CW.currentIndex()==1:
+            Tmin = get_Tmin(file_name, threshold_year_start, threshold_year_end)
+            xHW = findCW_Keevallik(Tmin,
+                       hw_start, hw_end,
+                       threshold_year_start, threshold_year_end,
+                       t6_quantile_Keevallik)
+            Tplot = Tmin
+            labelsForPlot = ['Tmin','Cold Wave','CWs']
+
+        elif self.dlg.comboBox_CW.currentIndex()==2:
+            Tmin = get_Tmin(file_name, threshold_year_start, threshold_year_end)
+            xHW = findCW_Srivastava(Tmin, hw_start, hw_end, threshold_year_start, threshold_year_end, TempDif_Srivastava)
+            Tplot = Tmin
+            labelsForPlot = ['Tmin','Cold Wave','CWs']
+
+        elif self.dlg.comboBox_CW.currentIndex()==3:
+            Tmin = get_Tmin(file_name, threshold_year_start, threshold_year_end)
+            xHW = findCW_Busuioc(Tmin, hw_start, hw_end, threshold_year_start, threshold_year_end, TempDif_Busuioc)
+            Tplot = Tmin
+            labelsForPlot = ['Tmin','Cold Wave','CWs']
 
         # write out HW results
         result = outputHW(fileout, xHW)
         try:
             if len(result) == 0:
-                raise ValueError('No Heat Wave Found')
+                raise ValueError('No Heat/Cold Wave Found')
         except Exception, e:
-            QMessageBox.critical(None, "Error", "No Heat Wave Found")
+            if self.dlg.comboBox_HW.currentIndex()>0:
+                QMessageBox.critical(None, "Error", "No Heat Wave Found")
+            elif self.dlg.comboBox_CW.currentIndex()>0:
+                QMessageBox.critical(None, "Error", "No Cold Wave Found")
             self.dlg.runButton.setEnabled(True)
             return
         else:
@@ -425,6 +503,6 @@ class ExtremeFinder:
         # plot
         ###########################################
 
-        plotHW(lat,lon,Tmax, xHW, hw_year_start, hw_year_end)
+        plotHW(lat,lon,Tplot, xHW, hw_year_start, hw_year_end, labelsForPlot)
 
         self.dlg.runButton.setEnabled(True)

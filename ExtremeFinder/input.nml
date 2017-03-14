@@ -5,8 +5,8 @@
  end_year                      = 2009,
  end_month                     = 12,
  end_day                       = 31,
- reference_start_year          = 1990
- reference_end_year            = 2010
+ reference_start_year          = 1979,
+ reference_end_year            = 2013,
 /
 
  &domain_control
@@ -18,8 +18,15 @@
  &method
  type                          = 1,
  option                        = 3,
- t1_quantile                   = 97.5,
- t2_quantile                   = 81,
+ t1_quantile_Meehl             = 97.5,
+ t2_quantile_Meehl             = 81,
+ t3_quantile_Fischer           = 90,
+ t4_quantile_Schoetter         = 98,
+ t5_quantile_Vautard           = 90,
+ t6_quantile_Keevallik         = 10,
+ TempDif_Srivastava            = -3,
+ TempDif_Busuioc               = -5,
+
  Tmax_data_path = '/Users/hyacinth/Desktop/Tmax_Grid',
  output_path = '/Users/hyacinth/Desktop/Heatwave',
  /

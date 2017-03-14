@@ -7,7 +7,7 @@ import os.path
 from datetime import datetime, timedelta, time
 import os
 import math
-# import f90nml
+
 import webbrowser
 import datetime
 import time
@@ -63,7 +63,7 @@ def strlocation(lat,lon):
 
 #plot
 
-def plotHW(lat,lon,Tmax, xHW, hw_year_start, hw_year_end):
+def plotHW(lat,lon,Tmax, xHW, hw_year_start, hw_year_end, labelsForPlot):
     # hw_year_start = int(str(hw_start).split("-",1)[0])
     # hw_year_end = int(str(hw_end).split("-",1)[0])
 
@@ -117,7 +117,7 @@ def plotHW(lat,lon,Tmax, xHW, hw_year_start, hw_year_end):
     plt.yticks(yearticks, yearticks_lbl)
     plt.ylabel('Time (years)')
     plt.xlabel('Time (DoY)')
-    ax0.set_title('Tmax at ('+strlocation(lat,lon)+')')
+    ax0.set_title(labelsForPlot[0]+' at ('+strlocation(lat,lon)+')')
 
     ####################################################
     #                   HWs highlight                  #
@@ -193,10 +193,12 @@ def plotHW(lat,lon,Tmax, xHW, hw_year_start, hw_year_end):
                 dataForBoxplot.insert(i,[])
                 lendataForBarchart.insert(i,[0])
         else:
-            YearsForBoxplot.insert(i,YearList[i])
-            dataForBoxplot.insert(i,[])
-            lendataForBarchart.insert(i,[0])
-    dataForBarchart = np.zeros((len(YearList),10),dtype=np.int)
+            if not i == len(YearList)-1:
+                YearsForBoxplot.insert(i+1,YearList[i+1])
+                dataForBoxplot.insert(i+1,[])
+                lendataForBarchart.insert(i+1,[0])
+
+    dataForBarchart = np.zeros((len(YearList),20),dtype=np.int)
     dataForBarchart[0,0]=lendataForBarchart[0][0]
     for i in range(0,len(YearList)):
         for j in range(0,len(lendataForBarchart[i])):
@@ -222,7 +224,7 @@ def plotHW(lat,lon,Tmax, xHW, hw_year_start, hw_year_end):
     plt.xlabel("Time (Years)")
     plt.ylabel("Days")
     plt.xticks(xticks,yearticks_lbl)
-    plt.title('Heat Wave Days in ('+strlocation(lat,lon)+')')
+    plt.title(labelsForPlot[1]+' Days in ('+strlocation(lat,lon)+')')
     plt.show()
 
     ####################################################
@@ -234,7 +236,7 @@ def plotHW(lat,lon,Tmax, xHW, hw_year_start, hw_year_end):
     plt.xticks(xticks,yearticks_lbl)
     plt.ylabel('Temp (K)')
     plt.xlabel('Time (Years)')
-    plt.title('BoxPlot for Tmax during HWs in ('+strlocation(lat,lon)+')')
+    plt.title('BoxPlot for '+labelsForPlot[0]+' during '+labelsForPlot[2]+' in ('+strlocation(lat,lon)+')')
 
     plt.show()
 
