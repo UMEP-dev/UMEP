@@ -86,6 +86,14 @@ def get_Tavg(filepath, year_start, year_end):
     Tair = pd.Series(Tavg, index=xdate)
     return Tair['%d' % year_start:'%d' % year_end]
 
+#Get Tdata from the new data set.
+def get_data(filepath, year_start, year_end, data_variable_name, data_start_time, data_end_time):
+    nc = Dataset(filepath)
+    xTair = nc.variables[data_variable_name][:]
+    xdate = pd.date_range(data_start_time, data_end_time)
+    Tair = pd.Series(xTair, index=xdate)
+    return Tair['%d' % year_start:'%d' % year_end]
+
 # get the threshold from the specified percentage.
 # one is for all period, and the other is for MJJASO in every year
 

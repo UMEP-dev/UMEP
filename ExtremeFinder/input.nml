@@ -1,23 +1,9 @@
  &time_control
- start_year                    = 1999,
- start_month                   = 01,
- start_day                     = 01,
- end_year                      = 2009,
- end_month                     = 12,
- end_day                       = 31,
  reference_start_year          = 1979,
  reference_end_year            = 2013,
 /
 
- &domain_control
- lat                           = 30.1,
- lon                           = 120.1,
- land_data_path = '/Users/hyacinth/Desktop/WFD-lat-long-z-land.nc'
-/
-
  &method
- type                          = 1,
- option                        = 3,
  t1_quantile_Meehl             = 97.5,
  t2_quantile_Meehl             = 81,
  t3_quantile_Fischer           = 90,
@@ -27,6 +13,10 @@
  TempDif_Srivastava            = -3,
  TempDif_Busuioc               = -5,
 
- Tmax_data_path = '/Users/hyacinth/Desktop/Tmax_Grid',
- output_path = '/Users/hyacinth/Desktop/Heatwave',
  /
+
+ &change_data_set
+ data_start_time          = 1901-01-01,
+ data_end_time            = 2012-12-31,
+ data_variable_name       = Tair
+/
