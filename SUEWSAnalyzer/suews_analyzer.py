@@ -613,11 +613,14 @@ class SUEWSAnalyzer:
                 QMessageBox.critical(self.dlg, "Error", "Start day happens after end day")
                 return
 
-            # load and cut data
+            # QMessageBox.critical(self.dlg, "Test", self.fileoutputpath + '/' + self.fileCode + self.varpoi1 + '_' + str(self.YYYY) + '_' + str(self.resout) + '.txt')
+            # return
+			
+			# load and cut data
             # datawhole = np.loadtxt(
             #     self.fileoutputpath + '/' + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_' + str(
             #         self.resout) + '.txt', skiprows=1)
-            datawhole = np.genfromtxt(self.fileoutputpath + '/' + self.fileCode + self.gridcodemet + '_' +
+            datawhole = np.genfromtxt(self.fileoutputpath + '/' + self.fileCode + self.varpoi1 + '_' +
                                       str(self.YYYY) + '_' + str(self.resout) + '.txt', skip_header=1,
                                       missing_values='**********', filling_values=-9999)
 
@@ -722,7 +725,7 @@ class SUEWSAnalyzer:
 
             met_new = su.tofivemin_v1(self.met_data)
             suews_plottimeold = su.from5mintoanytime(met_new, SumCol_plot, LastCol_plot, TimeCol_plot, timeaggregation)
-            dataplotbasic = np.genfromtxt(self.fileoutputpath + '/' + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_' +
+            dataplotbasic = np.genfromtxt(self.fileoutputpath + '/' + self.fileCode + self.varpoi1 + '_' + str(self.YYYY) + '_' +
                           str(self.resout) + '.txt', skip_header=1, missing_values='**********', filling_values=-9999)
             # dataplotbasic = np.loadtxt(self.fileoutputpath + '/' + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_' + str(self.resout) + '.txt', skiprows=1)
             pl.plotbasic(dataplotbasic, suews_plottimeold)
