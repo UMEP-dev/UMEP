@@ -298,8 +298,8 @@ class ExtremeFinder:
         self.dlg.textOutput_lat.setText(str(latlon.GetY()))
 
     def run(self):
-
-        # pandas, netCDF4 and numpy might not be shipped with QGIS
+        
+		# pandas, netCDF4 and numpy might not be shipped with QGIS
         # try:
         #     import pandas as pd
         # except:
@@ -329,7 +329,6 @@ class ExtremeFinder:
             QMessageBox.critical(None, 'Error', 'The Extreme Finder requires the netCDF4 package '
                                                 'to be installed. Please consult the manual for further information')
             return
-
 
         """Run method that performs all the real work"""
         # show the dialog
@@ -435,8 +434,22 @@ class ExtremeFinder:
                 QMessageBox.critical(None, "Error", "Invalid reference year")
                 self.dlg.runButton.setEnabled(True)
                 return
-            file_name = filein
-            Tdata = get_data(file_name, threshold_year_start, threshold_year_end, data_variable_name, data_start_time, data_end_time)
+
+            try:
+                if filein.split('.')[-1]=='nc' or filein.split('.')[-1]=='txt':
+                    file_name = filein
+                else:
+                    raise ValueError('Invalid data format')
+            except Exception, e:
+                QMessageBox.critical(None, "Error", "Invalid data format")
+                self.dlg.runButton.setEnabled(True)
+                return
+
+            if filein.split('.')[-1]=='nc':
+                Tdata = get_ncdata(file_name, threshold_year_start, threshold_year_end, data_variable_name, data_start_time, data_end_time)
+            elif filein.split('.')[-1]=='txt':
+                Tdata = get_txtdata(file_name, threshold_year_start, threshold_year_end, data_start_time, data_end_time)
+
             Tmax = Tdata
             Tavg = Tdata
             Tmin = Tdata
