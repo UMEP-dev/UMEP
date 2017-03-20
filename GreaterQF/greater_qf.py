@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- GreaterQF
+ GQF
                                  A QGIS plugin
- GreaterQF model
+ GreaterQF anthropogenic heat flux model
                               -------------------
         begin                : 2016-06-20
         git sha              : $Format:%H$
@@ -20,103 +20,36 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from qgis.core import QgsMessageLog,  QgsMapLayerRegistry, QgsSymbolV2, QgsGraduatedSymbolRendererV2, QgsRendererRangeV2
-from qgis.gui import QgsMessageBar
-from PyQt4.QtGui import QAction, QIcon, QColor, QMessageBox, QFileDialog
-from PyQt4 import QtCore
 import tempfile
+
+from PyQt4 import QtCore
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
+from qgis.core import QgsMessageLog,  QgsMapLayerRegistry, QgsRasterLayer
+from qgis.gui import QgsMessageBar
+
 # Initialize Qt resources from file resources.py
 # Import the code for the dialog
 from greater_qf_dialog import GreaterQFDialog
-from greaterQFWorker import GreaterQFWorker
-
+from datetime import timedelta
+from datetime import datetime as dt
 # System
-import copy
 import os.path
-import urllib
-import gzip
 import webbrowser
+from qgis.core import QgsVectorLayer
+from PyQt4.QtGui import QListWidgetItem
+from PyQt4.QtCore import QThread, Qt
+
+# GQF specific code
+from PythonQF2.Config import Config
+from PythonQF2.GreaterQF import Model
+from time_displayer import time_displayer
+
 try:
     import pandas as pd
+    import matplotlib as plt
 except:
     pass
-# GreaterQF functions
-from PythonQF.spatialHelpers import *
-from PythonQF.AllParts import getQFComponents
-#from EnergyUseData import *
-def workerError(e, strException):
-    QgsMessageLog.logMessage('GreaterQF worker exception {}:\n'.format(strException), level=QgsMessageLog.CRITICAL)
-
-def downloadData(manifest, destination):
-    # Downloads non-compressed data and deposits it somewhere
-    for file in manifest:
-        opener = urllib.URLopener()
-        try:
-            opener.retrieve('http://www.urban-climate.net/GreaterQF/' + file, os.path.join(destination, file))
-        except Exception, e:
-            raise Exception('Could not download input data file:' + str(e))
-
-def download1km(destination):
-    # Download 1km shapefiles
-    manifest = ['Grid1000x1000m2.shp',
-                'Grid1000x1000m2.dbf',
-                'Grid1000x1000m2.GridID.atx',
-                'Grid1000x1000m2.shx',
-                'Grid1000x1000m2.sbn',
-                'Grid1000x1000m2.sbx']
-
-    downloadData(manifest, destination)
-
-def downloadLocalAuthority(destination):
-    manifest = ['London_Borough_Excluding_MHW.dbf',
-                'London_Borough_Excluding_MHW.GSS_CODE.atx',
-                'London_Borough_Excluding_MHW.NAME.atx',
-                'London_Borough_Excluding_MHW.prj',
-                'London_Borough_Excluding_MHW.sbn',
-                'London_Borough_Excluding_MHW.sbx',
-                'London_Borough_Excluding_MHW.shp',
-                'London_Borough_Excluding_MHW.shx']
-    downloadData(manifest, destination)
-
-
-def downloadInputData(destination):
-    '''Downloads and decompresses input data files'''
-    manifest = ['AreaList.csv',
-                'GORData.csv',
-                'Grid200Data.csv',
-                'Gridkm2Data.csv',
-                'Index1_Transportation.csv',
-                'Index2_EnergyHourly.csv',
-                'Index3_EnergyDaily.csv',
-                'Index4_Metabolism.csv',
-                'Index5_HeatCombustion.csv',
-                'LAData.csv',
-                'LLSOAData.csv',
-                'MLSOAData.csv',
-                'OAData.csv',
-                'SubOA200Data.csv']
-
-    for file in manifest:
-        opener = urllib.URLopener()
-        try:
-            temp_destination = os.path.join(tempfile.gettempdir(), file + '.gz')
-            opener.retrieve('http://www.urban-climate.net/GreaterQF/' + file + '.gz', temp_destination)
-        except Exception, e:
-            raise Exception('Could not download input data file:' + str(e))
-
-        try:
-            destination_file = os.path.join(destination, file)
-            # Gunzip and install in InputData folder
-            with gzip.open(temp_destination, 'rb') as zipFile:
-                a = zipFile.read()
-            with open(destination_file, 'wb') as outFile:
-                outFile.write(a)
-        except Exception, e:
-            raise Exception('Problem occurred decompressing file: ' + str(e))
-        finally:
-            os.remove(temp_destination)
-
 
 class GreaterQF:
     """QGIS Plugin Implementation."""
@@ -147,50 +80,185 @@ class GreaterQF:
             if qVersion() > '4.3.3':
                 QCoreApplication.installTranslator(self.translator)
 
-        # Create the dialog (after translation) and keep reference
+        # # Check dependencies
+        # try:
+        #     import pandas
+        #     import matplotlib as plt
+        # except Exception, e:
+        #     QMessageBox.critical(None, 'Error',
+        #                          'GQF requires the pandas and matplotlib packages to be installed. Please consult the manual for further information')
+        #     return
         self.dlg = GreaterQFDialog()
-        self.folderPathRaw = None
-        self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(4)
-        self.fileDialog.setAcceptMode(1)
+        self.setup() # Establish all object params
+        self.connectButtons()
+        self.dlg.cmdRunCancel.clicked.connect(self.startWorker, Qt.UniqueConnection)
 
-        self.dlg.cmdRunCancel.clicked.connect(self.startWorker)
-        self.dlg.pushButtonHelp.clicked.connect(self.help)
-        self.dlg.pushButtonClose.clicked.connect(self.dlg.close)
-        self.dlg.pushButtonRaw.clicked.connect(self.raw_path)
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&GreaterQF')
-        # TODO: We are going to let the user set this up in a future iteration
-        # self.toolbar = self.iface.addToolBar(u'GreaterQF')
-        # self.toolbar.setObjectName(u'GreaterQF')
+        self.menu = self.tr(u'&GQF')
+        self.toolbar = self.iface.addToolBar(u'GQF')
+        self.toolbar.setObjectName(u'GQF')
+
+    def connectButtons(self):
+        ''' Connect buttons to default actions '''
+        self.dlg.cmdVisualise.clicked.connect(self.visualise, Qt.UniqueConnection)                                   # Visualisation dialog
+        self.dlg.pushButtonClose.clicked.connect(self.dlg.close, Qt.UniqueConnection)                                # Close this dialog
+        self.dlg.pushButtonRaw.clicked.connect(self.outputFolder, Qt.UniqueConnection)                               # Output folder
+        self.dlg.cmdPrepare.clicked.connect(self.disaggregate, Qt.UniqueConnection)                                  # Prepare input data
+        self.dlg.cmdLoadResults.clicked.connect(self.loadResults, Qt.UniqueConnection)                               # Load a previous model run's results
+        self.dlg.chkDateRange.clicked.connect(self.useDateRange, Qt.UniqueConnection)
+        self.dlg.chkDateList.clicked.connect(self.useDateList, Qt.UniqueConnection)
+        self.dlg.pushButtonParams.clicked.connect(self.loadParams, Qt.UniqueConnection)              # Params file
+        self.dlg.pushButtonDataSources.clicked.connect(self.dataSources, Qt.UniqueConnection)        # Data sources file
+        self.dlg.pushButtonHelp.clicked.connect(self.help, Qt.UniqueConnection) # Launch web-based help
+        self.dlg.cmdProcessedDataPath.clicked.connect(self.chooseProcessedDataPath, Qt.UniqueConnection)             # Select prepared input data
+
+    def setup(self):
+        ''' Set up the dialog box with empty parameters and a fresh model object'''
+         # Create the dialog (after translation) and keep reference
+        self.model = Model()
+        self.useDateRange()
+
+        # Populate text boxes with default entries
+        self.dlg.txtParams.setText('')
+        self.dlg.txtDataSources.setText('')
+        self.dlg.textOutput_raw.setText('')
+        self.dlg.txtProcessedDataPath.setText('')
+        self.dlg.txtDateList.setText('')
+
+
+    def chooseProcessedDataPath(self):
+        '''
+        Allows user to select folder containing pre-processed input data. Validates the folder and checks for a valid manifest.
+        :return:
+        '''
+
+        fileDialog = QFileDialog()
+        fileDialog.setFileMode(2)
+        fileDialog.setAcceptMode(0)
+        result = fileDialog.exec_()
+        if result == 1:
+            selectedFolder = fileDialog.selectedFiles()[0]
+            # Check for manifest file or reject
+            try:
+                self.model.setPreProcessedInputFolder(selectedFolder)
+            except Exception,e:
+                QMessageBox.critical(None, 'Error setting processed data path', str(e))
+                return
+            self.dlg.txtProcessedDataPath.setText(selectedFolder)
+            self.processedDataPath = selectedFolder
+            # Enable model run button
+            self.dlg.cmdRunCancel.setEnabled(True)
+
+    def outputFolder(self):
+        # Let user select folder into which model outputs will be saved
+        fileDialog = QFileDialog()
+        fileDialog.setFileMode(4)
+        fileDialog.setAcceptMode(1)
+        result = fileDialog.exec_()
+        if result == 1:
+            self.model.setOutputDir(fileDialog.selectedFiles()[0])
+            self.dlg.textOutput_raw.setText(fileDialog.selectedFiles()[0])
+
+    def dataSources(self):
+        # Select and parse data sources file
+        a = QFileDialog()
+        a.open()
+        result = a.exec_()
+        if result == 1:
+            df = a.selectedFiles()
+            try:
+                self.model.setDataSources(df[0])
+            except Exception,e:
+                QMessageBox.critical(None, 'Invalid Data Sources file provided', str(e))
+                return
+
+            self.dlg.txtDataSources.setText(df[0])
+
+    def disaggregate(self):
+        '''
+        Disaggregates model inputs to files on hard drive (saves user having to repeat over and over)
+        :return: Dict containing information about each disaggregated file, for use by model
+        '''
+        processed = self.model.processInputData()
+        self.dlg.txtProcessedDataPath.setText(processed) # Update the UI to show path being used
+        self.model.setPreProcessedInputFolder(processed)
 
     def help(self):
-        url = "http://www.urban-climate.net/umep/UMEP_Manual#Urban_Energy_Balance:_GQF"
+        url = "http://urban-climate.net/umep/UMEP_Manual#Processor:_Urban_Energy_Balance:_GQF"
         webbrowser.open_new_tab(url)
 
-    def raw_path(self):
-        self.fileDialog.open()
-        result = self.fileDialog.exec_()
+    def visualise(self):
+        # Launch results visualisation dialog, specifying the current model outputs directory as the one to use
+        if not self.model.resultsAvailable:
+            QMessageBox.critical(None, 'No results available', 'Nothing to plot: Either run the model or load some previous results')#
+            return
+
+        a = time_displayer(self.model, self.iface)
+        a.exec_()
+
+    def loadParams(self):
+        # Select and parse parameters namelist
+        a = QFileDialog()
+        a.open()
+        result = a.exec_()
         if result == 1:
-            self.folderPathRaw = self.fileDialog.selectedFiles()
-            self.dlg.textOutput_raw.setText(self.folderPathRaw[0])
-            self.folderPathRaw = self.folderPathRaw[0]
+            cf = a.selectedFiles()
+            try:
+                self.model.setParameters(cf[0])
+            except Exception, e:
+                QMessageBox.critical(None, 'Invalid parameters file', str(e))
+                return
+
+            self.dlg.txtParams.setText(cf[0])
+
+    def loadResults(self):
+        ''' Load a previous model run for visualisation'''
+        self.reset() # Clear everything as we are loading previous results
+
+        fileDialog = QFileDialog()
+        fileDialog.setFileMode(2)
+        fileDialog.setAcceptMode(0)
+        result = fileDialog.exec_()
+        if result == 1:
+            selectedFolder = fileDialog.selectedFiles()[0]
+            # Check for manifest file or reject
+            try:
+                locations = self.model.loadModelResults(selectedFolder)
+            except Exception,e:
+                QMessageBox.critical(None, 'Error loading previous model results', str(e))
+                return
+
+
+            self.dlg.cmdLoadResults.clicked.disconnect()
+            self.dlg.cmdLoadResults.clicked.connect(self.reset, Qt.UniqueConnection)
+            self.dlg.cmdLoadResults.setText('Clear data')
+            self.dlg.cmdVisualise.setEnabled(True)
+
+            # Update text boxes with file locations for user information
+            self.dlg.txtProcessedDataPath.setText(locations['processedInputData'])
+            self.dlg.textOutput_raw.setText(locations['outputPath'])
+            self.dlg.txtDataSources.setText(locations['dsFile'])
+
+            try:
+                self.model.setDataSources(locations['dsFile'])
+            except Exception,e:
+                QMessageBox.critical(None, 'Error loading previous model data sources', str(e) + '. Re-runs not available')
+                self.dlg.cmdRunCancel.setEnabled(False)
+
+            self.dlg.txtParams.setText(locations['paramsFile'])
+            try:
+                self.model.setParameters(locations['paramsFile'])
+            except Exception,e:
+                QMessageBox.critical(None, 'Error loading previous model configuration', str(e) + '. Re-runs not available')
+                self.dlg.cmdRunCancel.setEnabled(False)
+
+
+
+
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
-        """Get the translation for a string using Qt translation API.
-
-        We implement this ourselves since we do not inherit QObject.
-
-        :param message: String for translation.
-        :type message: str, QString
-
-        :returns: Translated version of message.
-        :rtype: QString
-        """
-        # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('GreaterQF', message)
-
+        return QCoreApplication.translate('GQF', message)
 
     def add_action(
         self,
@@ -271,160 +339,132 @@ class GreaterQF:
         icon_path = ':/plugins/GreaterQF/icon.png'
         self.add_action(
             icon_path,
-            text=self.tr(u'GreaterQF'),
+            text=self.tr(u'GQF'),
             callback=self.run,
             parent=self.iface.mainWindow())
-
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr(u'&GreaterQF'),
+                self.tr(u'&GQF'),
                 action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
         del self.toolbar
 
     def startWorker(self):
-        # Check dependencies
-        try:
-            import pandas
-        except Exception, e:
-            QMessageBox.critical(None, 'Error',
-                                 'GreaterQF requires the pandas package to be installed. Please consult the manual for further information')
-            return
-
         # Do input validation
-        if self.folderPathRaw is None:
-            QMessageBox.critical(None, 'Error', 'Please specify an output folder')
-            return
-        if not os.path.exists(self.folderPathRaw):
-            QMessageBox.critical(None, 'Error', 'Invalid output folder specified')
-            return
+        # Get start date(s): One start date if a range, multiple if a list
+
+        if self.dateRange:
+            # Date range supplied
+            if self.dlg.startDate.date().toPyDate() >= self.dlg.endDate.date().toPyDate():
+                QMessageBox.critical(None, 'Error', 'Start date must be earlier than end date')
+                return
+            startDates = [self.dlg.startDate.date().toPyDate()]
+            endDates = [self.dlg.endDate.date().toPyDate()]
+        else:
+            # Date list supplied
+            # Parse date list
+            text = self.dlg.txtDateList.text()
+            dateList = text.split(',')
+            startDates = []
+            endDates = []
+            for date in dateList:
+                try:
+                    startDates.append(dt.strptime(date.strip(), '%Y-%m-%d'))
+                    endDates.append(startDates[-1] + timedelta(hours=24))
+                except Exception:
+                    raise ValueError('Invalid date list: ' + date + '. Must be comma-separated and in format YYYY-mm-dd')
+
         if self.dlg.startDate.date().toPyDate() >= self.dlg.endDate.date().toPyDate():
             QMessageBox.critical(None, 'Error', 'Start date must be earlier than end date')
             return
 
-        self.dlg.pushButtonClose.setEnabled(False)
-        self.dlg.cmdRunCancel.setEnabled(False)
-        # Download the source data if it's not already present
-        input_dir = os.path.join(self.plugin_dir, 'PythonQF', 'InputData')
-        if not os.path.exists(os.path.join(input_dir, 'Grid200Data.csv')):
-            QMessageBox.information(None, 'Input data needed', 'The input data will be automatically downloaded to your computer. This needs around 100 MB of space.')
-            # Get input data
-            downloadInputData(input_dir)
-
-            # Get areas
-            download1km(os.path.join(self.plugin_dir, 'PythonQF', 'Shapefile_Grid1000x1000'))
-            downloadLocalAuthority(os.path.join(self.plugin_dir, 'PythonQF', 'statistical-gis-boundaries-london', 'ESRI'))
-
-
-
-
-        # Set up GreaterQF worker thread
+        # Run-time configuration
         # Component options (checkboxes)
         componentOptions = {'sensible':self.dlg.chkSensibleQf.checkState()>0, 'latent':self.dlg.chkLatentQf.checkState()>0, 'wastewater':self.dlg.chkWastewaterQf.checkState()>0}
-        outputArea = None
-        if self.dlg.lstAreas.currentText() == '1km grid':
-            outputArea = 'Gridkm2Data'
-        if self.dlg.lstAreas.currentText() == 'Local Authority':
-            outputArea = 'LAData'
+        startDate = self.dlg.startDate.date().toPyDate().strftime('%Y-%m-%d')
+        endDate = self.dlg.endDate.date().toPyDate().strftime('%Y-%m-%d')
 
-        if outputArea is None:
-            raise ValueError('Invalid output area selected')
+        doLatent = componentOptions['latent']
+        doSensible = componentOptions['sensible']
+        doWastewater = componentOptions['wastewater']
+        doAll = doLatent & doWastewater & doSensible
 
-        worker = GreaterQFWorker(self.dlg.startDate.date(), self.dlg.endDate.date(), componentOptions, outputArea)
+        # Create a Config object based on form entries
+        configParams = {'start_dates': startDates,
+                        'end_dates': endDates,
+                        'all_qf': doAll,
+                        'sensible_qf': doSensible,
+                        'latent_qf': doLatent,
+                        'wastewater_qf': doWastewater}
 
-        # # Swap the Cancel button to a Run button
-        # self.dlg.cmdRunCancel.clicked.disconnect()
-        # self.dlg.cmdRunCancel.clicked.connect(worker.kill)
-        # self.dlg.cmdRunCancel.setText('Abort')
-        # Reset progress bar
-        self.dlg.progressBar.setValue(0)
-        # Instantiate worker and move to thread
-        thr = QtCore.QThread(self.dlg)
-        worker.moveToThread(thr)
-        worker.finished.connect(self.workerFinished)
-        worker.error.connect(workerError)
-        worker.progress.connect(self.dlg.progressBar.setValue)
-        thr.started.connect(worker.run)
-        thr.start()
-        self.thread = thr
-        self.worker = worker
+        config = Config()
+        config.loadFromDictionary(configParams)
+        self.model.setConfig(config)
+        self.dlg.cmdRunCancel.setEnabled(False)
+        self.dlg.pushButtonClose.setEnabled(False)
+        # RUN MODEL HERE
 
-    def workerFinished(self, returnVal):
-        # Deal with output and plot first time step of model in QGIS as useful feedback
-        self.worker.deleteLater()
-        self.thread.quit()
-        self.thread.wait()  # Wait for quit
-        self.thread.deleteLater()  # Flag for deletion
+        try:
+            self.model.run()
+            self.dlg.progressBar.setValue(100)
+            self.iface.messageBar().pushMessage("GQF", "Model run complete. Click 'visualise' to view output",
+                                            level=QgsMessageBar.INFO)
+            # Swap the "load" button to a "Clear" button
+            self.dlg.cmdLoadResults.clicked.disconnect()
+            self.dlg.cmdLoadResults.clicked.connect(self.reset, Qt.UniqueConnection)
+            self.dlg.cmdLoadResults.setText('Clear data')
+        except Exception, e:
+            QMessageBox.critical(None, 'Error running GQF', str(e))
 
-        if returnVal is None:
-            raise Exception('Model run failed')
-        # Locations of PythonQF relative to this script
-        dir = os.path.join(os.path.dirname(__file__), 'PythonQF')
-
-        shapefiles = {}
-        shapefiles['LAData'] = {'file': 'statistical-gis-boundaries-london/ESRI/London_Borough_Excluding_MHW.shp',
-                                'primaryKey': 'GSS_CODE', 'EPSG':27700}
-        shapefiles['Gridkm2Data'] = {'file': 'Shapefile_Grid1000x1000/Grid1000x1000m2.shp', 'primaryKey': 'Gr1000Code', 'EPSG':27700}
-        shapefiles['Grid200Data'] = {'file': 'Shapefile_Grid200x200/Grid200x200m2.shp', 'primaryKey': 'Gr200Code', 'EPSG':27700}
-
-        # Some need working out
-        shapefiles['GORData'] = ''
-        shapefiles['MLSOAData'] = ''
-        shapefiles['LLSOAData'] = ''
-        shapefiles['OAData'] = ''
-
-        # Write outputs as text files
-        components = getQFComponents()
-        dates = pd.date_range(start=self.dlg.startDate.date().toPyDate().strftime('%Y-%m-%d %H:30:00'),
-                              periods=returnVal['Data'].shape[2], freq='30min')
-
-        for cmp in getQFComponents().keys():
-            df = pd.DataFrame(returnVal['Data'][:,cmp,:].transpose(), columns=returnVal['ID'], index=dates)
-            df.to_csv(os.path.join(self.folderPathRaw, 'GreaterQF_' + components[cmp] + '.csv'))
-        self.dlg.progressBar.setValue(90)
-        # Generate example shapefile from model outputs
-        i=0  # use first time step
-        templateShapeFile = os.path.join(dir, shapefiles[returnVal['SpatialDomain']]['file'])
-        primaryKey = shapefiles[returnVal['SpatialDomain']]['primaryKey']
-        proj = shapefiles[returnVal['SpatialDomain']]['EPSG']
-        displayLayer = populateShapefileFromTemplate(components, returnVal['ID'], returnVal['Data'][:,:,i], primaryKey, templateShapeFile, proj)
-
-        # Colour map by "Everything"
-        rangeList = []
-        opacity = 1
-        minima = [0, 1, 5, 10, 20, 30, 50, 75]
-        maxima = [1, 5, 10, 20, 30, 50, 75, 200]
-        colours = ['#000080', '#5555AA', '#AAAAD4','#FFFFFF','#DFBFBF','#BF7F7F','#9F3F3F','#800000']
-
-        for i in range(0, len(minima)):
-            symbol = QgsSymbolV2.defaultSymbol(displayLayer.geometryType())
-            symbol.setColor(QColor(colours[i]))
-            symbol.setAlpha(opacity)
-            valueRange = QgsRendererRangeV2(minima[i], maxima[i], symbol, str(minima[i]) + ' - ' + str(maxima[i]))
-            rangeList.append(valueRange)
-
-        renderer = QgsGraduatedSymbolRendererV2('', rangeList)
-        renderer.setMode(QgsGraduatedSymbolRendererV2.EqualInterval)
-        renderer.setClassAttribute('Everything')
-        displayLayer.setRendererV2(renderer)
-        QgsMapLayerRegistry.instance().addMapLayer(displayLayer)
-
-        # Swap the cancel button to a run button
-        # self.dlg.cmdRunCancel.clicked.disconnect()
-        # self.dlg.cmdRunCancel.clicked.connect(self.startWorker)
-        # self.dlg.cmdRunCancel.setText('Run')
         self.dlg.cmdRunCancel.setEnabled(True)
         self.dlg.pushButtonClose.setEnabled(True)
-        self.dlg.progressBar.setValue(100)
-        self.iface.messageBar().pushMessage("GreaterQF", "Model run complete. Showing output from first time step", level=QgsMessageBar.INFO)
 
     def run(self):
-        """Run method that performs all the real work"""
+
+        # Check dependencies
+        try:
+            import pandas
+            import matplotlib as plt
+        except Exception, e:
+            QMessageBox.critical(None, 'Error',
+                                 'GQF requires the pandas and matplotlib packages to be installed. Please consult the FAQ in the manual for further information')
+            return
+
         # show the dialog
         self.dlg.show()
         self.dlg.exec_()
 
+    def reset(self):
+        ''' Reset model object and dialogues so that user can start again'''
+        self.setup()
+        # Replace the "clear results" box with "Load results"
+        self.dlg.cmdLoadResults.clicked.disconnect()
+        self.dlg.cmdLoadResults.clicked.connect(self.loadResults, Qt.UniqueConnection)
+        self.dlg.cmdLoadResults.setText('Load results')
+        self.dlg.cmdRunCancel.setEnabled(True)
+        self.dlg.chkDateRange.setChecked(True)
+        self.dlg.chkDateList.setChecked(False)
+
+    def useDateRange(self):
+        '''
+        Enable date range boxes and disable date list box
+        :return:
+        '''
+        self.dateRange = True
+        self.dlg.startDate.setEnabled(True)
+        self.dlg.endDate.setEnabled(True)
+        self.dlg.txtDateList.setEnabled(False)
+
+    def useDateList(self):
+        '''
+        Enable date list box and disable date range boxes
+        :return:
+        '''
+        self.dateRange = False
+        self.dlg.startDate.setEnabled(False)
+        self.dlg.endDate.setEnabled(False)
+        self.dlg.txtDateList.setEnabled(True)

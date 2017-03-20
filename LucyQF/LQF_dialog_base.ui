@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>GreaterQFDialogBase</class>
- <widget class="QDialog" name="GreaterQFDialogBase">
+ <class>LQFDialogBase</class>
+ <widget class="QDialog" name="LQFDialogBase">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>420</width>
-    <height>527</height>
+    <width>500</width>
+    <height>616</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>GQF</string>
+   <string>LQF</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_5">
+  <layout class="QGridLayout" name="gridLayout_9">
    <item row="0" column="0">
     <widget class="QLabel" name="lblTitle">
      <property name="font">
@@ -24,7 +24,7 @@
       </font>
      </property>
      <property name="text">
-      <string>GQF Anthropogenic Heat Flux model</string>
+      <string>LQF Anthropogenic Heat Flux model</string>
      </property>
     </widget>
    </item>
@@ -48,9 +48,6 @@
           <property name="enabled">
            <bool>false</bool>
           </property>
-          <property name="toolTip">
-           <string>Location of GQF parameters namelist file</string>
-          </property>
           <property name="text">
            <string/>
           </property>
@@ -59,7 +56,7 @@
         <item row="0" column="2">
          <widget class="QPushButton" name="pushButtonParams">
           <property name="toolTip">
-           <string>Browse for file</string>
+           <string>Choose LQF model parameters (configuration) file</string>
           </property>
           <property name="text">
            <string>...</string>
@@ -78,9 +75,6 @@
           <property name="enabled">
            <bool>false</bool>
           </property>
-          <property name="toolTip">
-           <string>Location of GQF data sources namelist file</string>
-          </property>
           <property name="text">
            <string/>
           </property>
@@ -89,7 +83,7 @@
         <item row="1" column="2">
          <widget class="QPushButton" name="pushButtonDataSources">
           <property name="toolTip">
-           <string>Browse for data sources file</string>
+           <string>Choose LQF data sources file</string>
           </property>
           <property name="text">
            <string>...</string>
@@ -108,9 +102,6 @@
           <property name="enabled">
            <bool>false</bool>
           </property>
-          <property name="toolTip">
-           <string>Folder in which to store model outputs</string>
-          </property>
           <property name="text">
            <string/>
           </property>
@@ -119,7 +110,7 @@
         <item row="2" column="2">
          <widget class="QPushButton" name="pushButtonRaw">
           <property name="toolTip">
-           <string>Browse for output folder</string>
+           <string>Choose directory into which model outputs will be saved</string>
           </property>
           <property name="text">
            <string>...</string>
@@ -138,17 +129,101 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_11">
       <item row="0" column="0">
+       <widget class="QGroupBox" name="groupBox_2">
+        <property name="title">
+         <string>Extra spatial disaggregation of input data (optional)</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="0" column="0">
+          <widget class="QLabel" name="lblNotice_2">
+           <property name="text">
+            <string>Disaggregate further using land cover fractions. New resolution is the same as that of the land cover data.</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <layout class="QGridLayout" name="gridLayout_8">
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Corresponding polygon grid</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="txtPolygonGrid">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QPushButton" name="cmdPolygonGrid">
+             <property name="toolTip">
+              <string>Choose polygon grid (ESRI shapefile) corresponding to land covers</string>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QPushButton" name="cmdLandCoverFraction">
+             <property name="toolTip">
+              <string>Choose land cover fractions file</string>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="txtLandCoverFraction">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Land cover fractions (from UMEP)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QComboBox" name="lstPrimaryKey">
+             <property name="toolTip">
+              <string>Field in the polygon grid file that contains a unique identifier for each area</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>    Grid cell ID field</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="2" column="0">
        <layout class="QGridLayout" name="gridLayout_6">
-        <item row="0" column="0" colspan="2">
-         <widget class="QPushButton" name="cmdPrepare">
-          <property name="toolTip">
-           <string>Translates the input files specified in the data sources file to consistent units</string>
-          </property>
-          <property name="text">
-           <string>Prepare input data using Data sources</string>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_7">
           <property name="text">
@@ -161,9 +236,6 @@
           <property name="enabled">
            <bool>false</bool>
           </property>
-          <property name="toolTip">
-           <string>Folder containing processed input data</string>
-          </property>
           <property name="text">
            <string/>
           </property>
@@ -172,7 +244,7 @@
         <item row="1" column="2">
          <widget class="QPushButton" name="cmdProcessedDataPath">
           <property name="toolTip">
-           <string>Browse for processed input data generated previously</string>
+           <string>Browse for processed input data that is already available</string>
           </property>
           <property name="text">
            <string>...</string>
@@ -181,19 +253,29 @@
         </item>
        </layout>
       </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="cmdPrepare">
+        <property name="toolTip">
+         <string>Prepares the input data and any land cover fractions for use in LQF</string>
+        </property>
+        <property name="text">
+         <string>Prepare input data using Data sources</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
    <item row="3" column="0">
-    <widget class="QGroupBox" name="groupBox_6">
+    <widget class="QGroupBox" name="groupBox_5">
      <property name="title">
       <string>Dates to model</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_8">
+     <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">
-       <layout class="QGridLayout" name="gridLayout_9">
+       <layout class="QGridLayout" name="gridLayout_5">
         <item row="0" column="1">
-         <widget class="QLabel" name="lblStartDate_2">
+         <widget class="QLabel" name="lblStartDate">
           <property name="text">
            <string>Start date</string>
           </property>
@@ -201,9 +283,6 @@
         </item>
         <item row="0" column="2">
          <widget class="QDateEdit" name="startDate">
-          <property name="toolTip">
-           <string>First day to model</string>
-          </property>
           <property name="date">
            <date>
             <year>2015</year>
@@ -243,7 +322,7 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QLabel" name="lblEndDate_2">
+         <widget class="QLabel" name="lblEndDate">
           <property name="text">
            <string>End date</string>
           </property>
@@ -251,9 +330,6 @@
         </item>
         <item row="1" column="2">
          <widget class="QDateEdit" name="endDate">
-          <property name="toolTip">
-           <string>Final day to model </string>
-          </property>
           <property name="date">
            <date>
             <year>2015</year>
@@ -321,9 +397,6 @@
         </item>
         <item row="2" column="0">
          <widget class="QRadioButton" name="chkDateList">
-          <property name="toolTip">
-           <string>Use list of dates instead of date range</string>
-          </property>
           <property name="text">
            <string>Date list</string>
           </property>
@@ -331,9 +404,6 @@
         </item>
         <item row="0" column="0">
          <widget class="QRadioButton" name="chkDateRange">
-          <property name="toolTip">
-           <string>Use date range</string>
-          </property>
           <property name="text">
            <string>Date range</string>
           </property>
@@ -348,62 +418,58 @@
     </widget>
    </item>
    <item row="4" column="0">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Include QF Components</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0">
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
-         <widget class="QCheckBox" name="chkSensibleQf">
-          <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
-          </property>
-          <property name="toolTip">
-           <string>Include sensible heat in calculated fluxes</string>
-          </property>
-          <property name="text">
-           <string>Sensible</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QCheckBox" name="chkLatentQf">
-          <property name="toolTip">
-           <string>Include latent heat in calculated fluxes</string>
-          </property>
-          <property name="text">
-           <string>Latent</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QCheckBox" name="chkWastewaterQf">
-          <property name="toolTip">
-           <string>Include wastewater heat in calculated fluxes</string>
-          </property>
-          <property name="text">
-           <string>Wastewater</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="5" column="0">
-    <layout class="QGridLayout" name="gridLayout_13">
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="0" column="0">
+      <widget class="QPushButton" name="cmdRunCancel">
+       <property name="toolTip">
+        <string>Execute LQF</string>
+       </property>
+       <property name="text">
+        <string>Run model</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2" colspan="2">
+      <layout class="QGridLayout" name="gridLayout_7">
+       <item row="0" column="0">
+        <widget class="QProgressBar" name="progressBar">
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="0">
+      <widget class="QPushButton" name="cmdLoadResults">
+       <property name="toolTip">
+        <string>Load previously-generated LQF results</string>
+       </property>
+       <property name="text">
+        <string>Load results</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="cmdVisualise">
+       <property name="toolTip">
+        <string>Basic plots for LQF outputs</string>
+       </property>
+       <property name="text">
+        <string>Visualise...</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QPushButton" name="pushButtonHelp">
+       <property name="toolTip">
+        <string>Help</string>
+       </property>
+       <property name="text">
+        <string>Help</string>
+       </property>
+      </widget>
+     </item>
      <item row="1" column="3">
       <widget class="QPushButton" name="pushButtonClose">
        <property name="toolTip">
@@ -414,67 +480,19 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="2">
-      <widget class="QPushButton" name="pushButtonHelp">
-       <property name="toolTip">
-        <string>GQF help</string>
-       </property>
+     <item row="0" column="1">
+      <widget class="QCheckBox" name="chkSUEWS">
        <property name="text">
-        <string>Help</string>
+        <string>Make SUEWS input data</string>
        </property>
       </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QPushButton" name="cmdVisualise">
-       <property name="toolTip">
-        <string>Visualise current results</string>
-       </property>
-       <property name="text">
-        <string>Visualise...</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QPushButton" name="cmdLoadResults">
-       <property name="toolTip">
-        <string>Load previously generated GQF results</string>
-       </property>
-       <property name="text">
-        <string>Load results</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0" colspan="4">
-      <layout class="QGridLayout" name="gridLayout_4">
-       <item row="0" column="1">
-        <layout class="QGridLayout" name="gridLayout_7">
-         <item row="0" column="0">
-          <widget class="QProgressBar" name="progressBar">
-           <property name="value">
-            <number>0</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="0" column="0">
-        <widget class="QPushButton" name="cmdRunCancel">
-         <property name="toolTip">
-          <string>Run model calculations - QGIS will be unresponsive while the model runs</string>
-         </property>
-         <property name="text">
-          <string>Run model</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
      </item>
     </layout>
    </item>
-   <item row="6" column="0">
+   <item row="5" column="0">
     <widget class="QLabel" name="lblNotice">
      <property name="text">
-      <string>Note: QGIS will be unresponsive for several minutes while the pre-processing and model calculations are performed</string>
+      <string>Note: QGIS will be unresponsive while model calculations are performed</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

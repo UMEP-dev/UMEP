@@ -1,0 +1,53 @@
+! Spatially resolved total residential population
+! ### Model output polygons
+&outputAreas
+    shapefile = 'C:\Users\pn910202\Dropbox\Shapefilecombos\PopDens\PopDens_2014_LSOA.shp'
+    epsgCode = 27700
+    featureIds = 'LSOA11CD' ! The attribute to use as a unique ID for each areas (optional; for cross-referencing)
+/
+
+&residentialPop
+    shapefiles = 'C:\\Users\\pn910202\\Dropbox\\Shapefilecombos\\PopDens\\PopDens_2014_LSOA.shp'
+    startDates = '2014-01-01'
+    epsgCodes = 27700
+    attribToUse = '2014pop'
+/
+
+! Total national/regional energy use
+! Must also contain a population field
+&annualEnergyUse
+    !shapefiles = 'C:\\Users\\pn910202\\Dropbox\\Shapefilecombos\\National\\totalEnergyUse\\UK_totalEnergy.shp'
+    shapefiles = 'C:\Users\pn910202\Dropbox\Shapefilecombos\World\vehicleCounts_worldmapper_2002_corrected.shp'
+    startDates = '2014-01-01'
+    epsgCodes = 4326
+    !attribToUse = 'E_use'
+    attribToUse = 'kWh_year'
+/
+
+! National vehicle counts in each class
+&vehicleCount
+    shapefiles = 'C:\\Users\\pn910202\\Dropbox\\Shapefilecombos\\National\\totalEnergyUse\\UK_totalEnergy.shp'
+    startDates = '2014-01-01'
+    epsgCodes = 4326
+    attribToUse = 'TOTMB', 'TOTCARS', 'TOTFR'
+/
+
+! Daily totals of power use in the UK
+&diurnalEnergyUse
+    profileFiles = 'C:\\Users\\pn910202\\.qgis2\\python\\plugins\\LUCY\\PythonLUCY\\LUCYInputs\\buildingProfiles.csv'
+/
+
+! Diurnal traffic patterns for the vehicle types
+&diurnalTraffic
+    profileFiles = 'C:\\Users\\pn910202\\.qgis2\\python\\plugins\\LUCY\\PythonLUCY\\LUCYInputs\\transportProfile.csv'
+/
+
+! Diurnal metabolic energy data
+&diurnalMetabolism
+    profileFiles = 'C:\\Users\\pn910202\\.qgis2\\python\\plugins\\LUCY\\PythonLUCY\\LUCYInputs\\metabolismProfiles.csv'
+/
+
+! Air temperature each day for a year
+&dailyTemperature
+    profileFiles = 'C:\\Users\\pn910202\\.qgis2\\python\\plugins\\LUCY\\PythonLUCY\\LUCYInputs\\dailyTemperature.csv'
+/

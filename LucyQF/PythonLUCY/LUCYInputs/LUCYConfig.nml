@@ -1,0 +1,12 @@
+&params
+    city = "Europe/London"
+    use_uk_holidays = 1 ! Set to 1 to use UK public holidays, set to 0 to use none
+    use_custom_holidays = 0 ! Whether or not to use a list of public holidays specified using custom_holidays in the next line
+    custom_holidays = '2000-01-01', '2000-12-25' ! A list of custom public holidays in YYYY-mm-dd format.
+    avgspeed = 48000. !m/hour
+    emissionfactors = 25.92, 13.16, 108.42 !W/m
+    fueltype = "Petrol"
+    balance_point_temperature = 12.
+    balance_point_multfactor = 0.7
+    QV_multfactor = 0.8
+/

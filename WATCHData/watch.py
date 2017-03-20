@@ -220,19 +220,19 @@ class WATCHData:
             import pandas
         except Exception, e:
             QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the pandas package '
-                                                'to be installed. Please consult the manual for further information')
+                                                'to be installed. Please consult the FAQ in the manual for further information')
             return
         try:
             import ftplib
         except Exception, e:
             QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the ftplib package '
-                                                'to be installed. Please consult the manual for further information')
+                                                'to be installed. Please consult the FAQ in the manual for further information')
             return
         try:
             import scipy
         except Exception, e:
             QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the scipy package '
-                                                'to be installed. Please consult the manual for further information')
+                                                'to be installed. Please consult the FAQ in the manual for further information')
             return
 
         self.dlg.show()
@@ -351,4 +351,7 @@ class WATCHData:
         self.iface.messageBar().pushMessage("WATCH data", "Data downloaded and processed", level=QgsMessageBar.INFO)
 
     def workerError(self, strException):
+        if type(strException) is not str:
+            strException = str(strException)
+            
         QMessageBox.information(None, "WATCH extraction error:", strException)

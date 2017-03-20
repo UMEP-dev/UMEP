@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- GQF
+ LQFDialog
                                  A QGIS plugin
- GQF model
+ LQF model
                              -------------------
         begin                : 2016-06-20
+        git sha              : $Format:%H$
         copyright            : (C) 2016 by University of reading
         email                : a.m.gabey@reading.ac.uk
-        git sha              : $Format:%H$
  ***************************************************************************/
 
 /***************************************************************************
@@ -19,16 +19,28 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- This script initializes the plugin, making it known to QGIS.
 """
 
-# noinspection PyPep8Naming
-def classFactory(iface):  # pylint: disable=invalid-name
-    """Load GreaterQF class from file GreaterQF.
+import os
 
-    :param iface: A QGIS interface instance.
-    :type iface: QgsInterface
-    """
-    #
-    from .greater_qf import GreaterQF
-    return GreaterQF(iface)
+from PyQt4 import QtGui, uic, QtCore
+
+
+FORM_CLASS, _ = uic.loadUiType(os.path.join(
+    os.path.dirname(__file__), 'LQF_dialog_base.ui'))
+
+
+class LQFDialog(QtGui.QDialog, FORM_CLASS):
+    def __init__(self, parent=None):
+        """Constructor."""
+        super(LQFDialog, self).__init__(parent)
+        # Set up the user interface from Designer.
+        # After setupUI you can access any designer object by doing
+        # self.<objectname>, and you can use autoconnect slots - see
+        # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
+        # #widgets-and-dialogs-with-auto-connect
+        self.setupUi(self)
+     #   print self.dlg
+
+
+

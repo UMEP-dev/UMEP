@@ -50,6 +50,7 @@ from SolweigAnalyzer.solweig_analyzer import SolweigAnalyzer
 from SUEWSAnalyzer.suews_analyzer import SUEWSAnalyzer
 from UMEPDownloader.umep_downloader import UMEP_Data_Download
 from LCZ_Converter.LCZ_converter import LCZ_test
+from LucyQF.LQF import LQF
 
 # from about_dialog import AboutDialog
 from UMEP_about import UMEPDialogAbout
@@ -208,12 +209,12 @@ class UMEP:
         self.EF_Action.triggered.connect(self.EF)
 
         # Sub-menus to Urban Energy Balance
-        self.QFL_Action = QAction("Antropogenic heat - London (GreaterQf)", self.iface.mainWindow())
+        self.QFL_Action = QAction("Antropogenic heat - GQf (Greater Qf)", self.iface.mainWindow())
         self.UEB_Menu.addAction(self.QFL_Action)
         self.QFL_Action.triggered.connect(self.GF)
-        self.QF_Action = QAction("Antropogenic heat - Global (LUCY)", self.iface.mainWindow())
+        self.QF_Action = QAction("Antropogenic heat - LQf (LUCY)", self.iface.mainWindow())
         self.UEB_Menu.addAction(self.QF_Action)
-        self.QF_Action.setEnabled(False)
+        self.QF_Action.triggered.connect(self.LF)
         self.SUEWSSIMPLE_Action = QAction("Urban Energy Balance (SUEWS, Simple)", self.iface.mainWindow())
         self.UEB_Menu.addAction(self.SUEWSSIMPLE_Action)
         self.SUEWSSIMPLE_Action.triggered.connect(self.SUEWS_simple)
@@ -291,6 +292,8 @@ class UMEP:
         self.EF_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_extreme.png"))
         self.WC_Action.setIcon(QIcon(self.plugin_dir + "/Icons/LCZ_icon.png"))
         self.SDD_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_spatialdownloader.png"))
+        self.QFL_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_GQF.png"))
+        self.QF_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_LQF.png"))
 
         self.iface.mainWindow().menuBar().insertMenu(self.iface.firstRightStandardMenu().menuAction(), self.UMEP_Menu)
         self.dlgAbout = UMEPDialogAbout()
@@ -501,6 +504,10 @@ class UMEP:
 
     def WC(self):
         sg = LCZ_test(self.iface)
+        sg.run()
+
+    def LF(self):
+        sg = LQF(self.iface)
         sg.run()
 
     def run(self):

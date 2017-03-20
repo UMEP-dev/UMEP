@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- GQF
+ GreaterQF
                                  A QGIS plugin
- GQF model
+ GreaterQF model
                              -------------------
         begin                : 2016-06-20
         copyright            : (C) 2016 by University of reading
@@ -30,5 +30,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     :type iface: QgsInterface
     """
     #
-    from .greater_qf import GreaterQF
-    return GreaterQF(iface)
+    from .LQF import LQF
+    return LQF(iface)
