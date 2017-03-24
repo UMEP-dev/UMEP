@@ -4,15 +4,15 @@ from datetime import datetime as dt
 from datetime import timedelta as timedelta
 from shutil import copyfile
 from distutils.dir_util import copy_tree
+import traceback
 import pickle
 from pytz import timezone
 try:
     import pandas as pd
     import numpy as np
+    import netCDF4 as nc4
 except:
     pass
-
-import traceback
 
 from RegionalParameters import RegionalParameters
 from LUCYDiurnalProfile import LUCYDiurnalProfile
@@ -102,7 +102,6 @@ class Model():
         :param outputFolder: str: Folder at which to save processed input data for later use
         :return: Path to processed data
         '''
-
 
         if self.ds is None:
             raise Exception('Data sources file must be set  before processing input data')
@@ -212,7 +211,7 @@ class Model():
         try:
             copyfile(self.parameters.inputFile, os.path.join(self.configPath, 'Parameters.nml'))
             copyfile(self.ds.inputFile, os.path.join(self.configPath, 'DataSources.nml'))
-        except Exception:
+        except:
             pass
 
         self.loadModelResults(self.modelRoot)
@@ -450,6 +449,8 @@ class Model():
                         bldgMultiplier.loc[attribs['admin'] == idx] = bldgProfile[idx].getValueAtTime(ts_dt, 3600)[0]
                 else: # Same profile used everywhere
                     bldgMultiplier = bldgProfile.getValueAtTime(ts_dt, 3600)[0]
+                print areas
+
                 Qb_result = qb(energyUse, temperatureNow, bldgMultiplier, self.parameters.BP_temp, attribs)/areas # Wm-2
 
                 ### Transport flux ###
@@ -508,7 +509,6 @@ class Model():
         '''
 
         self.loadModelResults(self.modelRoot)
-        import netCDF4 as nc4
         startTime = dates[0]
 
         if 'extra_disagg' in self.processedDataList.keys():
@@ -545,7 +545,7 @@ class Model():
             times = dataset.createVariable('time', np.int32, ('time',))
             times.units = 'hours since ' + startTime.strftime('%Y-%m-%d %H:%M:%S')
             times.calendar = 'gregorian'
-            def toHoursSinceStart(x): return int(x.strftime('%j'))*24 + x.hour
+            def toHoursSinceStart(x): return (int(x.strftime('%j'))-1)*24 + x.hour
             times[:] = np.array(map(toHoursSinceStart, timesToUse))
 
             if is_grid:
@@ -671,24 +671,25 @@ class Model():
             # Round the coordinates of each cell to a precision that can contain the tolerance.
             # This is mostly to ensure floating point errors don't creep in
             if tol_x < 1:
-                x_dps = -1 * np.log10(tol_x) + 1  # Add one to be sure
-                y_dps = -1 * np.log10(tol_y) + 1  # Add one to be sure
+                x_dps = int(-1 * np.log10(tol_x) + 1)  # Add one to be sure
+                y_dps = int(-1 * np.log10(tol_y) + 1)  # Add one to be sure
             else:
                 # Just round everything to the nearest integer
                 x_dps = 0
                 y_dps = 0
 
                 # Set up the grid co-ordinates
-            output_x = np.round(unique_x[0], x_dps) + x_spacings[0] * (np.arange(len(unique_x)) + 0.5)
-            output_y = np.round(unique_y[0], y_dps) + y_spacings[0] * (np.arange(len(unique_y)) + 0.5)
+            output_x = np.round(unique_x[0] + x_spacings[0] * (np.arange(len(unique_x)) + 0.5), x_dps)
+            output_y = np.round(unique_y[0]+ y_spacings[0] * (np.arange(len(unique_y)) + 0.5), y_dps)
             # Round the coordinates of the actual features to be comparable
-            xmins = np.round(xmins, x_dps) + x_spacings[0] * 0.5
-            ymins = np.round(ymins, y_dps) + y_spacings[0] * 0.5
+            xmins = np.round(xmins + x_spacings[0] * 0.5, x_dps)
+            ymins = np.round(ymins + y_spacings[0] * 0.5, y_dps)
             mappings = {}
             outputAreas = len(output_x) * len(output_y)
             for i in range(0, len(gridIds)):
-                mappings[gridIds[i]] = [np.where(output_x == xmins[i])[0][0], np.where(output_y == ymins[i])[0][0]]
+                mappings[gridIds[i]] = [np.where(output_x == np.round(xmins[i], x_dps))[0][0], np.where(output_y == np.round(ymins[i], y_dps))[0][0]]
             is_grid = True
+
         else:
             is_grid = False
             mappings = None
@@ -716,7 +717,8 @@ class Model():
         # If directory structure checks out, try populating the object
         self.setOutputDir(path)
         self.setPreProcessedInputFolder(os.path.join(path, self.subFolders['disagg']))
-
+        self.setDataSources(os.path.join(self.configPath, 'DataSources.nml'))
+        self.setParameters(os.path.join(self.configPath, 'Parameters.nml'))
         # Don't populate the config or datasources fields: Only allow re-runs through an explicit method call
 
         # Scan folder for files matching the expected pattern
@@ -739,8 +741,8 @@ class Model():
         return {'outputPath':self.modelOutputPath,
                 'processedInputData':self.processedInputData,
                 'logPath':self.logPath,
-                'paramsFile':os.path.join(self.configPath + 'Parameters.nml'),
-                'dsFile':os.path.join(self.configPath + 'DataSources.nml')}
+                'paramsFile':os.path.join(self.configPath, 'Parameters.nml'),
+                'dsFile':os.path.join(self.configPath, 'DataSources.nml')}
 
     def fetchResultsForLocation(self, id, startTime, endTime):
         '''

@@ -103,8 +103,10 @@ class RegionalParameters:
 
         # Assign country name to output areas
         # Take a temporary local copy of the world map to prevent going back to the database every time a feature is looke dup
-        tempLayerFile = tempfile.mktemp('.shp')
+        fobj,tempLayerFile = tempfile.mkstemp('.shp')
+        os.close(fobj)
         saveLayerToFile(vlayer, tempLayerFile, vlayer.crs())
+
         tl = loadShapeFile(tempLayerFile, 4326)
         self.attributedOutputLayer = self.worldAttributes.resampleLayer(tl, ['admin'], inputIdField='admin')
         tl = None

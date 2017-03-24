@@ -207,7 +207,7 @@ def plotHW(lat,lon,Tmax, xHW, hw_year_start, hw_year_end, labelsForPlot):
 
     plt.figure()
     # Get some pastel shades for the colors
-    colors = plt.cm.BuPu(np.linspace(0, 1, len(dataForBarchart)))
+    colors = plt.cm.Paired(np.linspace(0, 1, len(dataForBarchart)))
     bar_width = 0.4
     index = np.arange(1,len(YearList)+1)-0.2
     y_offset = np.array([0.0] * len(YearList))

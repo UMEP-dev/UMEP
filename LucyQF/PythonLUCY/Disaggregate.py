@@ -4,7 +4,10 @@ import os
 import pickle
 from DataManagement.spatialHelpers import saveLayerToFile, loadShapeFile, populateShapefileFromTemplate, openShapeFileInMemory, reprojectVectorLayer_threadSafe
 from DataManagement.temporalHelpers import makeUTC
-
+try:
+    import pandas as pd
+except:
+    pass
 from Population import Population
 from ExtraDisaggregate import ExtraDisaggregate, performDisaggregation, performSampling
 from RegionalParameters import RegionalParameters
@@ -33,6 +36,13 @@ class DisaggregateWorker(QObject):
         except Exception,e:
             self.error.emit(e, traceback.format_exc())
 
+def floatOrNone(x):
+    # Return float representation or, failing that, None
+    try:
+        return float(x)
+    except:
+        return None
+
 def disaggregate(ds, params, outputFolder, UMEPgrid=None, UMEPcoverFractions=None, UMEPgridID=None, update=None):
     '''
     Function that performs all spatial disaggregation of GreaterQF inputs, and writes to output files.
@@ -58,6 +68,12 @@ def disaggregate(ds, params, outputFolder, UMEPgrid=None, UMEPcoverFractions=Non
 
     pop.setOutputShapefile(outShp, outEpsg, outFeatIds)
     rp = ds.resPop_spat[0]
+        # Take a look at the residential population data and see if there are any people in it.
+    testPop = loadShapeFile(rp['shapefile'], rp['epsgCode'])
+    vals = pd.Series(map(floatOrNone, testPop.getValues('Pop')[0]))
+    if sum(vals.dropna()) == 0:
+        raise Exception('The input population file has zero population')
+    testPop = None
     if rp['shapefile'] == outShp:
         # If same residential population and output shapefiles, just inject the res pop
         pop.injectResPop(rp['shapefile'], makeUTC(rp['startDate']), rp['attribToUse'], rp['epsgCode'])
@@ -69,7 +85,12 @@ def disaggregate(ds, params, outputFolder, UMEPgrid=None, UMEPcoverFractions=Non
     (lyr, attrib) = pop.getResPopLayer(makeUTC(rp['startDate']))
     scaledPopFile = os.path.join(outputFolder, filename)
     saveLayerToFile(lyr, scaledPopFile, pop.getOutputLayer().crs(), 'Res pop scaled')
+    # Test the disaggregated shapefile to make sure it contains people
+    vals = pd.Series(map(floatOrNone, lyr.getValues('Pop')[0]))
+    if sum(vals.dropna()) == 0:
+        raise Exception('The output shapefile did not overlap any of the population data, so the model cannot run')
     returnDict['resPop'].append({'file':filename, 'EPSG':rp['epsgCode'], 'startDate':rp['startDate'], 'attribute':attrib, 'featureIds':outFeatIds})
+
     update.emit(10)
     # Assign country ID to each of the disaggregated population features and allow national attributes to be looked up by feature ID
     atts = RegionalParameters()

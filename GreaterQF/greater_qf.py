@@ -80,14 +80,14 @@ class GreaterQF:
             if qVersion() > '4.3.3':
                 QCoreApplication.installTranslator(self.translator)
 
-        # # Check dependencies
-        # try:
-        #     import pandas
-        #     import matplotlib as plt
-        # except Exception, e:
-        #     QMessageBox.critical(None, 'Error',
-        #                          'GQF requires the pandas and matplotlib packages to be installed. Please consult the manual for further information')
-        #     return
+        # Check dependencies
+        try:
+            import pandas
+            import matplotlib as plt
+        except Exception, e:
+            QMessageBox.critical(None, 'Error',
+                                 'GQF requires the pandas and matplotlib packages to be installed. Please consult the manual for further information')
+            return
         self.dlg = GreaterQFDialog()
         self.setup() # Establish all object params
         self.connectButtons()
@@ -424,16 +424,7 @@ class GreaterQF:
         self.dlg.pushButtonClose.setEnabled(True)
 
     def run(self):
-
-        # Check dependencies
-        try:
-            import pandas
-            import matplotlib as plt
-        except Exception, e:
-            QMessageBox.critical(None, 'Error',
-                                 'GQF requires the pandas and matplotlib packages to be installed. Please consult the FAQ in the manual for further information')
-            return
-
+        """Run method that performs all the real work"""
         # show the dialog
         self.dlg.show()
         self.dlg.exec_()

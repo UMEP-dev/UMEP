@@ -1,4 +1,4 @@
-from ...Utilities import f90nml as nml
+import f90nml as nml
 import os
 from datetime import datetime as dt
 try:
@@ -42,6 +42,8 @@ class LUCYDataSources:
             ds = nml.read(configFile)
         except Exception, e:
             raise ValueError('Unable to read data sources config file at: ' + str(configFile))
+
+        self.inputFile = configFile
 
         # Are all main entries present?
         # For shapefile inputs

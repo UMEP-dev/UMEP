@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/BenchMarking" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>

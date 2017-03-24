@@ -51,6 +51,7 @@ from SUEWSAnalyzer.suews_analyzer import SUEWSAnalyzer
 from UMEPDownloader.umep_downloader import UMEP_Data_Download
 from LCZ_Converter.LCZ_converter import LCZ_test
 from LucyQF.LQF import LQF
+from BenchMarking.benchmarking import BenchMarking
 
 # from about_dialog import AboutDialog
 from UMEP_about import UMEPDialogAbout
@@ -129,7 +130,6 @@ class UMEP:
         self.SUEWSPrepare_Action = QAction("SUEWS Prepare", self.iface.mainWindow())
         self.Pre_Menu.addAction(self.SUEWSPrepare_Action)
         self.SUEWSPrepare_Action.triggered.connect(self.SUEWS_Prepare)
-
 
 
         # Sub-actions to Surface Morphology
@@ -243,6 +243,9 @@ class UMEP:
         self.Pos_Menu.addMenu(self.OTCpos_Menu)
         self.UEBpos_Menu = QMenu("Urban Energy Balance")
         self.Pos_Menu.addMenu(self.UEBpos_Menu)
+        self.BSS_Action = QAction("Benchmarking System", self.iface.mainWindow())
+        self.Pos_Menu.addAction(self.BSS_Action)
+        self.BSS_Action.triggered.connect(self.BSS)
 
         # Sub-menus to Solar radiation, post processing
         self.SEBEv_Action = QAction("SEBE (Visualisation)", self.iface.mainWindow())
@@ -294,6 +297,7 @@ class UMEP:
         self.SDD_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_spatialdownloader.png"))
         self.QFL_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_GQF.png"))
         self.QF_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_LQF.png"))
+        self.BSS_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_BSS.png"))
 
         self.iface.mainWindow().menuBar().insertMenu(self.iface.firstRightStandardMenu().menuAction(), self.UMEP_Menu)
         self.dlgAbout = UMEPDialogAbout()
@@ -508,6 +512,10 @@ class UMEP:
 
     def LF(self):
         sg = LQF(self.iface)
+        sg.run()
+
+    def BSS(self):
+        sg = BenchMarking(self.iface)
         sg.run()
 
     def run(self):

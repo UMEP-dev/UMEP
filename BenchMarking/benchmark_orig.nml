@@ -1,0 +1,10 @@
+&file
+    input_basefile = 'C:/Users/xlinfr/Desktop/inputBSS/base/Sw1_2011_60.txt'
+    input_reffile = 'C:/Users/xlinfr/Desktop/inputBSS/ref/Sw1_2011_60-rand.txt'
+    output_pdf = 'C:/Users/xlinfr/Desktop/benchmark-test'
+/
+&benchmark
+    list_var = 0
+    list_metric = 'MAE', 'MBE', 'RMSE'
+    method_score = 1
+/

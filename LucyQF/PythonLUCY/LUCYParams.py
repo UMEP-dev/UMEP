@@ -1,5 +1,5 @@
 import os
-from ...Utilities import f90nml
+import f90nml
 from datetime import datetime as dt
 from string import lower
 

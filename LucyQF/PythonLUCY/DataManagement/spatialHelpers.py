@@ -17,7 +17,8 @@ def reprojectVectorLayer_threadSafe(filename, targetEpsgCode):
     ''' Does the same thing as reprojectVectorLayer but in a thread safe way'''
     orig_layer = loadShapeFile(filename)
     orig_crs = orig_layer.crs()
-    dest = tempfile.TemporaryFile(suffix='.shp')
+    fobj, dest = tempfile.mkstemp(suffix='.shp')
+    os.close(fobj)
     target_crs = QgsCoordinateReferenceSystem()
     target_crs.createFromUserInput('EPSG:%d'%int(targetEpsgCode))
 
@@ -42,11 +43,11 @@ def reprojectVectorLayer_threadSafe(filename, targetEpsgCode):
     new_layer.updateExtents()
     new_layer.commitChanges()
     error = QgsVectorFileWriter.writeAsVectorFormat(new_layer, dest, "CP1250", target_crs, "ESRI Shapefile")
+
     new_layer = None
     orig_layer = None
     out_feat = None
     crs_transform = None
-
     return dest
 
 def reprojectVectorLayer(filename, targetEpsgCode):
@@ -54,15 +55,16 @@ def reprojectVectorLayer(filename, targetEpsgCode):
     :param filename: str: filename of shapefile to reproject
     :param targetEpsgCode: int: EPSG code of the new shapefile
     :return str: filename of reprojected shapefile (in a temporary directory)'''
-    dest = tempfile.TemporaryFile(suffix='.shp')
+    fobj, dest = tempfile.mkstemp(suffix='.shp')
+
     processing.runalg('qgis:reprojectlayer', filename, "EPSG:" + str(targetEpsgCode), dest)
+    os.close(fobj)
     # WORKAROUND FOR QGIS BUG: qgis:reprojectvectorlayer mishandles attributes so that QLongLong data types are
     # treated as int. This means large values have an integer overrun in the reprojected layer
 
     # This workaround operates by opening both files and copying the attributes from the original layer into the new one
     orig_layer = loadShapeFile(filename)
     reproj_layer = loadShapeFile(dest, targetEPSG=targetEpsgCode)
-
 
     reproj_layer.startEditing()
     orig_fieldNames = {a.name(): i for i, a in enumerate(orig_layer.dataProvider().fields())}
@@ -254,15 +256,16 @@ def intersecting_amounts(fieldsToSample, inputIndex, inputLayer, new_layer, inpu
     # Ensure areas are all square metres (if SRS=WGS84 then doing geometry.area() gives square degrees)
     # when comparing across different layers. Comparing areas within the same layer don't need this
     in_a = QgsDistanceArea()
-    in_a.setEllipsoid('WGS84')
-    in_a.setEllipsoidalMode(True)
+    in_a.setEllipsoid(inputLayer.crs().ellipsoidAcronym())
     in_a.setSourceCrs(inputLayer.crs())
+    in_a.setEllipsoidalMode(True)
+    in_a.computeAreaInit()
 
     out_a = QgsDistanceArea()
-    out_a.setEllipsoid('WGS84')
-    out_a.setEllipsoidalMode(True)
+    out_a.setEllipsoid(new_layer.crs().ellipsoidAcronym())
     out_a.setSourceCrs(new_layer.crs())
-
+    out_a.setEllipsoidalMode(True)
+    out_a.computeAreaInit()
 
     # Get bounding box around combined output features
     # If there are fewer than 10 input features, work out if any of them totally subsume the entire output layer
@@ -330,14 +333,16 @@ def intersecting_amounts_LUCY(fieldsToSample, inputLayer, new_layer, inputLayerI
     # Ensure areas are all square metres (if SRS=WGS84 then doing geometry.area() gives square degrees)
     # when comparing across different layers. Comparing areas within the same layer don't need this
     in_a = QgsDistanceArea()
-    in_a.setEllipsoid('WGS84')
-    in_a.setEllipsoidalMode(True)
+    in_a.setEllipsoid(inputLayer.crs().ellipsoidAcronym())
     in_a.setSourceCrs(inputLayer.crs())
+    in_a.setEllipsoidalMode(True)
+    in_a.computeAreaInit()
 
     out_a = QgsDistanceArea()
-    out_a.setEllipsoid('WGS84')
-    out_a.setEllipsoidalMode(True)
+    out_a.setEllipsoid(new_layer.crs().ellipsoidAcronym())
     out_a.setSourceCrs(new_layer.crs())
+    out_a.setEllipsoidalMode(True)
+    out_a.computeAreaInit()
 
     # Get bounding box around combined output features
     # If there are fewer than 10 input features, work out if any of them totally subsume the entire output layer
@@ -387,6 +392,9 @@ def intersecting_amounts_LUCY(fieldsToSample, inputLayer, new_layer, inputLayerI
 
         for featureMatched in selected:
             # Time-saver: If everything is subsumed by the input, skip the following calculations
+            if inputAmounts[featureMatched[inputLayerIdField]] == 0.0:
+                raise Exception('Input population data shapefile contains at least one polygon with zero area. This is not valid.')
+
             if subsumed is not None and subsumed[featureMatched[inputLayerIdField]] > 0.999999999:  # To account for rounding error
                 amountIntersected = out_a.measureArea(outGeo)
             else:
@@ -435,12 +443,11 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
     If output area straddles multiple input areas, the weight in the input area is mutliplied by the proportion of the output area
     intersected by the input area'''
 
-    # Calculate feature areas in square metres, because intersecting_amount are stated in square metres
     out_a = QgsDistanceArea()
-    out_a.setEllipsoid('WGS84')
-    out_a.setEllipsoidalMode(True)
+    out_a.setEllipsoid(output_layer.crs().ellipsoidAcronym())
     out_a.setSourceCrs(output_layer.crs())
-
+    out_a.setEllipsoidalMode(True)
+    out_a.computeAreaInit()
     # Check the requested weightingAttribute exists in the output layer. If not, make some noise
     if weightingAttributes is None:
         weightingAttributes = ['_AREA_'] # Reserved word
@@ -520,10 +527,17 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
             # If not all of the output area intersects the input area, don't use all of the output area's weighting
             # Use proportion_of_output_area_intersected * weighting as the weighting. This prevents an output area from "stealing"
             # all of the disaggregated value when only a sliver intersects the input area
-            fraction_intersected = input_features[in_id][out_id]['amountIntersected'] / input_features[in_id][out_id]['output_feature_area']
+            try:
+                fraction_intersected = input_features[in_id][out_id]['amountIntersected'] / input_features[in_id][out_id]['output_feature_area']
+            except ZeroDivisionError,e:
+                raise ValueError('The output area with ID %s has an area of zero. This is not allowed'%(str(out_id),))
+
             num_outfeats[in_id] += fraction_intersected
             if not totals_already_available:
-                inputAreaCovered[in_id] += input_features[in_id][out_id]['amountIntersected']/input_features[in_id][out_id]['originalAmount']
+                try:
+                    inputAreaCovered[in_id] += input_features[in_id][out_id]['amountIntersected']/input_features[in_id][out_id]['originalAmount']
+                except ZeroDivisionError,e:
+                    raise ValueError('The input area with ID %s has an area of zero. This is not allowed'%(str(in_id),))
 
             for wa in weightingAttributes:
                 if out_id not in disagg_weightings[wa].keys(): # If none of the output areas in this input area, just allocate empty entries
@@ -550,7 +564,7 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
                 # Only use those values that are available (may have been skipped above)
                 try:
                     if total_weightings[wa][in_id] == 0.0: # If a zero weighting found, spread evenly over input area
-                        disagg_weightings[wa][out_id][in_id] = 1/float(num_outfeats[in_id])
+                        disagg_weightings[wa][out_id][in_id] = 1.0/float(num_outfeats[in_id])
                     else:                                # Non-zero weightings found: respect local variations
                         disagg_weightings[wa][out_id][in_id] /= float(total_weightings[wa][in_id])
 
@@ -583,10 +597,11 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
 
 def feature_areas(layer):
     # Return dict of feature areas {feature_id:area m^2}
-    out_a = QgsDistanceArea() # Ensure metres are the unit rather than degrees
-    out_a.setEllipsoid('WGS84')
-    out_a.setEllipsoidalMode(True)
+    out_a = QgsDistanceArea()
+    out_a.setEllipsoid(layer.crs().ellipsoidAcronym())
     out_a.setSourceCrs(layer.crs())
+    out_a.setEllipsoidalMode(True)
+    out_a.computeAreaInit()
 
     areas = {}
     for feat in layer.getFeatures():

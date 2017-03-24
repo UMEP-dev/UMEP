@@ -7,7 +7,7 @@ try:
 except:
     pass
 
-from DataManagement.spatialHelpers import openShapeFileInMemory, populateShapefileFromTemplate, disaggregate_weightings, intersecting_amounts, reprojectVectorLayer, feature_areas, shapefile_attributes, intOrString, reprojectVectorLayer_threadSafe
+from DataManagement.spatialHelpers import openShapeFileInMemory, populateShapefileFromTemplate, disaggregate_weightings, intersecting_amounts, feature_areas, shapefile_attributes, intOrString, reprojectVectorLayer_threadSafe
 from qgis.core import QgsSpatialIndex
 
 def ExtraDisaggregate(modelOutAreas, landCoverData, landCoverGrid, landCoverWeights, modelOutputIdField, gridIdField):

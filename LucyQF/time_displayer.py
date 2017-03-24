@@ -4,7 +4,8 @@ from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
 import os
 FORM_CLASS, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__), 'time_displayer.ui'))
-from qgis.core import QgsMessageLog,  QgsMapLayerRegistry, QgsVectorLayer, QgsMapRenderer, QgsRectangle
+from qgis.core import QgsMessageLog,  QgsMapLayerRegistry, QgsVectorLayer, QgsMapRenderer, QgsRectangle#
+
 from PythonLUCY.DataManagement.spatialHelpers import populateShapefileFromTemplate, colourRanges, openShapeFileInMemory, duplicateVectorLayer
 try:
     import pandas as pd
@@ -12,7 +13,7 @@ try:
 except:
     pass
 from datetime import datetime as dt
-from PyQt4.QtGui import QImage, QColor, QPainter
+from PyQt4.QtGui import QImage, QColor, QPainter, QMessageBox
 from PyQt4.QtCore import QSize
 
 # Creates a dialog box that allow different model output time slices to be visualised in QGIS
@@ -68,6 +69,10 @@ class time_displayer(QtGui.QDialog, FORM_CLASS):
         '''
         id = self.lstAreas.currentItem().text()
         result = self.model.fetchResultsForLocation(intOrString(id), dt(1900,01,01), dt(2200,01,01))
+        # Are there any valid results here?
+        if len(result['Qf'].dropna()) == 0:
+            QMessageBox.critical(None, 'No Data', 'This output area contains no data')
+            return
         fig = pyplot.figure(id)
         pyplot.subplot(311)
         pltQb= pyplot.plot(result.index, result[self.componentTranslation['Qb (Building)']])
@@ -111,7 +116,7 @@ class time_displayer(QtGui.QDialog, FORM_CLASS):
             outs = pd.read_csv(self.model.getFileList()[t], header=0, index_col=0)
             outLayer = self.outputLayer
             # Make sure the output file is properly appended (this gets evaluated for non-extra-disaggregated datasets)
-            # because I didn't set an output shapefile path properl
+            # because I didn't set an output shapefile path properly
 
             if os.path.split(self.outputLayer)[0] == '':
                 outLayer = os.path.join(self.model.downscaledPath, os.path.split(self.outputLayer)[1])
@@ -151,7 +156,6 @@ class time_displayer(QtGui.QDialog, FORM_CLASS):
                     hSize = maxSize
                     vSize = maxSize*proportion
 
-                print(hSize, vSize)
                 # create image in proportion with layer
                 img = QImage(QSize(hSize, vSize), QImage.Format_ARGB32_Premultiplied)
 

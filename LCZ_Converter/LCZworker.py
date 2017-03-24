@@ -96,10 +96,10 @@ class Worker(QtCore.QObject):
 
                 if cal == 1:
                     lczfractions = LCZ_fractions(lc_grid_array,self.dlg)
-                    lczfractions = self.resultcheck(lczfractions)
                     lczfractions["lc_frac_all"] = np.where(np.isnan(lczfractions["lc_frac_all"] ),-9999,lczfractions["lc_frac_all"] )
                     lczfractions["bui_aero"] = np.where(np.isnan(lczfractions["bui_aero"]),-9999,lczfractions["bui_aero"])
                     lczfractions["veg_aero"] = np.where(np.isnan(lczfractions["veg_aero"]),-9999,lczfractions["veg_aero"])
+                    lczfractions = self.resultcheck(lczfractions)
                     
                     arr1 = np.array([f.attributes()[self.idx], lczfractions["lc_frac_all"][0,0], lczfractions["lc_frac_all"][0,1],
                                       lczfractions["lc_frac_all"][0,2], lczfractions["lc_frac_all"][0,3], lczfractions["lc_frac_all"][0,4],

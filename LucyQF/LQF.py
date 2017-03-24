@@ -74,16 +74,16 @@ class LQF:
             if qVersion() > '4.3.3':
                 QCoreApplication.installTranslator(self.translator)
 
-        # # Check dependencies
-        # try:
-        #     import pandas
-        #     import netCDF4
-        #     import matplotlib
-        #     import numpy
-        # except Exception, e:
-        #     QMessageBox.critical(None, 'Error',
-        #                          'LQF requires the pandas, matplotlib, NetCDF4 and numpy packages to be installed. Please consult the manual for further information')
-        #     return
+        # Check dependencies
+        try:
+            import pandas
+            import netCDF4
+            import matplotlib
+            import numpy
+        except Exception, e:
+            QMessageBox.critical(None, 'Error',
+                                 'LQF requires the pandas, matplotlib, NetCDF4 and numpy packages to be installed. Please consult the manual for further information')
+            return
 
 
         # Create the dialog (after translation) and keep reference
@@ -261,6 +261,8 @@ class LQF:
 
     def workerError(self, strException):
         QMessageBox.critical(None, 'Data pre-processing error:', str(strException))
+        QgsMessageLog.logMessage(traceback.format_exc(), level=QgsMessageLog.WARNING)
+
         self.dlg.progressBar.setValue(0)
         self.dlg.cmdPrepare.setText('Prepare input data using Data sources')
         self.dlg.cmdPrepare.clicked.disconnect()
@@ -542,22 +544,9 @@ class LQF:
 
     def run(self):
         """Run method that performs all the real work"""
-
-        # Check dependencies
-        try:
-            import pandas
-            import netCDF4
-            import matplotlib
-        except Exception, e:
-            QMessageBox.critical(None, 'Error',
-                                 'LQF requires the pandas, matplotlib and netCDF4 packages to be installed. Please consult the FAQ in the manual for further information')
-            return
-
         # show the dialog
         self.dlg.show()
         self.dlg.exec_()
-
-
 
     def reset(self):
         ''' Reset model object and dialogues so that user can start again'''

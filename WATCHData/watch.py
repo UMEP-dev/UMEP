@@ -75,12 +75,14 @@ class WATCHData:
         self.dlg.runButton.clicked.connect(self.start_progress) # Ensures "GO" button is enabled/disabled appropriately
         self.dlg.pushButtonHelp.clicked.connect(self.help)
         self.dlg.pushButtonRaw.clicked.connect(self.raw_path)
+        self.dlg.pushButtonAH.clicked.connect(self.folderAH)
         self.dlg.pushButtonSave.clicked.connect(self.outfile)
         self.fileDialog = QFileDialog()
         self.fileDialog.setFileMode(4)
         self.fileDialog.setAcceptMode(1)
         self.folderPathRaw = 'None'
         self.outputfile = 'None'
+        self.folderPathAH = 'None'
 
         # Declare instance attributes
         self.actions = []
@@ -253,6 +255,13 @@ class WATCHData:
             self.outputfile = outputfile
             self.dlg.textOutput.setText(self.outputfile)
 
+    def folderAH(self):
+        self.fileDialog.open()
+        result = self.fileDialog.exec_()
+        if result == 1:
+            self.folderPathAH = self.fileDialog.selectedFiles()
+            self.dlg.textOutput_AH.setText(self.folderPathAH[0])
+
     def help(self):
         url = "http://urban-climate.net/umep/UMEP_Manual#Meteorological_Data:_WATCH_data"
         webbrowser.open_new_tab(url)
@@ -324,15 +333,21 @@ class WATCHData:
         # Tell the user for their information
 
         dialog_string = 'Downloaded files will require approximately ' + str(int(numMonths * megPerFile * len(required_variables))) + 'MB of free space. Do you wish to continue?'
-        reply = QMessageBox.question(None, 'Storage space needed', dialog_string, QMessageBox.Yes | QMessageBox.No);
+        reply = QMessageBox.question(None, 'Storage space needed', dialog_string, QMessageBox.Yes | QMessageBox.No)
         if reply == QMessageBox.No:
             self.dlg.runButton.setEnabled(True)
             return
 
+        UTC_offset_h = self.dlg.spinBoxUTC.value()
+        input_AH_path = self.dlg.textOutput_AH.text()
+        rainAmongN = self.dlg.spinBoxRain.value()
+
         input_path = os.path.join(rawdata, 'WFDEI')
         output_path = fileout
         # Set up and start worker thread
-        worker = WatchWorker(rawdata, required_variables, datestart, dateend, input_path, output_path, lat, lon, hgt, self.dlg.lblStatus)
+        worker = WatchWorker(rawdata, required_variables, datestart, dateend,
+                             input_path, input_AH_path, output_path, lat, lon, hgt,
+                             UTC_offset_h, rainAmongN, self.dlg.lblStatus)
         thr = QThread(self.dlg)
         worker.moveToThread(thr)
         worker.finished.connect(self.workerFinished)
@@ -349,9 +364,10 @@ class WATCHData:
         self.thread.deleteLater()  # Flag for deletion
         self.dlg.runButton.setEnabled(True)
         self.iface.messageBar().pushMessage("WATCH data", "Data downloaded and processed", level=QgsMessageBar.INFO)
+        self.dlg.lblStatus.setText('')
 
     def workerError(self, strException):
         if type(strException) is not str:
             strException = str(strException)
-            
+
         QMessageBox.information(None, "WATCH extraction error:", strException)

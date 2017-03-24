@@ -152,7 +152,6 @@ def calculate_fuel_use(inputLayer, inputIdField,
             roadTypeOfficial = roadTypeLookup[roadType]
         inputLayer.selectAll()
         expressionText = u"\"" + roadTypeField + "\" = '" + roadType + "'"
-        print expressionText
         # Select all features with this road type, then do calculations
         thisRoad = QgsFeatureRequest().setFilterExpression(expressionText)
 

@@ -139,19 +139,21 @@ class SpatialTemporalResampler:
             # If the input layer isn't the same projection as the output layer, then produce a copy that's the right projection and use that instead
             reprojected = False
             if int(epsgCode) != self.templateEpsgCode:
-                dest = reprojectVectorLayer(shapefileInput, self.templateEpsgCode) # This creates a temp file
+                dest = reprojectVectorLayer_threadSafe(shapefileInput, self.templateEpsgCode) # This creates a temp file
                 shapefileInput = dest
                 reprojected = True
 
             # Load the layer
             try:
                 vectorLayer = openShapeFileInMemory(shapefileInput, targetEPSG=self.templateEpsgCode)
-
             except Exception, e:
                 raise ValueError('Could not load shapefile at ' + shapefileInput)
 
             if reprojected:
-                os.remove(dest) # Delete the temp file
+                try:
+                    os.remove(dest) # Delete the temp file
+                except:
+                    pass
 
         else:
             vectorLayer = shapefileInput
@@ -434,13 +436,13 @@ class SpatialTemporalResampler:
         if startTime.tzinfo is None:
             raise ValueError('Start time must have a timezone attached')
 
-        if type(attributeToUse) is not type(list()):
+        if type(attributeToUse) is not list:
             attributeToUse = [attributeToUse]
 
-        if type(input) is type(float()):  # Assume a single value for all space
+        if type(input) is float:  # Assume a single value for all space
             return self.dealWithSingleValue(input, startTime, 'SINGLEVAL')
 
-        if type(input) is type(''):  # Assume a filename
+        if type(input) in ([unicode, str]):  # Assume a filename
             if epsgCode is None:
                 raise ValueError('EPSG code must be provided if a shapefile is input')
             return self.dealWithVectorLayer(input, epsgCode, startTime, attributeToUse, weight_by, inputFieldId)

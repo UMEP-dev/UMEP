@@ -11,7 +11,7 @@ name=UMEP
 qgisMinimumVersion=2.0
 description=Urban Multi-scale Environmental Predictor
 
-version=0.2.14
+version=0.2.15
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun
 email=fredrikl@gvc.gu.se
 
@@ -26,6 +26,7 @@ repository=https://bitbucket.org/fredrik_ucg/umep
 
 # Uncomment the following line and add your changelog:
 changelog=
+	0.2.15 : New plugin: Benhmarking system. Bug fixing in LQF, GQF and LCZConverter
 	0.2.14 : New plugin: LQf (LUCY). Updates on GQf
 	0.2.13 : Major updates to ExtremeFinder plugin.
 	0.2.12 : New plugins: Spatial data Downloader and LCZConverter.

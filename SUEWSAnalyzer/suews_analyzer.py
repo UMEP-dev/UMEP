@@ -87,7 +87,7 @@ class SUEWSAnalyzer:
 
         self.fileDialog = QFileDialog()
         self.fileDialognml = QFileDialog()
-        self.fileDialognml.setNameFilter("(*.nml)")
+        self.fileDialognml.setNameFilter("(RunControl.nml)")
 
         # Declare instance attributes
         self.actions = []

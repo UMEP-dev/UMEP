@@ -62,15 +62,15 @@ def LCZ_fractions(lc_grid,dlg):
         waterf[l] = waterx*lczfrac[l]
         
         
-    lc_frac_all[0,0] = pavedf.sum(axis=0)
-    lc_frac_all[0,1] = buildingsf.sum(axis=0)
-    lc_frac_all[0,4] = grassf.sum(axis=0)
-    lc_frac_all[0,3] = dtreesf.sum(axis=0)
-    lc_frac_all[0,2] = etreesf.sum(axis=0)
-    lc_frac_all[0,5] = bsoilf.sum(axis=0)
-    lc_frac_all[0,6] = waterf.sum(axis=0)
+    lc_frac_all[0,0] = round(pavedf.sum(axis=0),3)
+    lc_frac_all[0,1] = round(buildingsf.sum(axis=0),3)
+    lc_frac_all[0,4] = round(grassf.sum(axis=0),3)
+    lc_frac_all[0,3] = round(dtreesf.sum(axis=0),3)
+    lc_frac_all[0,2] = round(etreesf.sum(axis=0),3)
+    lc_frac_all[0,5] = round(bsoilf.sum(axis=0),3)
+    lc_frac_all[0,6] = round(waterf.sum(axis=0),3)
     
-    bui_aero_all[0,0] = buildingsf.sum(axis=0)
+    bui_aero_all[0,0] = round(buildingsf.sum(axis=0),3)
     bui_aero_all[0,1] = blf.sum(axis=0)
     bui_aero_all[0,2] = bzh.sum(axis=0)
     bui_aero_all[0,3] = bzhm.sum(axis=0)
@@ -78,7 +78,7 @@ def LCZ_fractions(lc_grid,dlg):
     bui_aero_all[0,5] = -9999
     bui_aero_all[0,6] = -9999
     
-    veg_aero_all[0,0] = grassf.sum(axis=0)+dtreesf.sum(axis=0)+etreesf.sum(axis=0)
+    veg_aero_all[0,0] = round(grassf.sum(axis=0)+dtreesf.sum(axis=0)+etreesf.sum(axis=0),3)
     veg_aero_all[0,1] = vlf.sum(axis=0)
     veg_aero_all[0,2] = vzh.sum(axis=0)
     veg_aero_all[0,3] = vzhm.sum(axis=0)
