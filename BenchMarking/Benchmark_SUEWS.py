@@ -1,24 +1,22 @@
 #!/usr/bin/env python
 import numpy as np
-import pandas as pd
+#import pandas as pd
+try:
+    import pandas as pd
+except:
+    pass  # Suppress warnings at QGIS loading time, but an error is shown later to make up for it
 import os
 import glob
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
-import f90nml
-
-
-# @Author: Sun Ting
-# @Date:   2016-12-26T10:51:54+00:00
-# @Filename: SUEWS-Benchmark.py
-# @Last modified by:   sunt05
-# @Last modified time: 2017-03-18T21:28:00+00:00
+from ..Utilities import f90nml
 
 
 # read in SUEWS output
 def readSO(fn, plugin_dir):
     # load conversion dict: 2016 --> 2017
-    dict_2016to2017 = dict(pd.read_excel(os.path.join(plugin_dir, 'header-2016to2017.xlsx')).values)
+    dict_2016to2017 = dict(pd.read_excel(os.path.join(
+        plugin_dir, 'header-2016to2017.xlsx')).values)
     # dict_2016to2017 = dict(pd.read_excel('header-2016to2017.xlsx').values)
 
     filename = os.path.abspath(os.path.expanduser(fn))
@@ -100,22 +98,34 @@ def load_res_all(fn_nml, plugin_dir):
     rawdata_base = readSO(fn_base, plugin_dir)
 
     # get benchmark runs
-    listCfg = xrange(len(fn_cfg))  # the configuration names need to be refined
-    rawdata_cfg = {cfg: readSO(fn, plugin_dir) for cfg, fn in zip(listCfg, fn_cfg)}
+    # the configuration names need to be refined
+    listCfg = np.arange(len(fn_cfg)) + 1
+    rawdata_cfg = {cfg: readSO(fn, plugin_dir)
+                   for cfg, fn in zip(listCfg, fn_cfg)}
 
     # pack the results into a pandas Panel
     res = rawdata_cfg.copy()
     res.update({'ref': rawdata_ref, 'base': rawdata_base})
     res = pd.Panel(res)
 
+    # data cleaning:
+    # 1. variables consisting of only NAN
+    # 2. timestamp with any NAN
+    res = pd.Panel({k: df.dropna(axis=1, how='all').dropna(axis=0, how='any')
+                    for k, df in res.to_frame().to_panel().iteritems()})
+
     # calculate benchmark metrics
     return res
 
 
 # get results of selected variables
-def load_res_var(fn_nml, list_var, plugin_dir):
+def load_res_var(fn_nml, list_var_user, plugin_dir):
     # get all variables
     res_all = load_res_all(fn_nml, plugin_dir)
+    # available variables after data cleaning:
+    list_var_valid = res_all['base'].columns
+    # get valid variables by intersecting:
+    list_var = list_var_valid.intersection(list_var_user)
 
     # select variables of interest
     res = {k: v.loc[:, list_var] for k, v in res_all.iteritems()}
@@ -136,10 +146,10 @@ def load_res(fn_nml, plugin_dir):
     return res
 
 
-# load_res('benchmark.nml')
-
-
 def plotMatMetric(res, base, func, title):
+    # number of observations
+    n_obs = base.index.size
+
     # calculate metrics
     resPlot = pd.DataFrame([func(x, base)
                             for k, x in res.iteritems()], index=res.keys())
@@ -147,7 +157,10 @@ def plotMatMetric(res, base, func, title):
     # rescale metrics values for plotting: [0,1]
     # resPlot_res = func_Norm(resPlot).dropna(axis=1)  # nan will be dropped
     # fill nan with 0.5 so as to display white
-    resPlot_res = func_Norm(resPlot).fillna(0.5)
+    if title == 'MBE':
+        resPlot_res = func_Norm(np.abs(resPlot)).fillna(0.5)
+    else:
+        resPlot_res = func_Norm(resPlot).fillna(0.5)
 
     sub = resPlot_res.transpose()
     # select those non-nans based on rescaled values
@@ -192,7 +205,7 @@ def plotMatMetric(res, base, func, title):
     # label ticks with configuration names
     plt.xticks(np.arange(.5, ncol + 1, 1),
                sub.columns, fontsize=14, weight='bold')
-    plt.title(title, fontsize=16, weight='bold')
+    plt.title(title + ' (N=%d)' % n_obs, fontsize=16, weight='bold')
     # plt.savefig(filename, bbox_inches='tight')
     # plt.show()
     return fig
@@ -222,19 +235,20 @@ def plotBarScore(res_score):
     # make zero values visible in the plot
     res_score.replace({0.0: 0.5}, inplace=True)
 
+    res_score = np.array(res_score)
+    ax.barh(y_pos[mask_better], res_score[mask_better],
+            align='center', color='green')
+    ax.barh(y_pos[mask_worse], res_score[mask_worse],
+            align='center', color='gray')
 
-    ax.barh(y_pos[mask_ref], res_score['ref'], align='center', color='blue')
-
-    res_score=np.array(res_score)
-    ax.barh(y_pos[mask_better], res_score[mask_better],align='center', color='green')
-    ax.barh(y_pos[mask_worse], res_score[mask_worse],align='center', color='gray')
-
+    # res_score=pd.DataFrame(res_score)
+    ax.barh(y_pos[mask_ref], res_score[mask_ref], align='center', color='blue')
 
     ax.set_yticks(y_pos)
     ax.set_yticklabels(y_lbl, fontsize=12, weight='bold')
     # ax.invert_yaxis()
     ax.set_xlabel(
-        'Performance Score \n(larger scores indicate better performance)', fontsize=12, weight='bold')
+        'Performance Score (larger scores indicate better performance)', fontsize=12, weight='bold')
     ax.set_title('Performance Comparison', fontsize=16, weight='bold')
     return fig_score
 
@@ -285,6 +299,7 @@ def benchmarkSUEWS(fn_nml, plugin_dir):
 
     return res_fig
 
+
 # output report in PDF
 def report_benchmark(fn_nml, plugin_dir):
     prm = f90nml.read(fn_nml)
@@ -299,21 +314,3 @@ def report_benchmark(fn_nml, plugin_dir):
             if k != 'score':
                 pdf.savefig(x, bbox_inches='tight',
                             papertype='a4', orientation='portrait')
-
-
-# report_benchmark('benchmark.nml')
-# # # # load settings
-# # # prm = f90nml.read('benchmark.nml')
-# # # prm_file = prm['file']
-# # # prm_bmk = prm['benchmark']
-# # #
-# # # # file settings
-# # # input_dir = prm_file['input_dir']
-# # # output_pdf = prm_file['output_pdf']
-# # #
-# # # # benchmark settings
-# # # list_var = prm_bmk['list_var']
-# # # list_metric = prm_bmk['list_metric']
-# # #
-# # # # run the benchmark
-# # # report_benchmark(input_dir, output_pdf, list_var, list_metric)

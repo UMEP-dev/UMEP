@@ -222,19 +222,22 @@ class WATCHData:
             import pandas
         except Exception, e:
             QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the pandas package '
-                                                'to be installed. Please consult the FAQ in the manual for further information')
+                                                'to be installed. Please consult the FAQ in the manual for further '
+                                                'information on how to install missing python packages.')
             return
         try:
             import ftplib
         except Exception, e:
             QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the ftplib package '
-                                                'to be installed. Please consult the FAQ in the manual for further information')
+                                                'to be installed. Please consult the FAQ in the manual for further '
+                                                'information on how to install missing python packages.')
             return
         try:
             import scipy
         except Exception, e:
             QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the scipy package '
-                                                'to be installed. Please consult the FAQ in the manual for further information')
+                                                'to be installed. Please consult the FAQ in the manual for further '
+                                                'information on how to install missing python packages.')
             return
 
         self.dlg.show()

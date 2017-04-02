@@ -27,8 +27,8 @@ from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
 # Import the code for the dialog
 from benchmarking_dialog import BenchMarkingDialog
 import os.path
+from ..Utilities import f90nml
 
-import f90nml
 import Benchmark_SUEWS as bss
 import numpy as np
 import webbrowser
@@ -153,6 +153,16 @@ class BenchMarking:
         del self.toolbar
 
     def run(self):
+
+        # Check the more unusual dependencies to prevent confusing errors later
+        try:
+            import pandas
+        except Exception, e:
+            QMessageBox.critical(None, 'Error', 'The Benchmarking feature requires the pandas package to be installed. '
+                                                'Please consult the FAQ in the manual for further information on how'
+                                                'to install missing python packages.')
+            return
+
         self.dlg.show()
         self.dlg.exec_()
 

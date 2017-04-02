@@ -85,6 +85,10 @@ class SUEWSAnalyzer:
         self.dlg.runButtonPlot.clicked.connect(self.plotpoint)
         self.dlg.runButtonSpatial.clicked.connect(self.spatial)
 
+        self.dlg.comboBox_POIField.activated.connect(self.changeGridPOI)
+        self.dlg.comboBox_POIYYYY.activated.connect(self.changeYearPOI)
+        self.dlg.comboBox_SpatialYYYY.activated.connect(self.changeYearSP)
+
         self.fileDialog = QFileDialog()
         self.fileDialognml = QFileDialog()
         self.fileDialognml.setNameFilter("(RunControl.nml)")
@@ -218,9 +222,9 @@ class SUEWSAnalyzer:
             resolutionFilesOut = nml['runcontrol']['resolutionfilesout']
             self.resout = int(float(resolutionFilesOut) / 60)
             self.fileCode = nml['runcontrol']['filecode']
-            multiplemetfiles = nml['runcontrol']['multiplemetfiles']
+            self.multiplemetfiles = nml['runcontrol']['multiplemetfiles']
             resolutionFilesIn = nml['runcontrol']['resolutionFilesIn']
-            resin = int(resolutionFilesIn / 60)
+            self.resin = int(resolutionFilesIn / 60)
 
             tstep = nml['runcontrol']['tstep']
             self.tstep = int(float(tstep) / 60)
@@ -234,6 +238,7 @@ class SUEWSAnalyzer:
             f = open(sitein)
             lin = f.readlines()
             self.YYYY = -99
+            self.gridcodemetID = -99
             index = 2
             loop_out = ''
             gridcodemetmat = [0]
@@ -244,21 +249,20 @@ class SUEWSAnalyzer:
                     self.dlg.comboBox_POIYYYY.addItem(str(self.YYYY))
                     self.dlg.comboBox_SpatialYYYY.addItem(str(self.YYYY))
 
-                self.gridcodemet = lines[0]
-                self.dlg.comboBox_POIField.addItem(self.gridcodemet)
-                self.dlg.comboBox_POIField_2.addItem(self.gridcodemet)
-                gridtemp = [int(lines[0])]
-
-                gridcodemetmat = np.vstack((gridcodemetmat, gridtemp))
+                if not np.any(int(lines[0]) == gridcodemetmat):
+                    self.gridcodemetID = int(lines[0])
+                    self.dlg.comboBox_POIField.addItem(str(self.gridcodemetID))
+                    self.dlg.comboBox_POIField_2.addItem(str(self.gridcodemetID))
+                    gridtemp = [self.gridcodemetID]
+                    gridcodemetmat = np.vstack((gridcodemetmat, gridtemp))
 
                 if index == 2:
-                    if multiplemetfiles == 0:
-                        gridcodemet = ''
+                    if self.multiplemetfiles == 0:
+                        self.gridcodemet = ''
                     else:
-                        gridcodemet = lines[0]
-                    data_in = self.fileinputpath + self.fileCode + gridcodemet + '_' + str(self.YYYY) + '_data_' + str(resin) + '.txt'
-                    self.met_data = np.genfromtxt(data_in, skip_header=1, skip_footer=2, missing_values='**********', filling_values=-9999)
-                    # self.met_data = np.loadtxt(data_in, skiprows=1)
+                        self.gridcodemet = lines[0]
+                    data_in = self.fileinputpath + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_data_' + str(self.resin) + '.txt'
+                    self.met_data = np.genfromtxt(data_in, skip_header=1, missing_values='**********', filling_values=-9999)  # , skip_footer=2
 
                 lines = lin[index + 1].split()
                 loop_out = lines[0]
@@ -281,14 +285,89 @@ class SUEWSAnalyzer:
                 self.dlg.comboBox_POIVariable_2.addItem(self.linevarlong[i])
                 self.dlg.comboBox_SpatialVariable.addItem(self.linevarlong[i])
 
-            for i in range(int(np.min(self.met_data[:, 1])), int(np.max(self.met_data[:, 1]))):
-                self.dlg.comboBox_POIDOYMin.addItem(str(i))
-                self.dlg.comboBox_POIDOYMax.addItem(str(i))
-                self.dlg.comboBox_SpatialDOYMin.addItem(str(i))
-                self.dlg.comboBox_SpatialDOYMax.addItem(str(i))
+            # for i in range(int(np.min(self.met_data[:, 1])), int(np.max(self.met_data[:, 1]))):
+            #     self.dlg.comboBox_POIDOYMin.addItem(str(self.met_data[i, 1]))
+            #     self.dlg.comboBox_POIDOYMax.addItem(str(self.met_data[i, 1]))
+            #     self.dlg.comboBox_SpatialDOYMin.addItem(str(self.met_data[i, 1]))
+            #     self.dlg.comboBox_SpatialDOYMax.addItem(str(self.met_data[i, 1]))
 
             self.dlg.runButtonPlot.setEnabled(1)
             self.dlg.runButtonSpatial.setEnabled(1)
+
+    def changeGridPOI(self):
+        self.dlg.comboBox_POIYYYY.setCurrentIndex(0)
+        self.dlg.comboBox_POIDOYMin.setCurrentIndex(0)
+        self.dlg.comboBox_POIDOYMax.setCurrentIndex(0)
+
+    def changeYearPOI(self):
+        self.dlg.comboBox_POIDOYMin.clear()
+        self.dlg.comboBox_POIDOYMax.clear()
+        self.dlg.comboBox_POIDOYMin.addItem('Not Specified')
+        self.dlg.comboBox_POIDOYMax.addItem('Not Specified')
+
+        self.YYYY = self.dlg.comboBox_POIYYYY.currentText()
+
+        if self.multiplemetfiles == 0:
+            self.gridcodemet = ''
+        else:
+            self.gridcodemet = self.dlg.comboBox_POIField.currentText()
+
+        data_in = self.fileinputpath + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_data_' + str(
+            self.resin) + '.txt'
+        self.met_data = np.genfromtxt(data_in, skip_header=1, missing_values='**********', filling_values=-9999)
+
+        if np.min(self.met_data[:, 0]) - np.max(self.met_data[:, 0]) < 0:
+            minis = np.min(self.met_data[:-1, 1])
+            maxis = np.max(self.met_data[:, 1])
+        else:
+            minis = np.min(self.met_data[:, 1])
+            maxis = np.max(self.met_data[:, 1])
+
+        # QMessageBox.critical(self.dlg, "Min", str(minis))
+        # QMessageBox.critical(self.dlg, "Max", str(maxis))
+        # return
+
+        for i in range(int(minis), int(maxis)):
+                self.dlg.comboBox_POIDOYMin.addItem(str(i))
+                self.dlg.comboBox_POIDOYMax.addItem(str(i))
+
+        # self.dlg.comboBox_POIDOYMin.setCurrentIndex(0)
+        # self.dlg.comboBox_POIDOYMax.setCurrentIndex(0)
+
+    def changeYearSP(self):
+        self.dlg.comboBox_SpatialDOYMin.clear()
+        self.dlg.comboBox_SpatialDOYMax.clear()
+        self.dlg.comboBox_SpatialDOYMin.addItem('Not Specified')
+        self.dlg.comboBox_SpatialDOYMax.addItem('Not Specified')
+
+        self.YYYY = self.dlg.comboBox_SpatialYYYY.currentText()
+
+        # if self.multiplemetfiles == 0:
+        #     self.gridcodemet = ''
+        # else:
+        #     self.gridcodemet = self.dlg.comboBox_POIField.currentText()
+
+        data_in = self.fileinputpath + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_data_' + str(
+            self.resin) + '.txt'
+        self.met_data = np.genfromtxt(data_in, skip_header=1, missing_values='**********', filling_values=-9999)
+
+        if np.min(self.met_data[:, 0]) - np.max(self.met_data[:, 0]) < 0:
+            minis = np.min(self.met_data[:-1, 1])
+            maxis = np.max(self.met_data[:, 1])
+        else:
+            minis = np.min(self.met_data[:, 1])
+            maxis = np.max(self.met_data[:, 1])
+
+        # QMessageBox.critical(self.dlg, "Min", str(minis))
+        # QMessageBox.critical(self.dlg, "Max", str(maxis))
+        # return
+
+        for i in range(int(minis), int(maxis)):
+            self.dlg.comboBox_SpatialDOYMin.addItem(str(i))
+            self.dlg.comboBox_SpatialDOYMax.addItem(str(i))
+
+        # self.dlg.comboBox_POIDOYMin.setCurrentIndex(0)
+        # self.dlg.comboBox_POIDOYMax.setCurrentIndex(0)
 
     def geotiff_save(self):
         self.outputfile = self.fileDialog.getSaveFileName(None, "Save File As:", None, "GeoTIFF (*.tif)")

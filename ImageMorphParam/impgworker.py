@@ -83,6 +83,12 @@ class Worker(QtCore.QObject):
             header2 = ' id  pai   fai   zH  zHmax   zHstd  zd  z0'
             numformat2 = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
 
+            # temporary fix for mac, ISSUE #15
+            pf = sys.platform
+            if pf == 'darwin' or pf == 'linux2':
+                if not os.path.exists(self.folderPath[0] + '/' + pre):
+                    os.makedirs(self.folderPath[0] + '/' + pre)
+
             for f in self.vlayer.getFeatures():  # looping through each grid polygon
                 # Kollar sa att traden inte har avbrutits, ifall den har det sa slutar loopning.
                 if self.killed is True:

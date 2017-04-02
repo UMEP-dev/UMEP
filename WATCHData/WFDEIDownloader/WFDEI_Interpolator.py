@@ -18,6 +18,7 @@
 # 20160707 TS: interactive input implemented.
 # 20170323 TS: LQF AH data incorporated.
 # 20170324 TS: LST correction.
+# 20170328 TS: AH incorporation correction.
 ##########################################################################
 # To do:
 # 1. add ability to interpolate at specified temporal scale.
@@ -277,8 +278,8 @@ def read_WFDEI(directory, var, year_start, year_end, xlat, xlon, textObject=None
     # convert to time series
     ts_data = pd.DataFrame(rawdata, columns=['time', var])
     ts_data["time"] = pd.to_datetime(ts_data['time'], format="%Y%m%d%H")
-    # if textObject is not None:
-    # textObject.setText(var + ' successfully imported')
+    if textObject is not None:
+        textObject.setText(var + ' successfully imported')
     return ts_data
 
 
@@ -305,8 +306,8 @@ def load_WFDEI_3h(WFDEI_path, year_start, year_end, lat, lon, textObject=None):
 
     ts_data_raw = [xx.set_index('time') for xx in ts_data_raw]
     data_raw_3h = pd.concat(ts_data_raw, axis=1, join='outer')
-    # if textObject is not None:
-    # textObject.setText('WFDEI Data successfully loaded')
+    if textObject is not None:
+        textObject.setText('WFDEI Data successfully loaded')
 
     return data_raw_3h
 
@@ -450,8 +451,8 @@ def process_SUEWS_forcing_1h(data_raw_3h, lat, lon, hgt, textObject=None):
 
     # replace nan with -999
     data_out_1h = data_out_1h.fillna(value=-999)
-    # if textObject is not None:
-    # textObject.setText('WFDEI Data Successfully Processed ')
+    if textObject is not None:
+        textObject.setText('WFDEI Data Successfully Processed ')
 
     return data_out_1h
 
@@ -571,8 +572,8 @@ def process_SUEWS_forcing_1h_LST(data_raw_3h, lat, lon, hgt, UTC_offset_h, rainA
 
     # replace nan with -999
     data_out_1h = data_out_1h.fillna(value=-999)
-    # if textObject is not None:
-    # textObject.setText('WFDEI Data Successfully Processed ')
+    if textObject is not None:
+        textObject.setText('WFDEI Data Successfully Processed ')
 
     return data_out_1h
 
@@ -598,6 +599,9 @@ def write_SUEWS_forcing_1h(input_path, output_file, year_start, year_end, lat, l
             filename_parts[0] + str(year) + filename_parts[1])
         data_out_1h_year.to_csv(file_output_year, sep=" ",
                                 index=False, float_format='%.4f')
+    if textObject is not None:
+        textObject.setText('WFDEI Data Successfully Exported ')
+
         # print(file_output_year)
 
     #print('********* WFDEI Data Processing Successfully Finished *********')
@@ -625,6 +629,8 @@ def write_SUEWS_forcing_1h_LST(input_path, output_file, year_start, year_end, la
         data_out_1h_year.to_csv(file_output_year, sep=" ",
                                 index=False, float_format='%.4f')
 
+    if textObject is not None:
+        textObject.setText('WFDEI Data Successfully Exported ')
 
 # read in single AH CSV file
 def read_AH(fn):
@@ -650,9 +656,11 @@ def read_AH_Panel(filelist):
     res = pd.Panel({xid: pd.DataFrame(pnl_AH.iloc[:, xid, 1:].T,
                                       columns=list(pnl_AH.iloc[0, 0].index[1:]))
                     for xid in id_grid})
+
     return res
 
 
+# incorporate AH data into WATCH downsacled data
 def process_AH_1h(input_AH_path, data_out_1h, textObject=None):
     # retrieve datetime from data_out_1h
     index_dt = data_out_1h.index
@@ -662,9 +670,13 @@ def process_AH_1h(input_AH_path, data_out_1h, textObject=None):
              for fn in os.listdir(input_AH_path) if fn.endswith('.csv')]
     res_AH = read_AH_Panel(fl_AH)[:, index_dt]
 
+
+    if textObject is not None:
+        textObject.setText('AH data successfully processed')
     return res_AH
 
 
+# write out SUEWS input with AH incorporated and UTC corrected to LST
 def write_SUEWS_forcing_1h_AH_LST(input_path, input_AH_path, output_file, year_start, year_end, lat, lon, hgt, UTC_offset_h, rainAmongN, textObject=None):
     # load raw 3-hourly met data and 1-hourly AH data and write to text file
     # textObject is optional QText that has so we can keep the user informed
@@ -673,8 +685,9 @@ def write_SUEWS_forcing_1h_AH_LST(input_path, input_AH_path, output_file, year_s
         input_path, year_start, year_end, lat, lon, textObject)
 
     # process raw data to hourly forcings for SUEWS
+    # as AH data are based on UTC, the WATCH data is first kept in UTC as well
     data_out_1h = process_SUEWS_forcing_1h_LST(
-        data_raw_3h, lat, lon, hgt, UTC_offset_h, rainAmongN, textObject)
+        data_raw_3h, lat, lon, hgt, 0, rainAmongN, textObject)
 
     # process AH data to match with data_out_1h
     AH_out_1h = process_AH_1h(input_AH_path, data_out_1h, textObject)
@@ -689,22 +702,27 @@ def write_SUEWS_forcing_1h_AH_LST(input_path, input_AH_path, output_file, year_s
         for year in range(year_start, year_end + 1):
             data_out_1h_grid_year = data_out_1h_grid[xid][lambda df: (
                 df.index - timedelta(minutes=60)).year == year]
+
+            # correct UTC to LST and process NANs
+            # (drop timestamps with all NANs and replace others with -999)
+            data_out_1h_grid_year = data_out_1h_grid_year.shift(
+                UTC_offset_h).dropna(how='all', axis=0).fillna(-999)
+
+            # process timestamps
+            data_out_1h_grid_year['iy'] = data_out_1h_grid_year.index.year
+            data_out_1h_grid_year['id'] = data_out_1h_grid_year.index.dayofyear
+            data_out_1h_grid_year['it'] = data_out_1h_grid_year.index.hour
+            data_out_1h_grid_year['imin'] = data_out_1h_grid_year.index.minute
+
+            # file name settings
             filename_parts = os.path.splitext(output_file)
             file_output_grid_year = os.path.expanduser(
                 filename_parts[0] + str(xid) + '_' + str(year) + filename_parts[1])
-            # process timestamps
-            # data_out_1h_grid_year.loc[:, ['iy','id','it','imin']]=data_out_1h_grid_year.loc[:, ['iy','id','it','imin']].astype(int)
-            data_out_1h_grid_year.loc[:, 'iy'] = data_out_1h_grid_year.loc[:, 'iy'].astype(
-                int)
-            data_out_1h_grid_year.loc[:, 'id'] = data_out_1h_grid_year.loc[:, 'id'].astype(
-                int)
-            data_out_1h_grid_year.loc[:, 'it'] = data_out_1h_grid_year.loc[:, 'it'].astype(
-                int)
-            data_out_1h_grid_year.loc[:, 'imin'] = data_out_1h_grid_year.loc[:, 'imin'].astype(
-                int)
             data_out_1h_grid_year.to_csv(file_output_grid_year, sep=" ",
                                          index=False, float_format='%.4f')
 
+    if textObject is not None:
+        textObject.setText('WFDEI Data Successfully Exported ')
 
 def decompress_WFDEI(filename):
     # Decompress a gzipped file to a temporary folder and return the location of the unzipped file

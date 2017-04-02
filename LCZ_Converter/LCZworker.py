@@ -120,6 +120,12 @@ class Worker(QtCore.QObject):
                 dataset3 = None
                 self.progress.emit()
 
+            # temporary fix for mac, ISSUE #15
+            pf = sys.platform
+            if pf == 'darwin' or pf == 'linux2':
+                if not os.path.exists(self.folderPath[0] + '/' + pre):
+                    os.makedirs(self.folderPath[0] + '/' + pre)
+
             header = 'ID Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
             numformat = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
             arrmatsave1 = arrmat1[1: arrmat1.shape[0], :]

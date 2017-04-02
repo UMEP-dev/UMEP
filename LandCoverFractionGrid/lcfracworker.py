@@ -58,6 +58,12 @@ class Worker(QtCore.QObject):
         header2 = 'ID Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
         numformat2 = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
 
+        # temporary fix for mac, ISSUE #15
+        pf = sys.platform
+        if pf == 'darwin' or pf == 'linux2':
+            if not os.path.exists(self.folderPath[0] + '/' + pre):
+                os.makedirs(self.folderPath[0] + '/' + pre)
+
         try:
             # j = 0
             for f in self.vlayer.getFeatures():  # looping through each grid polygon

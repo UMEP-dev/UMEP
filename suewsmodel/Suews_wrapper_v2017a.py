@@ -8,7 +8,7 @@ def wrapper(pathtoplugin):
     import suewsdataprocessing
     import suewsplotting
     import subprocess
-    import f90nml
+    from ..Utilities import f90nml
     import os
     import sys
     import stat
