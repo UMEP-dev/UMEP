@@ -681,7 +681,7 @@ p, li { white-space: pre-wrap; }
          <bool>true</bool>
         </property>
         <property name="text">
-         <string>Variable to visulize:</string>
+         <string>Variable to visualize:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

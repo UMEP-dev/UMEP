@@ -30,6 +30,7 @@ from osgeo import gdal
 import numpy as np
 import makevegdems
 from osgeo.gdalconst import *
+import sys
 
 # Import the code for the dialog
 from tree_generator_dialog import TreeGeneratorDialog
@@ -324,17 +325,26 @@ class TreeGenerator:
             trunk = f.attributes()[idx_trunk]
             height = f.attributes()[idx_tot]
             dia = f.attributes()[idx_dia]
-            cola = np.round(x - minx)
-            rowa = np.round(miny + rows - y)
+            cola = np.round((x - minx) * scale)
+            rowa = np.round((miny + rows / scale - y) * scale)
 
-            # self.iface.messageBar().pushMessage("dia=", str(dia))
-            # self.iface.messageBar().pushMessage("scale=", str(scale))
-            # QMessageBox.information(None, "dia=", str(dia))
-            # QMessageBox.critical(None, "x=", str(cdsm_array.shape[1]))
-            # QMessageBox.critical(None, "y=", str(cdsm_array.shape[0]))
+            # QMessageBox.information(None, "scale=", str(scale))
+            # QMessageBox.information(None, "x=", str(x))
+            # QMessageBox.information(None, "y=", str(y))
+            # QMessageBox.information(None, "minx=", str(minx))
+            # QMessageBox.information(None, "miny=", str(miny))
+            # QMessageBox.information(None, "cola=", str(cola))
+            # QMessageBox.information(None, "rowa=", str(rowa))
+            # QMessageBox.information(None, "rows=", str(rows))
 
             cdsm_array, tdsm_array = makevegdems.vegunitsgeneration(build_array, cdsm_array, tdsm_array, ttype, height,
                                                                     trunk, dia, rowa, cola, sizex, sizey, scale)
+
+        # temporary fix for mac, ISSUE #15
+        pf = sys.platform
+        if pf == 'darwin' or pf == 'linux2':
+            if not os.path.exists(self.folderPath[0]):
+                os.makedirs(self.folderPath[0])
 
 
         # self.saveraster(dataset, self.folderPath[0] + '/build.tif', build_array)

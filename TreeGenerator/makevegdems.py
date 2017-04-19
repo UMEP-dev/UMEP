@@ -27,7 +27,7 @@ def vegunitsgeneration(buildings, vegdem, vegdem2, ttype, height, trunk, dia, ro
     rowmin = abs(row1)
     colmin = abs(col1)
     rowmax = trees.shape[0]
-    colmax = trees.shape[1]
+    colmax = trees.shape[0]
 
     # cutting trees at dem egde
     rowcutmax = rowmax

@@ -2,6 +2,7 @@
 import sun_position as sp
 import numpy as np
 import datetime
+import calendar
 
 def Solweig_2015a_metdata_noload(inputdata, location, UTC):
     """
@@ -89,7 +90,7 @@ def Solweig_2015a_metdata_noload(inputdata, location, UTC):
         zen[0, i] = sun['zenith'] * (np.pi/180.)
 
         # day of year and check for leap year
-        if isleapyear(time['year']):
+        if calendar.isleap(time['year']):
             dayspermonth = np.atleast_2d([31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])
         else:
             dayspermonth = np.atleast_2d([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])
@@ -106,12 +107,12 @@ def Solweig_2015a_metdata_noload(inputdata, location, UTC):
     return YYYY, altitude, azimuth, zen, jday, leafon, dectime, altmax
 
 
-def isleapyear(year):
-    if (year % 4) == 0:
-        if (year % 100) == 0:
-            if (year % 400) == 0:
-                return True
-    return False
+# def isleapyear(year):
+#     if (year % 4) == 0:
+#         if (year % 100) == 0:
+#             if (year % 400) == 0:
+#                 return True
+#     return False
 
 
 

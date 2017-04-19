@@ -298,7 +298,7 @@ class ShadowGenerator:
 
                 # load raster
                 gdal.AllRegister()
-                provider = vegdsm.dataProvider()
+                provider = vegdsm2.dataProvider()
                 filePathOld = str(provider.dataSourceUri())
                 dataSet = gdal.Open(filePathOld)
                 vegdsm2 = dataSet.ReadAsArray().astype(np.float)

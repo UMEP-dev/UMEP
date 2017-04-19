@@ -39,6 +39,7 @@ from svfvegworker import VegWorker
 from osgeo.gdalconst import *
 import webbrowser
 import zipfile
+import sys
 
 class SkyViewFactorCalculator:
     """QGIS Plugin Implementation."""
@@ -282,6 +283,13 @@ class SkyViewFactorCalculator:
         self.thread.deleteLater()
         # remove widget from message bar
         # self.iface.messageBar().popWidget(self.messageBar)
+
+        # temporary fix for mac, ISSUE #15
+        pf = sys.platform
+        if pf == 'darwin' or pf == 'linux2':
+            if not os.path.exists(self.folderPath[0]):
+                os.makedirs(self.folderPath[0])
+
         if ret is not None:
             # report the result
             # layer, total_area = ret
@@ -365,6 +373,12 @@ class SkyViewFactorCalculator:
         self.vegthread.quit()
         self.vegthread.wait()
         self.vegthread.deleteLater()
+
+        # temporary fix for mac, ISSUE #15
+        pf = sys.platform
+        if pf == 'darwin' or pf == 'linux2':
+            if not os.path.exists(self.folderPath[0]):
+                os.makedirs(self.folderPath[0])
 
         if ret is not None:
             # report the result
@@ -533,7 +547,7 @@ class SkyViewFactorCalculator:
 
                     # load raster
                     gdal.AllRegister()
-                    provider = self.vegdsm.dataProvider()
+                    provider = self.vegdsm2.dataProvider()
                     filePathOld = str(provider.dataSourceUri())
                     dataSet = gdal.Open(filePathOld)
                     self.vegdsm2 = dataSet.ReadAsArray().astype(np.float)

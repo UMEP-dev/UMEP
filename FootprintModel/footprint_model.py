@@ -211,7 +211,7 @@ class FootprintModel:
                                             " See help section to get correct format.")
                 return
 
-            if not self.data.shape[1] == 14:
+            if not self.data.shape[1] == 12:
                 QMessageBox.critical(None, "Import Error", "Check format of textfile format."
                                             " See help section to get correct format.")
                 return
@@ -462,7 +462,7 @@ class FootprintModel:
             if sys.platform == 'win32':
                 subprocess.call(gdalruntextvegdsm, startupinfo=si)
             else:
-                os.system(gdalruntextvegdsm)
+                os.system(gdalruntextdvegdsm)
 
             dataset = gdal.Open(self.plugin_dir + '/data/clipvegdsm.tif')
             vegdsm = dataset.ReadAsArray().astype(np.float)
@@ -538,8 +538,8 @@ class FootprintModel:
 
             #If zd and z0 are lower than open country, set to open country
             for i in np.arange(0,it,1):
-                if Wz_d_output[i]< 0.2:
-                    Wz_d_output[i] = 0.2
+                if Wz_d_output[i]< 0.03:
+                    Wz_d_output[i] = 0.03
                 if Wz_0_output[i]< 0.03:
                     Wz_0_output[i] = 0.03
 
@@ -557,7 +557,7 @@ class FootprintModel:
             #rotatedphiPerc = totRotatedphi/np.nansum(totRotatedphi)
             rotatedphiPerc = (totRotatedphi/np.nanmax(totRotatedphi))*100
             rotatedphiPerc = (rotatedphiPerc - 100)*-1
-            rotatedphiPerc[rotatedphiPerc == 0] = -9999
+            #rotatedphiPerc[rotatedphiPerc == 0] = -9999
             rotatedphiPerc[rotatedphiPerc >= 100] = -9999
             fp.saveraster(dataset, self.folderPath[0] + '/' + pre + '_' + 'SourceAreaCumulativePercentage.tif', rotatedphiPerc)
 
@@ -578,5 +578,6 @@ class FootprintModel:
 
     def help(self):
         # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = "http://www.urban-climate.net/umep/UMEP_Manual#Urban_Morphology:_Footprint_Model_.28Point.29"
+        url = "http://www.urban-climate.net/umep/UMEP_Manual#Pre-Processor:" \
+              "_Urban_Morphology:_Footprint_Model_.28Point.29"
         webbrowser.open_new_tab(url)

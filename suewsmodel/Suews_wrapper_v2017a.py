@@ -66,7 +66,7 @@ def wrapper(pathtoplugin):
         if index == 2:
             # gridcodemet = ''
             data_in = fileinputpath + filecode + '_' + str(YYYY) + gridcodemet + '_data_' + str(int(int(resolutionfilesin) / 60.)) + '.txt'  # No grid code in the name, nov 2015
-            met_old = np.genfromtxt(data_in, skip_header=1, skip_footer=2, missing_values='**********', filling_values=-9999)
+            met_old = np.genfromtxt(data_in, skip_header=1, missing_values='**********', filling_values=-9999) #  skip_footer=2,
             # met_old = np.loadtxt(data_in, skiprows=1)
             if met_old[1, 3] - met_old[0, 3] == 5:
                 met_new = met_old

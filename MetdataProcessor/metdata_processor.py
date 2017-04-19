@@ -256,20 +256,50 @@ class MetdataProcessor:
 
         if self.dlg.checkBoxDectime.isChecked():
             dectime_col = self.dlg.comboBox_dectime.currentIndex()
-            dechour = (met_old[:, dectime_col] - np.floor(met_old[:, dectime_col])) * 24
-            met_new[:, 2] = dechour
-            minute = np.round((dechour - np.floor(dechour)) * 60)
-            minute[(minute == 60)] = 0
-            met_new[:, 3] = minute
+            timeres_old = np.round((met_old[1, dectime_col] - met_old[0, dectime_col]) * (60. * 24.))
+            nsh = int(timeres_old / 5)
+            # QMessageBox.information(None, "Metdata pre-processor", str(timeres_old))
+
+            first_hour = (met_old[0, dectime_col] - np.floor(met_old[0, dectime_col])) * 24
+            met_new[0, 2] = first_hour
+            first_min = np.round((met_new[0, 2] - np.floor(met_new[0, 2])) * 60)
+            met_new[0, 3] = first_min
+
+            for t in range(1, rownum):
+                # min_now = first_hour + timeres_old
+                met_new[t, 3] = met_new[(t - 1), 3] + timeres_old
+                met_new[t, 2] = met_new[(t - 1), 2]
+                if (met_new[t, 3] >= 60) and (met_new[t, 3] < 120):
+                    met_new[t, 3] = int(met_new[t, 3] - 60)
+                    met_new[t, 2] = met_new[t, 2] + 1
+                if (met_new[t, 3] >= 120) and (met_new[t, 3] < 180):
+                    met_new[t, 3] = int(met_new[t, 3] - 120)
+                    met_new[t, 2] = met_new[t, 2] + 2
+                if met_new[t, 3] >= 180:
+                    met_new[t, 3] = int(met_new[t, 3] - 180)
+                    met_new[t, 2] = met_new[t, 2] + 3
+                if met_new[t, 2] >= 24:
+                    met_new[t, 2] = 0
+                # else:
+                #     met_new[t, 2] = met_new[(t - 1), 2]
+
+            # dechour = (met_old[:, dectime_col] - np.floor(met_old[:, dectime_col])) * 24
+            # met_new[:, 2] = dechour
+            # minute = np.round((dechour - np.floor(dechour)) * 60)
+            # minute[(minute == 60)] = 0
+            # changehour = np.where(minute == 60)
+            # dechour[changehour] = dechour + 1
+            # met_new[:, 3] = minute
         else:
             met_new[:, 2] = met_old[:, self.dlg.comboBox_hour.currentIndex()]
             met_new[:, 3] = met_old[:, self.dlg.comboBox_minute.currentIndex()]
+            nsh = int((met_new[1, 3] - met_new[0, 3]) / 5)
 
         # first figure out the time res of input file
-        dectime0 = met_new[0, 1] + met_new[0, 2] / 24. + met_new[0, 3] / (60. * 24.)
-        dectime1 = met_new[1, 1] + met_new[1, 2] / 24. + met_new[1, 3] / (60. * 24.)
-        timeres_old = np.round((dectime1 - dectime0) * (60. * 24.))
-        nsh = int(timeres_old / 5)
+        # dectime0 = met_new[0, 1] + met_new[0, 2] / 24. + met_new[0, 3] / (60. * 24.)
+        # dectime1 = met_new[1, 1] + met_new[1, 2] / 24. + met_new[1, 3] / (60. * 24.)
+        # timeres_old = np.round((dectime1 - dectime0) * (60. * 24.))
+        # nsh = int(timeres_old / 5)
 
         self.dlg.progressBar.setValue(3)
 

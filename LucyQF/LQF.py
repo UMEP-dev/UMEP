@@ -82,7 +82,7 @@ class LQF:
             import numpy
         except Exception, e:
             QMessageBox.critical(None, 'Error',
-                                 'LQF requires the pandas, matplotlib, NetCDF4 and numpy packages to be installed. Please consult the manual for further information')
+                                 'LQF requires the pandas, matplotlib, NetCDF4 and/or numpy packages to be installed. Please consult the manual for further information')
             return
 
 

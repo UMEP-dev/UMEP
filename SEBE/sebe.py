@@ -332,7 +332,7 @@ class SEBE:
 
                     # load raster
                     gdal.AllRegister()
-                    provider = self.vegdsm.dataProvider()
+                    provider = self.vegdsm2.dataProvider()
                     filePathOld = str(provider.dataSourceUri())
                     dataSet = gdal.Open(filePathOld)
                     self.vegdsm2 = dataSet.ReadAsArray().astype(np.float)
