@@ -211,8 +211,8 @@ class FootprintModel:
                                             " See help section to get correct format.")
                 return
 
-            if not self.data.shape[1] == 12:
-                QMessageBox.critical(None, "Import Error", "Check format of textfile format."
+            if not self.data.shape[1] == 14:
+                QMessageBox.critical(None, "Import Error", "Check number of columns in textfile."
                                             " See help section to get correct format.")
                 return
 

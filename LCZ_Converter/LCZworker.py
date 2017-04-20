@@ -120,24 +120,18 @@ class Worker(QtCore.QObject):
                 dataset3 = None
                 self.progress.emit()
 
-            # temporary fix for mac, ISSUE #15
-            pf = sys.platform
-            if pf == 'darwin' or pf == 'linux2':
-                if not os.path.exists(self.folderPath[0] + '/' + pre):
-                    os.makedirs(self.folderPath[0] + '/' + pre)
-
-            header = 'ID Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
+            header1 = 'ID Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
             numformat = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
             arrmatsave1 = arrmat1[1: arrmat1.shape[0], :]
-            np.savetxt(self.folderPath[0] + '/' +pre +'_'+'LCFGrid_isotropic.txt', arrmatsave1, fmt=numformat, delimiter=' ', header=header, comments='')
-            header = ' ID  pai   fai   zH  zHmax   zHstd  zd  z0'
+            np.savetxt(self.folderPath[0] + '/' +pre +'_'+'LCFGrid_isotropic.txt', arrmatsave1, fmt=numformat, delimiter=' ', header=header1, comments='')
+            header2 = ' ID  pai   fai   zH  zHmax   zHstd  zd  z0'
             numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
             arrmatsave2 = arrmat2[1: arrmat2.shape[0], :]
-            np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'build_MPGrid_isotropic.txt', arrmatsave2,fmt=numformat, delimiter=' ', header=header, comments='')
-            header = ' ID  pai   fai   zH  zHmax   zHstd  zd  z0'
+            np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'build_MPGrid_isotropic.txt', arrmatsave2,fmt=numformat, delimiter=' ', header=header2, comments='')
+            header3 = ' ID  pai   fai   zH  zHmax   zHstd  zd  z0'
             numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
             arrmatsave3 = arrmat3[1: arrmat3.shape[0], :]
-            np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'veg_MPGrid_isotropic.txt', arrmatsave3,fmt=numformat, delimiter=' ', header=header, comments='')
+            np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'veg_MPGrid_isotropic.txt', arrmatsave3,fmt=numformat, delimiter=' ', header=header3, comments='')
             
             #when files are saved through the np.savetext method the values are rounded according to the information in
             #the numformat variable. This can cause the total sum of the values in a line in the text file to not be 1
@@ -145,9 +139,9 @@ class Worker(QtCore.QObject):
             self.textFileCheck(pre)
 
             if self.dlg.checkBox_2.isChecked():
-                self.addattributes(self.vlayer, arrmatsave1, header, pre)
-                self.addattributes(self.vlayer, arrmatsave2, header, pre)
-                self.addattributes(self.vlayer, arrmatsave3, header, pre)
+                self.addattributes(self.vlayer, arrmatsave1, header1, pre)
+                self.addattributes(self.vlayer, arrmatsave2, header2, pre)
+                self.addattributes(self.vlayer, arrmatsave3, header3, pre)
 
             if self.killed is False:
                 self.progress.emit()
