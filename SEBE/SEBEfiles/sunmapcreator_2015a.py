@@ -60,6 +60,10 @@ def sunmapcreator_2015a(met, altitude, azimuth, onlyglobal, output, jday, albedo
         if alt > 2:
             # Estimation of radD and radI if not measured after Reindl et al. (1990)
             if onlyglobal:
+                if met[i, 11] <= -999.00 or met[i, 10] <= -999.00 or np.isnan(met[i, 11]) or np.isnan(met[i, 10]):
+                    met[i, 11] = 15.0
+                    met[i, 10] = 75.0
+
                 I0, CI, Kt, I0et, CIuncorr = clearnessindex_2013b(zen[0, i], jday[0, i], met[i, 11], met[i, 10],
                                                                   met[i, 14], location, -999.0)
                 I, D = diffusefraction(met[i, 14], altitude[0, i], Kt, met[i, 11], met[i, 10])

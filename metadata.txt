@@ -26,6 +26,7 @@ repository=https://bitbucket.org/fredrik_ucg/umep
 
 # Uncomment the following line and add your changelog:
 changelog=
+	0.3.1 : Bug fix in the SEBE model when only global radiation is available in the meteorological dataset.
 	0.3.0 : LONG TERM RELEASE. Plugin no longer marked as experimental.
 	0.2.17 : General bug fix
 	0.2.16 : Improvement of SUEWSPrepare and SUEWSAnalyzer of cope with multiple years. General bug fixing
