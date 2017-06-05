@@ -160,7 +160,7 @@ class MetdataProcessor:
             elif delimnum == 1:
                 delim = None  # space
             elif delimnum == 2:
-                delim = '\t'
+                delim = None  # '\t'
             elif delimnum == 3:
                 delim = ';'
             elif delimnum == 4:

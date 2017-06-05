@@ -89,12 +89,12 @@ def sunonsurface_2015a(azimuthA,scale,buildings,shadow,sunwall,first,second,aspe
         yp1 = -((dy - absdy) / 2)
         yp2 = (sizey - (dy + absdy) / 2)
         
-        tempbu[xp1:xp2,yp1:yp2]=buildings[xc1:xc2,yc1:yc2]#moving building
-        tempsh[xp1:xp2,yp1:yp2]=shadow[xc1:xc2,yc1:yc2]#moving shadow
-        tempLupsh[xp1:xp2,yp1:yp2]=Lup[xc1:xc2,yc1:yc2]#moving Lup/shadow
-        tempalbsh[xp1:xp2,yp1:yp2]=albshadow[xc1:xc2,yc1:yc2]#moving Albedo/shadow
-        tempalbnosh[xp1:xp2,yp1:yp2]=alb[xc1:xc2,yc1:yc2]#moving Albedo
-        f = np.min([f, tempbu], axis=0)#utsmetning av buildings
+        tempbu[int(xp1):int(xp2), int(yp1):int(yp2)] = buildings[int(xc1):int(xc2), int(yc1):int(yc2)]  # moving building
+        tempsh[int(xp1):int(xp2), int(yp1):int(yp2)] = shadow[int(xc1):int(xc2), int(yc1):int(yc2)]  # moving shadow
+        tempLupsh[int(xp1):int(xp2), int(yp1):int(yp2)] = Lup[int(xc1):int(xc2), int(yc1):int(yc2)]  # moving Lup/shadow
+        tempalbsh[int(xp1):int(xp2), int(yp1):int(yp2)] = albshadow[int(xc1):int(xc2), int(yc1):int(yc2)]  # moving Albedo/shadow
+        tempalbnosh[int(xp1):int(xp2), int(yp1):int(yp2)] = alb[int(xc1):int(xc2), int(yc1):int(yc2)]  # moving Albedo
+        f = np.min([f, tempbu], axis=0)  # utsmetning av buildings
         
         shadow2=tempsh*f
         weightsumsh=weightsumsh+shadow2
@@ -108,7 +108,7 @@ def sunonsurface_2015a(azimuthA,scale,buildings,shadow,sunwall,first,second,aspe
         albnosh=tempalbnosh*f
         weightsumalbnosh=weightsumalbnosh+albnosh
         
-        tempwallsun[xp1:xp2,yp1:yp2]=sunwall[xc1:xc2,yc1:yc2]#moving buildingwall insun image
+        tempwallsun[int(xp1):int(xp2),int(yp1):int(yp2)]=sunwall[int(xc1):int(xc2),int(yc1):int(yc2)]#moving buildingwall insun image
         tempb=tempwallsun*f
         tempbwall=f*-1+1
         tempbub = ((tempb+tempbub) > 0) * 1

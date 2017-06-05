@@ -112,7 +112,7 @@ def shadowingfunction_wallheight_13(a, azimuth, altitude, scale, walls, aspect):
         yp1 = -((dy-absdy)/2)
         yp2 = (sizey-(dy+absdy)/2)
 
-        temp[xp1:xp2, yp1:yp2] = a[xc1:xc2, yc1:yc2] - dz
+        temp[int(xp1):int(xp2), int(yp1):int(yp2)] = a[int(xc1):int(xc2), int(yc1):int(yc2)] - dz
 
         f = np.max([f, temp], axis=0)
 

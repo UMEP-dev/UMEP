@@ -11,7 +11,7 @@ name=UMEP
 qgisMinimumVersion=2.0
 description=Urban Multi-scale Environmental Predictor
 
-version=0.3.0
+version=0.4.0
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang
 email=fredrikl@gvc.gu.se
 
@@ -26,6 +26,7 @@ repository=https://bitbucket.org/fredrik_ucg/umep
 
 # Uncomment the following line and add your changelog:
 changelog=
+	0.4.0 : LONG TERM RELEASE. Due to updates in QGIS, parts of UMEP failed. Therefore, a new long term version released.
 	0.3.1 : Bug fix in the SEBE model when only global radiation is available in the meteorological dataset.
 	0.3.0 : LONG TERM RELEASE. Plugin no longer marked as experimental.
 	0.2.17 : General bug fix

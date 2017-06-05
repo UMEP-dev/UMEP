@@ -67,7 +67,7 @@ def shadowingfunctionglobalradiation(a, azimuth, altitude, scale, dlg, forsvf):
         xp2 = sizex-(dx+absdx)/2.
         yp1 = -((dy-absdy)/2.)+1.
         yp2 = sizey-(dy+absdy)/2.
-        temp[int(xp1)-1:xp2, int(yp1)-1:yp2] = a[int(xc1)-1:xc2, int(yc1)-1:yc2]-dz
+        temp[int(xp1)-1:int(xp2), int(yp1)-1:int(yp2)] = a[int(xc1)-1:int(xc2), int(yc1)-1:int(yc2)]-dz
         f = np.maximum(f, temp)
         index += 1.
 
@@ -149,9 +149,9 @@ def shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue
         xp2 = sizex-(dx+absdx)/2.
         yp1 = -((dy-absdy)/2.)+1.
         yp2 = sizey-(dy+absdy)/2.
-        tempvegdem[int(xp1)-1:xp2, int(yp1)-1:yp2] = vegdem[int(xc1)-1:xc2, int(yc1)-1:yc2]-dz
-        tempvegdem2[int(xp1)-1:xp2, int(yp1)-1:yp2] = vegdem2[int(xc1)-1:xc2, int(yc1)-1:yc2]-dz
-        temp[int(xp1)-1:xp2, int(yp1)-1:yp2] = a[int(xc1)-1:xc2, int(yc1)-1:yc2]-dz
+        tempvegdem[int(xp1)-1:int(xp2), int(yp1)-1:int(yp2)] = vegdem[int(xc1)-1:int(xc2), int(yc1)-1:int(yc2)]-dz
+        tempvegdem2[int(xp1)-1:int(xp2), int(yp1)-1:int(yp2)] = vegdem2[int(xc1)-1:int(xc2), int(yc1)-1:int(yc2)]-dz
+        temp[int(xp1)-1:int(xp2), int(yp1)-1:int(yp2)] = a[int(xc1)-1:int(xc2), int(yc1)-1:int(yc2)]-dz
         f = np.maximum(f, temp)
         sh[(f > a)] = 1.
         sh[(f <= a)] = 0.
@@ -176,7 +176,7 @@ def shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue
         #% Bush shadow on bush plant
         if np.logical_and(bush.max() > 0., np.max((fabovea*bush)) > 0.):
             tempbush[0:sizex, 0:sizey] = 0.
-            tempbush[int(xp1)-1:xp2, int(yp1)-1:yp2] = bush[int(xc1)-1:xc2,int(yc1)-1:yc2]-dz
+            tempbush[int(xp1)-1:int(xp2), int(yp1)-1:int(yp2)] = bush[int(xc1)-1:int(xc2),int(yc1)-1:int(yc2)]-dz
             g = np.maximum(g, tempbush)
             g *= bushplant
         index += 1.

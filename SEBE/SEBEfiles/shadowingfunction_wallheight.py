@@ -127,14 +127,14 @@ def shadowingfunction_wallheight(a, azimuth, altitude, scale, walls, aspect,
         yp2 = int(sizey-(dy+absdy)/2)
 
 
-        temp[xp1:xp2, yp1:yp2] = a[xc1:xc2, yc1:yc2] - dz
+        temp[int(xp1):int(xp2), int(yp1):int(yp2)] = a[int(xc1):int(xc2), int(yc1):int(yc2)] - dz
 
         #f = np.maximum([f, temp], axis=0)
         f=np.maximum(f,temp)
 
         if usevegdem:
-            tempvegdem[xp1:xp2, yp1:yp2] = vegdem[xc1:xc2, yc1:yc2] - dz
-            tempvegdem2[xp1:xp2, yp1:yp2] = vegdem2[xc1:xc2, yc1:yc2] - dz
+            tempvegdem[int(xp1):int(xp2), int(yp1):int(yp2)] = vegdem[int(xc1):int(xc2), int(yc1):int(yc2)] - dz
+            tempvegdem2[int(xp1):int(xp2), int(yp1):int(yp2)] = vegdem2[int(xc1):int(xc2), int(yc1):int(yc2)] - dz
 
             shvoveg = np.max([shvoveg, tempvegdem], axis=0)
             sh[f > a] = 1
@@ -157,7 +157,7 @@ def shadowingfunction_wallheight(a, azimuth, altitude, scale, walls, aspect,
             # Bush shadow on bush plant
             if np.max(bush) > 0 and np.max(fabovea*bush) > 0:
                 tempbush = np.zeros((sizex, sizey))
-                tempbush[xp1:xp2, yp1:yp2] = bush[xc1:xc2, yc1:yc2] - dz
+                tempbush[int(xp1):int(xp2), int(yp1):int(yp2)] = bush[int(xc1):int(xc2), int(yc1):int(yc2)] - dz
                 g = np.max([g, tempbush], axis=0)
                 g = bushplant * g
 

@@ -38,7 +38,6 @@ from ..Utilities.misc import *
 from wallworker import Worker
 import webbrowser
 
-
 class WallHeight:
     """QGIS Plugin Implementation."""
 
