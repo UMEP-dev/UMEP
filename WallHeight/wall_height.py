@@ -22,7 +22,7 @@
 """
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QThread
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
-from qgis.gui import QgsMessageBar
+from qgis.gui import * #QgsMessageBar
 from qgis.core import QgsMessageLog
 # Initialize Qt resources from file resources.py
 # import resources
@@ -85,8 +85,11 @@ class WallHeight:
         # self.toolbar = self.iface.addToolBar(u'WallHeight')
         # self.toolbar.setObjectName(u'WallHeight')
 
-        self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_dsm)
-        RasterLayerCombo(self.dlg.comboBox_dsm, initLayer="")
+        # self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_dsm)
+        # RasterLayerCombo(self.dlg.comboBox_dsm, initLayer="")
+        self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetDSM)
+        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSM.setFixedWidth(175)
 
         self.thread = None
         self.worker = None
@@ -192,7 +195,8 @@ class WallHeight:
         if self.filePathH is None:
             QMessageBox.critical(self.dlg, "Error", "No wall height file specified")
         else:
-            dsmlayer = self.layerComboManagerDSM.getLayer()
+            #dsmlayer = self.layerComboManagerDSM.getLayer()
+            dsmlayer = self.layerComboManagerDSM.currentLayer()
 
             if dsmlayer is None:
                     QMessageBox.critical(self.dlg, "Error", "No valid raster layer is selected")

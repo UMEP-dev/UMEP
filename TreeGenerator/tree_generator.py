@@ -20,9 +20,10 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from PyQt4.QtCore import QSettings, QTranslator, qVersion  #, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
 from qgis.core import *
+from qgis.gui import *
 from ..Utilities.qgiscombomanager import *
 import webbrowser
 import os
@@ -83,23 +84,54 @@ class TreeGenerator:
         # self.toolbar = self.iface.addToolBar(u'TreeGenerator')
         # self.toolbar.setObjectName(u'TreeGenerator')
 
-        self.layerComboManagerPoint = VectorLayerCombo(self.dlg.comboBox_pointlayer)
-        fieldgen = VectorLayerCombo(self.dlg.comboBox_pointlayer, initLayer="", options={"geomType": QGis.Point})
-        self.layerComboManagerTreeTypeField = FieldCombo(self.dlg.comboBox_ttype, fieldgen, initField="")
-        self.layerComboManagerTotalHeightField = FieldCombo(self.dlg.comboBox_totalheight, fieldgen, initField="")
-        self.layerComboManagerTrunkHeightField = FieldCombo(self.dlg.comboBox_trunkheight, fieldgen, initField="")
-        self.layerComboManagerDiameterField = FieldCombo(self.dlg.comboBox_diameter, fieldgen, initField="")
+        # self.layerComboManagerPoint = VectorLayerCombo(self.dlg.comboBox_pointlayer)
+        # fieldgen = VectorLayerCombo(self.dlg.comboBox_pointlayer, initLayer="", options={"geomType": QGis.Point})
+        # self.layerComboManagerTreeTypeField = FieldCombo(self.dlg.comboBox_ttype, fieldgen, initField="")
+        # self.layerComboManagerTotalHeightField = FieldCombo(self.dlg.comboBox_totalheight, fieldgen, initField="")
+        # self.layerComboManagerTrunkHeightField = FieldCombo(self.dlg.comboBox_trunkheight, fieldgen, initField="")
+        # self.layerComboManagerDiameterField = FieldCombo(self.dlg.comboBox_diameter, fieldgen, initField="")
+        self.layerComboManagerPoint = QgsMapLayerComboBox(self.dlg.widgetPointLayer)
+        self.layerComboManagerPoint.setCurrentIndex(-1)
+        self.layerComboManagerPoint.setFilters(QgsMapLayerProxyModel.PointLayer)
+        self.layerComboManagerPoint.setFixedWidth(175)
+        self.layerComboManagerTreeTypeField = QgsFieldComboBox(self.dlg.widgetTreeType)
+        self.layerComboManagerTreeTypeField.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPoint.layerChanged.connect(self.layerComboManagerTreeTypeField.setLayer)
+        self.layerComboManagerTotalHeightField = QgsFieldComboBox(self.dlg.widgetTotalHeight)
+        self.layerComboManagerTotalHeightField.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPoint.layerChanged.connect(self.layerComboManagerTotalHeightField.setLayer)
+        self.layerComboManagerTrunkHeightField = QgsFieldComboBox(self.dlg.widgetTrunkHeight)
+        self.layerComboManagerTrunkHeightField.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPoint.layerChanged.connect(self.layerComboManagerTrunkHeightField.setLayer)
+        self.layerComboManagerDiameterField = QgsFieldComboBox(self.dlg.widgetDiameter)
+        self.layerComboManagerDiameterField.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPoint.layerChanged.connect(self.layerComboManagerDiameterField.setLayer)
 
-        self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_DSM)
-        RasterLayerCombo(self.dlg.comboBox_DSM, initLayer="")
-        self.layerComboManagerDEM = RasterLayerCombo(self.dlg.comboBox_DEM)
-        RasterLayerCombo(self.dlg.comboBox_DEM, initLayer="")
-        self.layerComboManagerBuild = RasterLayerCombo(self.dlg.comboBox_Build)
-        RasterLayerCombo(self.dlg.comboBox_Build, initLayer="")
-        self.layerComboManagerCDSM = RasterLayerCombo(self.dlg.comboBox_CDSM)
-        RasterLayerCombo(self.dlg.comboBox_CDSM, initLayer="")
-        self.layerComboManagerTDSM = RasterLayerCombo(self.dlg.comboBox_TDSM)
-        RasterLayerCombo(self.dlg.comboBox_TDSM, initLayer="")
+        # self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_DSM)
+        # RasterLayerCombo(self.dlg.comboBox_DSM, initLayer="")
+        # self.layerComboManagerDEM = RasterLayerCombo(self.dlg.comboBox_DEM)
+        # RasterLayerCombo(self.dlg.comboBox_DEM, initLayer="")
+        # self.layerComboManagerBuild = RasterLayerCombo(self.dlg.comboBox_Build)
+        # RasterLayerCombo(self.dlg.comboBox_Build, initLayer="")
+        # self.layerComboManagerCDSM = RasterLayerCombo(self.dlg.comboBox_CDSM)
+        # RasterLayerCombo(self.dlg.comboBox_CDSM, initLayer="")
+        # self.layerComboManagerTDSM = RasterLayerCombo(self.dlg.comboBox_TDSM)
+        # RasterLayerCombo(self.dlg.comboBox_TDSM, initLayer="")
+        self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetDSM)
+        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSM.setFixedWidth(175)
+        self.layerComboManagerDEM = QgsMapLayerComboBox(self.dlg.widgetDEM)
+        self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDEM.setFixedWidth(175)
+        self.layerComboManagerBuild = QgsMapLayerComboBox(self.dlg.widgetBuild)
+        self.layerComboManagerBuild.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerBuild.setFixedWidth(175)
+        self.layerComboManagerCDSM = QgsMapLayerComboBox(self.dlg.widgetCDSM)
+        self.layerComboManagerCDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerCDSM.setFixedWidth(175)
+        self.layerComboManagerTDSM = QgsMapLayerComboBox(self.dlg.widgetTDSM)
+        self.layerComboManagerTDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerTDSM.setFixedWidth(175)
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -196,13 +228,13 @@ class TreeGenerator:
 
     def start_progress(self):
         self.steps = 0
-        point = self.layerComboManagerPoint.getLayer()
+        point = self.layerComboManagerPoint.currentLayer()
         if point is None:
             QMessageBox.critical(self.dlg, "Error", "No valid Point layer is selected")
             return
 
         if self.dlg.checkBoxOnlyBuilding.isChecked():  # Only building heights
-            build = self.layerComboManagerBuild.getLayer()
+            build = self.layerComboManagerBuild.currentLayer()
             dsm = None
             dem = None
             if build is None:
@@ -215,8 +247,8 @@ class TreeGenerator:
             build_array = dataset.ReadAsArray().astype(np.float)
 
         else:  # Both building ground heights
-            dsm = self.layerComboManagerDSM.getLayer()
-            dem = self.layerComboManagerDEM.getLayer()
+            dsm = self.layerComboManagerDSM.currentLayer()
+            dem = self.layerComboManagerDEM.currentLayer()
             build = None
             if dsm is None:
                 QMessageBox.critical(self.dlg, "Error", "No valid ground and building DSM raster layer is selected")
@@ -247,7 +279,7 @@ class TreeGenerator:
         sizex = build_array.shape[1]
 
         if self.dlg.checkBoxMergeCDSM.isChecked():  # vegetation cdsm
-            cdsm = self.layerComboManagerCDSM.getLayer()
+            cdsm = self.layerComboManagerCDSM.currentLayer()
             if cdsm is None:
                 QMessageBox.critical(self.dlg, "Error", "No valid vegetation CDSM raster layer is selected")
                 return
@@ -257,7 +289,7 @@ class TreeGenerator:
 
             dataset = gdal.Open(filePath_cdsm)
             cdsm_array = dataset.ReadAsArray().astype(np.float)
-            tdsm = self.layerComboManagerCDSM.getLayer()
+            tdsm = self.layerComboManagerCDSM.currentLayer()
             if tdsm is None:
                 QMessageBox.critical(self.dlg, "Error", "No valid vegetation TDSM raster layer is selected")
                 return
@@ -282,10 +314,10 @@ class TreeGenerator:
         # prov = vlayer.dataProvider()
         # fields = prov.fields()
 
-        ttype_field = self.layerComboManagerTreeTypeField.getFieldName()
-        trunk_field = self.layerComboManagerTrunkHeightField.getFieldName()
-        tot_field = self.layerComboManagerTotalHeightField.getFieldName()
-        dia_field = self.layerComboManagerDiameterField.getFieldName()
+        ttype_field = self.layerComboManagerTreeTypeField.currentField()
+        trunk_field = self.layerComboManagerTrunkHeightField.currentField()
+        tot_field = self.layerComboManagerTotalHeightField.currentField()
+        dia_field = self.layerComboManagerDiameterField.currentField()
 
         idx_ttype = vlayer.fieldNameIndex(ttype_field)
         idx_trunk = vlayer.fieldNameIndex(trunk_field)
@@ -346,15 +378,12 @@ class TreeGenerator:
             if not os.path.exists(self.folderPath[0]):
                 os.makedirs(self.folderPath[0])
 
-
-        # self.saveraster(dataset, self.folderPath[0] + '/build.tif', build_array)
         self.saveraster(dataset, self.folderPath[0] + '/cdsm.tif', cdsm_array)
         self.saveraster(dataset, self.folderPath[0] + '/tdsm.tif', tdsm_array)
 
         QMessageBox.information(self.dlg, "TreeGenerator", "Vegetation DSMs succesfully generated")
 
     def help(self):
-        # url = "file://" + self.plugin_dir + "/help/Index.html"
         url = "http://www.urban-climate.net/umep/UMEP_Manual#Tree_Generator"
         webbrowser.open_new_tab(url)
 
@@ -369,7 +398,7 @@ class TreeGenerator:
         outBand.WriteArray(raster, 0, 0)
         # flush data to disk, set the NoData value and calculate stats
         outBand.FlushCache()
-        outBand.SetNoDataValue(-9999)
+        # outBand.SetNoDataValue(-9999)
 
         # georeference the image and set the projection
         outDs.SetGeoTransform(gdal_data.GetGeoTransform())

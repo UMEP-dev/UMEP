@@ -293,7 +293,8 @@ class MetdataProcessor:
         else:
             met_new[:, 2] = met_old[:, self.dlg.comboBox_hour.currentIndex()]
             met_new[:, 3] = met_old[:, self.dlg.comboBox_minute.currentIndex()]
-            nsh = int((met_new[1, 3] - met_new[0, 3]) / 5)
+            nsh = int(abs((met_new[1, 3] - met_new[0, 3])) / 5)
+            #QMessageBox.critical(None, "Test", str(nsh))
 
         # first figure out the time res of input file
         # dectime0 = met_new[0, 1] + met_new[0, 2] / 24. + met_new[0, 3] / (60. * 24.)
@@ -373,6 +374,7 @@ class MetdataProcessor:
             met_new[:, 13] = met_old[:, self.dlg.comboBox_rain.currentIndex()]
             if self.dlg.checkBoxQuality.isChecked():
                 testwhere = np.where(((met_new[:, 13] / nsh) < 0.0) | ((met_new[:, 13] / nsh) > 30.0))
+                #QMessageBox.critical(None, "Test", met_new[0, 13] / nsh)
                 if testwhere[0].__len__() > 0:
                     QMessageBox.critical(None, "Value error", "Rain - beyond what is expected at line:"
                                                               " \n" + str(testwhere[0] + 1))

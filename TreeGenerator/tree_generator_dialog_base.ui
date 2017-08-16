@@ -6,269 +6,28 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>564</width>
-    <height>433</height>
+    <width>389</width>
+    <height>574</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Tree Generator</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="3">
-    <widget class="QFrame" name="frame">
-     <property name="frameShape">
-      <enum>QFrame::Box</enum>
+   <item row="3" column="2">
+    <widget class="QPushButton" name="closeButton">
+     <property name="enabled">
+      <bool>true</bool>
      </property>
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="1">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Vector point file:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>comboBox_pointlayer</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>Tree type:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3">
-       <widget class="QComboBox" name="comboBox_ttype">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Two different tree types (shapes) are currently included: 1 = conifer and 2 = decidouos. There is also a possibility to remove vegetation by setting tree type = 0 and with an appropriate diameter to remove all vegetation pixels from the DSMs. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="label_9">
-        <property name="text">
-         <string>Total height (m):</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QComboBox" name="comboBox_totalheight">
-        <property name="toolTip">
-         <string>This is the total height of the tree from the ground (magl).</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QLabel" name="label_10">
-        <property name="text">
-         <string>Trunk zone height (m):</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="3">
-       <widget class="QComboBox" name="comboBox_trunkheight">
-        <property name="toolTip">
-         <string>This is the height up to the bottom of the canopy (magl)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="2">
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>Diameter (m):</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="3">
-       <widget class="QComboBox" name="comboBox_diameter">
-        <property name="toolTip">
-         <string>	This is the circular diameter of the tree in meter.</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QCheckBox" name="checkBoxOnlyBuilding">
-        <property name="toolTip">
-         <string>Tick this in if a boolen building grid exist for your model domain. This can be generated from the SOLWEIG-plugin.</string>
-        </property>
-        <property name="text">
-         <string>Boolean building grid exist</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="1">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Raster DSM (3D objects + ground):</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>comboBox_DSM</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="1">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Raster DEM (only ground):</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>comboBox_DEM</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="1">
-       <widget class="QLabel" name="label_4">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Building grid:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>comboBox_Build</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkBoxMergeCDSM">
-        <property name="text">
-         <string>Merge with existing vegetation DSM</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="1">
-       <widget class="QLabel" name="label_5">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Vegetation CDSM:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>comboBox_Build</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="1">
-       <widget class="QLabel" name="label_11">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Vegetation TDSM:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>comboBox_Build</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2" colspan="2">
-       <widget class="QComboBox" name="comboBox_pointlayer">
-        <property name="toolTip">
-         <string>A point vector file including the appropriate attributes for generating the vegetation DSMs</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="2" colspan="2">
-       <widget class="QComboBox" name="comboBox_DSM">
-        <property name="toolTip">
-         <string>A DSM consisting of ground and building heights.</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="2" colspan="2">
-       <widget class="QComboBox" name="comboBox_DEM">
-        <property name="toolTip">
-         <string>A DEM cosisting of ground heights.</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="2" colspan="2">
-       <widget class="QComboBox" name="comboBox_Build">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>A grid where building pixels are 0 and all other pixels are 1.</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="2" colspan="2">
-       <widget class="QComboBox" name="comboBox_CDSM">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>A DSM consisting of pixels with vegetation heights above ground.</string>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="2" colspan="2">
-       <widget class="QComboBox" name="comboBox_TDSM">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>A DSM consisting of pixels with vegetation trunk zone heights above ground.</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_6">
      <property name="text">
-      <string>Output folder:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      <string>Close</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QLineEdit" name="textOutput"/>
-   </item>
-   <item row="1" column="2">
-    <widget class="QPushButton" name="pushButtonSave">
-     <property name="toolTip">
-      <string>A specified folder where the result will be saved. Two geoTIFFs are created, one CDSM and one TDSM.</string>
-     </property>
+   <item row="2" column="2">
+    <widget class="QPushButton" name="runButton">
      <property name="text">
-      <string>Select</string>
+      <string>Run</string>
      </property>
     </widget>
    </item>
@@ -285,12 +44,28 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="2">
-    <widget class="QPushButton" name="runButton">
+   <item row="1" column="2">
+    <widget class="QPushButton" name="pushButtonSave">
+     <property name="toolTip">
+      <string>A specified folder where the result will be saved. Two geoTIFFs are created, one CDSM and one TDSM.</string>
+     </property>
      <property name="text">
-      <string>Run</string>
+      <string>Select</string>
      </property>
     </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Output folder:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="textOutput"/>
    </item>
    <item row="3" column="0">
     <widget class="QPushButton" name="helpButton">
@@ -302,14 +77,291 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="2">
-    <widget class="QPushButton" name="closeButton">
-     <property name="enabled">
-      <bool>true</bool>
+   <item row="0" column="0" colspan="3">
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
      </property>
-     <property name="text">
-      <string>Close</string>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
      </property>
+     <layout class="QGridLayout" name="gridLayout_14">
+      <item row="8" column="1">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Raster DEM (only ground):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="1">
+       <widget class="QLabel" name="label_11">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Vegetation TDSM:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="1">
+       <widget class="QLabel" name="label_5">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Vegetation CDSM:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="2" colspan="2">
+       <widget class="QWidget" name="widgetDSM" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_2"/>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Vector point file:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="2" colspan="2">
+       <widget class="QWidget" name="widgetBuild" native="true">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_4"/>
+       </widget>
+      </item>
+      <item row="0" column="2" colspan="2">
+       <widget class="QWidget" name="widgetPointLayer" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_7"/>
+       </widget>
+      </item>
+      <item row="12" column="2" colspan="2">
+       <widget class="QWidget" name="widgetCDSM" native="true">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_5"/>
+       </widget>
+      </item>
+      <item row="8" column="2" colspan="2">
+       <widget class="QWidget" name="widgetDEM" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3"/>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Raster DSM (3D objects + ground):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="1">
+       <widget class="QLabel" name="label_4">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Building grid:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="2" colspan="2">
+       <widget class="QWidget" name="widgetTDSM" native="true">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_6"/>
+       </widget>
+      </item>
+      <item row="11" column="1" colspan="3">
+       <widget class="QCheckBox" name="checkBoxMergeCDSM">
+        <property name="text">
+         <string>Merge with existing vegetation DSM</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1" colspan="3">
+       <widget class="QCheckBox" name="checkBoxOnlyBuilding">
+        <property name="toolTip">
+         <string>Tick this in if a boolen building grid exist for your model domain. This can be generated from the SOLWEIG-plugin.</string>
+        </property>
+        <property name="text">
+         <string>Boolean building grid exist</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Tree type:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>Total height (m):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>Trunk zone height (m):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>Diameter (m):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QWidget" name="widgetTreeType" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>125</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_8"/>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QWidget" name="widgetTotalHeight" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>125</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_9"/>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QWidget" name="widgetTrunkHeight" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>125</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_10"/>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QWidget" name="widgetDiameter" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>125</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_11"/>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>
@@ -319,80 +371,16 @@
   <connection>
    <sender>checkBoxMergeCDSM</sender>
    <signal>clicked(bool)</signal>
-   <receiver>comboBox_CDSM</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>165</x>
-     <y>261</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>544</x>
-     <y>287</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxMergeCDSM</sender>
-   <signal>clicked(bool)</signal>
    <receiver>label_5</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>126</x>
-     <y>261</y>
+     <x>145</x>
+     <y>299</y>
     </hint>
     <hint type="destinationlabel">
      <x>342</x>
-     <y>287</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxOnlyBuilding</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>comboBox_DSM</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>98</x>
-     <y>162</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>544</x>
-     <y>187</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxOnlyBuilding</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>comboBox_DEM</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>93</x>
-     <y>162</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>544</x>
-     <y>212</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxOnlyBuilding</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>comboBox_Build</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>78</x>
-     <y>162</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>544</x>
-     <y>237</y>
+     <y>336</y>
     </hint>
    </hints>
   </connection>
@@ -408,7 +396,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>342</x>
-     <y>237</y>
+     <y>275</y>
     </hint>
    </hints>
   </connection>
@@ -452,7 +440,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>554</x>
-     <y>414</y>
+     <y>475</y>
     </hint>
     <hint type="destinationlabel">
      <x>281</x>
@@ -463,32 +451,96 @@
   <connection>
    <sender>checkBoxMergeCDSM</sender>
    <signal>clicked(bool)</signal>
-   <receiver>comboBox_TDSM</receiver>
+   <receiver>label_11</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>93</x>
-     <y>252</y>
+     <x>77</x>
+     <y>299</y>
     </hint>
     <hint type="destinationlabel">
-     <x>370</x>
-     <y>302</y>
+     <x>342</x>
+     <y>372</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxOnlyBuilding</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>widgetBuild</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>55</x>
+     <y>156</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>372</x>
+     <y>259</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxOnlyBuilding</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>widgetDSM</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>77</x>
+     <y>153</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>407</x>
+     <y>174</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxOnlyBuilding</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>widgetDEM</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>84</x>
+     <y>158</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>458</x>
+     <y>225</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>checkBoxMergeCDSM</sender>
    <signal>clicked(bool)</signal>
-   <receiver>label_11</receiver>
+   <receiver>widgetCDSM</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>58</x>
-     <y>253</y>
+     <x>117</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
-     <x>275</x>
-     <y>312</y>
+     <x>397</x>
+     <y>326</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxMergeCDSM</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>widgetTDSM</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>72</x>
+     <y>294</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>362</x>
+     <y>356</y>
     </hint>
    </hints>
   </connection>

@@ -697,30 +697,44 @@ class SUEWSPrepare:
         widget.LUF_checkBox.stateChanged.connect(lambda: self.LUF_file(widget))
         widget.WallArea_checkBox.stateChanged.connect(lambda: self.enable_wall_area(widget))
 
-        self.layerComboManagerPolygrid = VectorLayerCombo(widget.comboBox_Polygrid)
-        self.fieldgen = VectorLayerCombo(widget.comboBox_Polygrid, initLayer="", options={"geomType": QGis.Polygon})
-        self.layerComboManagerPolyField = FieldCombo(widget.comboBox_Field, self.fieldgen, initField="")
+        # self.layerComboManagerPolygrid = VectorLayerCombo(widget.comboBox_Polygrid)
+        # self.fieldgen = VectorLayerCombo(widget.comboBox_Polygrid, initLayer="", options={"geomType": QGis.Polygon})
+        # self.layerComboManagerPolyField = FieldCombo(widget.comboBox_Field, self.fieldgen, initField="")
+        self.layerComboManagerPolygrid = QgsMapLayerComboBox(widget.widgetPolygonLayer)
+        self.layerComboManagerPolygrid.setCurrentIndex(-1)
+        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.layerComboManagerPolygrid.setFixedWidth(175)
+        self.layerComboManagerPolyField = QgsFieldComboBox(widget.widgetPolyField)
+        self.layerComboManagerPolyField.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPolygrid.layerChanged.connect(self.layerComboManagerPolyField.setLayer)
 
-        self.pop_density = FieldCombo(widget.comboBox_popdens, self.fieldgen, initField="")
-        self.wall_area = FieldCombo(widget.comboBox_wallArea, self.fieldgen, initField="")
+        # self.pop_density = FieldCombo(widget.comboBox_popdens, self.fieldgen, initField="")
+        self.pop_density = QgsFieldComboBox(widget.widgetPop)
+        self.pop_density.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPolygrid.layerChanged.connect(self.pop_density.setLayer)
 
-        self.LCF_Paved = FieldCombo(widget.LCF_Paved, self.fieldgen, initField="")
-        self.LCF_Buildings = FieldCombo(widget.LCF_Buildings, self.fieldgen, initField="")
-        self.LCF_Evergreen = FieldCombo(widget.LCF_Evergreen, self.fieldgen, initField="")
-        self.LCF_Decidious = FieldCombo(widget.LCF_Decidious, self.fieldgen, initField="")
-        self.LCF_Grass = FieldCombo(widget.LCF_Grass, self.fieldgen, initField="")
-        self.LCF_Baresoil = FieldCombo(widget.LCF_Baresoil, self.fieldgen, initField="")
-        self.LCF_Water = FieldCombo(widget.LCF_Water, self.fieldgen, initField="")
+        # self.wall_area = FieldCombo(widget.comboBox_wallArea, self.fieldgen, initField="")
+        self.wall_area = QgsFieldComboBox(widget.widgetWallArea)
+        self.wall_area.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPolygrid.layerChanged.connect(self.wall_area.setLayer)
 
-        self.IMP_mean_height = FieldCombo(widget.IMP_mean, self.fieldgen, initField="")
-        self.IMP_z0 = FieldCombo(widget.IMP_z0, self.fieldgen, initField="")
-        self.IMP_zd = FieldCombo(widget.IMP_zd, self.fieldgen, initField="")
-        self.IMP_fai = FieldCombo(widget.IMP_fai, self.fieldgen, initField="")
-
-        self.IMPveg_mean_height_dec = FieldCombo(widget.IMPveg_mean_dec, self.fieldgen, initField="")
-        self.IMPveg_mean_height_eve = FieldCombo(widget.IMPveg_mean_eve, self.fieldgen, initField="")
-        self.IMPveg_fai_dec = FieldCombo(widget.IMPveg_fai_dec, self.fieldgen, initField="")
-        self.IMPveg_fai_eve = FieldCombo(widget.IMPveg_fai_eve, self.fieldgen, initField="")
+        # self.LCF_Paved = FieldCombo(widget.LCF_Paved, self.fieldgen, initField="")
+        # self.LCF_Buildings = FieldCombo(widget.LCF_Buildings, self.fieldgen, initField="")
+        # self.LCF_Evergreen = FieldCombo(widget.LCF_Evergreen, self.fieldgen, initField="")
+        # self.LCF_Decidious = FieldCombo(widget.LCF_Decidious, self.fieldgen, initField="")
+        # self.LCF_Grass = FieldCombo(widget.LCF_Grass, self.fieldgen, initField="")
+        # self.LCF_Baresoil = FieldCombo(widget.LCF_Baresoil, self.fieldgen, initField="")
+        # self.LCF_Water = FieldCombo(widget.LCF_Water, self.fieldgen, initField="")
+        #
+        # self.IMP_mean_height = FieldCombo(widget.IMP_mean, self.fieldgen, initField="")
+        # self.IMP_z0 = FieldCombo(widget.IMP_z0, self.fieldgen, initField="")
+        # self.IMP_zd = FieldCombo(widget.IMP_zd, self.fieldgen, initField="")
+        # self.IMP_fai = FieldCombo(widget.IMP_fai, self.fieldgen, initField="")
+        #
+        # self.IMPveg_mean_height_dec = FieldCombo(widget.IMPveg_mean_dec, self.fieldgen, initField="")
+        # self.IMPveg_mean_height_eve = FieldCombo(widget.IMPveg_mean_eve, self.fieldgen, initField="")
+        # self.IMPveg_fai_dec = FieldCombo(widget.IMPveg_fai_dec, self.fieldgen, initField="")
+        # self.IMPveg_fai_eve = FieldCombo(widget.IMPveg_fai_eve, self.fieldgen, initField="")
 
         widget.pushButtonImportLCF.clicked.connect(lambda: self.set_LCFfile_path(widget))
         widget.pushButtonImportIMPVeg.clicked.connect(lambda: self.set_IMPvegfile_path(widget))
@@ -731,17 +745,12 @@ class SUEWSPrepare:
         widget.spinBoxStartDLS.valueChanged.connect(lambda: self.start_DLS_changed(widget.spinBoxStartDLS.value()))
         widget.spinBoxEndDLS.valueChanged.connect(lambda: self.end_DLS_changed(widget.spinBoxEndDLS.value()))
 
-        # widget.daySinceRainSpinBox.valueChanged.connect(lambda: self.day_since_rain_changed(widget.daySinceRainSpinBox.
-        #                                                                                     value()))
         widget.spinBoxSoilMoisture.valueChanged.connect(lambda: self.soil_moisture_changed(widget.spinBoxSoilMoisture.
                                                                                            value()))
         widget.comboBoxLeafCycle.currentIndexChanged.connect(lambda: self.leaf_cycle_changed(widget.comboBoxLeafCycle.
                                                                                              currentIndex()))
         widget.fileCodeLineEdit.textChanged.connect(lambda: self.file_code_changed(widget.fileCodeLineEdit.text()))
         widget.lineEditUTC.textChanged.connect(lambda: self.utc_changed(widget.lineEditUTC.text()))
-
-    # def day_since_rain_changed(self, value):
-    #     self.day_since_rain = value
 
     def soil_moisture_changed(self, value):
         self.soil_moisture = value
