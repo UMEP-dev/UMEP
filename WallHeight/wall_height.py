@@ -90,6 +90,7 @@ class WallHeight:
         self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetDSM)
         self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerDSM.setFixedWidth(175)
+        self.layerComboManagerDSM.setCurrentIndex(-1)
 
         self.thread = None
         self.worker = None

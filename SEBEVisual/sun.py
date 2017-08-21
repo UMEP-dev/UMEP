@@ -23,7 +23,6 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
-from qgis.gui import *
 from qgis.utils import *
 
 # Initialize Qt resources from file resources.py
@@ -47,6 +46,7 @@ from tools.areaTool import AreaTool
 
 #3d Model import
 #import tools.GLWindow as GLWindow
+import tools.GLWidget
 try:
     # import tools.GLWidget as GLWidget
     import tools.GLWidget
@@ -247,6 +247,7 @@ class Sun:
 
         self.polyLayer.triggerRepaint()
         self.visDlg.pushButtonVisualize.setEnabled(1)
+        self.visDlg.activateWindow()
 
     def visualize(self):
         self.steps = 0

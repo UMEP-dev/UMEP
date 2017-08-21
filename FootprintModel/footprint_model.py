@@ -106,17 +106,38 @@ class FootprintModel:
         self.fileDialog.setFileMode(4)
         self.fileDialog.setAcceptMode(1)
 
-        self.layerComboManagerPoint = VectorLayerCombo(self.dlg.comboBox_Point)
-        fieldgen = VectorLayerCombo(self.dlg.comboBox_Point, initLayer="", options={"geomType": QGis.Point})
+        # self.layerComboManagerPoint = VectorLayerCombo(self.dlg.comboBox_Point)
+        # fieldgen = VectorLayerCombo(self.dlg.comboBox_Point, initLayer="", options={"geomType": QGis.Point})
+        self.layerComboManagerPoint = QgsMapLayerComboBox(self.dlg.widgetPointLayer)
+        self.layerComboManagerPoint.setCurrentIndex(-1)
+        self.layerComboManagerPoint.setFilters(QgsMapLayerProxyModel.PointLayer)
+        self.layerComboManagerPoint.setFixedWidth(175)
         # self.layerComboManagerPointField = FieldCombo(self.dlg.comboBox_Field, fieldgen, initField="")
-        self.layerComboManagerDSMbuildground = RasterLayerCombo(self.dlg.comboBox_DSMbuildground)
-        RasterLayerCombo(self.dlg.comboBox_DSMbuildground, initLayer="")
-        self.layerComboManagerDEM = RasterLayerCombo(self.dlg.comboBox_DEM)
-        RasterLayerCombo(self.dlg.comboBox_DEM, initLayer="")
-        self.layerComboManagerDSMbuild = RasterLayerCombo(self.dlg.comboBox_DSMbuild)
-        RasterLayerCombo(self.dlg.comboBox_DSMbuild, initLayer="")
-        self.layerComboManagerVEGDSM = RasterLayerCombo(self.dlg.comboBox_vegdsm)
-        RasterLayerCombo(self.dlg.comboBox_vegdsm, initLayer="")
+        # self.layerComboManagerDSMbuildground = RasterLayerCombo(self.dlg.comboBox_DSMbuildground)
+        # RasterLayerCombo(self.dlg.comboBox_DSMbuildground, initLayer="")
+        # self.layerComboManagerDEM = RasterLayerCombo(self.dlg.comboBox_DEM)
+        # RasterLayerCombo(self.dlg.comboBox_DEM, initLayer="")
+        # self.layerComboManagerDSMbuild = RasterLayerCombo(self.dlg.comboBox_DSMbuild)
+        # RasterLayerCombo(self.dlg.comboBox_DSMbuild, initLayer="")
+        # self.layerComboManagerVEGDSM = RasterLayerCombo(self.dlg.comboBox_vegdsm)
+        # RasterLayerCombo(self.dlg.comboBox_vegdsm, initLayer="")
+
+        self.layerComboManagerDSMbuildground  = QgsMapLayerComboBox(self.dlg.widgetDSMbuildground )
+        self.layerComboManagerDSMbuildground .setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSMbuildground .setFixedWidth(175)
+        self.layerComboManagerDSMbuildground .setCurrentIndex(-1)
+        self.layerComboManagerDEM = QgsMapLayerComboBox(self.dlg.widgetDEM)
+        self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDEM.setFixedWidth(175)
+        self.layerComboManagerDEM.setCurrentIndex(-1)
+        self.layerComboManagerDSMbuild = QgsMapLayerComboBox(self.dlg.widgetDSMbuild)
+        self.layerComboManagerDSMbuild.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSMbuild.setFixedWidth(175)
+        self.layerComboManagerDSMbuild.setCurrentIndex(-1)
+        self.layerComboManagerVEGDSM = QgsMapLayerComboBox(self.dlg.widgetVegDSM)
+        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM.setFixedWidth(175)
+        self.layerComboManagerVEGDSM.setCurrentIndex(-1)
 
         if not (os.path.isdir(self.plugin_dir + '/data')):
             os.mkdir(self.plugin_dir + '/data')
@@ -340,7 +361,7 @@ class FootprintModel:
             si = None
 
         if self.dlg.checkBoxVectorLayer.isChecked():
-            point = self.layerComboManagerPoint.getLayer()
+            point = self.layerComboManagerPoint.currentLayer()
             if point is None:
                 QMessageBox.critical(None, "Error", "No valid point layer is selected")
                 return
@@ -363,7 +384,7 @@ class FootprintModel:
         # QMessageBox.critical(None, "Test", str(coords))
 
         if self.dlg.checkBoxOnlyBuilding.isChecked():  # Only building heights
-            dsm_build = self.layerComboManagerDSMbuild.getLayer()
+            dsm_build = self.layerComboManagerDSMbuild.currentLayer()
             if dsm_build is None:
                 QMessageBox.critical(None, "Error", "No valid building DSM raster layer is selected")
                 return
@@ -388,8 +409,8 @@ class FootprintModel:
             dem = np.zeros((sizex, sizey))
 
         else:  # Both building ground heights
-            dsm = self.layerComboManagerDSMbuildground.getLayer()
-            dem = self.layerComboManagerDEM.getLayer()
+            dsm = self.layerComboManagerDSMbuildground.currentLayer()
+            dem = self.layerComboManagerDEM.currentLayer()
 
             if dsm is None:
                 QMessageBox.critical(None, "Error", "No valid ground and building DSM raster layer is selected")
@@ -441,9 +462,9 @@ class FootprintModel:
 
             usevegdem = 1
             if self.dlg.checkBoxUseFile.isChecked():
-                vegdsm = self.layerComboManagerVEGDSM.getLayer()
+                vegdsm = self.layerComboManagerVEGDSM.currentLayer()
             else:
-                vegdsm = self.layerComboManagerVEGDSM.getLayer()
+                vegdsm = self.layerComboManagerVEGDSM.currentLayer()
                 por = np.ones((1, 1)) * self.dlg.spinBoxPorosity.value()
 
             if vegdsm is None:
@@ -462,7 +483,7 @@ class FootprintModel:
             if sys.platform == 'win32':
                 subprocess.call(gdalruntextvegdsm, startupinfo=si)
             else:
-                os.system(gdalruntextdvegdsm)
+                os.system(gdalruntextvegdsm)
 
             dataset = gdal.Open(self.plugin_dir + '/data/clipvegdsm.tif')
             vegdsm = dataset.ReadAsArray().astype(np.float)

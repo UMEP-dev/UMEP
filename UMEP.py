@@ -133,12 +133,12 @@ class UMEP:
 
 
         # Sub-actions to Surface Morphology
-        self.IMCG_Action = QAction("Morphometric Calculator (Grid)", self.iface.mainWindow())
-        self.SM_Menu.addAction(self.IMCG_Action)
-        self.IMCG_Action.triggered.connect(self.IMCG)
         self.IMCP_Action = QAction("Morphometric Calculator (Point)", self.iface.mainWindow())
         self.SM_Menu.addAction(self.IMCP_Action)
         self.IMCP_Action.triggered.connect(self.IMCP)
+        self.IMCG_Action = QAction("Morphometric Calculator (Grid)", self.iface.mainWindow())
+        self.SM_Menu.addAction(self.IMCG_Action)
+        self.IMCG_Action.triggered.connect(self.IMCG)
         self.FP_Action = QAction("Source Area Model (Point)", self.iface.mainWindow())
         self.SM_Menu.addAction(self.FP_Action)
         self.FP_Action.triggered.connect(self.FP)

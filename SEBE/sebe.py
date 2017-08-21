@@ -353,7 +353,7 @@ class SEBE:
 
             UTC = self.dlg.spinBoxUTC.value()
             psi = self.dlg.spinBoxTrans.value() / 100.0
-            voxelheight = geotransform[1]
+            voxelheight = geotransform[1]  # float
             albedo = self.dlg.doubleSpinBoxAlbedo.value()
             if self.dlg.checkBoxUseOnlyGlobal.isChecked():
                 onlyglobal = 1

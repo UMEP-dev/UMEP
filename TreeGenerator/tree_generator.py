@@ -120,18 +120,23 @@ class TreeGenerator:
         self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetDSM)
         self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerDSM.setFixedWidth(175)
+        self.layerComboManagerDSM.setCurrentIndex(-1)
         self.layerComboManagerDEM = QgsMapLayerComboBox(self.dlg.widgetDEM)
         self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerDEM.setFixedWidth(175)
+        self.layerComboManagerDEM.setCurrentIndex(-1)
         self.layerComboManagerBuild = QgsMapLayerComboBox(self.dlg.widgetBuild)
         self.layerComboManagerBuild.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerBuild.setFixedWidth(175)
+        self.layerComboManagerBuild.setCurrentIndex(-1)
         self.layerComboManagerCDSM = QgsMapLayerComboBox(self.dlg.widgetCDSM)
         self.layerComboManagerCDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerCDSM.setFixedWidth(175)
+        self.layerComboManagerCDSM.setCurrentIndex(-1)
         self.layerComboManagerTDSM = QgsMapLayerComboBox(self.dlg.widgetTDSM)
         self.layerComboManagerTDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerTDSM.setFixedWidth(175)
+        self.layerComboManagerTDSM.setCurrentIndex(-1)
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):

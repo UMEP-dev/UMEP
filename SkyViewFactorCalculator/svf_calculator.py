@@ -88,12 +88,24 @@ class SkyViewFactorCalculator:
         # self.toolbar = self.iface.addToolBar(u'SkyViewFactorCalculator')
         # self.toolbar.setObjectName(u'SkyViewFactorCalculator')
 
-        self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_dsm)
-        RasterLayerCombo(self.dlg.comboBox_dsm, initLayer="")
-        self.layerComboManagerVEGDSM = RasterLayerCombo(self.dlg.comboBox_vegdsm)
-        RasterLayerCombo(self.dlg.comboBox_vegdsm, initLayer="")
-        self.layerComboManagerVEGDSM2 = RasterLayerCombo(self.dlg.comboBox_vegdsm2)
-        RasterLayerCombo(self.dlg.comboBox_vegdsm2, initLayer="")
+        # self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_dsm)
+        # RasterLayerCombo(self.dlg.comboBox_dsm, initLayer="")
+        # self.layerComboManagerVEGDSM = RasterLayerCombo(self.dlg.comboBox_vegdsm)
+        # RasterLayerCombo(self.dlg.comboBox_vegdsm, inityLayer="")
+        # self.layerComboManagerVEGDSM2 = RasterLayerCombo(self.dlg.comboBox_vegdsm2)
+        # RasterLayerCombo(self.dlg.comboBox_vegdsm2, initLayer="")
+        self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widget_dsm)
+        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSM.setFixedWidth(200)
+        self.layerComboManagerDSM.setCurrentIndex(-1)
+        self.layerComboManagerVEGDSM = QgsMapLayerComboBox(self.dlg.widget_vegdsm)
+        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM.setFixedWidth(200)
+        self.layerComboManagerVEGDSM.setCurrentIndex(-1)
+        self.layerComboManagerVEGDSM2 = QgsMapLayerComboBox(self.dlg.widget_vegdsm2)
+        self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM2.setFixedWidth(200)
+        self.layerComboManagerVEGDSM2.setCurrentIndex(-1)
 
         self.thread = None
         self.worker = None
@@ -483,7 +495,7 @@ class SkyViewFactorCalculator:
 
         else:
         #self.dlg.textOutput.setText(self.folderPath[0])
-            dsmlayer = self.layerComboManagerDSM.getLayer()
+            dsmlayer = self.layerComboManagerDSM.currentLayer()
 
             if dsmlayer is None:
                     QMessageBox.critical(self.iface.mainWindow(), "Error", "No valid raster layer is selected")
@@ -518,7 +530,7 @@ class SkyViewFactorCalculator:
                 self.usevegdem = 1
                 #trans = self.dlg.spinBoxTrans.value() / 100.0
 
-                self.vegdsm = self.layerComboManagerVEGDSM.getLayer()
+                self.vegdsm = self.layerComboManagerVEGDSM.currentLayer()
 
                 if self.vegdsm is None:
                     QMessageBox.critical(None, "Error", "No valid vegetation DSM selected")
@@ -539,7 +551,7 @@ class SkyViewFactorCalculator:
                     return
 
                 if self.dlg.checkBoxTrunkExist.isChecked():
-                    self.vegdsm2 = self.layerComboManagerVEGDSM2.getLayer()
+                    self.vegdsm2 = self.layerComboManagerVEGDSM2.currentLayer()
 
                     if self.vegdsm2 is None:
                         QMessageBox.critical(None, "Error", "No valid trunk zone DSM selected")

@@ -96,15 +96,35 @@ class ImageMorphParam:
         # self.toolbar = self.iface.addToolBar(u'ImageMorphParam')
         # self.toolbar.setObjectName(u'ImageMorphParam')
 
-        self.layerComboManagerPolygrid = VectorLayerCombo(self.dlg.comboBox_Polygrid)
-        fieldgen = VectorLayerCombo(self.dlg.comboBox_Polygrid, initLayer="", options={"geomType": QGis.Polygon})
-        self.layerComboManagerPolyField = FieldCombo(self.dlg.comboBox_Field, fieldgen, initField="")
-        self.layerComboManagerDSMbuildground = RasterLayerCombo(self.dlg.comboBox_DSMbuildground)
-        RasterLayerCombo(self.dlg.comboBox_DSMbuildground, initLayer="")
-        self.layerComboManagerDEM = RasterLayerCombo(self.dlg.comboBox_DEM)
-        RasterLayerCombo(self.dlg.comboBox_DEM, initLayer="")
-        self.layerComboManagerDSMbuild = RasterLayerCombo(self.dlg.comboBox_DSMbuild)
-        RasterLayerCombo(self.dlg.comboBox_DSMbuild, initLayer="")
+        # self.layerComboManagerPolygrid = VectorLayerCombo(self.dlg.comboBox_Polygrid)
+        # fieldgen = VectorLayerCombo(self.dlg.comboBox_Polygrid, initLayer="", options={"geomType": QGis.Polygon})
+        # self.layerComboManagerPolyField = FieldCombo(self.dlg.comboBox_Field, fieldgen, initField="")
+        self.layerComboManagerPolygrid = QgsMapLayerComboBox(self.dlg.widgetPolygrid)
+        self.layerComboManagerPolygrid.setCurrentIndex(-1)
+        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.layerComboManagerPolygrid.setFixedWidth(175)
+        self.layerComboManagerPolyField  = QgsFieldComboBox(self.dlg.widgetField)
+        self.layerComboManagerPolyField .setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPolygrid .layerChanged.connect(self.layerComboManagerPolyField.setLayer)
+
+        # self.layerComboManagerDSMbuildground = RasterLayerCombo(self.dlg.comboBox_DSMbuildground)
+        # RasterLayerCombo(self.dlg.comboBox_DSMbuildground, initLayer="")
+        # self.layerComboManagerDEM = RasterLayerCombo(self.dlg.comboBox_DEM)
+        # RasterLayerCombo(self.dlg.comboBox_DEM, initLayer="")
+        # self.layerComboManagerDSMbuild = RasterLayerCombo(self.dlg.comboBox_DSMbuild)
+        # RasterLayerCombo(self.dlg.comboBox_DSMbuild, initLayer="")
+        self.layerComboManagerDSMbuildground = QgsMapLayerComboBox(self.dlg.widgetDSMbuildground)
+        self.layerComboManagerDSMbuildground.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSMbuildground.setFixedWidth(175)
+        self.layerComboManagerDSMbuildground.setCurrentIndex(-1)
+        self.layerComboManagerDEM = QgsMapLayerComboBox(self.dlg.widgetDEM)
+        self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDEM.setFixedWidth(175)
+        self.layerComboManagerDEM.setCurrentIndex(-1)
+        self.layerComboManagerDSMbuild = QgsMapLayerComboBox(self.dlg.widgetDSMbuild)
+        self.layerComboManagerDSMbuild.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSMbuild.setFixedWidth(175)
+        self.layerComboManagerDSMbuild.setCurrentIndex(-1)
 
         if not (os.path.isdir(self.plugin_dir + '/data')):
             os.mkdir(self.plugin_dir + '/data')
@@ -271,7 +291,7 @@ class ImageMorphParam:
     def start_progress(self):
         #Steg for uppdatering av
         self.steps = 0
-        poly = self.layerComboManagerPolygrid.getLayer()
+        poly = self.layerComboManagerPolygrid.currentLayer()
         if poly is None:
             QMessageBox.critical(self.dlg, "Error", "No valid Polygon layer is selected")
             return
@@ -279,7 +299,7 @@ class ImageMorphParam:
             QMessageBox.critical(self.dlg, "Error", "No valid Polygon layer is selected")
             return
 
-        poly_field = self.layerComboManagerPolyField.getFieldName()
+        poly_field = self.layerComboManagerPolyField.currentField()
         if poly_field is None:
             QMessageBox.critical(self.dlg, "Error", "An attribute filed with unique fields must be selected")
             return
@@ -295,7 +315,7 @@ class ImageMorphParam:
 
         # skapar referenser till lagern som laddas in av anvandaren i comboboxes
         if self.dlg.checkBoxOnlyBuilding.isChecked():  # Only building heights
-            dsm_build = self.layerComboManagerDSMbuild.getLayer()
+            dsm_build = self.layerComboManagerDSMbuild.currentLayer()
             dsm = None
             dem = None
             if dsm_build is None:
@@ -303,8 +323,8 @@ class ImageMorphParam:
                 return
 
         else:  # Both building ground heights
-            dsm = self.layerComboManagerDSMbuildground.getLayer()
-            dem = self.layerComboManagerDEM.getLayer()
+            dsm = self.layerComboManagerDSMbuildground.currentLayer()
+            dem = self.layerComboManagerDEM.currentLayer()
             dsm_build = None
             if dsm is None:
                 QMessageBox.critical(None, "Error", "No valid ground and building DSM raster layer is selected")

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>483</width>
-    <height>368</height>
+    <width>548</width>
+    <height>430</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,36 +23,6 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="3">
-       <widget class="QComboBox" name="degreeBox">
-        <property name="toolTip">
-         <string>This decides the interval in search directions for which the morphometric parameters will be calculated.</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="QRadioButton" name="radioButtonExtent">
-        <property name="toolTip">
-         <string>See help for detailed description.</string>
-        </property>
-        <property name="text">
-         <string>Search throughout the grid extent</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QRadioButton" name="radioButtonCenter">
-        <property name="toolTip">
-         <string>See help for detailed description.</string>
-        </property>
-        <property name="text">
-         <string>Search from grid centroid</string>
-        </property>
-       </widget>
-      </item>
       <item row="3" column="3">
        <widget class="QSpinBox" name="spinBoxDistance">
         <property name="enabled">
@@ -75,6 +45,36 @@
         </property>
         <property name="value">
          <number>200</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QRadioButton" name="radioButtonCenter">
+        <property name="toolTip">
+         <string>See help for detailed description.</string>
+        </property>
+        <property name="text">
+         <string>Search from grid centroid</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QRadioButton" name="radioButtonExtent">
+        <property name="toolTip">
+         <string>See help for detailed description.</string>
+        </property>
+        <property name="text">
+         <string>Search throughout the grid extent</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QComboBox" name="degreeBox">
+        <property name="toolTip">
+         <string>This decides the interval in search directions for which the morphometric parameters will be calculated.</string>
         </property>
        </widget>
       </item>
@@ -110,38 +110,45 @@
       <enum>QFrame::Sunken</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="1" column="3">
-       <widget class="QComboBox" name="comboBox_Field">
-        <property name="toolTip">
-         <string>Attribut ID should be a unique number or string for each polygon </string>
+      <item row="1" column="2">
+       <widget class="QWidget" name="widget_Polygrid" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
         </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_7"/>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QLabel" name="label_2">
+      <item row="1" column="1">
+       <widget class="QLabel" name="label">
         <property name="text">
-         <string>UMEP land cover grid:</string>
+         <string>Vector polygon grid:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
-        <property name="buddy">
-         <cstring>comboBox_lcgrid</cstring>
-        </property>
        </widget>
       </item>
-      <item row="0" column="2" colspan="2">
-       <widget class="QComboBox" name="comboBox_Polygrid">
-        <property name="toolTip">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;This Polygon layer could include one single or mutiple squares &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <item row="4" column="2">
+       <widget class="QWidget" name="widget_Field" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>125</width>
+          <height>30</height>
+         </size>
         </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_11"/>
        </widget>
       </item>
-      <item row="1" column="1" colspan="2">
+      <item row="4" column="1">
        <widget class="QLabel" name="label_5">
         <property name="text">
          <string>ID field:</string>
@@ -151,27 +158,31 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="2" column="2" colspan="2">
-       <widget class="QComboBox" name="comboBox_lcgrid">
-        <property name="toolTip">
-         <string>An integer raster land cover grid (e.g. geoTIFF) consisting of the various land covers specified above. See help for detailed description</string>
+      <item row="5" column="2">
+       <widget class="QWidget" name="widget_lcgrid" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
         </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_4"/>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="label">
+      <item row="5" column="1">
+       <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Vector polygon grid:</string>
+         <string>UMEP land cover grid:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
-        <property name="buddy">
-         <cstring>comboBox_Polygrid</cstring>
-        </property>
        </widget>
       </item>
-      <item row="0" column="0">
+      <item row="1" column="0">
        <widget class="QCheckBox" name="addResultToGrid">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tick this in if you would like to add the isotropic results to the attribute table for your polygon vector grid.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>

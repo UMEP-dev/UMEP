@@ -106,11 +106,19 @@ class LandCoverFractionPoint:
         #self.toolPan = QgsMapToolPan(self.canvas)
         self.pointTool.canvasClicked.connect(self.create_point)
 
-        self.layerComboManagerPoint = VectorLayerCombo(self.dlg.comboBox_Point)
-        fieldgen = VectorLayerCombo(self.dlg.comboBox_Point, initLayer="", options={"geomType": QGis.Point})
-        # self.layerComboManagerPolyField = FieldCombo(self.dlg.comboBox_Field, fieldgen, initField="")
-        self.layerComboManagerLCgrid = RasterLayerCombo(self.dlg.comboBox_lcgrid)
-        RasterLayerCombo(self.dlg.comboBox_lcgrid, initLayer="")
+        # self.layerComboManagerPoint = VectorLayerCombo(self.dlg.comboBox_Point)
+        # fieldgen = VectorLayerCombo(self.dlg.comboBox_Point, initLayer="", options={"geomType": QGis.Point})
+        self.layerComboManagerPoint = QgsMapLayerComboBox(self.dlg.widgetPointLayer)
+        self.layerComboManagerPoint.setCurrentIndex(-1)
+        self.layerComboManagerPoint.setFilters(QgsMapLayerProxyModel.PointLayer)
+        self.layerComboManagerPoint.setFixedWidth(175)
+
+        # self.layerComboManagerLCgrid = RasterLayerCombo(self.dlg.comboBox_lcgrid)
+        # RasterLayerCombo(self.dlg.comboBox_lcgrid, initLayer="")
+        self.layerComboManagerLCgrid = QgsMapLayerComboBox(self.dlg.widget_lcgrid)
+        self.layerComboManagerLCgrid.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerLCgrid.setFixedWidth(175)
+        self.layerComboManagerLCgrid.setCurrentIndex(-1)
 
         if not (os.path.isdir(self.plugin_dir + '/data')):
             os.mkdir(self.plugin_dir + '/data')
@@ -257,7 +265,7 @@ class LandCoverFractionPoint:
     def generate_area(self):
 
         if self.dlg.checkBoxVectorLayer.isChecked():
-            point = self.layerComboManagerPoint.getLayer()
+            point = self.layerComboManagerPoint.currentLayer()
             if point is None:
                 QMessageBox.critical(None, "Error", "No valid point layer is selected")
                 return
@@ -390,7 +398,7 @@ class LandCoverFractionPoint:
         y = self.pointy
         r = self.dlg.spinBox.value()
 
-        dsm_build = self.layerComboManagerLCgrid.getLayer()
+        dsm_build = self.layerComboManagerLCgrid.currentLayer()
         if dsm_build is None:
             QMessageBox.critical(None, "Error", "No valid land cover raster layer is selected")
             return

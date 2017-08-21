@@ -23,6 +23,7 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
+from qgis.gui import *
 import os
 from ..Utilities.qgiscombomanager import *
 from osgeo import gdal
@@ -92,11 +93,25 @@ class LandCoverFractionGrid:
         # self.toolbar = self.iface.addToolBar(u'LandCoverFractionGrid')
         # self.toolbar.setObjectName(u'LandCoverFractionGrid')
 
-        self.layerComboManagerPolygrid = VectorLayerCombo(self.dlg.comboBox_Polygrid)
-        fieldgen = VectorLayerCombo(self.dlg.comboBox_Polygrid, initLayer="", options={"geomType": QGis.Polygon})
-        self.layerComboManagerPolyField = FieldCombo(self.dlg.comboBox_Field, fieldgen) #, options={"fieldType":QGis.Float32}
-        self.layerComboManagerLCgrid = RasterLayerCombo(self.dlg.comboBox_lcgrid)
-        RasterLayerCombo(self.dlg.comboBox_lcgrid, initLayer="")
+        # self.layerComboManagerPolygrid = VectorLayerCombo(self.dlg.comboBox_Polygrid)
+        # fieldgen = VectorLayerCombo(self.dlg.comboBox_Polygrid, initLayer="", options={"geomType": QGis.Polygon})
+        self.layerComboManagerPolygrid = QgsMapLayerComboBox(self.dlg.widget_Polygrid)
+        self.layerComboManagerPolygrid.setCurrentIndex(-1)
+        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.layerComboManagerPolygrid.setFixedWidth(175)
+        self.layerComboManagerPolyField = QgsFieldComboBox(self.dlg.widget_Field)
+        self.layerComboManagerPolyField.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPolygrid.layerChanged.connect(self.layerComboManagerPolyField.setLayer)
+        # self.layerComboManagerPolyField = FieldCombo(self.dlg.comboBox_Field, fieldgen) #, options={"fieldType":QGis.Float32}
+
+        # self.layerComboManagerLCgrid = RasterLayerCombo(self.dlg.comboBox_lcgrid)
+        # RasterLayerCombo(self.dlg.comboBox_lcgrid, initLayer="")
+        self.layerComboManagerLCgrid = QgsMapLayerComboBox(self.dlg.widget_lcgrid)
+        self.layerComboManagerLCgrid.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerLCgrid.setFixedWidth(175)
+        self.layerComboManagerLCgrid.setCurrentIndex(-1)
+
+
 
         if not (os.path.isdir(self.plugin_dir + '/data')):
             os.mkdir(self.plugin_dir + '/data')
@@ -179,7 +194,7 @@ class LandCoverFractionGrid:
 
     def start_progress(self):
         self.steps = 0
-        poly = self.layerComboManagerPolygrid.getLayer()
+        poly = self.layerComboManagerPolygrid.currentLayer()
         if poly is None:
             QMessageBox.critical(None, "Error", "No valid Polygon layer is selected")
             return
@@ -187,7 +202,7 @@ class LandCoverFractionGrid:
             QMessageBox.critical(None, "Error", "No valid Polygon layer is selected")
             return
 
-        poly_field = self.layerComboManagerPolyField.getFieldName()
+        poly_field = self.layerComboManagerPolyField.currentField()
         if poly_field is None:
             QMessageBox.critical(None, "Error", "An attribute with unique fields/records must be selected")
             return
@@ -205,7 +220,7 @@ class LandCoverFractionGrid:
         dir_poly = self.plugin_dir + '/data/poly_temp.shp'
         self.dlg.progressBar.setMaximum(vlayer.featureCount())
 
-        lc_grid = self.layerComboManagerLCgrid.getLayer()
+        lc_grid = self.layerComboManagerLCgrid.currentLayer()
         if lc_grid is None:
             QMessageBox.critical(None, "Error", "No valid raster layer is selected")
             return

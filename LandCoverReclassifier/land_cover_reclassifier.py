@@ -24,6 +24,7 @@ from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import *
 from osgeo import gdal
 from qgis.core import *
+from qgis.gui import *
 # Initialize Qt resources from file resources.py
 import resources_rc
 # Import the code for the dialog
@@ -81,8 +82,12 @@ class LandCoverReclassifier:
         # self.toolbar = self.iface.addToolBar(u'LandCoverReclassifier')
         # self.toolbar.setObjectName(u'LandCoverReclassifier')
 
-        self.layerComboManagerLCgrid = RasterLayerCombo(self.dlg.comboBox_lcgrid)
-        RasterLayerCombo(self.dlg.comboBox_lcgrid, initLayer="")
+        # self.layerComboManagerLCgrid = RasterLayerCombo(self.dlg.comboBox_lcgrid)
+        # RasterLayerCombo(self.dlg.comboBox_lcgrid, initLayer="")
+        self.layerComboManagerLCgrid = QgsMapLayerComboBox(self.dlg.widgetLCgrid)
+        self.layerComboManagerLCgrid.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerLCgrid.setFixedWidth(175)
+        self.layerComboManagerLCgrid.setCurrentIndex(-1)
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -166,7 +171,7 @@ class LandCoverReclassifier:
 
     def start_progress(self):
 
-        lc_grid = self.layerComboManagerLCgrid.getLayer()
+        lc_grid = self.layerComboManagerLCgrid.currentLayer()
         if lc_grid is None:
             QMessageBox.critical(None, "Error", "No valid raster layer is selected")
             return

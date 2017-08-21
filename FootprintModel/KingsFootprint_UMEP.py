@@ -42,7 +42,7 @@ def footprintiterKAM(iterations,z_0_input,z_d_input,z_ag,wind,sigv,Obukhov,ustar
     # g=9.8
     k=0.4
 
-    totRotatedphi = np.zeros((rows,cols))
+    totRotatedphi = np.zeros((rows, cols))
     Wfai=np.zeros((iterations,1))
     Wpai=np.zeros((iterations,1))
     WzH=np.zeros((iterations,1))
@@ -149,12 +149,12 @@ def footprintiterKAM(iterations,z_0_input,z_d_input,z_ag,wind,sigv,Obukhov,ustar
 
         #PAD and rotate footprint
         ##Paddington it up to the defined domain_output (default = 2km x 2km)
-        fx=domain_output
+        fx=int(domain_output)
         domain_x = domain_x / d_input
         domain_y = domain_y / d_input
         fy = fx
-        full = np.zeros([fx,fy])
-        full[(fx+1)/2:(fx+1)/2+(domain_x),(fy/2+1)-domain_y:(fy/2+1)+domain_y+1]=phi
+        full = np.zeros([fx, fy])
+        full[(fx+1)/2:int((fx+1)/2+(domain_x)),int((fy/2+1)-domain_y):int((fy/2+1)+domain_y+1)]=phi
         full[np.isnan(full)]=0
 
         ##Rotation for wind angle for absolute plot and correction for rotation algorithm

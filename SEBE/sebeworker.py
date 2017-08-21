@@ -101,11 +101,11 @@ class Worker(QtCore.QObject):
                 psi = 1
 
             # Creating wallmatrix (1 meter interval)
-            wallcol, wallrow = np.where(np.transpose(walls) > 0)    #row and col for each wall pixel
+            wallcol, wallrow = np.where(np.transpose(walls) > 0)    # row and col for each wall pixel
             # wallrow, wallcol = np.where(walls > 0.2)    #row and col for each wall pixel
-            wallstot = np.floor(walls*(1/voxelheight)) * voxelheight
-            wallsections = np.floor(np.max(walls) * (1/voxelheight))     # finding tallest wall
-            wallmatrix = np.zeros((np.shape(wallrow)[0], wallsections))
+            wallstot = np.floor(walls * (1 / voxelheight)) * voxelheight
+            wallsections = np.floor(np.max(walls) * (1 / voxelheight))     # finding tallest wall
+            wallmatrix = np.zeros((np.shape(wallrow)[0], int(wallsections)))
             Energyyearwall = np.copy(wallmatrix)
             # Energymonthwall = np.zeros(np.shape(wallmatrix[0]), np.shape(wallmatrix[1]), 12)
 
@@ -115,7 +115,7 @@ class Worker(QtCore.QObject):
 
             if usevegdem == 1:
                 wallshve = np.zeros(np.shape(a))
-                vegrow, vegcol = np.where(vegdem > 0)    #row and col for each veg pixel
+                vegrow, vegcol = np.where(vegdem > 0)  # row and col for each veg pixel
                 vegdata = np.zeros((np.shape(vegrow)[0], 3))
                 for i in range(0, vegrow.shape[0] - 1):
                     vegdata[i, 0] = vegrow[i] + 1
@@ -179,32 +179,25 @@ class Worker(QtCore.QObject):
                     Rw = radmatR[index, 2] * facesun
 
                     # for each wall level (voxelheight interval)
-                    wallsun = np.floor(wallsun*(1/voxelheight))*voxelheight
-                    wallsh = np.floor(wallsh*(1/voxelheight))*voxelheight
+                    wallsun = np.floor(wallsun*(1/voxelheight)) * voxelheight
+                    wallsh = np.floor(wallsh*(1/voxelheight)) * voxelheight
                     if usevegdem == 1:
-                        wallshve = np.floor(wallshve*(1/voxelheight))*voxelheight
+                        wallshve = np.floor(wallshve*(1/voxelheight)) * voxelheight
 
                     wallmatrix = wallmatrix * 0
 
                     for p in range(np.shape(wallmatrix)[0]):
                         if wallsun[wallrow[p], wallcol[p]] > 0:    # Sections in sun
-                            if wallsun[wallrow[p], wallcol[p]] == wallstot[wallrow[p], wallcol[p]]:    # Sections in sun
-                                wallmatrix[p, 0:wallstot[wallrow[p], wallcol[p]]/voxelheight] = Iw[wallrow[p], wallcol[p]] + \
-                                                                                                Dw[wallrow[p], wallcol[p]] + \
-                                                                                                Rw[wallrow[p], wallcol[p]]
+                            if wallsun[int(wallrow[p]), int(wallcol[p])] == wallstot[int(wallrow[p]), int(wallcol[p])]:  # All sections in sun
+                                wallmatrix[p, 0:int(wallstot[int(wallrow[p]), int(wallcol[p])] / voxelheight)] = Iw[wallrow[p], wallcol[p]] + Dw[wallrow[p], wallcol[p]] + Rw[wallrow[p], wallcol[p]]
                             else:
-                                wallmatrix[p, ((wallstot[wallrow[p], wallcol[p]] -
-                                                wallsun[wallrow[p], wallcol[p]])/voxelheight) - 1:
-                                                wallstot[wallrow[p], wallcol[p]]/voxelheight] = Iw[wallrow[p], wallcol[p]] + \
-                                                                                                Dw[wallrow[p], wallcol[p]] + \
-                                                                                                Rw[wallrow[p], wallcol[p]]
+                                wallmatrix[p, int((wallstot[wallrow[p], wallcol[p]] - wallsun[wallrow[p], wallcol[p]]) / voxelheight) - 1:int(wallstot[wallrow[p], wallcol[p]] / voxelheight)] = Iw[wallrow[p], wallcol[p]] + Dw[wallrow[p], wallcol[p]] + Rw[wallrow[p], wallcol[p]]
 
                         if usevegdem == 1 and wallshve[wallrow[p], wallcol[p]] > 0:    # sections in vegetation shade
-                            wallmatrix[p, 0:wallshve[wallrow[p], wallcol[p] + wallsh[wallrow[p], wallcol[p]]]/voxelheight] = \
-                                (Iw[wallrow[p], wallcol[p]] + Dw[wallrow[p], wallcol[p]])*psi
+                            wallmatrix[p, 0:int(wallshve[wallrow[p], wallcol[p] + wallsh[wallrow[p], wallcol[p]]] / voxelheight)] = (Iw[wallrow[p], wallcol[p]] + Dw[wallrow[p], wallcol[p]])*psi
 
                         if wallsh[wallrow[p], wallcol[p]] > 0:    # sections in building shade
-                            wallmatrix[p, 0:wallsh[wallrow[p], wallcol[p]] / voxelheight] = Rw[wallrow[p], wallcol[p]]
+                            wallmatrix[p, 0:int(wallsh[wallrow[p], wallcol[p]] / voxelheight)] = Rw[wallrow[p], wallcol[p]]
 
                     Energyyearwall = Energyyearwall + np.copy(wallmatrix)
 

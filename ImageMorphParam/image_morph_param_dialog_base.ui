@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>575</width>
-    <height>426</height>
+    <width>644</width>
+    <height>453</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,91 +17,7 @@
    <string/>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="2" column="5">
-    <widget class="QCheckBox" name="checkBoxNoData">
-     <property name="toolTip">
-      <string>Tick this in if NoData pixels should be ignored and calculation of grid should be performed eventhough NoData pixels exists within that grid. Nodata pixels are set to the average pixel values of the DEM.</string>
-     </property>
-     <property name="text">
-      <string>Ignore NoData pixels</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="6">
-    <widget class="QPushButton" name="closeButton">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string>Close</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="3">
-    <widget class="QComboBox" name="comboBox_Roughness">
-     <property name="toolTip">
-      <string>Options to choose methods for roughness calculations regarding zero-plane displacement height (zd) and roughness length (z0) are available.</string>
-     </property>
-     <item>
-      <property name="text">
-       <string>Rule of thumb</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Raupach (1994/95)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Simplified Bottema (1995)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>MacDonald et al. (1998)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Millward-Hopkins et al. (2011)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Kanda et al. (2013)</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="5" column="6">
-    <widget class="QPushButton" name="pushButtonSave">
-     <property name="text">
-      <string>Select</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="6">
-    <widget class="QPushButton" name="runButton">
-     <property name="text">
-      <string>Run</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="6">
-    <widget class="QLineEdit" name="textOutput_prefix"/>
-   </item>
-   <item row="4" column="5">
-    <widget class="QLabel" name="label_9">
-     <property name="text">
-      <string>File prefix:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0" colspan="7">
+   <item row="1" column="0" colspan="8">
     <widget class="QFrame" name="frame">
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -109,8 +25,46 @@
      <property name="frameShadow">
       <enum>QFrame::Sunken</enum>
      </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="2" column="0" colspan="3">
+     <layout class="QGridLayout" name="gridLayout_6">
+      <item row="2" column="5">
+       <widget class="QWidget" name="widgetField" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>125</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_9"/>
+       </widget>
+      </item>
+      <item row="1" column="5">
+       <widget class="QWidget" name="widgetPolygrid" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_7"/>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Vector polygon grid:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="4">
        <widget class="QLabel" name="label_5">
         <property name="text">
          <string>ID field:</string>
@@ -120,95 +74,21 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="3">
-       <widget class="QComboBox" name="comboBox_Field">
-        <property name="toolTip">
-         <string>Attribut ID should be a unique number or string for each polygon </string>
+      <item row="4" column="5">
+       <widget class="QWidget" name="widgetDSMbuildground" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
         </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3"/>
        </widget>
       </item>
-      <item row="3" column="0" colspan="4">
-       <widget class="QCheckBox" name="checkBoxOnlyBuilding">
-        <property name="toolTip">
-         <string>Tick this in if a 3D-object DSM without ground heights is available. 3D objects (e.g. buildings) should be metres above ground.</string>
-        </property>
-        <property name="text">
-         <string>Raster DSM (only buildings or vegetation) exist</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="2" colspan="2">
-       <widget class="QComboBox" name="comboBox_DSMbuildground">
-        <property name="toolTip">
-         <string>A raster DSM consisting of ground and e.g. building height (metres above sea level).</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="2" colspan="2">
-       <widget class="QComboBox" name="comboBox_DEM">
-        <property name="toolTip">
-         <string>A DEM consisting of pixels with ground heights (metres above sea level).</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="2" colspan="2">
-       <widget class="QComboBox" name="comboBox_DSMbuild">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>A DSM consisting of pixels with object (e.g. buildings or vegetation) heights above ground. Pixels where no objects are present should be zero.</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2" colspan="2">
-       <widget class="QComboBox" name="comboBox_Polygrid">
-        <property name="toolTip">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;This Polygon layer could include one single or mutiple squares &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Vector polygon grid:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>comboBox_Polygrid</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="addResultToGrid">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tick this in if you would like to add the isotropic results to the attribute table for your polygon vector grid. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string>Add result to polygon grid</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Raster DEM (only ground):</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>comboBox_DEM</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0" colspan="2">
+      <item row="4" column="4">
        <widget class="QLabel" name="label_2">
         <property name="text">
          <string>Raster DSM (3D objects + ground):</string>
@@ -216,12 +96,33 @@ p, li { white-space: pre-wrap; }
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
-        <property name="buddy">
-         <cstring>comboBox_DSMbuildground</cstring>
+       </widget>
+      </item>
+      <item row="5" column="5">
+       <widget class="QWidget" name="widgetDEM" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_4"/>
+       </widget>
+      </item>
+      <item row="5" column="4">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Raster DEM (only ground):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
-      <item row="6" column="1">
+      <item row="6" column="4">
        <widget class="QLabel" name="label_4">
         <property name="enabled">
          <bool>false</bool>
@@ -232,15 +133,49 @@ p, li { white-space: pre-wrap; }
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
-        <property name="buddy">
-         <cstring>comboBox_DSMbuild</cstring>
+       </widget>
+      </item>
+      <item row="6" column="5">
+       <widget class="QWidget" name="widgetDSMbuild" native="true">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_5"/>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QCheckBox" name="checkBoxOnlyBuilding">
+        <property name="toolTip">
+         <string>Tick this in if a 3D-object DSM without ground heights is available. 3D objects (e.g. buildings) should be metres above ground.</string>
+        </property>
+        <property name="text">
+         <string>Raster DSM (only buildings or vegetation) exist</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="addResultToGrid">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tick this in if you would like to add the isotropic results to the attribute table for your polygon vector grid. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Add result to polygon grid</string>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="0" column="0" colspan="7">
+   <item row="0" column="0" colspan="8">
     <widget class="QFrame" name="frame_2">
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
@@ -327,19 +262,6 @@ p, li { white-space: pre-wrap; }
      </layout>
     </widget>
    </item>
-   <item row="2" column="0" colspan="3">
-    <widget class="QLabel" name="label_10">
-     <property name="text">
-      <string>Roughness calculation method:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-     <property name="buddy">
-      <cstring>comboBox_DEM</cstring>
-     </property>
-    </widget>
-   </item>
    <item row="9" column="0">
     <widget class="QPushButton" name="helpButton">
      <property name="enabled">
@@ -347,6 +269,13 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="text">
       <string>Help</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="7">
+    <widget class="QPushButton" name="runButton">
+     <property name="text">
+      <string>Run</string>
      </property>
     </widget>
    </item>
@@ -360,10 +289,87 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="5" column="3" colspan="3">
+   <item row="2" column="3">
+    <widget class="QComboBox" name="comboBox_Roughness">
+     <property name="toolTip">
+      <string>Options to choose methods for roughness calculations regarding zero-plane displacement height (zd) and roughness length (z0) are available.</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>Rule of thumb</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Raupach (1994/95)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Simplified Bottema (1995)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>MacDonald et al. (1998)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Millward-Hopkins et al. (2011)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Kanda et al. (2013)</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="3">
+    <widget class="QLabel" name="label_10">
+     <property name="text">
+      <string>Roughness calculation method:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="7">
+    <widget class="QPushButton" name="closeButton">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string>Close</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="7">
+    <widget class="QLineEdit" name="textOutput_prefix"/>
+   </item>
+   <item row="2" column="5">
+    <widget class="QCheckBox" name="checkBoxNoData">
+     <property name="toolTip">
+      <string>Tick this in if NoData pixels should be ignored and calculation of grid should be performed eventhough NoData pixels exists within that grid. Nodata pixels are set to the average pixel values of the DEM.</string>
+     </property>
+     <property name="text">
+      <string>Ignore NoData pixels</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="7">
+    <widget class="QPushButton" name="pushButtonSave">
+     <property name="text">
+      <string>Select</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="3" colspan="4">
     <widget class="QLineEdit" name="textOutput"/>
    </item>
-   <item row="7" column="0" colspan="6">
+   <item row="7" column="0" colspan="4">
     <widget class="QProgressBar" name="progressBar">
      <property name="value">
       <number>0</number>
@@ -379,58 +385,20 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
+   <item row="4" column="6">
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string>File prefix:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>
  <connections>
-  <connection>
-   <sender>checkBoxOnlyBuilding</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>comboBox_DSMbuild</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>58</x>
-     <y>166</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>300</x>
-     <y>242</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxOnlyBuilding</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>comboBox_DEM</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>123</x>
-     <y>166</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>300</x>
-     <y>216</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxOnlyBuilding</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>comboBox_DSMbuildground</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>84</x>
-     <y>166</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>300</x>
-     <y>190</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>closeButton</sender>
    <signal>clicked()</signal>
@@ -438,8 +406,8 @@ p, li { white-space: pre-wrap; }
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>486</x>
-     <y>392</y>
+     <x>634</x>
+     <y>443</y>
     </hint>
     <hint type="destinationlabel">
      <x>220</x>
@@ -474,8 +442,8 @@ p, li { white-space: pre-wrap; }
      <y>74</y>
     </hint>
     <hint type="destinationlabel">
-     <x>383</x>
-     <y>71</y>
+     <x>625</x>
+     <y>87</y>
     </hint>
    </hints>
   </connection>
@@ -492,6 +460,102 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>472</x>
      <y>68</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxOnlyBuilding</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>widgetDSMbuildground</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>230</x>
+     <y>198</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>463</x>
+     <y>207</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxOnlyBuilding</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>label_2</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>78</x>
+     <y>200</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>334</x>
+     <y>210</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxOnlyBuilding</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>label_3</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>107</x>
+     <y>198</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>322</x>
+     <y>236</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxOnlyBuilding</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>widgetDEM</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>127</x>
+     <y>195</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>476</x>
+     <y>243</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxOnlyBuilding</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>label_4</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>66</x>
+     <y>200</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>324</x>
+     <y>268</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxOnlyBuilding</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>widgetDSMbuild</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>45</x>
+     <y>199</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>463</x>
+     <y>279</y>
     </hint>
    </hints>
   </connection>

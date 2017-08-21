@@ -251,8 +251,8 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         for i in xrange(0, len(self.wall_array)):
             wall_list = self.wall_array[i]
-            y = wall_list[0]
-            x = wall_list[1]
+            y = int(wall_list[0])
+            x = int(wall_list[1])
             zveg = self.asc_array[y][x]
             for j in xrange(2, len(wall_list)):
                 e = wall_list[j]

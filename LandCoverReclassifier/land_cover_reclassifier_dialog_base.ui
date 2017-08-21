@@ -7,14 +7,55 @@
     <x>0</x>
     <y>0</y>
     <width>476</width>
-    <height>585</height>
+    <height>598</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Land Cover Reclassifier</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
+   <item row="3" column="5">
+    <widget class="QPushButton" name="runButton">
+     <property name="text">
+      <string>Run</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="5">
+    <widget class="QPushButton" name="closeButton">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string>Close</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QPushButton" name="helpButton">
+     <property name="text">
+      <string>Help</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Output file:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="5">
+    <widget class="QPushButton" name="pushButtonSave">
+     <property name="text">
+      <string>Save as</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
     <widget class="QLabel" name="label_2">
      <property name="text">
       <string>Input raster:</string>
@@ -22,19 +63,9 @@
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
-     <property name="buddy">
-      <cstring>comboBox_lcgrid</cstring>
-     </property>
     </widget>
    </item>
-   <item row="0" column="1" colspan="2">
-    <widget class="QComboBox" name="comboBox_lcgrid">
-     <property name="toolTip">
-      <string>Any valid raster dataset (float or integer) loaded into QGIS will appear in this dropdown list. Choose the one that includes your land cover information.</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0" colspan="3">
+   <item row="1" column="1" colspan="5">
     <widget class="QFrame" name="frame_2">
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -1022,18 +1053,12 @@
         <property name="text">
          <string>smaller or equal than:</string>
         </property>
-        <property name="buddy">
-         <cstring>comboBox_lcgrid</cstring>
-        </property>
        </widget>
       </item>
       <item row="1" column="3">
        <widget class="QLabel" name="label_3">
         <property name="text">
          <string>greater than:</string>
-        </property>
-        <property name="buddy">
-         <cstring>comboBox_lcgrid</cstring>
         </property>
        </widget>
       </item>
@@ -1077,49 +1102,35 @@ p, li { white-space: pre-wrap; }
      </layout>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_6">
-     <property name="text">
-      <string>Output file:</string>
+   <item row="0" column="2">
+    <spacer name="horizontalSpacer_3">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
      </property>
+    </spacer>
+   </item>
+   <item row="0" column="4" colspan="2">
+    <widget class="QWidget" name="widgetLCgrid" native="true">
+     <property name="minimumSize">
+      <size>
+       <width>175</width>
+       <height>30</height>
+      </size>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3"/>
     </widget>
    </item>
-   <item row="2" column="1">
+   <item row="2" column="2" colspan="3">
     <widget class="QLineEdit" name="textOutput"/>
-   </item>
-   <item row="2" column="2">
-    <widget class="QPushButton" name="pushButtonSave">
-     <property name="text">
-      <string>Save as</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="2">
-    <widget class="QPushButton" name="runButton">
-     <property name="text">
-      <string>Run</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QPushButton" name="helpButton">
-     <property name="text">
-      <string>Help</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="2">
-    <widget class="QPushButton" name="closeButton">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string>Close</string>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>
