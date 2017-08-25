@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>561</width>
-    <height>428</height>
+    <width>493</width>
+    <height>385</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,31 +15,43 @@
   </property>
   <layout class="QGridLayout" name="gridLayout_4">
    <item row="0" column="0">
-    <widget class="QFrame" name="frame_2">
-     <property name="frameShape">
-      <enum>QFrame::Box</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Climate data information</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="3">
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_12">
+          <property name="text">
+           <string>Latitude:</string>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
-         </spacer>
+         </widget>
         </item>
         <item row="0" column="1">
          <widget class="QLineEdit" name="textOutput_lat">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>50</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="inputMask">
            <string/>
           </property>
@@ -48,50 +60,63 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="5">
+        <item row="0" column="2">
+         <widget class="QLabel" name="label_17">
+          <property name="text">
+           <string> °N</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>18</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="4">
          <widget class="QLabel" name="label">
           <property name="text">
            <string>Start Date:</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="textOutput_lon">
-          <property name="text">
-           <string/>
+        <item row="0" column="5">
+         <widget class="QDateEdit" name="dateEditStart">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
-         </widget>
-        </item>
-        <item row="1" column="6">
-         <widget class="QDateEdit" name="dateEditEnd">
-          <property name="maximumDate">
-           <date>
-            <year>2016</year>
-            <month>12</month>
-            <day>31</day>
-           </date>
+          <property name="minimumSize">
+           <size>
+            <width>90</width>
+            <height>0</height>
+           </size>
           </property>
-          <property name="minimumDate">
+          <property name="maximumSize">
+           <size>
+            <width>90</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="date">
            <date>
-            <year>1901</year>
+            <year>1979</year>
             <month>1</month>
             <day>1</day>
            </date>
           </property>
-          <property name="displayFormat">
-           <string>yyyy-MM-dd</string>
-          </property>
-          <property name="date">
-           <date>
-            <year>2013</year>
-            <month>12</month>
-            <day>31</day>
-           </date>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="6">
-         <widget class="QDateEdit" name="dateEditStart">
           <property name="maximumDateTime">
            <datetime>
             <hour>23</hour>
@@ -129,24 +154,20 @@
           <property name="displayFormat">
            <string>yyyy-MM-dd</string>
           </property>
-          <property name="date">
-           <date>
-            <year>1979</year>
-            <month>1</month>
-            <day>1</day>
-           </date>
-          </property>
          </widget>
         </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_12">
-          <property name="text">
-           <string>Latitude:</string>
+        <item row="0" column="6">
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>88</width>
+            <height>17</height>
+           </size>
           </property>
-         </widget>
+         </spacer>
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_11">
@@ -158,22 +179,99 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="5">
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="textOutput_lon">
+          <property name="minimumSize">
+           <size>
+            <width>50</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2" colspan="2">
+         <widget class="QLabel" name="label_18">
+          <property name="text">
+           <string> °E</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="4">
          <widget class="QLabel" name="label_2">
           <property name="text">
            <string>End Date:</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="2" rowspan="2">
-         <widget class="QPushButton" name="selectpoint">
-          <property name="text">
-           <string>Fetch coordinates
- from map canvas</string>
+        <item row="1" column="5">
+         <widget class="QDateEdit" name="dateEditEnd">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>90</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>90</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="date">
+           <date>
+            <year>2013</year>
+            <month>12</month>
+            <day>31</day>
+           </date>
+          </property>
+          <property name="maximumDate">
+           <date>
+            <year>2016</year>
+            <month>12</month>
+            <day>31</day>
+           </date>
+          </property>
+          <property name="minimumDate">
+           <date>
+            <year>1901</year>
+            <month>1</month>
+            <day>1</day>
+           </date>
+          </property>
+          <property name="displayFormat">
+           <string>yyyy-MM-dd</string>
           </property>
          </widget>
         </item>
        </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_19">
+        <property name="text">
+         <string>Data for this tool can be obtained using the UMEP WATCH downloader</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -188,117 +286,207 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>537</width>
-        <height>76</height>
+        <width>475</width>
+        <height>89</height>
        </rect>
       </property>
       <attribute name="label">
-       <string>Heat Wave</string>
+       <string>Extreme high values</string>
       </attribute>
-      <widget class="QComboBox" name="comboBox_HW">
-       <property name="geometry">
-        <rect>
-         <x>90</x>
-         <y>0</y>
-         <width>271</width>
-         <height>26</height>
-        </rect>
-       </property>
-       <item>
-        <property name="text">
-         <string>Please select a method for Heat Wave</string>
-        </property>
+      <layout class="QGridLayout" name="gridLayout_7">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout_5">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>Calculation method:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="comboBox_HW">
+           <item>
+            <property name="text">
+             <string>Please select a method</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string extracomment="Exceedance index—longest period where maximum temperature is above the 97.5th percentile for at least 3days; average daily maximum temperature across the event is over the 97.5th percentile; all days are above the 81st percentile.">Meehl and Tebaldi (2004)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string extracomment="Multi-measurement index—periods of at least 6days where maximum temperature exceeds the calendar day 90th percentile (15day calendar window).">Fischer and Schär (2010)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string extracomment="Atleast3daysabovethe98thpercentileofmaximumtemperature.The 98th percentile of the daily Tmax&#13;values in the MJJASO months">Schoetter et al. (2014)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string extracomment="Periods of various length where daily mean temperature is above the 90th percentile">Vautard et al. (2013)</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_15">
+           <property name="text">
+            <string>Meteorological variable:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="cmbHWvar">
+           <item>
+            <property name="text">
+             <string>Tair</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Qair</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Wind</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PSurf</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>SWdown</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>LWdown</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Snowf</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Rainf</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
        </item>
-       <item>
-        <property name="text">
-         <string extracomment="Exceedance index—longest period where maximum temperature is above the 97.5th percentile for at least 3days; average daily maximum temperature across the event is over the 97.5th percentile; all days are above the 81st percentile.">Meehl and Tebaldi (2004)</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string extracomment="Multi-measurement index—periods of at least 6days where maximum temperature exceeds the calendar day 90th percentile (15day calendar window).">Fischer and Schär (2010)</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string extracomment="Atleast3daysabovethe98thpercentileofmaximumtemperature.The 98th percentile of the daily Tmax&#13;values in the MJJASO months">Schoetter et al. (2014)</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string extracomment="Periods of various length where daily mean temperature is above the 90th percentile">Vautard et al. (2013)</string>
-        </property>
-       </item>
-      </widget>
-      <widget class="QLabel" name="label_13">
-       <property name="geometry">
-        <rect>
-         <x>30</x>
-         <y>-10</y>
-         <width>69</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Method:</string>
-       </property>
-      </widget>
+      </layout>
      </widget>
      <widget class="QWidget" name="page_2">
       <property name="geometry">
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>537</width>
-        <height>76</height>
+        <width>475</width>
+        <height>89</height>
        </rect>
       </property>
       <attribute name="label">
-       <string>Cold Wave</string>
+       <string>Extreme low values</string>
       </attribute>
-      <widget class="QComboBox" name="comboBox_CW">
-       <property name="geometry">
-        <rect>
-         <x>90</x>
-         <y>0</y>
-         <width>271</width>
-         <height>26</height>
-        </rect>
-       </property>
-       <item>
-        <property name="text">
-         <string>Please select a method for Cold Wave</string>
-        </property>
+      <layout class="QGridLayout" name="gridLayout_8">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout_6">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_14">
+           <property name="text">
+            <string>Calculation method:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="comboBox_CW">
+           <item>
+            <property name="text">
+             <string>Please select a method</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string extracomment="cold night: temperature lower than 10th percentile of daily minimal temperatures calculated for a 5-day window centred on each calendar day in 1961–1990; cold wave: six consecutive cold nights.">Sirje Keevallik (2015)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string extracomment="a cold wave is defined if the minimum temperature at a grid point is below the normal temperature by 3 °C or more, consecutively for 3 days or more.">A. K. Srivastava (2009)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string extracomment="at least 6 consecutive days with negative deviations of at least 5°C from the normal value of each calendar day">Busuioc et al., (2010) </string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_16">
+           <property name="text">
+            <string>Meteorological variable:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="cmbCWvar">
+           <item>
+            <property name="text">
+             <string>Tair</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Qair</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Wind</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PSurf</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>SWdown</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>LWdown</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Snowf</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Rainf</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
        </item>
-       <item>
-        <property name="text">
-         <string extracomment="cold night: temperature lower than 10th percentile of daily minimal temperatures calculated for a 5-day window centred on each calendar day in 1961–1990; cold wave: six consecutive cold nights.">Sirje Keevallik (2015)</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string extracomment="a cold wave is defined if the minimum temperature at a grid point is below the normal temperature by 3 °C or more, consecutively for 3 days or more.">A. K. Srivastava (2009)</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string extracomment="at least 6 consecutive days with negative deviations of at least 5°C from the normal value of each calendar day">Busuioc et al., (2010) </string>
-        </property>
-       </item>
-      </widget>
-      <widget class="QLabel" name="label_14">
-       <property name="geometry">
-        <rect>
-         <x>30</x>
-         <y>-10</y>
-         <width>69</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Method:</string>
-       </property>
-      </widget>
+      </layout>
      </widget>
     </widget>
    </item>
@@ -310,7 +498,7 @@
         <cursorShape>ArrowCursor</cursorShape>
        </property>
        <property name="text">
-        <string>Generate</string>
+        <string>Run</string>
        </property>
       </widget>
      </item>
@@ -341,30 +529,6 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="4">
-      <widget class="QPushButton" name="pushButtonSave">
-       <property name="text">
-        <string>Select</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2">
-      <widget class="QLabel" name="label_5">
-       <property name="text">
-        <string>Select Output File:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Select Input File:</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="3">
       <widget class="QLineEdit" name="textInput">
        <property name="enabled">
@@ -378,17 +542,47 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="4">
-      <widget class="QPushButton" name="pushButtonSave_2">
+     <item row="3" column="3">
+      <widget class="QLabel" name="lblDownloading">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="4">
+      <widget class="QPushButton" name="pushButtonSave">
        <property name="text">
         <string>Select</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QCheckBox" name="checkBox">
+      <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Change data set</string>
+        <string>Climate Data:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Output File:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="4">
+      <widget class="QPushButton" name="pushButtonSave_2">
+       <property name="text">
+        <string>Select</string>
        </property>
       </widget>
      </item>

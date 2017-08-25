@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
+    <width>440</width>
     <height>616</height>
    </rect>
   </property>
@@ -24,7 +24,7 @@
       </font>
      </property>
      <property name="text">
-      <string>LQF Anthropogenic Heat Flux model</string>
+      <string>LQF Anthropogenic Heat Flux model v0.55</string>
      </property>
     </widget>
    </item>
@@ -477,13 +477,6 @@
        </property>
        <property name="text">
         <string>Close</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QCheckBox" name="chkSUEWS">
-       <property name="text">
-        <string>Make SUEWS input data</string>
        </property>
       </widget>
      </item>

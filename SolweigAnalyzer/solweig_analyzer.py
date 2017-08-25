@@ -698,7 +698,7 @@ class SolweigAnalyzer:
         self.steps = 0
 
     def help(self):
-        url = 'http://www.urban-climate.net/umep/UMEP_Manual#_SOLWEIG_Analyzer'
+        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Outdoor_Thermal_Comfort:_SOLWEIG_Analyzer'
         webbrowser.open_new_tab(url)
 
     def saveraster(self, gdal_data, filename, raster):

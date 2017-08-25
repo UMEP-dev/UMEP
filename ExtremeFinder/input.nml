@@ -1,9 +1,4 @@
- &time_control
- reference_start_year          = 1979,
- reference_end_year            = 2013,
-/
-
- &method
+&method
  t1_quantile_Meehl             = 97.5,
  t2_quantile_Meehl             = 81,
  t3_quantile_Fischer           = 90,
@@ -12,11 +7,4 @@
  t6_quantile_Keevallik         = 10,
  TempDif_Srivastava            = -3,
  TempDif_Busuioc               = -5,
-
- /
-
- &change_data_set
- data_start_time          = 1901-01-01,
- data_end_time            = 2012-12-31,
- data_variable_name       = Tair
 /

@@ -160,7 +160,8 @@ def shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue
         #%vegdem above DEM
         gabovea = tempvegdem2 > a
         #%vegdem2 above DEM
-        vegsh2 = fabovea-gabovea
+        # vegsh2 = np.float(fabovea)-np.float(gabovea)
+        vegsh2 = np.subtract(fabovea, gabovea, dtype=np.float)
         vegsh = np.maximum(vegsh, vegsh2)
         vegsh[(vegsh*sh > 0.)] = 0.
         #% removing shadows 'behind' buildings

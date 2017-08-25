@@ -811,5 +811,5 @@ class SUEWSAnalyzer:
             plt.show()
 
     def help(self):
-        url = 'http://www.urban-climate.net/umep/UMEP_Manual#_SOLWEIG_Analyzer'
+        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Urban_Energy_Balance:_SUEWS_Analyser'
         webbrowser.open_new_tab(url)

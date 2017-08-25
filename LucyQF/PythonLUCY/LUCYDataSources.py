@@ -117,8 +117,6 @@ class LUCYDataSources:
                     for i in range(0, len(content['shapefiles']), 1):
                         self.database = content['path'][0]
 
-
-
         # Mandatory: Get temperature data
         if 'dailytemperature' not in ds['temporal'].keys():
             raise ValueError('Temperature data file(s) not specified')
@@ -154,9 +152,4 @@ class LUCYDataSources:
                     raise ValueError('Diurnal %s profile file not found: %s'%(labels[c], file))
             setattr(self, c, fileList)
 
-def test():
-    a = LUCYDataSources('N:/QF_Heraklion/LUCYConfig/LUCYdataSources.nml')
-    print a.diurnEnergy
-    print a.diurnTraffic
-    print a.diurnMetab
 

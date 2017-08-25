@@ -111,15 +111,6 @@ class HumanActivityProfiles:
             sd = tz.localize(sd)
             ed = tz.localize(ed)
 
-            # Check data doesn't cross DST changes
-            tzsecs = np.array([thisDate.dst().total_seconds() for thisDate in pd.date_range(sd.replace(hour=12), ed.replace(hour=12))])
-
-            # TODO: Reinstate this when UTC is used and the country is somehow identifiable
-            #if len(np.unique(tzsecs)) > 1:
-            #    raise ValueError('The period ' + sd.strftime('%Y-%m-%d') +
-            #                     ' to ' + ed.strftime('%Y-%m-%d')
-            #                     + ' crosses one or more daylight savings changes. Separate periods must be specified before and after each change.')
-
             for i in range(0,6,1):
                 dl[seasonStart+i][firstDataRow:] = dl[seasonStart+i][firstDataRow:].astype('float')
 
@@ -142,45 +133,3 @@ class HumanActivityProfiles:
 
             self.fraction.addPeriod(startDate=sd, endDate=ed, dataSeries=fractionWeek)
             self.energy.addPeriod(startDate=sd, endDate=ed, dataSeries=energyWeek)
-
-
-def testIt():
-    # Add and retrieve test data
-    tz = pytz.timezone('UTC')
-    a = HumanActivityProfiles(tz, True)
-    a.addProfiles('C:\\Users\\pn910202\\.qgis2\\python\\plugins\\GreaterQF\\testMetabolism.csv')
-
-    time1 = pd.datetime.strptime('2016-01-04 03:30', '%Y-%m-%d %H:%M')
-    print 'Expect 0 fraction, 64.3 energy'
-    print time1
-    print time1.weekday()
-    print a.getFraction(tz.localize(time1), 1800)
-    print a.getWattPerson(tz.localize(time1), 1800)
-
-    time1 = pd.datetime.strptime('2016-12-04 01:30', '%Y-%m-%d %H:%M')
-    print 'Expect 0 fraction, 0 energy'
-    print time1
-    print time1.weekday()
-    print a.getFraction(tz.localize(time1), 1800)
-    print a.getWattPerson(tz.localize(time1), 1800)
-
-    time1 = pd.datetime.strptime('2016-06-03 19:00', '%Y-%m-%d %H:%M')
-    print 'Expect 0.02 fraction, 170.5 energy'
-    print 'Initial time ' + str(time1)
-    print time1.weekday()
-    print a.getFraction(tz.localize(time1), 1800)
-    print a.getWattPerson(tz.localize(time1), 1800)
-
-    time1 = pd.datetime.strptime('2016-06-03 23:30', '%Y-%m-%d %H:%M')
-    print 'Expect 0 and 0'
-    print 'Initial time ' + str(time1)
-    print time1.weekday()
-    print a.getFraction(tz.localize(time1), 1800)
-    print a.getWattPerson(tz.localize(time1), 1800)
-
-    time1 = pd.datetime.strptime('2016-06-05 23:30', '%Y-%m-%d %H:%M')
-    print 'expect64.3 and 0'
-    print 'Initial time ' + str(time1)
-    print time1.weekday()
-    print a.getFraction(tz.localize(time1), 1800)
-    print a.getWattPerson(tz.localize(time1), 1800)

@@ -14,7 +14,7 @@ from DataManagement.LookupLogger import LookupLogger
 from DataManagement.TemporalProfileSampler import TemporalProfileSampler
 
 class EnergyProfiles:
-    def __init__(self, city, use_uk_holidays, customHoldays = [], logger=LookupLogger()):
+    def __init__(self, city, use_uk_holidays, customHolidays = [], logger=LookupLogger()):
         ''' Instantiate
         :param city : String specifying which city is being modelled (e.g. Europe/London). Must be compatible with pytz.timezone standard
         :param use_uk_holidays : Boolean: use (True) or don't use (False) standard UK bank holidays (calculated internally)
@@ -26,31 +26,31 @@ class EnergyProfiles:
         self.domesticElectricity = TemporalProfileSampler(logger=self.logger)
         self.domesticElectricity.useUKHolidays(use_uk_holidays)
         self.domesticElectricity.setCountry(city)
-        self.domesticElectricity.specialHolidays(customHoldays)
+        self.domesticElectricity.specialHolidays(customHolidays)
         self.domesticElectricity.setWeekendDays([5,6]) # Future version: Support other weekdays
 
         self.economy7 = TemporalProfileSampler(logger=self.logger)
         self.economy7.useUKHolidays(use_uk_holidays)
         self.economy7.setCountry(city)
-        self.economy7.specialHolidays(customHoldays)
+        self.economy7.specialHolidays(customHolidays)
         self.economy7.setWeekendDays([5,6])
 
         self.domesticGas = TemporalProfileSampler(logger=self.logger)
         self.domesticGas.useUKHolidays(use_uk_holidays)
         self.domesticGas.setCountry(city)
-        self.domesticGas.specialHolidays(customHoldays)
+        self.domesticGas.specialHolidays(customHolidays)
         self.domesticGas.setWeekendDays([5,6])
 
         self.industrialElectricity = TemporalProfileSampler(logger=self.logger)
         self.industrialElectricity.useUKHolidays(use_uk_holidays)
         self.industrialElectricity.setCountry(city)
-        self.industrialElectricity.specialHolidays(customHoldays)
+        self.industrialElectricity.specialHolidays(customHolidays)
         self.industrialElectricity.setWeekendDays([5,6])
 
         self.industrialGas = TemporalProfileSampler(logger=self.logger)
         self.industrialGas.useUKHolidays(use_uk_holidays)
         self.industrialGas.setCountry(city)
-        self.industrialGas.specialHolidays(customHoldays)
+        self.industrialGas.specialHolidays(customHolidays)
         self.industrialGas.setWeekendDays([5,6])
 
     def addDomElec(self, file):
@@ -134,6 +134,10 @@ class EnergyProfiles:
             raise ValueError('Invalid timezone "' + dl[dl.keys()[1]][5] + '" specified in ' + file +
                              '. This should be of the form "UTC" or "Europe/London" as per python timezone documentation')
 
+        earliestStart = None
+        latestEnd = None
+        dateRanges = []
+
         # Go through in triplets gathering up data for a template week
         for seasonStart in np.arange(1, dl.shape[1], 3):
             try:
@@ -144,17 +148,15 @@ class EnergyProfiles:
 
             sd = tz.localize(sd)
             ed = tz.localize(ed)
-            # Check data doesn't cross DST changes
-            temp = [thisDate for thisDate in pd.date_range(sd.replace(hour=12), ed.replace(hour=12))]
-            a = temp[0]
+            # Collect start and end dates to check for complete years later on
+            if earliestStart == None:
+                earliestStart = sd
+            if latestEnd == None:
+                latestEnd = ed
 
-            tzsecs = np.array([thisDate.dst().total_seconds() for thisDate in pd.date_range(sd.replace(hour=12), ed.replace(hour=12))])
-
-            # TODO: Reinstate this when the input data is UTC and the code knows which country is represented
-            #if len(np.unique(tzsecs)) > 1:
-            #    raise ValueError('The period ' + sd.strftime('%Y-%m-%d') +
-            #                     ' to ' + ed.strftime('%Y-%m-%d')
-            #                     + ' crosses one or more daylight savings changes. Separate periods must be specified before and after each change.')
+            earliestStart = sd if sd < earliestStart else earliestStart
+            latestEnd = ed if ed > latestEnd else latestEnd
+            dateRanges.extend(pd.date_range(sd, ed, freq='D'))
 
             # Normalize each day's series so it's a weighting factor
             for i in range(0,3,1):
@@ -170,23 +172,8 @@ class EnergyProfiles:
                               dl[seasonStart+2][firstDataLine:]])
             energyComponent.addPeriod(startDate=sd, endDate=ed, dataSeries=week)
 
-
-
-if __name__ == '__main__':
-    # Add and retrieve test data
-    a = EnergyProfiles('Europe/London', use_uk_holidays=True)
-    a.addDomElec(  'N:\\QF_London\\GreaterQF_input\\London\\profiles\\BuildingLoadings_DomUnre.csv')
-    a.addDomGas(   'N:\\QF_London\\GreaterQF_input\\London\\profiles\\BuildingLoadings_DomUnre.csv')
-    a.addEconomy7( 'N:\\QF_London\\GreaterQF_input\\London\\profiles\\BuildingLoadings_EC7.csv')
-    a.addIndElec(  'N:\\QF_London\\GreaterQF_input\\London\\profiles\\BuildingLoadings_Industrial.csv')
-    a.addIndGas(   'N:\\QF_London\\GreaterQF_input\\London\\profiles\\BuildingLoadings_Industrial.csv')
-    timeBins_mar_apr = pd.date_range(pd.datetime.strptime('2015-03-15 00:30', '%Y-%m-%d %H:%M'),  end=pd.datetime.strptime('2015-04-15 00:30', '%Y-%m-%d %H:%M'), tz='UTC',
-                             freq='30min')
-    for dp in timeBins_mar_apr:
-        #print dp
-        time = dp.to_datetime()
-        indGas = a.getDomElec(time, 1800)
-        print dp.strftime('%Y-%m-%d %H:%M,') + str(indGas[0])
-
-    print a.logger.getEvents()
+        # Check for complete years. Raise exception if not complete.
+        fullRange = pd.date_range('%d-01-01'%(earliestStart.year,), '%d-12-31'%(latestEnd.year,), freq='D')
+        if len(fullRange) != len(dateRanges):
+            raise Exception('Diurnal profile file %s must contain complete years of data (Jan 1 to Dec 31), but starts on %s and ends on %s'%(file, earliestStart.strftime('%Y-%m-%d'), latestEnd.strftime('%Y-%m-%d')))
 

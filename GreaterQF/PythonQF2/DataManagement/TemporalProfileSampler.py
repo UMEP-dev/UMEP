@@ -30,7 +30,7 @@ class TemporalProfileSampler(GenericAnnualSampler):
         # But it's easier from a programming poV to use the start of each period.
         secCol = np.tile(np.linspace(0, 24., binsPerDay, endpoint=False)*3600, 7)
         # Ensure data is float before going in
-        df = pd.concat([pd.Series(np.array(dayCol).astype('int')), pd.TimeSeries(np.array(secCol).astype('int')), pd.Series(np.array(series.tolist()).astype('float'))], axis=1)
+        df = pd.concat([pd.Series(np.array(dayCol).astype('int')), pd.Series(np.array(secCol).astype('int')), pd.Series(np.array(series.tolist()).astype('float'))], axis=1)
         df.columns = ['dayofweek', 'seconds', 'data']
         return df
 
@@ -55,7 +55,7 @@ class TemporalProfileSampler(GenericAnnualSampler):
         '''
 
         # Set the request datetime into the same time zone as the data in the object
-        endOfTimestep = pd.Timestamp(endOfTimestep).tz_convert(self.dataTimezone).to_datetime()
+        endOfTimestep = pd.Timestamp(endOfTimestep).tz_convert(self.dataTimezone).to_pydatetime()
         startOfTimestep = endOfTimestep - timedelta(seconds=timestepDuration)
         almostEndOfTimestep = endOfTimestep - timedelta(microseconds=1)  # Subtract 1 microsecond to remove right-binning issues on date boundaries
 

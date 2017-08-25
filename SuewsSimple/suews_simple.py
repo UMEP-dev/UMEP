@@ -26,7 +26,7 @@ from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
 from qgis.core import *
 from qgis.gui import *
 from suews_simple_dialog import SuewsSimpleDialog
-from ..suewsmodel import Suews_wrapper_v2017a
+from ..suewsmodel import Suews_wrapper_v2017b
 from ..ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
 from ..LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
 from ..Utilities import f90nml
@@ -182,11 +182,11 @@ class SuewsSimple:
         del self.toolbar
 
     def run(self):
-        if not (os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2017a') or os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2017a.exe')):
+        if not (os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2017b') or os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2017b.exe')):
             # QMessageBox.information(self.iface.mainWindow(),
             if QMessageBox.question(self.iface.mainWindow(), "OS specific binaries missing",
                                  "Before you start to use this plugin for the very first time, the OS specific suews\r\n"
-                                 "program (7Mb) must be be download from the UMEP repository and stored\r\n"
+                                 "program (4Mb) must be be download from the UMEP repository and stored\r\n"
                                  "in your plugin directory: "
                                  "(" + self.model_dir + ").\r\n"
                                                         "\r\n"
@@ -200,21 +200,21 @@ class SuewsSimple:
                                  "Do you want to contiune with the download?", QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
                 testfile = urllib.URLopener()
                 if sys.platform == 'win32':
-                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/win/SUEWS_V2017a.exe', self.model_dir + os.sep + 'SUEWS_V2017a.exe')
-                    testfile2 = urllib.URLopener()
-                    testfile2.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cyggcc_s-seh-1.dll', self.model_dir + os.sep + 'cyggcc_s-seh-1.dll')
-                    testfile3 = urllib.URLopener()
-                    testfile3.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cyggfortran-3.dll', self.model_dir + os.sep + 'cyggfortran-3.dll')
-                    testfile4 = urllib.URLopener()
-                    testfile4.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cygquadmath-0.dll', self.model_dir + os.sep + 'cygquadmath-0.dll')
-                    testfile5 = urllib.URLopener()
-                    testfile5.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cygwin1.dll', self.model_dir + os.sep + 'cygwin1.dll')
+                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/win/SUEWS_V2017b.exe', self.model_dir + os.sep + 'SUEWS_V2017b.exe')
+                    # testfile2 = urllib.URLopener()
+                    # testfile2.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cyggcc_s-seh-1.dll', self.model_dir + os.sep + 'cyggcc_s-seh-1.dll')
+                    # testfile3 = urllib.URLopener()
+                    # testfile3.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cyggfortran-3.dll', self.model_dir + os.sep + 'cyggfortran-3.dll')
+                    # testfile4 = urllib.URLopener()
+                    # testfile4.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cygquadmath-0.dll', self.model_dir + os.sep + 'cygquadmath-0.dll')
+                    # testfile5 = urllib.URLopener()
+                    # testfile5.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cygwin1.dll', self.model_dir + os.sep + 'cygwin1.dll')
                 if sys.platform == 'linux2':
-                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/linux/SUEWS_V2017a', self.model_dir + os.sep + 'SUEWS_V2017a')
+                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/linux/SUEWS_V2017b', self.model_dir + os.sep + 'SUEWS_V2017b')
                 if sys.platform == 'darwin':
-                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/mac/SUEWS_V2017a', self.model_dir + os.sep + 'SUEWS_V2017a')
+                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/mac/SUEWS_V2017b', self.model_dir + os.sep + 'SUEWS_V2017b')
             else:
-                QMessageBox.critical(self.iface.mainWindow(),"Binaries not downloaded", "This plugin will not be able to start before binaries are downloaded")
+                QMessageBox.critical(self.iface.mainWindow(), "Binaries not downloaded", "This plugin will not be able to start before binaries are downloaded")
                 return
 
         self.dlg.show()
@@ -658,7 +658,7 @@ class SuewsSimple:
                                 "This will be fixed in future versions")
         # Suews_wrapper_v2016b.wrapper(self.model_dir)
         try:
-            Suews_wrapper_v2017a.wrapper(self.model_dir)
+            Suews_wrapper_v2017b.wrapper(self.model_dir)
             time.sleep(1)
             self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.model_dir + " for "
                             "additional information about the run", level=QgsMessageBar.INFO)

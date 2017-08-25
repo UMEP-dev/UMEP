@@ -26,6 +26,7 @@ repository=https://bitbucket.org/fredrik_ucg/umep
 
 # Uncomment the following line and add your changelog:
 changelog=
+	0.5.0 : LONG TERM RELEASE. Includes SUEWS v2017b, Multiple updates and bug fixing.
 	0.4.2 : Issue #18 resolved. Work continued on replacing the qgiscombomanager with QGIS core functions
 	0.4.1 : Work started on replacing the qgiscombomanager with QGIS core functions
 	0.4.0 : LONG TERM RELEASE. Due to updates in QGIS, parts of UMEP failed. Therefore, a new long term version released.

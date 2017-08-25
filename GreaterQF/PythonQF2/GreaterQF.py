@@ -218,7 +218,7 @@ class Model():
         [dailyE.addLoadings(den['profileFile']) for den in self.ds.dailyEnergy]
 
         # Building energy diurnal cycles (temporal disaggregation from daily to half-hourly). These are provided in local time (London)
-        diurnalE = EnergyProfiles(self.parameters.city, use_uk_holidays=self.parameters.useUKholidays)
+        diurnalE = EnergyProfiles(self.parameters.city, use_uk_holidays=self.parameters.useUKholidays, customHolidays=self.parameters.customHolidays)
         [diurnalE.addDomElec(de['profileFile']) for de in self.ds.diurnDomElec]
         [diurnalE.addDomGas(dg['profileFile']) for dg in self.ds.diurnDomGas]
         [diurnalE.addEconomy7(e7['profileFile']) for e7 in self.ds.diurnEco7]
@@ -226,11 +226,11 @@ class Model():
         [diurnalE.addIndGas(ig['profileFile']) for ig in self.ds.diurnIndGas]
 
         # Diurnal traffic patterns
-        diurnalT = TransportProfiles(self.parameters.city, use_uk_holidays=self.parameters.useUKholidays)
+        diurnalT = TransportProfiles(self.parameters.city, use_uk_holidays=self.parameters.useUKholidays, customHolidays=self.parameters.customHolidays)
         [diurnalT.addProfiles(tr['profileFile']) for tr in self.ds.diurnalTraffic]
 
         # Workday metabolism profile
-        hap = HumanActivityProfiles(self.parameters.city, use_uk_holidays=self.parameters.useUKholidays)
+        hap = HumanActivityProfiles(self.parameters.city, use_uk_holidays=self.parameters.useUKholidays, customHolidays=self.parameters.customHolidays)
         [hap.addProfiles(ha['profileFile']) for ha in self.ds.diurnMetab]
         pop = Population()
         pop.setOutputShapefile(outShp, outEpsg, outFeatIds)
@@ -256,7 +256,7 @@ class Model():
         areas = (bldgEnergy.domGas.getOutputFeatureAreas())
 
         for tb in timeBins:
-            WH = QF(areas.index.tolist(), tb.to_datetime(), 1800, bldgEnergy, diurnalE, dailyE, pop, trans, diurnalT, hap, df,  props, self.parameters.heatOfCombustion)
+            WH = QF(areas.index.tolist(), tb.to_pydatetime(), 1800, bldgEnergy, diurnalE, dailyE, pop, trans, diurnalT, hap, df,  props, self.parameters.heatOfCombustion)
             # Write out the full time step to a file
             WH.to_csv(os.path.join(self.modelOutputPath, tb.strftime(self.dateStructure)), index_label='featureId')
 
@@ -298,7 +298,7 @@ class Model():
             if a is not None:
                 self.fileList[tz.localize(dt.strptime(f, self.dateStructure))] = os.path.join(self.modelOutputPath, f)
 
-        self.fileList = pd.TimeSeries(self.fileList)
+        self.fileList = pd.Series(self.fileList)
 
         self.setDataSources(os.path.join(self.configPath, 'DataSources.nml'))
         self.setParameters(os.path.join(self.configPath,  'Parameters.nml'))

@@ -29,12 +29,65 @@ from qgis.core import *
 from osgeo import osr, ogr
 # Import the code for the dialog
 from watch_dialog import WATCHDataDialog
+from calendar import monthrange
 import os.path
+import shutil
 import webbrowser
-
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QDate, QObject, pyqtSignal, QThread
+from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
+from ..Utilities.ncWMSConnector import NCWMS_Connector
 from WFDEIDownloader.WFDEI_Interpolator import *
+import traceback
 import datetime
 from WatchWorker import WatchWorker
+
+class DownloadDataWorker(QObject):
+    # Worker to get netCDF data using a separate thread
+    finished = pyqtSignal(object)
+    update = pyqtSignal(object)
+    error = pyqtSignal(Exception, basestring)
+    def __init__(self, hw_start, hw_end, watch_vars, ll_lat, ll_lon, ur_lat, ur_lon):
+        QObject.__init__(self)
+        self.hw_start = hw_start
+        self.hw_end = hw_end
+        self.watch_vars = watch_vars
+        self.ll_lat = ll_lat
+        self.ll_lon = ll_lon
+        self.ur_lat = ur_lat
+        self.ur_lon = ur_lon
+        self.downloader = NCWMS_Connector()
+
+    def kill(self):
+        self.downloader.kill()
+
+    def run(self):
+        try:
+            output = self.webToTimeseries(self.hw_start, self.hw_end, self.watch_vars, self.ll_lat, self.ll_lon,self. ur_lat, self.ur_lon, self.update)
+            self.finished.emit(output)
+        except Exception,e:
+            self.error.emit(e, traceback.format_exc())
+
+    def webToTimeseries(self, hw_start, hw_end, watch_vars, ll_lat, ll_lon, ur_lat, ur_lon, update=None):
+        '''
+        Take WCS raster layer and save to local geoTiff
+        :param baseURL: Server URL up to the /wcs? part where the query string begins (not including the question mark)
+        :param layer_name: The coverage name on the WCS server
+        :param output_file: File to save as (GeoTIFF)
+        :param bbox: dict with WGS84 coordinates {xmin: float <lower left longitude>, xmax:float, ymin:float <upper right latitude>, ymax:float}
+        :param resolution: dict {x:float, y:float} containing the resolution to use
+        :param srs: string e.g. EPSG:4326: The layer CRS string
+        :return: Path to output file
+        '''
+        self.downloader.get_data(start_date=hw_start, # Connector will take the first moment of this date
+                            end_date=hw_end, # Connector will take the final second of this date
+                            variables=watch_vars, # Get all variables
+                            lowerleft_lat = ll_lat,
+                            lowerleft_lon = ll_lon,
+                            upperright_lat= ur_lat,
+                            upperright_lon= ur_lon,
+                            update=update)
+        temp_netcdf = self.downloader.average_data(None, 'mean')
+        return temp_netcdf
 
 class WATCHData:
     """QGIS Plugin Implementation."""
@@ -67,29 +120,52 @@ class WATCHData:
                 QCoreApplication.installTranslator(self.translator)
 
         # Create the dialog (after translation) and keep reference
-        self.dlg = WATCHDataDialog()
-        self.dlg.selectpoint.clicked.connect(self.select_point)
-        # Check dependencies first
-
         # connections to buttons
-        self.dlg.runButton.clicked.connect(self.start_progress) # Ensures "GO" button is enabled/disabled appropriately
+
+        self.dlg = WATCHDataDialog()
+        self.dlg.cmdSelectPoint.clicked.connect(self.select_point)
+        self.dlg.cmdRunDownload.clicked.connect(self.download)
+        self.dlg.cmdChooseLQFResults.clicked.connect(self.folderAH)
+        self.dlg.cmdRunRefine.clicked.connect(self.refine)
         self.dlg.pushButtonHelp.clicked.connect(self.help)
-        self.dlg.pushButtonRaw.clicked.connect(self.raw_path)
-        self.dlg.pushButtonAH.clicked.connect(self.folderAH)
-        self.dlg.pushButtonSave.clicked.connect(self.outfile)
+
+        # Disable refiner buttons to start with (no downloaded data to refine!)
+        self.dlg.cmdChooseLQFResults.setEnabled(False)
+        self.dlg.cmdRunRefine.setEnabled(False)
+
         self.fileDialog = QFileDialog()
         self.fileDialog.setFileMode(4)
         self.fileDialog.setAcceptMode(1)
-        self.folderPathRaw = 'None'
-        self.outputfile = 'None'
-        self.folderPathAH = 'None'
+
+        self.dlg.progressBar.setRange(0,100)
+        self.dlg.progressBar.setValue(0)
+
+        self.watch_vars =  ['Tair',
+                                 'Wind',
+                                 'LWdown',
+                                 'PSurf',
+                                 'Qair',
+                                 'Rainf',
+                                 'Snowf',
+                                 'SWdown']
+        # Parameters for downloader
+        self.lat = None
+        self.lon = None
+        self.start_date = None
+        self.end_date = None
+        self.save_downloaded_file = None
+
+        # Parameters for refiner
+        self.site_height = None
+        self.utc_offset = None
+        self.rainy_hours = None
+        self.save_refined_file = None
+        self.lqf_path = None
 
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&WATCH data')
         # TODO: We are going to let the user set this up in a future iteration
-        # self.toolbar = self.iface.addToolBar(u'WATCHData')
-        # self.toolbar.setObjectName(u'WATCHData')
 
         # get reference to the canvas
         self.canvas = self.iface.mapCanvas()
@@ -101,8 +177,6 @@ class WATCHData:
         # #g pin tool
         self.pointTool = QgsMapToolEmitPoint(self.canvas)
         self.pointTool.canvasClicked.connect(self.create_point)
-
-        # Inflate mappings file if needed
 
         text_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'WFDEIDownloader/WFDEI-land-long-lat-height.txt')
         gzip_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'WFDEIDownloader/WFDEI-land-long-lat-height.txt.gz')
@@ -189,7 +263,111 @@ class WATCHData:
         # remove the toolbar
         # del self.toolbar
 
-    def select_point(self):  # Connected to "Secelct Point on Canves"
+    def validate_downloader_input(self):
+        ''' Validates user input for downloader section of form. Raises exception if a problem, commits
+        parameters to object if OK '''
+
+        # validate and record the  latitude and longitude boxes (must be WGS84)'''
+        try:
+            lon = float(self.dlg.txtLon.text())
+        except:
+            raise ValueError('Invalid longitude co-ordinate entered')
+
+        if not (-180 < lon < 180):
+            raise ValueError('Invalid longitude co-ordinate entered (must be -180 to 180)')
+
+        try:
+            lat = float(self.dlg.txtLat.text())
+        except:
+            raise ValueError('Invalid latitude co-ordinate entered')
+        if not (-90 < lat < 90):
+            raise ValueError('Invalid latitude co-ordinate entered (must be -90 to 90)')
+
+        self.lat = lat
+        self.lon = lon
+
+        # validate date range and add to object properties if OK
+        start_date = self.dlg.txtStartDate.text()
+        try:
+            start_date = datetime.datetime.strptime(start_date, '%Y-%m')
+        except Exception:
+            raise ValueError('Invalid start date (%s) entered'%(start_date,))
+
+        end_date = self.dlg.txtEndDate.text()
+        try:
+            end_date = datetime.datetime.strptime(end_date, '%Y-%m')
+        except Exception:
+            raise ValueError('Invalid end date (%s) entered'%(end_date,))
+
+        days = monthrange(end_date.year, end_date.month)[1]
+        td = datetime.timedelta(days=days-1) # Use final day of month. ncWMSconnector takes the full final day of data
+        end_date = end_date + td
+        self.start_date = start_date
+        self.end_date = end_date
+
+    def validate_refiner_input(self):
+        ''' Validates user input for downloader section of form. Raises exception if a problem, commits
+        parameters to object if OK '''
+        try:
+            hgt = float(self.dlg.textOutput_hgt.text())
+        except:
+            raise ValueError('Site height must be a number')
+        if hgt<0:
+            raise ValueError('Site height must be positive or zero')
+
+        self.site_height = hgt
+        self.rainy_hours = self.dlg.spinBoxRain.value()
+
+        input_AH_path = self.dlg.textOutput_AH.text()
+        if len(input_AH_path) != 0:
+            if not os.path.exists(input_AH_path):
+                raise ValueError('Directory containing LQF outputs (%s) not found'%(input_AH_path,))
+            self.lqf_path = input_AH_path
+
+    def refine(self):
+        ''' Refines downloaded data'''
+        try:
+            self.validate_refiner_input() # Validate input co-ordinates and time range
+            # Before starting, ask user where to save netCDF file
+            refined_filename = self.fileDialog.getSaveFileName(None, "Save refined climate data to...", None, "Text Files (*.txt)")
+            if (refined_filename is None) or (len(refined_filename) == 0):
+                return
+        except Exception, e:
+            QMessageBox.critical(None, "Error", str(e))
+            self.setRefinerButtonState(True)
+            self.setDownloaderButtonState(True)
+            return
+
+        self.save_refined_file = refined_filename
+        self.setDownloaderButtonState(False)
+        self.setRefinerButtonState(False)
+        UTC_offset_h = self.dlg.spinBoxUTC.value()
+
+        # Set up and start worker thread
+        worker = WatchWorker(rawdata=self.save_downloaded_file,
+                             datestart=self.start_date,
+                             dateend=self.end_date,
+                             input_AH_path=self.lqf_path,
+                             output_path=self.save_refined_file,
+                             lat=self.lat,
+                             lon=self.lon,
+                             hgt=self.site_height,
+                             UTC_offset_h=UTC_offset_h,
+                             rainAmongN=self.rainy_hours)
+
+        thr = QThread(self.dlg)
+        worker.moveToThread(thr)
+        worker.finished.connect(self.refine_worker_finished)
+        worker.error.connect(self.refine_worker_error)
+        worker.update.connect(self.update_progress)
+
+        thr.started.connect(worker.run)
+        thr.start()
+        self.refine_thread = thr
+        self.refine_worker = worker
+        self.dlg.progressBar.setValue(0)
+
+    def select_point(self):  # Connected to "Seelct Point on Canves"
         self.canvas.setMapTool(self.pointTool)  # Calls a canvas click and create_point
         self.dlg.setEnabled(False)
 
@@ -213,8 +391,8 @@ class WATCHData:
         latlon = ogr.CreateGeometryFromWkt('POINT (' + str(point.x()) + ' ' + str(point.y()) + ')')
         latlon.Transform(transform)
 
-        self.dlg.textOutput_lon.setText(str(latlon.GetX()))
-        self.dlg.textOutput_lat.setText(str(latlon.GetY()))
+        self.dlg.txtLon.setText(str(latlon.GetX()))
+        self.dlg.txtLat.setText(str(latlon.GetY()))
 
     def run(self):
         # Check the more unusual dependencies to prevent confusing errors later
@@ -239,24 +417,23 @@ class WATCHData:
                                                 'to be installed. Please consult the FAQ in the manual for further '
                                                 'information on how to install missing python packages.')
             return
-
+        try:
+            import requests
+        except Exception, e:
+            QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the requests package '
+                                                'to be installed. Please consult the FAQ in the manual for further '
+                                                'information on how to install missing python packages.')
+            return
+        try:
+            import netCDF4 as nc4
+        except Exception, e:
+            QMessageBox.critical(None, 'Error',
+                                 'The WATCH data download/extract feature requires the NetCDF4 Python package '
+                                 'to be installed. Please consult the FAQ in the manual for further '
+                                 'information on how to install missing python packages.')
+            return
         self.dlg.show()
         result = self.dlg.exec_()
-
-    def raw_path(self):
-        self.fileDialog.open()
-        result = self.fileDialog.exec_()
-        if result == 1:
-            self.folderPathRaw = self.fileDialog.selectedFiles()
-            self.dlg.textOutput_raw.setText(self.folderPathRaw[0])
-
-    def outfile(self):
-        outputfile = self.fileDialog.getSaveFileName(None, "Save File As:", None, "Text Files (*.txt)")
-        # self.fileDialog.open()
-        # result = self.fileDialog.exec_()
-        if not outputfile == 'None':
-            self.outputfile = outputfile
-            self.dlg.textOutput.setText(self.outputfile)
 
     def folderAH(self):
         self.fileDialog.open()
@@ -266,111 +443,127 @@ class WATCHData:
             self.dlg.textOutput_AH.setText(self.folderPathAH[0])
 
     def help(self):
-        url = "http://urban-climate.net/umep/UMEP_Manual#Meteorological_Data:_WATCH_data"
+        url = "http://urban-climate.net/umep/UMEP_Manual#Meteorological_Data:_Download_data_.28WATCH.29"
         webbrowser.open_new_tab(url)
 
-    def start_progress(self):
-        self.dlg.runButton.setEnabled(False)
-        if self.folderPathRaw == 'None':
-            QMessageBox.critical(None, "Error", "Specify the folder where the WATCH raw data is [to be] downloaded")
-            self.dlg.runButton.setEnabled(True)
-            return
+    def refine_worker_finished(self):
+        self.refine_worker.deleteLater()
+        self.refine_thread.quit()
+        self.refine_thread.wait()  # Wait for quit
+        self.refine_thread.deleteLater()  # Flag for deletion
+        self.setRefinerButtonState(True)
+        self.setDownloaderButtonState(True)
+        self.iface.messageBar().pushMessage("Climate data refiner", "Data processed", level=QgsMessageBar.INFO)
+        file_pattern = os.path.splitext(self.save_refined_file)[0] + '<YEAR>.txt'
+        self.dlg.lblSavedRefined.setText(file_pattern)
 
-        if self.outputfile == 'None':
-            QMessageBox.critical(None, "Error", "Specify the extracted data file")
-            self.dlg.runButton.setEnabled(True)
-            return
-        try:
-            lat = float(self.dlg.textOutput_lat.text())
-            if not (-90 < lat < 90):
-                raise ValueError('Invalid WFDEI co-ordinates entered')
-        except Exception,e:
-            QMessageBox.critical(None, "Error", "Invalid latitude")
-            self.dlg.runButton.setEnabled(True)
-            return
-
-        try:
-            lon = float(self.dlg.textOutput_lon.text())
-            if not (-180 < lon < 180):
-                raise ValueError('Invalid WFDEI co-ordinates entered')
-        except Exception,e:
-            QMessageBox.critical(None, "Error", "Invalid longitude")
-            self.dlg.runButton.setEnabled(True)
-            return
-
-        try:
-            hgt = float(self.dlg.textOutput_hgt.text())
-            if hgt<0:
-                raise ValueError('negative site height entered')
-        except Exception,e:
-            QMessageBox.critical(None, "Error", "Invalid site height")
-            self.dlg.runButton.setEnabled(True)
-            return
-
-        datestart = self.dlg.dateEditStart.text()
-        datestart = datetime.datetime.strptime(datestart, '%Y-%m')
-
-        dateend= self.dlg.dateEditEnd.text()
-        dateend = datetime.datetime.strptime(dateend, '%Y-%m')
-
-        rawdata = self.dlg.textOutput_raw.text()
-        if not os.path.exists(rawdata):
-            QMessageBox.critical(None, "Error", "Invalid download destination entered")
-            self.dlg.runButton.setEnabled(True)
-            return
-
-        fileout = self.dlg.textOutput.text()
-        if not os.path.exists(os.path.split(fileout)[0]):
-            QMessageBox.critical(None, "Error", "Invalid output file location entered")
-            self.dlg.runButton.setEnabled(True)
-            return
-
-        # Which files should be downloaded from WATCH for SUEWS?
-        required_variables = ['LWdown_WFDEI', 'PSurf_WFDEI', 'Qair_WFDEI', 'Rainf_WFDEI_CRU', 'SWdown_WFDEI',
-                              'Tair_WFDEI','Wind_WFDEI']
-
-        # Notify the user how much space will be required, giving them a chance to free it up
-        numMonths = max((dateend-datestart).days//30. + 1 if (dateend-datestart).days % 30. > 0 else 0, 1) # At least one month
-
-        megPerFile = 80.0
-        # Tell the user for their information
-
-        dialog_string = 'Downloaded files will require approximately ' + str(int(numMonths * megPerFile * len(required_variables))) + 'MB of free space. Do you wish to continue?'
-        reply = QMessageBox.question(None, 'Storage space needed', dialog_string, QMessageBox.Yes | QMessageBox.No)
-        if reply == QMessageBox.No:
-            self.dlg.runButton.setEnabled(True)
-            return
-
-        UTC_offset_h = self.dlg.spinBoxUTC.value()
-        input_AH_path = self.dlg.textOutput_AH.text()
-        rainAmongN = self.dlg.spinBoxRain.value()
-
-        input_path = os.path.join(rawdata, 'WFDEI')
-        output_path = fileout
-        # Set up and start worker thread
-        worker = WatchWorker(rawdata, required_variables, datestart, dateend,
-                             input_path, input_AH_path, output_path, lat, lon, hgt,
-                             UTC_offset_h, rainAmongN, self.dlg.lblStatus)
-        thr = QThread(self.dlg)
-        worker.moveToThread(thr)
-        worker.finished.connect(self.workerFinished)
-        worker.error.connect(self.workerError)
-        thr.started.connect(worker.run)
-        thr.start()
-        self.thread = thr
-        self.worker = worker
-
-    def workerFinished(self):
-        self.worker.deleteLater()
-        self.thread.quit()
-        self.thread.wait()  # Wait for quit
-        self.thread.deleteLater()  # Flag for deletion
-        self.dlg.runButton.setEnabled(True)
-        self.iface.messageBar().pushMessage("WATCH data", "Data downloaded and processed", level=QgsMessageBar.INFO)
-        self.dlg.lblStatus.setText('')
-
-    def workerError(self, strException):
+    def refine_worker_error(self, strException):
         if type(strException) is not str:
             strException = str(strException)
+        QMessageBox.critical(None, "Climate data refiner error:", strException)
 
-        QMessageBox.information(None, "WATCH extraction error:", strException)
+    def download(self):
+        '''
+        Downloads WATCH data to netCDF file locally.
+        Returns
+        -------
+        '''
+
+
+        try:
+            self.validate_downloader_input() # Validate input co-ordinates and time range
+            # Before starting, ask user where to save netCDF file
+            download_filename = self.fileDialog.getSaveFileName(None, "Save downloaded WATCH data to...", None, "NetCDF Files (*.nc)")
+            if (download_filename is None) or (len(download_filename) == 0):
+                return
+        except Exception, e:
+            QMessageBox.critical(None, "Error", str(e))
+            return
+
+        self.setDownloaderButtonState(False)
+        self.setRefinerButtonState(False)
+
+        self.save_downloaded_file = download_filename
+
+        # Since NCWMS connector needs a bbox, place these coordinates at the centre of a very small box
+        ll_lat = self.lat - 0.0001
+        ll_lon = self.lon - 0.0001
+        ur_lat = self.lat + 0.0001
+        ur_lon = self.lon + 0.0001
+
+        # Do download in separate thread and track progress
+        downloadWorker = DownloadDataWorker(self.start_date, self.end_date, self.watch_vars, ll_lat, ll_lon, ur_lat, ur_lon)
+        thr = QThread(self.dlg)
+        downloadWorker.moveToThread(thr)
+        downloadWorker.update.connect(self.update_progress)
+        downloadWorker.error.connect(self.download_error)
+        downloadWorker.finished.connect(self.downloadWorkerFinished)
+        thr.started.connect(downloadWorker.run)
+        thr.start()
+
+        self.downloadThread = thr
+        self.downloadWorker = downloadWorker
+        self.dlg.cmdRunDownload.clicked.disconnect()
+        self.dlg.cmdRunDownload.setText('Cancel')
+        self.dlg.cmdRunDownload.clicked.connect(self.abort_download)
+        self.dlg.progressBar.setValue(0)
+
+    def update_progress(self, returns):
+        ''' Updates progress bar during download'''
+        self.dlg.progressBar.setValue(returns['progress'])
+
+    def download_error(self, exception, text):
+        self.setDownloaderButtonState(True)
+        self.setRefinerButtonState(False)
+        QMessageBox.critical(None, "Error", 'Data download not completed: %s'%(str(exception),))
+
+    def abort_download(self):
+        self.downloadWorker.kill()
+        self.setDownloaderButtonState(True)  # Enable all buttons in downloader.
+        self.setRefinerButtonState(False)    # Disable refiner as we've lost track of the old data now
+        self.dlg.cmdRunDownload.clicked.disconnect()
+        self.dlg.cmdRunDownload.setText('Run')
+        self.dlg.cmdRunDownload.clicked.connect(self.download)
+        self.dlg.progressBar.setValue(0)
+
+    def downloadWorkerFinished(self, temp_netcdf):
+        # Ask the user where they'd like to save the file
+        self.setDownloaderButtonState(True)  # Enable all buttons
+        self.setRefinerButtonState(True)
+        self.dlg.cmdRunDownload.clicked.disconnect()
+        self.dlg.cmdRunDownload.setText('Run')
+        self.dlg.cmdRunDownload.clicked.connect(self.download)
+        if self.save_downloaded_file is not None:
+            shutil.copyfile(temp_netcdf, self.save_downloaded_file)
+
+        if os.path.exists(temp_netcdf): # remove the temp file
+            try:
+                os.remove(temp_netcdf)
+            except:
+                pass
+
+        # Update the UI to reflect the saved file
+        self.dlg.lblSavedDownloaded.setText(self.save_downloaded_file)
+
+    def setDownloaderButtonState(self, state):
+        ''' Enable or disable all dialog buttons in downloader section
+        :param state: boolean: True or False. Reflects button state'''
+        self.dlg.cmdSelectPoint.setEnabled(state)
+        self.dlg.cmdRunDownload.setEnabled(state)
+        self.dlg.cmdChooseLQFResults.setEnabled(state)
+        self.dlg.cmdRunRefine.setEnabled(state)
+        self.dlg.cmdClose.setEnabled(state)
+        self.dlg.txtLat.setEnabled(state)
+        self.dlg.txtLon.setEnabled(state)
+        self.dlg.txtStartDate.setEnabled(state)
+        self.dlg.txtEndDate.setEnabled(state)
+
+    def setRefinerButtonState(self, state):
+        ''' Enable or disable all dialog buttons in refiner section
+        :param state: boolean: True or False. Reflects button state'''
+        self.dlg.cmdSelectPoint.setEnabled(state)
+        self.dlg.cmdRunDownload.setEnabled(state)
+        self.dlg.textOutput_hgt.setEnabled(state)
+        self.dlg.spinBoxUTC.setEnabled(state)
+        self.dlg.spinBoxRain.setEnabled(state)
+        self.dlg.textOutput_AH.setEnabled(state)

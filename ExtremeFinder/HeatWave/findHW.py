@@ -6,97 +6,62 @@
 ###########################################################################
 
 # preloaded packages
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
 from datetime import datetime, timedelta, time
-import os
 import math
-import webbrowser
 import datetime
-import time
-import gzip
-import StringIO
-import urllib2
-import tempfile
 
-# pandas, netCDF4 and numpy might not be shipped with QGIS
 try:
     import pandas as pd
-except:
-    pass  # Suppress warnings at QGIS loading time, but an error is shown later to make up for it
-
-try:
-    from netCDF4 import Dataset, date2num
-except:
-    pass  # Suppress warnings at QGIS loading time, but an error is shown later to make up for it
-
-try:
+    from netCDF4 import Dataset, date2num, num2date
     import numpy as np
 except:
     pass  # Suppress warnings at QGIS loading time, but an error is shown later to make up for it
 
-
-# Find the nearest lat & lon in grid.
-def lon_lat_grid(lat, lon):
-    latGrid = 90 - (math.floor((90 + lat) / .5) * .5 + .25)
-    lonGrid = math.floor((lon - (-180)) / .5) * .5 + .25 - 180
-    return latGrid, lonGrid
-
-# Find the land number of (lat, lon)
-
-
-def WFD_get_city_index(city_latitude, city_longtitude):
-    yGrid = math.floor((90 + city_latitude) / .5) + 1
-    xGrid = math.floor((city_longtitude - (-180)) / .5) + 1
-    return int((yGrid - 1) * 720 + xGrid)
-
-# Get Tmax data from the specified time period.
-
-
-def get_Tmax(filepath, year_start, year_end):
+# Get Tdata from the new data set.
+def get_ncdata(filepath, year_start, year_end, data_variable_name):
     nc = Dataset(filepath)
-    xTair = nc.variables['Tair'][:]
-    days = len(xTair) / 8
-    Tmax = np.zeros(days)
-    for i in range(0,days):
-        Tmax[i] = max(xTair[i*8:i*8+7,0,0])
-    xdate = pd.date_range('1979-01-01', '2013-12-31')
-    Tair = pd.Series(Tmax, index=xdate)
-    return Tair['%d' % year_start:'%d' % year_end]
-
-def get_Tmin(filepath, year_start, year_end):
-    nc = Dataset(filepath)
-    xTair = nc.variables['Tair'][:]
-    days = len(xTair) / 8
-    Tmin = np.zeros(days)
-    for i in range(0,days):
-        Tmin[i] = min(xTair[i*8:i*8+7,0,0])
-    xdate = pd.date_range('1979-01-01', '2013-12-31')
-    Tair = pd.Series(Tmin, index=xdate)
-    return Tair['%d' % year_start:'%d' % year_end]
-
-def get_Tavg(filepath, year_start, year_end):
-    nc = Dataset(filepath)
-    xTair = nc.variables['Tair'][:]
-    days = len(xTair) / 8
-    Tavg = np.zeros(days)
-    for i in range(0,days):
-        Tavg[i] = np.average(xTair[i*8:i*8+7,0,0], axis=0)
-    xdate = pd.date_range('1979-01-01', '2013-12-31')
-    Tair = pd.Series(Tavg, index=xdate)
-    return Tair['%d' % year_start:'%d' % year_end]
-
-#Get Tdata from the new data set.
-def get_ncdata(filepath, year_start, year_end, data_variable_name, data_start_time, data_end_time):
-    nc = Dataset(filepath)
-    xTair = nc.variables[data_variable_name][:]
-    xdate = pd.date_range(data_start_time, data_end_time)
+    xTair = nc.variables[data_variable_name][:,0,0].squeeze() # IF there is more than one grid point included, just take the south-west corner
+    times = nc.variables['time']
+    xdate = num2date(times[:], times.units)
     Tair = pd.Series(xTair, index=xdate)
-    return Tair['%d' % year_start:'%d' % year_end]
+    unit = nc.variables[data_variable_name].units
+    try:  # If lat and lon are available, use them. The user will be prompted to enter them later if they're not present.
+        lat = nc.variables['lat'][0] # If more than one latitude and longitude included, just take the first corner
+        lon = nc.variables['lon'][0]
+    except:
+        lat = None
+        lon = None
+    start_time = xdate[0]
+    end_time = xdate[len(xdate)-2]
+    nc.close()
+    return (Tair['%d' % year_start:'%d' % year_end], unit, lat, lon, start_time, end_time)
+
+def get_ncmetadata(filepath):
+    # Get start and end time and lat and lon for netcdf file (if avialable)
+    try:
+        nc = Dataset(filepath)
+        times = nc.variables['time']
+    except:
+        nc.close()
+        raise Exception('Invalid .nc file. Must contain \'time\' dimension and be a NetCDF file')
+
+    xdate = num2date(times[:], times.units)
+    try:  # If lat and lon are available, use them. The user will be prompted to enter them later if they're not present.
+        lat = nc.variables['lat'][0] # If more than one latitude and longitude included, just take the first corner
+        lon = nc.variables['lon'][0]
+    except:
+        lat = None
+        lon = None
+    start_time = xdate[0]
+    end_time = xdate[len(xdate)-2] # Final date is the midnight the day after; we want day before
+    nc.close()
+    return (lat, lon, start_time, end_time)
 
 def get_txtdata(filepath, year_start, year_end, data_start_time, data_end_time):
     xTair = pd.read_csv(filepath,header=None)[0]
     xdate = pd.date_range(data_start_time, data_end_time)
+    if len(xTair) != len(xdate):
+        raise ValueError('Please set the start and end dates to match the text file. Dates cover %d days but file contains %d days'%(len(xdate), len(xTair)))
     data = xTair.values.tolist()
     Tair = pd.Series(data, index=xdate)
     return Tair['%d' % year_start:'%d' % year_end]
@@ -119,23 +84,36 @@ def get_MJJASOthreshold(data, threshold_year_start, threshold_year_end, percent1
             dataMJJASO.extend(data[str(i)+'-11':str(i)+'-11'])
     return np.percentile(dataMJJASO, percent1)
 
-def get_Tdata_Tdif_365(data, year_start, year_end):
-    T365 = np.zeros((year_end-year_start+1,365))
+def get_Tdata_Tdif_365(data):
+    '''
+    Get difference between daily temperature and its annual average
+    '''
+    year_start = data.index[0].year
+    year_end = data.index[len(data.index)-2].year
+    T365 = np.zeros((0,365))
     Tdif365 = []
     date = []
     for year in range(year_start, year_end+1):
-        T365[year - year_start] = data['%d' % year:'%d' % year][0:365]
+        if len( data['%d' % year:'%d' % year]) < 365:
+            continue # Only allow full years of data
+        new_data =  np.zeros((1,365))
+        new_data[0] = data['%d' % year:'%d' % year][0:365]
+        T365 = np.append(T365, new_data, axis=0)
+
     Tavg365 = np.average(T365, axis=0)
+
     for year in range(year_start, year_end+1):
+        if len( data['%d' % year:'%d' % year]) < 365:
+            continue # Only allow full years of data
         xdate = pd.date_range('%d-01-01' % year, '%d-12-31' % year)[0:365]
         date.extend(xdate)
         Tdif365.extend(T365[year - year_start]-Tavg365)
+
     Tdif= pd.Series(Tdif365, index=date)
     Tdata = pd.Series(T365.flatten().tolist(), index=date)
     return Tdata,Tdif
 
 # Find HWs
-
 def MeehlHWFinder(Tair, hw_start, hw_end, xT1, xT2):
     # the daily maximum temperature must be above T2 for every day of the
     # entire period
@@ -452,25 +430,6 @@ def write_nc(xland, xHW):
     dates[:] = date2num(date, 'hours since 0001-01-01', 'gregorian')
 
 
-def write_txt(xland, xHW):
-    xHW.to_csv(str(outputpath) + '/%s.txt' %
-               xland, sep=" ", index=True, float_format='%.4f')
-
-
-def grid_district(lat, lon):
-    grid_lat_lon = [(i, j) for i in lat for j in lon]
-    return grid_lat_lon
-
-
-def land_examine(grid_lat_lon, land_global):
-    tland_district = [WFD_get_city_index(i[0], i[1]) for i in grid_lat_lon]
-
-    land_district = []
-    for land in tland_district:
-        if land in land_global:
-            land_district.append(land)
-    return list(set(land_district))
-
 
 def level(minvalue, maxvalue):
     lev_tan = np.arange(1, 5, 0.4)
@@ -478,33 +437,6 @@ def level(minvalue, maxvalue):
     levels = [(i - lev[0]) / (lev[-1] - lev[0]) *
               (maxvalue - minvalue) + minvalue for i in lev]
     return levels
-
-# get Tmax from urban-climate server
-
-
-def download(xland):
-    # extract land grids of a certain district from global land grids
-    # land_district = land_examine(tgrid_district, land_global)
-
-    # check if the land grid is valid
-
-    # download Tmax data
-    url = "http://www.urban-climate.net/watch_data/WFDEI_Grid_Pop/WFDEI-allvar-"+str (xland)+".nc.gz"
-    file_name = url.split('/')[-1]
-
-    headers = {'User-Agent': 'Mozilla/5.0'}
-    req = urllib2.Request(url, None, headers)
-    html = urllib2.urlopen(req).read()
-    f_compressed = StringIO.StringIO(html)
-    f_decompressed = gzip.GzipFile(fileobj=f_compressed)
-
-    file_name_for_nc = os.path.join(tempfile.gettempdir(), file_name)
-
-    # be specific here: write in 'wb' otherwise Windows will complain!
-    with open(file_name_for_nc, 'wb') as f_dat:
-        f_dat.write(f_decompressed.read())
-
-    return file_name_for_nc
 
 
 # identify HW periods
@@ -517,7 +449,6 @@ def findHW_Meehl(Tmax,
     # thresholds used for HW identification
     xT1 = get_threshold(Tmax, threshold_year_start, threshold_year_end, t1_quantile)
     xT2 = get_threshold(Tmax, threshold_year_start, threshold_year_end, t2_quantile)
-    # print xT1, xT2
     # find heat waves
     xHW = MeehlHWFinder(Tmax, hw_start, hw_end, xT1, xT2)
     return xHW
@@ -577,8 +508,8 @@ def findCW_Keevallik(Tmin,
 # Srivastava (2009)
 # a cold wave is defined if the minimum temperature at a grid point is below the
 # normal temperature by 3 °C or more, consecutively for 3 days or more.
-def findCW_Srivastava(Tmin, hw_start, hw_end, threshold_year_start, threshold_year_end, TempDif):
-    Tdata,Tdif = get_Tdata_Tdif_365(Tmin, threshold_year_start, threshold_year_end)
+def findCW_Srivastava(Tmin, hw_start, hw_end,  TempDif):
+    Tdata,Tdif = get_Tdata_Tdif_365(Tmin)
     cw_date = pd.date_range(hw_start, hw_end)
     Tdata = Tdata[cw_date]
     Tdif = Tdif[cw_date]
@@ -587,8 +518,8 @@ def findCW_Srivastava(Tmin, hw_start, hw_end, threshold_year_start, threshold_ye
 
 # Busuioc et al., (2010)
 # at least 6 consecutive days with negative deviations of at least 5°C from the normal value of each calendar day
-def findCW_Busuioc(Tmin, hw_start, hw_end, threshold_year_start, threshold_year_end, TempDif):
-    Tdata,Tdif = get_Tdata_Tdif_365(Tmin, threshold_year_start, threshold_year_end)
+def findCW_Busuioc(Tmin, hw_start, hw_end, TempDif):
+    Tdata,Tdif = get_Tdata_Tdif_365(Tmin)
     cw_date = pd.date_range(hw_start, hw_end)
     Tdata = Tdata[cw_date]
     Tdif = Tdif[cw_date]

@@ -7,7 +7,6 @@ except:
     pass
 from string import upper, lower
 
-
 # Validate "shapefile" as either numeric or a valid file location
 def validateInput(x):
     try:

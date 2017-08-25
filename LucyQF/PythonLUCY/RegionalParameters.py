@@ -202,7 +202,7 @@ class RegionalParameters:
         :return: Nothing. Populates object fields instead.
         '''
         # All years are taken here, and accounted for upon this objected being queried
-        attrs = "SELECT * FROM attributes WHERE id IN " + "(" + ','.join(map(addQuotes, countries)) + ")"
+        attrs = "SELECT * FROM attributes WHERE id IN " + "(" + ','.join(map(addQuotes, countries)) + ") ORDER BY as_of_year ASC"
         self.attrs = pd.read_sql(attrs, con, index_col=['id', 'as_of_year'])
 
         # Weekend and weekday building diurnal cycles for each country
@@ -242,6 +242,7 @@ class RegionalParameters:
         fixedHols = pd.read_sql(fixedHols, con)
         self.fixedHolidays = {c: list(fixedHols['DOY'].loc[fixedHols['id'] == c]) for c in countries}
 
+
     ## GETTERS
     def getNationalAttributes(self, year):
         '''
@@ -276,6 +277,12 @@ class RegionalParameters:
                             'cars' : self.attrs['cars'][c].dropna().asof(year),
                             'motorcycles' : self.attrs['motorcycles'][c].dropna().asof(year),
                             'freight' : self.attrs['freight'][c].dropna().asof(year)})
+            # Keep track of what value provided for each country and year
+            attrNames = ['population', 'kwh_year', 'wake_hour', 'sleep_hour', 'transition_time', 'summer_cooling', 'ecostatus', 'cars', 'motorcycles', 'freight']
+            for attrName in attrNames:
+                lookedUp =  self.attrs[attrName][c].dropna().asof(year)
+                yearLookedUp = self.attrs[attrName][c].dropna().index.asof(year)
+                self.logger.addEvent('National attribute', None, None, None, 'DB value for %s %s in modelled year %d: %s (%d value)'%(c, attrName, year, str(lookedUp), yearLookedUp))
 
             if not pd.Series(arr[:].loc[c]).notnull().all():
                 raise Exception('Cannot model ' + c + ' in year ' + str(year) + ' because there is not enough nation-level information up to this period')

@@ -53,7 +53,7 @@ def addPeriod(obj, startDate, endDate, weekSeries, timezone=pytz.timezone('Europ
 
         # Add straight to the dict if it's the first entry for the year
         if y not in obj.yearContents.keys():
-            obj.yearContents[y] = pd.TimeSeries(index=[sd],
+            obj.yearContents[y] = pd.Series(index=[sd],
                                                  data=[{'isDST': isDST, 'data': formattedSeries.copy(deep=True)}])
 
         else:

@@ -2,7 +2,7 @@ import os
 from ...Utilities import f90nml
 from datetime import datetime as dt
 from string import lower
-
+import string
 class LUCYParams:
     def __init__(self, file):
         '''
@@ -12,6 +12,9 @@ class LUCYParams:
         if not os.path.exists(file):
             raise IOError('Parameters file ' + str(file) + ' not found')
         self.inputFile = file
+        self.TResponse = None # Optional temperature response model
+        self.landCoverWeights =  {} # Holder for land cover weights
+
         nml = f90nml.read(file)
 
         try:
@@ -19,42 +22,46 @@ class LUCYParams:
             self.avg_speed =         float(nml['params']['avgspeed'])
             if self.avg_speed > 64000:
                 raise ValueError('Average vehicle speed must not exceed 64 kph')
+            self.emission_factors = map(float, nml['params']['emissionfactors'])
+            self.BP_temp =          float(nml['params']['balance_point_temperature'])
+            self.QV_multfactor =    float(nml['params']['QV_multfactor'])
+            self.sleep_metab =      float(nml['params']['sleep_metab'])
+            self.work_metab =       float(nml['params']['work_metab'])
 
-            self.emission_factors =  map(float, nml['params']['emissionfactors'])
-            self.BP_temp =           float(nml['params']['balance_point_temperature'])
-            self.QV_multfactor =     float(nml['params']['QV_multfactor'])
-            self.sleep_metab =     float(nml['params']['sleep_metab'])
-            self.work_metab =     float(nml['params']['work_metab'])
-            self.landCoverWeights =  {}
-            try:
-                a=nml['landCoverWeights']
-            except Exception:
-                raise ValueError('Entry \'landCoverWeights\' not in configuration file ' + file)
+        except ValueError, e:
+            raise ValueError('Invalid parameter provided: ' + str(e))
+        except KeyError,e:
+            raise KeyError('Entry missing from parameters file: ' + str(e))
 
-            self.lcw(nml, file) # Dict of land cover weightings for extra disaggregation {class: {building: float, transport: float, metabolism: float}}
+        # Model date options
+        try:
+            self.timezone = nml['params']['timezone']
+        except KeyError:
+            raise KeyError('Entry "timezone" not found in parameters file')
+        except Exception:
+            raise ValueError('Invalid "timezone" entry. Must be a recognised time zone string in the format Continent/City (e.g. "Europe/London")')
 
-            # Model date options
-            try:
-                self.timezone = nml['params']['timezone']
-            except KeyError:
-                raise KeyError('Entry "timezone" not found in parameters file')
-            except Exception:
-                raise ValueError('Invalid "timezone" entry. Must be a recognised time zone string in the format Continent/City (e.g. "Europe/London")')
-
+        try:
             self.use_uk_hols = True if nml['params']['use_uk_holidays'] == 1 else False
             self.use_custom_hols = True if nml['params']['use_custom_holidays'] == 1 else False
             self.custom_holidays = []
-            if self.use_custom_hols: # Only try and deal with custom holidays entry if it's set to 1
-                def toDate(x): return dt.strptime(x, '%Y-%m-%d').date()
-                try:
-                    self.custom_holidays = map(toDate, nml['params']['custom_holidays'])
-                except Exception:
-                    raise ValueError('Custom holidays in parameters file must be in formatted YYYY-mm-dd')
+        except KeyError, e:
+            raise KeyError('Entry %s not found in parameters file'%(str(e),))
 
-        except KeyError,e:
-            raise Exception('Entry missing from parameters file: ' + str(e))
-        except Exception,e:
-            raise Exception('Problem reading parameters file: ' + str(e))
+        if self.use_custom_hols: # Only try and deal with custom holidays entry if it's set to 1
+            def toDate(x): return dt.strptime(x, '%Y-%m-%d').date()
+            try:
+                self.custom_holidays = map(toDate, nml['params']['custom_holidays'])
+            except Exception:
+                raise ValueError('Custom holidays in parameters file must be in formatted YYYY-mm-dd')
+
+        try:
+            a=nml['landCoverWeights']
+        except Exception:
+            raise ValueError('Section \'landCoverWeights\' not in configuration file ' + file)
+
+        self.lcw(nml, file) # Dict of land cover weightings for extra disaggregation {class: {building: float, transport: float, metabolism: float}}
+        self.tresp(nml, file) # Optional: User-defined temperature response
 
 
     def lcw(self, PARAMS, paramsFile):
@@ -63,7 +70,7 @@ class LUCYParams:
         types = ['building', 'transport', 'metabolism']
         missing = set(map(lower,expectedClasses)).difference(map(lower, PARAMS['landCoverWeights'].keys()))
         if len(missing) > 0:
-            raise ValueError(paramsFile + ' is missing the following entries under "landCoverWeights": ' + str(missing))
+            raise ValueError(paramsFile + ' is missing the following entries under "landCoverWeights": ' + string.join(list(missing), ","))
 
         for cl in expectedClasses:
             if len(PARAMS['landCoverWeights'][cl]) != 3:
@@ -76,5 +83,29 @@ class LUCYParams:
                 except Exception:
                     raise ValueError('Land cover weights in parameters file had invalid number in entry: ' + str(cl))
 
-def testit():
-    a = LUCYParams('N:/QF_Heraklion/LUCYConfig/LUCYConfig.nml')
+    def tresp(self, PARAMS, paramsFile):
+        ''' Check for optional CustomTemperatureResponse entries
+        :param PARAMS:
+        :param paramsFile:
+        :return:
+        '''
+        try:
+            a = PARAMS['CustomTemperatureResponse']
+        except KeyError:
+            self.TemperatureResponse = None
+            return
+
+        expectedEntries = ['Th', 'Tc', 'Ah', 'Ac', 'c', 'Tmax', 'Tmin']
+
+        missing = set(map(lower, expectedEntries)).difference(map(lower, PARAMS['CustomTemperatureResponse'].keys()))
+        if len(missing) > 0:
+            raise ValueError(paramsFile + ' is missing the following entries under "CustomTemperatureResponse": ' + string.join(list(missing), ","))
+        self.TResponse = {}
+        for cl in expectedEntries:
+            try:
+                self.TResponse[cl] = float(PARAMS['CustomTemperatureResponse'][cl.lower()])
+            except ValueError:
+                raise ValueError('Custom temperature response parameters had invalid number in entry: ' + str(cl))
+            except Exception, e:
+                raise Exception(str(e))
+

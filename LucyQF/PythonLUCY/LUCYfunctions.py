@@ -27,15 +27,15 @@ def getTMF(temperature, BP, attribs):
     '''
     # Convert values to integers but preserve nans if present
     try:
-        attribs['ecostatus'][attribs['ecostatus'].notnull()] = attribs['ecostatus'][attribs['ecostatus'].notnull()].astype('int')
+        attribs.loc[attribs['ecostatus'].notnull(), 'ecostatus'] = attribs.loc[attribs['ecostatus'].notnull(), 'ecostatus'].astype('int')
     except Exception:
         raise ValueError('Database error: Economic class must be numeric')
 
-    if len(set( attribs['ecostatus'].dropna()).difference([-1,1,2,3,4])) > 0:
+    if len(set(attribs['ecostatus'].dropna()).difference([-1,1,2,3,4])) > 0:
         raise ValueError('Database error: Economic class must be 1-4 exactly, or -1 as a placeholder for an empty country')
 
     try:
-         attribs['summer_cooling'][attribs['summer_cooling'].notnull()] = attribs['summer_cooling'][attribs['summer_cooling'].notnull()].astype('int')
+         attribs.loc[attribs['summer_cooling'].notnull(), 'summer_cooling'] = attribs.loc[attribs['summer_cooling'].notnull(), 'summer_cooling'].astype('int')
 
     except Exception:
         raise ValueError('Database error: Summer_cooling value must be numeric')
@@ -67,6 +67,33 @@ def getTMF(temperature, BP, attribs):
     # Return pandas series of coefficients: one for each area
     return attribs['offset'] + (attribs['summer_cooling'] * areaCDDIncrease * CDD) + (areaHDDIncrease * HDD)
 
+def customTResponse(temperature, config):
+    '''
+    Calculates daily energy scaling factor based on a user-defined set of parameters
+    :param temperature:
+    :param config:
+    :return:
+
+    '''
+    # Is temperature < min or > max? Function is constant with T in these regimes
+    temperature = max(temperature, config.TResponse['Tmin'])
+    temperature = min(temperature, config.TResponse['Tmax'])
+    # Is this a heating or cooling regime?
+    coef = None
+    if temperature > config.TResponse['Tc']: # In a cooling regime
+        coef = abs(config.TResponse['Ac'])
+        diff = abs(config.TResponse['Tc'] - temperature)
+    if temperature < config.TResponse['Th']:
+        coef = abs(config.TResponse['Ah'])
+        diff = abs(temperature - config.TResponse['Th'])
+
+    # If temperature falls in between Tc and Th, the value should be the function minimum
+    if coef is None:
+        return config.TResponse['c'] #
+    else:
+        # Calculate value of function based on temperature
+        return config.TResponse['c'] + coef * diff
+
 def qm(population_density, profile):
     '''
     Calculate metabolic heat flux
@@ -77,9 +104,10 @@ def qm(population_density, profile):
     Qm = population_density*profile # W/m^2 
     return Qm
 
-def qb(energy_use, temperature, profile, BP_temperature, attribs):
+def qb(params, energy_use, temperature, profile, BP_temperature, attribs):
     '''
     Calculate building heat flux
+    :param config: LQFParames object (controls whether or not to use custom temperature response)
     :param energy_use: (pd.Series) Total energy consumption in local areas (kwh per year)
     :param temperature: (float) Mean air temperature
     :param profile: (pd.Series indexed by area id) Diurnal scaling of air temperature for the current time of day (identified outside of this function). Should be ~1/24
@@ -89,7 +117,10 @@ def qb(energy_use, temperature, profile, BP_temperature, attribs):
     :return: Qb: (pd.Series) Building heat flux in Wm-2 for each area
     '''
 
-    factor = getTMF(temperature, BP_temperature, attribs)
+    if params.TResponse is None:
+        factor = getTMF(temperature, BP_temperature, attribs) # User didn't set a T response function so use built-in version
+    else:
+        factor = customTResponse(temperature, params)
 
     Qb = factor * (energy_use * 1000.0 / 365.25) * profile # kwh per year converted to W per day
     return Qb

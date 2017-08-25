@@ -3,43 +3,20 @@
 ###########################################
 # plot
 ###########################################
-import os.path
 from datetime import datetime, timedelta, time
-import os
 import math
 
-import webbrowser
 import datetime
-import time
-import gzip
-import StringIO
-import urllib2
-import tempfile
-import matplotlib.pyplot as plt
-from matplotlib.colors import BoundaryNorm
-from matplotlib.ticker import MaxNLocator
-
 # pandas, netCDF4 and numpy might not be shipped with QGIS
 try:
     import pandas as pd
-except:
-    pass  # Suppress warnings at QGIS loading time, but an error is shown later to make up for it
-
-try:
+    import matplotlib.pyplot as plt
+    from matplotlib.colors import BoundaryNorm
+    import numpy as np
     from netCDF4 import Dataset, date2num
 except:
     pass  # Suppress warnings at QGIS loading time, but an error is shown later to make up for it
-
-try:
-    import numpy as np
-except:
-    pass  # Suppress warnings at QGIS loading time, but an error is shown later to make up for it
-
-
-
-
 # rescale color levels
-
 
 def level(minvalue, maxvalue):
     lev_tan = np.arange(2, 6, 0.3)
@@ -49,16 +26,18 @@ def level(minvalue, maxvalue):
     return levels
 
 def strlocation(lat,lon):
+    if lat == None or lon == None:
+        return 'Unknown location'
     if lon>=0:
         if lat>=0:
-            strloc = str(lon)+u"°E, "+str(lat)+u"°N"
+            strloc = str(abs(lon))+u"°E, "+str(abs(lat))+u"°N"
         else:
-            strloc = str(lon)+u"°E, "+str(lat)+u"°S"
+            strloc = str(abs(lon))+u"°E, "+str(abs(lat))+u"°S"
     else:
         if lat>=0:
-            strloc = str(lon)+u"°W, "+str(lat)+u"°N"
+            strloc = str(abs(lon))+u"°W, "+str(abs(lat))+u"°N"
         else:
-            strloc = str(lon)+u"°W, "+str(lat)+u"°S"
+            strloc = str(abs(lon))+u"°W, "+str(abs(lat))+u"°S"
     return strloc
 
 #plot
@@ -71,26 +50,36 @@ def plotHW(lat,lon,Tmax, xHW, hw_year_start, hw_year_end, labelsForPlot):
     #                      contour                     #
     ####################################################
     yearnumber = hw_year_end - hw_year_start + 1
-    DataForPlot = np.zeros((yearnumber, 365))
-    # hw_date = pd.date_range(hw_start, hw_end)
 
-    for i in range(0, yearnumber):
-        ydate = pd.date_range(str(hw_year_start + i) +
-                              '-01-01', str(hw_year_start + i) + '-12-31')
-        DataForPlot[i] = pd.Series(Tmax, index=ydate)[0:365]
+    # Check that first and final year are complete. If not, don't include in plot
+    range_start = 0
+    range_end = yearnumber
 
-    x = range(1, 366)
-    y = range(hw_year_start, hw_year_end + 1)
+    ydate_first = pd.date_range(str(hw_year_start) + '-01-01',  str(hw_year_start) + '-12-31')
+    ydate_final = pd.date_range(str(hw_year_start + yearnumber-1) + '-01-01',  str(hw_year_start + yearnumber-1) + '-12-31')
+    data_first = pd.Series(Tmax, index= ydate_first)[0:365]
+    data_final = pd.Series(Tmax, index= ydate_final)[0:365]
+    if sum(np.isnan(data_first)) > 0:
+        range_start = 1
+    if sum(np.isnan(data_final)) > 0:
+        range_end-=1
+
+    range_size = range_end - range_start
+    DataForPlot = np.zeros((range_size, 365))
+    for i in range(range_start, range_end):
+        ydate = pd.date_range(str(hw_year_start + i) + '-01-01',
+                              str(hw_year_start + i) + '-12-31')
+        DataForPlot[i-range_start] = pd.Series(Tmax, index=ydate)[0:365]
+
     xmin = 1
     xmax = 366
     dx = 1
-    ymin = hw_year_start
-    ymax = hw_year_end + 1
+    ymin = hw_year_start + range_start
+    ymax = hw_year_start + range_end
     dy = 1
     x2, y2 = np.meshgrid(np.arange(xmin, xmax + dx, dx) -
                          dx / 2., np.arange(ymin, ymax + dy, dy) - dy / 2.)
     z = DataForPlot
-
     minvalue = z.min()
     maxvalue = z.max()
     levels = level(minvalue, maxvalue)
@@ -102,7 +91,7 @@ def plotHW(lat,lon,Tmax, xHW, hw_year_start, hw_year_end, labelsForPlot):
 
     fig, (ax0) = plt.subplots(figsize=(20, 4.5))
     im = ax0.pcolormesh(x2, y2, z, cmap=cmap, norm=norm)
-    fig.colorbar(im, ax=ax0, label='Temp (K)')
+    fig.colorbar(im, ax=ax0, label='%s %s'%(labelsForPlot[0], labelsForPlot[3]))
     plt.axis([x2.min(), x2.max(), y2.min(), y2.max()])
     xticks = pd.Series([1, 31, 59, 90, 120, 151, 181,
                         212, 243, 273, 304, 334, 365])
@@ -130,14 +119,9 @@ def plotHW(lat,lon,Tmax, xHW, hw_year_start, hw_year_end, labelsForPlot):
     pointY = []
     for iHW in xHW:
         ts_datetime = iHW.index
-        # print ts_datetime
-        # print ts_datetime[0]
-        # print ts_datetime[0].year
         ts_year = ts_datetime[0].year
-        # print ts_year
         ts_len = len(ts_datetime)
         tx0 = ts_datetime[0]
-        # print datetime.date(ts_datetime[0].year, 1, 1)
 
         day_of_year_f = ts_datetime[0].to_pydatetime(
         ) - datetime.datetime(ts_datetime[0].year, 1, 1)
@@ -149,7 +133,6 @@ def plotHW(lat,lon,Tmax, xHW, hw_year_start, hw_year_end, labelsForPlot):
         ty1 = ts_year + 0.5
         sx = [tx0, tx1, tx1, tx0, tx0]
         sy = [ty0, ty0, ty1, ty1, ty0]
-        # print sx, sy
         plt.plot(sx, sy, "yellow", linewidth=2.0)
 
     plt.show()
@@ -163,25 +146,24 @@ def plotHW(lat,lon,Tmax, xHW, hw_year_start, hw_year_end, labelsForPlot):
         ts_year = ts_datetime.year
         iHW.index = ts_year
 
-    TmaxForBoxplot = xHW[0]
+    TmaxForBoxplot = xHW[0].tolist()
     YearsForBoxplot = [xHW[0].index[0]]
     dataForBoxplot = []
     lenTmaxForBarchart = [len(xHW[0])]
     lendataForBarchart = []
-    # print TmaxForBoxplot,YearsForBoxplot
 
     if not len(xHW)==1:
         for i in range(1,len(xHW)):
             if xHW[i].index[0] == xHW[i-1].index[0]:
-                TmaxForBoxplot.append(xHW[i])
+                TmaxForBoxplot.extend(xHW[i].tolist())
                 lenTmaxForBarchart.extend([len(xHW[i])])
             else:
-                dataForBoxplot.append(TmaxForBoxplot.tolist())
+                dataForBoxplot.append(TmaxForBoxplot)
                 YearsForBoxplot.append(xHW[i].index[0])
                 lendataForBarchart.append(lenTmaxForBarchart)
                 lenTmaxForBarchart = [len(xHW[i])]
-                TmaxForBoxplot = xHW[i]
-    dataForBoxplot.append(TmaxForBoxplot.tolist())
+                TmaxForBoxplot = xHW[i].tolist()
+    dataForBoxplot.append(TmaxForBoxplot)
     lendataForBarchart.append(lenTmaxForBarchart)
 
     YearList = range(hw_year_start,hw_year_end+1)
@@ -198,8 +180,8 @@ def plotHW(lat,lon,Tmax, xHW, hw_year_start, hw_year_end, labelsForPlot):
                 dataForBoxplot.insert(i+1,[])
                 lendataForBarchart.insert(i+1,[0])
 
-    dataForBarchart = np.zeros((len(YearList),20),dtype=np.int)
-    dataForBarchart[0,0]=lendataForBarchart[0][0]
+    maxLen = np.max([len(a) for a in lendataForBarchart])
+    dataForBarchart = np.zeros((len(YearList),maxLen),dtype=np.int)
     for i in range(0,len(YearList)):
         for j in range(0,len(lendataForBarchart[i])):
             dataForBarchart[i,j]=lendataForBarchart[i][j]
@@ -234,39 +216,8 @@ def plotHW(lat,lon,Tmax, xHW, hw_year_start, hw_year_end, labelsForPlot):
     plt.figure()
     plt.boxplot(dataForBoxplot)
     plt.xticks(xticks,yearticks_lbl)
-    plt.ylabel('Temp (K)')
+    plt.ylabel('%s %s'%(labelsForPlot[0], labelsForPlot[3]))
     plt.xlabel('Time (Years)')
     plt.title('BoxPlot for '+labelsForPlot[0]+' during '+labelsForPlot[2]+' in ('+strlocation(lat,lon)+')')
 
     plt.show()
-
-    # # plot the box
-    # for i in range(0, len(lineY)):
-    #     tx0 = lineX[i * 2] + 0.5
-    #     tx1 = lineX[i * 2 + 1] + 0.5
-    #     ty0 = hw_year_start + lineY[i] - 0.5
-    #     ty1 = ty0 + 1
-    #     sx = [tx0, tx1, tx1, tx0, tx0]
-    #     sy = [ty0, ty0, ty1, ty1, ty0]
-    #     plt.plot(sx, sy, "yellow", linewidth=2.0)
-
-    # for i in range(0,len(data)):
-    #     yearX = str(data[0][i]).split("-",1)[0]
-    #     locationY = int(yearX)-hw_year_start
-    #     timestart = (time.mktime(datetime.datetime.strptime(str(yearX)+"-01-01", "%Y-%m-%d").timetuple()))/86400
-    #     timestamp = int((time.mktime(datetime.datetime.strptime(data[0][i], "%Y-%m-%d").timetuple()))/86400)
-    #     locationX = timestamp - timestart
-    #     hwT[int(locationY)][int(locationX)] = data[1][i]
-    #     pointX.append(locationX)
-    #     pointY.append(locationY)
-    #
-    # lineX = [pointX[0]]
-    # lineY = [pointY[0]]
-    # for i in range(0,len(pointX)-1):
-    #     if pointX[i+1]-pointX[i]!=1:
-    #         lineX.append(pointX[i])
-    #         lineX.append(pointX[i+1])
-    #         lineY.append(pointY[i+1])
-    #
-    # lineX.append(pointX[-1])
-    # mask = hwT[hwT>0]

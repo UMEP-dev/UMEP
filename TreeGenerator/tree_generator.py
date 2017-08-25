@@ -389,7 +389,7 @@ class TreeGenerator:
         QMessageBox.information(self.dlg, "TreeGenerator", "Vegetation DSMs succesfully generated")
 
     def help(self):
-        url = "http://www.urban-climate.net/umep/UMEP_Manual#Tree_Generator"
+        url = "http://www.urban-climate.net/umep/UMEP_Manual#Spatial_Data:_Tree_Generator"
         webbrowser.open_new_tab(url)
 
     def saveraster(self, gdal_data, filename, raster):

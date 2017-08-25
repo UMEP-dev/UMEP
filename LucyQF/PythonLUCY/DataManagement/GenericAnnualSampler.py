@@ -177,19 +177,22 @@ class GenericAnnualSampler(object):
         # Base this decision on what's happening at noon local time
         localizedStartTime = self.countryTimezone.localize(startDate.replace(tzinfo=None) + timedelta(seconds=12*3600))
         localizedEndTime = self.countryTimezone.localize(endDate.replace(tzinfo=None) + timedelta(seconds=12*3600))
+
         isDST = localizedStartTime.dst().total_seconds() != 0
         formattedSeries = self.dealWithSeries(dataSeries)
 
         # If the data is not the same time zone as the country being represented, ensure this data doesn't
         # sit across a DST switch
-
         if self.dstOccurs & (self.dataTimezone != self.countryTimezone):
-            dates = pd.date_range(startDate, endDate, tz=self.dataTimezone)
-            dstChange = len(pd.unique([d.dst().seconds != 0 for d in dates]))
-            if dstChange:
-                raise ValueError('Input data file for ' +
+            startTime_isDST = localizedStartTime.dst().total_seconds() != 0
+            endTime_isDST = localizedEndTime.dst().total_seconds() != 0
+            if startTime_isDST != endTime_isDST:
+                raise ValueError('Input diurnal profiles file contains period ' +
                                  startDate.strftime('%Y-%m-%d') + ' to ' + endDate.strftime('%Y-%m-%d') +
-                                 ' is not in local time and crosses at least one daylight savings change. This is not allowed.')
+                                 '. Data is not the same time zone as the city being modelled, and the period crosses at least one daylight savings change.' +
+                                 ' Either model a city in the same time zone as the data, or change the season boundaries to not cross time zones')
+
+        # If data is for same time zone as city being modelled, then the model just shifts +/- the number of hours within the correct day (the day lookup also accounts for the time shift)
 
         # Add straight to the dict if it's the first entry ever
         if self.yearContents is None:
@@ -253,7 +256,6 @@ class GenericAnnualSampler(object):
         sortedYears = np.array(self.availableYears())
         reqYear = requestDate.year
         thisYear = reqYear in sortedYears
-
         if not thisYear:
             # No data at all this year: Go to the first/last year for which there is data.
             if reqYear < sortedYears[0]:
@@ -265,7 +267,6 @@ class GenericAnnualSampler(object):
             chosenYear = firstSuitableYear
         else:
             chosenYear = reqYear
-
         # Now there is a year requested for which there is data, check is there data during the requested time of year
         periodStartStops = self.entriesForYear(int(chosenYear))
         modifiedDate = requestDate + relativedelta(weekday=requestDate.weekday(), year=chosenYear)
@@ -281,7 +282,6 @@ class GenericAnnualSampler(object):
         # Go to year before if at end of available data
         # Go to year after if at start of available data.
         # No other cases supported: Only the first and final years are allowed to be partial. years in between must be complete.
-
         # If this is the only year for which we have data, then there's a problem
         if len(sortedYears) < 2:
             return None
@@ -334,7 +334,6 @@ class GenericAnnualSampler(object):
 
         # Get the right year and season from the empirical data
         yearToUse = self.findSuitableYear(lookupTimeBin) # findSuitableYear is timezone aware
-
         if yearToUse is None:
             raise ValueError('No data available at this time of year for time bin ending ' + str(timeBinEnd))
 

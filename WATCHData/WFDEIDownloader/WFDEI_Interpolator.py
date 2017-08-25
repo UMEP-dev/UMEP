@@ -39,6 +39,7 @@ import time
 import random
 try:
     import pandas as pd
+    import netCDF4 as nc4
 except:
     pass  # Suppress warnings at QGIS loading time, but an error is shown later to make up for it
 
@@ -190,31 +191,23 @@ def sh2rh(qv, p, T):
     '''conversion from specific humidity (units [kg/kg]) to relative humidity in percentage'''
     return mixr2rh(sh2mixr(qv), p, T)
 
-
 def correct_hgt_Tair(Tair, hgt_WFDEI_m, hgt_site_m):
     '''correct the height effect on Tair'''
     d_height_m = hgt_site_m - hgt_WFDEI_m
     res = Tair - 0.0065 * d_height_m
     return res
 
-
 def height_solver_WFDEI(lat, lon):
     '''determine the original height of WFDEI grid'''
-    glat, glon = lon_lat_grid(lat, lon)
-    # xlat, xlon = WFDEI_get_city_index(glat, glon)
     with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'WFDEI-land-long-lat-height.txt')) as f:
         ls = [line.split() for line in f]
 
     for i in range(7, len(ls)):
-        if float(ls[i][0]) == glon and float(ls[i][1]) == glat:
+        if float(ls[i][0]) == lon and float(ls[i][1]) == lat:
             return float(ls[i][2])
             break
     # oceanic grids determined as 0.0
     return 0.0
-
-
-# def correct_hgt_PSurf(Psurf, hgt_WFDEI, hgt_site):
-#     '''correct the height effect on Tair'''
 
 
 # generate WFDEI filename
@@ -230,89 +223,21 @@ def path_WFDEI(directory, var, year, month):
     return path
 
 
-# import WFDEI data
-def read_WFDEI(directory, var, year_start, year_end, xlat, xlon, textObject=None):
-    # Read a directory filled with .nc files into a single variable
-    import scipy.io.netcdf as netcdf
 
-    rawdata = []
-
-    # Extract each .nc file for this var
-    ncfiles = [file for file in os.listdir(directory)]
-    decompressed = []
-    for file in ncfiles:
-        fullname = os.path.join(directory, file)
-        if os.path.splitext(fullname)[1] == '.gz':
-            decompressed.append(decompress_WFDEI(fullname))
-
-    for year in range(year_start, year_end + 1):
-        # if textObject is not None:
-            # textObject.setText('Extracting ' + var + ' ' + str(year) + '...')
-        for month in range(1, 13):
-            # determine file name to read in
-            zipped = str(path_WFDEI(directory, var, year, month)) + '.gz'
-            if not os.path.exists(zipped):
-                continue
-            # Decompress gzipped file first
-            fn = decompress_WFDEI(zipped)
-            # get WFDEI dataset:
-            try:
-                nc = netcdf.netcdf_file(fn)
-                # read in data:
-                for i in range(0, len(nc.variables[var][:, xlat, xlon])):
-                    # determine date time string
-                    date = str(year) + "%02.d" % month + \
-                        "%02.d" % (i / 8 + 1) + "%02.d" % (i % 8 * 3)
-
-                    # note the staring index in WFDEI data is 1 whereas in python is 0
-                    # so xlat-1 and xlon-1 are needed.
-                    rawdata.append(
-                        (date, nc.variables[var][:, xlat - 1, xlon - 1][i]))
-
-            except Exception, e:
-                raise Exception(str(e))
-            finally:
-                nc.close()
-                os.remove(fn)  # Remove unzipped file
-
-    # convert to time series
-    ts_data = pd.DataFrame(rawdata, columns=['time', var])
-    ts_data["time"] = pd.to_datetime(ts_data['time'], format="%Y%m%d%H")
-    if textObject is not None:
-        textObject.setText(var + ' successfully imported')
-    return ts_data
-
-
-# load and rearrange WFDEI data for interpolation
-def load_WFDEI_3h(WFDEI_path, year_start, year_end, lat, lon, textObject=None):
-    #print('*************** WFDEI Data Loader *************** ')
-    #print('start year: ' + str(year_start))
-    #print('end year: ' + str(year_end))
-    #print('input coordinates: (' + '%.2f' % lat + ', ' + '%.2f' % lon + ')')
-    # convert user input coordinates into grid index in WFDEI dataset
-    glat, glon = lon_lat_grid(lat, lon)
-    xlat, xlon = WFDEI_get_city_index(glat, glon)
+def load_WFDEI_3h(nc_file, progress=None):
+    # load and rearrange WFDEI data for interpolation
 
     # WFDEI variables
     var_list = ["SWdown", "LWdown", "Rainf", "Tair", "PSurf", "Wind", "Qair"]
-    # import WFDEI raw data
-    data_raw = {var: read_WFDEI(
-        WFDEI_path, var, year_start, year_end, xlat, xlon, textObject) for var in var_list}
-    # join all variable time series into one DataFrame
-    try:
-        ts_data_raw = [k for k in data_raw.itervalues()]
-    except AttributeError as e:
-        ts_data_raw = [k for k in data_raw.values()]
-
-    ts_data_raw = [xx.set_index('time') for xx in ts_data_raw]
-    data_raw_3h = pd.concat(ts_data_raw, axis=1, join='outer')
-    if textObject is not None:
-        textObject.setText('WFDEI Data successfully loaded')
-
-    return data_raw_3h
-
-# randomly choose x ones from N ones
-
+    # Create dataframe from nc file
+    raw_data = nc4.Dataset(nc_file)
+    times = nc4.num2date(raw_data.variables['time'][:], units=raw_data.variables['time'].units)
+    data_raw_3h = pd.DataFrame(index=times)
+    for v in var_list:
+        data_raw_3h[v] = pd.Series(index = times, data=raw_data[v][:,0,0]) # Data should only represent one grid cell. If not, take the south-western grid cell (the first one)
+    data_lat = raw_data.variables['lat'][0]
+    data_lon = raw_data.variables['lon'][0]
+    return (data_raw_3h, data_lat, data_lon)
 
 def random_x_N(x, N):
     list_N = np.zeros(N)
@@ -343,7 +268,7 @@ def process_rainAmongN(rain, rainAmongN):
 # interpolate 3-hourly raw data to hourly results for SUEWS
 
 
-def process_SUEWS_forcing_1h(data_raw_3h, lat, lon, hgt, textObject=None):
+def process_SUEWS_forcing_1h(data_raw_3h, lat, lon, hgt, progress=None):
     #     print('*************** WFDEI Data Processor *************** ')
     # expand over the whole date range at the scale of 1 h
     # textObject is an optional input to keep the user informed about progress
@@ -424,9 +349,8 @@ def process_SUEWS_forcing_1h(data_raw_3h, lat, lon, hgt, textObject=None):
 
     # height correction
     hgt_WFDEI_m = height_solver_WFDEI(lat, lon)
-    hgt_site_m = hgt
     data_proc_1h['Tair'] = correct_hgt_Tair(data_proc_1h['Tair'],
-                                            hgt_WFDEI_m, hgt_site_m)
+                                            hgt_WFDEI_m, hgt)
     # data_proc_1h['PSurf'] = correct_hgt_PSurf(data_proc_1h['PSurf'],
     #                                           hgt_WFDEI, hgt_site)
 
@@ -451,15 +375,12 @@ def process_SUEWS_forcing_1h(data_raw_3h, lat, lon, hgt, textObject=None):
 
     # replace nan with -999
     data_out_1h = data_out_1h.fillna(value=-999)
-    if textObject is not None:
-        textObject.setText('WFDEI Data Successfully Processed ')
-
     return data_out_1h
 
 
 # interpolate 3-hourly raw data to hourly results for SUEWS and correct
 # time to LST
-def process_SUEWS_forcing_1h_LST(data_raw_3h, lat, lon, hgt, UTC_offset_h, rainAmongN, textObject=None):
+def process_SUEWS_forcing_1h_LST(data_raw_3h, lat, lon, hgt, UTC_offset_h, rainAmongN, progress=None):
     #     print('*************** WFDEI Data Processor *************** ')
     # expand over the whole date range at the scale of 1 h
     # textObject is an optional input to keep the user informed about progress
@@ -572,51 +493,39 @@ def process_SUEWS_forcing_1h_LST(data_raw_3h, lat, lon, hgt, UTC_offset_h, rainA
 
     # replace nan with -999
     data_out_1h = data_out_1h.fillna(value=-999)
-    if textObject is not None:
-        textObject.setText('WFDEI Data Successfully Processed ')
 
     return data_out_1h
 
 
-def write_SUEWS_forcing_1h(input_path, output_file, year_start, year_end, lat, lon, hgt, textObject=None):
+# def write_SUEWS_forcing_1h(rawdata, output_file, year_start, year_end, lat, lon, hgt, progress=None):
+#     # load raw 3-hourly data and write to text file
+#     # textObject is optional QText that has so we can keep the user informed
+#
+#     data_raw_3h = load_WFDEI_3h(rawdata, progress)
+#
+#     # process raw data to hourly forcings for SUEWS
+#     data_out_1h = process_SUEWS_forcing_1h(
+#         data_raw_3h, lat, lon, hgt, progress)
+#
+#     # output files for each year
+#     for year in range(year_start, year_end + 1):
+#         data_out_1h_year = data_out_1h[lambda df: (
+#             df.index - timedelta(minutes=60)).year == year]
+#         filename_parts = os.path.splitext(output_file)
+#         file_output_year = os.path.expanduser(
+#             filename_parts[0] + str(year) + filename_parts[1])
+#         data_out_1h_year.to_csv(file_output_year, sep=" ",
+#                                 index=False, float_format='%.4f')
+
+def write_SUEWS_forcing_1h_LST(rawdata, output_file, year_start, year_end, hgt, UTC_offset_h, rainAmongN, progress=None):
     # load raw 3-hourly data and write to text file
-    # textObject is optional QText that has so we can keep the user informed
+    # progress is optional QObject for a progress bar percentage display
 
-    data_raw_3h = load_WFDEI_3h(
-        input_path, year_start, year_end, lat, lon, textObject)
-
-    # process raw data to hourly forcings for SUEWS
-    data_out_1h = process_SUEWS_forcing_1h(
-        data_raw_3h, lat, lon, hgt, textObject)
-
-    # output files of each year
-
-    for year in range(year_start, year_end + 1):
-        data_out_1h_year = data_out_1h[lambda df: (
-            df.index - timedelta(minutes=60)).year == year]
-        filename_parts = os.path.splitext(output_file)
-        file_output_year = os.path.expanduser(
-            filename_parts[0] + str(year) + filename_parts[1])
-        data_out_1h_year.to_csv(file_output_year, sep=" ",
-                                index=False, float_format='%.4f')
-    if textObject is not None:
-        textObject.setText('WFDEI Data Successfully Exported ')
-
-        # print(file_output_year)
-
-    #print('********* WFDEI Data Processing Successfully Finished *********')
-
-
-def write_SUEWS_forcing_1h_LST(input_path, output_file, year_start, year_end, lat, lon, hgt, UTC_offset_h, rainAmongN,  textObject=None):
-    # load raw 3-hourly data and write to text file
-    # textObject is optional QText that has so we can keep the user informed
-
-    data_raw_3h = load_WFDEI_3h(
-        input_path, year_start, year_end, lat, lon, textObject)
+    (data_raw_3h, data_lat, data_lon) = load_WFDEI_3h(rawdata, progress)
 
     # process raw data to hourly forcings for SUEWS
     data_out_1h = process_SUEWS_forcing_1h_LST(
-        data_raw_3h, lat, lon, hgt, UTC_offset_h, rainAmongN, textObject)
+        data_raw_3h, data_lat, data_lon, hgt, UTC_offset_h, rainAmongN, progress)
 
     # output files of each year
 
@@ -629,8 +538,6 @@ def write_SUEWS_forcing_1h_LST(input_path, output_file, year_start, year_end, la
         data_out_1h_year.to_csv(file_output_year, sep=" ",
                                 index=False, float_format='%.4f')
 
-    if textObject is not None:
-        textObject.setText('WFDEI Data Successfully Exported ')
 
 # read in single AH CSV file
 def read_AH(fn):
@@ -661,7 +568,7 @@ def read_AH_Panel(filelist):
 
 
 # incorporate AH data into WATCH downsacled data
-def process_AH_1h(input_AH_path, data_out_1h, textObject=None):
+def process_AH_1h(input_AH_path, data_out_1h, progress=None):
     # retrieve datetime from data_out_1h
     index_dt = data_out_1h.index
 
@@ -670,27 +577,23 @@ def process_AH_1h(input_AH_path, data_out_1h, textObject=None):
              for fn in os.listdir(input_AH_path) if fn.endswith('.csv')]
     res_AH = read_AH_Panel(fl_AH)[:, index_dt]
 
-
-    if textObject is not None:
-        textObject.setText('AH data successfully processed')
     return res_AH
 
 
 # write out SUEWS input with AH incorporated and UTC corrected to LST
-def write_SUEWS_forcing_1h_AH_LST(input_path, input_AH_path, output_file, year_start, year_end, lat, lon, hgt, UTC_offset_h, rainAmongN, textObject=None):
+def write_SUEWS_forcing_1h_AH_LST(input_path, input_AH_path, output_file, year_start, year_end, hgt, UTC_offset_h, rainAmongN, progress=None):
     # load raw 3-hourly met data and 1-hourly AH data and write to text file
     # textObject is optional QText that has so we can keep the user informed
 
-    data_raw_3h = load_WFDEI_3h(
-        input_path, year_start, year_end, lat, lon, textObject)
+    data_raw_3h, data_lat, data_lon = load_WFDEI_3h(input_path, progress)
 
     # process raw data to hourly forcings for SUEWS
     # as AH data are based on UTC, the WATCH data is first kept in UTC as well
     data_out_1h = process_SUEWS_forcing_1h_LST(
-        data_raw_3h, lat, lon, hgt, 0, rainAmongN, textObject)
+        data_raw_3h, data_lat, data_lon, hgt, 0, rainAmongN, progress)
 
     # process AH data to match with data_out_1h
-    AH_out_1h = process_AH_1h(input_AH_path, data_out_1h, textObject)
+    AH_out_1h = process_AH_1h(input_AH_path, data_out_1h, progress)
 
     # insert Qf of each grid to met forcings
     data_out_1h_grid = pd.Panel({xid: data_out_1h for xid in AH_out_1h.items})
@@ -721,54 +624,23 @@ def write_SUEWS_forcing_1h_AH_LST(input_path, input_AH_path, output_file, year_s
             data_out_1h_grid_year.to_csv(file_output_grid_year, sep=" ",
                                          index=False, float_format='%.4f')
 
-    if textObject is not None:
-        textObject.setText('WFDEI Data Successfully Exported ')
-
-def decompress_WFDEI(filename):
-    # Decompress a gzipped file to a temporary folder and return the location of the unzipped file
-    # inputs: The absolute filename of the gzip'd file
-    outNcFile = os.path.join(tempfile.gettempdir(),
-                             os.path.splitext(os.path.basename(filename))[0])
-    with gzip.open(filename, 'rb') as zipFile:
-        a = zipFile.read()
-
-    with open(outNcFile, 'wb') as outFile:
-        outFile.write(a)
-
-    return outNcFile
 
 
-def runExtraction(input_path, output_file, year_start, year_end, lat, lon, hgt, UTC_offset_h, rainAmongN, textObject=None):
+def runExtraction(rawdata, output_file, year_start, year_end, hgt, UTC_offset_h, rainAmongN, progress=None):
     # Extract the data.
     # textObject is optional Q text object(write) so we can keep the user
     # informed
-
-    # print input_path
-    if not os.path.lexists(input_path):
-        raise ValueError('No such input directory. Try again...')
-    # output path:
 
     # print output_path
     if not os.path.lexists(os.path.split(output_file)[0]):
         raise ValueError('Output directory doesn\'t exist. Try again')
 
-    if not(1979 <= year_start <= year_end <= 2014):
-        raise ValueError('Invalid start and/or end year entered')
+    write_SUEWS_forcing_1h_LST(rawdata, output_file,
+                               year_start, year_end, hgt, UTC_offset_h, rainAmongN, progress)
 
-    if not(-90 < lat < 90 and -180 < lon < 180):
-        raise ValueError('Invalid WFDEI co-ordinates entered')
-
-    start = time.time()
-
-    write_SUEWS_forcing_1h_LST(input_path, output_file,
-                               year_start, year_end, lat, lon, hgt, UTC_offset_h, rainAmongN, textObject)
-    end = time.time()
-    # Clean up decompressed files
-
-
-def runExtraction_AH(input_path, input_AH_path, output_file, year_start, year_end, lat, lon, hgt, UTC_offset_h, rainAmongN, textObject=None):
+def runExtraction_AH(input_path, input_AH_path, output_file, year_start, year_end, hgt, UTC_offset_h, rainAmongN, progress=None):
     # Extract the data.
-    # textObject is optional Q text object(write) so we can keep the user
+    # progress is optional Q text object(write) so we can keep the user
     # informed
 
     # print input_path
@@ -782,14 +654,8 @@ def runExtraction_AH(input_path, input_AH_path, output_file, year_start, year_en
     if not os.path.lexists(os.path.split(output_file)[0]):
         raise ValueError('Output directory doesn\'t exist. Try again')
 
-    if not(1979 <= year_start <= year_end <= 2014):
+    if not(1979 <= year_start <= year_end <= 2015):
         raise ValueError('Invalid start and/or end year entered')
 
-    if not(-90 < lat < 90 and -180 < lon < 180):
-        raise ValueError('Invalid WFDEI co-ordinates entered')
-
-    start = time.time()
-
     write_SUEWS_forcing_1h_AH_LST(input_path, input_AH_path, output_file,
-                                  year_start, year_end, lat, lon, hgt, UTC_offset_h, rainAmongN, textObject)
-    end = time.time()
+                                  year_start, year_end, hgt, UTC_offset_h, rainAmongN, progress)

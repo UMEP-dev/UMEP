@@ -82,7 +82,7 @@ class LQF:
             import numpy
         except Exception, e:
             QMessageBox.critical(None, 'Error',
-                                 'LQF requires the pandas, matplotlib, NetCDF4 and/or numpy packages to be installed. Please consult the manual for further information')
+                                 'LQF requires the pandas, matplotlib, NetCDF4 and numpy packages to be installed. Please consult the manual for further information')
             return
 
 
@@ -127,6 +127,7 @@ class LQF:
         # Default: USe date range rather than list
         self.dlg.chkDateRange.setChecked(True)
         self.dlg.chkDateList.setChecked(False)
+        self.dlg.txtDateList.setText('')
         self.useDateRange()
 
         self.pickledResultsLocation = None                                                      # Location of a file containing pickled results
@@ -273,7 +274,7 @@ class LQF:
         self.dlg.cmdPrepare.setEnabled(True)
 
     def help(self):
-        url = "http://urban-climate.net/umep/UMEP_Manual#Processor:_Urban_Energy_Balance:_LQF"
+        url = "http://urban-climate.net/umep/UMEP_Manual#Urban_Energy_Balance:_LQF"
         webbrowser.open_new_tab(url)
 
     def dataSources(self):
@@ -509,10 +510,12 @@ class LQF:
                     startDates.append(dt.strptime(date.strip(), '%Y-%m-%d'))
                     endDates.append(startDates[-1] + timedelta(hours=24))
                 except Exception:
-                    raise ValueError('Invalid date list: ' + date + '. Must be comma-separated and in format YYYY-mm-dd')
+                     QMessageBox.critical(None, 'Error', 'Invalid date list: ' + date + '. Must be comma-separated and in format YYYY-mm-dd')
+                     return
 
         # Does the user want to also create SUEWS input files?
-        makeNcdf = self.dlg.chkSUEWS.isChecked()
+        # makeNcdf = self.dlg.chkSUEWS.isChecked()
+        makeNcdf = False
         # If a list, then generate end dates 24h after each start date
         # Create a config dict for the model to use
         self.dlg.cmdRunCancel.setEnabled(False)
@@ -551,8 +554,14 @@ class LQF:
     def reset(self):
         ''' Reset model object and dialogues so that user can start again'''
         self.initialise()
-        # Replace the "clear results" box with "Run"
+        # Reset the "run" button
         self.dlg.cmdRunCancel.clicked.disconnect()
         self.dlg.cmdRunCancel.clicked.connect(self.startWorker, Qt.UniqueConnection)
         self.dlg.cmdRunCancel.setText('Run')
         self.dlg.cmdRunCancel.setEnabled(True)
+        # Reset the "load results" button
+        self.dlg.cmdLoadResults.clicked.disconnect()
+        self.dlg.cmdLoadResults.setText('Load results')
+        self.dlg.cmdLoadResults.clicked.connect(self.loadResults, Qt.UniqueConnection)                               # Load a previous model run's results
+        self.dlg.cmdLoadResults.setEnabled(True)
+

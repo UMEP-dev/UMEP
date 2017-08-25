@@ -392,7 +392,7 @@ class Worker(QtCore.QObject):
                 index = self.find_index(code)
                 new_line[index] = str(IMPveg_heights_mean_dec)
 
-                # New calcualtion of rouhgness params v2017a (Kent et al. 2017b)
+                # New calcualtion of rouhgness params v2017 (Kent et al. 2017b)
 				# Evergreen not yet included in the calculations
                 if (float(LCF_decidious) == 0 and float(LCF_evergreen) == 0 and float(LCF_buildings) == 0):
                     sdComb = 0
@@ -454,7 +454,7 @@ class Worker(QtCore.QObject):
                 index = self.find_index(code)
                 new_line[index] = str(IMPveg_fai_dec)
 
-                # new for z (2017a)
+                # new for z (2017)
                 code = "z"
                 index = self.find_index(code)
                 try:

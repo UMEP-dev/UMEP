@@ -78,7 +78,7 @@ class DailyLoading(GenericAnnualSampler):
         # Within the series, find the most recent occurrence of this day of week
 
         # Is the section of data provided to us correct? It should be, given earlier stages, but still...
-        dows_available = map(self.getDOW, [d.to_datetime() for d in df.index])
+        dows_available = map(self.getDOW, [d.to_pydatetime() for d in df.index])
         # Return the value and the corresponding date from which it came
         dateNeeded = (endOfTimestep - timedelta(seconds=timestepDuration-1))
         use = np.array(dows_available) == wd
@@ -100,7 +100,7 @@ class DailyLoading(GenericAnnualSampler):
             if self.yearContents[startDate] is not None:
                 # Get days of week present in each startDate's entry.
                 # Each entry must be a pandas timeseries, in which case the day of week is converted from the timestamp
-                dates = [d.to_datetime() for d in self.yearContents[startDate]['data'].index]
+                dates = [d.to_pydatetime() for d in self.yearContents[startDate]['data'].index]
                 result[startDate] = (dow in list(np.unique(map(self.getDOW, dates))))
 
         return pd.Series(result)

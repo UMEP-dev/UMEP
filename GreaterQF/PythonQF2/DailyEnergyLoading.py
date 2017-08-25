@@ -101,22 +101,3 @@ class DailyEnergyLoading:
         self.gas.addPeriod(startDate=sd, endDate=ed, dataSeries=dl.gas[firstDataLine:])
         self.electricity.addPeriod(startDate=sd, endDate=ed, dataSeries=dl.elec[firstDataLine:])
 
-if __name__ == '__main__':
-    # Add and retrieve test data
-    tz = pytz.timezone('UTC')
-    a = DailyEnergyLoading('Europe/London', True)
-    a.addLoadings('C:\\Users\\pn910202\\Dropbox\\EnergyData\\DailyEnergyDemand\\2015GasElecDD.csv') # complete year
-    a.addLoadings('C:\\Users\\pn910202\\Dropbox\\EnergyData\\DailyEnergyDemand\\2016GasElecDD.csv') # complete year
-
-    dr = pd.date_range(pd.datetime.strptime('2015-01-01 00:30', '%Y-%m-%d %H:%M'), pd.datetime.strptime('2017-01-01 12:00', '%Y-%m-%d %H:%M'))
-
-    # dr = [  pd.datetime.strptime('2017-02-20 12:00', '%Y-%m-%d %H:%M'),
-    #         pd.datetime.strptime('2016-02-24 12:00', '%Y-%m-%d %H:%M'),
-    #         pd.datetime.strptime('2016-03-11 12:00', '%Y-%m-%d %H:%M'),
-    #         pd.datetime.strptime('2016-04-12 12:00', '%Y-%m-%d %H:%M'),
-    #         pd.datetime.strptime('2016-04-28 12:00', '%Y-%m-%d %H:%M'),
-    #         pd.datetime.strptime('2016-05-05 12:00', '%Y-%m-%d %H:%M')]
-    for dt in dr:
-        result  = a.getGas(tz.localize(dt.to_datetime()), 1800)
-
-        print str(dt)+ ' ' +  str(result[0]) + ' ' + str(result[1])

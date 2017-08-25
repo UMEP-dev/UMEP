@@ -46,7 +46,7 @@ from tools.areaTool import AreaTool
 
 #3d Model import
 #import tools.GLWindow as GLWindow
-import tools.GLWidget
+# import tools.GLWidget
 try:
     # import tools.GLWidget as GLWidget
     import tools.GLWidget

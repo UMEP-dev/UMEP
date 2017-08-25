@@ -144,8 +144,10 @@ class Params:
         # Public holidays
         self.useUKholidays = PARAMS['params']['use_uk_holidays'] == 1
         if PARAMS['params']['use_custom_holidays'] == 1:
+            if type(PARAMS['params']['custom_holidays']) is not list:
+                PARAMS['params']['custom_holidays'] = [PARAMS['params']['custom_holidays']]
             for hol in PARAMS['params']['custom_holidays']:
                 try:
-                    self.customHolidays.append = dt.strptime(hol, 'YYYY-mm-dd').date()
-                except Exception:
+                    self.customHolidays.append(dt.strptime(hol, '%Y-%m-%d').date())
+                except Exception, e:
                     raise ValueError('Invalid custom holiday "' + str(hol) + '" specified. Must be in format YYYY-mm-dd')

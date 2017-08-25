@@ -26,48 +26,22 @@ from qgis.gui import *
 from osgeo import osr, ogr
 # from qgis.core import *
 # Initialize Qt resources from file resources.py
-import resources
 # Import the code for the dialog
 from extreme_finder_dialog import ExtremeFinderDialog
 import os.path
-# from datetime import datetime, timedelta, time
-# import os
-# import math
+import webbrowser
+import shutil
 from ..Utilities import f90nml
-# import webbrowser
-# import datetime
-# import time
-# import gzip
-# import StringIO
-# import urllib2
-# import tempfile
 from HeatWave.findHW import *
 from HeatWave.plotHW import plotHW
-#from WFDEIDownloader.WFDEI_Interpolator import *
-
-# # pandas, netCDF4 and numpy might not be shipped with QGIS
-# try:
-#     import pandas as pd
-# except:
-#     pass  # Suppress warnings at QGIS loading time, but an error is shown later to make up for it
-#
-# try:
-#     from netCDF4 import Dataset, date2num
-# except:
-#     raise Exception('NetCDF4 library was not found on this machine. Extremefinder will not run')
-#     pass  # Suppress warnings at QGIS loading time, but an error is shown later to make up for it
-#
-# try:
-#     import numpy as np
-# except:
-#     pass  # Suppress warnings at QGIS loading time, but an error is shown later to make up for it
-
-
+from PyQt4.QtCore import QDate, QObject, pyqtSignal, QThread
 ###########################################################################
 #
 #                               Plugin
 #
 ###########################################################################
+
+
 class ExtremeFinder:
     """QGIS Plugin Implementation."""
 
@@ -98,63 +72,37 @@ class ExtremeFinder:
                 QCoreApplication.installTranslator(self.translator)
 
         self.dlg = ExtremeFinderDialog()
-        self.dlg.selectpoint.clicked.connect(self.select_point)
-        self.dlg.runButton.clicked.connect(self.start_progress)
+        self.dlg.runButton.clicked.connect(self.start_progress_wrapped)
         self.dlg.pushButtonHelp.clicked.connect(self.help)
         self.dlg.pushButtonClose.clicked.connect(self.dlg.close)
         self.dlg.pushButtonSave.clicked.connect(self.outfile)
         self.dlg.pushButtonSave_2.clicked.connect(self.infile)
-
-        self.dlg.pushButtonSave_2.setEnabled(False)
-        self.dlg.checkBox.stateChanged.connect(self.activate_button)
+        self.dlg.pushButtonSave_2.setEnabled(True)
         self.fileDialog = QFileDialog()
         self.fileDialog.setFileMode(4)
         self.fileDialog.setAcceptMode(1)
         self.folderPathRaw = 'None'
+        self.save_file = None
         self.outputfile = 'None'
-
+        self.watch_vars =  ['Tair',
+                                 'Wind',
+                                 'LWdown',
+                                 'PSurf',
+                                 'Qair',
+                                 'Rainf',
+                                 'Snowf',
+                                 'SWdown']
+        self.hw_start =  None
+        self.hw_end = None
+        self.lat = None
+        self.lon = None
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&Extreme Finder')
+
         # TODO: We are going to let the user set this up in a future iteration
         self.toolbar = self.iface.addToolBar(u'ExtremeFinder')
         self.toolbar.setObjectName(u'ExtremeFinder')
-
-        # get reference to the canvas
-        self.canvas = self.iface.mapCanvas()
-        self.degree = 5.0
-        self.point = None
-        self.pointx = None
-        self.pointy = None
-
-        # #g pin tool
-        self.pointTool = QgsMapToolEmitPoint(self.canvas)
-        self.pointTool.canvasClicked.connect(self.create_point)
-
-        # Inflate mappings file if needed
-
-        # text_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'WFDEIDownloader/WFDEI-land-long-lat-height.txt')
-        # gzip_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'WFDEIDownloader/WFDEI-land-long-lat-height.txt.gz')
-        # try:
-        #     a = open(text_file)
-        # except IOError,e:
-        #     try:
-        #         import gzip
-        #         with gzip.open(gzip_file, 'rb') as zipFile:
-        #             a = zipFile.read()
-        #         with open(text_file, 'wb') as outFile:
-        #             outFile.write(a)
-        #     except Exception, e:
-        #         QMessageBox.critical(None, 'ha', str(e))
-        #         raise Exception('Could not locate mappings textfile, nor decompress its zipped copy')
-
-    def activate_button(self):
-        if self.dlg.checkBox.isChecked():
-            self.dlg.pushButtonSave_2.setEnabled(True)
-        else:
-            self.dlg.pushButtonSave_2.setEnabled(False)
-            self.dlg.textInput.clear()
-
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -246,6 +194,32 @@ class ExtremeFinder:
 
         return action
 
+    def disableButtons(self):
+        ''' Disable all dialog buttons (except download/cancel)'''
+        self.dlg.selectpoint.setEnabled(False)
+        self.dlg.runButton.setEnabled(False)
+        self.dlg.pushButtonHelp.setEnabled(False)
+        self.dlg.pushButtonClose.setEnabled(False)
+        self.dlg.pushButtonSave.setEnabled(False)
+        self.dlg.pushButtonSave_2.setEnabled(False)
+        self.dlg.dateEditStart.setEnabled(False)
+        self.dlg.dateEditEnd.setEnabled(False)
+        self.dlg.textOutput_lat.setEnabled(False)
+        self.dlg.textOutput_lon.setEnabled(False)
+
+    def enableButtons(self):
+        ''' Enable all dialog buttons'''
+        self.dlg.selectpoint.setEnabled(True)
+        self.dlg.runButton.setEnabled(True)
+        self.dlg.pushButtonHelp.setEnabled(True)
+        self.dlg.pushButtonClose.setEnabled(True)
+        self.dlg.pushButtonSave.setEnabled(True)
+        self.dlg.pushButtonSave_2.setEnabled(True)
+        self.dlg.dateEditStart.setEnabled(True)
+        self.dlg.dateEditEnd.setEnabled(True)
+        self.dlg.textOutput_lat.setEnabled(True)
+        self.dlg.textOutput_lon.setEnabled(True)
+
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
@@ -266,57 +240,13 @@ class ExtremeFinder:
         # remove the toolbar
         del self.toolbar
 
+
     def help(self):
         url = "http://urban-climate.net/umep/UMEP_Manual#Outdoor_Thermal_Comfort:_ExtremeFinder"
         webbrowser.open_new_tab(url)
 
-    def select_point(self):  # Connected to "Secelct Point on Canves"
-        self.canvas.setMapTool(self.pointTool)  # Calls a canvas click and create_point
-        self.dlg.setEnabled(False)
-
-    def create_point(self, point):  # Var kommer point ifran???
-        # report map coordinates from a canvas click
-        self.dlg.setEnabled(True)
-        self.dlg.activateWindow()
-
-        canvas = self.iface.mapCanvas()
-        srs = canvas.mapSettings().destinationCrs()
-        crs = str(srs.authid())
-        # self.iface.messageBar().pushMessage("Coordinate selected", str(crs[5:]))
-        old_cs = osr.SpatialReference()
-        old_cs.ImportFromEPSG(int(crs[5:]))
-
-        new_cs = osr.SpatialReference()
-        new_cs.ImportFromEPSG(4326)
-
-        transform = osr.CoordinateTransformation(old_cs, new_cs)
-
-        latlon = ogr.CreateGeometryFromWkt('POINT (' + str(point.x()) + ' ' + str(point.y()) + ')')
-        latlon.Transform(transform)
-
-        self.dlg.textOutput_lon.setText(str(latlon.GetX()))
-        self.dlg.textOutput_lat.setText(str(latlon.GetY()))
-
     def run(self):
-        
-		# pandas, netCDF4 and numpy might not be shipped with QGIS
-        # try:
-        #     import pandas as pd
-        # except:
-        #     pass  # Suppress warnings at QGIS loading time, but an error is shown later to make up for it
 
-        # try:
-        #     from netCDF4 import Dataset, date2num
-        # except:
-        #     raise Exception('NetCDF4 library was not found on this machine. Extremefinder will not run')
-        #     pass  # Suppress warnings at QGIS loading time, but an error is shown later to make up for it
-        #
-        # try:
-        #     import numpy as np
-        # except:
-        #     pass  # Suppress warnings at QGIS loading time, but an error is shown later to make up for it
-
-        # Check the more unusual dependencies to prevent confusing errors later
         try:
             import pandas as pd
         except Exception, e:
@@ -337,9 +267,55 @@ class ExtremeFinder:
         result = self.dlg.exec_()
         # See if OK was pressed
 
+    def validateInputDates(self):
+        # validate date range and add to object properties if OK
+        self.hw_start =  None
+        self.hw_end = None
+
+        hw_start = self.dlg.dateEditStart.text()
+        try:
+            hw_start = datetime.datetime.strptime(hw_start, '%Y-%m-%d')
+        except Exception:
+            raise ValueError('Invalid start date (%s) entered'%(hw_start))
+        hw_end = self.dlg.dateEditEnd.text()
+        try:
+            hw_end = datetime.datetime.strptime(hw_end, '%Y-%m-%d')
+        except Exception:
+            raise ValueError('Invalid end date (%s) entered'%(hw_end))
+
+        self.hw_start = hw_start
+        self.hw_end = hw_end
+
+    def validateInputCoordinates(self):
+        ''' validate and record the  latitude and longitude boxes (must be WGS84)'''
+        lon = float(self.dlg.textOutput_lon.text())
+        if not (-180 < lon < 180):
+            raise ValueError('Invalid co-ordinates entered')
+
+        lat = float(self.dlg.textOutput_lat.text())
+        if not (-90 < lat < 90):
+            raise ValueError('Invalid co-ordinates entered')
+
+        self.lat = lat
+        self.lon = lon
+
+    def error(self, exception, text):
+        self.enableButtons()
+        QMessageBox.critical(None, "Error", 'Data download not completed: %s'%(str(exception),))
+
     def infile(self):
-        filename1 = QFileDialog.getOpenFileName()
-        self.dlg.textInput.setText(filename1)
+        filename = QFileDialog.getOpenFileName()
+        if filename.split('.')[-1]=='nc':
+            # If a NetCDF file, try and get metadata to populate the dialog elements
+            (lat, lon, start_date, end_date) = get_ncmetadata(filename)
+
+        self.dlg.textInput.setText(filename)
+        if (lat is not None) and (lon is not None):
+            self.dlg.textOutput_lat.setText(str(lat))
+            self.dlg.textOutput_lon.setText(str(lon))
+
+        self.dlg.dateEditStart.setDate(start_date)
+        self.dlg.dateEditEnd.setDate(end_date)
 
     def outfile(self):
         outputfile = self.fileDialog.getSaveFileName(
@@ -350,18 +326,23 @@ class ExtremeFinder:
             self.outputfile = outputfile
             self.dlg.textOutput.setText(self.outputfile)
 
-    def start_progress(self):
-        self.dlg.runButton.setEnabled(False)
+    def start_progress_wrapped(self):
+        '''
+        Runs start_progress but wraps in an error dialog box to catch exceptions
+        '''
+        try:
+            self.start_progress()
+        except Exception, e:
+            QMessageBox.critical(None, "Error", str(e))
+            self.dlg.runButton.setEnabled(True)
 
+    def start_progress(self):
         # get current working directory
         pwd = os.path.dirname(os.path.realpath(__file__))
-
+        self.dlg.runButton.setEnabled(False)
         # read the namelist file
         # with open() as nml_file:
         nml = f90nml.read(os.path.join(pwd, 'input.nml'))
-
-        threshold_year_start = nml['time_control']['reference_start_year']
-        threshold_year_end = nml['time_control']['reference_end_year']
 
         t1_quantile_Meehl = nml['method']['t1_quantile_Meehl']
         t2_quantile_Meehl = nml['method']['t2_quantile_Meehl']
@@ -372,167 +353,137 @@ class ExtremeFinder:
         TempDif_Srivastava = nml['method']['TempDif_Srivastava']
         TempDif_Busuioc = nml['method']['TempDif_Busuioc']
 
-        data_start_time = nml['change_data_set']['data_start_time']
-        data_end_time = nml['change_data_set']['data_end_time']
-        data_variable_name = nml['change_data_set']['data_variable_name']
-
-        hw_start = self.dlg.dateEditStart.text()
-        hw_start = datetime.datetime.strptime(hw_start, '%Y-%m-%d')
-        hw_end = self.dlg.dateEditEnd.text()
-        hw_end = datetime.datetime.strptime(hw_end, '%Y-%m-%d')
-        hw_year_start = int(str(hw_start).split("-", 1)[0])
-        hw_year_end = int(str(hw_end).split("-", 1)[0])
+        # Does user want heatwave or coldwave?
         filein = self.dlg.textInput.text()
         fileout = self.dlg.textOutput.text()
         if not os.path.exists(os.path.split(fileout)[0]):
-            QMessageBox.critical(
-                None, "Error", "Invalid output file location entered")
-            self.dlg.runButton.setEnabled(True)
-            return
+            raise ValueError("Invalid output file location entered")
 
-        try:
-            lat = float(self.dlg.textOutput_lat.text())
-            if not (-90 < lat < 90):
-                raise ValueError('Invalid WFDEI co-ordinates entered')
-        except Exception, e:
-            QMessageBox.critical(None, "Error", "Invalid latitude")
-            self.dlg.runButton.setEnabled(True)
-            return
-
-        try:
-            lon = float(self.dlg.textOutput_lon.text())
-            if not (-180 < lon < 180):
-                raise ValueError('Invalid WFDEI co-ordinates entered')
-        except Exception, e:
-            QMessageBox.critical(None, "Error", "Invalid longitude")
-            self.dlg.runButton.setEnabled(True)
-            return
-
-        #######################################################################
-        # Find heat waves
-        #######################################################################
-        # download Tmax data
-        try:
-            # get land index from the local file
-            pwd = os.path.dirname(os.path.realpath(__file__))
-            ncfn = os.path.join(pwd, 'validGrid.txt')
-            nc_global_land = pd.read_csv(ncfn,header=None)
-            land_global = nc_global_land[0].values
-            xland = WFD_get_city_index(lat, lon)
-            if not xland in land_global:
-                raise ValueError('Invalid WATCH co-ordinates entered')
-        except Exception, e:
-            QMessageBox.critical(None, "Error", "Invalid location: " + str(xland))
-            self.dlg.runButton.setEnabled(True)
-            return
-
-        if self.dlg.checkBox.isChecked():
-            try:
-                if threshold_year_start < int(str(data_start_time).split('-')[0]) or threshold_year_end > int(str(data_end_time).split('-')[0]):
-                    raise ValueError('Reference year error')
-            except Exception, e:
-                QMessageBox.critical(None, "Error", "Invalid reference year")
+        # Is user looking at HW or CW tab of toolbox?
+        mode = None
+        var = None
+        if self.dlg.toolBox.currentIndex() == 0:
+            mode = 'HW'
+            var = str(self.dlg.cmbHWvar.currentText())
+            if self.dlg.comboBox_HW.currentIndex()==0:
                 self.dlg.runButton.setEnabled(True)
-                return
+                raise ValueError('Please choose a calculation method')
 
-            try:
-                if filein.split('.')[-1]=='nc' or filein.split('.')[-1]=='txt':
-                    file_name = filein
-                else:
-                    raise ValueError('Invalid data format')
-            except Exception, e:
-                QMessageBox.critical(None, "Error", "Invalid data format")
+        elif self.dlg.toolBox.currentIndex() == 1:
+            mode = 'CW'
+            var = str(self.dlg.cmbCWvar.currentText())
+            if self.dlg.comboBox_CW.currentIndex()==0:
                 self.dlg.runButton.setEnabled(True)
-                return
+                raise ValueError('Please choose a calculation method')
 
-            if filein.split('.')[-1]=='nc':
-                Tdata = get_ncdata(file_name, threshold_year_start, threshold_year_end, data_variable_name, data_start_time, data_end_time)
-            elif filein.split('.')[-1]=='txt':
-                Tdata = get_txtdata(file_name, threshold_year_start, threshold_year_end, data_start_time, data_end_time)
-
-            Tmax = Tdata
-            Tavg = Tdata
-            Tmin = Tdata
         else:
-            file_name = download(xland)
-            Tmax = get_Tmax(file_name, threshold_year_start, threshold_year_end)
-            Tavg = get_Tavg(file_name, threshold_year_start, threshold_year_end)
-            Tmin = get_Tmin(file_name, threshold_year_start, threshold_year_end)
-
-        try:
-            if self.dlg.comboBox_HW.currentIndex()==0 and self.dlg.comboBox_CW.currentIndex()==0:
-                raise ValueError('Invalid method for extreme event')
-        except Exception, e:
-            QMessageBox.critical(None, "Error", "Please select a method for extreme event")
             self.dlg.runButton.setEnabled(True)
-            return
+            raise ValueError('Please choose whether to investigate extreme high or low values')
 
-        try:
-            if self.dlg.comboBox_HW.currentIndex()>0 and self.dlg.comboBox_CW.currentIndex()>0:
-                raise ValueError('Invalid method for extreme event')
-        except Exception, e:
-            QMessageBox.critical(None, "Error", "Please select only one method for extreme event")
+        # Validate selected variable
+        if var not in self.watch_vars:
             self.dlg.runButton.setEnabled(True)
-            return
+            raise ValueError('Invalid meterological variable chosen')
+        try:
+            if filein.split('.')[-1]=='nc' or filein.split('.')[-1]=='txt':
+                file_name = filein
+            else:
+                raise ValueError('Invalid data format')
+        except Exception, e:
+            raise Exception('Invalid input file data format')
 
-        try:
-            if threshold_year_start > int(str(hw_start).split('-')[0]) or threshold_year_end < int(str(hw_end).split('-')[0]):
-                raise ValueError('time period error')
-        except Exception, e:
-            QMessageBox.critical(None, "Error", "Time period error, please change the start time or the end time")
-            self.dlg.runButton.setEnabled(True)
-            return
+        self.validateInputDates()
+
+        if filein.split('.')[-1]=='nc':
+            try:
+                Tdata, unit, self.lat, self.lon, self.hw_start, self.hw_end = get_ncdata(file_name, self.hw_start.year, self.hw_end.year, var)
+            except KeyError,e:
+                raise Exception('NetCDF file must contain the variable %s in order to continue'%(e,))
+            except Exception,e:
+                raise e
+
+            unit = '(' + str(unit) + ')'
+            sd = QDate.fromString(self.hw_start.strftime('%Y-%m-%d'), 'yyyy-MM-dd')
+            ed = QDate.fromString(self.hw_end.strftime('%Y-%m-%d'), 'yyyy-MM-dd')
+            self.dlg.dateEditStart.setDate(sd)
+            self.dlg.dateEditEnd.setDate(ed)
+            self.dlg.textOutput_lat.setText(str(self.lat))
+            self.dlg.textOutput_lon.setText(str(self.lon))
+
+            daily_max = Tdata.resample('24H').max()
+            daily_avg = Tdata.resample('24H').mean()
+            daily_min = Tdata.resample('24H').min()
+
+        elif filein.split('.')[-1]=='txt':
+            # Ensure user has entered valid lat, lon, start and end times for this data
+            self.validateInputCoordinates()
+            self.validateInputDates()
+            if var != "Tair":
+                raise ValueError('Only Tair may be analysed using a text file for data. '
+                                 'Other variables can be analysed if a NetCDF (.nc) input file is used, or if data is downloaded')
+            Tdata = get_txtdata(file_name, self.hw_start.year, self.hw_end.year, self.hw_start, self.hw_end)
+            daily_max = Tdata # we don't know what we've been given, so assume the user knows which method(s) to use given the input data
+            daily_avg = Tdata
+            daily_min = Tdata
+            unit = u'(\N{DEGREE SIGN}C)'
+
 
         # identify HW periods
-        if self.dlg.comboBox_HW.currentIndex()==1:
-            xHW = findHW_Meehl(Tmax,
-                         hw_start, hw_end,
-                         threshold_year_start, threshold_year_end,
-                         t1_quantile_Meehl, t2_quantile_Meehl)
-            Tplot = Tmax
-            labelsForPlot = ['Tmax','Heat Wave','HWs']
+        labelsForPlot = None
+        if mode == "HW":
+            if self.dlg.comboBox_HW.currentIndex()==1:
+                xHW = findHW_Meehl(daily_max,
+                             self.hw_start, self.hw_end,
+                             self.hw_start.year, self.hw_end.year,
+                             t1_quantile_Meehl, t2_quantile_Meehl)
+                Tplot = daily_max
+                labelsForPlot = [var+'_max','Extreme high values (Meehl and Tebaldi)','HVs', unit]
 
-        elif self.dlg.comboBox_HW.currentIndex()==2:
-            xHW = findHW_Fischer(Tmax,
-                         hw_start, hw_end,
-                         threshold_year_start, threshold_year_end,
-                         t3_quantile_Fischer)
-            Tplot = Tmax
-            labelsForPlot = ['Tmax','Heat Wave','HWs']
+            elif self.dlg.comboBox_HW.currentIndex()==2:
+                xHW = findHW_Fischer(daily_max,
+                             self.hw_start, self.hw_end,
+                             self.hw_start.year, self.hw_end.year,
+                             t3_quantile_Fischer)
+                Tplot = daily_max
+                labelsForPlot = [var+'_max','Extreme high values (Fischer and Schar)','HVs', unit]
 
-        elif self.dlg.comboBox_HW.currentIndex()==3:
-            xHW = findHW_Schoetter(Tmax,
-                         hw_start, hw_end,
-                         threshold_year_start, threshold_year_end,
-                         t4_quantile_Schoetter, lat)
-            Tplot = Tmax
-            labelsForPlot = ['Tmax','Heat Wave','HWs']
+            elif self.dlg.comboBox_HW.currentIndex()==3:
+                xHW = findHW_Schoetter(daily_max,
+                             self.hw_start, self.hw_end,
+                             self.hw_start.year, self.hw_end.year,
+                             t4_quantile_Schoetter, self.lat)
+                Tplot = daily_max
+                labelsForPlot = [var+'_max','Extreme high values (Shoetter)','HVs', unit]
 
-        elif self.dlg.comboBox_HW.currentIndex()==4:
-            xHW = findHW_Vautard(Tavg,
-                         hw_start, hw_end,
-                         threshold_year_start, threshold_year_end,
-                         t5_quantile_Vautard)
-            Tplot = Tavg
-            labelsForPlot = ['Tavg','Heat Wave','HWs']
+            elif self.dlg.comboBox_HW.currentIndex()==4:
+                xHW = findHW_Vautard(daily_avg,
+                             self.hw_start, self.hw_end,
+                             self.hw_start.year, self.hw_end.year,
+                             t5_quantile_Vautard)
+                Tplot = daily_avg
+                labelsForPlot = [var+'_avg','Extreme high values (Vautard)','HVs', unit]
 
-        elif self.dlg.comboBox_CW.currentIndex()==1:
-            xHW = findCW_Keevallik(Tmin,
-                       hw_start, hw_end,
-                       threshold_year_start, threshold_year_end,
-                       t6_quantile_Keevallik)
-            Tplot = Tmin
-            labelsForPlot = ['Tmin','Cold Wave','CWs']
+        if mode == "CW":
+            if self.dlg.comboBox_CW.currentIndex()==1:
+                xHW = findCW_Keevallik(daily_min,
+                           self.hw_start, self.hw_end,
+                           self.hw_start.year, self.hw_end.year,
+                           t6_quantile_Keevallik)
+                Tplot = daily_min
+                labelsForPlot = [var+'_min','Extreme low values (Keevallik)','LVs', unit]
 
-        elif self.dlg.comboBox_CW.currentIndex()==2:
-            xHW = findCW_Srivastava(Tmin, hw_start, hw_end, threshold_year_start, threshold_year_end, TempDif_Srivastava)
-            Tplot = Tmin
-            labelsForPlot = ['Tmin','Cold Wave','CWs']
+            elif self.dlg.comboBox_CW.currentIndex()==2:
+                xHW = findCW_Srivastava(daily_min, self.hw_start, self.hw_end, TempDif_Srivastava)
+                Tplot = daily_min
+                labelsForPlot = [var+'_min','Extreme low values (Srivastava)','LVs', unit]
 
-        elif self.dlg.comboBox_CW.currentIndex()==3:
-            xHW = findCW_Busuioc(Tmin, hw_start, hw_end, threshold_year_start, threshold_year_end, TempDif_Busuioc)
-            Tplot = Tmin
-            labelsForPlot = ['Tmin','Cold Wave','CWs']
+            elif self.dlg.comboBox_CW.currentIndex()==3:
+                xHW = findCW_Busuioc(daily_min, self.hw_start, self.hw_end, TempDif_Busuioc)
+                Tplot = daily_min
+                labelsForPlot = [var+'_min','Extreme low values (Busuioc)','LVs', unit]
+
+        if labelsForPlot is None:
+            raise ValueError('Please select a calculation method')
 
         # write out HW results
         result = outputHW(fileout, xHW)
@@ -540,20 +491,18 @@ class ExtremeFinder:
             if len(result) == 0:
                 raise ValueError('No Heat/Cold Wave Found')
         except Exception, e:
-            if self.dlg.comboBox_HW.currentIndex()>0:
-                QMessageBox.critical(None, "Error", "No Heat Wave Found")
-            elif self.dlg.comboBox_CW.currentIndex()>0:
-                QMessageBox.critical(None, "Error", "No Cold Wave Found")
+            if mode == "HW":
+                QMessageBox.critical(None, "Error", "No extreme high values found")
+            if mode == "CW":
+                QMessageBox.critical(None, "Error", "No extreme low values found")
             self.dlg.runButton.setEnabled(True)
             return
         else:
             result.to_csv(fileout, sep=" ", index=True, float_format='%.4f')
-        # result.to_csv(fileout, sep=" ", index=True, float_format='%.4f')
 
         ###########################################
         # plot
         ###########################################
 
-        plotHW(lat,lon,Tplot, xHW, hw_year_start, hw_year_end, labelsForPlot)
-
+        plotHW(self.lat, self.lon, Tplot, xHW, int(self.hw_start.strftime('%Y')), int(self.hw_end.strftime('%Y')), labelsForPlot)
         self.dlg.runButton.setEnabled(True)

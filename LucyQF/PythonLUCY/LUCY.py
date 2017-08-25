@@ -220,9 +220,9 @@ class Model():
         '''
         Get total latent and/or sensible and/or wastewater heat fluxes for domestic & industrial
         Assuming spatial units are already consistent and in shapefiles of identical projection
-        :param qfConfig:
-        :param qfParams:
-        :param qfDataSources:
+        :param qfConfig: Model configuration object
+        :param qfParams: LUCYParams object
+        :param qfDataSources: LUCYDataSources object
         :param disaggregated:
         :param outputFolder:
         :param logFolder:
@@ -258,16 +258,12 @@ class Model():
             tp = self.processedDataList['extra_disagg']['transport'][0]
             bd = self.processedDataList['extra_disagg']['building'][0]
             al = self.processedDataList['extra_disagg']['allocations']
+
             # Set as the output layer the version that was generated during disaggregation
-            # This contains country assignments already
-            regPar.injectAttributedOutputLayer(os.path.join(self.downscaledPath, al['file']), al['EPSG'], al['featureIds'])
-            # Assign a residential population
-            regPar.injectResPopLayer(os.path.join(self.downscaledPath, bd['file']), bd['EPSG'])
-            # Assign transport "population"
-            regPar.injectVehPopLayer(os.path.join(self.downscaledPath, tp['file']), tp['EPSG'])
-            # Assign metabolising population
-            regPar.injectMetabPopLayer(os.path.join(self.downscaledPath, mt['file']), mt['EPSG'])
-            #regPar.setOutputShapefile(os.path.join(self.downscaledPath, rp['file']), rp['EPSG'], self.processedDataList['extra_disagg']['output_areas']['featureIds'])
+            regPar.injectAttributedOutputLayer(os.path.join(self.downscaledPath, al['file']), al['EPSG'], al['featureIds']) # This contains country assignments already
+            regPar.injectResPopLayer(os.path.join(self.downscaledPath, bd['file']), bd['EPSG']) # Assign a residential population
+            regPar.injectVehPopLayer(os.path.join(self.downscaledPath, tp['file']), tp['EPSG']) # Assign transport "population"
+            regPar.injectMetabPopLayer(os.path.join(self.downscaledPath, mt['file']), mt['EPSG']) # Assign metabolising population
         else:
             # Use same population density for vehicle, metabolism and building resident spatial distributions
             rp = self.processedDataList['resPop'][0]
@@ -355,13 +351,11 @@ class Model():
         temperatures = []
         # Also store local_population_density, which is for metabolism and is multiplied by the metab_cycle
 
-
         prevYear = -1000
         for d in dates:
             # The list of dates contains the final time bin at UTC midnight the next day. Don't execute the whole day
             if sum(timeBins.date == d) == 1:
                 continue
-
 
             # Lookups that apply to the whole day (look up at noon to avoid edge effects)
             d_notimezone = dt.combine(d, dt.min.time()) + timedelta(hours=12)
@@ -449,9 +443,8 @@ class Model():
                         bldgMultiplier.loc[attribs['admin'] == idx] = bldgProfile[idx].getValueAtTime(ts_dt, 3600)[0]
                 else: # Same profile used everywhere
                     bldgMultiplier = bldgProfile.getValueAtTime(ts_dt, 3600)[0]
-                print areas
 
-                Qb_result = qb(energyUse, temperatureNow, bldgMultiplier, self.parameters.BP_temp, attribs)/areas # Wm-2
+                Qb_result = qb(self.parameters, energyUse, temperatureNow, bldgMultiplier, self.parameters.BP_temp, attribs)/areas # Wm-2
 
                 ### Transport flux ###
                 if type(trafficProfile) is dict: # Country-specific profile(s) used
@@ -495,7 +488,7 @@ class Model():
         #metabProfile.logger.writeFile(os.path.join(self.logPath, 'metabProfileLog.txt'))
         #bldgProfile.logger.writeFile(os.path.join(self.logPath, 'bldgProfileLog.txt'))
         dailyT.logger.writeFile(os.path.join(self.logPath, 'DailyTempLog.txt'))
-
+        regPar.logger.writeFile(os.path.join(self.logPath, 'NationalParameters.txt'))
 
     def makeSUEWSnetcdfFiles(self, national_attribs_used, attrib_indexes, dates, temperatures):
         '''

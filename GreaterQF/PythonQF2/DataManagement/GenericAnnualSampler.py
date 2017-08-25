@@ -184,12 +184,15 @@ class GenericAnnualSampler(object):
         # sit across a DST switch
 
         if self.dstOccurs & (self.dataTimezone != self.countryTimezone):
-            dates = pd.date_range(startDate, endDate, tz=self.dataTimezone)
-            dstChange = len(pd.unique([d.dst().seconds != 0 for d in dates]))
-            if dstChange:
-                raise ValueError('Input data file for ' +
+            startTime_isDST = localizedStartTime.dst().total_seconds() != 0
+            endTime_isDST = localizedEndTime.dst().total_seconds() != 0
+            if startTime_isDST != endTime_isDST:
+                raise ValueError('Input diurnal profiles file contains period ' +
                                  startDate.strftime('%Y-%m-%d') + ' to ' + endDate.strftime('%Y-%m-%d') +
-                                 ' is not in local time and crosses at least one daylight savings change. This is not allowed.')
+                                 '. Data is not the same time zone as the city being modelled, and the period crosses at least one daylight savings change.' +
+                                 ' Either model a city in the same time zone as the data, or change the season boundaries to not cross time zones')
+
+        # If data is for same time zone as city being modelled, then the model just shifts +/- the number of hours within the correct day (the day lookup also accounts for the time shift)
 
         # Add straight to the dict if it's the first entry ever
         if self.yearContents is None:

@@ -194,7 +194,7 @@ class Worker(QtCore.QObject):
                                 wallmatrix[p, int((wallstot[wallrow[p], wallcol[p]] - wallsun[wallrow[p], wallcol[p]]) / voxelheight) - 1:int(wallstot[wallrow[p], wallcol[p]] / voxelheight)] = Iw[wallrow[p], wallcol[p]] + Dw[wallrow[p], wallcol[p]] + Rw[wallrow[p], wallcol[p]]
 
                         if usevegdem == 1 and wallshve[wallrow[p], wallcol[p]] > 0:    # sections in vegetation shade
-                            wallmatrix[p, 0:int(wallshve[wallrow[p], wallcol[p] + wallsh[wallrow[p], wallcol[p]]] / voxelheight)] = (Iw[wallrow[p], wallcol[p]] + Dw[wallrow[p], wallcol[p]])*psi
+                            wallmatrix[p, 0:int((wallshve[int(wallrow[p]), int(wallcol[p])] + wallsh[int(wallrow[p]), int(wallcol[p])]) / voxelheight)] = (Iw[wallrow[p], wallcol[p]] + Dw[wallrow[p], wallcol[p]])*psi
 
                         if wallsh[wallrow[p], wallcol[p]] > 0:    # sections in building shade
                             wallmatrix[p, 0:int(wallsh[wallrow[p], wallcol[p]] / voxelheight)] = Rw[wallrow[p], wallcol[p]]

@@ -16,4 +16,5 @@ SoilstoreEveTrstate=150
 SoilstoreDecTrState=150
 SoilstoreGrassState=150
 SoilstoreBSoilState=150
+BoInit = 30
 /

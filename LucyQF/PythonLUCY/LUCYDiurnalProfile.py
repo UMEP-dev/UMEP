@@ -74,6 +74,9 @@ class LUCYDiurnalProfile:
                              '. This should be of the form "UTC" or "Europe/London" as per python timezone documentation')
 
         # Go through in triplets gathering up data for a template week
+        earliestStart = None
+        latestEnd = None
+        dateRanges = []
         for seasonStart in np.arange(1, dl.shape[1]):
             try:
                 sd = pd.datetime.strptime(dl[seasonStart][1], '%Y-%m-%d')
@@ -84,12 +87,15 @@ class LUCYDiurnalProfile:
             sd = tz.localize(sd)
             ed = tz.localize(ed)
 
-            # TODO: Reinstate this when the input data is UTC and the code knows which country is represented
-            # Check data doesn't cross DST changes
-            #if len(np.unique(tzsecs)) > 1:
-            #    raise ValueError('The period ' + sd.strftime('%Y-%m-%d') +
-            #                     ' to ' + ed.strftime('%Y-%m-%d')
-            #                     + ' crosses one or more daylight savings changes. Separate periods must be specified before and after each change.')
+            # Collect start and end dates to check for complete years later on
+            if earliestStart == None:
+                earliestStart = sd
+            if latestEnd == None:
+                latestEnd = ed
+
+            earliestStart = sd if sd < earliestStart else earliestStart
+            latestEnd = ed if ed > latestEnd else latestEnd
+            dateRanges.extend(pd.date_range(sd, ed, freq='D'))
 
             # Amalgamate into a template week of data
             week = dl[seasonStart][firstDataLine:].astype('float')
@@ -99,6 +105,11 @@ class LUCYDiurnalProfile:
                 week.iloc[hours] = week.iloc[hours] / week.iloc[hours].sum()
             self.addWeeklyCycle(sd, ed, week)
 
+        # Check for complete years. Raise exception if not complete.
+        fullRange = pd.date_range('%d-01-01'%(earliestStart.year,), '%d-12-31'%(latestEnd.year,), freq='D')
+        if len(fullRange) != len(dateRanges):
+            raise Exception('Diurnal profile file %s must contain complete years of data (Jan 1 to Dec 31), but starts on %s and ends on %s'%(file, earliestStart.strftime('%Y-%m-%d'), latestEnd.strftime('%Y-%m-%d')))
+
     def addWeeklyCycle(self, sd, ed, week):
         '''
         Adds a weekly cycle to the object
@@ -107,37 +118,4 @@ class LUCYDiurnalProfile:
         :param week: Pd.Series: Continuous week (Monday-Sunday) of values upon which to base the diurnal cycle
         '''
         self.diurnal.addPeriod(startDate=sd, endDate=ed, dataSeries=week)
-
-def testIt():
-    # Add and retrieve test data
-    a = LUCYDiurnalProfile('Europe/Athens',  weekendDays=[5,6], use_uk_holidays=False)
-    a.addProfile('N:/QF_Heraklion/LUCYConfig/transportProfile.csv')
-
-    timeBins = pd.date_range(pd.datetime.strptime('2015-01-16 09:00', '%Y-%m-%d %H:%M'), periods=7, tz='UTC',
-                             freq='24H')
-
-    for dp in timeBins:
-        time = dp.to_datetime()
-        print (a.getValueAtTime(time, 3600), time)
-
-
-def test_building():
-    # Add and retrieve test data with multi seasons
-    from matplotlib import pyplot as plt
-    a = LUCYDiurnalProfile('Europe/Athens',  weekendDays=[5,6], use_uk_holidays=True)
-    a.addProfile('N:/QF_Heraklion/LUCYConfig/buildingProfiles_Heraklion.csv')
-
-    timeBins = pd.date_range(pd.datetime.strptime('2015-12-31 00:00', '%Y-%m-%d %H:%M'), periods=24*365, tz='UTC',
-                             freq='H')
-
-    dataPoints = []
-    timePoints = []
-    for dp in timeBins:
-        time = dp.to_datetime()
-        print (a.getValueAtTime(time, 3600), time.strftime('%Y-%m-%d %H:%M'), time.weekday())
-        dataPoints.append(a.getValueAtTime(time,3600)[0])
-        timePoints.append(dp)
-    plt.figure()
-    plt.plot(timePoints, dataPoints)
-    plt.show()
 
