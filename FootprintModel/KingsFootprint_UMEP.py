@@ -28,7 +28,7 @@ from ..Utilities import RoughnessCalcFunctionV2 as rg
 ##1 - Kormann and Mexiner (2001) model functions
 
 ##### {Running of KM model} ####
-def footprintiterKAM(iterations,z_0_input,z_d_input,z_ag,wind,sigv,Obukhov,ustar,dir,porosity,bld,veg,rows,cols,res,dlg,maxfetch,rm):
+def footprintiterKAM(iterations,z_0_input,z_d_input,z_ag,sigv,Obukhov,ustar,dir,porosity,bld,veg,rows,cols,res,dlg,maxfetch,rm):
 
     dlg.progressBar.setRange(0, iterations)
     dlg.progressBar.setValue(0)
@@ -69,7 +69,6 @@ def footprintiterKAM(iterations,z_0_input,z_d_input,z_ag,wind,sigv,Obukhov,ustar
         z_0 = z_0_input[i]
         z_d = z_d_input[i]
         z_m = z_ag[i] - z_d_input[i]
-        u = wind[i]
         sig_v_input = sigv[i]
         L = Obukhov[i]
         u_star = ustar[i]
@@ -237,7 +236,7 @@ def f_z_phi_c(z,z_m,L):
 
 ##2 - Klujn et al. (2015) model functions
 #### {Running of Klukn model} ####
-def footprintiterKLJ(iterations,z_0_input,z_d_input,z_ag,wind,sigv,Obukhov,ustar,dir,porosity,h,bld,veg,rows,cols,res,dlg,maxfetch,rm):
+def footprintiterKLJ(iterations,z_0_input,z_d_input,z_ag,sigv,Obukhov,ustar,dir,porosity,h,bld,veg,rows,cols,res,dlg,maxfetch,rm):
 
     dlg.progressBar.setRange(0, iterations)
     dlg.progressBar.setValue(0)
@@ -247,7 +246,7 @@ def footprintiterKLJ(iterations,z_0_input,z_d_input,z_ag,wind,sigv,Obukhov,ustar
     moddomain_inm = ([-maxfetch,maxfetch,-maxfetch,maxfetch])
 
 
-    totRotatedphi = np.zeros((domain_output_inpix,domain_output_inpix))
+    totRotatedphi = np.zeros((int(domain_output_inpix),int(domain_output_inpix)))
     Wfai=np.zeros((iterations,1))
     Wpai=np.zeros((iterations,1))
     WzH=np.zeros((iterations,1))
@@ -274,7 +273,6 @@ def footprintiterKLJ(iterations,z_0_input,z_d_input,z_ag,wind,sigv,Obukhov,ustar
         z_0 = z_0_input[i]
         z_d = z_d_input[i]
         z_m = z_ag[i] - z_d_input[i]
-        umean = wind[i]
         sig_v = sigv[i]
         L = Obukhov[i]
         u_star = ustar[i]
@@ -287,11 +285,11 @@ def footprintiterKLJ(iterations,z_0_input,z_d_input,z_ag,wind,sigv,Obukhov,ustar
         phi = FFP['fclim_2d']
 
         #Return distance where footprint is max contribution (in pixels)
-        phi_maxdist[i] = np.argmax(phi[:, maxfetch / res])
+        phi_maxdist[i] = np.argmax(phi[:, int(maxfetch / res)])
         #Return distance of maximum footprint extent (in pixels)
-        phi_totdist[i] = (phi_maxdist[i] + np.nansum((phi[phi_maxdist[i]:len(phi), (len(phi) / 2)] > 0)))            #Flip Klj for wind angle
+        phi_totdist[i] = (phi_maxdist[i] + np.nansum((phi[int(phi_maxdist[i]):int(len(phi)), int((len(phi) / 2))] > 0)))            #Flip Klj for wind angle
         rotatedphi = np.flipud(phi)
-        rotatedphi=rotatedphi[0:domain_output_inpix,0:domain_output_inpix]
+        rotatedphi=rotatedphi[0:int(domain_output_inpix),0:int(domain_output_inpix)]
 
         totRotatedphi = totRotatedphi + rotatedphi
 

@@ -6,92 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>673</width>
-    <height>870</height>
+    <width>702</width>
+    <height>604</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Footprint model</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_6">
-   <item row="0" column="0">
-    <widget class="QFrame" name="frame_2">
-     <property name="frameShape">
-      <enum>QFrame::Box</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="3">
-       <widget class="QPushButton" name="selectpoint">
-        <property name="contextMenuPolicy">
-         <enum>Qt::DefaultContextMenu</enum>
-        </property>
-        <property name="toolTip">
-         <string>Select point on canvas</string>
-        </property>
-        <property name="whatsThis">
-         <string>Select a point on the canvas &lt;a href=README.html&gt; Click here for more info! &lt;/a href&gt;</string>
-        </property>
-        <property name="text">
-         <string>Select point on canvas</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="checkBoxVectorLayer">
-        <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
-        </property>
-        <property name="text">
-         <string>Use existing single point vector layer</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1" colspan="2">
-       <spacer name="verticalSpacer_5">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="1" column="3">
-       <widget class="QWidget" name="widgetPointLayer" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>175</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_10"/>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QLabel" name="label_6">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Vector point layer:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
    <item row="2" column="0">
     <widget class="QFrame" name="frame_4">
      <property name="frameShape">
@@ -111,7 +33,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item row="0" column="4">
        <widget class="QLabel" name="label_21">
         <property name="text">
          <string>Vegetation Canopy DSM:</string>
@@ -121,21 +43,20 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="2" colspan="2">
-       <widget class="QWidget" name="widgetVegDSM" native="true">
-        <property name="minimumSize">
+      <item row="2" column="5">
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
          <size>
-          <width>175</width>
-          <height>30</height>
+          <width>20</width>
+          <height>40</height>
          </size>
         </property>
-        <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_3"/>
-       </widget>
+       </spacer>
       </item>
-      <item row="1" column="2">
+      <item row="0" column="1">
        <widget class="QLabel" name="label_20">
         <property name="text">
          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -149,7 +70,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="1" column="3">
+      <item row="0" column="2">
        <widget class="QSpinBox" name="spinBoxPorosity">
         <property name="enabled">
          <bool>false</bool>
@@ -159,8 +80,47 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
-       <spacer name="verticalSpacer_2">
+      <item row="0" column="5" colspan="2">
+       <widget class="QWidget" name="widgetVegDSM" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3"/>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QFrame" name="frame_2">
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="4" column="2" colspan="2">
+       <spacer name="verticalSpacer_5">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
@@ -168,6 +128,195 @@ p, li { white-space: pre-wrap; }
          <size>
           <width>20</width>
           <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="3">
+       <widget class="QLabel" name="label_6">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Vector point layer:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="checkBoxVectorLayer">
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="text">
+         <string>Use existing single point vector layer</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="selectpoint">
+        <property name="contextMenuPolicy">
+         <enum>Qt::DefaultContextMenu</enum>
+        </property>
+        <property name="toolTip">
+         <string>Select point on canvas</string>
+        </property>
+        <property name="whatsThis">
+         <string>Select a point on the canvas &lt;a href=README.html&gt; Click here for more info! &lt;/a href&gt;</string>
+        </property>
+        <property name="text">
+         <string>Select point on canvas</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QWidget" name="widgetPointLayer" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_10"/>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_9">
+      <item row="3" column="2">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Raster DSM (building and ground):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="3">
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="4" column="2">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Raster DEM (only ground):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QLabel" name="label_4">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Raster DSM (only buildings):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QCheckBox" name="checkBoxOnlyBuilding">
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="text">
+         <string>Raster DSM (only buildings) exist</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3">
+       <widget class="QWidget" name="widgetDSMbuildground" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_2"/>
+       </widget>
+      </item>
+      <item row="4" column="3">
+       <widget class="QWidget" name="widgetDEM" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_7"/>
+       </widget>
+      </item>
+      <item row="5" column="3">
+       <widget class="QWidget" name="widgetDSMbuild" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_8"/>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
          </size>
         </property>
        </spacer>
@@ -184,33 +333,7 @@ p, li { white-space: pre-wrap; }
       <enum>QFrame::Sunken</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_5">
-      <item row="8" column="3" rowspan="2">
-       <widget class="QDoubleSpinBox" name="doubleSpinBox_ws">
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-        <property name="value">
-         <double>3.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QDoubleSpinBox" name="doubleSpinBox_z0">
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-        <property name="value">
-         <double>0.500000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="3" rowspan="2">
+      <item row="15" column="1">
        <widget class="QDoubleSpinBox" name="doubleSpinBox_wssd">
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -223,37 +346,27 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
-       <widget class="QLineEdit" name="textInputMetdata">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkBoxUseFile">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
-        </property>
+      <item row="16" column="0">
+       <widget class="QLabel" name="label_16">
         <property name="text">
-         <string>Use input file to specify input parameters</string>
+         <string>Obukhov Length (m):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
-      <item row="1" column="3">
-       <widget class="QPushButton" name="pushButtonImport">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
+      <item row="12" column="2">
+       <widget class="QLabel" name="label_17">
         <property name="text">
-         <string>Select</string>
+         <string>Friction velocity (m/s):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
-      <item row="13" column="3">
+      <item row="12" column="3">
        <widget class="QDoubleSpinBox" name="doubleSpinBox_ustar">
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -262,88 +375,24 @@ p, li { white-space: pre-wrap; }
          <double>0.000000000000000</double>
         </property>
         <property name="value">
-         <double>0.750000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="14" column="3">
-       <widget class="QDoubleSpinBox" name="doubleSpinBox_wd">
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <double>360.000000000000000</double>
-        </property>
-        <property name="value">
-         <double>120.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="3" rowspan="2">
-       <widget class="QDoubleSpinBox" name="doubleSpinBox_zd">
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <double>1000.000000000000000</double>
-        </property>
-        <property name="value">
-         <double>10.000000000000000</double>
+         <double>0.500000000000000</double>
         </property>
        </widget>
       </item>
       <item row="14" column="2">
-       <widget class="QLabel" name="label_18">
+       <widget class="QLabel" name="label_19">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
-         <string>Wind direction (°):</string>
+         <string>Boundary layer height (m):</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
-      <item row="12" column="3">
-       <widget class="QDoubleSpinBox" name="doubleSpinBox_L">
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="minimum">
-         <double>-10000.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>10000.000000000000000</double>
-        </property>
-        <property name="value">
-         <double>-1000.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="3" rowspan="2">
-       <widget class="QDoubleSpinBox" name="doubleSpinBox_zm">
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <double>1000.000000000000000</double>
-        </property>
-        <property name="value">
-         <double>30.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="15" column="3">
+      <item row="14" column="3">
        <widget class="QDoubleSpinBox" name="doubleSpinBox_bl">
         <property name="enabled">
          <bool>false</bool>
@@ -362,7 +411,31 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="16" column="3">
+      <item row="13" column="2">
+       <widget class="QLabel" name="label_18">
+        <property name="text">
+         <string>Wind direction (°):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="15" column="2">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Maximum fetch considered in metres:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="15" column="3">
        <widget class="QSpinBox" name="spinBoxFetch">
         <property name="enabled">
          <bool>true</bool>
@@ -378,40 +451,94 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="7" column="2">
-       <widget class="QLabel" name="label_13">
-        <property name="text">
-         <string>Height of the flux measurement data (m):</string>
-        </property>
+      <item row="16" column="1">
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_L">
         <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="minimum">
+         <double>-10000.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>10000.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>-1000.000000000000000</double>
         </property>
        </widget>
       </item>
-      <item row="15" column="2">
-       <widget class="QLabel" name="label_19">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Boundary layer height (m):</string>
-        </property>
+      <item row="13" column="3">
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_wd">
         <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <double>360.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>120.000000000000000</double>
         </property>
        </widget>
       </item>
-      <item row="10" column="2">
+      <item row="15" column="0">
        <widget class="QLabel" name="label_15">
         <property name="text">
-         <string>Standard deviation (sigma) of crosswind wind (m/s):</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Standard deviation (sigma) of crosswind wind (m/s):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
+      <item row="12" column="1">
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_z0">
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.500000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="1">
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_zd">
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <double>1000.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>10.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="17" column="2">
+       <spacer name="verticalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="12" column="0">
        <widget class="QLabel" name="label_11">
         <property name="text">
          <string>Roughness length (m):</string>
@@ -421,37 +548,53 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="13" column="2">
-       <widget class="QLabel" name="label_17">
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="checkBoxUseFile">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
         <property name="text">
-         <string>Friction velocity (m/s):</string>
+         <string>Use input file to specify input parameters</string>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="0">
+       <widget class="QLabel" name="label_12">
+        <property name="text">
+         <string>Zero displacement height (m):</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
-      <item row="12" column="2">
-       <widget class="QLabel" name="label_16">
+      <item row="14" column="0">
+       <widget class="QLabel" name="label_13">
         <property name="text">
-         <string>Obukhov Length (m):</string>
+         <string>Height of the flux measurement data (m):</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
-      <item row="16" column="2">
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Maximum fetch considered in metres:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <item row="1" column="3">
+       <widget class="QPushButton" name="pushButtonImport">
+        <property name="enabled">
+         <bool>false</bool>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        <property name="text">
+         <string>Select</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLineEdit" name="textInputMetdata">
+        <property name="enabled">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -469,36 +612,19 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="17" column="2">
-       <spacer name="verticalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="5" column="2">
-       <widget class="QLabel" name="label_12">
-        <property name="text">
-         <string>Zero displacement height (m):</string>
-        </property>
+      <item row="14" column="1">
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_zm">
         <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignCenter</set>
         </property>
-       </widget>
-      </item>
-      <item row="9" column="2">
-       <widget class="QLabel" name="label_14">
-        <property name="text">
-         <string>Wind speed (m/s):</string>
+        <property name="decimals">
+         <number>1</number>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        <property name="maximum">
+         <double>1000.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>30.000000000000000</double>
         </property>
        </widget>
       </item>
@@ -507,31 +633,7 @@ p, li { white-space: pre-wrap; }
    </item>
    <item row="4" column="0">
     <layout class="QGridLayout" name="gridLayout_4">
-     <item row="4" column="0">
-      <widget class="QPushButton" name="helpButton">
-       <property name="text">
-        <string>Help</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="2">
-      <widget class="QLineEdit" name="textOutput_prefix">
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0" colspan="3">
-      <widget class="QLabel" name="label_8">
-       <property name="text">
-        <string>Roughness calculation method:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="3">
+     <item row="1" column="5">
       <widget class="QComboBox" name="comboBox_Roughness">
        <item>
         <property name="text">
@@ -565,13 +667,10 @@ p, li { white-space: pre-wrap; }
        </item>
       </widget>
      </item>
-     <item row="4" column="3">
-      <widget class="QCheckBox" name="checkBoxIntoCanvas">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
+     <item row="4" column="0">
+      <widget class="QPushButton" name="helpButton">
        <property name="text">
-        <string>Add intergrated source area result to project</string>
+        <string>Help</string>
        </property>
       </widget>
      </item>
@@ -585,22 +684,6 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="4" column="5">
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="2" column="3">
-      <widget class="QLineEdit" name="textOutput"/>
-     </item>
      <item row="4" column="6">
       <widget class="QPushButton" name="closeButton">
        <property name="enabled">
@@ -611,7 +694,41 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="0" column="0" colspan="3">
+     <item row="2" column="6">
+      <widget class="QPushButton" name="pushButtonSave">
+       <property name="text">
+        <string>Select</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="5">
+      <widget class="QCheckBox" name="checkBoxIntoCanvas">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Add intergrated source area result to project</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="5">
+      <widget class="QComboBox" name="comboBoxFPM">
+       <item>
+        <property name="text">
+         <string>Kormann and Meixner (2001)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Kljun et al. (2015)</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="2" column="5">
+      <widget class="QLineEdit" name="textOutput"/>
+     </item>
+     <item row="0" column="3">
       <widget class="QLabel" name="label_22">
        <property name="text">
         <string>Footprint model:</string>
@@ -621,25 +738,31 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="2" column="6">
-      <widget class="QPushButton" name="pushButtonSave">
+     <item row="2" column="3">
+      <widget class="QLabel" name="label_5">
        <property name="text">
-        <string>Select</string>
+        <string>Output folder:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>
-     <item row="0" column="3">
-      <widget class="QComboBox" name="comboBoxFPM">
-       <item>
-        <property name="text">
-         <string>Kormann and Meixner (2001)</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Klujn et al. (2015)</string>
-        </property>
-       </item>
+     <item row="1" column="3">
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>Roughness calculation method:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLineEdit" name="textOutput_prefix">
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
       </widget>
      </item>
      <item row="3" column="0">
@@ -652,17 +775,7 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="2" column="2">
-      <widget class="QLabel" name="label_5">
-       <property name="text">
-        <string>Output folder:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="3">
+     <item row="3" column="2">
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -675,7 +788,7 @@ p, li { white-space: pre-wrap; }
        </property>
       </spacer>
      </item>
-     <item row="4" column="2">
+     <item row="4" column="1" colspan="3">
       <widget class="QProgressBar" name="progressBar">
        <property name="value">
         <number>0</number>
@@ -687,121 +800,12 @@ p, li { white-space: pre-wrap; }
      </item>
     </layout>
    </item>
-   <item row="1" column="0">
-    <widget class="QFrame" name="frame">
-     <property name="frameShape">
-      <enum>QFrame::Box</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_9">
-      <item row="3" column="1">
-       <widget class="QWidget" name="widgetDSMbuildground" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>175</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_2"/>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Raster DSM (building and ground):</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="1">
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="checkBoxOnlyBuilding">
-        <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
-        </property>
-        <property name="text">
-         <string>Raster DSM (only buildings) exist</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QWidget" name="widgetDEM" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>175</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_7"/>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Raster DEM (only ground):</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QWidget" name="widgetDSMbuild" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>175</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_8"/>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Raster DSM (only buildings):</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
   </layout>
   <zorder>frame_3</zorder>
   <zorder>frame_2</zorder>
   <zorder>frame</zorder>
   <zorder>frame_4</zorder>
+  <zorder></zorder>
  </widget>
  <resources/>
  <connections>
@@ -882,22 +886,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>653</x>
      <y>434</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxUseFile</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>doubleSpinBox_ws</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>66</x>
-     <y>325</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>653</x>
-     <y>460</y>
     </hint>
    </hints>
   </connection>

@@ -9,6 +9,8 @@ def shadowingfunctionglobalradiation(a, azimuth, altitude, scale, dlg, forsvf):
     #%This m.file calculates shadows on a DEM
     #% conversion
     degrees = np.pi/180.
+    if azimuth == 0.0:
+        azimuth = 0.000000000001
     azimuth = np.dot(azimuth, degrees)
     altitude = np.dot(altitude, degrees)
     #% measure the size of the image
@@ -84,6 +86,8 @@ def shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue
     #% This function casts shadows on buildings and vegetation units
     #% conversion
     degrees = np.pi/180.
+    if azimuth == 0.0:
+        azimuth = 0.000000000001
     azimuth = np.dot(azimuth, degrees)
     altitude = np.dot(altitude, degrees)
     #% measure the size of the image

@@ -232,7 +232,7 @@ class FootprintModel:
                                             " See help section to get correct format.")
                 return
 
-            if not self.data.shape[1] == 14:
+            if not self.data.shape[1] == 13:
                 QMessageBox.critical(None, "Import Error", "Check number of columns in textfile."
                                             " See help section to get correct format.")
                 return
@@ -320,13 +320,12 @@ class FootprintModel:
             z_0_input = self.data[:, 4]
             z_d_input = self.data[:, 5]
             z_m_input = self.data[:, 6]
-            wind = self.data[:, 7]
-            sigv = self.data[:, 8]
-            Obukhov = self.data[:, 9]
-            ustar = self.data[:, 10]
-            wdir = self.data[:, 11]
-            pbl = self.data[:,12]
-            por = self.data[:,13]
+            sigv = self.data[:, 7]
+            Obukhov = self.data[:, 8]
+            ustar = self.data[:, 9]
+            wdir = self.data[:, 10]
+            pbl = self.data[:,11]
+            por = self.data[:,12]
             # QMessageBox.critical(None, "Test", str(it))
             # return
         else:
@@ -339,7 +338,6 @@ class FootprintModel:
             z_0_input = np.ones((1, 1)) * self.dlg.doubleSpinBox_z0.value()
             z_d_input = np.ones((1, 1)) * self.dlg.doubleSpinBox_zd.value()
             z_m_input = np.ones((1, 1)) * self.dlg.doubleSpinBox_zm.value()
-            wind = np.ones((1, 1)) * self.dlg.doubleSpinBox_ws.value()
             sigv = np.ones((1, 1)) * self.dlg.doubleSpinBox_wssd.value()
             Obukhov = np.ones((1, 1)) * self.dlg.doubleSpinBox_L.value()
             ustar = np.ones((1, 1)) * self.dlg.doubleSpinBox_ustar.value()
@@ -544,13 +542,13 @@ class FootprintModel:
             if fpm == "KAM":
                 totRotatedphi,Wz_d_output,Wz_0_output,Wz_m_output,phi_maxdist,phi_totdist,Wfai,Wpai,WzH,WzMax,WzSdev,Wfaiveg,\
                         Wpaiveg,WzHveg,WzMaxveg,WzSdevveg,Wfaibuild,Wpaibuild,WzHbuild,WzMaxbuild,WzSdevbuild = \
-                        fp.footprintiterKAM(iterations=it,z_0_input=z_0_input,z_d_input=z_d_input,z_ag=z_m_input,wind=wind,sigv=sigv,
+                        fp.footprintiterKAM(iterations=it,z_0_input=z_0_input,z_d_input=z_d_input,z_ag=z_m_input,sigv=sigv,
                         Obukhov=Obukhov,ustar=ustar,dir=wdir,porosity=por,bld=dsm,veg=vegdsm,rows=sizey,cols=sizex,res=res,dlg=self.dlg,
                         maxfetch=r,rm=Rm)
             elif fpm == "KLJ":
                 totRotatedphi,Wz_d_output,Wz_0_output,Wz_m_output,phi_maxdist,phi_totdist,Wfai,Wpai,WzH,WzMax,WzSdev,Wfaiveg,\
                         Wpaiveg,WzHveg,WzMaxveg,WzSdevveg,Wfaibuild,Wpaibuild,WzHbuild,WzMaxbuild,WzSdevbuild = \
-                        fp.footprintiterKLJ(iterations=it,z_0_input=z_0_input,z_d_input=z_d_input,z_ag=z_m_input,wind=wind,sigv=sigv,
+                        fp.footprintiterKLJ(iterations=it,z_0_input=z_0_input,z_d_input=z_d_input,z_ag=z_m_input,sigv=sigv,
                         Obukhov=Obukhov,ustar=ustar,dir=wdir,porosity=por,h=pbl,bld=dsm,veg=vegdsm,rows=sizey,cols=sizex,res=res,
                         dlg=self.dlg,maxfetch=r,rm=Rm)
 
@@ -565,10 +563,10 @@ class FootprintModel:
                     Wz_0_output[i] = 0.03
 
             # save to file
-            header = 'iy id it imin z_0_input z_d_input z_m_input wind sigv Obukhov ustar dir h por fai pai zH zMax zSdev zd z0'
+            header = 'iy id it imin z_0_input z_d_input z_m_input sigv Obukhov ustar dir h por fai pai zH zMax zSdev zd z0'
             numfmt = '%3d %2d %3d %2d %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f'
             mat = np.column_stack((yyyy[0:it], doy[0:it], ih[0:it], imin[0:it], z_0_input[0:it], z_d_input[0:it],
-                                   z_m_input[0:it], wind[0:it], sigv[0:it], Obukhov[0:it], ustar[0:it], wdir[0:it],pbl[0:it],por[0:it],
+                                   z_m_input[0:it], sigv[0:it], Obukhov[0:it], ustar[0:it], wdir[0:it],pbl[0:it],por[0:it],
                                    Wfai, Wpai, WzH, WzMax, WzSdev,Wz_d_output,Wz_0_output))
             pre = self.dlg.textOutput_prefix.text()
             np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'SourceMorphParameters.txt', mat, fmt=('%5.5f'), comments='', header=header)

@@ -72,12 +72,14 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lonlat, sizex, sizey, tv, UTC, use
         alt[i] = pys.GetAltitude(lat, lon, time_vector, 0)
         if onetime == 1:
             if alt[i] < 0:
-                QMessageBox.critical(None, "Sun altitude below zero", "No shadow grid generated. Try again...")
-                return # THIS NEEDS FIXING. THE CODE DOESNT STOP
+                QMessageBox.critical(None, "Sun altitude below zero", "Grid with only NaNs will be procduced. Try again...")
+                return
 
         azi[i] = abs(pys.GetAzimuth(lat, lon, time_vector, 0)) - 180
         if azi[i] < 0:
             azi[i] = azi[i] + 360
+        if np.isinf(azi[i]):
+            azi[i] = 0.000000001
 
         if alt[i] > 0:
             if usevegdem == 0:
