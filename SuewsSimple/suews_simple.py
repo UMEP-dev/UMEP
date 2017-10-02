@@ -483,7 +483,7 @@ class SuewsSimple:
             return
         if np.abs(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - float(self.dlg.lineEdit_paiveg.text())) > 0.05:
             QMessageBox.critical(self.iface.mainWindow(), "Non-consistency Error", "A relatively large difference in "
-                "building fraction between the DSM and the landcover grid was found: " + str(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - float(self.dlg.lineEdit_paiveg.text())))
+                "building fraction between the Vegetation DSM and the landcover grid was found: " + str(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - float(self.dlg.lineEdit_paiveg.text())))
             return
 
         # Getting values from GUI
@@ -507,6 +507,13 @@ class SuewsSimple:
         filecode = self.dlg.FileCode.text()
         utc = self.dlg.UTC.text()
         z = self.dlg.Height.text()
+
+        # Checking LC fractions = 1
+        LCtest = float(pai_paved) + float(pai_build) + float(pai_evergreen) + float(pai_decid) + float(pai_grass) + float(pai_baresoil) + float(pai_water)
+        if not LCtest == 1.:
+            QMessageBox.critical(self.iface.mainWindow(), "Non-consistency Error", "Sum of Land cover fraction is not"
+                                                                                   " equal to 1 (" + str(LCtest) + ")")
+            return
 
         # Create new SiteSelect
         f = open(self.model_dir + '/BaseFiles/SUEWS_SiteSelect.txt', 'r')
@@ -552,7 +559,7 @@ class SuewsSimple:
         outfolder = self.dlg.textOutput.text() + '/'
         nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
         if not (faiBuild == -999.0 or faiveg == -999.0):
-            nml['runcontrol']['z0_method'] = 3
+            nml['runcontrol']['RoughLenMomMethod'] = 3
 
         try:
             shutil.copy(inmetfile, self.model_dir + '/Input')

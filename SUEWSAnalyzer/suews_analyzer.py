@@ -24,6 +24,7 @@ from PyQt4.QtCore import QSettings, QTranslator, qVersion, QVariant
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox, QColor
 from PyQt4 import QtGui
 from qgis.core import *
+from qgis.gui import *
 # Initialize Qt resources from file resources.py
 import resources_rc
 # Import the code for the dialog
@@ -32,7 +33,7 @@ import os.path
 import webbrowser
 from osgeo import gdal
 from osgeo.gdalconst import *
-from ..Utilities.qgiscombomanager import *
+# from ..Utilities.qgiscombomanager import *
 from ..Utilities import f90nml
 import numpy as np
 from ..suewsmodel import suewsdataprocessing
@@ -74,10 +75,17 @@ class SUEWSAnalyzer:
 
         # Create the dialog (after translation) and keep reference
         self.dlg = SUEWSAnalyzerDialog()
-        self.layerComboManagerPolygrid = VectorLayerCombo(self.dlg.comboBox_Polygrid, initLayer="",
-                                                          options={"geomType": QGis.Polygon})
-        fieldgen = VectorLayerCombo(self.dlg.comboBox_Polygrid, initLayer="", options={"geomType": QGis.Polygon})
-        self.layerComboManagerPolyField = FieldCombo(self.dlg.comboBox_Field, fieldgen)
+        # self.layerComboManagerPolygrid = VectorLayerCombo(self.dlg.comboBox_Polygrid, initLayer="",
+        #                                                   options={"geomType": QGis.Polygon})
+        # fieldgen = VectorLayerCombo(self.dlg.comboBox_Polygrid, initLayer="", options={"geomType": QGis.Polygon})
+        # self.layerComboManagerPolyField = FieldCombo(self.dlg.comboBox_Field, fieldgen)
+        self.layerComboManagerPolygrid = QgsMapLayerComboBox(self.dlg.widgetPolygrid)
+        self.layerComboManagerPolygrid.setCurrentIndex(-1)
+        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.layerComboManagerPolygrid.setFixedWidth(175)
+        self.layerComboManagerPolyfield = QgsFieldComboBox(self.dlg.widgetField)
+        self.layerComboManagerPolyfield.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPolygrid.layerChanged.connect(self.layerComboManagerPolyfield.setLayer)
 
         self.dlg.pushButtonHelp.clicked.connect(self.help)
         self.dlg.pushButtonRunControl.clicked.connect(self.get_runcontrol)
@@ -425,7 +433,7 @@ class SUEWSAnalyzer:
             QMessageBox.critical(self.dlg, "Error", "No Maximum DOY is selected")
             return
 
-        poly = self.layerComboManagerPolygrid.getLayer()
+        poly = self.layerComboManagerPolygrid.currentLayer()
         if poly is None:
             QMessageBox.critical(self.dlg, "Error", "No valid Polygon layer is selected")
             return
@@ -433,7 +441,7 @@ class SUEWSAnalyzer:
             QMessageBox.critical(self.dlg, "Error", "No valid Polygon layer is selected")
             return
 
-        poly_field = self.layerComboManagerPolyField.getFieldName()
+        poly_field = self.layerComboManagerPolyField.currentField()
         if poly_field is None:
             QMessageBox.critical(self.dlg, "Error", "An attribute with unique fields/records must be selected (same as used in the model run to analyze)")
             return

@@ -29,7 +29,7 @@ from qgis.core import *
 # Import the code for the dialog
 from footprint_model_dialog import FootprintModelDialog
 import os.path
-from ..Utilities.qgiscombomanager import *
+# from ..Utilities.qgiscombomanager import *
 import numpy as np
 import KingsFootprint_UMEP as fp
 from osgeo import gdal

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>856</width>
+    <width>900</width>
     <height>581</height>
    </rect>
   </property>
@@ -532,150 +532,31 @@ p, li { white-space: pre-wrap; }
       <enum>QFrame::Sunken</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="14" column="0">
-       <spacer name="verticalSpacer_2">
+      <item row="0" column="0" colspan="2">
+       <widget class="QLabel" name="label_31">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Spatial data&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="8">
+       <spacer name="horizontalSpacer">
         <property name="orientation">
-         <enum>Qt::Vertical</enum>
+         <enum>Qt::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>20</width>
-          <height>0</height>
+          <width>36</width>
+          <height>20</height>
          </size>
         </property>
        </spacer>
       </item>
-      <item row="18" column="8">
-       <widget class="QPushButton" name="runButtonSpatial">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="cursor">
-         <cursorShape>ArrowCursor</cursorShape>
-        </property>
-        <property name="text">
-         <string>Generate</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkboxExcludeBuildings">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>Tick this in to exclude building pixels using a building grid generated from the SOLWEIG run.</string>
-        </property>
-        <property name="text">
-         <string>Exclude building pixels</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="2" colspan="3">
-       <widget class="QLabel" name="label_16">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Building grid:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="6" colspan="2">
-       <widget class="QCheckBox" name="checkboxMin">
-        <property name="toolTip">
-         <string>Tick this in to get the pixelwise minimum for the selected variable.</string>
-        </property>
-        <property name="text">
-         <string>Minimum</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="1">
-       <widget class="QCheckBox" name="checkboxMean">
-        <property name="toolTip">
-         <string>Tick this in to include all grids for the selected variable to derive a pixelwise average.</string>
-        </property>
-        <property name="text">
-         <string>Diurnal average</string>
-        </property>
-       </widget>
-      </item>
-      <item row="13" column="6" colspan="3">
-       <widget class="QComboBox" name="comboBoxSpecificMin">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The minimum of the selected time of day for the variable selected is generated. If 'Not Specified' is highlighted, no grid will be generated. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>Not Specified</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="18" column="6">
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>0</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="8" column="2" colspan="3">
-       <widget class="QCheckBox" name="checkboxDayMean">
-        <property name="toolTip">
-         <string>Tick this in to include all daytime grids for the selected variable to derive a pixelwise average.</string>
-        </property>
-        <property name="text">
-         <string>Daytime average</string>
-        </property>
-       </widget>
-      </item>
-      <item row="18" column="0" colspan="3">
-       <widget class="QCheckBox" name="checkBoxIntoCanvas">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>All analysis specified above will be added to the map canvas if this box is ticked in.</string>
-        </property>
-        <property name="text">
-         <string>Add analysis to map canvas</string>
-        </property>
-       </widget>
-      </item>
-      <item row="16" column="8">
-       <widget class="QDoubleSpinBox" name="doubleSpinBoxTmrtLowRisk">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="value">
-         <double>10.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="6" colspan="3">
-       <widget class="QCheckBox" name="checkboxMax">
-        <property name="toolTip">
-         <string>Tick this in to get the pixelwise maximum for the selected variable.</string>
-        </property>
-        <property name="text">
-         <string>Maximum</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1" colspan="4">
+      <item row="1" column="1">
        <widget class="QLabel" name="label_35">
         <property name="enabled">
          <bool>true</bool>
@@ -691,136 +572,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="13" column="0" colspan="6">
-       <widget class="QLabel" name="label_38">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="text">
-         <string>Minimum of specific time of day:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>comboBox_POI</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="2" colspan="3">
-       <widget class="QCheckBox" name="checkboxNightMean">
-        <property name="toolTip">
-         <string>Tick this in to include all nighttime grids for the selected variable to derive a pixelwise average.</string>
-        </property>
-        <property name="text">
-         <string>Nighttime average</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0" colspan="2">
-       <widget class="QLabel" name="label_31">
-        <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Spatial data&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="6">
-       <spacer name="verticalSpacer_5">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="0" column="8">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>36</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="12" column="6" colspan="3">
-       <widget class="QComboBox" name="comboBoxSpecificMax">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The maximum of the selected time of day for the variable selected is generated. If 'Not Specified' is highlighted, no grid will be generated. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>Not Specified</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="18" column="7">
-       <spacer name="horizontalSpacer_6">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="11" column="0" colspan="6">
-       <widget class="QLabel" name="label_36">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="text">
-         <string>Average of specific time of day:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>comboBox_POI</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="6" colspan="3">
-       <widget class="QComboBox" name="comboBoxSpecificMean">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The average of the selected time of day for the variable selected is generated. If 'Not Specified' is highlighted, no grid will be generated. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>Not Specified</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="8" column="0">
-       <spacer name="horizontalSpacer_5">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="1" column="5" colspan="4">
+      <item row="1" column="5" colspan="3">
        <widget class="QComboBox" name="comboBoxSpatialVariables">
         <property name="enabled">
          <bool>true</bool>
@@ -848,56 +600,20 @@ p, li { white-space: pre-wrap; }
         </property>
        </spacer>
       </item>
-      <item row="6" column="5" colspan="4">
-       <widget class="QComboBox" name="comboBox_buildings">
+      <item row="3" column="0" colspan="2">
+       <widget class="QPushButton" name="runButtonMovie">
         <property name="enabled">
          <bool>false</bool>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The building grid must have the same extent and pixel resolution as the generated output maps in the model output folder. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>This produces a time-related animation of the selected variable scaled based on the settings to the left.</string>
         </property>
-        <property name="whatsThis">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="2">
-       <spacer name="verticalSpacer_6">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="4" column="8">
-       <widget class="QSpinBox" name="spinBoxMovieMax">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="minimum">
-         <number>-1200</number>
-        </property>
-        <property name="maximum">
-         <number>1200</number>
-        </property>
-        <property name="value">
-         <number>70</number>
+        <property name="text">
+         <string>Show Animation</string>
         </property>
        </widget>
       </item>
-      <item row="17" column="1" colspan="7">
-       <widget class="QLineEdit" name="textOutput">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="4">
+      <item row="3" column="3" colspan="2">
        <widget class="QLabel" name="label">
         <property name="text">
          <string>Scale from:</string>
@@ -907,40 +623,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="17" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Output folder:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="17" column="8">
-       <widget class="QPushButton" name="pushButtonSave">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>Directory where the results specified above will be saved.</string>
-        </property>
-        <property name="text">
-         <string>Select</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="6" colspan="2">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>to:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="5">
+      <item row="3" column="5">
        <widget class="QSpinBox" name="spinBoxMovieMin">
         <property name="enabled">
          <bool>false</bool>
@@ -956,7 +639,23 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="5" column="4">
+      <item row="3" column="8">
+       <widget class="QSpinBox" name="spinBoxMovieMax">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimum">
+         <number>-1200</number>
+        </property>
+        <property name="maximum">
+         <number>1200</number>
+        </property>
+        <property name="value">
+         <number>70</number>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="3" colspan="2">
        <spacer name="verticalSpacer_8">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -969,20 +668,137 @@ p, li { white-space: pre-wrap; }
         </property>
        </spacer>
       </item>
-      <item row="4" column="0" colspan="2">
-       <widget class="QPushButton" name="runButtonMovie">
+      <item row="5" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkboxExcludeBuildings">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="toolTip">
-         <string>This produces a time-related animation of the selected variable scaled based on the settings to the left.</string>
+         <string>Tick this in to exclude building pixels using a building grid generated from the SOLWEIG run.</string>
         </property>
         <property name="text">
-         <string>Show Animation</string>
+         <string>Exclude building pixels</string>
         </property>
        </widget>
       </item>
-      <item row="12" column="0" colspan="6">
+      <item row="6" column="2">
+       <spacer name="verticalSpacer_6">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="7" column="0">
+       <spacer name="horizontalSpacer_5">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="7" column="1">
+       <widget class="QCheckBox" name="checkboxMean">
+        <property name="toolTip">
+         <string>Tick this in to include all grids for the selected variable to derive a pixelwise average.</string>
+        </property>
+        <property name="text">
+         <string>Diurnal average</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="2" colspan="3">
+       <widget class="QCheckBox" name="checkboxDayMean">
+        <property name="toolTip">
+         <string>Tick this in to include all daytime grids for the selected variable to derive a pixelwise average.</string>
+        </property>
+        <property name="text">
+         <string>Daytime average</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="6" colspan="2">
+       <widget class="QCheckBox" name="checkboxMax">
+        <property name="toolTip">
+         <string>Tick this in to get the pixelwise maximum for the selected variable.</string>
+        </property>
+        <property name="text">
+         <string>Maximum</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="2" colspan="3">
+       <widget class="QCheckBox" name="checkboxNightMean">
+        <property name="toolTip">
+         <string>Tick this in to include all nighttime grids for the selected variable to derive a pixelwise average.</string>
+        </property>
+        <property name="text">
+         <string>Nighttime average</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="6" colspan="2">
+       <widget class="QCheckBox" name="checkboxMin">
+        <property name="toolTip">
+         <string>Tick this in to get the pixelwise minimum for the selected variable.</string>
+        </property>
+        <property name="text">
+         <string>Minimum</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="6">
+       <spacer name="verticalSpacer_5">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="10" column="0" colspan="2">
+       <widget class="QLabel" name="label_36">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Average of specific time of day:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>comboBox_POI</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="6" colspan="3">
+       <widget class="QComboBox" name="comboBoxSpecificMean">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The average of the selected time of day for the variable selected is generated. If 'Not Specified' is highlighted, no grid will be generated. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Not Specified</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="11" column="0" colspan="2">
        <widget class="QLabel" name="label_37">
         <property name="enabled">
          <bool>true</bool>
@@ -998,7 +814,60 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="15" column="8">
+      <item row="11" column="6" colspan="3">
+       <widget class="QComboBox" name="comboBoxSpecificMax">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The maximum of the selected time of day for the variable selected is generated. If 'Not Specified' is highlighted, no grid will be generated. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Not Specified</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="12" column="0" colspan="2">
+       <widget class="QLabel" name="label_38">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Minimum of specific time of day:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>comboBox_POI</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="6" colspan="3">
+       <widget class="QComboBox" name="comboBoxSpecificMin">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The minimum of the selected time of day for the variable selected is generated. If 'Not Specified' is highlighted, no grid will be generated. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Not Specified</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="13" column="0">
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>0</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="13" column="8" rowspan="2">
        <widget class="QDoubleSpinBox" name="doubleSpinBoxTmrtHighRisk">
         <property name="enabled">
          <bool>false</bool>
@@ -1011,7 +880,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="15" column="0" colspan="8">
+      <item row="14" column="0" colspan="4">
        <widget class="QCheckBox" name="checkboxTmrtHighRisk">
         <property name="enabled">
          <bool>false</bool>
@@ -1027,7 +896,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="16" column="0" colspan="8">
+      <item row="15" column="0" colspan="3">
        <widget class="QCheckBox" name="checkboxTmrtLowRisk">
         <property name="enabled">
          <bool>false</bool>
@@ -1040,6 +909,141 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="text">
          <string>Tmrt:Percent of time below threshold (degC)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="15" column="8">
+       <widget class="QDoubleSpinBox" name="doubleSpinBoxTmrtLowRisk">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="value">
+         <double>10.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="16" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Output folder:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="16" column="1" colspan="2">
+       <widget class="QLineEdit" name="textOutput">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="16" column="8">
+       <widget class="QPushButton" name="pushButtonSave">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Directory where the results specified above will be saved.</string>
+        </property>
+        <property name="text">
+         <string>Select</string>
+        </property>
+       </widget>
+      </item>
+      <item row="17" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxIntoCanvas">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>All analysis specified above will be added to the map canvas if this box is ticked in.</string>
+        </property>
+        <property name="text">
+         <string>Add analysis to map canvas</string>
+        </property>
+       </widget>
+      </item>
+      <item row="17" column="6">
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>0</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="17" column="7">
+       <spacer name="horizontalSpacer_6">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="17" column="8">
+       <widget class="QPushButton" name="runButtonSpatial">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="cursor">
+         <cursorShape>ArrowCursor</cursorShape>
+        </property>
+        <property name="text">
+         <string>Generate</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="6" colspan="3">
+       <widget class="QWidget" name="widgetBuildings" native="true">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_6"/>
+       </widget>
+      </item>
+      <item row="5" column="3" colspan="3">
+       <widget class="QLabel" name="label_16">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Building grid:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="6" colspan="2">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>to:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -1057,8 +1061,8 @@ p, li { white-space: pre-wrap; }
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>805</x>
-     <y>488</y>
+     <x>890</x>
+     <y>571</y>
     </hint>
     <hint type="destinationlabel">
      <x>337</x>
@@ -1069,32 +1073,16 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>checkboxExcludeBuildings</sender>
    <signal>clicked(bool)</signal>
-   <receiver>comboBox_buildings</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>387</x>
-     <y>166</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>655</x>
-     <y>176</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkboxExcludeBuildings</sender>
-   <signal>clicked(bool)</signal>
    <receiver>label_16</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>516</x>
-     <y>182</y>
+     <x>522</x>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
-     <x>534</x>
-     <y>176</y>
+     <x>699</x>
+     <y>246</y>
     </hint>
    </hints>
   </connection>
@@ -1105,12 +1093,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>92</x>
-     <y>250</y>
+     <x>111</x>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
-     <x>69</x>
-     <y>416</y>
+     <x>88</x>
+     <y>499</y>
     </hint>
    </hints>
   </connection>
@@ -1121,12 +1109,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>87</x>
-     <y>250</y>
+     <x>106</x>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
-     <x>293</x>
-     <y>276</y>
+     <x>297</x>
+     <y>333</y>
     </hint>
    </hints>
   </connection>
@@ -1137,12 +1125,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>53</x>
-     <y>250</y>
+     <x>72</x>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
      <x>59</x>
-     <y>302</y>
+     <y>359</y>
     </hint>
    </hints>
   </connection>
@@ -1153,12 +1141,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>250</y>
+     <x>69</x>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
-     <x>110</x>
-     <y>276</y>
+     <x>176</x>
+     <y>333</y>
     </hint>
    </hints>
   </connection>
@@ -1169,12 +1157,28 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>47</x>
-     <y>265</y>
+     <x>66</x>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
-     <x>208</x>
-     <y>317</y>
+     <x>274</x>
+     <y>359</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkboxExcludeBuildings</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>widgetBuildings</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>445</x>
+     <y>229</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>742</x>
+     <y>235</y>
     </hint>
    </hints>
   </connection>

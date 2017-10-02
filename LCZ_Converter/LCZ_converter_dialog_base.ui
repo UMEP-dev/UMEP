@@ -16,7 +16,24 @@
   <layout class="QGridLayout" name="gridLayout_6">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout_4">
-     <item row="0" column="0">
+     <item row="0" column="2">
+      <widget class="QWidget" name="widgetLC" native="true">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>175</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_11"/>
+      </widget>
+     </item>
+     <item row="0" column="1">
       <widget class="QLabel" name="label">
        <property name="text">
         <string>LCZ raster:</string>
@@ -26,42 +43,22 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QComboBox" name="comboBox"/>
-     </item>
-    </layout>
-   </item>
-   <item row="2" column="0" colspan="2">
-    <layout class="QGridLayout" name="gridLayout_5">
-     <item row="0" column="1" colspan="2">
-      <widget class="QComboBox" name="comboBox_2"/>
-     </item>
      <item row="0" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Vector polygon grid:</string>
+      <spacer name="horizontalSpacer_5">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
        </property>
-      </widget>
-     </item>
-     <item row="0" column="4">
-      <widget class="QComboBox" name="comboBox_31"/>
-     </item>
-     <item row="0" column="3">
-      <widget class="QLabel" name="label_12">
-       <property name="text">
-        <string>ID field: </string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
+      </spacer>
      </item>
     </layout>
    </item>
-   <item row="4" column="0" colspan="2">
+   <item row="5" column="0" colspan="2">
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="3">
       <widget class="QLabel" name="label_3">
@@ -172,27 +169,7 @@
      </item>
     </layout>
    </item>
-   <item row="1" column="0">
-    <spacer name="horizontalSpacer_3">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="0" column="1">
-    <widget class="QPushButton" name="colorButton">
-     <property name="text">
-      <string>Color raster</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="2">
+   <item row="4" column="0" colspan="2">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
       <number>0</number>
@@ -1825,6 +1802,84 @@
       </layout>
      </widget>
     </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QPushButton" name="colorButton">
+     <property name="text">
+      <string>Color raster</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <layout class="QGridLayout" name="gridLayout_5">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Vector polygon grid:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QWidget" name="widgetPolyLayer" native="true">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>175</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_7"/>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="label_12">
+       <property name="text">
+        <string>ID field: </string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QWidget" name="widgetField" native="true">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>125</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_15"/>
+      </widget>
+     </item>
+     <item row="0" column="4">
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

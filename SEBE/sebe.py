@@ -21,15 +21,15 @@
  ***************************************************************************/
 """
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QThread
-from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
-from qgis.gui import QgsMessageBar
-from qgis.core import QgsMessageLog
+from PyQt4.QtGui import *
+from qgis.core import *
+from qgis.gui import *
 # Initialize Qt resources from file resources.py
 # import resources
 # Import the code for the dialog
 from sebe_dialog import SEBEDialog
 import os.path
-from ..Utilities.qgiscombomanager import *
+# from ..Utilities.qgiscombomanager import *
 from ..Utilities.misc import *
 from osgeo import gdal, osr
 import numpy as np
@@ -88,16 +88,37 @@ class SEBE:
         # self.toolbar = self.iface.addToolBar(u'SEBE')
         # self.toolbar.setObjectName(u'SEBE')
 
-        self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_dsm)
-        RasterLayerCombo(self.dlg.comboBox_dsm, initLayer="")
-        self.layerComboManagerVEGDSM = RasterLayerCombo(self.dlg.comboBox_vegdsm)
-        RasterLayerCombo(self.dlg.comboBox_vegdsm, initLayer="")
-        self.layerComboManagerVEGDSM2 = RasterLayerCombo(self.dlg.comboBox_vegdsm2)
-        RasterLayerCombo(self.dlg.comboBox_vegdsm2, initLayer="")
-        self.layerComboManagerWH = RasterLayerCombo(self.dlg.comboBox_wallheight)
-        RasterLayerCombo(self.dlg.comboBox_wallheight, initLayer="")
-        self.layerComboManagerWA = RasterLayerCombo(self.dlg.comboBox_wallaspect)
-        RasterLayerCombo(self.dlg.comboBox_wallaspect, initLayer="")
+        # self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_dsm)
+        # RasterLayerCombo(self.dlg.comboBox_dsm, initLayer="")
+        # self.layerComboManagerVEGDSM = RasterLayerCombo(self.dlg.comboBox_vegdsm)
+        # RasterLayerCombo(self.dlg.comboBox_vegdsm, initLayer="")
+        # self.layerComboManagerVEGDSM2 = RasterLayerCombo(self.dlg.comboBox_vegdsm2)
+        # RasterLayerCombo(self.dlg.comboBox_vegdsm2, initLayer="")
+        # self.layerComboManagerWH = RasterLayerCombo(self.dlg.comboBox_wallheight)
+        # RasterLayerCombo(self.dlg.comboBox_wallheight, initLayer="")
+        # self.layerComboManagerWA = RasterLayerCombo(self.dlg.comboBox_wallaspect)
+        # RasterLayerCombo(self.dlg.comboBox_wallaspect, initLayer="")
+
+        self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetDSM)
+        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSM.setFixedWidth(175)
+        self.layerComboManagerDSM.setCurrentIndex(-1)
+        self.layerComboManagerVEGDSM = QgsMapLayerComboBox(self.dlg.widgetCDSM)
+        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM.setFixedWidth(175)
+        self.layerComboManagerVEGDSM.setCurrentIndex(-1)
+        self.layerComboManagerVEGDSM2 = QgsMapLayerComboBox(self.dlg.widgetTDSM)
+        self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM2.setFixedWidth(175)
+        self.layerComboManagerVEGDSM2.setCurrentIndex(-1)
+        self.layerComboManagerWH = QgsMapLayerComboBox(self.dlg.widgetWH)
+        self.layerComboManagerWH.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerWH.setFixedWidth(175)
+        self.layerComboManagerWH.setCurrentIndex(-1)
+        self.layerComboManagerWA = QgsMapLayerComboBox(self.dlg.widgetWA)
+        self.layerComboManagerWA.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerWA.setFixedWidth(175)
+        self.layerComboManagerWA.setCurrentIndex(-1)
 
         self.folderPath = None
         self.usevegdem = 0
@@ -239,7 +260,7 @@ class SEBE:
             QMessageBox.critical(None, "Error", "No output folder selected")
             return
         else:
-            dsmlayer = self.layerComboManagerDSM.getLayer()
+            dsmlayer = self.layerComboManagerDSM.currentLayer()
 
             if dsmlayer is None:
                     QMessageBox.critical(None, "Error", "No valid DSM raster layer is selected")
@@ -303,7 +324,7 @@ class SEBE:
 
             if self.dlg.checkBoxUseVeg.isChecked():
                 self.usevegdem = 1
-                self.vegdsm = self.layerComboManagerVEGDSM.getLayer()
+                self.vegdsm = self.layerComboManagerVEGDSM.currentLayer()
 
                 if self.vegdsm is None:
                     QMessageBox.critical(None, "Error", "No valid vegetation DSM selected")
@@ -324,7 +345,7 @@ class SEBE:
                     return
 
                 if self.dlg.checkBoxTrunkExist.isChecked():
-                    self.vegdsm2 = self.layerComboManagerVEGDSM2.getLayer()
+                    self.vegdsm2 = self.layerComboManagerVEGDSM2.currentLayer()
 
                     if self.vegdsm2 is None:
                         QMessageBox.critical(None, "Error", "No valid trunk zone DSM selected")
@@ -363,7 +384,7 @@ class SEBE:
             output = {'energymonth': 0, 'energyyear': 1, 'suitmap': 0}
 
              # wall height layer
-            whlayer = self.layerComboManagerWH.getLayer()
+            whlayer = self.layerComboManagerWH.currentLayer()
             if whlayer is None:
                     QMessageBox.critical(None, "Error", "No valid wall height raster layer is selected")
                     return
@@ -378,7 +399,7 @@ class SEBE:
                 return
 
             # wall aspectlayer
-            walayer = self.layerComboManagerWA.getLayer()
+            walayer = self.layerComboManagerWA.currentLayer()
             if walayer is None:
                     QMessageBox.critical(None, "Error", "No valid wall aspect raster layer is selected")
                     return

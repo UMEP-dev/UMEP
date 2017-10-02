@@ -33,7 +33,7 @@ import os.path
 # from osgeo.gdalconst import *
 # import numpy as np
 import wallalgorithms as wa
-from ..Utilities.qgiscombomanager import *
+# from ..Utilities.qgiscombomanager import *
 from ..Utilities.misc import *
 from wallworker import Worker
 import webbrowser

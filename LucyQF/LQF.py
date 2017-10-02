@@ -322,7 +322,7 @@ class LQF:
             try:
                 a=QgsVectorLayer(df[0], 'a', 'ogr')
             except Exception:
-                QMessageBox.critical(None, 'Problem with extra disaggregation', 'Invalid shapefile grid  specified')
+                QMessageBox.critical(None, 'Problem with extra disaggregation', 'Invalid shapefile grid specified')
 
             self.dlg.lstPrimaryKey.clear()
             [self.dlg.lstPrimaryKey.addItem(str(label.name())) for label in a.fields()]

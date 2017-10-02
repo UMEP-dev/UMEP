@@ -9,257 +9,39 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1051</width>
-    <height>750</height>
+    <width>1080</width>
+    <height>787</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>SOLWEIG</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_6">
-   <item row="7" column="6">
-    <widget class="QPushButton" name="pushButtonClose">
-     <property name="text">
-      <string>Close</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="6">
-    <widget class="QPushButton" name="runButton">
-     <property name="cursor">
-      <cursorShape>ArrowCursor</cursorShape>
-     </property>
-     <property name="text">
-      <string>Run</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="4">
-    <widget class="QCheckBox" name="checkBoxIntoCanvas">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string>Add average Tmrt to map canvas</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="3">
-    <widget class="QPushButton" name="pushButtonHelp">
-     <property name="text">
-      <string>Help</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="3" colspan="3">
-    <widget class="QProgressBar" name="progressBar">
-     <property name="value">
-      <number>0</number>
-     </property>
-     <property name="textVisible">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="6">
-    <widget class="QPushButton" name="pushButtonSave">
-     <property name="text">
-      <string>Select</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="3">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Output folder:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="3" rowspan="3" colspan="4">
-    <widget class="QTextEdit" name="textEdit">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>66</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>200</width>
-       <height>80</height>
-      </size>
-     </property>
-     <property name="autoFillBackground">
-      <bool>true</bool>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Plain</enum>
-     </property>
-     <property name="html">
-      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt; font-weight:600;&quot;&gt;SOLWEIG tips and tricks:&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- The current version of SOLWEIG is v2016a.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- All grids must have the same extent and pixel resolution.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- The coordinate system of all the grids must be the same and translatable to lat, lon coordinates.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- A boolean building grid (building = 0, ground = 1) must be created, either from a land cover or a ground DEM in conjunction with the building and ground DSM. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- Meteorological file must have the default UMEP format.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- Land cover grid should be in UMEP format.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- Wall height and aspect grids as well as SVFs can be calculated from Pre-processor in UMEP. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- The test dataset from the central parts of Göteborg, Sweden could be found in repository.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- The full manual of the SOLWEIG-model is available from: &lt;/span&gt;&lt;a href=&quot;http://www.urban-climate.net/umep/SOLWEIG&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.urban-climate.net/umep/SOLWEIG&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;REFERENCES:&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Jonsson P, I Eliasson, B Holmer and CSB Grimmond (2006) Longwave incoming radiation in the Tropics: results from field work in three African cities Theoretical and Applied Climatology 85 : 185-201.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Lindberg, F. and Grimmond, C. (2011) The influence of vegetation and building morphology on shadow patterns and mean radiant temperature in urban areas: model development and evaluation. Theoretical and Applied Climatology 105:3, 311-323. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Lindberg, F., Onomura, S. and Grimmond, C.S.B (2016) Influence of ground surface characteristics on the mean radiant temperature in urban areas. International Journal of Biometeorology. 60(9), 1439-1452. &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" rowspan="5" colspan="2">
-    <widget class="QFrame" name="frame_3">
+  <layout class="QGridLayout" name="gridLayout_14">
+   <item row="0" column="0" colspan="3">
+    <widget class="QFrame" name="frame">
      <property name="frameShape">
       <enum>QFrame::Box</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Sunken</enum>
      </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="2" column="2" colspan="2">
-       <widget class="QLabel" name="label_22">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="17" column="0">
+       <widget class="QLabel" name="label_10">
         <property name="text">
          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Absorption of longwave radiation:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;SkyViewFactor grids (.zip):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
-      <item row="3" column="1" colspan="2">
-       <widget class="QLabel" name="label_23">
-        <property name="text">
-         <string>Posture of the human body:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2" colspan="2">
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Absorption of shortwave radiation:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0" colspan="5">
-       <widget class="QLabel" name="label_21">
-        <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Human exposure parameters&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="3" colspan="2">
-       <widget class="QComboBox" name="comboBox_posture">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>Choose between standing (default) and sitting.</string>
-        </property>
-        <property name="whatsThis">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>Standing</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Sitting</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="2" column="0" colspan="2">
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>120</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="2" column="4">
-       <widget class="QDoubleSpinBox" name="doubleSpinBoxLongwaveHuman">
-        <property name="toolTip">
-         <string>Amount of longwave radiation that the human body absorb.</string>
-        </property>
-        <property name="decimals">
-         <number>2</number>
-        </property>
-        <property name="maximum">
-         <double>1.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.010000000000000</double>
-        </property>
-        <property name="value">
-         <double>0.950000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="4">
-       <widget class="QDoubleSpinBox" name="doubleSpinBoxShortwaveHuman">
-        <property name="toolTip">
-         <string>Amount of shortwave radiation that the human body absorb.</string>
-        </property>
-        <property name="decimals">
-         <number>2</number>
-        </property>
-        <property name="maximum">
-         <double>1.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.010000000000000</double>
-        </property>
-        <property name="value">
-         <double>0.700000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <spacer name="verticalSpacer">
+      <item row="7" column="3">
+       <spacer name="verticalSpacer_4">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
@@ -271,117 +53,32 @@ p, li { white-space: pre-wrap; }
         </property>
        </spacer>
       </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="3" column="2" rowspan="5">
-    <widget class="QFrame" name="frame_6">
-     <property name="toolTip">
-      <string>A number of different outputs can be chosen here. All grids will be written out as GeoTIFFs at the location specified as the output folder.</string>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::Box</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_5">
-      <item row="1" column="1" rowspan="2" colspan="2">
-       <widget class="QCheckBox" name="CheckBoxTmrt">
-        <property name="text">
-         <string>Tmrt</string>
+      <item row="15" column="0">
+       <widget class="QCheckBox" name="checkBoxBuild">
+        <property name="enabled">
+         <bool>true</bool>
         </property>
-        <property name="checked">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tick this in if you want to save your building grid that is generated (GeoTIFF).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Save generated building grid</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxSaveTrunk">
+        <property name="enabled">
          <bool>false</bool>
         </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QCheckBox" name="CheckBoxKdown">
+        <property name="toolTip">
+         <string>Tick this in if you want to save your TDSM that is generated (GeoTIFF).</string>
+        </property>
         <property name="text">
-         <string>Kdown</string>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
+         <string>Save generated Trunk zone DSM</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1" colspan="2">
-       <widget class="QLabel" name="label_30">
-        <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Output maps&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QCheckBox" name="CheckBoxKup">
-        <property name="text">
-         <string>Kup</string>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="2">
-       <widget class="QCheckBox" name="CheckBoxShadow">
-        <property name="text">
-         <string>Shadow</string>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QCheckBox" name="CheckBoxLdown">
-        <property name="text">
-         <string>Ldown</string>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QCheckBox" name="CheckBoxLup">
-        <property name="text">
-         <string>Lup</string>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="1">
-       <spacer name="verticalSpacer_6">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>83</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="0" column="0" colspan="3">
-    <widget class="QFrame" name="frame">
-     <property name="frameShape">
-      <enum>QFrame::Box</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
        <widget class="QLabel" name="label_13">
         <property name="text">
@@ -393,52 +90,26 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <spacer name="verticalSpacer_8">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="3" column="0" colspan="3">
-       <widget class="QCheckBox" name="checkBoxUseVeg">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
+      <item row="17" column="4">
+       <widget class="QPushButton" name="pushButtonImportSVF">
         <property name="toolTip">
-         <string>Tick this box if you want to include vegetation (trees and bushes) in the calculations.</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The SOLWEIG model make use of SVFs to calculate T&lt;span style=&quot; vertical-align:sub;&quot;&gt;mrt&lt;/span&gt;. The zip-file needed can be created with the SkyViewFactor calculator found in the UMEP Pre-processor. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
-         <string>Use vegetation scheme (Lindberg, Grimmond 2011)</string>
+         <string>Select</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="3" colspan="2">
-       <widget class="QCheckBox" name="checkBoxTrunkExist">
+      <item row="10" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxDEM">
         <property name="enabled">
          <bool>false</bool>
         </property>
         <property name="toolTip">
-         <string>Tick this in if a trunk zone DSM already exist.</string>
+         <string>Tick this in if the building grid should be created from the land cover grid. Otherwise, a DEM including only ground heights must be added. This will then be used to derive a building grid together with the ground and building DSM.</string>
         </property>
         <property name="text">
-         <string>Trunk zone DSM exist</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="2">
-       <widget class="QSpinBox" name="spinBoxTrans">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="value">
-         <number>3</number>
+         <string>Use land cover grid to derive building grid</string>
         </property>
        </widget>
       </item>
@@ -451,6 +122,29 @@ p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Percent of &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;canopy height:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0" colspan="3">
+       <widget class="QCheckBox" name="checkBoxLandCover">
+        <property name="toolTip">
+         <string>Tick this in to included land cover information</string>
+        </property>
+        <property name="text">
+         <string>Use land cover scheme (Lindberg et al. 2016)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="17" column="1" colspan="3">
+       <widget class="QLineEdit" name="textInputSVF"/>
+      </item>
+      <item row="8" column="3">
+       <widget class="QLabel" name="label_14">
+        <property name="text">
+         <string>UMEP land cover grid:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -470,46 +164,98 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="7" column="0">
-       <widget class="QCheckBox" name="checkBoxSaveTrunk">
+      <item row="6" column="1">
+       <widget class="QSpinBox" name="spinBoxTrans">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="value">
+         <number>3</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Building and ground DSM:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="3">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Vegetation Canopy DSM:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="3">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Vegetation Trunk zone DSM:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="4">
+       <widget class="QCheckBox" name="checkBoxUseVeg">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>Tick this box if you want to include vegetation (trees and bushes) in the calculations.</string>
+        </property>
+        <property name="text">
+         <string>Use vegetation scheme (Lindberg, Grimmond 2011)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Transmissivity of light&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;through vegetation (%):&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QCheckBox" name="checkBoxTrunkExist">
         <property name="enabled">
          <bool>false</bool>
         </property>
         <property name="toolTip">
-         <string>Tick this in if you want to save your TDSM that is generated (GeoTIFF).</string>
+         <string>Tick this in if a trunk zone DSM already exist.</string>
         </property>
         <property name="text">
-         <string>Save generated Trunk zone DSM</string>
+         <string>Trunk zone DSM exist</string>
         </property>
        </widget>
       </item>
-      <item row="8" column="2">
-       <spacer name="verticalSpacer_4">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="11" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkBoxDEM">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>Tick this in if the building grid should be created from the land cover grid. Otherwise, a DEM including only ground heights must be added. This will then be used to derive a building grid together with the ground and building DSM.</string>
-        </property>
+      <item row="10" column="3">
+       <widget class="QLabel" name="label_16">
         <property name="text">
-         <string>Use land cover grid to derive building grid</string>
+         <string>Ground DEM:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
-      <item row="14" column="1">
+      <item row="2" column="3">
        <spacer name="verticalSpacer_5">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -522,14 +268,134 @@ p, li { white-space: pre-wrap; }
         </property>
        </spacer>
       </item>
-      <item row="15" column="4">
-       <widget class="QPushButton" name="pushButtonImportSVF">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The SOLWEIG model make use of SVFs to calculate T&lt;span style=&quot; vertical-align:sub;&quot;&gt;mrt&lt;/span&gt;. The zip-file needed can be created with the SkyViewFactor calculator found in the UMEP Pre-processor. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
+      <item row="19" column="3">
+       <widget class="QLabel" name="label_31">
         <property name="text">
-         <string>Select</string>
+         <string>Wall aspect raster:</string>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="18" column="3">
+       <widget class="QLabel" name="label_32">
+        <property name="text">
+         <string>Wall height raster:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QWidget" name="widgetDSM" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_8"/>
+       </widget>
+      </item>
+      <item row="8" column="4">
+       <widget class="QWidget" name="widgetLC" native="true">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_11"/>
+       </widget>
+      </item>
+      <item row="5" column="4">
+       <widget class="QWidget" name="widgetTDSM" native="true">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_10"/>
+       </widget>
+      </item>
+      <item row="10" column="4">
+       <widget class="QWidget" name="widgetDEM" native="true">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_6"/>
+       </widget>
+      </item>
+      <item row="4" column="4">
+       <widget class="QWidget" name="widgetCDSM" native="true">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_9"/>
+       </widget>
+      </item>
+      <item row="19" column="4">
+       <widget class="QWidget" name="widgetWA" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_13"/>
+       </widget>
+      </item>
+      <item row="18" column="4">
+       <widget class="QWidget" name="widgetWH" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_12"/>
        </widget>
       </item>
       <item row="16" column="1">
@@ -545,217 +411,10 @@ p, li { white-space: pre-wrap; }
         </property>
        </spacer>
       </item>
-      <item row="1" column="3" colspan="2">
-       <widget class="QComboBox" name="comboBox_dsm">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
-        </property>
-        <property name="whatsThis">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="3" colspan="2">
-       <widget class="QComboBox" name="comboBox_vegdsm">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>A raster grid consisting of heights of vegetation above ground. Should have same spatial extent and resolution as Building and Ground DSM</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="3" colspan="2">
-       <widget class="QComboBox" name="comboBox_vegdsm2">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>A raster grid consisting of heights of trunk zone (bottom of canopy) above ground. Should have same spatial extent and resolution as Building and Ground DSM</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="3" colspan="2">
-       <widget class="QComboBox" name="comboBox_landcover">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>Land cover grid should be in the UMEP standard format except for the two tree classes (deciduous and conifer). UMEP land cover grid can be prepared in the Pre-processor.</string>
-        </property>
-        <property name="whatsThis">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
-        </property>
-       </widget>
-      </item>
-      <item row="12" column="3" colspan="2">
-       <widget class="QComboBox" name="comboBox_dem">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
-        </property>
-        <property name="whatsThis">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
-        </property>
-       </widget>
-      </item>
-      <item row="17" column="3" colspan="2">
-       <widget class="QComboBox" name="comboBox_wallheight">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The SOLWEIG model make use of wall height raster to calculate T&lt;span style=&quot; vertical-align:sub;&quot;&gt;mrt&lt;/span&gt;. This can be calculated using the Wall height and aspect plugin found in the UMEP Pre-processor. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="whatsThis">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
-        </property>
-       </widget>
-      </item>
-      <item row="18" column="3" colspan="2">
-       <widget class="QComboBox" name="comboBox_wallaspect">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The SOLWEIG model make use of wall height raster to calculate T&lt;span style=&quot; vertical-align:sub;&quot;&gt;mrt&lt;/span&gt;. This can be calculated using the Wall height and aspect plugin found in the UMEP Pre-processor. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="15" column="2" colspan="2">
-       <widget class="QLineEdit" name="textInputSVF"/>
-      </item>
-      <item row="6" column="0" colspan="2">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Transmissivity of light&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;through vegetation (%):&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="15" column="0" colspan="2">
-       <widget class="QLabel" name="label_10">
-        <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;SkyViewFactor grids (.zip):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="3">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Building and ground DSM:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0" colspan="3">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Vegetation Canopy DSM:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0" colspan="3">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Vegetation Trunk zone DSM:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="0" colspan="3">
-       <widget class="QLabel" name="label_14">
-        <property name="text">
-         <string>UMEP land cover grid:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="12" column="0" colspan="3">
-       <widget class="QLabel" name="label_16">
-        <property name="text">
-         <string>Ground DEM:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="13" column="0" colspan="3">
-       <widget class="QCheckBox" name="checkBoxBuild">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tick this in if you want to save your building grid that is generated (GeoTIFF).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string>Save generated building grid</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="0" colspan="4">
-       <widget class="QCheckBox" name="checkBoxLandCover">
-        <property name="toolTip">
-         <string>Tick this in to included land cover information</string>
-        </property>
-        <property name="text">
-         <string>Use land cover scheme (Lindberg et al. 2016)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="17" column="0" colspan="3">
-       <widget class="QLabel" name="label_32">
-        <property name="text">
-         <string>Wall height raster:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="18" column="0" colspan="3">
-       <widget class="QLabel" name="label_31">
-        <property name="text">
-         <string>Wall aspect raster:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
-   <item row="0" column="3" colspan="4">
+   <item row="0" column="3" colspan="3">
     <widget class="QFrame" name="frame_2">
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -1133,7 +792,7 @@ p, li { white-space: pre-wrap; }
      </layout>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="1" column="0">
     <widget class="QFrame" name="frame_5">
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -1141,8 +800,36 @@ p, li { white-space: pre-wrap; }
      <property name="frameShadow">
       <enum>QFrame::Sunken</enum>
      </property>
-     <layout class="QGridLayout" name="gridLayout_7">
-      <item row="4" column="0" colspan="3">
+     <layout class="QGridLayout" name="gridLayout_16">
+      <item row="3" column="1">
+       <widget class="QWidget" name="widgetPointLayer" native="true">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_7"/>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="2">
+       <widget class="QLabel" name="label_29">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Optional settings&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0" colspan="3">
        <widget class="QCheckBox" name="CheckBoxElvis">
         <property name="toolTip">
          <string>Tick this box to include adjustment (0.04) of sky emissivity which was present in the earlier versions of the SOLWEIG model (not recommended).</string>
@@ -1152,6 +839,19 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="checked">
          <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_35">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>ID field:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -1165,87 +865,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_34">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Vector point file:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>comboBox_POIlayer</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QComboBox" name="comboBox_POIfield">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>Attribut ID should be a unique number or string for each polygon </string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1" colspan="2">
-       <widget class="QComboBox" name="comboBox_POIlayer">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;This Polygon layer could include one single or mutiple squares &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0" colspan="2">
-       <widget class="QLabel" name="label_35">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>ID field:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>comboBox_POIlayer</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_29">
-        <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Optional settings&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0" colspan="3">
-       <widget class="QCheckBox" name="CheckBoxBox">
-        <property name="toolTip">
-         <string>Consider human as cylinder instead of box ||Tick this box to consider man as a cylinder instead of a box according to Holmer at al. (2015).</string>
-        </property>
-        <property name="text">
-         <string>Consider human as cylinder instead of box</string>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
+      <item row="9" column="0">
        <spacer name="verticalSpacer_3">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -1258,19 +878,62 @@ p, li { white-space: pre-wrap; }
         </property>
        </spacer>
       </item>
+      <item row="8" column="0" colspan="3">
+       <widget class="QCheckBox" name="CheckBoxBox">
+        <property name="toolTip">
+         <string>Consider human as cylinder instead of box ||Tick this box to consider man as a cylinder instead of a box according to Holmer at al. (2015).</string>
+        </property>
+        <property name="text">
+         <string>Consider human as cylinder instead of box</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_34">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Vector point file:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QWidget" name="widgetPOIField" native="true">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>125</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_15"/>
+       </widget>
+      </item>
      </layout>
      <zorder>CheckBoxBox</zorder>
      <zorder>label_29</zorder>
      <zorder>CheckBoxElvis</zorder>
-     <zorder>comboBox_POIfield</zorder>
-     <zorder>comboBox_POIlayer</zorder>
-     <zorder>label_34</zorder>
-     <zorder>label_35</zorder>
      <zorder>checkboxUsePOI</zorder>
      <zorder>verticalSpacer_3</zorder>
+     <zorder>widgetPointLayer</zorder>
+     <zorder>label_34</zorder>
+     <zorder>label_35</zorder>
+     <zorder>widgetPOIField</zorder>
     </widget>
    </item>
-   <item row="2" column="1" colspan="2">
+   <item row="1" column="1" colspan="2">
     <widget class="QFrame" name="frame_4">
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -1451,8 +1114,364 @@ p, li { white-space: pre-wrap; }
      </layout>
     </widget>
    </item>
-   <item row="5" column="4" colspan="2">
+   <item row="2" column="0" rowspan="3" colspan="2">
+    <widget class="QFrame" name="frame_3">
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="2" column="2" colspan="2">
+       <widget class="QLabel" name="label_22">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Absorption of longwave radiation:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" colspan="2">
+       <widget class="QLabel" name="label_23">
+        <property name="text">
+         <string>Posture of the human body:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2" colspan="2">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Absorption of shortwave radiation:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="5">
+       <widget class="QLabel" name="label_21">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Human exposure parameters&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3" colspan="2">
+       <widget class="QComboBox" name="comboBox_posture">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>Choose between standing (default) and sitting.</string>
+        </property>
+        <property name="whatsThis">
+         <string>A raster Digital surface Model consisting of ground and building heights</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Standing</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Sitting</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="2">
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>120</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="2" column="4">
+       <widget class="QDoubleSpinBox" name="doubleSpinBoxLongwaveHuman">
+        <property name="toolTip">
+         <string>Amount of longwave radiation that the human body absorb.</string>
+        </property>
+        <property name="decimals">
+         <number>2</number>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.010000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.950000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QDoubleSpinBox" name="doubleSpinBoxShortwaveHuman">
+        <property name="toolTip">
+         <string>Amount of shortwave radiation that the human body absorb.</string>
+        </property>
+        <property name="decimals">
+         <number>2</number>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.010000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.700000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="2" rowspan="3">
+    <widget class="QFrame" name="frame_6">
+     <property name="toolTip">
+      <string>A number of different outputs can be chosen here. All grids will be written out as GeoTIFFs at the location specified as the output folder.</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_5">
+      <item row="1" column="1" rowspan="2" colspan="2">
+       <widget class="QCheckBox" name="CheckBoxTmrt">
+        <property name="text">
+         <string>Tmrt</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QCheckBox" name="CheckBoxKdown">
+        <property name="text">
+         <string>Kdown</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QLabel" name="label_30">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Output maps&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QCheckBox" name="CheckBoxKup">
+        <property name="text">
+         <string>Kup</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QCheckBox" name="CheckBoxShadow">
+        <property name="text">
+         <string>Shadow</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QCheckBox" name="CheckBoxLdown">
+        <property name="text">
+         <string>Ldown</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QCheckBox" name="CheckBoxLup">
+        <property name="text">
+         <string>Lup</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <spacer name="verticalSpacer_6">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>83</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="3">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Output folder:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="4">
     <widget class="QLineEdit" name="textOutput"/>
+   </item>
+   <item row="2" column="5">
+    <widget class="QPushButton" name="pushButtonSave">
+     <property name="text">
+      <string>Select</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="5">
+    <widget class="QPushButton" name="runButton">
+     <property name="cursor">
+      <cursorShape>ArrowCursor</cursorShape>
+     </property>
+     <property name="text">
+      <string>Run</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="3">
+    <widget class="QPushButton" name="pushButtonHelp">
+     <property name="text">
+      <string>Help</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="4">
+    <widget class="QCheckBox" name="checkBoxIntoCanvas">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string>Add average Tmrt to map canvas</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="5">
+    <widget class="QPushButton" name="pushButtonClose">
+     <property name="text">
+      <string>Close</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3" colspan="3">
+    <widget class="QTextEdit" name="textEdit">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>66</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>200</width>
+       <height>80</height>
+      </size>
+     </property>
+     <property name="autoFillBackground">
+      <bool>true</bool>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="html">
+      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt; font-weight:600;&quot;&gt;SOLWEIG tips and tricks:&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- The current version of SOLWEIG is v2016a.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- All grids must have the same extent and pixel resolution.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- The coordinate system of all the grids must be the same and translatable to lat, lon coordinates.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- A boolean building grid (building = 0, ground = 1) must be created, either from a land cover or a ground DEM in conjunction with the building and ground DSM. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- Meteorological file must have the default UMEP format.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- Land cover grid should be in UMEP format.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- Wall height and aspect grids as well as SVFs can be calculated from Pre-processor in UMEP. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- The test dataset from the central parts of Göteborg, Sweden could be found in repository.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- The full manual of the SOLWEIG-model is available from: &lt;/span&gt;&lt;a href=&quot;http://www.urban-climate.net/umep/SOLWEIG&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.urban-climate.net/umep/SOLWEIG&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;REFERENCES:&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Jonsson P, I Eliasson, B Holmer and CSB Grimmond (2006) Longwave incoming radiation in the Tropics: results from field work in three African cities Theoretical and Applied Climatology 85 : 185-201.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Lindberg, F. and Grimmond, C. (2011) The influence of vegetation and building morphology on shadow patterns and mean radiant temperature in urban areas: model development and evaluation. Theoretical and Applied Climatology 105:3, 311-323. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Lindberg, F., Onomura, S. and Grimmond, C.S.B (2016) Influence of ground surface characteristics on the mean radiant temperature in urban areas. International Journal of Biometeorology. 60(9), 1439-1452. &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="3" colspan="2">
+    <widget class="QProgressBar" name="progressBar">
+     <property name="value">
+      <number>0</number>
+     </property>
+     <property name="textVisible">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
@@ -1465,44 +1484,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>223</x>
-     <y>113</y>
+     <x>242</x>
+     <y>111</y>
     </hint>
     <hint type="destinationlabel">
-     <x>551</x>
-     <y>113</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxUseVeg</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>comboBox_vegdsm</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>67</x>
-     <y>113</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>468</x>
-     <y>139</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxTrunkExist</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>comboBox_vegdsm2</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>551</x>
-     <y>113</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>468</x>
-     <y>165</y>
+     <x>179</x>
+     <y>141</y>
     </hint>
    </hints>
   </connection>
@@ -1513,12 +1500,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>91</x>
-     <y>113</y>
+     <x>110</x>
+     <y>111</y>
     </hint>
     <hint type="destinationlabel">
-     <x>388</x>
-     <y>194</y>
+     <x>240</x>
+     <y>212</y>
     </hint>
    </hints>
   </connection>
@@ -1529,8 +1516,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>104</x>
-     <y>113</y>
+     <x>123</x>
+     <y>111</y>
     </hint>
     <hint type="destinationlabel">
      <x>551</x>
@@ -1545,8 +1532,8 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>551</x>
-     <y>113</y>
+     <x>179</x>
+     <y>141</y>
     </hint>
     <hint type="destinationlabel">
      <x>551</x>
@@ -1557,48 +1544,16 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>checkBoxLandCover</sender>
    <signal>clicked(bool)</signal>
-   <receiver>comboBox_landcover</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>48</x>
-     <y>267</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>468</x>
-     <y>296</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxLandCover</sender>
-   <signal>clicked(bool)</signal>
    <receiver>checkBoxDEM</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>65</x>
-     <y>267</y>
+     <x>84</x>
+     <y>260</y>
     </hint>
     <hint type="destinationlabel">
-     <x>48</x>
-     <y>317</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxDEM</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>comboBox_dem</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>61</x>
-     <y>317</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>468</x>
-     <y>346</y>
+     <x>67</x>
+     <y>296</y>
     </hint>
    </hints>
   </connection>
@@ -1661,8 +1616,8 @@ p, li { white-space: pre-wrap; }
      <y>61</y>
     </hint>
     <hint type="destinationlabel">
-     <x>656</x>
-     <y>343</y>
+     <x>1060</x>
+     <y>287</y>
     </hint>
    </hints>
   </connection>
@@ -1677,8 +1632,8 @@ p, li { white-space: pre-wrap; }
      <y>61</y>
     </hint>
     <hint type="destinationlabel">
-     <x>845</x>
-     <y>369</y>
+     <x>874</x>
+     <y>313</y>
     </hint>
    </hints>
   </connection>
@@ -1693,8 +1648,8 @@ p, li { white-space: pre-wrap; }
      <y>61</y>
     </hint>
     <hint type="destinationlabel">
-     <x>845</x>
-     <y>395</y>
+     <x>874</x>
+     <y>339</y>
     </hint>
    </hints>
   </connection>
@@ -1709,8 +1664,8 @@ p, li { white-space: pre-wrap; }
      <y>61</y>
     </hint>
     <hint type="destinationlabel">
-     <x>845</x>
-     <y>421</y>
+     <x>874</x>
+     <y>365</y>
     </hint>
    </hints>
   </connection>
@@ -1721,12 +1676,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>599</x>
+     <x>809</x>
      <y>61</y>
     </hint>
     <hint type="destinationlabel">
-     <x>845</x>
-     <y>473</y>
+     <x>874</x>
+     <y>417</y>
     </hint>
    </hints>
   </connection>
@@ -1741,8 +1696,8 @@ p, li { white-space: pre-wrap; }
      <y>61</y>
     </hint>
     <hint type="destinationlabel">
-     <x>845</x>
-     <y>447</y>
+     <x>874</x>
+     <y>391</y>
     </hint>
    </hints>
   </connection>
@@ -1757,8 +1712,8 @@ p, li { white-space: pre-wrap; }
      <y>61</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1031</x>
-     <y>499</y>
+     <x>1060</x>
+     <y>443</y>
     </hint>
    </hints>
   </connection>
@@ -1785,12 +1740,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>102</x>
-     <y>267</y>
+     <x>121</x>
+     <y>260</y>
     </hint>
     <hint type="destinationlabel">
-     <x>551</x>
-     <y>596</y>
+     <x>580</x>
+     <y>540</y>
     </hint>
    </hints>
   </connection>
@@ -1801,12 +1756,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>129</x>
-     <y>267</y>
+     <x>148</x>
+     <y>260</y>
     </hint>
     <hint type="destinationlabel">
-     <x>551</x>
-     <y>648</y>
+     <x>580</x>
+     <y>592</y>
     </hint>
    </hints>
   </connection>
@@ -1817,8 +1772,8 @@ p, li { white-space: pre-wrap; }
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1041</x>
-     <y>819</y>
+     <x>1070</x>
+     <y>772</y>
     </hint>
     <hint type="destinationlabel">
      <x>491</x>
@@ -1837,8 +1792,8 @@ p, li { white-space: pre-wrap; }
      <y>61</y>
     </hint>
     <hint type="destinationlabel">
-     <x>845</x>
-     <y>499</y>
+     <x>874</x>
+     <y>443</y>
     </hint>
    </hints>
   </connection>
@@ -1849,28 +1804,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>131</x>
-     <y>267</y>
+     <x>150</x>
+     <y>260</y>
     </hint>
     <hint type="destinationlabel">
-     <x>845</x>
-     <y>499</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkboxUsePOI</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>comboBox_POIlayer</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>62</x>
-     <y>557</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>308</x>
-     <y>600</y>
+     <x>874</x>
+     <y>443</y>
     </hint>
    </hints>
   </connection>
@@ -1881,28 +1820,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>43</x>
-     <y>560</y>
+     <x>62</x>
+     <y>512</y>
     </hint>
     <hint type="destinationlabel">
-     <x>129</x>
-     <y>600</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkboxUsePOI</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>comboBox_POIfield</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>63</x>
-     <y>559</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>308</x>
-     <y>626</y>
+     <x>111</x>
+     <y>548</y>
     </hint>
    </hints>
   </connection>
@@ -1913,12 +1836,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>559</y>
+     <x>69</x>
+     <y>512</y>
     </hint>
     <hint type="destinationlabel">
-     <x>198</x>
-     <y>620</y>
+     <x>111</x>
+     <y>584</y>
     </hint>
    </hints>
   </connection>
@@ -1933,8 +1856,8 @@ p, li { white-space: pre-wrap; }
      <y>103</y>
     </hint>
     <hint type="destinationlabel">
-     <x>65</x>
-     <y>213</y>
+     <x>84</x>
+     <y>177</y>
     </hint>
    </hints>
   </connection>
@@ -1945,12 +1868,108 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>492</x>
-     <y>103</y>
+     <x>179</x>
+     <y>141</y>
     </hint>
     <hint type="destinationlabel">
-     <x>130</x>
-     <y>208</y>
+     <x>149</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxUseVeg</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>widgetCDSM</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>190</x>
+     <y>106</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>455</x>
+     <y>135</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxTrunkExist</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>widgetTDSM</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>60</x>
+     <y>129</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>421</x>
+     <y>167</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkboxUsePOI</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>widgetPointLayer</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>47</x>
+     <y>503</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>168</x>
+     <y>539</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkboxUsePOI</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>widgetPOIField</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>28</x>
+     <y>509</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>169</x>
+     <y>570</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxLandCover</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>widgetLC</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>152</x>
+     <y>253</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>435</x>
+     <y>256</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxDEM</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>widgetDEM</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>215</x>
+     <y>289</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>418</x>
+     <y>293</y>
     </hint>
    </hints>
   </connection>

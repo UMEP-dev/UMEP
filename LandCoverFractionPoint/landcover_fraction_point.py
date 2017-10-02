@@ -25,7 +25,7 @@ from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
 from qgis.gui import *
 from qgis.core import *
 import os
-from ..Utilities.qgiscombomanager import *
+# from ..Utilities.qgiscombomanager import *
 from ..Utilities.landCoverFractions_v1 import *
 from osgeo import gdal
 import subprocess
@@ -426,6 +426,8 @@ class LandCoverFractionPoint:
         else:
             landcoverresult = landcover_v1(dsm, 1, self.degree, self.dlg, 1)
 
+        landcoverresult = self.resultcheck(landcoverresult)
+
         # save to file
         pre = self.dlg.textOutput_prefix.text()
         header = 'Wd Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
@@ -445,6 +447,27 @@ class LandCoverFractionPoint:
         dataset3 = None
 
         QMessageBox.information(None, "Land Cover Fraction Point: ", "Process successful!")
+
+    def resultcheck(self, landcoverresult):
+        total = 0.
+        arr = landcoverresult["lc_frac_all"]
+
+        for x in range(0, len(arr[0])):
+            total += arr[0, x]
+
+        if total != 1.0:
+            diff = total - 1.0
+
+            maxnumber = max(arr[0])
+
+            for x in range(0, len(arr[0])):
+                if maxnumber == arr[0, x]:
+                    arr[0, x] -= diff
+                    break
+
+        landcoverresult["lc_frac_all"] = arr
+
+        return landcoverresult
 
     def run(self):
         """Run method that performs all the real work"""

@@ -23,10 +23,11 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
+from qgis.gui import *
 import os
 import os.path
 from osgeo import gdal
-from ..Utilities.qgiscombomanager import *
+# from ..Utilities.qgiscombomanager import *
 # Initialize Qt resources from file resources.py
 import resources
 import webbrowser
@@ -86,16 +87,28 @@ class LCZ_test:
             self.dlg.pushButton_2.clicked.connect(self.updatetable2)
 #        self.dlg.pushButton_2.clicked.connect(self.bla)
 
-        
-        self.layerComboManagerPolygrid = VectorLayerCombo(self.dlg.comboBox_2)
-        fieldgen = VectorLayerCombo(self.dlg.comboBox_2, initLayer="", options={"geomType": QGis.Polygon})
-        self.layerComboManagerPolyField = FieldCombo(self.dlg.comboBox_31, fieldgen) #, options={"fieldType":QGis.Float32}
-        self.layerComboManagerLCgrid = RasterLayerCombo(self.dlg.comboBox)
-        RasterLayerCombo(self.dlg.comboBox, initLayer="")
+        # self.layerComboManagerPolygrid = VectorLayerCombo(self.dlg.comboBox_2)
+        # fieldgen = VectorLayerCombo(self.dlg.comboBox_2, initLayer="", options={"geomType": QGis.Polygon})
+        # self.layerComboManagerPolyField = FieldCombo(self.dlg.comboBox_31, fieldgen) #, options={"fieldType":QGis.Float32}
+        self.layerComboManagerPolygrid = QgsMapLayerComboBox(self.dlg.widgetPolyLayer)
+        self.layerComboManagerPolygrid.setCurrentIndex(-1)
+        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.layerComboManagerPolygrid.setFixedWidth(175)
+        self.layerComboManagerPolyField = QgsFieldComboBox(self.dlg.widgetField)
+        self.layerComboManagerPolyField.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPolygrid.layerChanged.connect(self.layerComboManagerPolyField.setLayer)
+
+        # self.layerComboManagerLCgrid = RasterLayerCombo(self.dlg.comboBox)
+        # RasterLayerCombo(self.dlg.comboBox, initLayer="")
+        self.layerComboManagerLCgrid = QgsMapLayerComboBox(self.dlg.widgetLC)
+        self.layerComboManagerLCgrid.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerLCgrid.setFixedWidth(175)
+        self.layerComboManagerLCgrid.setCurrentIndex(-1)
+
         self.urbanchoices = ['100% grass','100% decidious trees','100% evergreen trees','100% bare soil','100% water','50% grass, 25% dec. trees, 25% ev. trees','Each 20%']
         self.treechoices = ['100% evergreen', '100% decidious', '50% evergreen, 50% decidious','30% evergreen, 70% decidious','70% evergreen, 30% decidious']
-        self.LCZs = [1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,101.,102.,103.]
-        self.heightfr = ['No trees','0 - 5m','5 - 10m','10 - 15m','15 - 20m','> 20m']
+        self.LCZs = [1., 2., 3., 4., 5., 6., 7., 8., 9., 10., 101., 102., 103.]
+        self.heightfr = ['No trees', '0 - 5m', '5 - 10m', '10 - 15m', '15 - 20m', '> 20m']
         
         self.folderPath = 'None'
         self.steps = 0

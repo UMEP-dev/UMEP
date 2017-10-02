@@ -23,13 +23,14 @@
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import *
 from qgis.core import *
+from qgis.gui import *
 # Initialize Qt resources from file resources.py
 # import resources
 # Import the code for the dialog
 from solweig_analyzer_dialog import SolweigAnalyzerDialog
 import os
 import webbrowser
-from ..Utilities.qgiscombomanager import *
+# from ..Utilities.qgiscombomanager import *
 from osgeo import gdal
 from osgeo.gdalconst import *
 import numpy as np
@@ -88,8 +89,12 @@ class SolweigAnalyzer:
         self.dlg.comboBoxSpatialVariables.currentIndexChanged.connect(self.moviescale)
         self.fileDialog = QFileDialog()
 
-        self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_buildings)
-        RasterLayerCombo(self.dlg.comboBox_buildings, initLayer="")
+        # self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_buildings)
+        # RasterLayerCombo(self.dlg.comboBox_buildings, initLayer="")
+        self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetBuildings)
+        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSM.setFixedWidth(175)
+        self.layerComboManagerDSM.setCurrentIndex(-1)
 
         # Declare instance attributes
         self.actions = []
@@ -431,7 +436,7 @@ class SolweigAnalyzer:
 
         # Exclude buildings
         if self.dlg.checkboxExcludeBuildings.isChecked():
-            dsmlayer = self.layerComboManagerDSM.getLayer()
+            dsmlayer = self.layerComboManagerDSM.currentLayer()
 
             if dsmlayer is None:
                 QMessageBox.critical(self.dlg, "Error", "No valid raster layer is selected")
@@ -440,7 +445,7 @@ class SolweigAnalyzer:
             if self.folderPath[0] is None:
                 QMessageBox.critical(self.dlg, "Error", "No building grid specified")
             else:
-                dsmlayer = self.layerComboManagerDSM.getLayer()
+                dsmlayer = self.layerComboManagerDSM.currentLayer()
 
                 if dsmlayer is None:
                     QMessageBox.critical(self.dlg, "Error", "No valid building raster layer is selected")

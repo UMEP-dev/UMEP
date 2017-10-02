@@ -6,14 +6,44 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>505</width>
-    <height>447</height>
+    <width>498</width>
+    <height>497</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>SEBE - Solar Energy on Building Envelopes</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="2" column="4">
+    <widget class="QPushButton" name="pushButtonSaveIrradiance">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>Select</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="3">
+    <widget class="QLineEdit" name="textOutput"/>
+   </item>
+   <item row="4" column="0" colspan="4">
+    <widget class="QProgressBar" name="progressBar">
+     <property name="value">
+      <number>0</number>
+     </property>
+     <property name="textVisible">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="4">
+    <widget class="QPushButton" name="pushButtonSave">
+     <property name="text">
+      <string>Select</string>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0" colspan="5">
     <widget class="QFrame" name="frame">
      <property name="frameShape">
@@ -22,64 +52,84 @@
      <property name="frameShadow">
       <enum>QFrame::Sunken</enum>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="9" column="3" colspan="3">
-       <widget class="QLineEdit" name="textInputMetdata"/>
-      </item>
-      <item row="9" column="6" colspan="3">
-       <widget class="QPushButton" name="pushButtonImport">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Input meteorological data specifically formatted to be used in UMEP. This specific format can be created using UMEP -&amp;gt; Pre-processing -&amp;gt; Meteorological data -&amp;gt; Prepare existing data. A yearly dataset with hourly time resolution should be used for SEBE.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="12" column="0" colspan="3">
+       <widget class="QLabel" name="label_9">
         <property name="text">
-         <string>Select</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="4" colspan="5">
-       <widget class="QComboBox" name="comboBox_vegdsm2">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>A raster grid consisting of heights of trunk zone (bottom of canopy) above ground. Should have same spatial extent and resolution as Building and Ground DSM</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="4">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Vegetation Canopy DSM:</string>
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Input meteorological file:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
-      <item row="0" column="4" colspan="5">
-       <widget class="QComboBox" name="comboBox_dsm">
+      <item row="9" column="0" colspan="6">
+       <widget class="QCheckBox" name="checkBoxUseOnlyGlobal">
         <property name="enabled">
          <bool>true</bool>
         </property>
         <property name="toolTip">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
+         <string>Tick this in if only global radiation is present. Diffuse and direct shortwave components will then be estimated from global radiation based on the statistical model presented by Reindl et al. (1990). If air temperature and relative humidity is present, the statistical model will perform better but it is able to estimate the components using only global shortwave radiation.</string>
         </property>
-        <property name="whatsThis">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
+        </property>
+        <property name="text">
+         <string>Estimate diffuse and direct shortwave components from global radiation:</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="0" colspan="4">
-       <widget class="QLabel" name="label">
+      <item row="4" column="2">
+       <widget class="QSpinBox" name="spinBoxTrans">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="value">
+         <number>3</number>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QLabel" name="label_6">
         <property name="text">
-         <string>Building and ground DSM:</string>
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Albedo:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
-      <item row="3" column="4" colspan="5">
+      <item row="7" column="2">
+       <widget class="QDoubleSpinBox" name="doubleSpinBoxAlbedo">
+        <property name="toolTip">
+         <string>This parameter specifies the reflectivity of shortwave radiation of all surfaces (ground, roofs, walls and vegetation)</string>
+        </property>
+        <property name="decimals">
+         <number>2</number>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.010000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.150000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="3" colspan="2">
+       <widget class="QLineEdit" name="textInputMetdata"/>
+      </item>
+      <item row="3" column="3" colspan="2">
        <widget class="QCheckBox" name="checkBoxTrunkExist">
         <property name="enabled">
          <bool>false</bool>
@@ -92,24 +142,146 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0" colspan="4">
-       <widget class="QLabel" name="label_3">
+      <item row="3" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxUseVeg">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string extracomment="Tick this box if you want to include vegetation (trees and bushes) into the analysis."/>
+        </property>
         <property name="text">
-         <string>Vegetation Trunk zone DSM:</string>
+         <string>Use vegetation DSMs</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="2">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Transmissivity of light&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;through vegetation (%):&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
-      <item row="1" column="4" colspan="5">
-       <widget class="QComboBox" name="comboBox_vegdsm">
+      <item row="4" column="3">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Percent of &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;canopy height:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="4">
+       <widget class="QSpinBox" name="spinBoxTrunkHeight">
         <property name="enabled">
          <bool>false</bool>
         </property>
         <property name="toolTip">
-         <string>A raster grid consisting of heights of vegetation above ground. Should have same spatial extent and resolution as Building and Ground DSM</string>
+         <string>If a trunk zone vegetation DSM is absent, this can be generated based on the height of the Canopy DSM.</string>
         </property>
+        <property name="value">
+         <number>25</number>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="5">
+       <widget class="QPushButton" name="pushButtonImport">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Input meteorological data specifically formatted to be used in UMEP. This specific format can be created using UMEP -&amp;gt; Pre-processing -&amp;gt; Meteorological data -&amp;gt; Prepare existing data. A yearly dataset with hourly time resolution should be used for SEBE.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Select</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="4" colspan="2">
+       <widget class="QWidget" name="widgetWA" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_13"/>
+       </widget>
+      </item>
+      <item row="5" column="4" colspan="2">
+       <widget class="QWidget" name="widgetWH" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_12"/>
+       </widget>
+      </item>
+      <item row="2" column="4" colspan="2">
+       <widget class="QWidget" name="widgetTDSM" native="true">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_10"/>
+       </widget>
+      </item>
+      <item row="1" column="4" colspan="2">
+       <widget class="QWidget" name="widgetCDSM" native="true">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_9"/>
+       </widget>
+      </item>
+      <item row="0" column="4" colspan="2">
+       <widget class="QWidget" name="widgetDSM" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_8"/>
        </widget>
       </item>
       <item row="5" column="3">
@@ -132,117 +304,37 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="4" colspan="5">
-       <widget class="QComboBox" name="comboBox_wallaspect">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A raster of the same size and extent as the ground and building DSM including information of the wall pixels and its aspect, i.e. angle, should be specified here. For example a wall facing towards the south has a value of 180°. Non wall pixels should be set to zero. This raster are used to estimate irradiance on building walls and can be generated using the Wall Height and Aspect plugin located at UMEP -&amp;gt; Pre-processing -&amp;gt; Urban Geometry -&amp;gt; Wall Height and Aspect.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="8">
-       <widget class="QSpinBox" name="spinBoxTrunkHeight">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>If a trunk zone vegetation DSM is absent, this can be generated based on the height of the Canopy DSM.</string>
-        </property>
-        <property name="value">
-         <number>25</number>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="0" colspan="9">
-       <widget class="QCheckBox" name="checkBoxUseOnlyGlobal">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>Tick this in if only global radiation is present. Diffuse and direct shortwave components will then be estimated from global radiation based on the statistical model presented by Reindl et al. (1990). If air temperature and relative humidity is present, the statistical model will perform better but it is able to estimate the components using only global shortwave radiation.</string>
-        </property>
-        <property name="layoutDirection">
-         <enum>Qt::RightToLeft</enum>
-        </property>
+      <item row="2" column="2" colspan="2">
+       <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>Estimate diffuse and direct shortwave components from global radiation:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="1" colspan="2">
-       <widget class="QDoubleSpinBox" name="doubleSpinBoxAlbedo">
-        <property name="toolTip">
-         <string>This parameter specifies the reflectivity of shortwave radiation of all surfaces (ground, roofs, walls and vegetation)</string>
-        </property>
-        <property name="decimals">
-         <number>2</number>
-        </property>
-        <property name="maximum">
-         <double>1.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.010000000000000</double>
-        </property>
-        <property name="value">
-         <double>0.150000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1" colspan="4">
-       <widget class="QSpinBox" name="spinBoxTrans">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="value">
-         <number>3</number>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="5" colspan="3">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Percent of &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;canopy height:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Vegetation Trunk zone DSM:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
-      <item row="5" column="4" colspan="5">
-       <widget class="QComboBox" name="comboBox_wallheight">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A raster of the same size and extent as the ground and building DSM including information of the wall pixels and its height in meters above ground should be specified here. Non wall pixels should be set to zero. This raster is used toestimate irradiance on building walls and can be generated using the Wall Height and Aspect plugin located at UMEP -&amp;gt; Pre-processing -&amp;gt; Urban Geometry -&amp;gt; Wall Height and Aspect.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="whatsThis">
-         <string>A raster Digital surface Model consisting of ground and building heights</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="0">
-       <widget class="QLabel" name="label_6">
+      <item row="1" column="2" colspan="2">
+       <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Albedo:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Vegetation Canopy DSM:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
-      <item row="7" column="5" colspan="2">
+      <item row="0" column="2" colspan="2">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Building and ground DSM:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="3">
        <widget class="QLabel" name="label_7">
         <property name="text">
          <string>UTC offset (hours):</string>
@@ -252,35 +344,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Transmissivity of light&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;through vegetation (%):&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkBoxUseVeg">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string extracomment="Tick this box if you want to include vegetation (trees and bushes) into the analysis."/>
-        </property>
-        <property name="text">
-         <string>Use vegetation DSMs</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="7" colspan="2">
+      <item row="7" column="4">
        <widget class="QSpinBox" name="spinBoxUTC">
         <property name="enabled">
          <bool>true</bool>
@@ -299,37 +363,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="9" column="0" colspan="2">
-       <widget class="QLabel" name="label_9">
-        <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Input meteorological file:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
      </layout>
-    </widget>
-   </item>
-   <item row="1" column="0" colspan="5">
-    <widget class="QCheckBox" name="checkBoxUseIrradience">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="toolTip">
-      <string>When the box is ticked in, it is possible to save the radiation distribution from the sky vault calculated from the meteorological file. See help for more details.</string>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::RightToLeft</enum>
-     </property>
-     <property name="text">
-      <string>Save sky irradience distribution</string>
-     </property>
     </widget>
    </item>
    <item row="2" column="0" colspan="3">
@@ -356,30 +390,20 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="2" column="4">
-    <widget class="QPushButton" name="pushButtonSaveIrradiance">
+   <item row="5" column="1" colspan="3">
+    <widget class="QCheckBox" name="checkBoxIntoCanvas">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="text">
-      <string>Select</string>
+      <string>Add roof and ground irradience result raster to project</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="4">
-    <widget class="QPushButton" name="pushButtonSave">
+   <item row="5" column="4">
+    <widget class="QPushButton" name="pushButtonClose">
      <property name="text">
-      <string>Select</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0" colspan="4">
-    <widget class="QProgressBar" name="progressBar">
-     <property name="value">
-      <number>0</number>
-     </property>
-     <property name="textVisible">
-      <bool>false</bool>
+      <string>Close</string>
      </property>
     </widget>
    </item>
@@ -400,26 +424,6 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="5" column="1" colspan="3">
-    <widget class="QCheckBox" name="checkBoxIntoCanvas">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string>Add roof and ground irradience result raster to project</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="4">
-    <widget class="QPushButton" name="pushButtonClose">
-     <property name="text">
-      <string>Close</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="3">
-    <widget class="QLineEdit" name="textOutput"/>
-   </item>
    <item row="3" column="2">
     <widget class="QLabel" name="label_4">
      <property name="text">
@@ -427,6 +431,22 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="3">
+    <widget class="QCheckBox" name="checkBoxUseIrradience">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="toolTip">
+      <string>When the box is ticked in, it is possible to save the radiation distribution from the sky vault calculated from the meteorological file. See help for more details.</string>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>Save sky irradience distribution</string>
      </property>
     </widget>
    </item>
@@ -450,32 +470,16 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>checkBoxUseVeg</sender>
    <signal>toggled(bool)</signal>
-   <receiver>comboBox_vegdsm</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>104</x>
-     <y>108</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>304</x>
-     <y>56</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxUseVeg</sender>
-   <signal>toggled(bool)</signal>
    <receiver>checkBoxTrunkExist</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>30</x>
-     <y>110</y>
+     <x>49</x>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
-     <x>478</x>
-     <y>114</y>
+     <x>395</x>
+     <y>144</y>
     </hint>
    </hints>
   </connection>
@@ -486,12 +490,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>48</x>
-     <y>114</y>
+     <x>67</x>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
-     <x>293</x>
-     <y>143</y>
+     <x>214</x>
+     <y>173</y>
     </hint>
    </hints>
   </connection>
@@ -502,28 +506,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>49</x>
-     <y>112</y>
+     <x>68</x>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
-     <x>484</x>
-     <y>143</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxTrunkExist</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>comboBox_vegdsm2</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>381</x>
-     <y>110</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>379</x>
-     <y>90</y>
+     <x>395</x>
+     <y>173</y>
     </hint>
    </hints>
   </connection>
@@ -534,12 +522,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>484</x>
-     <y>114</y>
+     <x>395</x>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
-     <x>484</x>
-     <y>143</y>
+     <x>395</x>
+     <y>173</y>
     </hint>
    </hints>
   </connection>
@@ -550,12 +538,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>441</x>
-     <y>313</y>
+     <x>405</x>
+     <y>363</y>
     </hint>
     <hint type="destinationlabel">
-     <x>463</x>
-     <y>333</y>
+     <x>488</x>
+     <y>394</y>
     </hint>
    </hints>
   </connection>
@@ -566,12 +554,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>492</x>
-     <y>313</y>
+     <x>405</x>
+     <y>363</y>
     </hint>
     <hint type="destinationlabel">
-     <x>344</x>
-     <y>328</y>
+     <x>405</x>
+     <y>391</y>
     </hint>
    </hints>
   </connection>
@@ -582,12 +570,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>481</x>
-     <y>313</y>
+     <x>405</x>
+     <y>363</y>
     </hint>
     <hint type="destinationlabel">
-     <x>132</x>
-     <y>344</y>
+     <x>141</x>
+     <y>394</y>
     </hint>
    </hints>
   </connection>
@@ -598,12 +586,44 @@ p, li { white-space: pre-wrap; }
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>456</x>
-     <y>427</y>
+     <x>488</x>
+     <y>487</y>
     </hint>
     <hint type="destinationlabel">
      <x>251</x>
      <y>223</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxUseVeg</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>widgetCDSM</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>50</x>
+     <y>135</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>234</x>
+     <y>76</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxTrunkExist</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>widgetTDSM</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>339</x>
+     <y>135</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>307</x>
+     <y>115</y>
     </hint>
    </hints>
   </connection>

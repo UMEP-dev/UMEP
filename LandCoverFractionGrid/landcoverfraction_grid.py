@@ -25,7 +25,7 @@ from PyQt4.QtGui import *
 from qgis.core import *
 from qgis.gui import *
 import os
-from ..Utilities.qgiscombomanager import *
+# from ..Utilities.qgiscombomanager import *
 from osgeo import gdal
 from landcoverfraction_grid_dialog import LandCoverFractionGridDialog
 import os.path

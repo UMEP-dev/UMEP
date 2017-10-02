@@ -25,7 +25,7 @@ from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
 from qgis.gui import *
 from qgis.core import *
 import os
-from ..Utilities.qgiscombomanager import *
+# from ..Utilities.qgiscombomanager import *
 from osgeo import gdal
 from ..Utilities.imageMorphometricParms_v1 import *
 from impgworker import Worker
@@ -103,7 +103,7 @@ class ImageMorphParam:
         self.layerComboManagerPolygrid.setCurrentIndex(-1)
         self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.PolygonLayer)
         self.layerComboManagerPolygrid.setFixedWidth(175)
-        self.layerComboManagerPolyField  = QgsFieldComboBox(self.dlg.widgetField)
+        self.layerComboManagerPolyField = QgsFieldComboBox(self.dlg.widgetField)
         self.layerComboManagerPolyField .setFilters(QgsFieldProxyModel.Numeric)
         self.layerComboManagerPolygrid .layerChanged.connect(self.layerComboManagerPolyField.setLayer)
 

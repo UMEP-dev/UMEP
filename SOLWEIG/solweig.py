@@ -30,7 +30,7 @@ from qgis.gui import *
 from solweig_dialog import SOLWEIGDialog
 import numpy as np
 from osgeo import gdal, osr
-from ..Utilities.qgiscombomanager import *
+# from ..Utilities.qgiscombomanager import *
 import os.path
 import zipfile
 import webbrowser
@@ -95,23 +95,58 @@ class SOLWEIG:
         # self.toolbar = self.iface.addToolBar(u'SOLWEIG')
         # self.toolbar.setObjectName(u'SOLWEIG')
 
-        self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_dsm)
-        RasterLayerCombo(self.dlg.comboBox_dsm, initLayer="")
-        self.layerComboManagerVEGDSM = RasterLayerCombo(self.dlg.comboBox_vegdsm)
-        RasterLayerCombo(self.dlg.comboBox_vegdsm, initLayer="")
-        self.layerComboManagerVEGDSM2 = RasterLayerCombo(self.dlg.comboBox_vegdsm2)
-        RasterLayerCombo(self.dlg.comboBox_vegdsm2, initLayer="")
-        self.layerComboManagerDEM = RasterLayerCombo(self.dlg.comboBox_dem)
-        RasterLayerCombo(self.dlg.comboBox_dem, initLayer="")
-        self.layerComboManagerLC = RasterLayerCombo(self.dlg.comboBox_landcover)
-        RasterLayerCombo(self.dlg.comboBox_landcover, initLayer="")
-        self.layerComboManagerWH = RasterLayerCombo(self.dlg.comboBox_wallheight)
-        RasterLayerCombo(self.dlg.comboBox_wallheight, initLayer="")
-        self.layerComboManagerWA = RasterLayerCombo(self.dlg.comboBox_wallaspect)
-        RasterLayerCombo(self.dlg.comboBox_wallaspect, initLayer="")
-        self.layerComboManagerPOI = VectorLayerCombo(self.dlg.comboBox_POIlayer)
-        fieldgen = VectorLayerCombo(self.dlg.comboBox_POIlayer, initLayer="", options={"geomType": QGis.Point})
-        self.layerComboManagerPOIfield = FieldCombo(self.dlg.comboBox_POIfield, fieldgen, initField="") #, options={"fieldType": int}
+        # self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_dsm)
+        # RasterLayerCombo(self.dlg.comboBox_dsm, initLayer="")
+        self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetDSM)
+        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSM.setFixedWidth(175)
+        self.layerComboManagerDSM.setCurrentIndex(-1)
+        # self.layerComboManagerVEGDSM = RasterLayerCombo(self.dlg.comboBox_vegdsm)
+        # RasterLayerCombo(self.dlg.comboBox_vegdsm, initLayer="")
+        self.layerComboManagerVEGDSM = QgsMapLayerComboBox(self.dlg.widgetCDSM)
+        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM.setFixedWidth(175)
+        self.layerComboManagerVEGDSM.setCurrentIndex(-1)
+        # self.layerComboManagerVEGDSM2 = RasterLayerCombo(self.dlg.comboBox_vegdsm2)
+        # RasterLayerCombo(self.dlg.comboBox_vegdsm2, initLayer="")
+        self.layerComboManagerVEGDSM2 = QgsMapLayerComboBox(self.dlg.widgetTDSM)
+        self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM2.setFixedWidth(175)
+        self.layerComboManagerVEGDSM2.setCurrentIndex(-1)
+        # self.layerComboManagerDEM = RasterLayerCombo(self.dlg.comboBox_dem)
+        # RasterLayerCombo(self.dlg.comboBox_dem, initLayer="")
+        self.layerComboManagerDEM = QgsMapLayerComboBox(self.dlg.widgetDEM)
+        self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDEM.setFixedWidth(175)
+        self.layerComboManagerDEM.setCurrentIndex(-1)
+        # self.layerComboManagerLC = RasterLayerCombo(self.dlg.comboBox_landcover)
+        # RasterLayerCombo(self.dlg.comboBox_landcover, initLayer="")
+        self.layerComboManagerLC = QgsMapLayerComboBox(self.dlg.widgetLC)
+        self.layerComboManagerLC.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerLC.setFixedWidth(175)
+        self.layerComboManagerLC.setCurrentIndex(-1)
+        # self.layerComboManagerWH = RasterLayerCombo(self.dlg.comboBox_wallheight)
+        # RasterLayerCombo(self.dlg.comboBox_wallheight, initLayer="")
+        self.layerComboManagerWH = QgsMapLayerComboBox(self.dlg.widgetWH)
+        self.layerComboManagerWH.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerWH.setFixedWidth(175)
+        self.layerComboManagerWH.setCurrentIndex(-1)
+        # self.layerComboManagerWA = RasterLayerCombo(self.dlg.comboBox_wallaspect)
+        # RasterLayerCombo(self.dlg.comboBox_wallaspect, initLayer="")
+        self.layerComboManagerWA = QgsMapLayerComboBox(self.dlg.widgetWA)
+        self.layerComboManagerWA.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerWA.setFixedWidth(175)
+        self.layerComboManagerWA.setCurrentIndex(-1)
+        # self.layerComboManagerPOI = VectorLayerCombo(self.dlg.comboBox_POIlayer)
+        # fieldgen = VectorLayerCombo(self.dlg.comboBox_POIlayer, initLayer="", options={"geomType": QGis.Point})
+        # self.layerComboManagerPOIfield = FieldCombo(self.dlg.comboBox_POIfield, fieldgen, initField="") #, options={"fieldType": int}
+        self.layerComboManagerPOI = QgsMapLayerComboBox(self.dlg.widgetPointLayer)
+        self.layerComboManagerPOI.setCurrentIndex(-1)
+        self.layerComboManagerPOI.setFilters(QgsMapLayerProxyModel.PointLayer)
+        self.layerComboManagerPOI.setFixedWidth(175)
+        self.layerComboManagerPOIfield = QgsFieldComboBox(self.dlg.widgetPOIField)
+        self.layerComboManagerPOIfield.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPOI.layerChanged.connect(self.layerComboManagerPOIfield.setLayer)
 
         self.folderPath = None
         self.folderPathSVF = None
@@ -269,7 +304,7 @@ class SOLWEIG:
             QMessageBox.critical(self.dlg, "Error", "No save folder selected")
         else:
             # self.dlg.textOutput.setText(self.folderPath[0])
-            dsmlayer = self.layerComboManagerDSM.getLayer()
+            dsmlayer = self.layerComboManagerDSM.currentLayer()
 
             if dsmlayer is None:
                 QMessageBox.critical(self.dlg, "Error", "No valid ground and building DSM is selected")
@@ -341,7 +376,7 @@ class SOLWEIG:
                 self.usevegdem = 1
                 self.trans = self.dlg.spinBoxTrans.value() / 100.0
 
-                self.vegdsm = self.layerComboManagerVEGDSM.getLayer()
+                self.vegdsm = self.layerComboManagerVEGDSM.currentLayer()
 
                 if self.vegdsm is None:
                     QMessageBox.critical(self.dlg, "Error", "No valid vegetation canopy DSM selected")
@@ -363,7 +398,7 @@ class SOLWEIG:
                     return
 
                 if self.dlg.checkBoxTrunkExist.isChecked():
-                    self.vegdsm2 = self.layerComboManagerVEGDSM2.getLayer()
+                    self.vegdsm2 = self.layerComboManagerVEGDSM2.currentLayer()
 
                     if self.vegdsm2 is None:
                         QMessageBox.critical(self.dlg, "Error", "No valid trunk zone DSM selected")
@@ -399,7 +434,7 @@ class SOLWEIG:
                 self.landcover = 1
                 self.demforbuild = 0
 
-                self.lcgrid = self.layerComboManagerLC.getLayer()
+                self.lcgrid = self.layerComboManagerLC.currentLayer()
 
                 if self.lcgrid is None:
                     QMessageBox.critical(self.dlg, "Error", "No valid land cover grid is selected")
@@ -426,7 +461,7 @@ class SOLWEIG:
             if not self.dlg.checkBoxDEM.isChecked():
                 self.demforbuild = 1
 
-                self.dem = self.layerComboManagerDEM.getLayer()
+                self.dem = self.layerComboManagerDEM.currentLayer()
 
                 if self.dem is None:
                     QMessageBox.critical(self.dlg, "Error", "No valid DEM selected")
@@ -525,7 +560,7 @@ class SOLWEIG:
                 svfalfa = np.arcsin(np.exp((np.log((1. - tmp)) / 2.)))
 
             # Wall height and aspect #
-            self.wallheight = self.layerComboManagerWH.getLayer()
+            self.wallheight = self.layerComboManagerWH.currentLayer()
 
             if self.wallheight is None:
                 QMessageBox.critical(self.dlg, "Error", "No valid wall height grid is selected")
@@ -545,7 +580,7 @@ class SOLWEIG:
                                      "All grids must be of same extent and resolution")
                 return
 
-            self.wallaspect = self.layerComboManagerWA.getLayer()
+            self.wallaspect = self.layerComboManagerWA.currentLayer()
 
             if self.wallaspect is None:
                 QMessageBox.critical(self.dlg, "Error", "No valid wall aspect grid is selected")
@@ -691,12 +726,12 @@ class SOLWEIG:
                          'kwest knorth ldown   lup    least lsouth lwest  lnorth   Ta      Tg     RH    Esky   Tmrt    ' \
                          'I0     CI   Shadow  SVF_b  SVF_bv KsideI'
 
-                poilyr = self.layerComboManagerPOI.getLayer()
+                poilyr = self.layerComboManagerPOI.currentLayer()
                 if poilyr is None:
                     QMessageBox.critical(self.dlg, "Error", "No valid point layer is selected")
                     return
 
-                poi_field = self.layerComboManagerPOIfield.getFieldName()
+                poi_field = self.layerComboManagerPOIfield.currentField()
                 if poi_field is None:
                     QMessageBox.critical(self.dlg, "Error", "An attribute with unique values must be selected")
                     return

@@ -29,7 +29,6 @@ from metdata_processor_dialog import MetdataProcessorDialog
 import os.path
 import numpy as np
 import webbrowser
-#import suewsdataprocessing_v4 as su
 
 
 class MetdataProcessor:
@@ -146,6 +145,33 @@ class MetdataProcessor:
         del self.toolbar
 
     def import_file(self):
+        self.dlg.comboBox_yyyy.clear()
+        self.dlg.comboBox_doy.clear()
+        self.dlg.comboBox_month.clear()
+        self.dlg.comboBox_dom.clear()
+        self.dlg.comboBox_dectime.clear()
+        self.dlg.comboBox_hour.clear()
+        self.dlg.comboBox_minute.clear()
+        self.dlg.comboBox_RH.clear()
+        self.dlg.comboBox_Tair.clear()
+        self.dlg.comboBox_Wd.clear()
+        self.dlg.comboBox_Wuh.clear()
+        self.dlg.comboBox_fcld.clear()
+        self.dlg.comboBox_kdiff.clear()
+        self.dlg.comboBox_kdir.clear()
+        self.dlg.comboBox_kdown.clear()
+        self.dlg.comboBox_lai.clear()
+        self.dlg.comboBox_ldown.clear()
+        self.dlg.comboBox_pres.clear()
+        self.dlg.comboBox_qe.clear()
+        self.dlg.comboBox_qf.clear()
+        self.dlg.comboBox_qh.clear()
+        self.dlg.comboBox_qn.clear()
+        self.dlg.comboBox_qs.clear()
+        self.dlg.comboBox_rain.clear()
+        self.dlg.comboBox_snow.clear()
+        self.dlg.comboBox_ws.clear()
+        self.dlg.comboBox_xsmd.clear()
         self.fileDialog.open()
         result = self.fileDialog.exec_()
         if result == 1:
@@ -155,6 +181,7 @@ class MetdataProcessor:
             headernum = self.dlg.spinBoxHeader.value()
             # delim = self.dlg.comboBox_sep.currentText()
             delimnum = self.dlg.comboBox_sep.currentIndex()
+            delim = None
             if delimnum == 0:
                 delim = ','
             elif delimnum == 1:
@@ -169,7 +196,7 @@ class MetdataProcessor:
             # QMessageBox.information(None, "Metdata pre-processor", delim)
 
             f = open(self.folderPath[0])
-            header = f.readline().split()
+            header = f.readline().split(delim)
 
             for i in range(0, header.__len__()):
                 self.dlg.comboBox_yyyy.addItem(header[i])

@@ -23,11 +23,12 @@
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 #from PyQt4.QtGui import QAction, QIcon, QFileDialog
 from PyQt4.QtGui import *
+from qgis.gui import *
 # Initialize Qt resources from file resources.py
 import resources_rc
 # Import the code for the dialog
 from shadow_generator_dialog import ShadowGeneratorDialog
-from ..Utilities.qgiscombomanager import *
+# from ..Utilities.qgiscombomanager import *
 from osgeo import gdal, osr
 #import gdal from gdalconst import *
 import os.path
@@ -84,12 +85,24 @@ class ShadowGenerator:
         self.folderPath = 'None'
         self.timeInterval = 30
 
-        self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_dsm)
-        RasterLayerCombo(self.dlg.comboBox_dsm, initLayer="")
-        self.layerComboManagerVEGDSM = RasterLayerCombo(self.dlg.comboBox_vegdsm)
-        RasterLayerCombo(self.dlg.comboBox_vegdsm, initLayer="")
-        self.layerComboManagerVEGDSM2 = RasterLayerCombo(self.dlg.comboBox_vegdsm2)
-        RasterLayerCombo(self.dlg.comboBox_vegdsm2, initLayer="")
+        # self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_dsm)
+        # RasterLayerCombo(self.dlg.comboBox_dsm, initLayer="")
+        # self.layerComboManagerVEGDSM = RasterLayerCombo(self.dlg.comboBox_vegdsm)
+        # RasterLayerCombo(self.dlg.comboBox_vegdsm, initLayer="")
+        # self.layerComboManagerVEGDSM2 = RasterLayerCombo(self.dlg.comboBox_vegdsm2)
+        # RasterLayerCombo(self.dlg.comboBox_vegdsm2, initLayer="")
+        self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetDSM)
+        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSM.setFixedWidth(175)
+        self.layerComboManagerDSM.setCurrentIndex(-1)
+        self.layerComboManagerVEGDSM = QgsMapLayerComboBox(self.dlg.widgetCDSM)
+        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM.setFixedWidth(175)
+        self.layerComboManagerVEGDSM.setCurrentIndex(-1)
+        self.layerComboManagerVEGDSM2 = QgsMapLayerComboBox(self.dlg.widgetTDSM)
+        self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM2.setFixedWidth(175)
+        self.layerComboManagerVEGDSM2.setCurrentIndex(-1)
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -218,7 +231,7 @@ class ShadowGenerator:
             return
 
         self.dlg.textOutput.setText(self.folderPath[0])
-        dsmlayer = self.layerComboManagerDSM.getLayer()
+        dsmlayer = self.layerComboManagerDSM.currentLayer()
 
         if dsmlayer is None:
             QMessageBox.critical(None, "Error", "No valid raster layer is selected")
@@ -269,7 +282,7 @@ class ShadowGenerator:
 
             usevegdem = 1
 
-            vegdsm = self.layerComboManagerVEGDSM.getLayer()
+            vegdsm = self.layerComboManagerVEGDSM.currentLayer()
 
             if vegdsm is None:
                 QMessageBox.critical(None, "Error", "No valid vegetation DSM selected")
@@ -290,7 +303,7 @@ class ShadowGenerator:
                 return
 
             if self.dlg.checkBoxTrunkExist.isChecked():
-                vegdsm2 = self.layerComboManagerVEGDSM2.getLayer()
+                vegdsm2 = self.layerComboManagerVEGDSM2.currentLayer()
 
                 if vegdsm2 is None:
                     QMessageBox.critical(None, "Error", "No valid trunk zone DSM selected")
