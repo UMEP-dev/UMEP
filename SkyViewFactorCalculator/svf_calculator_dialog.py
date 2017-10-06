@@ -24,9 +24,6 @@
 import os
 
 from PyQt4 import QtGui, uic
-#import GdalTools_utils as Utils
-from ..Utilities import GdalTools_utils as Utils
-import svf_calculator
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'svf_calculator_dialog_base.ui'))
@@ -42,15 +39,3 @@ class SkyViewFactorCalculatorDialog(QtGui.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
-
-    def saveRasterFileName(self):
-        lastUsedFilter = Utils.FileFilter.lastUsedRasterFilter()
-        fileDialogFunc = Utils.FileDialog.getSaveFileName
-        outputFile = fileDialogFunc(None, self.tr("Select the raster file to save the results to"), Utils.FileFilter.
-                                   allRastersFilter(), lastUsedFilter)
-        #outputFile = fileDialogFunc(None, self.tr("Select the raster file to save the results to"), "GeoTiff (*.tif)", lastUsedFilter)
-        #outputFile = QFileDialog.getSaveFileName(None, "Output file", ".", "GeoTiff (*.tif)", lastUsedFilter)
-        # svf_calculator.SkyViewFactorCalculator.outputFormat = Utils.fillRasterOutputFormat(lastUsedFilter, outputFile)
-        # svf_calculator.SkyViewFactorCalculator.outputFile = outputFile
-        Utils.FileFilter.setLastUsedRasterFilter(lastUsedFilter)
-        self.txtOutput.insert(outputFile)

@@ -5,7 +5,8 @@ import linecache
 import sys
 
 from SOLWEIGpython import Solweig_2015a_calc as so
-from SOLWEIGpython.clearnessindex_2013b import clearnessindex_2013b
+# from SOLWEIGpython.clearnessindex_2013b import clearnessindex_2013b
+from ..Utilities.SEBESOLWEIGCommonFiles.clearnessindex_2013b import clearnessindex_2013b
 from osgeo.gdalconst import *
 # from ..Utilities import shadowingfunctions as shadow
 

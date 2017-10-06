@@ -11,7 +11,7 @@ name=UMEP
 qgisMinimumVersion=2.0
 description=Urban Multi-scale Environmental Predictor
 
-version=0.5.2
+version=0.5.3
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang
 email=fredrikl@gvc.gu.se
 
@@ -26,6 +26,7 @@ repository=https://bitbucket.org/fredrik_ucg/umep
 
 # Uncomment the following line and add your changelog:
 changelog=
+        0.5.3 : Bug fixing in Wall Height and aspect. Update on ShadowGenerator. General cleaning.
 	0.5.2 : Bug fixing in SUEWSSimple and Metdataprocessor. qgiscombomanager now replaced with QGIS core functions.
 	0.5.1 : Bug fixing to footprint model and update of the shadow casting algorithm.
 	0.5.0 : LONG TERM RELEASE. Includes SUEWS v2017b, Multiple updates and bug fixing.

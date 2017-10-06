@@ -1,8 +1,8 @@
 from __future__ import division
 import numpy as np
-from diffusefraction import diffusefraction
+from ...Utilities.SEBESOLWEIGCommonFiles.diffusefraction import diffusefraction
 from Perez_v3 import Perez_v3
-from clearnessindex_2013b import clearnessindex_2013b
+from ...Utilities.SEBESOLWEIGCommonFiles.clearnessindex_2013b import clearnessindex_2013b
 
 
 def sunmapcreator_2015a(met, altitude, azimuth, onlyglobal, output, jday, albedo, location, zen):

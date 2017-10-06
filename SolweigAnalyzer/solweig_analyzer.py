@@ -30,7 +30,6 @@ from qgis.gui import *
 from solweig_analyzer_dialog import SolweigAnalyzerDialog
 import os
 import webbrowser
-# from ..Utilities.qgiscombomanager import *
 from osgeo import gdal
 from osgeo.gdalconst import *
 import numpy as np

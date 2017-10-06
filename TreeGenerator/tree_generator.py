@@ -24,7 +24,6 @@ from PyQt4.QtCore import QSettings, QTranslator, qVersion  #, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
 from qgis.core import *
 from qgis.gui import *
-# from ..Utilities.qgiscombomanager import *
 import webbrowser
 import os
 from osgeo import gdal

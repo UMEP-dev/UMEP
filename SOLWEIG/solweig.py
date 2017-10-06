@@ -30,14 +30,14 @@ from qgis.gui import *
 from solweig_dialog import SOLWEIGDialog
 import numpy as np
 from osgeo import gdal, osr
-# from ..Utilities.qgiscombomanager import *
 import os.path
 import zipfile
 import webbrowser
 from osgeo.gdalconst import *
 from solweigworker import Worker
 
-from SOLWEIGpython import Solweig_v2015_metdata_noload as metload
+# from SOLWEIGpython import Solweig_v2015_metdata_noload as metload
+from ..Utilities.SEBESOLWEIGCommonFiles import Solweig_v2015_metdata_noload as metload
 # from SOLWEIGpython import Solweig_2015a_calc as so
 from SOLWEIGpython.Tgmaps_v1 import Tgmaps_v1
 # from SOLWEIGpython.clearnessindex_2013b import clearnessindex_2013b

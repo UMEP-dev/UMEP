@@ -19,7 +19,6 @@ def shadowingfunctionglobalradiation(a, azimuth, altitude, scale, dlg, forsvf):
     if forsvf == 0:
         barstep = np.max([sizex, sizey])
         dlg.progressBar.setRange(0, barstep)
-        dlg.progressBar.setValue(0)
     #% initialise parameters
     f = a
     dx = 0.
@@ -76,10 +75,8 @@ def shadowingfunctionglobalradiation(a, azimuth, altitude, scale, dlg, forsvf):
     f = f-a
     f = np.logical_not(f)
     sh = np.double(f)
-    #sh = 1.-f
 
     return sh
-
 
 def shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue, bush, dlg, forsvf):
 

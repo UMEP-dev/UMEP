@@ -25,7 +25,6 @@ from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
 from qgis.gui import *
 from qgis.core import *
 import os
-# from ..Utilities.qgiscombomanager import *
 from osgeo import gdal
 from ..Utilities.imageMorphometricParms_v1 import *
 from impgworker import Worker

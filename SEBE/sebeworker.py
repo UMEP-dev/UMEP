@@ -1,15 +1,12 @@
-from PyQt4 import QtCore, QtGui
-import traceback
+from PyQt4 import QtCore
+# import traceback
 # from SEBEfiles import SEBE_2015a_calc
 import numpy as np
-from SEBEfiles.shadowingfunction_wallheight_13 import shadowingfunction_wallheight_13
-from SEBEfiles.shadowingfunction_wallheight_23 import shadowingfunction_wallheight_23
+from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_13 import shadowingfunction_wallheight_13
+from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_23 import shadowingfunction_wallheight_23
 # from ..Utilities import shadowingfunctions as shadow
 import linecache
 import sys
-
-#from osgeo import gdal
-#from osgeo.gdalconst import *
 
 
 class Worker(QtCore.QObject):
@@ -18,7 +15,8 @@ class Worker(QtCore.QObject):
     error = QtCore.pyqtSignal(object)
     progress = QtCore.pyqtSignal()
 
-    def __init__(self, dsm, scale, building_slope,building_aspect, voxelheight, sizey, sizex, vegdsm, vegdsm2, wheight,waspect, albedo, psi, radmatI, radmatD, radmatR, usevegdem, calc_month, dlg):
+    def __init__(self, dsm, scale, building_slope, building_aspect, voxelheight, sizey, sizex, vegdsm, vegdsm2,
+                 wheight, waspect, albedo, psi, radmatI, radmatD, radmatR, usevegdem, calc_month, dlg):
         QtCore.QObject.__init__(self)
         self.killed = False
 
@@ -140,18 +138,19 @@ class Worker(QtCore.QObject):
                     suniroof[suniroof < 0] = 0
 
                     # Solar Incidence angle (Walls)
-                    suniwall = np.abs(np.sin(np.pi/2) * np.cos(radmatI[index, 0] * deg2rad) * np.cos((radmatI[index, 1] * deg2rad) - dirwalls*deg2rad)
-                                      + np.cos(np.pi/2) * np.sin((radmatI[index, 0] * deg2rad)))
+                    suniwall = np.abs(np.sin(np.pi/2) * np.cos(radmatI[index, 0] * deg2rad) *
+                                      np.cos((radmatI[index, 1] * deg2rad) - dirwalls*deg2rad) + np.cos(np.pi/2) *
+                                      np.sin((radmatI[index, 0] * deg2rad)))
 
                     # Shadow image
                     if usevegdem == 1:
                         vegsh, sh, _, wallsh, wallsun, wallshve, _, facesun = shadowingfunction_wallheight_23(a,
                                             vegdem, vegdem2, radmatI[index, 1], radmatI[index, 0], scale, amaxvalue,
-                                                                                            bush, walls, dirwalls*deg2rad)
+                                                                                        bush, walls, dirwalls * deg2rad)
                         shadow = np.copy(sh-(1.-vegsh)*(1.-psi))
                     else:
                         sh, wallsh, wallsun, facesh, facesun = shadowingfunction_wallheight_13(a, radmatI[index, 1],
-                                                                        radmatI[index, 0], scale, walls, dirwalls*deg2rad)
+                                                                    radmatI[index, 0], scale, walls, dirwalls * deg2rad)
                         shadow = np.copy(sh)
 
                     # roof irradiance calculation
@@ -266,18 +265,13 @@ class Worker(QtCore.QObject):
 
                     self.progress.emit()  # move progressbar forward
 
-
-            ## Including radiation from ground on walls as well as removing pixels high than walls
+            # Including radiation from ground on walls as well as removing pixels high than walls
             print np.copy(Energyyearwall).shape
             wallmatrixbol = (Energyyearwall > 0).astype(float)
             Energyyearwall = (Energyyearwall + (np.sum(radmatR[:, 2]) * albedo)/2) * wallmatrixbol
 
             Energyyearroof /= 1000
-
             Energyyearwall /= 1000
-
-            #Energyyearwall = np.hstack((np.transpose(np.atleast_2d(wallrow)),
-            #                            np.transpose(np.atleast_2d(wallcol)), Energyyearwall))
             Energyyearwall = np.transpose(np.vstack((wallrow + 1, wallcol + 1, np.transpose(Energyyearwall))))    # adding 1 to wallrow and wallcol so that the tests pass
 
             # if calc_month:
@@ -313,7 +307,6 @@ class Worker(QtCore.QObject):
         linecache.checkcache(filename)
         line = linecache.getline(filename, lineno, f.f_globals)
         return 'EXCEPTION IN {}, \nLINE {} "{}" \nERROR MESSAGE: {}'.format(filename, lineno, line.strip(), exc_obj)
-
 
     def kill(self):
         self.killed = True

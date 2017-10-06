@@ -29,12 +29,11 @@ from qgis.gui import *
 # Import the code for the dialog
 from sebe_dialog import SEBEDialog
 import os.path
-# from ..Utilities.qgiscombomanager import *
 from ..Utilities.misc import *
 from osgeo import gdal, osr
 import numpy as np
 from sebeworker import Worker
-from SEBEfiles.Solweig_v2015_metdata_noload import Solweig_2015a_metdata_noload
+from ..Utilities.SEBESOLWEIGCommonFiles.Solweig_v2015_metdata_noload import Solweig_2015a_metdata_noload
 from SEBEfiles.sunmapcreator_2015a import sunmapcreator_2015a
 import webbrowser
 

@@ -25,7 +25,6 @@ from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
 from qgis.gui import *
 from qgis.core import *
 import os
-# from ..Utilities.qgiscombomanager import *
 from ..Utilities.landCoverFractions_v1 import *
 from osgeo import gdal
 import subprocess

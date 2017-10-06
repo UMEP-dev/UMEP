@@ -144,6 +144,9 @@ p, li { white-space: pre-wrap; }
           <property name="enabled">
            <bool>true</bool>
           </property>
+          <property name="toolTip">
+           <string>Set this before you load your data</string>
+          </property>
           <item>
            <property name="text">
             <string>Comma (,)</string>
@@ -181,7 +184,7 @@ p, li { white-space: pre-wrap; }
            <string>Select an existing text file with meteorological data at a temporal resolution between 5 min and 180 min (3 hours) that is divisible by 5 min. Specify column separator and number of header lines before importing data.</string>
           </property>
           <property name="text">
-           <string>Import data</string>
+           <string>Load data</string>
           </property>
          </widget>
         </item>

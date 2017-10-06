@@ -27,15 +27,17 @@
 ##########################################################################
 
 # preload packages
-import tempfile
-import gzip
+# import tempfile
+# import gzip
 import numpy as np
 import os
-import sys
+# import sys
 from datetime import datetime, timedelta, date
-from dateutil.relativedelta import relativedelta
-from scipy import interpolate
-import time
+# from dateutil.relativedelta import relativedelta
+# from scipy import interpolate
+# import time
+import math
+import datetime
 import random
 try:
     import pandas as pd
@@ -43,8 +45,9 @@ try:
 except:
     pass  # Suppress warnings at QGIS loading time, but an error is shown later to make up for it
 
-from ...Utilities.Pysolarn import solar
-
+# from ...Utilities.Pysolarn import solar
+# from ...Utilities import sol
+# from PyQt4.QtGui import QMessageBox
 
 # determing grid index according to coordinates
 def lon_lat_grid(lat, lon):
@@ -75,7 +78,6 @@ def lon_lat_grid(lat, lon):
 
     return lat, lon
 
-
 # Get City Index: WATCH
 def WATCH_get_city_index(lat, lon):
     nc = Dataset(os.path.join(os.path.dirname(
@@ -86,7 +88,6 @@ def WATCH_get_city_index(lat, lon):
             break
     return index
 
-
 # Get City Index: WFDEI
 def WFDEI_get_city_index(lat, lon):
     with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'WFDEI-land-long-lat-height.txt')) as f:
@@ -96,7 +97,6 @@ def WFDEI_get_city_index(lat, lon):
         if float(ls[i][0]) == lon and float(ls[i][1]) == lat:
             return int(ls[i][4]), int(ls[i][3])
             break
-
 
 # calculate saturation vapour pressure [Pa]
 def evpsat(T_degC, p_hPa):
@@ -125,7 +125,6 @@ def evpsat(T_degC, p_hPa):
     esat_Pa = esat_hPa * 100
     return esat_Pa
 
-
 # calculate actual vapour pressure [Pa]
 def eact(qv, p_kPa):
     # Specific gas constant for dry air  (Rv = R/RMM(dry air)) / J K^-1 kg^-1
@@ -136,7 +135,6 @@ def eact(qv, p_kPa):
     evp_Pa = Rv * qv * p_kPa * 1000 / (Rd + qv * (Rv - Rd))
     return evp_Pa
 
-
 # convert specific humidity [kg/kg] to relative humidity [%]
 def q2rh(qv, p_kPa, T_degC):
     eact_Pa = eact(qv, p_kPa)
@@ -144,7 +142,6 @@ def q2rh(qv, p_kPa, T_degC):
     rh_pct = 100 * eact_Pa / esat_Pa
 
     return rh_pct
-
 
 # vectorize q2rh
 def vq2rh(qv, p_kPa, T_degC):
@@ -155,12 +152,10 @@ def vq2rh(qv, p_kPa, T_degC):
 
     return rh_pct
 
-
 # functions for calculating RH
 # from package of meteo
 Mw = 18.0160  # molecular weight of water
 Md = 28.9660  # molecular weight of dry air
-
 
 def esat(T):
     ''' get saturation pressure (units [Pa]) for a given air temperature (units [K])'''
@@ -176,16 +171,13 @@ def esat(T):
     esat = e1 * 10 ** xx
     return esat
 
-
 def sh2mixr(qv):
     '''conversion from specific humidity (units [kg/kg]) to mixing ratio (units also [kg/kg])'''
     return qv / (1. - qv)
 
-
 def mixr2rh(mixr, p, T):
     '''purpose: conversion mixing ratio to relative humidity [kg/kg] (not tested)'''
     return mixr * p / ((mixr + Mw / Md) * esat(T))
-
 
 def sh2rh(qv, p, T):
     '''conversion from specific humidity (units [kg/kg]) to relative humidity in percentage'''
@@ -209,7 +201,6 @@ def height_solver_WFDEI(lat, lon):
     # oceanic grids determined as 0.0
     return 0.0
 
-
 # generate WFDEI filename
 def path_WFDEI(directory, var, year, month):
     if var == "Rainf":
@@ -221,8 +212,6 @@ def path_WFDEI(directory, var, year, month):
 
     path = os.path.join(path, fn)
     return path
-
-
 
 def load_WFDEI_3h(nc_file, progress=None):
     # load and rearrange WFDEI data for interpolation
@@ -245,7 +234,6 @@ def random_x_N(x, N):
     list_N[pos] = 1
     return list_N
 
-
 # randomly distribute rainfall in rainAmongN sub-intervals
 def process_rainAmongN(rain, rainAmongN):
     if rainAmongN <= 3:
@@ -266,8 +254,6 @@ def process_rainAmongN(rain, rainAmongN):
     return rain_proc
 
 # interpolate 3-hourly raw data to hourly results for SUEWS
-
-
 def process_SUEWS_forcing_1h(data_raw_3h, lat, lon, hgt, progress=None):
     #     print('*************** WFDEI Data Processor *************** ')
     # expand over the whole date range at the scale of 1 h
@@ -284,7 +270,7 @@ def process_SUEWS_forcing_1h(data_raw_3h, lat, lon, hgt, progress=None):
     # a, t - timedelta(minutes=30), lat, lon) for t in
     # data_raw_1h["SWdown"].index])
 
-    sol_elev = np.array([solar.GetAltitudeFast(
+    sol_elev = np.array([GetAltitudeFast(
         lat, lon, t - timedelta(minutes=30)) for t in data_raw_1h["SWdown"].index])
 
     sol_elev_reset = np.sin(np.radians(sol_elev.copy()))
@@ -395,9 +381,13 @@ def process_SUEWS_forcing_1h_LST(data_raw_3h, lat, lon, hgt, UTC_offset_h, rainA
     # sol_elev = np.array([Astral.solar_elevation(
     # a, t - timedelta(minutes=30), lat, lon) for t in
     # data_raw_1h["SWdown"].index])
-
-    sol_elev = np.array([solar.GetAltitudeFast(
+    # QMessageBox.critical(None, "Test", str(data_proc_1h))
+    sol_elev = np.array([GetAltitudeFast(
         lat, lon, t - timedelta(minutes=30)) for t in data_raw_1h["SWdown"].index])
+
+    # location = {'longitude': lon, 'latitude': lat, 'altitude': hgt}
+    # time = dict()
+    # time['UTC'] = 0
 
     sol_elev_reset = np.sin(np.radians(sol_elev.copy()))
     sol_elev_reset[sol_elev > 0] = 1
@@ -659,3 +649,43 @@ def runExtraction_AH(input_path, input_AH_path, output_file, year_start, year_en
 
     write_SUEWS_forcing_1h_AH_LST(input_path, input_AH_path, output_file,
                                   year_start, year_end, hgt, UTC_offset_h, rainAmongN, progress)
+
+def EquationOfTime(day):
+    b = (2 * math.pi / 364.0) * (day - 81)
+    return (9.87 * math.sin(2 * b)) - (7.53 * math.cos(b)) - (1.5 * math.sin(b))
+
+def GetAberrationCorrection(radius_vector):  # r is earth radius vector [astronomical units]
+    return -20.4898 / (3600.0 * radius_vector)
+
+def GetAltitudeFast(latitude_deg, longitude_deg, utc_datetime):
+    # expect 19 degrees for solar.GetAltitude(42.364908,-71.112828,datetime.datetime(2007, 2, 18, 20, 13, 1, 130320))
+
+    day = GetDayOfYear(utc_datetime)
+    declination_rad = math.radians(GetDeclination(day))
+    latitude_rad = math.radians(latitude_deg)
+    hour_angle = GetHourAngle(utc_datetime, longitude_deg)
+
+    first_term = math.cos(latitude_rad) * math.cos(declination_rad) * math.cos(math.radians(hour_angle))
+    second_term = math.sin(latitude_rad) * math.sin(declination_rad)
+    return math.degrees(math.asin(first_term + second_term))
+
+def GetCoefficient(jme, constant_array):
+    return sum(
+        [constant_array[i - 1][0] * math.cos(constant_array[i - 1][1] + (constant_array[i - 1][2] * jme)) for i in
+         range(len(constant_array))])
+
+def GetDayOfYear(utc_datetime):
+    year_start = datetime.datetime(utc_datetime.year, 1, 1, tzinfo=utc_datetime.tzinfo)
+    delta = (utc_datetime - year_start)
+    return delta.days
+
+def GetDeclination(day):
+    return 23.45 * math.sin((2 * math.pi / 365.0) * (day - 81))
+
+def GetHourAngle(utc_datetime, longitude_deg):
+    solar_time = GetSolarTime(longitude_deg, utc_datetime)
+    return 15 * (12 - solar_time)
+
+def GetSolarTime(longitude_deg, utc_datetime):
+    day = GetDayOfYear(utc_datetime)
+    return (((utc_datetime.hour * 60) + utc_datetime.minute + (4 * longitude_deg) + EquationOfTime(day)) / 60)

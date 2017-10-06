@@ -33,7 +33,6 @@ import os.path
 import webbrowser
 from osgeo import gdal
 from osgeo.gdalconst import *
-# from ..Utilities.qgiscombomanager import *
 from ..Utilities import f90nml
 import numpy as np
 from ..suewsmodel import suewsdataprocessing

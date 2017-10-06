@@ -28,7 +28,6 @@ from qgis.gui import *
 import resources_rc
 # Import the code for the dialog
 from shadow_generator_dialog import ShadowGeneratorDialog
-# from ..Utilities.qgiscombomanager import *
 from osgeo import gdal, osr
 #import gdal from gdalconst import *
 import os.path
@@ -226,6 +225,11 @@ class ShadowGenerator:
 
     def start_progress(self):
 
+        if self.dlg.checkBoxDST.isChecked():
+            dst = 1
+        else:
+            dst = 0
+
         if self.folderPath == 'None':
             QMessageBox.critical(None, "Error", "Select a valid output folder")
             return
@@ -353,11 +357,10 @@ class ShadowGenerator:
                 sec = 0
 
             tv = [year, month, day, hour, minu, sec]
-
             intervalTime = self.dlg.intervalTimeEdit.time()
             self.timeInterval = intervalTime.minute() + (intervalTime.hour() * 60) + (intervalTime.second()/60)
             shadowresult = dsh.dailyshading(dsm, vegdsm, vegdsm2, scale, lonlat, sizex, sizey, tv, UTC, usevegdem,
-                                       self.timeInterval, onetime, self.dlg, self.folderPath[0], gdal_dsm, trans)
+                                       self.timeInterval, onetime, self.dlg, self.folderPath[0], gdal_dsm, trans, dst)
 
             shfinal = shadowresult["shfinal"]
             time_vector = shadowresult["time_vector"]
@@ -369,7 +372,7 @@ class ShadowGenerator:
                 timestr = time_vector.strftime("%Y%m%d_%H%M")
                 savestr = '/shadow_at_'
 
-        filename = self.folderPath[0] + savestr + timestr + '.tif'
+        filename = self.folderPath[0] + savestr + timestr + '_LST.tif'
 
         dsh.saveraster(gdal_dsm, filename, shfinal)
 

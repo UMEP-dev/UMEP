@@ -28,7 +28,6 @@ from qgis.gui import *
 # Initialize Qt resources from file resources.py
 import resources_rc
 # Import the code for the dialog
-# from ..Utilities.qgiscombomanager import *
 from land_cover_reclassifier_dialog import LandCoverReclassifierDialog
 import os.path
 import numpy as np

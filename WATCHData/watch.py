@@ -453,7 +453,8 @@ class WATCHData:
         self.refine_thread.deleteLater()  # Flag for deletion
         self.setRefinerButtonState(True)
         self.setDownloaderButtonState(True)
-        self.iface.messageBar().pushMessage("Climate data refiner", "Data processed", level=QgsMessageBar.INFO)
+        QMessageBox.information(None, "Climate data refiner", "Data processed")
+        # self.iface.messageBar().pushMessage("Climate data refiner", "Data processed", level=QgsMessageBar.INFO)
         file_pattern = os.path.splitext(self.save_refined_file)[0] + '<YEAR>.txt'
         self.dlg.lblSavedRefined.setText(file_pattern)
 
@@ -468,7 +469,6 @@ class WATCHData:
         Returns
         -------
         '''
-
 
         try:
             self.validate_downloader_input() # Validate input co-ordinates and time range

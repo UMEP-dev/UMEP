@@ -27,7 +27,6 @@ from qgis.gui import *
 import os
 import os.path
 from osgeo import gdal
-# from ..Utilities.qgiscombomanager import *
 # Initialize Qt resources from file resources.py
 import resources
 import webbrowser

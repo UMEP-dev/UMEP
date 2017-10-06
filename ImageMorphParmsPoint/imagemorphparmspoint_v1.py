@@ -25,7 +25,6 @@ from PyQt4.QtGui import QAction, QMessageBox, QProgressBar, QFileDialog
 from qgis.gui import *
 from qgis.core import *
 import os
-# from ..Utilities.qgiscombomanager import *
 from ..Utilities import RoughnessCalcFunctionV2 as rg
 
 from osgeo import gdal

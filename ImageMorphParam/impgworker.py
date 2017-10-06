@@ -8,11 +8,9 @@ from qgis.core import *
 import traceback
 from ..Utilities.imageMorphometricParms_v1 import *
 from ..Utilities import RoughnessCalcFunctionV2 as rg
-# import Image
 from scipy import *
 import numpy as np
 import linecache
-# from ..Utilities.qgiscombomanager import *
 from osgeo import gdal
 import subprocess
 # import os

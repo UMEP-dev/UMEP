@@ -75,8 +75,6 @@ except ImportError:
 #from Modules import xlutils
 # from Modules import xlwt
 # from Modules import openpyxl
-# from Modules.qgiscombomanager import *
-# from ..Utilities.qgiscombomanager import *
 
 # import urllib
 import urllib2

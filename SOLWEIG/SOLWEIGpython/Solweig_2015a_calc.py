@@ -1,10 +1,10 @@
 
 import numpy as np
 from daylen import daylen
-from clearnessindex_2013b import clearnessindex_2013b
-from diffusefraction import diffusefraction
-from shadowingfunction_wallheight_13 import shadowingfunction_wallheight_13
-from shadowingfunction_wallheight_23 import shadowingfunction_wallheight_23
+from ...Utilities.SEBESOLWEIGCommonFiles.clearnessindex_2013b import clearnessindex_2013b
+from ...Utilities.SEBESOLWEIGCommonFiles.diffusefraction import diffusefraction
+from ...Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_13 import shadowingfunction_wallheight_13
+from ...Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_23 import shadowingfunction_wallheight_23
 from gvf_2015a import gvf_2015a
 from cylindric_wedge import cylindric_wedge
 from TsWaveDelay_2015a import TsWaveDelay_2015a
@@ -97,11 +97,11 @@ def Solweig_2015a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, s
         # Shadow  images
         if usevegdem == 1:
             vegsh, sh, _, wallsh, wallsun, wallshve, _, facesun = shadowingfunction_wallheight_23(dsm, vegdem, vegdem2,
-                                        azimuth, altitude, scale, amaxvalue, bush, walls, dirwalls * np.pi / 180)
+                                        azimuth, altitude, scale, amaxvalue, bush, walls, dirwalls * np.pi / 180.)
             shadow = sh - (1 - vegsh) * (1 - psi)
         else:
             sh, wallsh, wallsun, facesh, facesun = shadowingfunction_wallheight_13(dsm, azimuth, altitude, scale,
-                                                                                   walls, dirwalls * np.pi / 180)
+                                                                                   walls, dirwalls * np.pi / 180.)
             shadow = sh
 
         # # # Surface temperature parameterisation during daytime # # # #
