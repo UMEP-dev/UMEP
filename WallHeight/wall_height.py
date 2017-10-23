@@ -240,14 +240,13 @@ class WallHeight:
             if hasattr(rlayer, "setCacheImage"):
                 rlayer.setCacheImage(None)
             rlayer.triggerRepaint()
+
+            # if self.filePathA[0]:
+            #     rlayer2 = self.iface.addRasterLayer(self.filePathA[0])
             #
-            # # load aspect result into canvas
-            # if self.dlg.checkBoxAspect.isChecked():
-            #     rlayer = self.iface.addRasterLayer(self.filePathA[0])
-            #
-            #     if hasattr(rlayer, "setCacheImage"):
-            #         rlayer.setCacheImage(None)
-            #     rlayer.triggerRepaint()
+            #     if hasattr(rlayer2, "setCacheImage"):
+            #         rlayer2.setCacheImage(None)
+            #     rlayer2.triggerRepaint()
 
     def startWorker(self, walls, scale, dsm, dlg):
 
@@ -290,11 +289,12 @@ class WallHeight:
 
             # load aspect result into canvas
             if self.dlg.checkBoxAspect.isChecked():
-                rlayer = self.iface.addRasterLayer(self.filePathA[0])
+                if self.dlg.checkBoxIntoCanvas.isChecked():
+                    rlayer = self.iface.addRasterLayer(self.filePathA[0])
 
-                if hasattr(rlayer, "setCacheImage"):
-                    rlayer.setCacheImage(None)
-                rlayer.triggerRepaint()
+                    if hasattr(rlayer, "setCacheImage"):
+                        rlayer.setCacheImage(None)
+                    rlayer.triggerRepaint()
 
             QMessageBox.information(None, "Wall aspect", "Calculation succesfully completed")
             self.dlg.runButton.setText('Run')

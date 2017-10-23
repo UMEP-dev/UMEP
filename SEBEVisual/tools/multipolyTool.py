@@ -10,12 +10,7 @@ from qgis.core import *
 from qgis.gui import *
 
 
-
-
 class MultiPolyTool(QgsMapTool):
-    '''
-    classdocs
-    '''
     polyComplete = pyqtSignal(QgsFeature)
     rubberband1 = None
     rubberband2 = None
@@ -24,10 +19,9 @@ class MultiPolyTool(QgsMapTool):
     latestPoint = None
     Done = False
     poly = QgsFeature()
-    
 
+    # Create a reference to the map canvas
     def __init__(self, canvas):
-#Create a reference to the map canvas
         self.canvas = canvas
         QgsMapTool.__init__(self, self.canvas)
         
@@ -50,8 +44,7 @@ class MultiPolyTool(QgsMapTool):
             
             self.rubberband1.setToGeometry(QgsGeometry.fromPolyline(points1),None)
             self.rubberband2.setToGeometry(QgsGeometry.fromPolyline(points2),None)
-    
-                                           
+
     def canvasPressEvent(self, e):
         if e.button() == Qt.LeftButton:
             if len(self.pointList) == 0:
@@ -79,4 +72,3 @@ class MultiPolyTool(QgsMapTool):
             self.pointList = []
             self.latestPoint = None
             self.Done = False
-            

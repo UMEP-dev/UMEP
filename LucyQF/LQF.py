@@ -77,14 +77,29 @@ class LQF:
         # Check dependencies
         try:
             import pandas
-            import netCDF4
-            import matplotlib
-            import numpy
         except Exception, e:
             QMessageBox.critical(None, 'Error',
-                                 'LQF requires the pandas, matplotlib, NetCDF4 and numpy packages to be installed. Please consult the manual for further information')
+                                 'LQF requires the pandas package to be installed. '
+                                 'Please consult the manual for further information')
             return
 
+        # Check dependencies
+        try:
+            import netCDF4
+        except Exception, e:
+            QMessageBox.critical(None, 'Error',
+                                 'LQF requires the NetCDF4 package to be installed. '
+                                 'Please consult the manual for further information')
+            return
+
+        # Check dependencies
+        try:
+            import matplotlib
+        except Exception, e:
+            QMessageBox.critical(None, 'Error',
+                                 'LQF requires the matplotlib package to be installed. '
+                                 'Please consult the manual for further information')
+            return
 
         # Create the dialog (after translation) and keep reference
         self.dlg = LQFDialog()

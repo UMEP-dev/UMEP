@@ -38,10 +38,9 @@ hideground = True
 databasepath = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'Database'))
 
 
-
 class GLWidget(QtOpenGL.QGLWidget):
 
-    #Sets up attributes used by model
+    # Sets up attributes used by model
     def __init__(self, energy_array, asc_array, wall_array, cellsize, dlg, parent=None):
         super(GLWidget, self).__init__(parent)
         global horizonview, verticalview
@@ -167,8 +166,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         viewdistance -= dz
         self.updateGL()
 
-
-    #Create camera movements
+    # Create camera movements
     def mouseMoveEvent(self, event):
         global zoom
         dx = event.x() - self.lastPos.x()
@@ -254,9 +252,13 @@ class GLWidget(QtOpenGL.QGLWidget):
             y = int(wall_list[0])
             x = int(wall_list[1])
             zveg = self.asc_array[y][x]
-            for j in xrange(2, len(wall_list)):
-                e = wall_list[j]
-                zveg = zveg - self.cellsize
+            flipwall = np.flip(wall_list, 0)
+            for j in xrange(0, len(wall_list) - 2):
+            # for j in xrange(2, len(wall_list)):
+                # e = wall_list[j]
+                e = flipwall[j]
+                # zveg = zveg - self.cellsize
+                zveg = zveg + self.cellsize
                 self.walls(x - self.startx, zveg, y - self.starty, e)
 
         GL.glEnd()
@@ -460,7 +462,7 @@ class GLWidget(QtOpenGL.QGLWidget):
     #     glVertex3f(x+0.0,y+1,z+0)
     #     glVertex3f(x+0.5,y+1,z+0)
 
-    #Voxels for vegetation
+    # Voxels for vegetation
     def vegetation(self, x, y, z):
         self.qglColor(QtGui.QColor(0,255,0,255))
 
@@ -496,7 +498,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             angle -= 360 * 16
         return angle
 
-    #Sets color for voxels if grouped
+    # Sets color for voxels if grouped
     def set_colorgroup(self, e):
         if e < self.group1value:
             return QtGui.QColor(43,131,186,255)
@@ -509,10 +511,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         elif e > self.group4value:
             return QtGui.QColor(215,25,28,255)
 
-    #sets color for voxels if dynamic
+    # sets color for voxels if dynamic
     def set_colordynamic(self, e):
-        blue = (255 * (self.rangeofcolor - (e-self.minimum_energy)))/self.rangeofcolor
+        green = (255 * (self.rangeofcolor - (e-self.minimum_energy)))/self.rangeofcolor
         red = math.floor((255 * (e-self.minimum_energy))/self.rangeofcolor)
-        return QtGui.QColor(red, 0, blue, 255)
-
-
+        return QtGui.QColor(red, 0, green, 255)

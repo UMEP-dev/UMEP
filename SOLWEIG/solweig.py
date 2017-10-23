@@ -414,7 +414,13 @@ class SOLWEIG:
                     trunkratio = self.dlg.spinBoxTrunkHeight.value() / 100.0
                     self.vegdsm2 = self.vegdsm * trunkratio
                     if self.dlg.checkBoxSaveTrunk.isChecked():
-                        self.saveraster(self.gdal_dsm, self.folderPath[0] + '/TDSM.tif', self.vegdsm2)
+                        outDs = gdal.GetDriverByName("GTiff").Create(self.folderPath[0] + '/TDSM.tif', cols, rows, int(1), GDT_Float32)
+                        outBand = outDs.GetRasterBand(1)
+                        outBand.WriteArray(self.vegdsm2, 0, 0)
+                        outBand.FlushCache()
+                        outDs.SetGeoTransform(self.gdal_dsm.GetGeoTransform())
+                        outDs.SetProjection(self.gdal_dsm.GetProjection())
+                        # self.saveraster(self.gdal_dsm, self.folderPath[0] + '/TDSM.tif', self.vegdsm2)
 
                 vegsizex = self.vegdsm2.shape[0]
                 vegsizey = self.vegdsm2.shape[1]
