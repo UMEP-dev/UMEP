@@ -30,9 +30,7 @@ def saveraster(gdal_data, filename, raster):
     rows = gdal_data.RasterYSize
     cols = gdal_data.RasterXSize
 
-    # outDs = gdal.GetDriverByName("GTiff").Create(folder + 'shadow' + tv + '.tif', cols, rows, int(1), GDT_Float32)
     outDs = gdal.GetDriverByName("GTiff").Create(filename, cols, rows, int(1), GDT_Float32)
-    # outDs = gdal.GetDriverByName(gdal_data.GetDriver().LongName).Create(filename, cols, rows, int(1), GDT_Float32)
     outBand = outDs.GetRasterBand(1)
 
     # write the data

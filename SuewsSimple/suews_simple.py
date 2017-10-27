@@ -561,11 +561,13 @@ class SuewsSimple:
         if not (faiBuild == -999.0 or faiveg == -999.0):
             nml['runcontrol']['RoughLenMomMethod'] = 3
 
+        resolutionfilesin = nml['runcontrol']['resolutionfilesin']
+        runmetfile = self.model_dir + '/Input/' + str(filecode) + '_' + self.dlg.lineEdit_YYYY.text() + '_data_' + str(int(int(resolutionfilesin) / 60.)) + '.txt'
         try:
-            shutil.copy(inmetfile, self.model_dir + '/Input')
+            shutil.copy(inmetfile, runmetfile)
         except:
             os.remove(inmetfile)
-            shutil.copy(inmetfile, self.model_dir + '/Input')
+            shutil.copy(inmetfile, runmetfile)
 
         nml['runcontrol']['fileCode'] = str(filecode)
         nml['runcontrol']['fileoutputpath'] = str(outfolder)
@@ -663,7 +665,7 @@ class SuewsSimple:
         QMessageBox.information(self.dlg,
                                 "Model information", "Model run will now start. QGIS might freeze during calcualtion."
                                 "This will be fixed in future versions")
-        # Suews_wrapper_v2016b.wrapper(self.model_dir)
+        # Suews_wrapper_v2017b.wrapper(self.model_dir)
         try:
             Suews_wrapper_v2017b.wrapper(self.model_dir)
             time.sleep(1)
