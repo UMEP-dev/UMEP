@@ -346,9 +346,14 @@ class DSMGenerator:
                 rasTrans = osr.CoordinateTransformation(old_crs, ras_crs)
                 raslonlatmin = rasTrans.TransformPoint(float(self.xMin), float(self.yMin))
                 raslonlatmax = rasTrans.TransformPoint(float(self.xMax), float(self.yMax))
-            else:
-                raslonlatmin = [float(self.xMin), float(self.yMin)]
-                raslonlatmax = [float(self.xMax), float(self.yMax)]
+            #else:
+                #raslonlatmin = [float(self.xMin), float(self.yMin)]
+                #raslonlatmax = [float(self.xMax), float(self.yMax)]
+
+                self.xMin = raslonlatmin[0]
+                self.yMin = raslonlatmin[1]
+                self.xMax = raslonlatmax[0]
+                self.yMax = raslonlatmax[1]
 
             # Make data queries to overpass-api
             urlStr = 'http://overpass-api.de/api/xapi_meta?*[bbox=' + str(lonlatmin[0]) + ',' + str(lonlatmin[1]) + ',' + str(lonlatmax[0]) + ',' + str(lonlatmax[1]) + ']'
@@ -462,11 +467,11 @@ class DSMGenerator:
 
         # Create the destination data source
         
-        gdalrasterize = 'gdal_rasterize -a ' + 'height_asl' + ' -te ' + str(raslonlatmin[0]) + ' ' + str(raslonlatmin[1]) + ' ' + str(raslonlatmax[0]) + ' ' + str(raslonlatmax[1]) +\
+        gdalrasterize = 'gdal_rasterize -a ' + 'height_asl' + ' -te ' + str(self.xMin) + ' ' + str(self.yMin) + ' ' + str(self.xMax) + ' ' + str(self.yMax) +\
                         ' -tr ' + str(pixel_size) + ' ' + str(pixel_size) + ' -l "' + str(polygon_ln) + '" "' \
                          + str(polygon_layer.source()) + '" "' + self.plugin_dir + '/temp/clipdsm.tif"'
 
-        gdalclipdem = 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(raslonlatmin[0]) + ' ' + str(raslonlatmin[1]) + ' ' + str(raslonlatmax[0]) + ' ' + str(raslonlatmax[1]) +\
+        gdalclipdem = 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(self.xMin) + ' ' + str(self.yMin) + ' ' + str(self.xMax) + ' ' + str(self.yMax) +\
                       ' -tr ' + str(pixel_size) + ' ' + str(pixel_size) + \
                       ' -of GTiff ' + '"' + filepath_dem + '" "' + self.plugin_dir + '/temp/clipdem.tif"'
 
