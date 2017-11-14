@@ -3,7 +3,8 @@ from ..Utilities import shadowingfunctions as shadow
 from ..Utilities.SEBESOLWEIGCommonFiles import sun_position as sp
 import datetime as dt
 from ..Utilities.misc import *
-from PyQt4.QtGui import QMessageBox
+# from PyQt4.QtGui import QMessageBox
+from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_23 import shadowingfunction_wallheight_23
 
 
 def dailyshading(dsm, vegdsm, vegdsm2, scale, lonlat, sizex, sizey, tv, UTC, usevegdem, timeInterval, onetime, dlg, folder, gdal_data, trans, dst):
@@ -21,16 +22,16 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lonlat, sizex, sizey, tv, UTC, use
         psi = trans
         # amaxvalue
         vegmax = vegdsm.max()
-        amaxvalue = dsm.max()
-        amaxvalue = np.maximum(amaxvalue,vegmax)
+        amaxvalue = dsm.max() - dsm.min()
+        amaxvalue = np.maximum(amaxvalue, vegmax)
 
-        # Elevation vegdsms if buildingDEM includes ground heights
-        vegdem = vegdsm+dsm
+        # Elevation vegdsms if buildingDSM includes ground heights
+        vegdem = vegdsm + dsm
         vegdem[vegdem == dsm] = 0
-        vegdem2 = vegdsm2+dsm
+        vegdem2 = vegdsm2 + dsm
         vegdem2[vegdem2 == dsm] = 0
 
-        #% Bush separation
+        # Bush separation
         bush = np.logical_not((vegdem2*vegdem))*vegdem
 
         vegshtot = np.zeros((sizex, sizey))
@@ -48,6 +49,10 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lonlat, sizex, sizey, tv, UTC, use
     index = 0
     time = dict()
     time['UTC'] = UTC
+
+    walls = np.zeros((sizex, sizey))
+    dirwalls = np.zeros((sizex, sizey))
+
     for i in range(0, itera):
         if onetime == 0:
             minu = int(timeInterval * i)
@@ -102,10 +107,19 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lonlat, sizex, sizey, tv, UTC, use
                 shtot = shtot + sh
 
             else:
-                shadowresult = shadow.shadowingfunction_20(dsm, vegdem, vegdem2, azi[i], alt[i], scale, amaxvalue,
-                                                           bush, dlg, 0)
-                vegsh = shadowresult["vegsh"]
-                sh = shadowresult["sh"]
+                # print str(vegdem)
+                # print str(vegdem2)
+                vegsh, sh, _, wallsh, wallsun, wallshve, _, facesun = shadowingfunction_wallheight_23(dsm, vegdem,
+                                                                                                      vegdem2,
+                                                                                                      azi[i], alt[i],
+                                                                                                      scale, amaxvalue,
+                                                                                                      bush, walls,
+                                                                                                      dirwalls * np.pi / 180.)
+
+                # shadowresult = shadow.shadowingfunction_20(dsm, vegdem, vegdem2, azi[i], alt[i], scale, amaxvalue,
+                #                                            bush, dlg, 0)
+                # vegsh = shadowresult["vegsh"]
+                # sh = shadowresult["sh"]
                 sh=sh-(1-vegsh)*(1-psi)
                 vegshtot = vegshtot + sh
 
@@ -146,8 +160,9 @@ def day_of_year(yy, month, day):
 
     return doy
 
+
 def dectime_to_timevec(dectime):
-    #This subroutine converts dectime to individual hours, minutes and seconds
+    # This subroutine converts dectime to individual hours, minutes and seconds
 
     doy = np.floor(dectime)
 

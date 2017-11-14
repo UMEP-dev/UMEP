@@ -798,14 +798,23 @@ class SOLWEIG:
                 amaxvalue = self.dsm.max() - self.dsm.min()
                 amaxvalue = np.maximum(amaxvalue, vegmax)
 
+                # # Elevation vegdsms if buildingDEM includes ground heights
+                # vegdem = self.vegdsm + self.dsm
+                # vegdem[vegdem == self.dsm] = 0
+                # vegdem2 = self.vegdsm2 + self.dsm
+                # vegdem2[vegdem2 == self.dsm] = 0
+                #
+                # # % Bush separation
+                # bush = np.logical_not((vegdem2 * vegdem)) * vegdem
+
                 # Elevation vegdsms if buildingDEM includes ground heights
-                vegdem = self.vegdsm + self.dsm
-                vegdem[vegdem == self.dsm] = 0
-                vegdem2 = self.vegdsm2 + self.dsm
-                vegdem2[vegdem2 == self.dsm] = 0
+                self.vegdsm = self.vegdsm + self.dsm
+                self.vegdsm[self.vegdsm == self.dsm] = 0
+                self.vegdsm2 = self.vegdsm2 + self.dsm
+                self.vegdsm2[self.vegdsm2 == self.dsm] = 0
 
                 # % Bush separation
-                bush = np.logical_not((vegdem2 * vegdem)) * vegdem
+                bush = np.logical_not((self.vegdsm2 * self.vegdsm)) * self.vegdsm
 
                 svfbuveg = (svf - (1. - svfveg) * (1. - self.trans))  # % major bug fixed 20141203
             else:

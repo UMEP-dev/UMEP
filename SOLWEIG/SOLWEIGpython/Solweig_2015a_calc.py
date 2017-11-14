@@ -96,6 +96,8 @@ def Solweig_2015a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, s
 
         # Shadow  images
         if usevegdem == 1:
+            # print str(vegdem)
+            # print str(vegdem2)
             vegsh, sh, _, wallsh, wallsun, wallshve, _, facesun = shadowingfunction_wallheight_23(dsm, vegdem, vegdem2,
                                         azimuth, altitude, scale, amaxvalue, bush, walls, dirwalls * np.pi / 180.)
             shadow = sh - (1 - vegsh) * (1 - psi)
