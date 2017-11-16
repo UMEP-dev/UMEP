@@ -356,13 +356,23 @@ class DSMGenerator:
                 self.yMax = raslonlatmax[1]
 
             # Make data queries to overpass-api
-            urlStr = 'http://overpass-api.de/api/xapi_meta?*[bbox=' + str(lonlatmin[0]) + ',' + str(lonlatmin[1]) + ',' + str(lonlatmax[0]) + ',' + str(lonlatmax[1]) + ']'
+            urlStr = 'http://overpass-api.de/api/map?bbox=' + str(lonlatmin[0]) + ',' + str(lonlatmin[1]) + ',' + str(lonlatmax[0]) + ',' + str(lonlatmax[1])
             osmXml = urllib.urlopen(urlStr).read()
+            #print urlStr
 
             # Make OSM building file
             osmPath = self.plugin_dir + '/temp/OSM_building.osm'
             osmFile = open(osmPath, 'w')
             osmFile.write(osmXml)
+            if os.fstat(osmFile.fileno()).st_size < 1:
+                urlStr = 'http://api.openstreetmap.org/api/0.6/map?bbox=' + str(lonlatmin[0]) + ',' + str(lonlatmin[1]) + ',' + str(lonlatmax[0]) + ',' + str(lonlatmax[1])
+                osmXml = urllib.urlopen(urlStr).read()
+                osmFile.write(osmXml)
+                #print 'Open Street Map'
+                if os.fstat(osmFile.fileno()).st_size < 1:
+                    QMessageBox.critical(None, "Error", "No OSM data available")
+                    return
+
             osmFile.close()
 
             outputshp = self.plugin_dir + '/temp/'
