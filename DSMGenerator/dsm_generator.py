@@ -279,6 +279,14 @@ class DSMGenerator:
         else:
             provider = dem_layer.dataProvider()
             filepath_dem = str(provider.dataSourceUri())
+        demRaster = gdal.Open(filepath_dem)
+        dem_layer_crs = osr.SpatialReference()
+        dem_layer_crs.ImportFromWkt(demRaster.GetProjection())
+        self.dem_layer_unit = dem_layer_crs.GetAttrValue("UNIT")
+        posUnits = ['metre', 'US survey foot', 'meter', 'm', 'ft', 'feet', 'foot', 'ftUS', 'International foot'] # Possible units
+        if not self.dem_layer_unit in posUnits:
+            QMessageBox.critical(None, "Error", "Raster projection is not in metre or foot. Please reproject.")
+            return
 
         polygon_layer = self.layerComboManagerPolygon.currentLayer()
         osm_layer = self.dlg.checkBoxOSM.isChecked()
@@ -513,7 +521,13 @@ class DSMGenerator:
             #for f in vlayer.getFeatures():
             for f in features:
                 geom = f.geometry()
-                if int(geom.area()) > 50000:
+                posUnitsMetre = ['metre', 'meter', 'm']  # Possible metre units
+                posUnitsFt = ['US survey foot', 'ft', 'feet', 'foot', 'ftUS', 'International foot'] # Possible foot units
+                if self.dem_layer_unit in posUnitsMetre:
+                    sqUnit = 1
+                elif self.dem_layer_unit in posUnitsFt:
+                    sqUnit = 10.76
+                if int(geom.area()) > 50000*sqUnit:
                     vlayer.deleteFeature(f.id())
 
                 #if not f[idxHght]:

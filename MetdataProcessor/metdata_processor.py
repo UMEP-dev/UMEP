@@ -320,14 +320,22 @@ class MetdataProcessor:
         else:
             met_new[:, 2] = met_old[:, self.dlg.comboBox_hour.currentIndex()]
             met_new[:, 3] = met_old[:, self.dlg.comboBox_minute.currentIndex()]
-            nsh = int(abs((met_new[1, 3] - met_new[0, 3])) / 5)
+            nshhh= int(abs((met_new[1, 2] - met_new[0, 2])) * 12)
+            nshmin = int(abs((met_new[1, 3] - met_new[0, 3])) / 5)
+            nsh = nshhh + nshmin
             #QMessageBox.critical(None, "Test", str(nsh))
 
-        # first figure out the time res of input file
-        # dectime0 = met_new[0, 1] + met_new[0, 2] / 24. + met_new[0, 3] / (60. * 24.)
-        # dectime1 = met_new[1, 1] + met_new[1, 2] / 24. + met_new[1, 3] / (60. * 24.)
-        # timeres_old = np.round((dectime1 - dectime0) * (60. * 24.))
-        # nsh = int(timeres_old / 5)
+        # Check if time gap exists
+        for i in range(0, met_new.shape[0] - 1):
+            dectime0 = met_new[i, 0] + met_new[i, 1] + met_new[i, 2] / 24. + met_new[i, 3] / (60. * 24.)
+            dectime1 = met_new[i + 1, 0] + met_new[i + 1, 1] + met_new[i + 1, 2] / 24. + met_new[i + 1, 3] / (60. * 24.)
+            timeres_old = np.round((dectime1 - dectime0) * (60. * 24.))
+            nshtest = int(timeres_old / 5)
+            # print str(nshtest)
+            if nshtest > nsh:
+                QMessageBox.critical(None, "Input data not continuous", "There seems to be gap at line:"
+                                                          " \n" + str(i + 1))
+                return
 
         self.dlg.progressBar.setValue(3)
 
