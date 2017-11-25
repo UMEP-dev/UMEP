@@ -226,11 +226,16 @@ class MetdataProcessor:
                 self.dlg.comboBox_snow.addItem(header[i])
                 self.dlg.comboBox_ws.addItem(header[i])
                 self.dlg.comboBox_xsmd.addItem(header[i])
-            # self.data = np.loadtxt(self.folderPath[0], skiprows=headernum, delimiter=delim)
+
             try:
-                self.data = np.loadtxt(self.folderPath[0], skiprows=headernum, delimiter=delim)
-            except:
-                QMessageBox.critical(None, "Import Error", "Check number of header lines, delimiter format and if nodata are present")
+                self.data = np.genfromtxt(self.folderPath[0], skip_header=headernum, delimiter=delim,
+                                          filling_values=99999)
+                QMessageBox.information(self.dlg, "File imported", "If invalid data was detected such as strings or "
+                                                               "other non-numrical characters, these data points could "
+                                                               "result in that the MetdataProcessor "
+                                                               "will fail to create your UMEP-formatted inputdata.", 'Continue')
+            except Exception as e:
+                QMessageBox.critical(self.dlg, "Error: Check the number of columns in each line", str(e))
                 return
 
     def start_progress(self):
@@ -333,7 +338,7 @@ class MetdataProcessor:
             nshtest = int(timeres_old / 5)
             # print str(nshtest)
             if nshtest > nsh:
-                QMessageBox.critical(None, "Input data not continuous", "There seems to be gap at line:"
+                QMessageBox.critical(None, "Input data is not continuous", "There seems to be a time gap at line:"
                                                           " \n" + str(i + 1))
                 return
 
