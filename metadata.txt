@@ -11,7 +11,7 @@ name=UMEP
 qgisMinimumVersion=2.0
 description=Urban Multi-scale Environmental Predictor
 
-version=1.1
+version=1.1.1
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg
 email=fredrikl@gvc.gu.se
 
@@ -26,6 +26,7 @@ repository=https://bitbucket.org/fredrik_ucg/umep
 
 # Uncomment the following line and add your changelog:
 changelog=
+	1.1.1 : Bug fix in SUEWSPrepare.
 	1.1   : LONG TERM RELEASE. Improvements in the Metdataprocessor.
 	1.0.1 : Bug fix in Metdataprocessor to cope with hourly data and DSMGenerator to cope with non metric CRS.
 	1.0   : First release to the official QGIS Python Plugins Repository.

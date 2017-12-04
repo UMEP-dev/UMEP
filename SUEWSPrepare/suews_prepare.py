@@ -903,7 +903,7 @@ class SUEWSPrepare:
                                                                         code))
 
     def fill_combobox(self, widget):
-        poly = self.layerComboManagerPolygrid.getLayer()
+        poly = self.layerComboManagerPolygrid.currentLayer()
         if poly is None:
             QMessageBox.information(None, "Error", "No polygon grid added in main settings yet")
             widget.checkBox.setCheckState(0)
@@ -1365,7 +1365,7 @@ class SUEWSPrepare:
         lines_to_write.append(nbr_header)
         lines_to_write.append(header)
 
-        poly = self.layerComboManagerPolygrid.getLayer()
+        poly = self.layerComboManagerPolygrid.currentLayer()
         if poly is None:
             QMessageBox.critical(None, "Error", "No valid Polygon layer is selected")
             return
@@ -1373,7 +1373,7 @@ class SUEWSPrepare:
             QMessageBox.critical(None, "Error", "No valid Polygon layer is selected")
             return
 
-        poly_field = self.layerComboManagerPolyField.getFieldName()
+        poly_field = self.layerComboManagerPolyField.currentField()
         if poly_field is None:
             QMessageBox.critical(None, "Error", "An attribute filed with unique fields must be selected")
             return
@@ -1443,11 +1443,11 @@ class SUEWSPrepare:
 
         if self.IMPveg_from_file:
             if self.IMPvegfile_path is None:
-                QMessageBox.critical(None, "Error", "Building morphology file has not been provided,"
+                QMessageBox.critical(None, "Error", "Vegetation morphology file has not been provided,"
                                                     " please check the main tab")
                 return
             if not os.path.isfile(self.IMPvegfile_path):
-                QMessageBox.critical(None, "Error", "Could not find the file containing building morphology")
+                QMessageBox.critical(None, "Error", "Could not find the file containing vegetation morphology")
                 return
 
         if self.land_use_from_file:

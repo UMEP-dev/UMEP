@@ -467,8 +467,8 @@ class Worker(QtCore.QObject):
                 new_line[index] = '%.3f' % z
 
                 if self.pop_density is not None:
-                    pop_density_night = feature.attribute(self.pop_density.getFieldName())
-                    pop_density_day = feature.attribute(self.pop_density.getFieldName())
+                    pop_density_night = feature.attribute(self.pop_density.currentField())
+                    pop_density_day = feature.attribute(self.pop_density.currentField())
                 else:
                     pop_density_night = -999
                     pop_density_day = -999
