@@ -3,10 +3,10 @@ from PyQt4 import QtCore, QtGui
 import traceback
 import numpy as np
 from ..Utilities import shadowingfunctions as shadow
-import Skyviewfactor4d as svf
+#import Skyviewfactor4d as svf
 #import shadowingfunctions as shadow
-from osgeo import gdal
-from osgeo.gdalconst import *
+#from osgeo import gdal
+#from osgeo.gdalconst import *
 
 import sys
 import linecache

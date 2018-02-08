@@ -278,8 +278,7 @@ class SUEWSAnalyzer:
             f.close()
             self.idgrid = gridcodemetmat[1:, :]
 
-            dataunit = self.fileoutputpath + '/' + self.fileCode + '_YYYY_' + str(
-                self.resout) + '_OutputFormat.txt'
+            dataunit = self.fileoutputpath + '/' + self.fileCode + '_OutputFormat.txt'
             f = open(dataunit)
             lin = f.readlines()
             self.lineunit = lin[3].split(";")

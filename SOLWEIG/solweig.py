@@ -35,6 +35,7 @@ import zipfile
 import webbrowser
 from osgeo.gdalconst import *
 from solweigworker import Worker
+import WriteMetadataSOLWEIG
 
 # from SOLWEIGpython import Solweig_v2015_metdata_noload as metload
 from ..Utilities.SEBESOLWEIGCommonFiles import Solweig_v2015_metdata_noload as metload
@@ -150,6 +151,7 @@ class SOLWEIG:
 
         self.folderPath = None
         self.folderPathSVF = None
+        self.folderPathMet = None
         self.usevegdem = 0
         self.landcover = 0
         self.vegdsm = None
@@ -372,6 +374,8 @@ class SOLWEIG:
                                                                           "Go home for the weekend or consider to tile your grid")
 
             # Vegetation DSMs #
+            trunkfile = 0
+            trunkratio = 0
             if self.dlg.checkBoxUseVeg.isChecked():
                 self.usevegdem = 1
                 self.trans = self.dlg.spinBoxTrans.value() / 100.0
@@ -385,8 +389,8 @@ class SOLWEIG:
                 # load raster
                 gdal.AllRegister()
                 provider = self.vegdsm.dataProvider()
-                filePathOld = str(provider.dataSourceUri())
-                dataSet = gdal.Open(filePathOld)
+                filePath_cdsm = str(provider.dataSourceUri())
+                dataSet = gdal.Open(filePath_cdsm)
                 self.vegdsm = dataSet.ReadAsArray().astype(np.float)
 
                 vegsizex = self.vegdsm.shape[0]
@@ -407,10 +411,12 @@ class SOLWEIG:
                     # load raster
                     gdal.AllRegister()
                     provider = self.vegdsm2.dataProvider()
-                    filePathOld = str(provider.dataSourceUri())
-                    dataSet = gdal.Open(filePathOld)
+                    filePath_tdsm = str(provider.dataSourceUri())
+                    dataSet = gdal.Open(filePath_tdsm)
                     self.vegdsm2 = dataSet.ReadAsArray().astype(np.float)
+                    trunkfile = 1
                 else:
+                    filePath_tdsm = None
                     trunkratio = self.dlg.spinBoxTrunkHeight.value() / 100.0
                     self.vegdsm2 = self.vegdsm * trunkratio
                     if self.dlg.checkBoxSaveTrunk.isChecked():
@@ -434,6 +440,8 @@ class SOLWEIG:
                 self.vegdsm = np.zeros([rows, cols])
                 self.vegdsm2 = np.zeros([rows, cols])
                 self.usevegdem = 0
+                filePath_cdsm = None
+                filePath_tdsm = None
 
             # Land cover #
             if self.dlg.checkBoxLandCover.isChecked():
@@ -449,8 +457,8 @@ class SOLWEIG:
                 # load raster
                 gdal.AllRegister()
                 provider = self.lcgrid.dataProvider()
-                filePathOld = str(provider.dataSourceUri())
-                dataSet = gdal.Open(filePathOld)
+                filePath_lc = str(provider.dataSourceUri())
+                dataSet = gdal.Open(filePath_lc)
                 self.lcgrid = dataSet.ReadAsArray().astype(np.float)
 
                 lcsizex = self.lcgrid.shape[0]
@@ -460,8 +468,8 @@ class SOLWEIG:
                     QMessageBox.critical(self.dlg, "Error in land cover grid",
                                          "All grids must be of same extent and resolution")
                     return
-            #else:
-            #    self.lcgrid = np.zeros([rows, cols])
+            else:
+                filePath_lc = None
 
             # DEM #
             if not self.dlg.checkBoxDEM.isChecked():
@@ -610,7 +618,11 @@ class SOLWEIG:
             Twater = []
             if self.dlg.CheckBoxMetData.isChecked():
                 self.read_metdata()
+                metfileexist = 1
+                PathMet = self.folderPathMet[0]
             else:
+                metfileexist = 0
+                PathMet = None
                 self.metdata = np.zeros((1, 24)) - 999.
 
                 date = self.dlg.calendarWidget.selectedDate()
@@ -862,6 +874,12 @@ class SOLWEIG:
             #self.iface.messageBar().pushMessage("__len__", str(buildings.shape[0]))
             #self.iface.messageBar().pushMessage("__len__", str(self.lcgrid.shape[0]))
 
+            WriteMetadataSOLWEIG.writeRunInfo(self.folderPath[0], filepath_dsm, self.gdal_dsm, self.usevegdem,
+                                              filePath_cdsm, trunkfile, filePath_tdsm, lat, lon, UTC, self.landcover,
+                                              filePath_lc, metfileexist, PathMet, self.metdata, self.plugin_dir,
+                                              absK, absL, albedo_b, albedo_g, ewall, eground, onlyglobal, trunkratio,
+                                              self.trans, rows, cols, pos, elvis, cyl)
+
             #  If metfile starts at night
             CI = 1.
             # self.iface.messageBar().pushMessage("Ta", self.folderPath[0] + '/Tmrt_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[0, i])) + '_' + str(int(hours[0, i])) + str(int(minu[0, i])) + '.tif')
@@ -1050,12 +1068,15 @@ class SOLWEIG:
                 #     rlayer.setCacheImage(None)
                 # rlayer.triggerRepaint()
 
-            self.iface.messageBar().pushMessage("SOLWEIG", "Model calculations successful.")
-            #
+            QMessageBox.information(self.dlg,"SOLWEIG", "Model calculations successful!\r\n"
+                            "Setting for this calculation is found in RunInfoSOLWEIG.txt located in "
+                                                               "the output folder specified.")
+
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
             self.dlg.pushButtonClose.setEnabled(True)
+            self.dlg.progressBar.setValue(0)
         else:
             # notify the user that something went wrong
             self.iface.messageBar().pushMessage(

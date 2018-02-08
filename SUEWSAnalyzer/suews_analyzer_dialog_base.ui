@@ -822,21 +822,6 @@ p, li { white-space: pre-wrap; }
         <layout class="QGridLayout" name="gridLayout_7"/>
        </widget>
       </item>
-      <item row="1" column="2" colspan="3">
-       <widget class="QComboBox" name="comboBox_SpatialVariable">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>Select a listed variable to process. If no variable is available, then no data if found in the Model output folder</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>Not Specified</string>
-         </property>
-        </item>
-       </widget>
-      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_31">
         <property name="text">
@@ -1045,6 +1030,21 @@ p, li { white-space: pre-wrap; }
         <item>
          <property name="text">
           <string/>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="2" colspan="6">
+       <widget class="QComboBox" name="comboBox_SpatialVariable">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>Select a listed variable to process. If no variable is available, then no data if found in the Model output folder</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Not Specified</string>
          </property>
         </item>
        </widget>

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>832</width>
+    <width>838</width>
     <height>679</height>
    </rect>
   </property>
@@ -48,7 +48,27 @@ p, li { white-space: pre-wrap; }
         <layout class="QGridLayout" name="gridLayout_14"/>
        </widget>
       </item>
-      <item row="2" column="2">
+      <item row="3" column="0" colspan="2">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>ID field:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Vector polygon grid:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" colspan="2">
        <widget class="QWidget" name="widgetPolygonLayer" native="true">
         <property name="minimumSize">
          <size>
@@ -60,26 +80,6 @@ p, li { white-space: pre-wrap; }
          <enum>Qt::LeftToRight</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_13"/>
-       </widget>
-      </item>
-      <item row="2" column="0" colspan="2">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Vector polygon grid:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0" colspan="2">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>ID field:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
        </widget>
       </item>
      </layout>

@@ -182,6 +182,7 @@ class SuewsSimple:
         del self.toolbar
 
     def run(self):
+        # print self.model_dir
         if not (os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2017b') or os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2017b.exe')):
             # QMessageBox.information(self.iface.mainWindow(),
             if QMessageBox.question(self.iface.mainWindow(), "OS specific binaries missing",
@@ -198,9 +199,12 @@ class SuewsSimple:
                                                         "\r\n"
                                                         "\r\n"
                                  "Do you want to contiune with the download?", QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
-                testfile = urllib.URLopener()
+                # testfile = urllib.URLopener()
                 if sys.platform == 'win32':
-                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/win/SUEWS_V2017b.exe', self.model_dir + os.sep + 'SUEWS_V2017b.exe')
+                    # print self.model_dir + os.sep + 'SUEWS_V2017b.exe'
+                    # testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/win/SUEWS_V2017b.exe', self.model_dir + os.sep + 'SUEWS_V2017b.exe')
+                    urllib.urlretrieve('http://www.urban-climate.net/umep/repo/nib/win/SUEWS_V2017b.exe',
+                                      self.model_dir + os.sep + 'SUEWS_V2017b.exe')
                     # testfile2 = urllib.URLopener()
                     # testfile2.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cyggcc_s-seh-1.dll', self.model_dir + os.sep + 'cyggcc_s-seh-1.dll')
                     # testfile3 = urllib.URLopener()
@@ -210,9 +214,9 @@ class SuewsSimple:
                     # testfile5 = urllib.URLopener()
                     # testfile5.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cygwin1.dll', self.model_dir + os.sep + 'cygwin1.dll')
                 if sys.platform == 'linux2':
-                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/linux/SUEWS_V2017b', self.model_dir + os.sep + 'SUEWS_V2017b')
+                    urllib.urlretrieve('http://www.urban-climate.net/umep/repo/nib/linux/SUEWS_V2017b', self.model_dir + os.sep + 'SUEWS_V2017b')
                 if sys.platform == 'darwin':
-                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/mac/SUEWS_V2017b', self.model_dir + os.sep + 'SUEWS_V2017b')
+                    urllib.urlretrieve('http://www.urban-climate.net/umep/repo/nib/mac/SUEWS_V2017b', self.model_dir + os.sep + 'SUEWS_V2017b')
             else:
                 QMessageBox.critical(self.iface.mainWindow(), "Binaries not downloaded", "This plugin will not be able to start before binaries are downloaded")
                 return

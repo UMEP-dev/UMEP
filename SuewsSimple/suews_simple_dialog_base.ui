@@ -264,7 +264,14 @@ p, li { white-space: pre-wrap; }
    <item row="2" column="3">
     <layout class="QGridLayout" name="gridLayout_10">
      <item row="0" column="0">
-      <widget class="QLineEdit" name="textOutput"/>
+      <widget class="QLineEdit" name="textOutput">
+       <property name="toolTip">
+        <string>Full path length should not be longer than 100 characters. Also avoid special characters such as space, /, % etc.</string>
+       </property>
+       <property name="statusTip">
+        <string/>
+       </property>
+      </widget>
      </item>
      <item row="0" column="1">
       <widget class="QPushButton" name="pushButtonSave">

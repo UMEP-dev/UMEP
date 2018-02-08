@@ -701,7 +701,7 @@ class SUEWSPrepare:
         self.layerComboManagerPolygrid = QgsMapLayerComboBox(widget.widgetPolygonLayer)
         self.layerComboManagerPolygrid.setCurrentIndex(-1)
         self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.PolygonLayer)
-        # self.layerComboManagerPolygrid.setFixedWidth(175)
+        self.layerComboManagerPolygrid.setFixedWidth(175)
         self.layerComboManagerPolyField = QgsFieldComboBox(widget.widgetPolyField)
         self.layerComboManagerPolyField.setFilters(QgsFieldProxyModel.Numeric)
         self.layerComboManagerPolygrid.layerChanged.connect(self.layerComboManagerPolyField.setLayer)

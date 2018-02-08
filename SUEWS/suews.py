@@ -172,9 +172,9 @@ class SUEWS:
                                                            "\r\n"
                                                            "Do you want to contiune with the download?",
                                     QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
-                testfile = urllib.URLopener()
+                # testfile = urllib.URLopener()
                 if sys.platform == 'win32':
-                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/win/SUEWS_V2017b.exe',
+                    urllib.urlretrieve('http://www.urban-climate.net/umep/repo/nib/win/SUEWS_V2017b.exe',
                                       self.model_dir + os.sep + 'SUEWS_V2017b.exe')
                     # testfile2 = urllib.URLopener()
                     # testfile2.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cyggcc_s-seh-1.dll',
@@ -189,10 +189,10 @@ class SUEWS:
                     # testfile5.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cygwin1.dll',
                     #                    self.model_dir + os.sep + 'cygwin1.dll')
                 if sys.platform == 'linux2':
-                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/linux/SUEWS_V2017b',
+                    urllib.urlretrieve('http://www.urban-climate.net/umep/repo/nib/linux/SUEWS_V2017b',
                                       self.model_dir + os.sep + 'SUEWS_V2017b')
                 if sys.platform == 'darwin':
-                    testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/mac/SUEWS_V2017b',
+                    urllib.urlretrieve('http://www.urban-climate.net/umep/repo/nib/mac/SUEWS_V2017b',
                                       self.model_dir + os.sep + 'SUEWS_V2017b')
 
             else:
