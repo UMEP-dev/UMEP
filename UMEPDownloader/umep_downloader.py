@@ -20,10 +20,9 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt, QThread
 from PyQt4.QtGui import QAction, QIcon, QAbstractItemView, QMessageBox, QWidget, QHeaderView, QTableWidgetItem, QListWidgetItem, QFileDialog
-from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsRectangle, QgsPoint, QgsGeometry, QgsVectorLayer, QgsRasterLayer, QgsMapLayerRegistry, QgsRasterFileWriter, QgsRasterPipe
-from PyQt4.QtCore import QThread
+from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsRectangle, QgsPoint, QgsGeometry, QgsRasterLayer, QgsMapLayerRegistry
 # Initialize Qt resources from file resources.py
 import resources
 # Import the code for the dialog

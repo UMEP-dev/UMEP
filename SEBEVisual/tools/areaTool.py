@@ -4,18 +4,14 @@ Created on 10 apr 2014
 @author: nke
 '''
 # Import the PyQt and QGIS libraries
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt4.QtCore import pyqtSignal, Qt
+from PyQt4.QtGui import QColor
 from qgis.core import *
 from qgis.gui import *
 
 
-
-
 class AreaTool(QgsMapToolEmitPoint):
-    '''
-    classdocs
-    '''
+
     areaComplete = pyqtSignal(QgsPoint, QgsPoint)
     areaStart = None
     areaEnd = None

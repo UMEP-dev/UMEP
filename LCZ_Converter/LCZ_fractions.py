@@ -1,6 +1,4 @@
 import numpy as np
-from PyQt4.QtGui import * 
-from PyQt4.QtCore import * 
 from qgis.core import QgsMessageLog
 
 def LCZ_fractions(lc_grid,dlg):

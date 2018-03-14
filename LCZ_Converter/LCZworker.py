@@ -1,7 +1,6 @@
 from PyQt4 import QtCore
 from PyQt4.QtCore import QVariant
-from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
-# from qgis.gui import *
+from PyQt4.QtGui import QMessageBox
 from qgis.core import *  # QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsRasterLayer, QgsGeometry, QgsMessageLog
 from LCZ_fractions import *
 import traceback

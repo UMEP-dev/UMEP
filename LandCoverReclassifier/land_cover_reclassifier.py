@@ -20,9 +20,8 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import *
-from osgeo import gdal
+from PyQt4.QtCore import QSettings, QTranslator, qVersion
+from PyQt4.QtGui import QFileDialog, QIcon, QAction, QMessageBox
 from qgis.core import *
 from qgis.gui import *
 # Initialize Qt resources from file resources.py
@@ -30,7 +29,6 @@ import resources_rc
 # Import the code for the dialog
 from land_cover_reclassifier_dialog import LandCoverReclassifierDialog
 import os.path
-import numpy as np
 from ..Utilities.misc import *
 import webbrowser
 

@@ -25,9 +25,6 @@ from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QTh
 from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
 from qgis.gui import QgsMessageBar
 from qgis.core import QgsVectorLayer, QgsMessageLog
-
-# Initialize Qt resources from file resources.py
-# Import the code for the dialog
 from LQF_dialog import LQFDialog
 import os.path
 import webbrowser

@@ -20,13 +20,10 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QThread
-from PyQt4.QtGui import *
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QThread
+from PyQt4.QtGui import QIcon, QAction, QFileDialog, QMessageBox
 from qgis.core import *
 from qgis.gui import *
-# Initialize Qt resources from file resources.py
-# import resources
-# Import the code for the dialog
 from solweig_dialog import SOLWEIGDialog
 import numpy as np
 from osgeo import gdal, osr
@@ -36,12 +33,9 @@ import webbrowser
 from osgeo.gdalconst import *
 from solweigworker import Worker
 import WriteMetadataSOLWEIG
-
-# from SOLWEIGpython import Solweig_v2015_metdata_noload as metload
 from ..Utilities.SEBESOLWEIGCommonFiles import Solweig_v2015_metdata_noload as metload
-# from SOLWEIGpython import Solweig_2015a_calc as so
 from SOLWEIGpython.Tgmaps_v1 import Tgmaps_v1
-# from SOLWEIGpython.clearnessindex_2013b import clearnessindex_2013b
+
 
 class SOLWEIG:
     """QGIS Plugin Implementation."""

@@ -20,11 +20,8 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-# Initialize Qt resources from file resources.py
-# import resources_rc
-# Import the code for the dialog
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QObject, SIGNAL, SLOT
+from PyQt4.QtGui import QMenu, QAction, QIcon
 from UMEP_dialog import UMEPDialog
 from MetdataProcessor.metdata_processor import MetdataProcessor
 from ShadowGenerator.shadow_generator import ShadowGenerator
@@ -53,8 +50,6 @@ from LCZ_Converter.LCZ_converter import LCZ_test
 from LucyQF.LQF import LQF
 from BenchMarking.benchmarking import BenchMarking
 from DSMGenerator.dsm_generator import DSMGenerator
-
-# from about_dialog import AboutDialog
 from UMEP_about import UMEPDialogAbout
 import os.path
 import webbrowser

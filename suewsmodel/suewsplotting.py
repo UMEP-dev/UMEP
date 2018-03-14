@@ -41,6 +41,8 @@ class SuewsPlotting:
 
     def plotbasic(self, dataout, datain):
 
+        writeoption = dataout.shape[1]
+
         dectime = make_dectime(dataout)
         dates = dt.num2date(dectime)
 
@@ -77,12 +79,19 @@ class SuewsPlotting:
         ax2.set_position(pos2)
         plt.legend(bbox_to_anchor=(1.13, 1.0))
 
+        if writeoption > 38:
+            lai = dataout[:, 56]
+            smd = dataout[:, 27]
+        else:
+            lai = dataout[:, 29]
+            smd = dataout[:, 24]
+
         ax3 = plt.subplot(3, 1, 3, sharex=ax1)
         ax4 = ax3.twinx()
-        ax3.plot(dates, dataout[:, 56], 'g-', label='$LAI$')
+        ax3.plot(dates, lai, 'g-', label='$LAI$')
         ax3.legend(bbox_to_anchor=(1.16, 0.5))
-        ax4.bar(dectime, datain[:, 13], width=0.0, edgecolor='b' , label='$Precip$')
-        ax4.plot(dectime, dataout[:, 27], 'k', label='$SMD$')
+        ax4.bar(dectime, datain[:, 13], width=0.0, edgecolor='b', label='$Precip$')
+        ax4.plot(dectime, smd, 'k', label='$SMD$')
         ax4.set_ylim([0, max(max(datain[:, 13]), max(dataout[:, 27]))])
         ax3.set_xlabel('Time', fontsize=14)
         ax3.set_ylabel('$LAI$', color='g', fontsize=14)
@@ -96,6 +105,11 @@ class SuewsPlotting:
         ax4.legend(bbox_to_anchor=(1.16, 1.0))
 
     def plotmonthlystatistics(self, dataout, datain):
+
+        writeoption = dataout.shape[1]
+        mv = 0
+        if writeoption < 38:
+            mv = 2
 
         dectime = make_dectime(dataout)
         dates = dt.num2date(dectime)
@@ -128,11 +142,11 @@ class SuewsPlotting:
             Qf[ind] = np.mean(dataout[month == i, 11])
             Qstar[ind] = np.mean(dataout[month == i, 10])
 
-            precip[ind] = np.sum(dataout[month == i, 18])  #Precipitation (P/i)
-            wu[ind] = np.sum(dataout[month == i, 19])  # exteranl wu (Ie/i)
-            st[ind] = np.sum(dataout[month == i, 22])  #storage (totCh/i)
-            evap[ind] = np.sum(dataout[month == i, 20])  #Evaporation (E/i)
-            drain[ind] = np.sum(dataout[month == i, 21]) #runoff (RO/i)
+            precip[ind] = np.sum(dataout[month == i, 18 - mv])  #Precipitation (P/i)
+            wu[ind] = np.sum(dataout[month == i, 19 - mv])  # exteranl wu (Ie/i)
+            st[ind] = np.sum(dataout[month == i, 22 - mv])  #storage (totCh/i)
+            evap[ind] = np.sum(dataout[month == i, 20 - mv])  #Evaporation (E/i)
+            drain[ind] = np.sum(dataout[month == i, 21 - mv]) #runoff (RO/i)
 
             ind += 1
 

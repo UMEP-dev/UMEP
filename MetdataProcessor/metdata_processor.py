@@ -21,10 +21,7 @@
  ***************************************************************************/
 """
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import *
-# Initialize Qt resources from file resources.py
-# import resources_rc
-# Import the code for the dialog
+from PyQt4.QtGui import QFileDialog, QMessageBox, QIcon, QAction
 from metdata_processor_dialog import MetdataProcessorDialog
 import os.path
 import numpy as np

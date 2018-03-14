@@ -28,9 +28,6 @@ from qgis.analysis import QgsZonalStatistics
 import webbrowser, subprocess, urllib, ogr, osr, string
 import numpy as np
 from osgeo import gdal, ogr
-# Initialize Qt resources from file resources.py
-import resources
-# Import the code for the dialog
 from dsm_generator_dialog import DSMGeneratorDialog
 import os.path
 

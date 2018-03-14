@@ -21,7 +21,7 @@
  ***************************************************************************/
 """
 
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QThread
+from PyQt4.QtCore import QSettings, QTranslator, qVersion
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
 from qgis.core import *
 from qgis.gui import *

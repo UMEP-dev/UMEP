@@ -13,6 +13,3 @@ http://www.lists.rdg.ac.uk/mailman/listinfo/met-umep
 Visit out website:
 http://www.urban-climate.net/umep/
 
-Contact: Fredrik Lindberg, fredrikl[a]gvc.gu.se
-
-

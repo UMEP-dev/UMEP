@@ -20,8 +20,8 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QVariant
-from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox, QColor
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QVariant, QCoreApplication
+from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
 from PyQt4 import QtGui
 from qgis.core import *
 from qgis.gui import *
@@ -291,12 +291,6 @@ class SUEWSAnalyzer:
                 self.dlg.comboBox_POIVariable_2.addItem(self.linevarlong[i])
                 self.dlg.comboBox_SpatialVariable.addItem(self.linevarlong[i])
 
-            # for i in range(int(np.min(self.met_data[:, 1])), int(np.max(self.met_data[:, 1]))):
-            #     self.dlg.comboBox_POIDOYMin.addItem(str(self.met_data[i, 1]))
-            #     self.dlg.comboBox_POIDOYMax.addItem(str(self.met_data[i, 1]))
-            #     self.dlg.comboBox_SpatialDOYMin.addItem(str(self.met_data[i, 1]))
-            #     self.dlg.comboBox_SpatialDOYMax.addItem(str(self.met_data[i, 1]))
-
             self.dlg.runButtonPlot.setEnabled(1)
             self.dlg.runButtonSpatial.setEnabled(1)
 
@@ -329,16 +323,9 @@ class SUEWSAnalyzer:
             minis = np.min(self.met_data[:, 1])
             maxis = np.max(self.met_data[:, 1])
 
-        # QMessageBox.critical(self.dlg, "Min", str(minis))
-        # QMessageBox.critical(self.dlg, "Max", str(maxis))
-        # return
-
-        for i in range(int(minis), int(maxis)):
+        for i in range(int(minis), int(maxis) + 2):
                 self.dlg.comboBox_POIDOYMin.addItem(str(i))
                 self.dlg.comboBox_POIDOYMax.addItem(str(i))
-
-        # self.dlg.comboBox_POIDOYMin.setCurrentIndex(0)
-        # self.dlg.comboBox_POIDOYMax.setCurrentIndex(0)
 
     def changeYearSP(self):
         self.dlg.comboBox_SpatialDOYMin.clear()
@@ -347,11 +334,6 @@ class SUEWSAnalyzer:
         self.dlg.comboBox_SpatialDOYMax.addItem('Not Specified')
 
         self.YYYY = self.dlg.comboBox_SpatialYYYY.currentText()
-
-        # if self.multiplemetfiles == 0:
-        #     self.gridcodemet = ''
-        # else:
-        #     self.gridcodemet = self.dlg.comboBox_POIField.currentText()
 
         data_in = self.fileinputpath + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_data_' + str(
             self.resin) + '.txt'
@@ -364,16 +346,9 @@ class SUEWSAnalyzer:
             minis = np.min(self.met_data[:, 1])
             maxis = np.max(self.met_data[:, 1])
 
-        # QMessageBox.critical(self.dlg, "Min", str(minis))
-        # QMessageBox.critical(self.dlg, "Max", str(maxis))
-        # return
-
-        for i in range(int(minis), int(maxis)):
+        for i in range(int(minis), int(maxis) + 2):
             self.dlg.comboBox_SpatialDOYMin.addItem(str(i))
             self.dlg.comboBox_SpatialDOYMax.addItem(str(i))
-
-        # self.dlg.comboBox_POIDOYMin.setCurrentIndex(0)
-        # self.dlg.comboBox_POIDOYMax.setCurrentIndex(0)
 
     def geotiff_save(self):
         self.outputfile = self.fileDialog.getSaveFileName(None, "Save File As:", None, "GeoTIFF (*.tif)")
@@ -439,7 +414,7 @@ class SUEWSAnalyzer:
             QMessageBox.critical(self.dlg, "Error", "No valid Polygon layer is selected")
             return
 
-        poly_field = self.layerComboManagerPolyField.currentField()
+        poly_field = self.layerComboManagerPolyfield.currentField()
         if poly_field is None:
             QMessageBox.critical(self.dlg, "Error", "An attribute with unique fields/records must be selected (same as used in the model run to analyze)")
             return
@@ -464,6 +439,10 @@ class SUEWSAnalyzer:
             QMessageBox.critical(self.dlg, "Error", "Start day happens after end day")
             return
 
+        if startday == endday:
+            QMessageBox.critical(self.dlg, "Error", "End day must be higher than start day")
+            return
+
         if self.dlg.checkBox_TOD.isChecked():
             if self.dlg.comboBox_HH.currentText() == ' ':
                 QMessageBox.critical(self.dlg, "Error", "No Hour specified")
@@ -475,12 +454,36 @@ class SUEWSAnalyzer:
         # load, cut data and calculate statistics
         statvectemp = [0]
         statresult = [0]
-        for i in range(0,self.idgrid.shape[0]):
-            datawhole = np.genfromtxt(self.fileoutputpath + '/' + self.fileCode + str(self.idgrid[i, 0]) + '_'
+        idvec = [0]
+
+        vlayer = QgsVectorLayer(poly.source(), "polygon", "ogr")
+        prov = vlayer.dataProvider()
+        fields = prov.fields()
+        idx = vlayer.fieldNameIndex(poly_field)
+        typetest = fields.at(idx).type()
+        if typetest == 10:
+            QMessageBox.critical(self.dlg, "ID field is sting type", "ID field must be either integer or float")
+            return
+
+        # for i in range(0, self.idgrid.shape[0]): # loop over vector grid instead
+        for f in vlayer.getFeatures():
+            # gid = str(self.idgrid[i, 0])
+            gid = str(f.attributes()[idx])
+            datawhole = np.genfromtxt(self.fileoutputpath + '/' + self.fileCode + gid + '_'
                                      + str(self.YYYY) + '_' + str(self.resout) + '.txt', skip_header=1,
                                      missing_values='**********', filling_values=-9999)
+
+            writeoption = datawhole.shape[1]
+            if writeoption > 38:
+                altpos = 52
+            else:
+                altpos = 25
+
             start = np.min(np.where(datawhole[:, 1] == startday))
-            ending = np.max(np.where(datawhole[:, 1] == endday))
+            if endday > np.max(datawhole[:, 1]):
+                ending = np.max(np.where(datawhole[:, 1] == endday - 1))
+            else:
+                ending = np.min(np.where(datawhole[:, 1] == endday))
             data1 = datawhole[start:ending, :]
 
             if self.dlg.checkBox_TOD.isChecked():
@@ -489,22 +492,15 @@ class SUEWSAnalyzer:
                 data1 = data1[hhdata, :]
                 minute = self.dlg.comboBox_mm.currentText()
                 mmdata = np.where(data1[0][:, 3] == int(minute))
-                # QMessageBox.critical(self.dlg, "test", str(mmdata))
                 data1 = data1[0][mmdata, :]
                 data1 = data1[0][:]
-                # QMessageBox.critical(self.dlg, "test", str(data1))
-                # return
             else:
                 if self.dlg.radioButtonDaytime.isChecked():
-                    data1 = data1[np.where(data1[:, 52] < 90.), :]
+                    data1 = data1[np.where(data1[:, altpos] < 90.), :]
                     data1 = data1[0][:]
-                    # QMessageBox.critical(self.dlg, "day", str(data1))
-                    # return
                 if self.dlg.radioButtonNighttime.isChecked():
-                    data1 = data1[np.where(data1[:, 52] > 90.), :]
+                    data1 = data1[np.where(data1[:, altpos] > 90.), :]
                     data1 = data1[0][:]
-                    # QMessageBox.critical(self.dlg, "night", str(data1))
-                    # return
 
             vardata = data1[:, self.id]
 
@@ -520,25 +516,16 @@ class SUEWSAnalyzer:
                 statresult = np.nanpercentile(vardata, 75) - np.percentile(vardata, 25)
 
             statvectemp = np.vstack((statvectemp, statresult))
+            idvec = np.vstack((idvec, int(gid)))
 
         statvector = statvectemp[1:, :]
-
-        statmat = np.hstack((self.idgrid, statvector))
+        print idvec
+        statmat = np.hstack((idvec[1:, :], statvector))
 
         numformat2 = '%8d %5.3f'
         header2 = 'id value'
         np.savetxt(self.plugin_dir + 'test.txt', statmat,
                    fmt=numformat2, delimiter=' ', header=header2, comments='')
-
-        vlayer = QgsVectorLayer(poly.source(), "polygon", "ogr")
-        prov = vlayer.dataProvider()
-        fields = prov.fields()
-        idx = vlayer.fieldNameIndex(poly_field)
-
-        typetest = fields.at(idx).type()
-        if typetest == 10:
-            QMessageBox.critical(self.dlg, "ID field is sting type", "ID field must be either integer or float")
-            return
 
         header = self.linevar[self.id]
         if self.dlg.addResultToGrid.isChecked():
@@ -565,7 +552,8 @@ class SUEWSAnalyzer:
                     QMessageBox.critical(self.dlg, "Error", "Polygons not squared in current CRS")
                     return
 
-            polyname = self.dlg.comboBox_Polygrid.currentText()
+            # polyname = self.dlg.comboBox_Polygrid.currentText()
+            polyname = self.layerComboManagerPolygrid.currentText()
             if self.dlg.textOutput.text() == 'Not Specified':
                 QMessageBox.critical(self.dlg, "Error", "No output filename for GeoTIFF is added")
                 return
@@ -607,9 +595,7 @@ class SUEWSAnalyzer:
                 c.setColorRampType(QgsColorRampShader.INTERPOLATED)
                 i = []
                 i.append(QgsColorRampShader.ColorRampItem(np.nanmin(gridout), QtGui.QColor('#2b83ba'), str(np.nanmin(gridout))))
-                # i.append(QgsColorRampShader.ColorRampItem(900, QtGui.QColor('#fdae61'), ‘900’))
                 i.append(QgsColorRampShader.ColorRampItem(np.nanmedian(gridout), QtGui.QColor('#ffffbf'), str(np.nanmedian(gridout))))
-                # i.append(QgsColorRampShader.ColorRampItem(2000, QtGui.QColor('#abdda4'), ‘2000’))
                 i.append(QgsColorRampShader.ColorRampItem(np.nanmax(gridout), QtGui.QColor('#d7191c'),str(np.nanmax(gridout))))
                 c.setColorRampItemList(i)
                 s.setRasterShaderFunction(c)
@@ -621,7 +607,7 @@ class SUEWSAnalyzer:
                     rlayer.setCacheImage(None)
                 rlayer.triggerRepaint()
 
-        QMessageBox.information(self.dlg, "SUEWS Analyser", "Spatial grid generated")
+        QMessageBox.information(self.dlg, "SUEWS Analyser", "Process completed")
 
     def saveraster(self, gdal_data, filename, raster):
         rows = gdal_data.RasterYSize
@@ -647,25 +633,15 @@ class SUEWSAnalyzer:
         caps = vlayer.dataProvider().capabilities()
 
         if caps & QgsVectorDataProvider.AddAttributes:
-            # vlayer.startEditing()
             vlayer.dataProvider().addAttributes([QgsField(header, QVariant.Double)])
-            # vlayer.commitChanges()
-            # vlayer.startEditing()
             attr_dict = {}
             for y in range(0, matdata.shape[0]):
                 attr_dict.clear()
                 idx = int(matdata[y, 0])
-
-                # QMessageBox.information(None, "Error", str(idx))
                 attr_dict[current_index_length] = float(matdata[y, 1])
-
-                # QMessageBox.information(None, "Error", str(matdata[y, 1]))
-                # vlayer.dataProvider().changeAttributeValue({idx: attr_dict})
                 vlayer.dataProvider().changeAttributeValues({y: attr_dict})
 
             vlayer.updateFields()
-            #
-            # vlayer.commitChanges()
         else:
             QMessageBox.critical(None, "Error", "Vector Layer does not support adding attributes")
 
@@ -698,19 +674,19 @@ class SUEWSAnalyzer:
                 QMessageBox.critical(self.dlg, "Error", "Start day happens after end day")
                 return
 
-            # QMessageBox.critical(self.dlg, "Test", self.fileoutputpath + '/' + self.fileCode + self.varpoi1 + '_' + str(self.YYYY) + '_' + str(self.resout) + '.txt')
-            # return
-			
-			# load and cut data
-            # datawhole = np.loadtxt(
-            #     self.fileoutputpath + '/' + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_' + str(
-            #         self.resout) + '.txt', skiprows=1)
+            if startday == endday:
+                QMessageBox.critical(self.dlg, "Error", "End day must be higher than start day")
+                return
+
             datawhole = np.genfromtxt(self.fileoutputpath + '/' + self.fileCode + self.varpoi1 + '_' +
                                       str(self.YYYY) + '_' + str(self.resout) + '.txt', skip_header=1,
                                       missing_values='**********', filling_values=-9999)
 
             start = np.min(np.where(datawhole[:, 1] == startday))
-            ending = np.max(np.where(datawhole[:, 1] == endday))
+            if endday > np.max(datawhole[:, 1]):
+                ending = np.max(np.where(datawhole[:, 1] == endday - 1))
+            else:
+                ending = np.min(np.where(datawhole[:, 1] == endday))
             data1 = datawhole[start:ending, :]
 
             if self.dlg.comboBox_POIVariable.currentText() == 'Not Specified':
@@ -721,7 +697,7 @@ class SUEWSAnalyzer:
             for i in range(0, data1.shape[0]):  # making date number
                 datenum_yy[i] = dt.date2num(dt.datetime.datetime(int(data1[i, 0]), 1, 1))
 
-            dectime = datenum_yy + data1[:, 4]
+            dectime = datenum_yy + data1[:, 4] - 1 #TODO: remove -1 when SUEWS output is changed
             dates = dt.num2date(dectime)
 
             if not self.dlg.checkboxPOIAnother.isChecked():

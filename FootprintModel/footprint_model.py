@@ -24,9 +24,6 @@ from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox, QColor
 from qgis.gui import *
 from qgis.core import *
-# Initialize Qt resources from file resources.py
-#import resources
-# Import the code for the dialog
 from footprint_model_dialog import FootprintModelDialog
 import os.path
 import numpy as np
@@ -35,10 +32,6 @@ from osgeo import gdal
 import subprocess
 import sys
 import webbrowser
-
-# import sys
-# sys.path.append('C:/OSGeo4W64/apps/Python27/Lib/site-packages/pydev')
-# import pydevd
 
 
 class FootprintModel:

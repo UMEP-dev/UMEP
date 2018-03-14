@@ -20,15 +20,14 @@
  ***************************************************************************/
 """
 # Import the PyQt and QGIS libraries
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QThread
+from PyQt4.QtGui import QIcon, QAction, QFileDialog, QMessageBox, QMovie
 from qgis.core import *
 from qgis.utils import *
 
 # Initialize Qt resources from file resources.py
 import resources
 
-import sys
 import os.path
 from osgeo import gdal
 import subprocess

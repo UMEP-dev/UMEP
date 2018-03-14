@@ -20,21 +20,15 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QObject, pyqtSignal, QThread
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
-from PyQt4.QtCore import QThread
-# from qgis.gui import QgsMessageBar
 from qgis.gui import *
-from qgis.core import *
 from osgeo import osr, ogr
-# Import the code for the dialog
 from watch_dialog import WATCHDataDialog
 from calendar import monthrange
 import os.path
 import shutil
 import webbrowser
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QDate, QObject, pyqtSignal, QThread
-from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
 from ..Utilities.ncWMSConnector import NCWMS_Connector
 from WFDEIDownloader.WFDEI_Interpolator import *
 import traceback

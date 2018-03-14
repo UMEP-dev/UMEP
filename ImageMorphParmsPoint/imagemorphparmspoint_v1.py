@@ -20,13 +20,12 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import *  # QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QAction, QMessageBox, QProgressBar, QFileDialog
+from PyQt4.QtCore import QSettings, QTranslator, qVersion
+from PyQt4.QtGui import QAction, QMessageBox, QFileDialog
 from qgis.gui import *
 from qgis.core import *
 import os
 from ..Utilities import RoughnessCalcFunctionV2 as rg
-
 from osgeo import gdal
 import subprocess
 import webbrowser

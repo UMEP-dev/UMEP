@@ -4,32 +4,22 @@ Created on 10 apr 2014
 @author: nke
 '''
 # Import the PyQt and QGIS libraries
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt4.QtCore import pyqtSignal
 from qgis.core import *
 from qgis.gui import *
 
 
-
-
 class FeatureTool(QgsMapToolEmitPoint):
-    '''
-    classdocs
-    '''
+
     Feature = []
     selectedFeature = pyqtSignal()
-    
-
-
 
     def __init__(self, canvas):
         
         #Create a reference to the map canvas
         self.canvas = canvas
         QgsMapToolEmitPoint.__init__(self, self.canvas)
-    
 
-    
     def canvasPressEvent(self, e):
         currentLayer = self.canvas.currentLayer()
         point = self.toMapCoordinates(e.pos())
@@ -46,8 +36,6 @@ class FeatureTool(QgsMapToolEmitPoint):
               # while provider.nextFeature(feat):
                     #   if feat.geometry().intersects(pntGeom):
                          #      selectList.append(feat.id())
-                               
-                               
 
               # cLayer.setSelectedFeatures(selectList)
                 
@@ -58,7 +46,3 @@ class FeatureTool(QgsMapToolEmitPoint):
         #currentLayer.select(rect, True)
         #self.Feature = currentLayer.selectedFeatures()
         #self.selectedFeature.emit(self.Feature)
-        
-        
-        
-        

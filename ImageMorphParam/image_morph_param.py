@@ -20,7 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import *
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QThread, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
 from qgis.gui import *
 from qgis.core import *
@@ -32,7 +32,7 @@ from image_morph_param_dialog import ImageMorphParamDialog
 import webbrowser
 
 # Initialize Qt resources from file resources.py
-import resources_rc
+# import resources_rc
 
 class ImageMorphParam:
     """QGIS Plugin Implementation."""

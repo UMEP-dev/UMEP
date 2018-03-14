@@ -21,12 +21,9 @@
  ***************************************************************************/
 """
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import *
+from PyQt4.QtGui import QIcon, QAction, QFileDialog, QMessageBox
 from qgis.core import *
 from qgis.gui import *
-# Initialize Qt resources from file resources.py
-# import resources
-# Import the code for the dialog
 from solweig_analyzer_dialog import SolweigAnalyzerDialog
 import os
 import webbrowser
@@ -34,9 +31,6 @@ from osgeo import gdal
 from osgeo.gdalconst import *
 import numpy as np
 try:
-    # import matplotlib
-    # matplotlib.use("Agg")
-    # import matplotlib.animation as manimation
     import matplotlib.pylab as plt
     import matplotlib.dates as dt
     from matplotlib.dates import DayLocator, HourLocator, DateFormatter, drange
@@ -80,7 +74,6 @@ class SolweigAnalyzer:
         self.dlg.runButtonSpatial.clicked.connect(self.start_progress_spatial)
         self.dlg.runButtonPlot.clicked.connect(self.plotpoi)
         self.dlg.runButtonMovie.clicked.connect(self.movieshow)
-        # self.dlg.runButtonPOI.clicked.connect(self.start_progress_poi)
         self.dlg.pushButtonHelp.clicked.connect(self.help)
         self.dlg.pushButtonModelFolder.clicked.connect(self.folder_path_model)
         self.dlg.pushButtonSave.clicked.connect(self.folder_path_save)
@@ -88,8 +81,6 @@ class SolweigAnalyzer:
         self.dlg.comboBoxSpatialVariables.currentIndexChanged.connect(self.moviescale)
         self.fileDialog = QFileDialog()
 
-        # self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_buildings)
-        # RasterLayerCombo(self.dlg.comboBox_buildings, initLayer="")
         self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetBuildings)
         self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerDSM.setFixedWidth(175)
@@ -394,7 +385,6 @@ class SolweigAnalyzer:
             if file.startswith(self.var + '_') and file.endswith('.tif'):
                 self.posAll.append(index)
             index += 1
-        # QMessageBox.critical(self.dlg, "Error", str(self.posAll))
 
         index = 0
         for i in self.posAll:
@@ -420,7 +410,8 @@ class SolweigAnalyzer:
         index = 0
         for file in self.l:
             if file.startswith(self.var + '_'):
-                self.posAll.append(index)
+                if not file.endswith('_average.tif'):
+                    self.posAll.append(index)
                 if file.endswith('D.tif'):
                     self.posDay.append(index)
                 if file.endswith('N.tif'):
@@ -460,6 +451,7 @@ class SolweigAnalyzer:
         # Diurnal mean
         if self.dlg.checkboxMean.isChecked():
             index = 0
+            print self.posAll
             for i in self.posAll:
                 gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
                 grid = gdal_dsm.ReadAsArray().astype(np.float)

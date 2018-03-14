@@ -20,25 +20,14 @@
  *                                                                         *
  ***************************************************************************/
 """
-import tempfile
-
-from PyQt4 import QtCore
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt
 from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
-from qgis.core import QgsMessageLog,  QgsMapLayerRegistry, QgsRasterLayer
 from qgis.gui import QgsMessageBar
-
-# Initialize Qt resources from file resources.py
-# Import the code for the dialog
 from greater_qf_dialog import GreaterQFDialog
 from datetime import timedelta
 from datetime import datetime as dt
-# System
 import os.path
 import webbrowser
-from qgis.core import QgsVectorLayer
-from PyQt4.QtGui import QListWidgetItem
-from PyQt4.QtCore import QThread, Qt
 
 # GQF specific code
 from PythonQF2.Config import Config

@@ -20,13 +20,10 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QThread
-from PyQt4.QtGui import *
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QThread
+from PyQt4.QtGui import QFileDialog, QIcon, QAction, QMessageBox
 from qgis.core import *
 from qgis.gui import *
-# Initialize Qt resources from file resources.py
-# import resources
-# Import the code for the dialog
 from sebe_dialog import SEBEDialog
 import os.path
 from ..Utilities.misc import *

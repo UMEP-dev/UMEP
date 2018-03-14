@@ -20,7 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import *
+from PyQt4.QtCore import QSettings, QTranslator, qVersion
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
 from qgis.gui import *
 from qgis.core import *

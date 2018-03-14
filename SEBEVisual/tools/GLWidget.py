@@ -1,23 +1,14 @@
-import sys
 import math
 import os.path
-import sqlite3 as lite
 import numpy as np
-
 from modelworker import ModelWorker
-
 from PyQt4 import QtCore, QtGui, QtOpenGL
-from PyQt4.QtCore import *
-
+from PyQt4.QtCore import QThread
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL import GL
-
-
 from qgis.core import *
-#-----------
-# VARIABLES
-#-----------
+
 
 g_nearPlane = 1.
 g_farPlane = 1000.

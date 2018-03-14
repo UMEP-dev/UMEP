@@ -23,15 +23,11 @@
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
 from qgis.gui import QgsMessageBar
-# Initialize Qt resources from file resources.py
-# import resources
-# Import the code for the dialog
 from suews_dialog import SUEWSDialog
 import os.path
 import sys
 import webbrowser
 import urllib
-
 from ..Utilities import f90nml
 from ..suewsmodel import Suews_wrapper_v2017b
 

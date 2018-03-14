@@ -20,9 +20,9 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QVariant, QThread
-from PyQt4.QtGui import QAction, QIcon, QMessageBox, QImage, QLabel, QPixmap, QLineEdit, QFormLayout, QIntValidator, \
-    QGroupBox, QGridLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QFileDialog
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QThread
+from PyQt4.QtGui import QAction, QIcon, QMessageBox, QImage, QLabel, QPixmap, QLineEdit, QGridLayout, QVBoxLayout, \
+    QSpacerItem, QSizePolicy, QFileDialog
 from qgis.core import *
 from qgis.gui import *
 from qgis.utils import *

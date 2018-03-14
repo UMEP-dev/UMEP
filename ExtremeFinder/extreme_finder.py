@@ -22,15 +22,9 @@
 """
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
-from qgis.gui import *
-from osgeo import osr, ogr
-# from qgis.core import *
-# Initialize Qt resources from file resources.py
-# Import the code for the dialog
 from extreme_finder_dialog import ExtremeFinderDialog
 import os.path
 import webbrowser
-import shutil
 from ..Utilities import f90nml
 from HeatWave.findHW import *
 from HeatWave.plotHW import plotHW

@@ -20,8 +20,8 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt4.QtCore import QThread, QSettings, QTranslator, qVersion
+from PyQt4.QtGui import QFileDialog, QIcon, QAction, QMessageBox, QTableWidgetItem
 from qgis.core import *
 from qgis.gui import *
 import os
@@ -200,7 +200,7 @@ class LCZ_test:
         else:
             self.dlg.tableWidget.setEnabled(False)
     def color(self):
-        lcz_grid = self.layerComboManagerLCgrid.getLayer()
+        lcz_grid = self.layerComboManagerLCgrid.currentLayer()
         if lcz_grid is None:
             QMessageBox.critical(None, "Error", "No valid raster layer is selected")
             return
@@ -256,7 +256,7 @@ class LCZ_test:
             self.dlg.comboBox_24.setEnabled(True)
             self.dlg.comboBox_25.setEnabled(True)
             self.dlg.comboBox_26.setEnabled(True)
-            lcz_grid = self.layerComboManagerLCgrid.getLayer()
+            lcz_grid = self.layerComboManagerLCgrid.currentLayer()
             if lcz_grid is None:
                 QMessageBox.critical(None, "Error", "No valid raster layer is selected")
                 return
@@ -640,14 +640,14 @@ class LCZ_test:
                 
     def start_progress(self):
         self.steps = 0
-        poly = self.layerComboManagerPolygrid.getLayer()
+        poly = self.layerComboManagerPolygrid.currentLayer()
         if poly is None:
             QMessageBox.critical(None, "Error", "No valid Polygon layer is selected")
             return
         if not poly.geometryType() == 2:
             QMessageBox.critical(None, "Error", "No valid Polygon layer is selected")
             return
-        poly_field = self.layerComboManagerPolyField.getFieldName()
+        poly_field = self.layerComboManagerPolyField.currentField()
         if poly_field is None:
             QMessageBox.critical(None, "Error", "An attribute with unique fields/records must be selected")
             return
@@ -662,7 +662,7 @@ class LCZ_test:
         self.dlg.progressBar.setMaximum(vlayer.featureCount())
         dir_poly = self.plugin_dir + '/data/poly_temp.shp'
 
-        lc_grid = self.layerComboManagerLCgrid.getLayer()
+        lc_grid = self.layerComboManagerLCgrid.currentLayer()
         if lc_grid is None:
             QMessageBox.critical(None, "Error", "No valid raster layer is selected")
             return

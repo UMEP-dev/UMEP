@@ -20,8 +20,8 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QThread, QUrl
-from PyQt4.QtGui import *
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QThread
+from PyQt4.QtGui import QIcon, QAction, QFileDialog, QMessageBox
 from qgis.core import *
 from qgis.gui import *
 # Initialize Qt resources from file resources.py

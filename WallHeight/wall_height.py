@@ -22,16 +22,10 @@
 """
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QThread
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
-from qgis.gui import * #QgsMessageBar
+from qgis.gui import *
 from qgis.core import QgsMessageLog
-# Initialize Qt resources from file resources.py
-# import resources
-# Import the code for the dialog
 from wall_height_dialog import WallHeightDialog
 import os.path
-# from osgeo import gdal
-# from osgeo.gdalconst import *
-# import numpy as np
 import wallalgorithms as wa
 from ..Utilities.misc import *
 from wallworker import Worker
