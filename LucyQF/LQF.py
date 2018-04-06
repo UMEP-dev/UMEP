@@ -42,6 +42,7 @@ try:
 except:
     pass
 
+
 class LQF:
     """QGIS Plugin Implementation."""
 

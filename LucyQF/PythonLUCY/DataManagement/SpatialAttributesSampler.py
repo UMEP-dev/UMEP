@@ -112,7 +112,9 @@ class SpatialAttributesSampler(SpatialTemporalResampler):
                     area_info = pd.DataFrame(rawData).transpose()
                     if 'amountIntersected' not in area_info.columns:
                         continue
-                    inputValues = area_info.sort('amountIntersected', ascending=False).iloc[0].to_dict()
+                    # inputValues = area_info.sort('amountIntersected', ascending=False).iloc[0].to_dict()
+                    inputValues = area_info.sort_values('amountIntersected', ascending=False).iloc[0].to_dict()
+
                 # Calculate area-weighted average to get a single value for each output area
                 for field in fieldsToSample:
                     # If an output area is influenced by multiple input areas, and a subset of these is invalid,

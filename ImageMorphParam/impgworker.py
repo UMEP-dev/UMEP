@@ -297,6 +297,8 @@ class Worker(QtCore.QObject):
             for x in range(1, len(line_split)):
 
                 vlayer.dataProvider().addAttributes([QgsField(pre + '_' + line_split[x], QVariant.Double)])
+                vlayer.commitChanges()
+                vlayer.updateFields()
 
             attr_dict = {}
 

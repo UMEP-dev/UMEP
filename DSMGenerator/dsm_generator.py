@@ -30,6 +30,7 @@ import numpy as np
 from osgeo import gdal, ogr
 from dsm_generator_dialog import DSMGeneratorDialog
 import os.path
+import sys
 
 
 class DSMGenerator:
@@ -214,6 +215,11 @@ class DSMGenerator:
     def start_progress(self):
         import datetime
         start = datetime.datetime.now()
+        #Check OS and dep
+        if sys.platform == 'darwin':
+            gdal_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/'
+        else:
+            gdal_os_dep = ''
 
         if self.dlg.canvasButton.isChecked():
             # Map Canvas
@@ -382,10 +388,14 @@ class DSMGenerator:
 
             outputshp = self.plugin_dir + '/temp/'
 
-            osmToShape = 'ogr2ogr --config OSM_CONFIG_FILE "' + self.plugin_dir + '/osmconf.ini" -skipfailures -t_srs EPSG:' + str(rasEPSG) + ' -overwrite -nlt POLYGON -f "ESRI Shapefile" "' + outputshp + '" "' + osmPath + '"'
-            si = subprocess.STARTUPINFO()  # used to suppress cmd window
-            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            subprocess.call(osmToShape, startupinfo=si)
+            osmToShape = gdal_os_dep + 'ogr2ogr --config OSM_CONFIG_FILE "' + self.plugin_dir + '/osmconf.ini" -skipfailures -t_srs EPSG:' + str(rasEPSG) + ' -overwrite -nlt POLYGON -f "ESRI Shapefile" "' + outputshp + '" "' + osmPath + '"'
+
+            if sys.platform == 'win32':
+                si = subprocess.STARTUPINFO()
+                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                subprocess.call(osmToShape, startupinfo=si)
+            else:
+                os.system(osmToShape)
 
             driver = ogr.GetDriverByName('ESRI Shapefile')
             driver.DeleteDataSource(outputshp + 'lines.shp')
@@ -482,19 +492,24 @@ class DSMGenerator:
 
         # Create the destination data source
         
-        gdalrasterize = 'gdal_rasterize -a ' + 'height_asl' + ' -te ' + str(self.xMin) + ' ' + str(self.yMin) + ' ' + str(self.xMax) + ' ' + str(self.yMax) +\
+        gdalrasterize = gdal_os_dep + 'gdal_rasterize -a ' + 'height_asl' + ' -te ' + str(self.xMin) + ' ' + str(self.yMin) + ' ' + str(self.xMax) + ' ' + str(self.yMax) +\
                         ' -tr ' + str(pixel_size) + ' ' + str(pixel_size) + ' -l "' + str(polygon_ln) + '" "' \
                          + str(polygon_layer.source()) + '" "' + self.plugin_dir + '/temp/clipdsm.tif"'
 
-        gdalclipdem = 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(self.xMin) + ' ' + str(self.yMin) + ' ' + str(self.xMax) + ' ' + str(self.yMax) +\
+        gdalclipdem = gdal_os_dep + 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(self.xMin) + ' ' + str(self.yMin) + ' ' + str(self.xMax) + ' ' + str(self.yMax) +\
                       ' -tr ' + str(pixel_size) + ' ' + str(pixel_size) + \
                       ' -of GTiff ' + '"' + filepath_dem + '" "' + self.plugin_dir + '/temp/clipdem.tif"'
 
         # Rasterize
-        si = subprocess.STARTUPINFO() # used to suppress cmd window
-        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        subprocess.call(gdalrasterize, startupinfo=si)
-        subprocess.call(gdalclipdem, startupinfo=si)
+        if sys.platform == 'win32':
+            si = subprocess.STARTUPINFO()
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            subprocess.call(gdalrasterize, startupinfo=si)
+            subprocess.call(gdalclipdem, startupinfo=si)
+        else:
+            os.system(gdalrasterize)
+            os.system(gdalclipdem)
+
         self.dlg.progressBar.setValue(3)
 
         # Adding DSM to DEM

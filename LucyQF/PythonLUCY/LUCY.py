@@ -557,7 +557,8 @@ class Model():
 
                 # Sort the grid IDs into an order that allows data to be transformed quickly from series to grid
                 # [y_pos, x_pos]
-                correctIdOrder = map(intOrString, list(pd.DataFrame(mappings).transpose().sort([1,0]).index))
+                # correctIdOrder = map(intOrString, list(pd.DataFrame(mappings).transpose().sort([1,0]).index))
+                correctIdOrder = map(intOrString, list(pd.DataFrame(mappings).transpose().sort_values([1, 0]).index))
                 # Set up data arrays
                 for t in range(len(timesToUse)):
                     # Read output file and add it to netCDF. Re-order each on the fly and reshape to matrix

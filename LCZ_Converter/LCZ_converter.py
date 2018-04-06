@@ -713,7 +713,7 @@ class LCZ_test:
             # QMessageBox.information(None, "Image Morphometric Parameters",
             #                         "Process finished! Check General Messages (speech bubble, lower left) "
             #                         "to obtain information of the process.")
-            self.iface.messageBar().pushMessage("Land Cover Fraction Grid",
+            self.iface.messageBar().pushMessage("LCZ Converter",
                                     "Process finished! Check General Messages (speech bubble, lower left) "
                                     "to obtain information of the process.", duration=5)
         else:
@@ -722,8 +722,8 @@ class LCZ_test:
             self.dlg.runButton.clicked.connect(self.start_progress)
             self.dlg.closeButton.setEnabled(True)
             self.dlg.progressBar.setValue(0)
-            QMessageBox.information(None, "Land Cover Fraction Grid", "Operations cancelled, "
-                                                                           "process unsuccessful! See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.")
+            QMessageBox.information(None, "LCZ Converter", "Operations cancelled, "
+                    "process unsuccessful! See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.")
 
     def workerError(self, errorstring):
         #strerror = "Worker thread raised an exception: " + str(e)

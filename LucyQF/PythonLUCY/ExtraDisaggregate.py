@@ -133,7 +133,9 @@ def performSampling(layerToSample, idField, fieldsToSample, intersectedAmounts):
             # Take attribute from input area that most intersects the output area
             if 'amountIntersected' not in area_info.columns:
                 continue
-            inputId = area_info.sort('amountIntersected', ascending=False).index[0]
+            # inputId = area_info.sort('amountIntersected', ascending=False).index[0]
+            inputId = area_info.sort_values('amountIntersected', ascending=False).index[0]
+
         for field in fieldsToSample:
             result[field].loc[oa] = atts[field].loc[inputId] # Produces a data frame of the weighted contribution from each input ID, then does col sums
 
