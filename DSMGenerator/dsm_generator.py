@@ -195,7 +195,7 @@ class DSMGenerator:
 
     # Help button
     def help(self):
-        url = "http://www.urban-climate.net/umep/UMEP_Manual#Spatial_Data:_DSM_Generator"
+        url = "http://umep-docs.readthedocs.io/en/latest/pre-processor/Spatial%20Data%20DSM%20Generator.html"
         webbrowser.open_new_tab(url)
 
     def unload(self):

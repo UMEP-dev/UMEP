@@ -567,6 +567,6 @@ class SEBE:
         self.dlg.exec_()
 
     def help(self):
-        # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = "http://www.urban-climate.net/umep/UMEP_Manual#Solar_Radiation:_Solar_Energy_on_Building_Envelopes_.28SEBE.29"
+        url = "http://umep-docs.readthedocs.io/en/latest/processor/Solar%20Radiation%20Solar%20Energy%20on%20" \
+              "Building%20Envelopes%20(SEBE).html"
         webbrowser.open_new_tab(url)

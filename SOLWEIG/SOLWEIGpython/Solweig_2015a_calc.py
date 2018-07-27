@@ -18,7 +18,7 @@ def Solweig_2015a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, s
                        landcover, lc_grid, dectime, altmax, dirwalls, walls, cyl, elvis, Ta, RH, radG, radD, radI, P,
                        amaxvalue, bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
                        TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
-                       timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI):
+                       timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, TgOut1):
 
     # This is the core function of the SOLWEIG model
     # 2016-Aug-28
@@ -144,6 +144,10 @@ def Solweig_2015a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, s
         LupW, timeaddW, Tgmap1W = TsWaveDelay_2015a(gvfLupW, firstdaytime, timeaddW, timestepdec, Tgmap1W)
         LupN, timeaddN, Tgmap1N = TsWaveDelay_2015a(gvfLupN, firstdaytime, timeaddN, timestepdec, Tgmap1N)
 
+        # # For Tg output in POIs
+        TgTemp = Tg * shadow + Ta
+        TgOut, timeadd, TgOut1 = TsWaveDelay_2015a(TgTemp, firstdaytime, timeadd, timestepdec, TgOut1)
+
         # Building height angle from svf
         F_sh = cylindric_wedge(zen, svfalfa, rows, cols)  # Fraction shadow on building walls based on sun altitude and svf
         F_sh[np.isnan(F_sh)] = 0.5
@@ -189,6 +193,9 @@ def Solweig_2015a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, s
         LupW = Lup
         LupN = Lup
 
+        # # For Tg output in POIs
+        TgOut = Ta + Tg
+
         I0 = 0
         timeadd = 0
         firstdaytime = 1
@@ -229,4 +236,4 @@ def Solweig_2015a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, s
 
     return Tmrt, Kdown, Kup, Ldown, Lup, Tg, ea, esky, I0, CI, shadow, firstdaytime, timestepdec, \
            timeadd, Tgmap1, timeaddE, Tgmap1E, timeaddS, Tgmap1S, timeaddW, Tgmap1W, timeaddN, Tgmap1N, \
-           Keast, Ksouth, Kwest, Knorth, Least, Lsouth, Lwest, Lnorth, KsideI
+           Keast, Ksouth, Kwest, Knorth, Least, Lsouth, Lwest, Lnorth, KsideI, TgOut1, TgOut

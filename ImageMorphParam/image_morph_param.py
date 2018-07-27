@@ -377,7 +377,6 @@ class ImageMorphParam:
         gdal.AllRegister()
 
     def help(self):
-        # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = "http://www.urban-climate.net/umep/UMEP_Manual#Urban_Morphology:" \
-              "_Image_Morphometric_Parameter_Calculator_.28Grid.29"
+        url = "http://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Morphology%20Morphometric%20" \
+              "Calculator%20(Grid).html"
         webbrowser.open_new_tab(url)

@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>464</width>
-    <height>553</height>
+    <width>491</width>
+    <height>547</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>SUEWS</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
+  <layout class="QGridLayout" name="gridLayout_4">
    <item row="0" column="0">
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
@@ -350,165 +350,170 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="4" column="4">
-       <widget class="QLineEdit" name="OutputRes">
-        <property name="maxLength">
-         <number>8</number>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="2">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="7" column="4">
-       <widget class="QLineEdit" name="FileCode">
-        <property name="maxLength">
-         <number>8</number>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="1" colspan="3">
-       <widget class="QLabel" name="label_35">
-        <property name="text">
-         <string>File code (e.g. SS):</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring></cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="0">
-       <widget class="QPushButton" name="helpButton">
-        <property name="text">
-         <string>Help</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0" colspan="5">
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
        <widget class="QCheckBox" name="checkBoxSnow">
         <property name="text">
          <string>Use snow module</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="0" colspan="3">
-       <widget class="QCheckBox" name="checkBoxCBL">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Couple with convective boundary model</string>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="0">
-       <widget class="QPushButton" name="pushButtonCBL">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>CBL setup</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="5">
-       <widget class="QPushButton" name="pushButtonLoad">
-        <property name="text">
-         <string>Input folder</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="5">
-       <widget class="QPushButton" name="pushButtonSave">
-        <property name="text">
-         <string>Output folder</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="5">
-       <widget class="QPushButton" name="runButton">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="text">
-         <string>Run</string>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="5">
-       <widget class="QPushButton" name="closeButton">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="text">
-         <string>Close</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="2" colspan="3">
-       <widget class="QLineEdit" name="textInput"/>
-      </item>
-      <item row="9" column="2" colspan="3">
-       <widget class="QLineEdit" name="textOutput"/>
-      </item>
-      <item row="3" column="4">
-       <widget class="QLineEdit" name="InputRes">
-        <property name="maxLength">
-         <number>8</number>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0" colspan="3">
-       <widget class="QLabel" name="label_38">
-        <property name="text">
-         <string>Temporal resolution of forcing data (minutes):</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring></cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1" colspan="2">
-       <widget class="QLabel" name="label_37">
-        <property name="text">
-         <string>Temporal resolution of output (minutes):</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring></cstring>
-        </property>
-       </widget>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QCheckBox" name="checkBoxFromSP">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="text">
+           <string>Obtain temporal resolution of forcing data and file code from input folder</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_38">
+          <property name="text">
+           <string>Temporal resolution of forcing data (minutes):</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="buddy">
+           <cstring></cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="InputRes">
+          <property name="maxLength">
+           <number>8</number>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_37">
+          <property name="text">
+           <string>Temporal resolution of output (minutes):</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="buddy">
+           <cstring></cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="OutputRes">
+          <property name="maxLength">
+           <number>8</number>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_35">
+          <property name="text">
+           <string>File code (e.g. SS):</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="buddy">
+           <cstring></cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="FileCode">
+          <property name="maxLength">
+           <number>8</number>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QCheckBox" name="checkBoxSpinup">
+     <property name="text">
+      <string>Apply spin-up using existing meteorological data (only possible if one full year of data is used)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <layout class="QGridLayout" name="gridLayout_3">
+     <item row="0" column="0" colspan="2">
+      <widget class="QLineEdit" name="textInput"/>
+     </item>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="pushButtonLoad">
+       <property name="text">
+        <string>Input folder</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="2">
+      <widget class="QLineEdit" name="textOutput"/>
+     </item>
+     <item row="1" column="2">
+      <widget class="QPushButton" name="pushButtonSave">
+       <property name="text">
+        <string>Output folder</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QPushButton" name="runButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Run</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QPushButton" name="helpButton">
+       <property name="text">
+        <string>Help</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="3" column="2">
+      <widget class="QPushButton" name="closeButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
@@ -521,28 +526,76 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>365</x>
-     <y>540</y>
+     <x>486</x>
+     <y>503</y>
     </hint>
     <hint type="destinationlabel">
      <x>406</x>
-     <y>568</y>
+     <y>521</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxCBL</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>pushButtonCBL</receiver>
-   <slot>setEnabled(bool)</slot>
+   <sender>checkBoxFromSP</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>label_35</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>116</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>237</x>
+     <y>378</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxFromSP</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>label_38</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>44</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>83</x>
+     <y>326</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxFromSP</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>InputRes</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>51</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>411</x>
+     <y>326</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxFromSP</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>FileCode</receiver>
+   <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>42</x>
-     <y>310</y>
+     <y>299</y>
     </hint>
     <hint type="destinationlabel">
-     <x>53</x>
-     <y>341</y>
+     <x>411</x>
+     <y>378</y>
     </hint>
    </hints>
   </connection>

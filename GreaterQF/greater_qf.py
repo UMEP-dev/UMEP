@@ -174,7 +174,7 @@ class GreaterQF:
         self.model.setPreProcessedInputFolder(processed)
 
     def help(self):
-        url = "http://urban-climate.net/umep/UMEP_Manual#Urban_Energy_Balance:_GQF"
+        url = "http://umep-docs.readthedocs.io/en/latest/processor/Urban%20Energy%20Balance%20GQ.html"
         webbrowser.open_new_tab(url)
 
     def visualise(self):

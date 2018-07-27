@@ -236,7 +236,7 @@ class ExtremeFinder:
 
 
     def help(self):
-        url = "http://urban-climate.net/umep/UMEP_Manual#Outdoor_Thermal_Comfort:_ExtremeFinder"
+        url = "http://umep-docs.readthedocs.io/en/latest/processor/Outdoor%20Thermal%20Comfort%20ExtremeFinder.html"
         webbrowser.open_new_tab(url)
 
     def run(self):

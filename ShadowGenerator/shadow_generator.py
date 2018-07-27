@@ -391,14 +391,10 @@ class ShadowGenerator:
             rlayer.triggerRepaint()
 
     def run(self):
-        """Run method that performs all the real work"""
-        # show the dialog
         self.dlg.show()
-        # Run the dialog event loop
         self.dlg.exec_()
 
     def help(self):
-        # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = "http://www.urban-climate.net/umep/UMEP_Manual#Solar_Radiation:_Daily_Shadow_Pattern"
+        url = "http://umep-docs.readthedocs.io/en/latest/processor/Solar%20Radiation%20Daily%20Shadow%20Pattern.html"
         webbrowser.open_new_tab(url)
 

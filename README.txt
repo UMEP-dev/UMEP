@@ -5,11 +5,11 @@ official plugin repository but in the mean time, it can be downloaded from here
 or from our own plugin repository. 
 
 Instructions on how to install UMEP can be found at:
-http://urban-climate.net/umep/UMEP_Manual#UMEP:_Getting_Started
+http://umep-docs.readthedocs.io/en/latest/Getting_Started.html
 
 Join our email list to keep updated:
 http://www.lists.rdg.ac.uk/mailman/listinfo/met-umep 
 
 Visit out website:
-http://www.urban-climate.net/umep/
+http://umep-docs.readthedocs.io/en/latest/index.html
 

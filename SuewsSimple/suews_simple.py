@@ -26,7 +26,7 @@ from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
 from qgis.core import *
 from qgis.gui import *
 from suews_simple_dialog import SuewsSimpleDialog
-from ..suewsmodel import Suews_wrapper_v2017b
+from ..suewsmodel import Suews_wrapper_v2018a
 from ..ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
 from ..LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
 from ..Utilities import f90nml
@@ -182,8 +182,7 @@ class SuewsSimple:
         del self.toolbar
 
     def run(self):
-        # print self.model_dir
-        if not (os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2017b') or os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2017b.exe')):
+        if not (os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2018a') or os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2018a.exe')):
             # QMessageBox.information(self.iface.mainWindow(),
             if QMessageBox.question(self.iface.mainWindow(), "OS specific binaries missing",
                                  "Before you start to use this plugin for the very first time, the OS specific suews\r\n"
@@ -203,8 +202,8 @@ class SuewsSimple:
                 if sys.platform == 'win32':
                     # print self.model_dir + os.sep + 'SUEWS_V2017b.exe'
                     # testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/win/SUEWS_V2017b.exe', self.model_dir + os.sep + 'SUEWS_V2017b.exe')
-                    urllib.urlretrieve('http://www.urban-climate.net/umep/repo/nib/win/SUEWS_V2017b.exe',
-                                      self.model_dir + os.sep + 'SUEWS_V2017b.exe')
+                    urllib.urlretrieve('http://www.urban-climate.net/umep/repo/nib/win/SUEWS_V2018a.exe',
+                                      self.model_dir + os.sep + 'SUEWS_V2018a.exe')
                     # testfile2 = urllib.URLopener()
                     # testfile2.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cyggcc_s-seh-1.dll', self.model_dir + os.sep + 'cyggcc_s-seh-1.dll')
                     # testfile3 = urllib.URLopener()
@@ -214,9 +213,9 @@ class SuewsSimple:
                     # testfile5 = urllib.URLopener()
                     # testfile5.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cygwin1.dll', self.model_dir + os.sep + 'cygwin1.dll')
                 if sys.platform == 'linux2':
-                    urllib.urlretrieve('http://www.urban-climate.net/umep/repo/nib/linux/SUEWS_V2017b', self.model_dir + os.sep + 'SUEWS_V2017b')
+                    urllib.urlretrieve('http://www.urban-climate.net/umep/repo/nib/linux/SUEWS_V2018a', self.model_dir + os.sep + 'SUEWS_V2018a')
                 if sys.platform == 'darwin':
-                    urllib.urlretrieve('http://www.urban-climate.net/umep/repo/nib/mac/SUEWS_V2017b', self.model_dir + os.sep + 'SUEWS_V2017b')
+                    urllib.urlretrieve('http://www.urban-climate.net/umep/repo/nib/mac/SUEWS_V2018a', self.model_dir + os.sep + 'SUEWS_V2018a')
             else:
                 QMessageBox.critical(self.iface.mainWindow(), "Binaries not downloaded", "This plugin will not be able to start before binaries are downloaded")
                 return
@@ -428,7 +427,7 @@ class SuewsSimple:
         self.dlg.lineEdit_paiBuild.setText(lines[14])
         self.dlg.lineEdit_zHveg.setText(str((float(lines[24]) + float(lines[25])) / 2))
         self.dlg.lineEdit_faiveg.setText(str((float(lines[29]) + float(lines[30])) / 2))
-        self.dlg.lineEdit_paiveg.setText(str((float(lines[15]) + float(lines[16])) / 2))
+        self.dlg.lineEdit_paiveg.setText(str(float(lines[15]) + float(lines[16])))
         self.dlg.Latitude.setText(lines[4])
         self.dlg.Longitude.setText(lines[5])
         self.dlg.PopDensNight.setText(lines[32])
@@ -578,87 +577,6 @@ class SuewsSimple:
         nml['runcontrol']['fileinputpath'] = self.model_dir + '/Input/'
         nml.write(self.model_dir + '/RunControl.nml', force=True)
 
-        # # Initial conditions
-        # DaysSinceRain = self.dlg.DaysSinceRain.text()
-        # DailyMeanT = self.dlg.DailyMeanT.text()
-        # LeafCycle = self.dlg.comboBoxLeafCycle.currentIndex()
-        # SoilMoisture = self.dlg.spinBoxSoilMoisture.value()
-        # moist = int(SoilMoisture * 1.5)
-        #
-        # nml = f90nml.read(self.model_dir + '/BaseFiles/InitialConditionsKc_2012.nml')
-        # # nml['initialconditions']['dayssincerain'] = int(DaysSinceRain)
-        # # nml['initialconditions']['temp_c0'] = float(DailyMeanT)
-        # nml['initialconditions']['soilstorepavedstate'] = moist
-        # nml['initialconditions']['soilstorebldgsstate'] = moist
-        # nml['initialconditions']['soilstoreevetrstate'] = moist
-        # nml['initialconditions']['soilstoredectrstate'] = moist
-        # nml['initialconditions']['soilstoregrassstate'] = moist
-        # nml['initialconditions']['soilstorebsoilstate'] = moist
-        #
-        # # f = open(inmetfile, 'r')
-        # # lin = f.readlines()
-        # # index = 1
-        # # lines = np.array(lin[index].split())
-        # # nml['initialconditions']['id_prev'] = int(lines[1]) - 1
-        # # f.close()
-        #
-        # if not (LeafCycle == 1 or LeafCycle == 5):
-        #     self.iface.messageBar().pushMessage("Warning", "A transition period between Winter and Summer has been "
-        #                                                    "choosen. Preferably start the model run during Winter or "
-        #                                                    "Summer.", level=QgsMessageBar.WARNING)
-        #
-        # # nml = self.leaf_cycle(nml,LeafCycle) ### TRY THIS LATER
-        # if LeafCycle == 1:  # Winter
-        #     nml['initialconditions']['gdd_1_0'] = 0
-        #     nml['initialconditions']['gdd_2_0'] = -450
-        #     nml['initialconditions']['laiinitialevetr'] = 4
-        #     nml['initialconditions']['laiinitialdectr'] = 1
-        #     nml['initialconditions']['laiinitialgrass'] = 1.6
-        # elif LeafCycle == 2:
-        #     nml['initialconditions']['gdd_1_0'] = 50
-        #     nml['initialconditions']['gdd_2_0'] = -400
-        #     nml['initialconditions']['laiinitialevetr'] = 4.2
-        #     nml['initialconditions']['laiinitialdectr'] = 2.0
-        #     nml['initialconditions']['laiinitialgrass'] = 2.6
-        # elif LeafCycle == 3:
-        #     nml['initialconditions']['gdd_1_0'] = 150
-        #     nml['initialconditions']['gdd_2_0'] = -300
-        #     nml['initialconditions']['laiinitialevetr'] = 4.6
-        #     nml['initialconditions']['laiinitialdectr'] = 3.0
-        #     nml['initialconditions']['laiinitialgrass'] = 3.6
-        # elif LeafCycle == 4:
-        #     nml['initialconditions']['gdd_1_0'] = 225
-        #     nml['initialconditions']['gdd_2_0'] = -150
-        #     nml['initialconditions']['laiinitialevetr'] = 4.9
-        #     nml['initialconditions']['laiinitialdectr'] = 4.5
-        #     nml['initialconditions']['laiinitialgrass'] = 4.6
-        # elif LeafCycle == 5:  # Summer
-        #     nml['initialconditions']['gdd_1_0'] = 300
-        #     nml['initialconditions']['gdd_2_0'] = 0
-        #     nml['initialconditions']['laiinitialevetr'] = 5.1
-        #     nml['initialconditions']['laiinitialdectr'] = 5.5
-        #     nml['initialconditions']['laiinitialgrass'] = 5.9
-        # elif LeafCycle == 6:
-        #     nml['initialconditions']['gdd_1_0'] = 225
-        #     nml['initialconditions']['gdd_2_0'] = -150
-        #     nml['initialconditions']['laiinitialevetr'] = 4.9
-        #     nml['initialconditions']['laiinitialdectr'] = 4,5
-        #     nml['initialconditions']['laiinitialgrass'] = 4.6
-        # elif LeafCycle == 7:
-        #     nml['initialconditions']['gdd_1_0'] = 150
-        #     nml['initialconditions']['gdd_2_0'] = -300
-        #     nml['initialconditions']['laiinitialevetr'] = 4.6
-        #     nml['initialconditions']['laiinitialdectr'] = 3.0
-        #     nml['initialconditions']['laiinitialgrass'] = 3.6
-        # elif LeafCycle == 8:  # Late Autumn
-        #     nml['initialconditions']['gdd_1_0'] = 50
-        #     nml['initialconditions']['gdd_2_0'] = -400
-        #     nml['initialconditions']['laiinitialevetr'] = 4.2
-        #     nml['initialconditions']['laiinitialdectr'] = 2.0
-        #     nml['initialconditions']['laiinitialgrass'] = 2.6
-        #
-        # nml.write(self.model_dir + '/Input/InitialConditions' + str(filecode) + str(gridcode) + '_' + str(YYYY) + '.nml', force=True)
-
         initfilein = self.model_dir + '/BaseFiles/InitialConditionsKc_2012.nml'
         initfileout = self.model_dir + '/Input/InitialConditions' + str(filecode) + '_' + str(YYYY) + '.nml'
         self.write_to_init(initfilein, initfileout)
@@ -669,9 +587,9 @@ class SuewsSimple:
         QMessageBox.information(self.dlg,
                                 "Model information", "Model run will now start. QGIS might freeze during calcualtion."
                                 "This will be fixed in future versions")
-        # Suews_wrapper_v2017b.wrapper(self.model_dir)
+        # Suews_wrapper_v2018a.wrapper(self.model_dir)
         try:
-            Suews_wrapper_v2017b.wrapper(self.model_dir)
+            Suews_wrapper_v2018a.wrapper(self.model_dir)
             time.sleep(1)
             self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.model_dir + " for "
                             "additional information about the run", level=QgsMessageBar.INFO)
@@ -681,6 +599,8 @@ class SuewsSimple:
                                         "Also check problems.txt in " + self.model_dir + "\r\n\r\n"
                                         "Please report any errors to https://bitbucket.org/fredrik_ucg/umep/issues")
             return
+
+        shutil.copy(self.model_dir + '/RunControl.nml', outfolder + '/RunControl.nml')
 
     def write_to_init(self, initfilein, initfileout):
         LeafCycle = self.dlg.comboBoxLeafCycle.currentIndex()
@@ -794,8 +714,8 @@ class SuewsSimple:
         nml.write(initfileout, force=True)
 
     def help(self):
-        # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Urban_Energy_Balance:_Urban_Energy_Balance_.28SUEWS.2C_simple.29'
+        url = 'http://umep-docs.readthedocs.io/en/latest/processor/Urban%20Energy%20Balance%20Urban%20Energy%20' \
+              'Balance%20(SUEWS,%20simple).html'
         webbrowser.open_new_tab(url)
 
     # def startWorker(self, iface, model_dir, dlg):

@@ -24,12 +24,13 @@ from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
 from qgis.gui import QgsMessageBar
 from suews_dialog import SUEWSDialog
-import os.path
+import os
+import shutil
 import sys
 import webbrowser
 import urllib
 from ..Utilities import f90nml
-from ..suewsmodel import Suews_wrapper_v2017b
+from ..suewsmodel import Suews_wrapper_v2018a
 
 
 class SUEWS:
@@ -152,7 +153,7 @@ class SUEWS:
         # del self.toolbar
 
     def run(self):
-        if not (os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2017b') or os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2017b.exe')):
+        if not (os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2018a') or os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2018a.exe')):
             if QMessageBox.question(self.iface.mainWindow(), "OS specific binaries missing",
                                     "Before you start to use this plugin for the very first time, the OS specific suews\r\n"
                                     "program (4Mb) must be be download from the UMEP repository and stored\r\n"
@@ -170,8 +171,8 @@ class SUEWS:
                                     QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
                 # testfile = urllib.URLopener()
                 if sys.platform == 'win32':
-                    urllib.urlretrieve('http://www.urban-climate.net/umep/repo/nib/win/SUEWS_V2017b.exe',
-                                      self.model_dir + os.sep + 'SUEWS_V2017b.exe')
+                    urllib.urlretrieve('http://www.urban-climate.net/umep/repo/nib/win/SUEWS_V2018a.exe',
+                                      self.model_dir + os.sep + 'SUEWS_V2018a.exe')
                     # testfile2 = urllib.URLopener()
                     # testfile2.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cyggcc_s-seh-1.dll',
                     #                    self.model_dir + os.sep + 'cyggcc_s-seh-1.dll')
@@ -185,11 +186,11 @@ class SUEWS:
                     # testfile5.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cygwin1.dll',
                     #                    self.model_dir + os.sep + 'cygwin1.dll')
                 if sys.platform == 'linux2':
-                    urllib.urlretrieve('http://www.urban-climate.net/umep/repo/nib/linux/SUEWS_V2017b',
-                                      self.model_dir + os.sep + 'SUEWS_V2017b')
+                    urllib.urlretrieve('http://www.urban-climate.net/umep/repo/nib/linux/SUEWS_V2018a',
+                                      self.model_dir + os.sep + 'SUEWS_V2018a')
                 if sys.platform == 'darwin':
-                    urllib.urlretrieve('http://www.urban-climate.net/umep/repo/nib/mac/SUEWS_V2017b',
-                                      self.model_dir + os.sep + 'SUEWS_V2017b')
+                    urllib.urlretrieve('http://www.urban-climate.net/umep/repo/nib/mac/SUEWS_V2018a',
+                                      self.model_dir + os.sep + 'SUEWS_V2018a')
 
             else:
                 QMessageBox.critical(self.iface.mainWindow(), "Binaries not downloaded",
@@ -200,8 +201,8 @@ class SUEWS:
         self.dlg.exec_()
 
     def help(self):
-        # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = "http://www.urban-climate.net/umep/UMEP_Manual#Urban_Energy_Balance:_Urban_Energy_Balance_.28SUEWS.2FBLUEWS.2C_advanced.29"
+        url = "http://umep-docs.readthedocs.io/en/latest/processor/Urban%20Energy%20Balance%20Urban%20Energy%20" \
+              "Balance%20(SUEWS.BLUEWS,%20advanced).html"
         webbrowser.open_new_tab(url)
 
     def folder_path_out(self):
@@ -228,10 +229,21 @@ class SUEWS:
         plotnml.write(self.model_dir + '/plot.nml', force=True)
 
         # Create modified RunControl
-        inputRes = self.dlg.InputRes.text()
-        outputRes = self.dlg.OutputRes.text()
-        filecode = self.dlg.FileCode.text()
         infolder = self.dlg.textInput.text()
+        if self.dlg.checkBoxFromSP.isChecked():
+            for file in os.listdir(infolder):
+                if 'data' in file:
+                    filenamemetdata = file
+
+            underscorePos = ([pos for pos, char in enumerate(filenamemetdata) if char == '_'])
+            numunderscores = underscorePos.__len__()
+            inputRes = filenamemetdata[underscorePos[numunderscores - 1] + 1:filenamemetdata.find('.')]
+            filecode = filenamemetdata[0:underscorePos[0]]
+        else:
+            inputRes = self.dlg.InputRes.text()
+            filecode = self.dlg.FileCode.text()
+
+        outputRes = self.dlg.OutputRes.text()
         outfolder = self.dlg.textOutput.text()
         AeroD = self.dlg.comboBoxAeroD.currentIndex()
         Net = self.dlg.comboBoxNet.currentIndex()
@@ -247,10 +259,10 @@ class SUEWS:
         else:
             usesnow = 0
 
-        if self.dlg.checkBoxCBL.isChecked():
-            usecbl = 1
-        else:
-            usecbl = 0
+        # if self.dlg.checkBoxCBL.isChecked():
+        #     usecbl = 1
+        # else:
+        usecbl = 0
 
         # if self.dlg.checkBoxSOLWEIG.isChecked():
         #     usesolweig = 1
@@ -258,18 +270,18 @@ class SUEWS:
         usesolweig = 0
 
         nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
-        nml['runcontrol']['AnthropHeatMethod'] = int(Qf)
         nml['runcontrol']['CBLuse'] = int(usecbl)
-        nml['runcontrol']['NetRadiationMethod'] = int(Net)
-        nml['runcontrol']['RoughLenHeatMethod'] = int(Z0) + 1
-        nml['runcontrol']['StorageHeatMethod'] = int(Qs) + 1
-        nml['runcontrol']['OHMIncQF'] = int(OHM)
-        nml['runcontrol']['SMDMethod'] = int(SMD)
-        nml['runcontrol']['StabilityMethod'] = int(Stab) + 2
-        nml['runcontrol']['WaterUseMethod'] = int(WU)
-        nml['runcontrol']['RoughLenMomMethod'] = int(AeroD) + 1
         nml['runcontrol']['SnowUse'] = int(usesnow)
-        nml['runcontrol']['SOLWEIGuse'] = int(usesolweig)
+        nml['runcontrol']['NetRadiationMethod'] = int(Net)
+        nml['runcontrol']['EmissionsMethod'] = int(Qf)
+        nml['runcontrol']['OHMIncQF'] = int(OHM)
+        nml['runcontrol']['StabilityMethod'] = int(Stab) + 2
+        nml['runcontrol']['StorageHeatMethod'] = int(Qs) + 1
+        nml['runcontrol']['RoughLenMomMethod'] = int(AeroD) + 1
+        nml['runcontrol']['RoughLenHeatMethod'] = int(Z0) + 1
+        nml['runcontrol']['SMDMethod'] = int(SMD)
+        nml['runcontrol']['WaterUseMethod'] = int(WU)
+        # nml['runcontrol']['SOLWEIGuse'] = int(usesolweig)
         nml['runcontrol']['fileCode'] = str(filecode)
         nml['runcontrol']['fileinputpath'] = str(infolder) + "/"
         nml['runcontrol']['fileoutputpath'] = str(outfolder) + "/"
@@ -280,17 +292,96 @@ class SUEWS:
 
         # TODO: Put suews in a worker
         # self.startWorker(self.iface, self.plugin_dir, self.dlg)
-        QMessageBox.information(None, "Model information", "Model run will now start. QGIS might freeze during calcualtion."
-                                                           "This will be fixed in future versions")
-        Suews_wrapper_v2017b.wrapper(self.model_dir)
+        if self.dlg.checkBoxSpinup.isChecked():
+            # Open SiteSelect to get year and gridnames
+            sitein = infolder + "/" + 'SUEWS_SiteSelect.txt'
+            fs = open(sitein)
+            lin = fs.readlines()
+            index = 3
+            gridcode = ''
+            lines = lin[index].split()
+            yyyy = int(lines[1])
+
+            if (yyyy % 4) == 0:
+                if (yyyy % 100) == 0:
+                    if (yyyy % 400) == 0:
+                        leapyear = 1
+                        minperyear = 527040
+                    else:
+                        leapyear = 0
+                        minperyear = 525600
+                else:
+                    leapyear = 1
+                    minperyear = 527040
+            else:
+                leapyear = 0
+                minperyear = 525600
+
+            count = 0
+            for line in open(infolder + "/" + filecode + "_" + str(yyyy) + "_data_" + inputRes + ".txt").xreadlines(): count += 1
+
+            linesperyear = int(minperyear / 60.)
+
+            if (count - 1) == linesperyear:
+                QMessageBox.information(None, "Model information", "Model run will now start. QGIS might freeze during "
+                                                           "calcualtion. This will be fixed in future versions. As spin-up"
+                                                                   "is choosen model will run twice (double computation time required).")
+            else:
+                QMessageBox.critical(None, "Error in spin-up", "The meteorological forcing data is not one year long."
+                                                               "Either adjust your file or run without spin-up.")
+                return
+        else:
+            QMessageBox.information(None, "Model information", "Model run will now start. QGIS might freeze during "
+                                                               "calcualtion. This will be fixed in future versions.")
+
         try:
-            # Suews_wrapper_v2016b.wrapper(self.model_dir)
-            self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.model_dir + " for "
-                            "additional information about the run", level=QgsMessageBar.INFO)
+            Suews_wrapper_v2018a.wrapper(self.model_dir)
+
+            # Use spin up:
+            if self.dlg.checkBoxSpinup.isChecked():
+
+                nml = f90nml.read(self.model_dir + '/RunControl.nml')
+                nml['runcontrol']['multipleinitfiles'] = int(1)
+                nml.write(self.model_dir + '/RunControl.nml', force=True)
+
+                # Open SiteSelect to get year and gridnames
+                sitein = infolder + "/" + 'SUEWS_SiteSelect.txt'
+                fs = open(sitein)
+                lin = fs.readlines()
+                index = 2
+                gridcode = ''
+                while gridcode != '-9':
+                    lines = lin[index].split()
+                    yyyy = int(lines[1])
+                    gridcode = lines[0]
+
+                    # if os.path.isfile(infolder + '/InitialConditions' + filecode + '_' + str(yyyy) + '.nml'):
+                    #     os.remove(infolder + '/InitialConditions' + filecode + '_' + str(yyyy) + '.nml')
+
+                    os.rename(infolder + '/InitialConditions' + filecode + gridcode + '_' + str(yyyy + 1) + '.nml',
+                              infolder + '/InitialConditions' + filecode + gridcode + '_' + str(yyyy) + '.nml')
+                    index += 1
+                    lines = lin[index].split()
+                    gridcode = lines[0]
+
+                for filename in os.listdir(outfolder):
+                    filepath = os.path.join(outfolder, filename)
+                    try:
+                        shutil.rmtree(filepath)
+                    except OSError:
+                        os.remove(filepath)
+
+                fs.close()
+
+                Suews_wrapper_v2018a.wrapper(self.model_dir)
+
         except Exception as e:
             QMessageBox.critical(None, "An error occurred", str(e) + "\r\n\r\n"
-                                        "Also check problems.txt in " + self.model_dir + "\r\n\r\n"
-                                        "Please report any errors to https://bitbucket.org/fredrik_ucg/umep/issues")
+                                       "Also check problems.txt in " + self.model_dir + "\r\n\r\n"
+                                       "Please report any errors to https://bitbucket.org/fredrik_ucg/umep/issues")
             return
 
-        #  QMessageBox.information(None, "Image Morphometric Parameters", "Process successful!")
+        # print outfolder
+        shutil.copy(self.model_dir + '/RunControl.nml', outfolder + '/RunControl.nml')
+        self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.model_dir +
+                                            " for additional information about the run", level=QgsMessageBar.INFO)

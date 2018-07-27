@@ -646,14 +646,12 @@ class SkyViewFactorCalculator:
             # load result into canvas
 
     def run(self):
-        """Run method that performs all the real work"""
         self.dlg.show()
         self.dlg.exec_()
 
     def help(self):
-        # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Urban_Geometry:_Sky_View_Factor_Calculator'
-        # QDesktopServices.openUrl(QUrl(url))
+        url = 'http://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Geometry%20Sky%20View%20Factor%20' \
+              'Calculator.html'
         webbrowser.open_new_tab(url)
 
 

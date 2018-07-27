@@ -213,6 +213,7 @@ class Worker(QtCore.QObject):
             poiname = self.poiname
 
             tmrtplot = np.zeros((rows, cols))
+            TgOut1 = np.zeros((rows, cols))
 
             numformat = '%3d %2d %3d %2d %6.5f ' + '%6.2f ' * 28
 
@@ -241,7 +242,7 @@ class Worker(QtCore.QObject):
 
                 Tmrt, Kdown, Kup, Ldown, Lup, Tg, ea, esky, I0, CI, shadow, firstdaytime, timestepdec, timeadd, \
                 Tgmap1, timeaddE, Tgmap1E, timeaddS, Tgmap1S, timeaddW, Tgmap1W, timeaddN, Tgmap1N, \
-                Keast, Ksouth, Kwest, Knorth, Least, Lsouth, Lwest, Lnorth, KsideI \
+                Keast, Ksouth, Kwest, Knorth, Least, Lsouth, Lwest, Lnorth, KsideI, TgOut1, TgOut \
                     = so.Solweig_2015a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
                         svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
                         vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, altitude[0][i],
@@ -250,7 +251,7 @@ class Worker(QtCore.QObject):
                         wallheight, cyl, elvis, Ta[i], RH[i], radG[i], radD[i], radI[i], P[i], amaxvalue,
                         bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
-                        timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI)
+                        timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, TgOut1)
 
                 tmrtplot = tmrtplot + Tmrt
 
@@ -286,7 +287,7 @@ class Worker(QtCore.QObject):
                         poi_save[0, 20] = Lwest[int(poisxy[k, 2]), int(poisxy[k, 1])]
                         poi_save[0, 21] = Lnorth[int(poisxy[k, 2]), int(poisxy[k, 1])]
                         poi_save[0, 22] = Ta[i]
-                        poi_save[0, 23] = Tg[int(poisxy[k, 2]), int(poisxy[k, 1])] + Ta[i]
+                        poi_save[0, 23] = TgOut[int(poisxy[k, 2]), int(poisxy[k, 1])]
                         poi_save[0, 24] = RH[i]
                         poi_save[0, 25] = esky
                         poi_save[0, 26] = Tmrt[int(poisxy[k, 2]), int(poisxy[k, 1])]

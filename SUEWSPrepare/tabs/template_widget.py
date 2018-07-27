@@ -20,19 +20,11 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import pyqtSignal, QSettings, QTranslator, qVersion, QCoreApplication, QVariant
-from PyQt4.QtGui import QAction, QIcon, QMessageBox, QImage, QLabel, QPixmap, QLineEdit, QFormLayout, QIntValidator, \
-    QGroupBox, QGridLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QFileDialog, QFont
-
-from qgis.core import *
-from qgis.gui import *
+from PyQt4.QtCore import pyqtSignal
+from PyQt4.QtGui import QImage, QLabel, QPixmap, QLineEdit, QGridLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QFont
 from qgis.utils import *
 import os
-
-# import xlrd
-
 import urllib2
-
 from PyQt4 import QtGui, uic
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -117,8 +109,6 @@ class TemplateWidget(QtGui.QWidget, FORM_CLASS):
                                     explanation += "\n"
                             self.exp_label.setText(explanation)
                             break
-                        # QgsMessageLog.logMessage(str(x), level=QgsMessageLog.CRITICAL)
-                        # QgsMessageLog.logMessage(str(values[x]), level=QgsMessageLog.CRITICAL)
                         lineEdit = self.lineedit_list[x]
                         lineEdit.setText(str(values[x]))
                     break
@@ -140,7 +130,7 @@ class TemplateWidget(QtGui.QWidget, FORM_CLASS):
         else:
             self.comboBox.setEnabled(True)
             self.comboBox_uniquecodes.setEnabled(False)
-            self.comboBox_uniquecodes.clear()
+            # self.comboBox_uniquecodes.clear()
 
     def edit_mode(self):
         self.edit_mode_signal.emit()

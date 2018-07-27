@@ -6,18 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>818</width>
+    <width>1060</width>
     <height>518</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
-   <property name="spacing">
-    <number>0</number>
-   </property>
-   <item>
+  <layout class="QGridLayout" name="gridLayout_3">
+   <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="minimumSize">
       <size>
@@ -37,18 +34,18 @@
      <property name="flat">
       <bool>false</bool>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_25">
-      <item>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0" colspan="3">
        <widget class="QLabel" name="label">
         <property name="text">
          <string>Code:</string>
         </property>
        </widget>
       </item>
-      <item>
+      <item row="1" column="0" colspan="3">
        <widget class="QComboBox" name="comboBox"/>
       </item>
-      <item>
+      <item row="2" column="0" colspan="3">
        <widget class="QTextBrowser" name="exp_label">
         <property name="enabled">
          <bool>false</bool>
@@ -64,7 +61,7 @@
         </property>
        </widget>
       </item>
-      <item>
+      <item row="3" column="0" colspan="3">
        <layout class="QFormLayout" name="formLayout">
         <property name="fieldGrowthPolicy">
          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
@@ -86,14 +83,24 @@ each entry</string>
         </item>
        </layout>
       </item>
-      <item>
-       <widget class="QComboBox" name="comboBox_uniquecodes">
+      <item row="4" column="2">
+       <widget class="QWidget" name="comboBox_uniquecodes" native="true">
         <property name="enabled">
          <bool>false</bool>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_17"/>
        </widget>
       </item>
-      <item>
+      <item row="5" column="0" rowspan="2" colspan="3">
        <widget class="Line" name="line">
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
@@ -103,14 +110,14 @@ each entry</string>
         </property>
        </widget>
       </item>
-      <item>
+      <item row="6" column="1">
        <widget class="QLabel" name="Image">
         <property name="text">
          <string/>
         </property>
        </widget>
       </item>
-      <item>
+      <item row="7" column="0" colspan="2">
        <spacer name="verticalSpacer_4">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -123,14 +130,14 @@ each entry</string>
         </property>
        </spacer>
       </item>
-      <item>
+      <item row="8" column="0" colspan="3">
        <widget class="QPushButton" name="editButton">
         <property name="text">
          <string>Edit Values</string>
         </property>
        </widget>
       </item>
-      <item>
+      <item row="9" column="0" colspan="3">
        <widget class="QPushButton" name="changeButton">
         <property name="enabled">
          <bool>false</bool>
@@ -140,7 +147,7 @@ each entry</string>
         </property>
        </widget>
       </item>
-      <item>
+      <item row="10" column="0" colspan="3">
        <widget class="QPushButton" name="cancelButton">
         <property name="enabled">
          <bool>false</bool>
@@ -153,7 +160,7 @@ each entry</string>
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="0" column="1">
     <layout class="QGridLayout" name="gridLayout_2">
      <item row="0" column="0">
       <widget class="QGroupBox" name="groupBox2">

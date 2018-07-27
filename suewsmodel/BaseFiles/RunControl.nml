@@ -2,14 +2,13 @@
 CBLUse=0
 SnowUse=0
 SOLWEIGUse=0
-NetRadiationMethod=3 
-AnthropHeatMethod=2
-AnthropCO2Method=2
+NetRadiationMethod=3
+EmissionsMethod=2
 StorageHeatMethod=1
 OHMIncQF=0
 StabilityMethod=2
 RoughLenHeatMethod=2
-RoughLenMomMethod=1
+RoughLenMomMethod=2
 SMDMethod=0
 WaterUseMethod=0
 FileCode='Kc'
@@ -20,14 +19,19 @@ MultipleInitFiles=0
 MultipleESTMFiles=0
 KeepTstepFilesIn=0
 KeepTstepFilesOut=0
-WriteOutOption=0
+WriteOutOption=2
 ResolutionFilesOut=3600
 Tstep=300
 ResolutionFilesIn=3600
-ResolutionFilesInESTM=3600	!NEW
-DisaggMethod=1			!NEW  (1 = default value, so don't actually need here)
-RainDisaggMethod=100		!NEW  (100 = default value, so don't actually need here)
-DisaggMethodESTM=1		!NEW  (1 = default value, so don't actually need here)
-SuppressWarnings=1		!NEW
-KdownZen=1
+ResolutionFilesInESTM=3600  !NEW
+DisaggMethod=1          !NEW  (1 = default value, so don't actually need here)
+RainDisaggMethod=100    !NEW  (100 = default value, so don't actually need here)
+DisaggMethodESTM=1      !NEW  (1 = default value, so don't actually need here)
+SuppressWarnings=1      !NEW
+KdownZen=0
+diagnose=0
+ncmode=0
+nrow=1
+ncol=1
+diagnose=0
 /

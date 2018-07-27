@@ -754,6 +754,5 @@ class LCZ_test:
         self.dlg.close()
 
     def help(self):
-        # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Urban_Land_Cover:_LCZ_converter'
+        url = 'http://umep-docs.readthedocs.io/en/latest/pre-processor/Spatial%20Data%20LCZ%20Converter.html'
         webbrowser.open_new_tab(url)

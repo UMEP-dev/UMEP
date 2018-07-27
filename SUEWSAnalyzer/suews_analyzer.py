@@ -278,7 +278,7 @@ class SUEWSAnalyzer:
             f.close()
             self.idgrid = gridcodemetmat[1:, :]
 
-            dataunit = self.fileoutputpath + '/' + self.fileCode + '_OutputFormat.txt'
+            dataunit = self.fileoutputpath + '/' + self.fileCode + '_SUEWS_OutputFormat.txt'
             f = open(dataunit)
             lin = f.readlines()
             self.lineunit = lin[3].split(";")
@@ -312,20 +312,23 @@ class SUEWSAnalyzer:
         else:
             self.gridcodemet = self.dlg.comboBox_POIField.currentText()
 
-        data_in = self.fileinputpath + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_data_' + str(
-            self.resin) + '.txt'
-        self.met_data = np.genfromtxt(data_in, skip_header=1, missing_values='**********', filling_values=-9999)
+        if not self.dlg.comboBox_POIYYYY.currentText() == 'Not Specified':
+            # print self.dlg.comboBox_POIField.currentText()
+            # print self.dlg.comboBox_POIField.currentIndex()
+            data_in = self.fileinputpath + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_data_' + str(
+                self.resin) + '.txt'
+            self.met_data = np.genfromtxt(data_in, skip_header=1, missing_values='**********', filling_values=-9999)
 
-        if np.min(self.met_data[:, 0]) - np.max(self.met_data[:, 0]) < 0:
-            minis = np.min(self.met_data[:-1, 1])
-            maxis = np.max(self.met_data[:, 1])
-        else:
-            minis = np.min(self.met_data[:, 1])
-            maxis = np.max(self.met_data[:, 1])
+            if np.min(self.met_data[:, 0]) - np.max(self.met_data[:, 0]) < 0:
+                minis = np.min(self.met_data[:-1, 1])
+                maxis = np.max(self.met_data[:, 1])
+            else:
+                minis = np.min(self.met_data[:, 1])
+                maxis = np.max(self.met_data[:, 1])
 
-        for i in range(int(minis), int(maxis) + 2):
-                self.dlg.comboBox_POIDOYMin.addItem(str(i))
-                self.dlg.comboBox_POIDOYMax.addItem(str(i))
+            for i in range(int(minis), int(maxis) + 2):
+                    self.dlg.comboBox_POIDOYMin.addItem(str(i))
+                    self.dlg.comboBox_POIDOYMax.addItem(str(i))
 
     def changeYearSP(self):
         self.dlg.comboBox_SpatialDOYMin.clear()
@@ -356,7 +359,7 @@ class SUEWSAnalyzer:
 
     def get_unit(self):
         uni = self.lineunit[self.id]
-        if uni == 'W_m-2':
+        if uni == 'W m-2':
             self.unit = '$W$'' ''$m ^{-2}$'
         elif uni == 'mm':
             self.unit = '$mm$'
@@ -366,13 +369,13 @@ class SUEWSAnalyzer:
             self.unit = '$Degrees(^{o})$'
         elif uni == '-':
             self.unit = '$-$'
-        elif uni == 'm2_m-2':
+        elif uni == 'm2 m-2':
             self.unit = '$m ^{2}$'' ''$m ^{-2}$'
         elif uni == 'm':
             self.unit = '$m$'
-        elif uni == 'm_s-1':
+        elif uni == 'm s-1':
             self.unit = '$m$'' ''$s ^{-1}$'
-        elif uni == 'umol_m-2_s-1':
+        elif uni == 'umol m-2 s-1':
             self.unit = '$umol ^{2}$'' ''$m ^{-2}$'' ''$s ^{-1}$'
         elif uni == 'YYYY':
             self.unit = '$Year$'
@@ -470,7 +473,7 @@ class SUEWSAnalyzer:
             # gid = str(self.idgrid[i, 0])
             gid = str(f.attributes()[idx])
             datawhole = np.genfromtxt(self.fileoutputpath + '/' + self.fileCode + gid + '_'
-                                     + str(self.YYYY) + '_' + str(self.resout) + '.txt', skip_header=1,
+                                     + str(self.YYYY) + '_SUEWS_' + str(self.resout) + '.txt', skip_header=1,
                                      missing_values='**********', filling_values=-9999)
 
             writeoption = datawhole.shape[1]
@@ -679,7 +682,7 @@ class SUEWSAnalyzer:
                 return
 
             datawhole = np.genfromtxt(self.fileoutputpath + '/' + self.fileCode + self.varpoi1 + '_' +
-                                      str(self.YYYY) + '_' + str(self.resout) + '.txt', skip_header=1,
+                                      str(self.YYYY) + '_SUEWS_' + str(self.resout) + '.txt', skip_header=1,
                                       missing_values='**********', filling_values=-9999)
 
             start = np.min(np.where(datawhole[:, 1] == startday))
@@ -736,7 +739,7 @@ class SUEWSAnalyzer:
                 #     self.fileoutputpath + '/' + self.fileCode + self.varpoi2 + '_' + str(self.YYYY) + '_' + str(
                 #         self.resout) + '.txt', skiprows=1)
                 data2whole = np.genfromtxt(
-                    self.fileoutputpath + '/' + self.fileCode + self.varpoi2 + '_' + str(self.YYYY) + '_' + str(
+                    self.fileoutputpath + '/' + self.fileCode + self.varpoi2 + '_' + str(self.YYYY) + '_SUEWS_' + str(
                         self.resout) + '.txt', skip_header=1, missing_values='**********', filling_values=-9999)
                 data2 = data2whole[start:ending, :]
 
@@ -786,12 +789,13 @@ class SUEWSAnalyzer:
 
             met_new = su.tofivemin_v1(self.met_data)
             suews_plottimeold = su.from5mintoanytime(met_new, SumCol_plot, LastCol_plot, TimeCol_plot, timeaggregation)
-            dataplotbasic = np.genfromtxt(self.fileoutputpath + '/' + self.fileCode + self.varpoi1 + '_' + str(self.YYYY) + '_' +
+            dataplotbasic = np.genfromtxt(self.fileoutputpath + '/' + self.fileCode + self.varpoi1 + '_' + str(self.YYYY) + '_SUEWS_' +
                           str(self.resout) + '.txt', skip_header=1, missing_values='**********', filling_values=-9999)
             # dataplotbasic = np.loadtxt(self.fileoutputpath + '/' + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_' + str(self.resout) + '.txt', skiprows=1)
             pl.plotbasic(dataplotbasic, suews_plottimeold)
             plt.show()
 
     def help(self):
-        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Urban_Energy_Balance:_SUEWS_Analyser'
+        url = 'http://umep-docs.readthedocs.io/en/latest/post_processor/Urban%20Energy%20Balance%20' \
+              'SUEWS%20Analyser.html'
         webbrowser.open_new_tab(url)

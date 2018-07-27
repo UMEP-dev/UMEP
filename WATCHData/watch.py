@@ -437,7 +437,8 @@ class WATCHData:
             self.dlg.textOutput_AH.setText(self.folderPathAH[0])
 
     def help(self):
-        url = "http://urban-climate.net/umep/UMEP_Manual#Meteorological_Data:_Download_data_.28WATCH.29"
+        url = "http://umep-docs.readthedocs.io/en/latest/pre-processor/Meteorological%20Data%20" \
+              "Download%20data%20(WATCH).html"
         webbrowser.open_new_tab(url)
 
     def refine_worker_finished(self):

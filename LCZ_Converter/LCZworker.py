@@ -175,6 +175,8 @@ class Worker(QtCore.QObject):
             for x in range(1, len(line_split)):
 
                 vlayer.dataProvider().addAttributes([QgsField(pre + '_' + line_split[x], QVariant.Double)])
+                vlayer.commitChanges()
+                vlayer.updateFields()
 
             attr_dict = {}
 
@@ -186,7 +188,7 @@ class Worker(QtCore.QObject):
                 #QMessageBox.information(None, "Error", str(line_split[x]))
                 vlayer.dataProvider().changeAttributeValues({idx: attr_dict})
 
-            #vlayer.commitChanges()
+            vlayer.commitChanges()
             vlayer.updateFields()
         else:
             QMessageBox.critical(None, "Error", "Vector Layer does not support adding attributes")

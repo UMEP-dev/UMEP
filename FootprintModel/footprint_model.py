@@ -588,7 +588,6 @@ class FootprintModel:
                 rlayer.triggerRepaint()
 
     def help(self):
-        # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = "http://www.urban-climate.net/umep/UMEP_Manual#Pre-Processor:" \
-              "_Urban_Morphology:_Footprint_Model_.28Point.29"
+        url = "http://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Land%20Cover%20Land%20Cover%20" \
+              "Fraction%20(Point).html"
         webbrowser.open_new_tab(url)

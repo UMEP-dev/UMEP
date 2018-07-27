@@ -325,6 +325,6 @@ class BenchMarking:
             shutil.copy(self.plugin_dir + '/benchmark.nml', self.dlg.textInput_NamelistOut.text())
 
     def help(self):
-        url = "http://www.urban-climate.net/umep/UMEP_Manual#Benchmark_System"
+        url = "http://umep-docs.readthedocs.io/en/latest/post_processor/Benchmark%20System.html"
         webbrowser.open_new_tab(url)
 

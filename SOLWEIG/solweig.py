@@ -963,12 +963,11 @@ class SOLWEIG:
             # self.iface.messageBar().pushMessage("SOLWEIG", "Model calculations successful.")
 
     def run(self):
-        """This methods is needed for QGIS to start the plugin"""
         self.dlg.show()
         self.dlg.exec_()
 
     def help(self):
-        url = 'http://urban-climate.net/umep/UMEP_Manual#Outdoor_Thermal_Comfort:_SOLWEIG'
+        url = 'http://umep-docs.readthedocs.io/en/latest/processor/Outdoor%20Thermal%20Comfort%20SOLWEIG.html'
         webbrowser.open_new_tab(url)
 
     def saveraster(self, gdal_data, filename, raster):

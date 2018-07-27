@@ -2,7 +2,7 @@ from PyQt4 import QtCore
 # from PyQt4.QtCore import QVariant
 from PyQt4.QtGui import QMessageBox  #, QFileDialog, QAction, QIcon
 from qgis.core import *  # QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsRasterLayer, QgsGeometry, QgsMessageLog
-from qgis.gui import QgsMessageBar
+# from qgis.gui import QgsMessageBar
 import traceback
 import numpy as np
 from osgeo import gdal, osr
@@ -25,10 +25,10 @@ class Worker(QtCore.QObject):
 
     def __init__(self, vlayer, nbr_header, poly_field, Metfile_path, start_DLS, end_DLS, LCF_from_file, LCFfile_path, LCF_paved,
                  LCF_buildings, LCF_evergreen, LCF_decidious, LCF_grass, LCF_baresoil, LCF_water, IMP_from_file, IMPfile_path,
-                 IMP_heights_mean, IMP_z0, IMP_zd, IMP_fai, IMPveg_from_file, IMPvegfile_path, IMPvegfile_path_eve, IMPveg_heights_mean_eve,
+                 IMP_heights_mean, IMP_z0, IMP_zd, IMP_fai, IMPveg_from_file, IMPvegfile_path, IMPveg_heights_mean_eve,
                  IMPveg_heights_mean_dec, IMPveg_fai_eve, IMPveg_fai_dec, pop_density, widget_list, wall_area,
                  land_use_from_file, land_use_file_path, lines_to_write, plugin_dir, output_file_list, map_units, header_sheet, wall_area_info, output_dir,
-                 day_since_rain, leaf_cycle, soil_moisture, file_code, utc):
+                 day_since_rain, leaf_cycle, soil_moisture, file_code, utc, checkBox_twovegfiles, IMPvegfile_path_dec, IMPvegfile_path_eve, pop_density_day, daypop):
 
         QtCore.QObject.__init__(self)
         self.killed = False
@@ -55,7 +55,6 @@ class Worker(QtCore.QObject):
         self.IMP_fai = IMP_fai
         self.IMPveg_from_file = IMPveg_from_file
         self.IMPvegfile_path = IMPvegfile_path
-        self.IMPvegfile_path_eve = IMPvegfile_path_eve  # not used yet
         self.IMPveg_heights_mean_eve = IMPveg_heights_mean_eve
         self.IMPveg_heights_mean_dec = IMPveg_heights_mean_dec
         self.IMPveg_fai_eve = IMPveg_fai_eve
@@ -80,6 +79,11 @@ class Worker(QtCore.QObject):
         self.soil_moisture = soil_moisture
         self.file_code = file_code
         self.utc = utc
+        self.checkBox_twovegfiles = checkBox_twovegfiles
+        self.IMPvegfile_path_dec = IMPvegfile_path_dec
+        self.IMPvegfile_path_eve = IMPvegfile_path_eve
+        self.pop_density_day = pop_density_day
+        self.daypop = daypop
 
     def run(self):
         try:
@@ -175,12 +179,6 @@ class Worker(QtCore.QObject):
 
                 else:
                     hectare = area
-                #
-                # else:
-                #     QMessageBox.critical(None, "Error",
-                #                          "Could not identify the map units of the polygon layer coordinate "
-                #                          "reference system")
-                #     return
 
                 lonlat = transform.TransformPoint(centroid.x(), centroid.y())
                 code = "lat"
@@ -218,7 +216,6 @@ class Worker(QtCore.QObject):
 
                 if self.LCF_from_file:
                     found_LCF_line = False
-                    # if os.path.isfile(self.LCFfile_path):
                     with open(self.LCFfile_path) as file:
                         next(file)
                         for line in file:
@@ -242,10 +239,7 @@ class Worker(QtCore.QObject):
                             LCF_baresoil = -999
                             LCF_water = -999
                             print_line = False
-                    # else:
-                    #     QMessageBox.critical(None, "Error",
-                    #                          "Could not find the file containing land cover fractions")
-                    #     return
+
                 else:
                     LCF_paved = feature.attribute(self.LCF_paved.getFieldName())
                     LCF_buildings = feature.attribute(self.LCF_buildings.getFieldName())
@@ -280,7 +274,6 @@ class Worker(QtCore.QObject):
                 irrFr_EveTr = 0
                 irrFr_DecTr = 0
                 irrFr_Grass = 0
-
                 code = "IrrFr_EveTr"
                 index = self.find_index(code)
                 new_line[index] = str(irrFr_EveTr)
@@ -293,7 +286,6 @@ class Worker(QtCore.QObject):
 
                 Traffic_Rate = 99999
                 BuildEnergy_Use = 99999
-
                 code = "TrafficRate"
                 index = self.find_index(code)
                 new_line[index] = str(Traffic_Rate)
@@ -301,24 +293,28 @@ class Worker(QtCore.QObject):
                 index = self.find_index(code)
                 new_line[index] = str(BuildEnergy_Use)
 
-                Activity_ProfWD = 55663
-                Activity_ProfWE = 55664
+                QF0_BEU_WD = 0.88
+                QF0_BEU_WE = 0.88
+                code = "QF0_BEU_WD"
+                index = self.find_index(code)
+                new_line[index] = str(QF0_BEU_WD)
+                code = "QF0_BEU_WE"
+                index = self.find_index(code)
+                new_line[index] = str(QF0_BEU_WE)
 
-                code = "ActivityProfWD"
-                index = self.find_index(code)
-                new_line[index] = str(Activity_ProfWD)
-                code = "ActivityProfWE"
-                index = self.find_index(code)
-                new_line[index] = str(Activity_ProfWE)
+                # Activity_ProfWD = 55663
+                # Activity_ProfWE = 55664
+                #
+                # code = "ActivityProfWD"
+                # index = self.find_index(code)
+                # new_line[index] = str(Activity_ProfWD)
+                # code = "ActivityProfWE"
+                # index = self.find_index(code)
+                # new_line[index] = str(Activity_ProfWE)
 
                 if self.IMP_from_file:
                     found_IMP_line = False
 
-                    # if self.IMPfile_path is None:
-                    #     QMessageBox.critical(None, "Error", "Building morphology file has not been provided,"
-                    #                                         " please check the main tab")
-                    #     return
-                    # elif os.path.isfile(self.IMPfile_path):
                     with open(self.IMPfile_path) as file:
                         next(file)
                         for line in file:
@@ -338,10 +334,6 @@ class Worker(QtCore.QObject):
                             IMP_zd = -999
                             IMP_fai = -999
                             print_line = False
-                    # else:
-                    #     QMessageBox.critical(None, "Error",
-                    #                          "Could not find the file containing building morphology")
-                    #     return
                 else:
                     IMP_heights_mean = feature.attribute(self.IMP_mean_height.getFieldName())
                     IMP_z0 = feature.attribute(self.IMP_z0.getFieldName())
@@ -372,10 +364,6 @@ class Worker(QtCore.QObject):
                             IMPveg_fai_eve = -999
                             IMPveg_fai_dec = -999
                             print_line = False
-                    # else:
-                    #     QMessageBox.critical(None, "Error",
-                    #                          "Could not find the file containing building morphology")
-                    #     return
                 else:
                     IMPveg_heights_mean_eve = feature.attribute(self.IMPveg_mean_height_eve.getFieldName())
                     IMPveg_heights_mean_dec = feature.attribute(self.IMPveg_mean_height_dec.getFieldName())
@@ -468,11 +456,14 @@ class Worker(QtCore.QObject):
 
                 if self.pop_density is not None:
                     pop_density_night = feature.attribute(self.pop_density.currentField())
-                    pop_density_day = feature.attribute(self.pop_density.currentField())
                 else:
                     pop_density_night = -999
+
+                if self.daypop == 1:
+                    pop_density_day = feature.attribute(self.pop_density_day.currentField())
+                else:
                     pop_density_day = -999
-                # include warning if pop dens is empty field - include if statement?
+                #TODO include warning if pop dens is empty field - include if statement?
                 code = "PopDensDay"
                 index = self.find_index(code)
                 new_line[index] = '%.3f' % pop_density_day
@@ -508,7 +499,6 @@ class Worker(QtCore.QObject):
                 LUMPS_Cover = 1
                 LUMPS_MaxRes = 10
                 NARP_Trans = 1
-
                 code = "LUMPS_DrRate"
                 index = self.find_index(code)
                 new_line[index] = str(LUMPS_drate)
@@ -541,7 +531,6 @@ class Worker(QtCore.QObject):
                 Fraction7of8 = 0
                 GridConn8of8 = 0
                 Fraction8of8 = 0
-
                 code = "FlowChange"
                 index = self.find_index(code)
                 new_line[index] = str(flow_change)
@@ -607,7 +596,6 @@ class Worker(QtCore.QObject):
                 WhitinGridGrass = 665
                 WhitinGridUnmanBsoil = 666
                 WhitinGridWaterCode = 667
-
                 code = "WithinGridPavedCode"
                 index = self.find_index(code)
                 new_line[index] = str(WhitinGridPav)
@@ -657,11 +645,6 @@ class Worker(QtCore.QObject):
                 Code_ESTMClass_Bldgs5 = 99999
 
                 if self.land_use_from_file:
-                    # if self.land_use_file_path is None:
-                    #     QMessageBox.critical(None, "Error", "Land use fractions file has not been provided,"
-                    #                                         " please check the main tab")
-                    #     return
-                    # if os.path.isfile(self.land_use_file_path):
                     with open(self.land_use_file_path) as file:
                         next(file)
                         found_LUF_line = False
@@ -673,8 +656,6 @@ class Worker(QtCore.QObject):
                                 Fr_ESTMClass_Paved3 = split[3]
                                 if (float(Fr_ESTMClass_Paved1) == 0 and float(Fr_ESTMClass_Paved2) == 0 and float(Fr_ESTMClass_Paved3) == 0):
                                     Fr_ESTMClass_Paved2 = 1.0
-                                #     QMessageBox.critical(None, "no error", "...but still return"  + "\n" + "Fr_ESTMClass_Paved2: " + str(Fr_ESTMClass_Paved2))
-                                #     return
                                 Code_ESTMClass_Paved1 = split[4]
                                 Code_ESTMClass_Paved2 = split[5]
                                 Code_ESTMClass_Paved3 = split[6]
@@ -701,45 +682,6 @@ class Worker(QtCore.QObject):
 
                                 found_LUF_line = True
                                 break
-
-                        # if not found_LUF_line:
-                        #     Fr_ESTMClass_Paved1 = 1.
-                        #     Fr_ESTMClass_Paved2 = 0.
-                        #     Fr_ESTMClass_Paved3 = 0.
-                        #     Code_ESTMClass_Paved1 = 807
-                        #     Code_ESTMClass_Paved2 = 99999
-                        #     Code_ESTMClass_Paved3 = 99999
-                        #     Fr_ESTMClass_Bldgs1 = 1.0
-                        #     Fr_ESTMClass_Bldgs2 = 0.
-                        #     Fr_ESTMClass_Bldgs3 = 0.
-                        #     Fr_ESTMClass_Bldgs4 = 0.
-                        #     Fr_ESTMClass_Bldgs5 = 0.
-                        #     Code_ESTMClass_Bldgs1 = 801
-                        #     Code_ESTMClass_Bldgs2 = 99999
-                        #     Code_ESTMClass_Bldgs3 = 99999
-                        #     Code_ESTMClass_Bldgs4 = 99999
-                        #     Code_ESTMClass_Bldgs5 = 99999
-                    # else:
-                    #     QMessageBox.critical(None, "Error",
-                    #                          "Could not find the file containing land use cover fractions")
-                    #     return
-                # else:
-                #     Fr_ESTMClass_Paved1 = 1.
-                #     Fr_ESTMClass_Paved2 = 0.
-                #     Fr_ESTMClass_Paved3 = 0.
-                #     Code_ESTMClass_Paved1 = 807
-                #     Code_ESTMClass_Paved2 = 99999
-                #     Code_ESTMClass_Paved3 = 99999
-                #     Fr_ESTMClass_Bldgs1 = 1.
-                #     Fr_ESTMClass_Bldgs2 = 0.
-                #     Fr_ESTMClass_Bldgs3 = 0.
-                #     Fr_ESTMClass_Bldgs4 = 0.
-                #     Fr_ESTMClass_Bldgs5 = 0.
-                #     Code_ESTMClass_Bldgs1 = 801
-                #     Code_ESTMClass_Bldgs2 = 99999
-                #     Code_ESTMClass_Bldgs3 = 99999
-                #     Code_ESTMClass_Bldgs4 = 99999
-                #     Code_ESTMClass_Bldgs5 = 99999
 
                 code = "Fr_ESTMClass_Bldgs1"
                 index = self.find_index(code)
@@ -803,8 +745,8 @@ class Worker(QtCore.QObject):
             YYYYmin = np.min(met_in[:, 0])
             YYYYmax = np.max(met_in[:, 0])
             addrows = 0
-			
-			# check if full year
+
+            # check if full year
             if YYYYmin < YYYYmax:
                 t = np.where(met_in[:,0]==YYYYmax)
                 if not t.__len__() > 1:
@@ -909,6 +851,7 @@ class Worker(QtCore.QObject):
         LeafCycle = self.leaf_cycle
         SoilMoisture = self.soil_moisture
         moist = int(SoilMoisture * 1.5)
+        snowinitially = 0
 
         nml = f90nml.read(initfilein)
 
@@ -1008,5 +951,7 @@ class Worker(QtCore.QObject):
             nml['initialconditions']['albGrass0'] = 0.18
             nml['initialconditions']['decidCap0'] = 0.4
             nml['initialconditions']['porosity0'] = 0.2
+
+        nml['initialconditions']['snowinitially'] = snowinitially
 
         nml.write(initfileout, force=True)

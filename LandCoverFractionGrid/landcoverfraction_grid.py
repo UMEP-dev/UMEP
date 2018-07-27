@@ -306,5 +306,6 @@ class LandCoverFractionGrid:
         gdal.AllRegister()
 
     def help(self):
-        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Urban_Land_Cover:_Land_Cover_Fraction_.28Grid.29'
+        url = 'http://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Land%20Cover%20Land%20Cover%20' \
+              'Fraction%20(Grid).html'
         webbrowser.open_new_tab(url)

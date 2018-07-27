@@ -287,7 +287,7 @@ class LQF:
         self.dlg.cmdPrepare.setEnabled(True)
 
     def help(self):
-        url = "http://urban-climate.net/umep/UMEP_Manual#Urban_Energy_Balance:_LQF"
+        url = "http://umep-docs.readthedocs.io/en/latest/processor/Urban%20Energy%20Balance%20LQ.html"
         webbrowser.open_new_tab(url)
 
     def dataSources(self):
