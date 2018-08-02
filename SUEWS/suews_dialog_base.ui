@@ -233,7 +233,7 @@
      <item>
       <widget class="QComboBox" name="comboBoxZ0">
        <property name="currentIndex">
-        <number>1</number>
+        <number>3</number>
        </property>
        <item>
         <property name="text">
@@ -242,7 +242,7 @@
        </item>
        <item>
         <property name="text">
-         <string>[2] Kawai et al. (2009) (RECOMMENDED)</string>
+         <string>[2] Kawai et al. (2009)</string>
         </property>
        </item>
        <item>
@@ -282,11 +282,11 @@
      <item>
       <widget class="QComboBox" name="comboBoxStab">
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <item>
         <property name="text">
-         <string>[2] Dyer (1974) etc. (RECOMMENDED)</string>
+         <string>[2] Dyer (1974) etc.</string>
         </property>
        </item>
        <item>

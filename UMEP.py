@@ -47,7 +47,7 @@ from SolweigAnalyzer.solweig_analyzer import SolweigAnalyzer
 from SUEWSAnalyzer.suews_analyzer import SUEWSAnalyzer
 from UMEPDownloader.umep_downloader import UMEP_Data_Download
 from LCZ_Converter.LCZ_converter import LCZ_test
-from LucyQF.LQF import LQF
+from LucyQf.LQF import LQF
 from BenchMarking.benchmarking import BenchMarking
 from DSMGenerator.dsm_generator import DSMGenerator
 from UMEP_about import UMEPDialogAbout

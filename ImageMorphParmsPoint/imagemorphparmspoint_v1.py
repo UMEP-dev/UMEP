@@ -430,9 +430,7 @@ class ImageMorphParmsPoint:
             gdalruntextdsm_build = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
                                    ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
                                    filePath_dsm_build + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
-            # gdalruntextdsm_build = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + dir_poly + \
-            #                        ' -crop_to_cutline -of GTiff ' + filePath_dsm_build + \
-            #                        ' ' + self.plugin_dir + '/data/clipdsm.tif'
+            # byta till gdal.Warp("aae.tif","aaa.asc", xRes=2.0, yRes=2.0, dstSRS='EPSG:3007')
             if sys.platform == 'win32':
                 subprocess.call(gdalruntextdsm_build, startupinfo=si)
             else:

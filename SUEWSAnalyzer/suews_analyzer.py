@@ -563,7 +563,13 @@ class SUEWSAnalyzer:
             else:
                 filename = self.dlg.textOutput.text()
 
-            gdalraster = 'gdal_rasterize -a ' + str(poly_field) + ' -ot Float32 -of GTiff -te ' + str(xmin) + ' ' \
+            # Check OS and dep
+            if sys.platform == 'darwin':
+                gdalrast_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdal_rasterize'
+            else:
+                gdalrast_os_dep = 'gdal_rasterize'
+
+            gdalraster = gdalrast_os_dep + ' -a ' + str(poly_field) + ' -ot Float32 -of GTiff -te ' + str(xmin) + ' ' \
                          + str(ymin) + ' ' + str(xmax) + ' ' + str(ymax) + ' -tr ' + str(resx) + ' ' + str(resx) + \
                          ' -co COMPRESS=DEFLATE -co PREDICTOR=1 -co ZLEVEL=5 -l ' + polyname + ' "' + \
                          poly.source() + '" "' + self.plugin_dir + '/tempgrid.tif"'
