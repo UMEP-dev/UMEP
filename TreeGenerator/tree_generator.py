@@ -20,24 +20,28 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion
-from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion
+from qgis.PyQt.QtWidgets import QAction, QMessageBox, QFileDialog
+from qgis.PyQt.QtGui import QIcon
 from qgis.core import *
 from qgis.gui import *
 import webbrowser
 import os
 from osgeo import gdal
 import numpy as np
-import makevegdems
+from . import makevegdems
 from osgeo.gdalconst import *
 import sys
 
 # Import the code for the dialog
-from tree_generator_dialog import TreeGeneratorDialog
+from .tree_generator_dialog import TreeGeneratorDialog
 import os.path
 
 
-class TreeGenerator:
+class TreeGenerator(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -73,8 +77,10 @@ class TreeGenerator:
         self.dlg.helpButton.clicked.connect(self.help)
 
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(4)
-        self.fileDialog.setAcceptMode(1)
+        # self.fileDialog.setFileMode(4)
+        # self.fileDialog.setAcceptMode(1)
+        self.fileDialog.setFileMode(QFileDialog.Directory)
+        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
 
         # Declare instance attributes
         self.actions = []
@@ -323,10 +329,14 @@ class TreeGenerator:
         tot_field = self.layerComboManagerTotalHeightField.currentField()
         dia_field = self.layerComboManagerDiameterField.currentField()
 
-        idx_ttype = vlayer.fieldNameIndex(ttype_field)
-        idx_trunk = vlayer.fieldNameIndex(trunk_field)
-        idx_tot = vlayer.fieldNameIndex(tot_field)
-        idx_dia = vlayer.fieldNameIndex(dia_field)
+        # idx_ttype = vlayer.fieldNameIndex(ttype_field)
+        # idx_trunk = vlayer.fieldNameIndex(trunk_field)
+        # idx_tot = vlayer.fieldNameIndex(tot_field)
+        # idx_dia = vlayer.fieldNameIndex(dia_field)
+        idx_ttype = vlayer.fields().indexFromName(ttype_field)
+        idx_trunk = vlayer.fields().indexFromName(trunk_field)
+        idx_tot = vlayer.fields().indexFromName(tot_field)
+        idx_dia = vlayer.fields().indexFromName(dia_field)
 
         if self.folderPath == 'None':
             QMessageBox.critical(self.dlg, "Error", "Select a valid output folder")
@@ -388,7 +398,7 @@ class TreeGenerator:
         QMessageBox.information(self.dlg, "TreeGenerator", "Vegetation DSMs succesfully generated")
 
     def help(self):
-        url = "http://umep-docs.readthedocs.io/en/latest/pre-processor/Spatial%20Data%20Tree%20Generator.html"
+        url = "http://www.urban-climate.net/umep/UMEP_Manual#Spatial_Data:_Tree_Generator"
         webbrowser.open_new_tab(url)
 
     def saveraster(self, gdal_data, filename, raster):

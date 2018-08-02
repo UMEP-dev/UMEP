@@ -19,14 +19,20 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 # Import the PyQt and QGIS libraries
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QThread
-from PyQt4.QtGui import QIcon, QAction, QFileDialog, QMessageBox, QMovie
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox # , QMovie
 from qgis.core import *
 from qgis.utils import *
 
 # Initialize Qt resources from file resources.py
-import resources
+from . import resources
 
 import os.path
 from osgeo import gdal
@@ -35,25 +41,25 @@ import numpy as np
 import math
 import webbrowser
 
-from listworker import Worker
+from .listworker import Worker
 
 # Import the code for the GUI dialog
-from visualizer_dialog import VisualizerDialog
+from .visualizer_dialog import VisualizerDialog
 
 #import tools
-from tools.areaTool import AreaTool
+from .tools.areaTool import AreaTool
 
 #3d Model import
 #import tools.GLWindow as GLWindow
 # import tools.GLWidget
 try:
     # import tools.GLWidget as GLWidget
-    import tools.GLWidget
+    from . import tools.GLWidget
 except ImportError:
     pass
 
 
-class Sun:
+class Sun(object):
     
     #Runs when QGis starts up and the plugin is set to be active
     def __init__(self, iface):
@@ -299,10 +305,10 @@ class Sun:
         dataset = gdal.Open(self.plugin_dir + '/data/temp_asc.tif')
         self.asc_array = dataset.ReadAsArray().astype(np.float)
 
-        movie = QMovie(self.plugin_dir + '/loader.gif')
-        self.visDlg.label.setMovie(movie)
-        self.visDlg.label.show()
-        movie.start()
+        # movie = QMovie(self.plugin_dir + '/loader.gif')
+        # self.visDlg.label.setMovie(movie)
+        # self.visDlg.label.show()
+        # movie.start()
 
         self.start_listworker(minx, maxy, sizex, sizey, toplefty)
 

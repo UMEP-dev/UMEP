@@ -1,10 +1,11 @@
 # see the xlwt.license module for details of licensing.
 
 # Utilities for work with reference to cells and with sheetnames
+from __future__ import unicode_literals
 
 import re
-from .ExcelMagic import MAX_ROW, MAX_COL
-from .compat import xrange
+
+from .ExcelMagic import MAX_COL, MAX_ROW
 
 _re_cell_ex = re.compile(r"(\$?)([A-I]?[A-Z])(\$?)(\d+)", re.IGNORECASE)
 _re_row_range = re.compile(r"\$?(\d+):\$?(\d+)")
@@ -18,7 +19,7 @@ def col_by_name(colname):
     """
     col = 0
     power = 1
-    for i in xrange(len(colname)-1, -1, -1):
+    for i in range(len(colname)-1, -1, -1):
         ch = colname[i]
         col += (ord(ch) - ord('A') + 1) * power
         power *= 26
@@ -95,10 +96,10 @@ def rowcol_pair_to_cellrange(row1, col1, row2, col2,
     assert row1 <= row2
     assert col1 <= col2
     return (
-        rowcol_to_cell(row1, col1, row1_abs, col1_abs)
-        + ":"
-        + rowcol_to_cell(row2, col2, row2_abs, col2_abs)
-        )
+        rowcol_to_cell(row1, col1, row1_abs, col1_abs) +
+        ":" +
+        rowcol_to_cell(row2, col2, row2_abs, col2_abs)
+    )
 
 def cellrange_to_rowcol_pair(cellrange):
     """Convert cell range string in A1 notation to numeric row/col
@@ -153,10 +154,10 @@ def cell_to_packed_rowcol(cell):
 # === sheetname functions ===
 
 def valid_sheet_name(sheet_name):
-    if sheet_name == u"" or sheet_name[0] == u"'" or len(sheet_name) > 31:
+    if sheet_name == "" or sheet_name[0] == "'" or len(sheet_name) > 31:
         return False
     for c in sheet_name:
-        if c in u"[]:\\?/*\x00":
+        if c in "[]:\\?/*\x00":
             return False
     return True
 
@@ -164,4 +165,4 @@ def quote_sheet_name(unquoted_sheet_name):
     if not valid_sheet_name(unquoted_sheet_name):
         raise Exception(
             'attempt to quote an invalid worksheet name %r' % unquoted_sheet_name)
-    return u"'" + unquoted_sheet_name.replace(u"'", u"''") + u"'"
+    return "'" + unquoted_sheet_name.replace("'", "''") + "'"

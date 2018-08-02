@@ -1,10 +1,14 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
 from datetime import datetime
-from DataManagement.LookupLogger import LookupLogger
-from DataManagement.SpatialTemporalResampler import SpatialTemporalResampler
-from DataManagement.spatialHelpers import *
-from PyQt4.QtCore import QSettings
+from .DataManagement.LookupLogger import LookupLogger
+from .DataManagement.SpatialTemporalResampler import SpatialTemporalResampler
+from .DataManagement.spatialHelpers import *
+from qgis.PyQt.QtCore import QSettings
 
-class EnergyUseData:
+class EnergyUseData(object):
     # Store spatially and temporally resolved energy use data for GreaterQF model
     # Makes heavy use of QGIS API
 
@@ -261,6 +265,7 @@ def testIt():
     a.setIndustrialGas(3.0, datetime.strptime('2014-01-01', '%Y-%m-%d'), 'DomGas')
     a.setEconomy7Elec(7.0, datetime.strptime('2014-01-01', '%Y-%m-%d'), 'DomGas')
     # Get downscaled shapefiles for 2014
-    print a.getEnergyTable(datetime.strptime('2013-01-01', '%Y-%m-%d'))
+    # fix_print_with_import
+    print(a.getEnergyTable(datetime.strptime('2013-01-01', '%Y-%m-%d')))
 
     return a.getDomesticElecLayer(datetime.strptime('2014-01-01', '%Y-%m-%d'))

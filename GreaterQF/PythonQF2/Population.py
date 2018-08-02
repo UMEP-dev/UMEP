@@ -1,9 +1,12 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import object
 from datetime import datetime
-from DataManagement.LookupLogger import LookupLogger
-from DataManagement.SpatialTemporalResampler import SpatialTemporalResampler
-from DataManagement.spatialHelpers import *
-from PyQt4.QtCore import QSettings
-class Population:
+from .DataManagement.LookupLogger import LookupLogger
+from .DataManagement.SpatialTemporalResampler import SpatialTemporalResampler
+from .DataManagement.spatialHelpers import *
+from qgis.PyQt.QtCore import QSettings
+class Population(object):
     # Store spatially and temporally resolved residential and workday population
     # Provides population density for each feateure
     # Makes heavy use of QGIS API
@@ -172,6 +175,7 @@ def testIt():
     a.setWorkPop(wp['shapefile'], wp['start_date'], wp['field_to_use'], epsgCode=wp['epsg'])
 
     # Get downscaled shapefiles for 2014
-    print a.getPopTable(datetime.strptime('2013-01-01', '%Y-%m-%d'))
+    # fix_print_with_import
+    print(a.getPopTable(datetime.strptime('2013-01-01', '%Y-%m-%d')))
 
     return a.getResPopLayer(datetime.strptime('2014-01-01', '%Y-%m-%d'))

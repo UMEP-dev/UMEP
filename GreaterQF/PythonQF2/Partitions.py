@@ -1,5 +1,6 @@
+from builtins import object
 import csv
-class Partitions:
+class Partitions(object):
     '''
     Class that stores latent, sensible and (where applicable), wastewater partitioning coefficients for each QF component.
     This reflects the model configuration, with certain components all set to 0 if they are switched off. NB "switched off"
@@ -65,26 +66,26 @@ class Partitions:
         self.wasteWater['industrial']['crude_oil'] = (1 - self.latent['crude_oil']) * params.waterHeatFract['industrial']['crude_oil']* params.heaterEffic['gas']
 
         # Set some or all of these components to 0 based on model run configuration
-        for k in self.wasteWater.keys():
-            for c in self.wasteWater[k].keys():
+        for k in list(self.wasteWater.keys()):
+            for c in list(self.wasteWater[k].keys()):
                 self.wasteWater[k][c] = conf.wastewater_qf * self.wasteWater[k][c]
 
-        for k in self.sensible.keys():
+        for k in list(self.sensible.keys()):
             if type(self.sensible[k]) is dict:
-                for c in self.sensible[k].keys():
+                for c in list(self.sensible[k].keys()):
                     self.sensible[k][c] = conf.sensible_qf * self.sensible[k][c]
             else:
                 self.sensible[k] = conf.sensible_qf * self.sensible[k]
 
-        for k in self.latent.keys():
+        for k in list(self.latent.keys()):
                 self.latent[k] = conf.latent_qf * self.latent[k]
 
         # As a slightly redundant shortcut, what is the total flux for each fuel and/or sector after the user choices are acconuted for?
         self.fluxProp = {}
-        for k in self.sensible.keys():
+        for k in list(self.sensible.keys()):
             if type(self.sensible[k]) is dict:
                 self.fluxProp[k] = {}
-                for c in self.sensible[k].keys():
+                for c in list(self.sensible[k].keys()):
                     self.fluxProp[k][c] = self.wasteWater[k][c] + self.sensible[k][c] + self.latent[c]
             else:
                 self.fluxProp[k] = self.sensible[k] + self.latent[k]

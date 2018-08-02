@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import absolute_import
 # LUCY core calculations
 try:
     import pandas as pd
@@ -145,13 +147,14 @@ def qt(avg_speed, vehicle_count, areas, emission_factors, profile):
 
 def testIt():
     # Run integrated test
-    from DailyTemperature import DailyTemperature
+    from .DailyTemperature import DailyTemperature
     attribs = pd.Series({'summer_cooling':1,
                            'increasePerCDD':0.0010,
                            'increasePerHDD':0.00060,
                            'offset':0.8,
                            'ecostatus':2}).to_frame()
-    print attribs
+    # fix_print_with_import
+    print(attribs)
     dr = pd.date_range(pd.datetime.strptime('2013-01-01 12:00', '%Y-%m-%d %H:%M'), pd.datetime.strptime('2013-01-30 12:00', '%Y-%m-%d %H:%M'), tz="UTC")
 
     te = DailyTemperature("Asia/Shanghai", use_uk_holidays=False, weekendDays= [], other_holidays=[])
@@ -159,5 +162,6 @@ def testIt():
     #a.addTemperatureData('N:\QF_Heraklion\LUCYConfig\dailyTemperature_2016_Heraklion.csv')
     for dt in dr:
         a = getTMF(te.getTemp(dt.to_datetime(), 3600)[0], 12, attribs)
-        print a
+        # fix_print_with_import
+        print(a)
 

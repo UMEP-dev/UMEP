@@ -1,3 +1,4 @@
+from builtins import zip
 #!/usr/bin/env python
 import numpy as np
 #import pandas as pd
@@ -112,7 +113,7 @@ def load_res_all(fn_nml, plugin_dir):
     # 1. variables consisting of only NAN
     # 2. timestamp with any NAN
     res = pd.Panel({k: df.dropna(axis=1, how='all').dropna(axis=0, how='any')
-                    for k, df in res.to_frame().to_panel().iteritems()})
+                    for k, df in res.to_frame().to_panel().items()})
 
     # calculate benchmark metrics
     return res
@@ -128,7 +129,7 @@ def load_res_var(fn_nml, list_var_user, plugin_dir):
     list_var = list_var_valid.intersection(list_var_user)
 
     # select variables of interest
-    res = {k: v.loc[:, list_var] for k, v in res_all.iteritems()}
+    res = {k: v.loc[:, list_var] for k, v in res_all.items()}
 
     return res
 
@@ -138,7 +139,7 @@ def load_res(fn_nml, plugin_dir):
     prm = f90nml.read(fn_nml)
     prm_benchmark = prm['benchmark']
     list_var = prm_benchmark['list_var']
-    if not (isinstance(list_var, basestring) or isinstance(list_var, list)):
+    if not (isinstance(list_var, str) or isinstance(list_var, list)):
         res = load_res_all(fn_nml, plugin_dir)
     else:
         # res=kwargs.keys()
@@ -152,7 +153,7 @@ def plotMatMetric(res, base, func, title):
 
     # calculate metrics
     resPlot = pd.DataFrame([func(x, base)
-                            for k, x in res.iteritems()], index=res.keys())
+                            for k, x in res.items()], index=list(res.keys()))
 
     # rescale metrics values for plotting: [0,1]
     # resPlot_res = func_Norm(resPlot).dropna(axis=1)  # nan will be dropped
@@ -213,7 +214,7 @@ def plotMatMetric(res, base, func, title):
 
 def plotMatMetricX(res_panel, func, title):
     res_comp = pd.Panel({x: res_panel[x]
-                         for x in res_panel.keys() if not x == 'base'})
+                         for x in list(res_panel.keys()) if not x == 'base'})
     fig = plotMatMetric(res_comp, res_panel['base'], func, title)
     return fig
 
@@ -273,16 +274,16 @@ def benchmarkSUEWS(fn_nml, plugin_dir):
 
     # calculate metrics based on different functions:
     res_metric = {f: pd.DataFrame([list_func[f](data[x], data['base'])
-                                   for x in data.keys() if not x == 'base'],
-                                  index=[x for x in data.keys() if not x == 'base']).dropna(axis=1)
-                  for f in list_func.keys()}
+                                   for x in list(data.keys()) if not x == 'base'],
+                                  index=[x for x in list(data.keys()) if not x == 'base']).dropna(axis=1)
+                  for f in list(list_func.keys())}
     res_metric = pd.Panel(res_metric)
 
     # calculate overall performance:
     # this method is very simple at the moment and needs to be refined with
     # more options
     res_score_sub = pd.DataFrame(
-        [1 - func_Norm(v.transpose().mean()) for key, v in res_metric.iteritems()])
+        [1 - func_Norm(v.transpose().mean()) for key, v in res_metric.items()])
     res_score = res_score_sub.mean(axis=0) * 100
 
     # plotting:
@@ -294,7 +295,7 @@ def benchmarkSUEWS(fn_nml, plugin_dir):
     # 2. sub-indicators
     # plot each metric in one page
     fig_metric = {name_func: plotMatMetricX(data, list_func[name_func], name_func)
-                  for name_func in list_func.keys()}
+                  for name_func in list(list_func.keys())}
     res_fig.update(fig_metric)
 
     return res_fig
@@ -310,7 +311,7 @@ def report_benchmark(fn_nml, plugin_dir):
     figs = benchmarkSUEWS(fn_nml, plugin_dir)
     with PdfPages(basename_output + '.pdf') as pdf:
         pdf.savefig(figs['score'], bbox_inches='tight', papertype='a4')
-        for k, x in figs.iteritems():
+        for k, x in figs.items():
             if k != 'score':
                 pdf.savefig(x, bbox_inches='tight',
                             papertype='a4', orientation='portrait')

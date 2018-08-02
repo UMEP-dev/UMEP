@@ -1,11 +1,13 @@
+from __future__ import absolute_import
+from builtins import str
 # Class to handle temporal profiles for different year, season, day of week and time of day
 # to make it easy to pull the relevant number out
 try:
     import numpy as np
 except:
     pass
-from temporalHelpers import *
-from GenericAnnualSampler import GenericAnnualSampler
+from .temporalHelpers import *
+from .GenericAnnualSampler import GenericAnnualSampler
 
 class TemporalProfileSampler(GenericAnnualSampler):
 

@@ -1,9 +1,10 @@
+# -*- coding: utf-8 -*-
 from __future__ import print_function
-# -*- coding: windows-1252 -*-
+
+import six
 
 from . import Formatting
-from .BIFFRecords import NumberFormatRecord, XFRecord, StyleRecord
-from .compat import basestring, xrange
+from .BIFFRecords import NumberFormatRecord, StyleRecord, XFRecord
 
 FIRST_USER_DEFINED_NUM_FORMAT_IDX = 164
 
@@ -97,10 +98,10 @@ class StyleCollection(object):
             num_format_idx = self._num_formats[num_format_str]
         else:
             num_format_idx = (
-                FIRST_USER_DEFINED_NUM_FORMAT_IDX
-                + len(self._num_formats)
-                - len(StyleCollection._std_num_fmt_list)
-                )
+                FIRST_USER_DEFINED_NUM_FORMAT_IDX +
+                len(self._num_formats) -
+                len(StyleCollection._std_num_fmt_list)
+            )
             self._num_formats[num_format_str] = num_format_idx
 
         font = style.font
@@ -130,7 +131,7 @@ class StyleCollection(object):
             xf_index = self._xf_id2x[xf]
             self.stats[3] += 1
         elif self.style_compression == 2:
-            xf_key = (font_idx, num_format_idx) + tuple([obj._search_key() for obj in gof])
+            xf_key = (font_idx, num_format_idx) + tuple(obj._search_key() for obj in gof)
             xf_index = self._xf_val2x.get(xf_key)
             if xf_index is not None:
                 self._xf_id2x[xf] = xf_index
@@ -151,10 +152,10 @@ class StyleCollection(object):
             raise ValueError("More than 4094 XFs (styles)")
 
         return xf, xf_index
-        
+
     def add_font(self, font):
         return self._add_font(font)
-        
+
     def _add_font(self, font):
         if font in self._font_id2x:
             font_idx = self._font_id2x[font]
@@ -175,7 +176,7 @@ class StyleCollection(object):
             font_idx = len(self._font_id2x) + 1
             self._font_id2x[font] = font_idx
             self.stats[2] += 1
-            
+
         return font_idx
 
 
@@ -190,11 +191,10 @@ class StyleCollection(object):
     def _all_fonts(self):
         result = b''
         if self.style_compression:
-            alist = self._font_x2id.items()
+            fonts = self._font_x2id.items()
         else:
-            alist = [(x, o) for o, x in self._font_id2x.items()]
-        alist.sort()
-        for font_idx, font in alist:
+            fonts = [(x, o) for o, x in self._font_id2x.items()]
+        for font_idx, font in sorted(fonts):
             result += font.get_biff_record().get()
         return result
 
@@ -215,11 +215,10 @@ class StyleCollection(object):
         for i in range(0, 16):
             result += XFRecord(self._default_xf, 'style').get()
         if self.style_compression == 2:
-            alist = self._xf_x2id.items()
+            styles = self._xf_x2id.items()
         else:
-            alist = [(x, o) for o, x in self._xf_id2x.items()]
-        alist.sort()
-        for xf_idx, xf in alist:
+            styles = [(x, o) for o, x in self._xf_id2x.items()]
+        for xf_idx, xf in sorted(styles):
             result += XFRecord(xf).get()
         return result
 
@@ -375,7 +374,7 @@ del _colour_map_text, _line, _name, _num
 
 def add_palette_colour(colour_str, colour_index):
     if not (8 <= colour_index <= 63):
-        raise Exception("add_palette_colour: colour_index (%d) not in range(8, 64)" % 
+        raise Exception("add_palette_colour: colour_index (%d) not in range(8, 64)" %
                 (colour_index))
     colour_map[colour_str] = colour_index
 
@@ -397,65 +396,65 @@ def add_palette_colour(colour_str, colour_index):
 #    (153, 51,  0), (153, 51,102), ( 51, 51,153), ( 51, 51, 51),
 #    ]
 
-# Default colour table for BIFF8 copied from 
+# Default colour table for BIFF8 copied from
 # OpenOffice.org's Documentation of the Microsoft Excel File Format, Excel Version 2003
 # Note palette has LSB padded with 2 bytes 0x00
-excel_default_palette_b8 = ( 
-0x00000000, 
-0xFFFFFF00, 
-0xFF000000, 
-0x00FF0000, 
-0x0000FF00, 
-0xFFFF0000, 
-0xFF00FF00, 
+excel_default_palette_b8 = (
+0x00000000,
+0xFFFFFF00,
+0xFF000000,
+0x00FF0000,
+0x0000FF00,
+0xFFFF0000,
+0xFF00FF00,
 0x00FFFF00,
-0x80000000, 
-0x00800000, 
-0x00008000, 
-0x80800000, 
-0x80008000, 
-0x00808000, 
-0xC0C0C000, 
-0x80808000, 
-0x9999FF00, 
-0x99336600, 
-0xFFFFCC00, 
-0xCCFFFF00, 
-0x66006600, 
-0xFF808000, 
-0x0066CC00, 
-0xCCCCFF00, 
-0x00008000, 
-0xFF00FF00, 
-0xFFFF0000, 
-0x00FFFF00, 
-0x80008000, 
-0x80000000, 
-0x00808000, 
-0x0000FF00, 
-0x00CCFF00, 
-0xCCFFFF00, 
-0xCCFFCC00, 
-0xFFFF9900, 
-0x99CCFF00, 
-0xFF99CC00, 
-0xCC99FF00, 
-0xFFCC9900, 
-0x3366FF00, 
-0x33CCCC00, 
-0x99CC0000, 
-0xFFCC0000, 
-0xFF990000, 
-0xFF660000, 
-0x66669900, 
-0x96969600, 
-0x00336600, 
-0x33996600, 
-0x00330000, 
-0x33330000, 
-0x99330000, 
-0x99336600, 
-0x33339900, 
+0x80000000,
+0x00800000,
+0x00008000,
+0x80800000,
+0x80008000,
+0x00808000,
+0xC0C0C000,
+0x80808000,
+0x9999FF00,
+0x99336600,
+0xFFFFCC00,
+0xCCFFFF00,
+0x66006600,
+0xFF808000,
+0x0066CC00,
+0xCCCCFF00,
+0x00008000,
+0xFF00FF00,
+0xFFFF0000,
+0x00FFFF00,
+0x80008000,
+0x80000000,
+0x00808000,
+0x0000FF00,
+0x00CCFF00,
+0xCCFFFF00,
+0xCCFFCC00,
+0xFFFF9900,
+0x99CCFF00,
+0xFF99CC00,
+0xCC99FF00,
+0xFFCC9900,
+0x3366FF00,
+0x33CCCC00,
+0x99CC0000,
+0xFFCC0000,
+0xFF990000,
+0xFF660000,
+0x66669900,
+0x96969600,
+0x00336600,
+0x33996600,
+0x00330000,
+0x33330000,
+0x99330000,
+0x99336600,
+0x33339900,
 0x33333300)
 
 assert len(excel_default_palette_b8) == 56
@@ -660,11 +659,11 @@ def _parse_strg_to_obj(strg, obj, parse_dict,
             v = ' '.join(guff[1:])
             if not v:
                 raise EasyXFCallerError("no value supplied for %s.%s" % (section, k))
-            for counter in xrange(2):
+            for counter in range(2):
                 result = section_dict.get(k)
                 if result is None:
                     raise EasyXFCallerError('%s.%s is not a known attribute' % (section, k))
-                if not isinstance(result, basestring):
+                if not isinstance(result, six.string_types):
                     break
                 # synonym
                 old_k = k

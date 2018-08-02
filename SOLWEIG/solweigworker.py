@@ -1,10 +1,15 @@
-from PyQt4 import QtCore, QtGui
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
+from qgis.PyQt import QtCore, QtGui
 import traceback
 import numpy as np
 import linecache
 import sys
+from qgis.core import QgsFeature, QgsVectorFileWriter, QgsVectorDataProvider, QgsField, Qgis, QgsMessageLog
 
-from SOLWEIGpython import Solweig_2015a_calc as so
+
+from .SOLWEIGpython import Solweig_2015a_calc as so
 # from SOLWEIGpython.clearnessindex_2013b import clearnessindex_2013b
 from ..Utilities.SEBESOLWEIGCommonFiles.clearnessindex_2013b import clearnessindex_2013b
 from osgeo.gdalconst import *
@@ -215,7 +220,10 @@ class Worker(QtCore.QObject):
             tmrtplot = np.zeros((rows, cols))
             TgOut1 = np.zeros((rows, cols))
 
-            numformat = '%3d %2d %3d %2d %6.5f ' + '%6.2f ' * 28
+            numformat = '%d %d %d %d %.5f ' + '%.2f ' * 28
+
+            numformat = '%d %d %d %d %.5f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f ' \
+                        '%.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f'
 
             for i in np.arange(0, Ta.__len__()):
                 self.progress.emit()  # move progressbar forward
@@ -299,7 +307,8 @@ class Worker(QtCore.QObject):
                         poi_save[0, 32] = KsideI[int(poisxy[k, 2]), int(poisxy[k, 1])]
 
                         data_out = self.folderPath[0] + '/POI_' + str(self.poiname[k]) + '.txt'
-                        f_handle = file(data_out, 'a')
+                        # f_handle = file(data_out, 'a')
+                        f_handle = open(data_out, 'ab')
                         np.savetxt(f_handle, poi_save, fmt=numformat)
                         f_handle.close()
 

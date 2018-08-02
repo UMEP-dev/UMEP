@@ -20,21 +20,28 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QThread
-from PyQt4.QtGui import QFileDialog, QIcon, QAction, QMessageBox
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread
+from qgis.PyQt.QtWidgets import QFileDialog, QAction, QMessageBox
+from qgis.PyQt.QtGui import QIcon
 from qgis.core import *
 from qgis.gui import *
 import os
 from osgeo import gdal
-from landcoverfraction_grid_dialog import LandCoverFractionGridDialog
+from .landcoverfraction_grid_dialog import LandCoverFractionGridDialog
 import os.path
-from lcfracworker import Worker
+from .lcfracworker import Worker
 import webbrowser
 
 # Initialize Qt resources from file resources.py
-import resources_rc
+# from . import resources_rc
 
-class LandCoverFractionGrid:
+class LandCoverFractionGrid(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -71,8 +78,10 @@ class LandCoverFractionGrid:
         self.dlg.progressBar.setValue(0)
 
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(4)
-        self.fileDialog.setAcceptMode(1)  # Save
+        # self.fileDialog.setFileMode(4)
+        # self.fileDialog.setAcceptMode(1)  # Save
+        self.fileDialog.setFileMode(QFileDialog.Directory)
+        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
 
         for i in range(1, 25):
             if 360 % i == 0:
@@ -209,7 +218,8 @@ class LandCoverFractionGrid:
         vlayer = QgsVectorLayer(poly.source(), "polygon", "ogr")
         prov = vlayer.dataProvider()
         fields = prov.fields()
-        idx = vlayer.fieldNameIndex(poly_field)
+        # idx = vlayer.fieldNameIndex(poly_field)
+        idx = vlayer.fields().indexFromName(poly_field)
 
         typetest = fields.at(idx).type()
         if typetest == 10:
@@ -293,7 +303,7 @@ class LandCoverFractionGrid:
                                                                            "process unsuccessful! See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.")
 
     def workerError(self, errorstring):
-        QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.Critical)
 
     def progress_update(self):
         self.steps += 1
@@ -306,6 +316,5 @@ class LandCoverFractionGrid:
         gdal.AllRegister()
 
     def help(self):
-        url = 'http://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Land%20Cover%20Land%20Cover%20' \
-              'Fraction%20(Grid).html'
+        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Urban_Land_Cover:_Land_Cover_Fraction_.28Grid.29'
         webbrowser.open_new_tab(url)

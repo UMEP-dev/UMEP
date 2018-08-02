@@ -1,20 +1,25 @@
-from PyQt4 import QtGui, uic
-from PyQt4.QtGui import QListWidgetItem
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
+from __future__ import absolute_import
+from builtins import map
+from builtins import str
+from qgis.PyQt import QtGui, uic
+from qgis.PyQt.QtWidgets import QListWidgetItem
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtWidgets import QAction, QMessageBox, QFileDialog
+from qgis.PyQt.QtGui import QIcon
 import os
 FORM_CLASS, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__), 'time_displayer.ui'))
 from qgis.core import QgsMessageLog,  QgsMapLayerRegistry, QgsVectorLayer, QgsMapRenderer, QgsRectangle#
 
-from PythonLUCY.DataManagement.spatialHelpers import populateShapefileFromTemplate, colourRanges, openShapeFileInMemory, duplicateVectorLayer
+from .PythonLUCY.DataManagement.spatialHelpers import populateShapefileFromTemplate, colourRanges, openShapeFileInMemory, duplicateVectorLayer
 try:
     import pandas as pd
     from matplotlib import pyplot
 except:
     pass
 from datetime import datetime as dt
-from PyQt4.QtGui import QImage, QColor, QPainter, QMessageBox
-from PyQt4.QtCore import QSize
+from qgis.PyQt.QtGui import QImage, QColor, QPainter
+from qgis.PyQt.QtWidgets import QMessageBox
+from qgis.PyQt.QtCore import QSize
 
 # Creates a dialog box that allow different model output time slices to be visualised in QGIS
 def intOrString(x):
@@ -68,7 +73,7 @@ class time_displayer(QtGui.QDialog, FORM_CLASS):
         :return: None
         '''
         id = self.lstAreas.currentItem().text()
-        result = self.model.fetchResultsForLocation(intOrString(id), dt(1900,01,01), dt(2200,01,01))
+        result = self.model.fetchResultsForLocation(intOrString(id), dt(1900,0o1,0o1), dt(2200,0o1,0o1))
         # Are there any valid results here?
         if len(result['Qf'].dropna()) == 0:
             QMessageBox.critical(None, 'No Data', 'This output area contains no data')
@@ -97,7 +102,7 @@ class time_displayer(QtGui.QDialog, FORM_CLASS):
         :return:
         '''
         def toString(x): return x.strftime('%Y-%m-%d %H:%M')
-        timeLabels = map(toString, self.model.getTimeSteps())
+        timeLabels = list(map(toString, self.model.getTimeSteps()))
         for label in timeLabels:
             time = QListWidgetItem(label)
             self.lstTimes.addItem(time)
@@ -129,9 +134,9 @@ class time_displayer(QtGui.QDialog, FORM_CLASS):
             range_maxima = [0.000001, 0.1, 1, 10, 100, 1000]
             colours = ['#CECECE', '#FEE6CE', '#FDAE6B', '#F16913', '#D94801', '#7F2704']
             opacity = 1
-            for component in self.componentTranslation.values():
+            for component in list(self.componentTranslation.values()):
                 layerName = component + t.strftime(' %Y-%m-%d %H:%M UTC')
-                if component == self.componentTranslation.values()[0]:
+                if component == list(self.componentTranslation.values())[0]:
                     colourRanges(new_layer, component, opacity, range_minima, range_maxima, colours)
                     new_layer.setLayerName(layerName)
                     layerId = new_layer.id()

@@ -20,19 +20,23 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt
-from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt
+from qgis.PyQt.QtWidgets import QAction, QMessageBox, QFileDialog
+from qgis.PyQt.QtGui import QIcon
 from qgis.gui import QgsMessageBar
-from greater_qf_dialog import GreaterQFDialog
+from .greater_qf_dialog import GreaterQFDialog
 from datetime import timedelta
 from datetime import datetime as dt
 import os.path
 import webbrowser
 
 # GQF specific code
-from PythonQF2.Config import Config
-from PythonQF2.GreaterQF import Model
-from time_displayer import time_displayer
+from .PythonQF2.Config import Config
+from .PythonQF2.GreaterQF import Model
+from .time_displayer import time_displayer
 
 try:
     import pandas as pd
@@ -40,7 +44,7 @@ try:
 except:
     pass
 
-class GreaterQF:
+class GreaterQF(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -73,7 +77,7 @@ class GreaterQF:
         try:
             import pandas
             import matplotlib as plt
-        except Exception, e:
+        except Exception as e:
             QMessageBox.critical(None, 'Error',
                                  'GQF requires the pandas and matplotlib packages to be installed. Please consult the manual for further information')
             return
@@ -131,7 +135,7 @@ class GreaterQF:
             # Check for manifest file or reject
             try:
                 self.model.setPreProcessedInputFolder(selectedFolder)
-            except Exception,e:
+            except Exception as e:
                 QMessageBox.critical(None, 'Error setting processed data path', str(e))
                 return
             self.dlg.txtProcessedDataPath.setText(selectedFolder)
@@ -158,7 +162,7 @@ class GreaterQF:
             df = a.selectedFiles()
             try:
                 self.model.setDataSources(df[0])
-            except Exception,e:
+            except Exception as e:
                 QMessageBox.critical(None, 'Invalid Data Sources file provided', str(e))
                 return
 
@@ -174,7 +178,7 @@ class GreaterQF:
         self.model.setPreProcessedInputFolder(processed)
 
     def help(self):
-        url = "http://umep-docs.readthedocs.io/en/latest/processor/Urban%20Energy%20Balance%20GQ.html"
+        url = "http://urban-climate.net/umep/UMEP_Manual#Urban_Energy_Balance:_GQF"
         webbrowser.open_new_tab(url)
 
     def visualise(self):
@@ -195,7 +199,7 @@ class GreaterQF:
             cf = a.selectedFiles()
             try:
                 self.model.setParameters(cf[0])
-            except Exception, e:
+            except Exception as e:
                 QMessageBox.critical(None, 'Invalid parameters file', str(e))
                 return
 
@@ -214,7 +218,7 @@ class GreaterQF:
             # Check for manifest file or reject
             try:
                 locations = self.model.loadModelResults(selectedFolder)
-            except Exception,e:
+            except Exception as e:
                 QMessageBox.critical(None, 'Error loading previous model results', str(e))
                 return
 
@@ -231,14 +235,14 @@ class GreaterQF:
 
             try:
                 self.model.setDataSources(locations['dsFile'])
-            except Exception,e:
+            except Exception as e:
                 QMessageBox.critical(None, 'Error loading previous model data sources', str(e) + '. Re-runs not available')
                 self.dlg.cmdRunCancel.setEnabled(False)
 
             self.dlg.txtParams.setText(locations['paramsFile'])
             try:
                 self.model.setParameters(locations['paramsFile'])
-            except Exception,e:
+            except Exception as e:
                 QMessageBox.critical(None, 'Error loading previous model configuration', str(e) + '. Re-runs not available')
                 self.dlg.cmdRunCancel.setEnabled(False)
 
@@ -406,7 +410,7 @@ class GreaterQF:
             self.dlg.cmdLoadResults.clicked.disconnect()
             self.dlg.cmdLoadResults.clicked.connect(self.reset, Qt.UniqueConnection)
             self.dlg.cmdLoadResults.setText('Clear data')
-        except Exception, e:
+        except Exception as e:
             QMessageBox.critical(None, 'Error running GQF', str(e))
 
         self.dlg.cmdRunCancel.setEnabled(True)

@@ -20,24 +20,32 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QThread
-from PyQt4.QtGui import QAction, QIcon, QMessageBox, QImage, QLabel, QPixmap, QLineEdit, QGridLayout, QVBoxLayout, \
-    QSpacerItem, QSizePolicy, QFileDialog
+from __future__ import print_function
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import next
+from builtins import str
+from builtins import range
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread
+from qgis.PyQt.QtWidgets import QAction, QMessageBox, QLabel, QLineEdit, QGridLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QFileDialog
+from qgis.PyQt.QtGui import QIcon, QImage, QPixmap
 from qgis.core import *
 from qgis.gui import *
 from qgis.utils import *
-from suews_prepare_dialog import SUEWSPrepareDialog
-from tabs.template_widget import TemplateWidget
-from tabs.template_tab import TemplateTab
-from tabs.main_tab import MainTab
-from tabs.changeDialog import ChangeDialog
-from tabs.photodialog import PhotoDialog
+from .suews_prepare_dialog import SUEWSPrepareDialog
+from .tabs.template_widget import TemplateWidget
+from .tabs.template_tab import TemplateTab
+from .tabs.main_tab import MainTab
+from .tabs.changeDialog import ChangeDialog
+from .tabs.photodialog import PhotoDialog
 import sys
 import os.path
 sys.path.insert(0, os.path.dirname(__file__) + '/Modules')
-from Modules.xlutils.copy import copy
-from prepare_worker import Worker
-import urllib2
+from .Modules.xlutils.copy import copy
+from .prepare_worker import Worker
+import urllib.request, urllib.error, urllib.parse
 import fileinput
 import itertools
 import webbrowser
@@ -49,7 +57,7 @@ except ImportError:
     pass
 
 
-class SUEWSPrepare:
+class SUEWSPrepare(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -146,12 +154,15 @@ class SUEWSPrepare:
         self.dlg.runButton.clicked.connect(self.generate)
 
         self.outputDialog = QFileDialog()
-        self.outputDialog.setFileMode(4)
-        self.outputDialog.setAcceptMode(1)
+        # self.outputDialog.setFileMode(4)
+        # self.outputDialog.setAcceptMode(1)
+        self.outputDialog.setFileMode(QFileDialog.Directory)
+        self.outputDialog.setOption(QFileDialog.ShowDirsOnly, True)
 
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(0)
-        self.fileDialog.setAcceptMode(0)
+        # self.fileDialog.setFileMode(0)
+        self.fileDialog.setFileMode(QFileDialog.ExistingFile)
+        # self.fileDialog.setAcceptMode(0)
 
         self.change_dialog = ChangeDialog()
 
@@ -178,6 +189,7 @@ class SUEWSPrepare:
         self.IMPveg_fai_dec = None
         self.IMPveg_fai_eve = None
         self.wall_area = None
+        self.daypop = 0
 
         self.start_DLS = 85
         self.end_DLS = 302
@@ -264,17 +276,17 @@ class SUEWSPrepare:
         self.dlg.tabWidget.addTab(main_tab, "Main settings")
         sheet_names = self.init_data.sheet_names()
 
-        for shidx in xrange(1, self.init_data.nsheets):
+        for shidx in range(1, self.init_data.nsheets):
             sheet = self.init_data.sheet_by_index(shidx)
             title = sheet_names[shidx]
             self.setup_tab(title, sheet)
 
     def setup_tab(self, title, sheet):
-        QgsMessageLog.logMessage("Setting up tab: " + str(title), level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage("Setting up tab: " + str(title), level=Qgis.Critical)
         tab = TemplateTab()
         x = 0
         y = 0
-        for row in xrange(0, sheet.nrows):
+        for row in range(0, sheet.nrows):
             values = sheet.row_values(row)
             input_sheet = self.data.sheet_by_name(str(values[0]))
             file_path = str(values[1])
@@ -287,7 +299,7 @@ class SUEWSPrepare:
                 try:
                     code = int(values[3])
                 except ValueError as e:
-                    QgsMessageLog.logMessage("Value error for plugin titled " + title + " for input code: " + str(e), level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage("Value error for plugin titled " + title + " for input code: " + str(e), level=Qgis.Critical)
                     code = None
             if values[4] is None:
                 default_combo = None
@@ -297,7 +309,7 @@ class SUEWSPrepare:
                 try:
                     default_combo = int(values[4])
                 except ValueError as e:
-                    QgsMessageLog.logMessage("Value error for plugin titled " + title + " for default combo: " + str(e), level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage("Value error for plugin titled " + title + " for default combo: " + str(e), level=Qgis.Critical)
                     default_combo = None
             if values[5] is None:
                 sitelist_pos = None
@@ -307,7 +319,7 @@ class SUEWSPrepare:
                 try:
                     sitelist_pos = int(values[5])
                 except ValueError as e:
-                    QgsMessageLog.logMessage("Value error for plugin titled " + title + " for site list position: " + str(e), level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage("Value error for plugin titled " + title + " for site list position: " + str(e), level=Qgis.Critical)
                     sitelist_pos = None
 
             widget = TemplateWidget(input_sheet, file_path, widget_title, code, default_combo, sitelist_pos)
@@ -815,7 +827,7 @@ class SUEWSPrepare:
                         lineEdit.setText(str(values[x]))
                     break
         except ValueError as e:
-            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=QgsMessageLog.CRITICAL)
+            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.Critical)
             pass
 
     def setup_buttons(self, widget, outputfile, sheet, lineedit_list, code=None):
@@ -940,13 +952,17 @@ class SUEWSPrepare:
                                     string_to_print = ''
                                     for element in str_list:
                                         string_to_print += element + '\t'
-                                    print string_to_print
-                                    print line,
+                                    # fix_print_with_import
+                                    print(string_to_print)
+                                    # fix_print_with_import
+                                    print(line, end=' ')
                                     wrote_line = True
                                 else:
-                                    print line,
+                                    # fix_print_with_import
+                                    print(line, end=' ')
                             else:
-                                print line,
+                                # fix_print_with_import
+                                print(line, end=' ')
                         photo = QMessageBox.question(None, "Photo",
                                                      "Would you like to add a url to a suitable photo of the area?",
                                                      QMessageBox.Yes | QMessageBox.No)
@@ -956,22 +972,22 @@ class SUEWSPrepare:
                             if result:
                                 try:
                                     url = self.photo_dialog.lineEdit.text()
-                                    QgsMessageLog.logMessage("URL: " + str(url), level=QgsMessageLog.CRITICAL)
-                                    req = urllib2.Request(str(url))
+                                    QgsMessageLog.logMessage("URL: " + str(url), level=Qgis.Critical)
+                                    req = urllib.request.Request(str(url))
                                     try:
-                                        resp = urllib2.urlopen(req)
-                                    except urllib2.HTTPError as e:
-                                        QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=QgsMessageLog.CRITICAL)
+                                        resp = urllib.request.urlopen(req)
+                                    except urllib.error.HTTPError as e:
+                                        QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.Critical)
                                         QMessageBox.information(None, "Error", "Couldn't reach url")
                                         str_list.append('')
-                                    except urllib2.URLError as e:
-                                        QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=QgsMessageLog.CRITICAL)
+                                    except urllib.error.URLError as e:
+                                        QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.Critical)
                                         QMessageBox.information(None, "Error", "Couldn't reach url")
                                         str_list.append('')
                                     else:
                                         str_list.append(str(url))
                                 except ValueError as e:
-                                    QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=QgsMessageLog.CRITICAL)
+                                    QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.Critical)
                                     QMessageBox.information(None, "Error", "Couldn't reach url")
                                     str_list.append('')
                             else:
@@ -1016,7 +1032,7 @@ class SUEWSPrepare:
             else:
                 self.clear_layout()
         except IOError as e:
-            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=QgsMessageLog.CRITICAL)
+            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.Critical)
             QMessageBox.critical(None, "Error", "Cannot access Excel file, might already be in use.")
 
     def setup_change_dialog(self, sheet):
@@ -1073,22 +1089,23 @@ class SUEWSPrepare:
     def setup_image(self, widget, sheet, row):
         values = sheet.row_values(row, 0)
         url = values[len(values)-3]
-        print url
+        # fix_print_with_import
+        print(url)
         if url == '':
             widget.Image.clear()
         else:
-            req = urllib2.Request(str(url))
+            req = urllib.request.Request(str(url))
             try:
-                resp = urllib2.urlopen(req)
-            except urllib2.HTTPError as e:
+                resp = urllib.request.urlopen(req)
+            except urllib.error.HTTPError as e:
                 if e.code == 404:
-                    QgsMessageLog.logMessage("Image URL encountered a 404 problem", level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage("Image URL encountered a 404 problem", level=Qgis.Critical)
                     widget.Image.clear()
                 else:
-                    QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.Critical)
                     widget.Image.clear()
-            except urllib2.URLError as e:
-                QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=QgsMessageLog.CRITICAL)
+            except urllib.error.URLError as e:
+                QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.Critical)
                 widget.Image.clear()
             else:
                 data = resp.read()
@@ -1180,7 +1197,7 @@ class SUEWSPrepare:
                 if sheet.name == name:
                     return sheet
         except IndexError as e:
-            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=QgsMessageLog.CRITICAL)
+            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.Critical)
             return None
 
     def set_output_folder(self):
@@ -1193,15 +1210,15 @@ class SUEWSPrepare:
 
     def set_LCFfile_path(self, widget):
         self.LCFfile_path = self.fileDialog.getOpenFileName()
-        widget.textInputLCFData.setText(self.LCFfile_path)
+        widget.textInputLCFData.setText(self.LCFfile_path[0])
 
     def set_IMPfile_path(self, widget):
         self.IMPfile_path = self.fileDialog.getOpenFileName()
-        widget.textInputIMPData.setText(self.IMPfile_path)
+        widget.textInputIMPData.setText(self.IMPfile_path[0])
 
     def set_IMPvegfile_path(self, widget):
         self.IMPvegfile_path = self.fileDialog.getOpenFileName()
-        widget.textInputIMPVegData.setText(self.IMPvegfile_path)
+        widget.textInputIMPVegData.setText(self.IMPvegfile_path[0])
 
     def set_IMPvegfile_path_dec(self, widget):
         self.IMPvegfile_path_dec = self.fileDialog.getOpenFileName()
@@ -1209,15 +1226,15 @@ class SUEWSPrepare:
 
     def set_IMPvegfile_path_eve(self, widget):
         self.IMPvegfile_path_dec = self.fileDialog.getOpenFileName()
-        widget.textInputIMPEveData.setText(self.IMPvegfile_path_eve)
+        widget.textInputIMPEveData.setText(self.IMPvegfile_path_eve[0])
 
     def set_metfile_path(self, widget):
         self.Metfile_path = self.fileDialog.getOpenFileName()
-        widget.textInputMetData.setText(self.Metfile_path)
+        widget.textInputMetData.setText(self.Metfile_path[0])
 
     def set_LUFfile_path(self, widget):
         self.land_use_file_path = self.fileDialog.getOpenFileName()
-        widget.textInputLUFData.setText(self.land_use_file_path)
+        widget.textInputLUFData.setText(self.land_use_file_path[0])
 
     def start_DLS_changed(self, value):
         self.start_DLS = value
@@ -1310,8 +1327,8 @@ class SUEWSPrepare:
             QMessageBox.critical(self.dlg, "Error", "Meteorological data file has not been provided,"
                                                 " please check the main tab")
             return
-        elif os.path.isfile(self.Metfile_path):
-            with open(self.Metfile_path) as metfile:
+        elif os.path.isfile(self.Metfile_path[0]):
+            with open(self.Metfile_path[0]) as metfile:
                 next(metfile)
                 for line in metfile:
                     split = line.split()
@@ -1348,7 +1365,7 @@ class SUEWSPrepare:
                 QMessageBox.critical(None, "Error", "Land cover fractions file has not been provided,"
                                                         " please check the main tab")
                 return
-            if not os.path.isfile(self.LCFfile_path):
+            if not os.path.isfile(self.LCFfile_path[0]):
                 QMessageBox.critical(None, "Error", "Could not find the file containing land cover fractions")
                 return
 
@@ -1357,7 +1374,7 @@ class SUEWSPrepare:
                 QMessageBox.critical(None, "Error", "Building morphology file has not been provided,"
                                                     " please check the main tab")
                 return
-            if not os.path.isfile(self.IMPfile_path):
+            if not os.path.isfile(self.IMPfile_path[0]):
                 QMessageBox.critical(None, "Error", "Could not find the file containing building morphology")
                 return
 
@@ -1366,7 +1383,7 @@ class SUEWSPrepare:
                 QMessageBox.critical(None, "Error", "Vegetation morphology file has not been provided,"
                                                     " please check the main tab")
                 return
-            if not os.path.isfile(self.IMPvegfile_path):
+            if not os.path.isfile(self.IMPvegfile_path[0]):
                 QMessageBox.critical(None, "Error", "Could not find the file containing vegetation morphology")
                 return
 
@@ -1375,7 +1392,7 @@ class SUEWSPrepare:
                 QMessageBox.critical(None, "Error", "Land use fractions file has not been provided,"
                                                     " please check the main tab")
                 return
-            if not os.path.isfile(self.land_use_file_path):
+            if not os.path.isfile(self.land_use_file_path[0]):
                 QMessageBox.critical(None, "Error", "Could not find the file containing land use cover fractions")
                 return
 
@@ -1384,7 +1401,7 @@ class SUEWSPrepare:
         self.startWorker(vlayer, nbr_header, poly_field, self.Metfile_path, self.start_DLS, self.end_DLS, self.LCF_from_file, self.LCFfile_path,
                          self.LCF_Paved, self.LCF_Buildings, self.LCF_Evergreen, self.LCF_Decidious, self.LCF_Grass, self.LCF_Baresoil,
                          self.LCF_Water, self.IMP_from_file, self.IMPfile_path, self.IMP_mean_height, self.IMP_z0, self.IMP_zd,
-                         self.IMP_fai, self.IMPveg_from_file, self.IMPvegfile_path,self.IMPveg_mean_height_eve,
+                         self.IMP_fai, self.IMPveg_from_file, self.IMPvegfile_path, self.IMPveg_mean_height_eve,
                          self.IMPveg_mean_height_dec, self.IMPveg_fai_eve, self.IMPveg_fai_dec, self.pop_density, self.widget_list, self.wall_area,
                          self.land_use_from_file, self.land_use_file_path, lines_to_write, self.plugin_dir, self.output_file_list, map_units,
                          self.header_sheet, self.wall_area_info, self.output_dir, self.day_since_rain, self.leaf_cycle, self.soil_moisture, self.file_code,
@@ -1448,7 +1465,7 @@ class SUEWSPrepare:
                                     "(speech bubble, lower right) for more information.")
 
     def workerError(self, errorstring):
-        QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.Critical)
 
     def progress_update(self):
         self.steps += 1

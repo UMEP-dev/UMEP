@@ -1,8 +1,12 @@
-from spatialHelpers import *
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import map
+from builtins import str
+from .spatialHelpers import *
 from qgis.core import QgsField, QgsVectorLayer, QgsSpatialIndex, QgsMessageLog, QgsCoordinateReferenceSystem, QgsCoordinateTransform
 import processing
 
-from PyQt4.QtCore import QVariant, QSettings
+from qgis.PyQt.QtCore import QVariant, QSettings
 try:
     import pandas as pd
     import numpy as np
@@ -11,8 +15,8 @@ except:
 import os
 from datetime import datetime as dt
 import tempfile
-from LookupLogger import LookupLogger
-from SpatialTemporalResampler import SpatialTemporalResampler
+from .LookupLogger import LookupLogger
+from .SpatialTemporalResampler import SpatialTemporalResampler
 
 class SpatialTemporalResampler_LUCY(SpatialTemporalResampler):
     # Class that takes spatial data (QgsVectorLayers), associates them with a time and
@@ -71,7 +75,7 @@ class SpatialTemporalResampler_LUCY(SpatialTemporalResampler):
             except:
                 return str(x)
 
-        readAcross = pd.Series(index=map(intorstring, t.values), data=map(intorstring, t.index))
+        readAcross = pd.Series(index=list(map(intorstring, t.values)), data=list(map(intorstring, t.index)))
         t = None
 
         # Get areas of input shapefile intersected by output shapefile, and proportions covered, and attribute vals
@@ -79,7 +83,8 @@ class SpatialTemporalResampler_LUCY(SpatialTemporalResampler):
         # Work out disaggregation factor baed on area intersected
         # Use "big" totals of weightings if the same attribute present in the input data file
         total_weightings = {} # Assume no "big" totals are available
-        print 'WB:' + str(weight_by)
+        # fix_print_with_import
+        print('WB:' + str(weight_by))
         if weight_by in get_field_names(inputLayer):
             atts = shapefile_attributes(inputLayer)
             total_weightings = {weight_by:{intOrString(atts[inputIdField].loc[idx]):atts[weight_by].loc[idx] for idx in atts.index}}
@@ -98,26 +103,26 @@ class SpatialTemporalResampler_LUCY(SpatialTemporalResampler):
             disagg = disaggregate_weightings(intersectedAreas, newShapeFile, weight_by, total_weightings, self.templateIdField)[weight_by]
 
         # Select successfully identified output areas
-        newShapeFile.setSelectedFeatures(list(readAcross[disagg.keys()]))
+        newShapeFile.setSelectedFeatures(list(readAcross[list(disagg.keys())]))
 
         selectedOutputFeatures = newShapeFile.selectedFeatures()
         newShapeFile.startEditing()
         # Apply disaggregation to features
         for outputFeat in selectedOutputFeatures:  # For each output feature
             # Select the relevant features from the input layer
-            area_weightings = {inputAreaId: disagg[outputFeat[self.templateIdField]][inputAreaId] for inputAreaId in disagg[outputFeat[self.templateIdField]].keys()}
+            area_weightings = {inputAreaId: disagg[outputFeat[self.templateIdField]][inputAreaId] for inputAreaId in list(disagg[outputFeat[self.templateIdField]].keys())}
             # Calculate area-weighted average to get a single value for each output area
             for field in fieldsToSample:
-                input_values = {inputAreaId: intersectedAreas[outputFeat[self.templateIdField]][inputAreaId][field] for inputAreaId in intersectedAreas[outputFeat[self.templateIdField]].keys()}
+                input_values = {inputAreaId: intersectedAreas[outputFeat[self.templateIdField]][inputAreaId][field] for inputAreaId in list(intersectedAreas[outputFeat[self.templateIdField]].keys())}
                 # If an output area is influenced by multiple input areas, and a subset of these is invalid,
                 # assign them zero
-                for i in input_values.keys():
+                for i in list(input_values.keys()):
                     try:
                         input_values[i] = float(input_values[i])
                     except:
                         input_values[i] = 0
 
-                outputAreasToUse = set(input_values.keys()).intersection(area_weightings.keys())
+                outputAreasToUse = set(input_values.keys()).intersection(list(area_weightings.keys()))
                 weighted_average = np.sum(np.array([input_values[in_id] * float(area_weightings[in_id]) for in_id in list(outputAreasToUse)]))
                 newShapeFile.changeAttributeValue(outputFeat.id(), fieldIndices[field], float(weighted_average))
 

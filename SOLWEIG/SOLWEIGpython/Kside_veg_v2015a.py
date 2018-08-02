@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 import numpy as np
-from Kvikt_veg import Kvikt_veg
+from .Kvikt_veg import Kvikt_veg
 
 def Kside_veg_v2015a(radI,radD,radG,shadow,svfS,svfW,svfN,svfE,svfEveg,svfSveg,svfWveg,svfNveg,azimuth,altitude,psi,t,albedo,F_sh,KupE,KupS,KupW,KupN,cyl):
 

@@ -1,4 +1,4 @@
-# -*- coding: windows-1252 -*-
+# -*- coding: utf-8 -*-
 
 '''
 From BIFF8 on, strings are always stored using UTF-16LE  text encoding. The
@@ -33,21 +33,25 @@ Offset  Size    Contents
                                1 = Contains Rich-Text settings
 [2 or 3] 2      (optional, only if richtext=1) Number of Rich-Text formatting runs (rt)
 [var.]   4      (optional, only if phonetic=1) Size of Asian phonetic settings block (in bytes, sz)
-var.     ln or 
-         2·ln   Character array (8-bit characters or 16-bit characters, dependent on ccompr)
-[var.]   4·rt   (optional, only if richtext=1) List of rt formatting runs 
-[var.]   sz     (optional, only if phonetic=1) Asian Phonetic Settings Block 
+var.     ln or
+         2Â·ln   Character array (8-bit characters or 16-bit characters, dependent on ccompr)
+[var.]   4Â·rt   (optional, only if richtext=1) List of rt formatting runs
+[var.]   sz     (optional, only if phonetic=1) Asian Phonetic Settings Block
 '''
 
-from .compat import unicode, unicode_type
+from __future__ import unicode_literals
+
 from struct import pack
+
+import six
+
 
 def upack2(s, encoding='ascii'):
     # If not unicode, make it so.
-    if isinstance(s, unicode_type):
+    if isinstance(s, six.text_type):
         us = s
     else:
-        us = unicode(s, encoding)
+        us = s.decode(encoding)
     # Limit is based on number of content characters
     # (not on number of bytes in packed result)
     len_us = len(us)
@@ -65,27 +69,27 @@ def upack2(s, encoding='ascii'):
         n_items = len(encs) // 2
         # n_items is the number of "double byte characters" i.e. MS C wchars
         # Can't use len(us).
-        # len(u"\U0001D400") -> 1 on a wide-unicode build 
+        # len("\U0001D400") -> 1 on a wide-unicode build
         # and 2 on a narrow-unicode build.
         # We need n_items == 2 in this case.
     return pack('<HB', n_items, flag) + encs
 
 def upack2rt(rt, encoding='ascii'):
-    us = u''
-    fr = ''
+    us = ''
+    fr = b''
     offset = 0
     # convert rt strings to unicode if not already unicode
     # also generate the formatting run for the styles added
     for s, fontx in rt:
-        if not isinstance(s, unicode_type):
-            s = unicode(s, encoding)
+        if not isinstance(s, six.text_type):
+            s = s.decode(encoding)
         us += s
         if fontx is not None:
             # code in Rows.py ensures that
             # fontx can be None only for the first piece
-            fr += pack('<HH', offset, fontx)        
+            fr += pack('<HH', offset, fontx)
         # offset is the number of MS C wchar characters.
-        # That is 1 if c <= u'\uFFFF' else 2 
+        # That is 1 if c <= '\uFFFF' else 2
         offset += len(s.encode('utf_16_le')) // 2
     num_fr = len(fr) // 4 # ensure result is int
     if offset > 32767:
@@ -104,10 +108,10 @@ def upack2rt(rt, encoding='ascii'):
 
 def upack1(s, encoding='ascii'):
     # Same as upack2(), but with a one-byte length field.
-    if isinstance(s, unicode_type):
+    if isinstance(s, six.text_type):
         us = s
     else:
-        us = unicode(s, encoding)
+        us = s.decode(encoding)
     len_us = len(us)
     if len_us > 255:
         raise Exception('String longer than 255 characters')
@@ -118,5 +122,5 @@ def upack1(s, encoding='ascii'):
     except UnicodeEncodeError:
         encs = us.encode('utf_16_le')
         flag = 1
-        n_items = len(encs) // 2 
+        n_items = len(encs) // 2
     return pack('<BB', n_items, flag) + encs

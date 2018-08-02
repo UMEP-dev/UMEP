@@ -1,5 +1,7 @@
+from builtins import str
+from builtins import object
 from collections import OrderedDict
-class LookupLogger:
+class LookupLogger(object):
     # Logger object to keep track of data requests and what was provided when the available data didn't match the requested date
 
     def __init__(self):
@@ -19,10 +21,10 @@ class LookupLogger:
         :return: None
         '''
 
-        if eventType not in self.log.keys():
+        if eventType not in list(self.log.keys()):
             self.log[eventType] = OrderedDict()
 
-        if requestedDate not in self.log[eventType].keys():
+        if requestedDate not in list(self.log[eventType].keys()):
             self.log[eventType][requestedDate] = []
 
         newEntry = [actualDate, paramName, description]
@@ -50,13 +52,13 @@ class LookupLogger:
         '''
         try:
             f = open(filename, 'w')
-        except Exception,e:
+        except Exception as e:
             raise Exception('Could not write to log file:' + str(filename) + ':' + str(e))
         f.write('Requested Date (if applic):: Date returned (if applic) :: Param name :: Description\r\n')
 
-        for eventType in self.log.keys():
+        for eventType in list(self.log.keys()):
             f.write('======' + str(eventType) + '=======\r\n')
-            for requestTime in self.log[eventType].keys():
+            for requestTime in list(self.log[eventType].keys()):
                 printReqTime = 'None' if requestTime is None else requestTime.strftime('%Y-%m-%d %H:%M:%S %Z')
                 for logLine in self.log[eventType][requestTime]:
                     printActualTime = 'None' if logLine[0] is None else logLine[0].strftime('%Y-%m-%d %H:%M:%S %Z')

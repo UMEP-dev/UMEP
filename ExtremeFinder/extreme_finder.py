@@ -20,15 +20,19 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
-from extreme_finder_dialog import ExtremeFinderDialog
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
+from qgis.PyQt.QtGui import QIcon
+from .extreme_finder_dialog import ExtremeFinderDialog
 import os.path
 import webbrowser
 from ..Utilities import f90nml
-from HeatWave.findHW import *
-from HeatWave.plotHW import plotHW
-from PyQt4.QtCore import QDate, QObject, pyqtSignal, QThread
+from .HeatWave.findHW import *
+from .HeatWave.plotHW import plotHW
+from qgis.PyQt.QtCore import QDate, QObject, pyqtSignal, QThread
 ###########################################################################
 #
 #                               Plugin
@@ -36,7 +40,7 @@ from PyQt4.QtCore import QDate, QObject, pyqtSignal, QThread
 ###########################################################################
 
 
-class ExtremeFinder:
+class ExtremeFinder(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -73,8 +77,10 @@ class ExtremeFinder:
         self.dlg.pushButtonSave_2.clicked.connect(self.infile)
         self.dlg.pushButtonSave_2.setEnabled(True)
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(4)
-        self.fileDialog.setAcceptMode(1)
+        # self.fileDialog.setFileMode(4)
+        # self.fileDialog.setAcceptMode(1)
+        self.fileDialog.setFileMode(QFileDialog.Directory)
+        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
         self.folderPathRaw = 'None'
         self.save_file = None
         self.outputfile = 'None'
@@ -236,20 +242,20 @@ class ExtremeFinder:
 
 
     def help(self):
-        url = "http://umep-docs.readthedocs.io/en/latest/processor/Outdoor%20Thermal%20Comfort%20ExtremeFinder.html"
+        url = "http://urban-climate.net/umep/UMEP_Manual#Outdoor_Thermal_Comfort:_ExtremeFinder"
         webbrowser.open_new_tab(url)
 
     def run(self):
 
         try:
             import pandas as pd
-        except Exception, e:
+        except Exception as e:
             QMessageBox.critical(None, 'Error', 'The Extreme Finder requires the pandas package '
                                                 'to be installed. Please consult the manual for further information')
             return
         try:
             from netCDF4 import Dataset, date2num
-        except Exception, e:
+        except Exception as e:
             QMessageBox.critical(None, 'Error', 'The Extreme Finder requires the netCDF4 package '
                                                 'to be installed. Please consult the manual for further information')
             return
@@ -299,11 +305,11 @@ class ExtremeFinder:
 
     def infile(self):
         filename = QFileDialog.getOpenFileName()
-        if filename.split('.')[-1]=='nc':
+        if filename[0].split('.')[-1] == 'nc':
             # If a NetCDF file, try and get metadata to populate the dialog elements
-            (lat, lon, start_date, end_date) = get_ncmetadata(filename)
+            (lat, lon, start_date, end_date) = get_ncmetadata(filename[0])
 
-        self.dlg.textInput.setText(filename)
+        self.dlg.textInput.setText(filename[0])
         if (lat is not None) and (lon is not None):
             self.dlg.textOutput_lat.setText(str(lat))
             self.dlg.textOutput_lon.setText(str(lon))
@@ -318,7 +324,7 @@ class ExtremeFinder:
         # result = self.fileDialog.exec_()
         if not outputfile == 'None':
             self.outputfile = outputfile
-            self.dlg.textOutput.setText(self.outputfile)
+            self.dlg.textOutput.setText(self.outputfile[0])
 
     def start_progress_wrapped(self):
         '''
@@ -326,7 +332,7 @@ class ExtremeFinder:
         '''
         try:
             self.start_progress()
-        except Exception, e:
+        except Exception as e:
             QMessageBox.critical(None, "Error", str(e))
             self.dlg.runButton.setEnabled(True)
 
@@ -383,7 +389,7 @@ class ExtremeFinder:
                 file_name = filein
             else:
                 raise ValueError('Invalid data format')
-        except Exception, e:
+        except Exception as e:
             raise Exception('Invalid input file data format')
 
         self.validateInputDates()
@@ -391,9 +397,9 @@ class ExtremeFinder:
         if filein.split('.')[-1]=='nc':
             try:
                 Tdata, unit, self.lat, self.lon, self.hw_start, self.hw_end = get_ncdata(file_name, self.hw_start.year, self.hw_end.year, var)
-            except KeyError,e:
+            except KeyError as e:
                 raise Exception('NetCDF file must contain the variable %s in order to continue'%(e,))
-            except Exception,e:
+            except Exception as e:
                 raise e
 
             unit = '(' + str(unit) + ')'
@@ -484,7 +490,7 @@ class ExtremeFinder:
         try:
             if len(result) == 0:
                 raise ValueError('No Heat/Cold Wave Found')
-        except Exception, e:
+        except Exception as e:
             if mode == "HW":
                 QMessageBox.critical(None, "Error", "No extreme high values found")
             if mode == "CW":

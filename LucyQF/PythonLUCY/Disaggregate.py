@@ -1,21 +1,23 @@
-from PyQt4.QtCore import QObject, pyqtSignal
+from __future__ import absolute_import
+from builtins import map
+from qgis.PyQt.QtCore import QObject, pyqtSignal
 import traceback
 import os
 import pickle
-from DataManagement.spatialHelpers import saveLayerToFile, loadShapeFile, populateShapefileFromTemplate, openShapeFileInMemory, reprojectVectorLayer_threadSafe
-from DataManagement.temporalHelpers import makeUTC
+from .DataManagement.spatialHelpers import saveLayerToFile, loadShapeFile, populateShapefileFromTemplate, openShapeFileInMemory, reprojectVectorLayer_threadSafe
+from .DataManagement.temporalHelpers import makeUTC
 try:
     import pandas as pd
 except:
     pass
-from Population import Population
-from ExtraDisaggregate import ExtraDisaggregate, performDisaggregation, performSampling
-from RegionalParameters import RegionalParameters
+from .Population import Population
+from .ExtraDisaggregate import ExtraDisaggregate, performDisaggregation, performSampling
+from .RegionalParameters import RegionalParameters
 
 class DisaggregateWorker(QObject):
     finished = pyqtSignal(object)
     update = pyqtSignal(object)
-    error = pyqtSignal(Exception, basestring)
+    error = pyqtSignal(Exception, str)
     def __init__(self, ds, params, outputFolder, UMEPgrid=None, UMEPcoverFractions=None, UMEPgridID=None):
         QObject.__init__(self)
         self.killed = False
@@ -33,7 +35,7 @@ class DisaggregateWorker(QObject):
         try:
             outputFolder = disaggregate(self.ds, self.params, self.outputFolder, self.UMEPgrid, self.UMEPcoverFractions, self.UMEPgridID, self.update)
             self.finished.emit(outputFolder)
-        except Exception,e:
+        except Exception as e:
             self.error.emit(e, traceback.format_exc())
 
 def floatOrNone(x):
@@ -70,7 +72,7 @@ def disaggregate(ds, params, outputFolder, UMEPgrid=None, UMEPcoverFractions=Non
     rp = ds.resPop_spat[0]
         # Take a look at the residential population data and see if there are any people in it.
     testPop = loadShapeFile(rp['shapefile'], rp['epsgCode'])
-    vals = pd.Series(map(floatOrNone, testPop.getValues('Pop')[0]))
+    vals = pd.Series(list(map(floatOrNone, testPop.getValues('Pop')[0])))
     if sum(vals.dropna()) == 0:
         raise Exception('The input population file has zero population')
     testPop = None
@@ -86,7 +88,7 @@ def disaggregate(ds, params, outputFolder, UMEPgrid=None, UMEPcoverFractions=Non
     scaledPopFile = os.path.join(outputFolder, filename)
     saveLayerToFile(lyr, scaledPopFile, pop.getOutputLayer().crs(), 'Res pop scaled')
     # Test the disaggregated shapefile to make sure it contains people
-    vals = pd.Series(map(floatOrNone, lyr.getValues('Pop')[0]))
+    vals = pd.Series(list(map(floatOrNone, lyr.getValues('Pop')[0])))
     if sum(vals.dropna()) == 0:
         raise Exception('The output shapefile did not overlap any of the population data, so the model cannot run')
     returnDict['resPop'].append({'file':filename, 'EPSG':rp['epsgCode'], 'startDate':rp['startDate'], 'attribute':attrib, 'featureIds':outFeatIds})

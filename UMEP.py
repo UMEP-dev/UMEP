@@ -20,37 +20,40 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QObject, SIGNAL, SLOT
-from PyQt4.QtGui import QMenu, QAction, QIcon
-from UMEP_dialog import UMEPDialog
-from MetdataProcessor.metdata_processor import MetdataProcessor
-from ShadowGenerator.shadow_generator import ShadowGenerator
-from SkyViewFactorCalculator.svf_calculator import SkyViewFactorCalculator
-from ImageMorphParam.image_morph_param import ImageMorphParam
-from ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
-from LandCoverFractionGrid.landcoverfraction_grid import LandCoverFractionGrid
-from LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
-from LandCoverReclassifier.land_cover_reclassifier import LandCoverReclassifier
-from WallHeight.wall_height import WallHeight
-from SEBE.sebe import SEBE
-from SEBEVisual.sun import Sun
-from SuewsSimple.suews_simple import SuewsSimple
-from SUEWSPrepare.suews_prepare import SUEWSPrepare
-from TreeGenerator.tree_generator import TreeGenerator
-from SUEWS.suews import SUEWS
-from FootprintModel.footprint_model import FootprintModel
-from WATCHData.watch import WATCHData
-from GreaterQF.greater_qf import GreaterQF
-from SOLWEIG.solweig import SOLWEIG
-from ExtremeFinder.extreme_finder import ExtremeFinder
-from SolweigAnalyzer.solweig_analyzer import SolweigAnalyzer
-from SUEWSAnalyzer.suews_analyzer import SUEWSAnalyzer
-from UMEPDownloader.umep_downloader import UMEP_Data_Download
-from LCZ_Converter.LCZ_converter import LCZ_test
-from LucyQf.LQF import LQF
-from BenchMarking.benchmarking import BenchMarking
-from DSMGenerator.dsm_generator import DSMGenerator
-from UMEP_about import UMEPDialogAbout
+from __future__ import absolute_import
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtWidgets import QMenu, QAction, QMessageBox
+from qgis.PyQt.QtGui import QIcon
+from .UMEP_dialog import UMEPDialog
+from .MetdataProcessor.metdata_processor import MetdataProcessor
+from .ShadowGenerator.shadow_generator import ShadowGenerator
+from .SkyViewFactorCalculator.svf_calculator import SkyViewFactorCalculator
+from .ImageMorphParam.image_morph_param import ImageMorphParam
+from .ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
+from .LandCoverFractionGrid.landcoverfraction_grid import LandCoverFractionGrid
+from .LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
+from .LandCoverReclassifier.land_cover_reclassifier import LandCoverReclassifier
+from .WallHeight.wall_height import WallHeight
+from .TreeGenerator.tree_generator import TreeGenerator
+from .FootprintModel.footprint_model import FootprintModel
+from .LCZ_Converter.LCZ_converter import LCZ_test
+from .UMEPDownloader.umep_downloader import UMEP_Data_Download  # TODO: No data visible in plugin interface
+from .DSMGenerator.dsm_generator import DSMGenerator  # TODO: Working except for OSMImport
+from .WATCHData.watch import WATCHData  # TODO: Gives errors during download and/or processing
+# from .GreaterQF.greater_qf import GreaterQF  # TODO: Multiple changes required :Plugin blocker
+from .ExtremeFinder.extreme_finder import ExtremeFinder
+# from .LucyQf.LQF import LQF  # TODO: Multiple changes required :Plugin blocker
+from .SEBE.sebe import SEBE
+from .SuewsSimple.suews_simple import SuewsSimple
+from .SUEWSPrepare.suews_prepare import SUEWSPrepare
+from .SUEWS.suews import SUEWS
+from .SOLWEIG.solweig import SOLWEIG
+from .BenchMarking.benchmarking import BenchMarking  # TODO: KeyError: 'input_cfgfiles'
+# from .SEBEVisual.sun import Sun  # TODO: Not able to run 2to3 converter :Plugin blocker
+from .SolweigAnalyzer.solweig_analyzer import SolweigAnalyzer
+from .SUEWSAnalyzer.suews_analyzer import SUEWSAnalyzer
+from .UMEP_about import UMEPDialogAbout
 import os.path
 import webbrowser
 
@@ -60,7 +63,7 @@ import webbrowser
 # import pydevd
 
 
-class UMEP:
+class UMEP(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -264,6 +267,7 @@ class UMEP:
         # Sub-menus to About
         self.About_Action = QAction("About", self.iface.mainWindow())
         self.About_Menu.addAction(self.About_Action)
+        self.About_Action.triggered.connect(self.About)
         self.Manual_Action = QAction("UMEP on the web", self.iface.mainWindow())
         self.About_Menu.addAction(self.Manual_Action)
         self.Manual_Action.triggered.connect(self.help)
@@ -344,7 +348,9 @@ class UMEP:
             parent=self.iface.mainWindow())
 
         # Code to show the about dialog
-        QObject.connect(self.About_Action, SIGNAL("triggered()"), self.dlgAbout, SLOT("show()"))
+        # QObject.connect(self.About_Action, SIGNAL("triggered()"), self.dlgAbout, SLOT("show()"))
+        # QObject.signal.connect(self.dlgAbout)
+
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
@@ -354,6 +360,9 @@ class UMEP:
                 action)
             self.iface.removeToolBarIcon(action)
             self.iface.mainWindow().menuBar().removeAction(self.UMEP_Menu.menuAction())
+
+    def About(self):
+        self.dlgAbout.show()
 
     def PED(self):
         sg = MetdataProcessor(self.iface)
@@ -409,6 +418,9 @@ class UMEP:
         sg.run()
 
     def SEv(self):
+        QMessageBox.critical(self.dlg, "Plugin blocker",
+                             "This tool is not yet ported to QGIS3. Work still in progress.")
+        return
         sg = Sun(self.iface)
         sg.run()
 
@@ -421,6 +433,9 @@ class UMEP:
         sg.run()
 
     def GF(self):
+        QMessageBox.critical(self.dlg, "Plugin blocker",
+                             "This tool is not yet ported to QGIS3. Work still in progress.")
+        return
         sg = GreaterQF(self.iface)
         sg.run()
 
@@ -457,6 +472,9 @@ class UMEP:
         sg.run()
 
     def LF(self):
+        QMessageBox.critical(self.dlg, "Plugin blocker",
+                             "This tool is not yet ported to QGIS3. Work still in progress.")
+        return
         sg = LQF(self.iface)
         sg.run()
 
@@ -470,7 +488,7 @@ class UMEP:
         self.dlg.exec_()
 
     def help(self):
-        url = "http://umep-docs.readthedocs.io/en/latest/index.html"
+        url = "http://urban-climate.net/umep/"
         webbrowser.open_new_tab(url)
 
 

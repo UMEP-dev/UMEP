@@ -20,24 +20,31 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QThread, QCoreApplication
-from PyQt4.QtGui import QIcon, QAction, QFileDialog, QMessageBox
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread, QCoreApplication
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 from qgis.core import *
 from qgis.gui import *
-from solweig_dialog import SOLWEIGDialog
+from .solweig_dialog import SOLWEIGDialog
 import numpy as np
 from osgeo import gdal, osr
 import os.path
 import zipfile
 import webbrowser
 from osgeo.gdalconst import *
-from solweigworker import Worker
-import WriteMetadataSOLWEIG
+from .solweigworker import Worker
+from . import WriteMetadataSOLWEIG
 from ..Utilities.SEBESOLWEIGCommonFiles import Solweig_v2015_metdata_noload as metload
-from SOLWEIGpython.Tgmaps_v1 import Tgmaps_v1
+from .SOLWEIGpython.Tgmaps_v1 import Tgmaps_v1
 
 
-class SOLWEIG:
+class SOLWEIG(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -72,8 +79,10 @@ class SOLWEIG:
         self.dlg.runButton.clicked.connect(self.start_progress)
         self.dlg.pushButtonSave.clicked.connect(self.folder_path_out)
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(4)
-        self.fileDialog.setAcceptMode(1)
+        # self.fileDialog.setFileMode(4)
+        # self.fileDialog.setAcceptMode(1)
+        self.fileDialog.setFileMode(QFileDialog.Directory)
+        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
 
         self.dlg.pushButtonImportMetData.clicked.connect(self.met_file)
         self.fileDialogMet = QFileDialog()
@@ -90,51 +99,34 @@ class SOLWEIG:
         # self.toolbar = self.iface.addToolBar(u'SOLWEIG')
         # self.toolbar.setObjectName(u'SOLWEIG')
 
-        # self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_dsm)
-        # RasterLayerCombo(self.dlg.comboBox_dsm, initLayer="")
         self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetDSM)
         self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerDSM.setFixedWidth(175)
         self.layerComboManagerDSM.setCurrentIndex(-1)
-        # self.layerComboManagerVEGDSM = RasterLayerCombo(self.dlg.comboBox_vegdsm)
-        # RasterLayerCombo(self.dlg.comboBox_vegdsm, initLayer="")
         self.layerComboManagerVEGDSM = QgsMapLayerComboBox(self.dlg.widgetCDSM)
         self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerVEGDSM.setFixedWidth(175)
         self.layerComboManagerVEGDSM.setCurrentIndex(-1)
-        # self.layerComboManagerVEGDSM2 = RasterLayerCombo(self.dlg.comboBox_vegdsm2)
-        # RasterLayerCombo(self.dlg.comboBox_vegdsm2, initLayer="")
         self.layerComboManagerVEGDSM2 = QgsMapLayerComboBox(self.dlg.widgetTDSM)
         self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerVEGDSM2.setFixedWidth(175)
         self.layerComboManagerVEGDSM2.setCurrentIndex(-1)
-        # self.layerComboManagerDEM = RasterLayerCombo(self.dlg.comboBox_dem)
-        # RasterLayerCombo(self.dlg.comboBox_dem, initLayer="")
         self.layerComboManagerDEM = QgsMapLayerComboBox(self.dlg.widgetDEM)
         self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerDEM.setFixedWidth(175)
         self.layerComboManagerDEM.setCurrentIndex(-1)
-        # self.layerComboManagerLC = RasterLayerCombo(self.dlg.comboBox_landcover)
-        # RasterLayerCombo(self.dlg.comboBox_landcover, initLayer="")
         self.layerComboManagerLC = QgsMapLayerComboBox(self.dlg.widgetLC)
         self.layerComboManagerLC.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerLC.setFixedWidth(175)
         self.layerComboManagerLC.setCurrentIndex(-1)
-        # self.layerComboManagerWH = RasterLayerCombo(self.dlg.comboBox_wallheight)
-        # RasterLayerCombo(self.dlg.comboBox_wallheight, initLayer="")
         self.layerComboManagerWH = QgsMapLayerComboBox(self.dlg.widgetWH)
         self.layerComboManagerWH.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerWH.setFixedWidth(175)
         self.layerComboManagerWH.setCurrentIndex(-1)
-        # self.layerComboManagerWA = RasterLayerCombo(self.dlg.comboBox_wallaspect)
-        # RasterLayerCombo(self.dlg.comboBox_wallaspect, initLayer="")
         self.layerComboManagerWA = QgsMapLayerComboBox(self.dlg.widgetWA)
         self.layerComboManagerWA.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerWA.setFixedWidth(175)
         self.layerComboManagerWA.setCurrentIndex(-1)
-        # self.layerComboManagerPOI = VectorLayerCombo(self.dlg.comboBox_POIlayer)
-        # fieldgen = VectorLayerCombo(self.dlg.comboBox_POIlayer, initLayer="", options={"geomType": QGis.Point})
-        # self.layerComboManagerPOIfield = FieldCombo(self.dlg.comboBox_POIfield, fieldgen, initField="") #, options={"fieldType": int}
         self.layerComboManagerPOI = QgsMapLayerComboBox(self.dlg.widgetPointLayer)
         self.layerComboManagerPOI.setCurrentIndex(-1)
         self.layerComboManagerPOI.setFilters(QgsMapLayerProxyModel.PointLayer)
@@ -261,7 +253,7 @@ class SOLWEIG:
 
         if self.metdata.shape[1] == 24:
             self.iface.messageBar().pushMessage("SOLWEIG", "Meteorological data succesfully loaded",
-                                                level=QgsMessageBar.INFO, duration=3)
+                                                level=Qgis.Info, duration=3)
         else:
             QMessageBox.critical(self.dlg, "Import Error",
                                  "Wrong number of columns in meteorological data. You can "
@@ -716,9 +708,6 @@ class SOLWEIG:
             YYYY, altitude, azimuth, zen, jday, leafon, dectime, altmax = \
                 metload.Solweig_2015a_metdata_noload(self.metdata, location, UTC)
 
-            # QMessageBox.critical(self.dlg, "Error", str(location))
-            # return
-
             # %Creating vectors from meteorological input
             DOY = self.metdata[:, 1]
             hours = self.metdata[:, 2]
@@ -750,7 +739,8 @@ class SOLWEIG:
                 vlayer = QgsVectorLayer(poilyr.source(), "point", "ogr")
                 prov = vlayer.dataProvider()
                 #fields = prov.fields()
-                idx = vlayer.fieldNameIndex(poi_field)
+                # idx = vlayer.fieldNameIndex(poi_field)
+                idx = vlayer.fields().indexFromName(poi_field)
                 numfeat = vlayer.featureCount()
                 self.poiname = []
                 self.poisxy = np.zeros((numfeat, 3)) - 999
@@ -774,14 +764,9 @@ class SOLWEIG:
                     return
 
                 for k in range(0, self.poisxy.shape[0]):
-                    poi_save = [] # np.zeros((1, 33))
-                    #data_out = self.folderPath[0] + '/POI_' + str(self.poisxy[k, 0]) + '.txt'
+                    poi_save = []  # np.zeros((1, 33))
                     data_out = self.folderPath[0] + '/POI_' + str(self.poiname[k]) + '.txt'
                     np.savetxt(data_out, poi_save,  delimiter=' ', header=header, comments='')  # fmt=numformat,
-                    #f_handle = file(data_out, 'a')
-                    #endoffile = [-9, -9]
-                    #np.savetxt(f_handle, endoffile, fmt='%2d')
-                    #f_handle.close()
 
             self.dlg.progressBar.setRange(0, Ta.__len__())
 
@@ -804,15 +789,6 @@ class SOLWEIG:
                 amaxvalue = self.dsm.max() - self.dsm.min()
                 amaxvalue = np.maximum(amaxvalue, vegmax)
 
-                # # Elevation vegdsms if buildingDEM includes ground heights
-                # vegdem = self.vegdsm + self.dsm
-                # vegdem[vegdem == self.dsm] = 0
-                # vegdem2 = self.vegdsm2 + self.dsm
-                # vegdem2[vegdem2 == self.dsm] = 0
-                #
-                # # % Bush separation
-                # bush = np.logical_not((vegdem2 * vegdem)) * vegdem
-
                 # Elevation vegdsms if buildingDEM includes ground heights
                 self.vegdsm = self.vegdsm + self.dsm
                 self.vegdsm[self.vegdsm == self.dsm] = 0
@@ -828,9 +804,6 @@ class SOLWEIG:
                 svfbuveg = svf
                 bush = np.zeros([rows, cols])
                 amaxvalue = 0
-
-            # QMessageBox.critical(None, "Test", str(amaxvalue))
-            # return
 
             # % Ts parameterisation maps
             if self.landcover == 1.:
@@ -864,10 +837,6 @@ class SOLWEIG:
             timeaddN = 0.
             firstdaytime = 1.
 
-            # self.iface.messageBar().pushMessage("Ta.__len__  ", str(int(Ta.__len__())))
-            #self.iface.messageBar().pushMessage("__len__", str(buildings.shape[0]))
-            #self.iface.messageBar().pushMessage("__len__", str(self.lcgrid.shape[0]))
-
             WriteMetadataSOLWEIG.writeRunInfo(self.folderPath[0], filepath_dsm, self.gdal_dsm, self.usevegdem,
                                               filePath_cdsm, trunkfile, filePath_tdsm, lat, lon, UTC, self.landcover,
                                               filePath_lc, metfileexist, PathMet, self.metdata, self.plugin_dir,
@@ -876,8 +845,6 @@ class SOLWEIG:
 
             #  If metfile starts at night
             CI = 1.
-            # self.iface.messageBar().pushMessage("Ta", self.folderPath[0] + '/Tmrt_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[0, i])) + '_' + str(int(hours[0, i])) + str(int(minu[0, i])) + '.tif')
-            # self.iface.messageBar().pushMessage("hour", str(hours[5]))
             self.startWorker(self.dsm, self.scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
                         svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
                         self.vegdsm, self.vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, altitude,
@@ -963,11 +930,12 @@ class SOLWEIG:
             # self.iface.messageBar().pushMessage("SOLWEIG", "Model calculations successful.")
 
     def run(self):
+        """This methods is needed for QGIS to start the plugin"""
         self.dlg.show()
         self.dlg.exec_()
 
     def help(self):
-        url = 'http://umep-docs.readthedocs.io/en/latest/processor/Outdoor%20Thermal%20Comfort%20SOLWEIG.html'
+        url = 'http://urban-climate.net/umep/UMEP_Manual#Outdoor_Thermal_Comfort:_SOLWEIG'
         webbrowser.open_new_tab(url)
 
     def saveraster(self, gdal_data, filename, raster):
@@ -1034,7 +1002,6 @@ class SOLWEIG:
         self.thread.deleteLater()
         # remove widget from message bar
         if ret is not None:
-            # report the result
             # load result into canvas
             if self.dlg.checkBoxIntoCanvas.isChecked():
                 tmrtplot = ret["tmrtplot"]
@@ -1047,19 +1014,10 @@ class SOLWEIG:
                 rlayer.triggerRepaint()
 
                 rlayer.loadNamedStyle(self.plugin_dir + '/tmrt.qml')
-                # self.QgsMapLayerRegistry.instance().addMapLayer(rlayer)
 
                 if hasattr(rlayer, "setCacheImage"):
                     rlayer.setCacheImage(None)
                 rlayer.triggerRepaint()
-
-                # Set opacity
-                # rlayer.renderer().setOpacity(0.5)
-
-                # Trigger a repaint
-                # if hasattr(rlayer, "setCacheImage"):
-                #     rlayer.setCacheImage(None)
-                # rlayer.triggerRepaint()
 
             QMessageBox.information(self.dlg,"SOLWEIG", "Model calculations successful!\r\n"
                             "Setting for this calculation is found in RunInfoSOLWEIG.txt located in "
@@ -1074,7 +1032,7 @@ class SOLWEIG:
             # notify the user that something went wrong
             self.iface.messageBar().pushMessage(
                 'Operations cancelled either by user or error. See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.',
-                level=QgsMessageBar.CRITICAL, duration=3)
+                level=Qgis.Critical, duration=3)
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
@@ -1082,4 +1040,4 @@ class SOLWEIG:
             self.dlg.progressBar.setValue(0)
 
     def workerError(self, errorstring):
-        QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.Critical)

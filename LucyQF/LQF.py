@@ -20,20 +20,24 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
 
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QThread, Qt
-from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QThread, Qt
+from qgis.PyQt.QtWidgets import QAction, QMessageBox, QFileDialog
+from qgis.PyQt.QtGui import QIcon
 from qgis.gui import QgsMessageBar
 from qgis.core import QgsVectorLayer, QgsMessageLog
-from LQF_dialog import LQFDialog
+from .LQF_dialog import LQFDialog
 import os.path
 import webbrowser
 # LUCY specific code
-from PythonLUCY.LUCY import Model
-from time_displayer import time_displayer
+from .PythonLUCY.LUCY import Model
+from .time_displayer import time_displayer
 from datetime import datetime as dt
 from datetime import timedelta as timedelta
-from PythonLUCY.Disaggregate import DisaggregateWorker
+from .PythonLUCY.Disaggregate import DisaggregateWorker
 import traceback
 
 try:
@@ -43,7 +47,7 @@ except:
     pass
 
 
-class LQF:
+class LQF(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -75,7 +79,7 @@ class LQF:
         # Check dependencies
         try:
             import pandas
-        except Exception, e:
+        except Exception as e:
             QMessageBox.critical(None, 'Error',
                                  'LQF requires the pandas package to be installed. '
                                  'Please consult the manual for further information')
@@ -84,7 +88,7 @@ class LQF:
         # Check dependencies
         try:
             import netCDF4
-        except Exception, e:
+        except Exception as e:
             QMessageBox.critical(None, 'Error',
                                  'LQF requires the NetCDF4 package to be installed. '
                                  'Please consult the manual for further information')
@@ -93,7 +97,7 @@ class LQF:
         # Check dependencies
         try:
             import matplotlib
-        except Exception, e:
+        except Exception as e:
             QMessageBox.critical(None, 'Error',
                                  'LQF requires the matplotlib package to be installed. '
                                  'Please consult the manual for further information')
@@ -204,7 +208,7 @@ class LQF:
             # Check for manifest file or reject
             try:
                 self.model.setPreProcessedInputFolder(selectedFolder)
-            except Exception,e:
+            except Exception as e:
                 QMessageBox.critical(None, 'Error setting processed data path', str(e))
                 return
             self.dlg.txtProcessedDataPath.setText(selectedFolder)
@@ -287,7 +291,7 @@ class LQF:
         self.dlg.cmdPrepare.setEnabled(True)
 
     def help(self):
-        url = "http://umep-docs.readthedocs.io/en/latest/processor/Urban%20Energy%20Balance%20LQ.html"
+        url = "http://urban-climate.net/umep/UMEP_Manual#Urban_Energy_Balance:_LQF"
         webbrowser.open_new_tab(url)
 
     def dataSources(self):
@@ -299,7 +303,7 @@ class LQF:
             df = a.selectedFiles()
             try:
                 self.model.setDataSources(df[0])
-            except Exception,e:
+            except Exception as e:
                 QMessageBox.critical(None, 'Invalid Data Sources file provided', str(e))
                 return
 
@@ -364,7 +368,7 @@ class LQF:
             cf = a.selectedFiles()
             try:
                 self.model.setParameters(cf[0])
-            except Exception, e:
+            except Exception as e:
                 QMessageBox.critical(None, 'Invalid parameters file', str(e))
                 return
 
@@ -381,7 +385,7 @@ class LQF:
             # Check for manifest file or reject
             try:
                 locations = self.model.loadModelResults(selectedFolder)
-            except Exception,e:
+            except Exception as e:
                 QMessageBox.critical(None, 'Error loading previous model results', str(e))
                 return
 
@@ -549,7 +553,7 @@ class LQF:
             self.dlg.cmdLoadResults.setEnabled(True)
             self.dlg.cmdVisualise.setEnabled(True)
 
-        except Exception, e:
+        except Exception as e:
             QMessageBox.critical(None, 'Error running LQF', str(e))
             QgsMessageLog.logMessage(traceback.format_exc(), level=QgsMessageLog.WARNING)
 

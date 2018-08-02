@@ -1,4 +1,12 @@
 from __future__ import print_function
+
+## get sys module
+import sys
+
+import six
+
+from .compat import long
+
 ## This file is part of PyANTLR. See LICENSE.txt for license
 ## details..........Copyright (C) Wolfgang Haefelinger, 2004.
 
@@ -41,10 +49,7 @@ from __future__ import print_function
 
 ## End of contents of the ANTLR 2.7.7 LICENSE.txt ########################
 
-## get sys module
-import sys
 
-from .compat import long, basestring, int_types, xrange
 
 ###xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx###
 ###                     global symbols                             ###
@@ -93,7 +98,7 @@ def ifelse(cond,_then,_else):
 def is_string_type(x):
     # return  (isinstance(x,str) or isinstance(x,unicode))
     # Simplify; xlwt doesn't support Python < 2.3
-    return isinstance(basestring)
+    return isinstance(six.string_types)
 
 def assert_string_type(x):
     assert is_string_type(x)
@@ -1594,7 +1599,7 @@ class BitSet(object):
             raise TypeError("BitSet requires integer, long, or " +
                             "list argument")
         for x in data:
-            if not isinstance(x, int_types):
+            if not isinstance(x, six.integer_types):
                 raise TypeError(self,"List argument item is " +
                                 "not a long: %s" % (x))
         self.data = data
@@ -1602,7 +1607,7 @@ class BitSet(object):
     def __str__(self):
         bits = len(self.data) * BitSet.BITS
         s = ""
-        for i in xrange(0,bits):
+        for i in range(0,bits):
             if self.at(i):
                 s += "1"
             else:
@@ -1649,7 +1654,7 @@ class BitSet(object):
         mask = self.bitMask(bit)
         if i>=len(self.data):
             d = i - len(self.data) + 1
-            for x in xrange(0,d):
+            for x in range(0,d):
                 self.data.append(0)
             assert len(self.data) == i+1
         if on:
@@ -2074,7 +2079,7 @@ class LLkParser(Parser):
         if self.inputState.guessing > 0:
             guess = " [guessing]"
         print((ee + rname + guess))
-        for i in xrange(1,self.k+1):
+        for i in range(1,self.k+1):
             if i != 1:
                 print(", ")
             if self.LT(i) :
@@ -2801,7 +2806,7 @@ def make(*nodes):
     if not nodes:
         return None
 
-    for i in xrange(0,len(nodes)):
+    for i in range(0,len(nodes)):
         node = nodes[i]
         if node:
             assert isinstance(node,AST)
@@ -2811,7 +2816,7 @@ def make(*nodes):
     if root:
         root.setFirstChild(None)
 
-    for i in xrange(1,len(nodes)):
+    for i in range(1,len(nodes)):
         if not nodes[i]:
             continue
         if not root:

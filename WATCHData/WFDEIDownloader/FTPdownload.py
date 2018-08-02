@@ -1,3 +1,7 @@
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
 # Funtion:
 # Download WATCH/WFDEI data for specified date range and variable.
 # Author:
@@ -11,7 +15,7 @@
 from ftplib import FTP
 import os
 import sys
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import numpy as np
 from datetime import date,datetime
 from dateutil.relativedelta import relativedelta
@@ -23,9 +27,11 @@ def single_file_download(path, key_word, ftp):
         print("File exist! Try again...")
     else:
         f = open(path, 'wb')
-        print "%s downloading..." % key_word
+        # fix_print_with_import
+        print("%s downloading..." % key_word)
         ftp.retrbinary('RETR %s' % key_word, f.write)
-        print "%s download succeed!" % key_word
+        # fix_print_with_import
+        print("%s download succeed!" % key_word)
 
 
 def time_period_files_download(key_word, path, ftp):
@@ -52,12 +58,15 @@ def time_period_files_download(key_word, path, ftp):
         # path_temp = path + file_name
         path_temp = os.path.join(path, file_name)
         if os.path.lexists(path_temp):
-            print "%s exists!" % file_name
+            # fix_print_with_import
+            print("%s exists!" % file_name)
         else:
             f = open(path_temp, 'wb')
-            print "%s downloading..." % file_name
+            # fix_print_with_import
+            print("%s downloading..." % file_name)
             ftp.retrbinary('RETR %s' % file_name, f.write)
-            print "%s download succeed!" % file_name
+            # fix_print_with_import
+            print("%s download succeed!" % file_name)
 
 
 def time_period_test(firstAvailableTime, finalAvailableTime, start_time, end_time):

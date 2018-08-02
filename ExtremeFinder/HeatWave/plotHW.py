@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import range
 # -*- coding: utf-8 -*-
 
 ###########################################
@@ -166,7 +168,7 @@ def plotHW(lat,lon,Tmax, xHW, hw_year_start, hw_year_end, labelsForPlot):
     dataForBoxplot.append(TmaxForBoxplot)
     lendataForBarchart.append(lenTmaxForBarchart)
 
-    YearList = range(hw_year_start,hw_year_end+1)
+    YearList = list(range(hw_year_start,hw_year_end+1))
     # TdataList = [ [] for _ in range(len(YearList))]
     for i in range(0,len(YearList)):
         if not YearList[i]==YearsForBoxplot[-1]:
@@ -202,7 +204,7 @@ def plotHW(lat,lon,Tmax, xHW, hw_year_start, hw_year_end, labelsForPlot):
     # Reverse colors and text labels to display the last value at the top.
     colors = colors[::-1]
 
-    xticks=range(1,len(YearsForBoxplot)+1,dyForTicks)
+    xticks=list(range(1,len(YearsForBoxplot)+1,dyForTicks))
     plt.xlabel("Time (Years)")
     plt.ylabel("Days")
     plt.xticks(xticks,yearticks_lbl)

@@ -1,9 +1,8 @@
+from builtins import range
 from ..Utilities import shadowingfunctions as shadow
-# from ..Utilities import Pysolarn as pys
 from ..Utilities.SEBESOLWEIGCommonFiles import sun_position as sp
 import datetime as dt
 from ..Utilities.misc import *
-# from PyQt4.QtGui import QMessageBox
 from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_23 import shadowingfunction_wallheight_23
 
 

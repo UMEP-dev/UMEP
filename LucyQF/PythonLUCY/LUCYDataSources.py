@@ -1,3 +1,7 @@
+from builtins import str
+from builtins import map
+from builtins import range
+from builtins import object
 from ...Utilities import f90nml as nml
 import os
 from datetime import datetime as dt
@@ -24,7 +28,7 @@ def validFile(x):
     if not os.path.exists(x):
         raise ValueError('The diurnal input file ' + str(x) + ' was not found')
 
-class LUCYDataSources:
+class LUCYDataSources(object):
     ''' Loads the data sources namelist, conducts validation and structures inputs for use with data management routines
     '''
     def __init__(self, configFile):
@@ -40,7 +44,7 @@ class LUCYDataSources:
 
         try:
             ds = nml.read(configFile)
-        except Exception, e:
+        except Exception as e:
             raise ValueError('Unable to read data sources config file at: ' + str(configFile))
 
         self.inputFile = configFile
@@ -53,12 +57,12 @@ class LUCYDataSources:
         # Get the database
         try:
             self.database = ds['database']['path']
-        except Exception,e:
+        except Exception as e:
             raise ValueError('Could not set LQF database locations: %s'%str(e))
 
         if not os.path.exists(self.database):
             raise ValueError('LQF database file (%s) does not exist'%ds['database'])
-        missing = list(set(expectedKeys_spatial).difference(ds.keys()))
+        missing = list(set(expectedKeys_spatial).difference(list(ds.keys())))
         if len(missing) > 0:
             raise ValueError('Spatial entries missing from ' + str(configFile) + ' in namelist: ' + str(missing))
 
@@ -66,7 +70,7 @@ class LUCYDataSources:
         for subEntry in expectedKeys_spatial:
             content = ds[subEntry]
             # Check it's all lists or no lists
-            types = np.unique(map(type, content.values()))
+            types = np.unique(list(map(type, list(content.values()))))
             # are all required sub-entries present?
             if subEntry == "outputareas": # Special case for output areas
                 expectedNames_spat = ['shapefile', 'epsgCode', 'featureIds']
@@ -75,16 +79,16 @@ class LUCYDataSources:
             elif subEntry == "database":
                 expectedNames_spat = ['path']
 
-            missing = list(set(map(upper, expectedNames_spat)).difference(map(upper, content.keys())))
+            missing = list(set(map(upper, expectedNames_spat)).difference(list(map(upper, list(content.keys())))))
             if len(missing) > 0:
                 raise ValueError('Entries missing from ' + subEntry + ' in namelist: ' + str(missing))
 
-            for k in content.keys():
+            for k in list(content.keys()):
                 if content[k] == '':
                     content[k] = None
                 content[k] = [content[k]]
 
-            map(validateInput, content[expectedNames_spat[0]])
+            list(map(validateInput, content[expectedNames_spat[0]]))
 
             # Having gotten this far means the entries are valid, so populate the object field
             if subEntry == "outputareas": # Special case for output areas
@@ -94,8 +98,8 @@ class LUCYDataSources:
                 self.outputAreas_spat = entries
             else:
                 try:
-                    content['startDates'] = map(makeTimey, content['startDates'])
-                except Exception, e:
+                    content['startDates'] = list(map(makeTimey, content['startDates']))
+                except Exception as e:
                     raise ValueError('One or more startDate entries is not in YYYY-mm-dd format for ' + subEntry + ':' + str(e))
 
                 # Ensure dates within a subentry are unique
@@ -118,7 +122,7 @@ class LUCYDataSources:
                         self.database = content['path'][0]
 
         # Mandatory: Get temperature data
-        if 'dailytemperature' not in ds['temporal'].keys():
+        if 'dailytemperature' not in list(ds['temporal'].keys()):
             raise ValueError('Temperature data file(s) not specified')
 
         if type(ds['temporal']['dailyTemperature']) is not list:
@@ -138,7 +142,7 @@ class LUCYDataSources:
                   'diurnTraffic':'Traffic flow',
                   'diurnMetab':'Metabolism'}
         for c in cycles:
-            if c.lower() not in ds['temporal'].keys():
+            if c.lower() not in list(ds['temporal'].keys()):
                 setattr(self, c, None)
                 continue # No cycle(s) specified
             fileList = []

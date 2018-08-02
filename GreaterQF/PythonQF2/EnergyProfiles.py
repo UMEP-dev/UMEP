@@ -1,3 +1,7 @@
+from __future__ import absolute_import
+from builtins import map
+from builtins import range
+from builtins import object
 # Object that stores and retrieves energy use profiles for different seasons and times of day for GreaterQF
 # An energy profile is a week-long template of relative energy use that changes only with season
 
@@ -10,10 +14,10 @@ except:
     pass
 
 import pytz
-from DataManagement.LookupLogger import LookupLogger
-from DataManagement.TemporalProfileSampler import TemporalProfileSampler
+from .DataManagement.LookupLogger import LookupLogger
+from .DataManagement.TemporalProfileSampler import TemporalProfileSampler
 
-class EnergyProfiles:
+class EnergyProfiles(object):
     def __init__(self, city, use_uk_holidays, customHolidays = [], logger=LookupLogger()):
         ''' Instantiate
         :param city : String specifying which city is being modelled (e.g. Europe/London). Must be compatible with pytz.timezone standard
@@ -103,11 +107,11 @@ class EnergyProfiles:
         dl = pd.read_csv(file,skipinitialspace=True, header=None)
 
         # Should be 3x each season in header
-        if (len(dl.keys())-1)%3 != 0:
+        if (len(list(dl.keys()))-1)%3 != 0:
             raise ValueError('There must be 3 columns for each named season in ' + file)
 
         # Expect certain keywords
-        rowHeadings = map(lower, dl[0][0:6])
+        rowHeadings = list(map(lower, dl[0][0:6]))
         if 'season' != rowHeadings[0]:
             raise ValueError('First column of row 1 must be \'Season\' in ' + file)
 
@@ -129,9 +133,9 @@ class EnergyProfiles:
         firstDataLine = 6
         # Try to extract the timezone from the file header
         try:
-            tz = pytz.timezone(dl[dl.keys()[1]][5])
+            tz = pytz.timezone(dl[list(dl.keys())[1]][5])
         except Exception:
-            raise ValueError('Invalid timezone "' + dl[dl.keys()[1]][5] + '" specified in ' + file +
+            raise ValueError('Invalid timezone "' + dl[list(dl.keys())[1]][5] + '" specified in ' + file +
                              '. This should be of the form "UTC" or "Europe/London" as per python timezone documentation')
 
         earliestStart = None
@@ -143,7 +147,7 @@ class EnergyProfiles:
             try:
                 sd = pd.datetime.strptime(dl[seasonStart][3], '%Y-%m-%d')
                 ed = pd.datetime.strptime(dl[seasonStart][4], '%Y-%m-%d')
-            except Exception, e:
+            except Exception as e:
                 raise Exception('Rows 4 and 5 of ' + file + ' must be dates in the format YYYY-mm-dd')
 
             sd = tz.localize(sd)

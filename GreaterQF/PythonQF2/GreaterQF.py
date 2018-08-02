@@ -1,3 +1,7 @@
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
+from builtins import object
 import os
 import pickle
 import re
@@ -10,26 +14,26 @@ try:
 except:
     pass
 
-from DataManagement.spatialHelpers import feature_areas, loadShapeFile, shapefile_attributes
-from DataManagement.temporalHelpers import makeUTC
+from .DataManagement.spatialHelpers import feature_areas, loadShapeFile, shapefile_attributes
+from .DataManagement.temporalHelpers import makeUTC
 from pytz import timezone
-from Calcs3 import QF
-from DailyEnergyLoading import DailyEnergyLoading
-from DailyFactors import DailyFact
-from Disaggregate import disaggregate
-from EnergyProfiles import EnergyProfiles # For temporal energy use profiles
-from EnergyUseData import EnergyUseData   # For spatially disaggregated energy use data
-from FuelConsumption import FuelConsumption
-from GQFDataSources import DataSources
-from HumanActivityProfiles import HumanActivityProfiles
-from Params import Params
-from Partitions import Partitions
-from Population import Population
-from Transport import Transport
-from TransportProfiles import TransportProfiles
+from .Calcs3 import QF
+from .DailyEnergyLoading import DailyEnergyLoading
+from .DailyFactors import DailyFact
+from .Disaggregate import disaggregate
+from .EnergyProfiles import EnergyProfiles # For temporal energy use profiles
+from .EnergyUseData import EnergyUseData   # For spatially disaggregated energy use data
+from .FuelConsumption import FuelConsumption
+from .GQFDataSources import DataSources
+from .HumanActivityProfiles import HumanActivityProfiles
+from .Params import Params
+from .Partitions import Partitions
+from .Population import Population
+from .Transport import Transport
+from .TransportProfiles import TransportProfiles
 
 
-class Model():
+class Model(object):
     ''' Class that encapsulates a GreaterQF model instance'''
     def __init__(self):
         # Define the subfolders that should be present after each model run
@@ -278,7 +282,7 @@ class Model():
         if not os.path.exists(path):
             raise Exception('Model output directory ' + str(path) + ' not found')
 
-        for sub in self.subFolders.values():
+        for sub in list(self.subFolders.values()):
             directory = os.path.join(path, sub)
             if not os.path.exists(directory):
                 raise Exception('Chosen model output folder ' + str(path) + ' did not contain enough subfolders to be genuine')

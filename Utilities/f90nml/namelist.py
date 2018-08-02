@@ -7,6 +7,7 @@
    :license: Apache License, Version 2.0, see LICENSE for details.
 """
 from __future__ import print_function
+from builtins import str
 
 import os
 try:
@@ -22,7 +23,7 @@ class NmlDict(OrderedDict):
         super(NmlDict, self).__init__(*args, **kwds)
 
         # Convert any internal dicts to NmlDicts
-        for key, val in self.items():
+        for key, val in list(self.items()):
             if isinstance(val, dict):
                 self[key] = NmlDict(val)
 
@@ -220,7 +221,7 @@ class NmlDict(OrderedDict):
             raise IOError('File {0} already exists.'.format(nml_path))
 
         with open(nml_path, 'w') as nml_file:
-            for grp_name, grp_vars in self.items():
+            for grp_name, grp_vars in list(self.items()):
                 # Check for repeated namelist records (saved as lists)
                 if isinstance(grp_vars, list):
                     for g_vars in grp_vars:
@@ -228,7 +229,7 @@ class NmlDict(OrderedDict):
                 else:
                     self.write_nmlgrp(grp_name, grp_vars, nml_file)
 
-        if self.items():
+        if list(self.items()):
             with open(nml_path, 'rb+') as nml_file:
                 nml_file.seek(-1, os.SEEK_END)
                 nml_file.truncate()
@@ -241,7 +242,7 @@ class NmlDict(OrderedDict):
 
         print('&{0}'.format(grp_name), file=nml_file)
 
-        for v_name, v_val in grp_vars.items():
+        for v_name, v_val in list(grp_vars.items()):
 
             for v_str in self.var_strings(v_name, v_val):
                 nml_line = self.indent + '{0}'.format(v_str)
@@ -260,7 +261,7 @@ class NmlDict(OrderedDict):
 
         # Parse derived type contents
         if isinstance(v_values, dict):
-            for f_name, f_vals in v_values.items():
+            for f_name, f_vals in list(v_values.items()):
                 v_title = '%'.join([v_name, f_name])
 
                 v_strs = self.var_strings(v_title, f_vals)

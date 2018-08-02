@@ -1,3 +1,8 @@
+from __future__ import absolute_import
+from builtins import str
+from builtins import map
+from builtins import range
+from builtins import object
 import os
 import re
 from datetime import datetime as dt
@@ -14,23 +19,23 @@ try:
 except:
     pass
 
-from RegionalParameters import RegionalParameters
-from LUCYDiurnalProfile import LUCYDiurnalProfile
-from Disaggregate import disaggregate
-from LUCYfunctions import qm, qb, qt, offset, increasePerHDD, increasePerCDD
-from DailyTemperature import DailyTemperature
-from LUCYDataSources import LUCYDataSources
-from LUCYParams import LUCYParams
-from MetabolismProfiles import MetabolismProfiles
-from DataManagement.spatialHelpers import intOrString, loadShapeFile
-from DataManagement.temporalHelpers import is_holiday
-from PyQt4.QtCore import QObject, pyqtSignal
+from .RegionalParameters import RegionalParameters
+from .LUCYDiurnalProfile import LUCYDiurnalProfile
+from .Disaggregate import disaggregate
+from .LUCYfunctions import qm, qb, qt, offset, increasePerHDD, increasePerCDD
+from .DailyTemperature import DailyTemperature
+from .LUCYDataSources import LUCYDataSources
+from .LUCYParams import LUCYParams
+from .MetabolismProfiles import MetabolismProfiles
+from .DataManagement.spatialHelpers import intOrString, loadShapeFile
+from .DataManagement.temporalHelpers import is_holiday
+from qgis.PyQt.QtCore import QObject, pyqtSignal
 
 
 class LQFWorker(QObject):
     finished = pyqtSignal(object)
     update = pyqtSignal(object)
-    error = pyqtSignal(Exception, basestring)
+    error = pyqtSignal(Exception, str)
     def __init__(self, ds, params, outputFolder, UMEPgrid=None, UMEPcoverFractions=None, UMEPgridID=None):
         QObject.__init__(self)
         self.killed = False
@@ -48,10 +53,10 @@ class LQFWorker(QObject):
         try:
             outputFolder = disaggregate(self.ds, self.params, self.outputFolder, self.UMEPgrid, self.UMEPcoverFractions, self.UMEPgridID, self.update)
             self.finished.emit(outputFolder)
-        except Exception,e:
+        except Exception as e:
             self.error.emit(e, traceback.format_exc())
 
-class Model():
+class Model(object):
     ''' Class that encapsulates a GreaterQF model instance'''
     def __init__(self):
         # Define the subfolders that should be present after each model run
@@ -252,7 +257,7 @@ class Model():
         regPar = RegionalParameters()
         regPar.setWorldDatabase(self.ds.database)
         # If the user went for extra disaggregation, use this. If not, don't
-        if 'extra_disagg' in self.processedDataList.keys():
+        if 'extra_disagg' in list(self.processedDataList.keys()):
             # Create three copies of the regional parameters object, each using a different "population" to disaggregate buildings, vehicles and metabolism
             mt = self.processedDataList['extra_disagg']['metabolism'][0]
             tp = self.processedDataList['extra_disagg']['transport'][0]
@@ -310,10 +315,10 @@ class Model():
                                                              other_holidays=combinedHolidays)
                 # Generate 7-day cycle from reference data, with weekends in the right places given local country
                 cycle = pd.concat([weekdayTraffic.loc[country]]*7)
-                cycle.index = range(0, len(cycle))
+                cycle.index = list(range(0, len(cycle)))
                 for wdd in weekendDays[country]:
-                    cycle[range(wdd*24, (1+wdd)*24)] = weekendTraffic.loc[country].values # Overwrite the weekend days with weekend values
-                trafficProfile[country].addWeeklyCycle(cityTimezone.localize(dt(2015,01,01)), cityTimezone.localize(dt(2015,12,31)), cycle) # 2015 is arbitrary; will work for all years.
+                    cycle[list(range(wdd*24, (1+wdd)*24))] = weekendTraffic.loc[country].values # Overwrite the weekend days with weekend values
+                trafficProfile[country].addWeeklyCycle(cityTimezone.localize(dt(2015,0o1,0o1)), cityTimezone.localize(dt(2015,12,31)), cycle) # 2015 is arbitrary; will work for all years.
 
         # Building cycle: Same approach as for Traffic cycle
         if self.ds.diurnEnergy is not None:
@@ -332,10 +337,10 @@ class Model():
                                                           use_uk_holidays=self.parameters.use_uk_hols,
                                                           other_holidays=combinedHolidays)
                 cycle = pd.concat([weekdayBldg.loc[country]]*7)
-                cycle.index = range(0, len(cycle))
+                cycle.index = list(range(0, len(cycle)))
                 for wdd in weekendDays[country]:
-                    cycle[range(wdd*24, (1+wdd)*24)] = weekendBldg.loc[country].values # Overwrite the weekend days with weekend values
-                bldgProfile[country].addWeeklyCycle(cityTimezone.localize(dt(2015,01,01)), cityTimezone.localize(dt(2015,12,31)), cycle) # 2015 is arbitrary; will work for all years.
+                    cycle[list(range(wdd*24, (1+wdd)*24))] = weekendBldg.loc[country].values # Overwrite the weekend days with weekend values
+                bldgProfile[country].addWeeklyCycle(cityTimezone.localize(dt(2015,0o1,0o1)), cityTimezone.localize(dt(2015,12,31)), cycle) # 2015 is arbitrary; will work for all years.
 
         # This version of the model doesn't allow a custom metabolic cycle.
         metabCycles = MetabolismProfiles(self.parameters.timezone,workLevel=175, sleepLevel=75)
@@ -344,7 +349,7 @@ class Model():
         dates = np.unique(timeBins.date)
         columns = ['nation_id']
         def to_datestring(x): return (x + timedelta(hours=24)).strftime('%Y-%m-%d')
-        columns.extend(map(to_datestring, dates))
+        columns.extend(list(map(to_datestring, dates)))
 
         # Data that will be stored to summarise the run so it can be loaded in SUEWS
         national_attribs_used = [] # Store the unique national attributes used in the model
@@ -504,7 +509,7 @@ class Model():
         self.loadModelResults(self.modelRoot)
         startTime = dates[0]
 
-        if 'extra_disagg' in self.processedDataList.keys():
+        if 'extra_disagg' in list(self.processedDataList.keys()):
             gridIdFieldName = self.processedDataList['extra_disagg']['output_areas']['featureIds']
             outLayer = loadShapeFile(self.processedDataList['extra_disagg']['output_areas']['file'], self.processedDataList['extra_disagg']['output_areas']['EPSG'])
         else:
@@ -539,7 +544,7 @@ class Model():
             times.units = 'hours since ' + startTime.strftime('%Y-%m-%d %H:%M:%S')
             times.calendar = 'gregorian'
             def toHoursSinceStart(x): return (int(x.strftime('%j'))-1)*24 + x.hour
-            times[:] = np.array(map(toHoursSinceStart, timesToUse))
+            times[:] = np.array(list(map(toHoursSinceStart, timesToUse)))
 
             if is_grid:
                 dataset.createDimension('south_north', len(output_y))
@@ -558,7 +563,7 @@ class Model():
                 # Sort the grid IDs into an order that allows data to be transformed quickly from series to grid
                 # [y_pos, x_pos]
                 # correctIdOrder = map(intOrString, list(pd.DataFrame(mappings).transpose().sort([1,0]).index))
-                correctIdOrder = map(intOrString, list(pd.DataFrame(mappings).transpose().sort_values([1, 0]).index))
+                correctIdOrder = list(map(intOrString, list(pd.DataFrame(mappings).transpose().sort_values([1, 0]).index)))
                 # Set up data arrays
                 for t in range(len(timesToUse)):
                     # Read output file and add it to netCDF. Re-order each on the fly and reshape to matrix
@@ -589,7 +594,7 @@ class Model():
         times = dataset.createVariable('time', np.int16, ('time',))
         times.units = 'days since ' + dates[0].strftime('%Y-%m-%d %H:%M:%S')
         times.calendar = 'gregorian'
-        times[:] = range(len(temperatures))
+        times[:] = list(range(len(temperatures)))
         temps = dataset.createVariable('temperature', np.float32, ('time',))
         temps[:] = list(temperatures)
 
@@ -597,7 +602,7 @@ class Model():
         dataset.createDimension('regional_id', len(national_attribs_used))
         regionId = dataset.createVariable('regional_id', np.int16, ('regional_id',))
         regionId.units = 'N/A'
-        regionId[:] = range(len(national_attribs_used))
+        regionId[:] = list(range(len(national_attribs_used)))
         increasePerCDD = dataset.createVariable('increasePerCDD', np.float32, ('regional_id',))
         increasePerCDD[:] = [x['increasePerCDD'] for x in national_attribs_used]
         increasePerHDD = dataset.createVariable('increasePerHDD', np.float32, ('regional_id',))
@@ -703,7 +708,7 @@ class Model():
         if not os.path.exists(path):
             raise Exception('Model output directory ' + str(path) + ' not found')
 
-        for sub in self.subFolders.values():
+        for sub in list(self.subFolders.values()):
             directory = os.path.join(path, sub)
             if not os.path.exists(directory):
                 raise Exception('Chosen model output folder ' + str(path) + ' did not contain enough subfolders to be genuine')
@@ -778,7 +783,7 @@ class Model():
         :return:
         '''
         # Just use one of the disaggregated layers, since these are using same feature mappings
-        if 'extra_disagg' in self.processedDataList.keys():
+        if 'extra_disagg' in list(self.processedDataList.keys()):
             return self.processedDataList['extra_disagg']['output_areas']
         else:
             return self.processedDataList['resPop'][0]

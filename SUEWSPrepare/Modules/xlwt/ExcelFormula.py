@@ -1,7 +1,8 @@
-# -*- coding: windows-1252 -*-
+# -*- coding: utf-8 -*-
 
-from . import ExcelFormulaParser, ExcelFormulaLexer
 import struct
+
+from . import ExcelFormulaLexer, ExcelFormulaParser
 from .antlr import ANTLRException
 
 
@@ -40,4 +41,3 @@ class Formula(object):
 
         '''
         return struct.pack("<H", len(self.__parser.rpn)) + self.__parser.rpn
-

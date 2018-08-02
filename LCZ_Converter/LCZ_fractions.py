@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import range
 import numpy as np
 from qgis.core import QgsMessageLog
 

@@ -1,3 +1,5 @@
+from __future__ import print_function
+from builtins import range
 import unittest
 #from WFDEIDownloader.WFDEI_Interpolator import height_solver_WFDEI
 import os
@@ -8,10 +10,12 @@ def height_solver_WFDEI(lat, lon):
 
     with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'WFDEIDownloader/WFDEI-land-long-lat-height.txt')) as f:
         ls = [line.split() for line in f]
-    print (glat, glon)
+    # fix_print_with_import
+    print((glat, glon))
     for i in range(7, len(ls)):
         if float(ls[i][0]) == glon and float(ls[i][1]) == glat:
-            print ls[i]
+            # fix_print_with_import
+            print(ls[i])
             return float(ls[i][2])
             break
     # oceanic grids determined as 0.0
@@ -44,7 +48,8 @@ def lon_lat_grid(lat, lon):
             lat = -(-int(lat) + 0.25)
         else:
             lat = -(-int(lat) + 0.75)
-    print (lat, lon)
+    # fix_print_with_import
+    print((lat, lon))
     return lat, lon
 
 
@@ -52,5 +57,6 @@ class TestBasicCalcs(unittest.TestCase):
     ''' Tests for custom temperature response calculation'''
 
     def testZeroInLondon(self):
-        print height_solver_WFDEI(51.539, -0.142)
+        # fix_print_with_import
+        print(height_solver_WFDEI(51.539, -0.142))
         ''' Extreme low should be a particular value'''

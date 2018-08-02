@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from builtins import str
 # Class to handle temporal profiles for different year, season, day of week and time of day
 # to make it easy to pull the relevant number out
 
@@ -9,9 +11,9 @@ import pytz
 from datetime import datetime as dt
 from datetime import timedelta
 from dateutil.relativedelta import *
-from temporalHelpers import *
+from .temporalHelpers import *
 #from samplerHelpers import *
-from GenericAnnualSampler import GenericAnnualSampler
+from .GenericAnnualSampler import GenericAnnualSampler
 
 class TemporalProfileSampler(GenericAnnualSampler):
 

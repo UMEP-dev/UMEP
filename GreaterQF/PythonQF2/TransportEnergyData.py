@@ -1,11 +1,14 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import object
 from datetime import datetime
-from DataManagement.LookupLogger import LookupLogger
-from DataManagement.SpatialTemporalResampler import SpatialTemporalResampler
-from DataManagement.spatialHelpers import *
-from PyQt4.QtCore import QSettings
+from .DataManagement.LookupLogger import LookupLogger
+from .DataManagement.SpatialTemporalResampler import SpatialTemporalResampler
+from .DataManagement.spatialHelpers import *
+from qgis.PyQt.QtCore import QSettings
 
 
-class TransportEnergyData:
+class TransportEnergyData(object):
     # Read in raw transport inputs (a mixture of single values, spatial polygons and point counts)
     # and produce energy estimates in spatial units as specified by a template shapefile
 
@@ -123,5 +126,6 @@ def testIt():
     trans['start_date'] = datetime.strptime('2008-01-01', '%Y-%m-%d')
     a.setEnergy(trans['shapefile'], trans['start_date'], trans['field_to_use'], epsgCode=trans['epsg'])
     # Get downscaled shapefiles for 2014
-    print a.getEnergyTable(datetime.strptime('2013-01-01', '%Y-%m-%d'))
+    # fix_print_with_import
+    print(a.getEnergyTable(datetime.strptime('2013-01-01', '%Y-%m-%d')))
 

@@ -20,27 +20,33 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QThread
-from PyQt4.QtGui import QIcon, QAction, QFileDialog, QMessageBox
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 from qgis.core import *
 from qgis.gui import *
 # Initialize Qt resources from file resources.py
-import resources_rc
+# from . import resources_rc
 
 # Import the code for the dialog
-from svf_calculator_dialog import SkyViewFactorCalculatorDialog
+from .svf_calculator_dialog import SkyViewFactorCalculatorDialog
 import os.path
 import numpy as np
 from osgeo import gdal
-import Skyviewfactor4d as svf
-from svfworker import Worker
-from svfvegworker import VegWorker
-from osgeo.gdalconst import *
+from . import Skyviewfactor4d as svf
+from .svfworker import Worker
+from .svfvegworker import VegWorker
+# from osgeo.gdalconst import *
 import webbrowser
 import zipfile
 import sys
 
-class SkyViewFactorCalculator:
+class SkyViewFactorCalculator(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -77,8 +83,10 @@ class SkyViewFactorCalculator:
         self.dlg.checkBoxUseVeg.toggled.connect(self.text_enable)
         self.dlg.checkBoxTrunkExist.toggled.connect(self.text_enable2)
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(4)
-        self.fileDialog.setAcceptMode(1)
+        # self.fileDialog.setFileMode(4)
+        # self.fileDialog.setAcceptMode(1)
+        self.fileDialog.setFileMode(QFileDialog.Directory)
+        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
 
         # Declare instance attributes
         self.actions = []
@@ -311,7 +319,7 @@ class SkyViewFactorCalculator:
             svfbuW = ret["svfW"]
             svfbuN = ret["svfN"]
 
-            svfbuname = ret.keys()
+            svfbuname = list(ret.keys())
 
             # svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfbuname[0] + '.tif', self.svfbu)
             # svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + svfbuname[1] + '.tif', svfbuE)
@@ -406,7 +414,7 @@ class SkyViewFactorCalculator:
             svfWaveg = ret["svfWaveg"]
             svfNaveg = ret["svfNaveg"]
 
-            svfvegname = ret.keys()
+            svfvegname = list(ret.keys())
 
             svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfveg.tif', svfveg)
             svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfEveg.tif', svfEveg)
@@ -646,12 +654,14 @@ class SkyViewFactorCalculator:
             # load result into canvas
 
     def run(self):
+        """Run method that performs all the real work"""
         self.dlg.show()
         self.dlg.exec_()
 
     def help(self):
-        url = 'http://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Geometry%20Sky%20View%20Factor%20' \
-              'Calculator.html'
+        # url = "file://" + self.plugin_dir + "/help/Index.html"
+        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Urban_Geometry:_Sky_View_Factor_Calculator'
+        # QDesktopServices.openUrl(QUrl(url))
         webbrowser.open_new_tab(url)
 
 

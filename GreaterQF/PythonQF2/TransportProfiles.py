@@ -1,3 +1,7 @@
+from __future__ import absolute_import
+from builtins import map
+from builtins import str
+from builtins import object
 # Object that stores and retrieves diurnal cycles of road traffic for different seasons and times of day for GreaterQF
 # An energy profile is a week-long template of relative energy use that changes only with season
 
@@ -9,10 +13,10 @@ try:
 except:
     pass
 import pytz
-from DataManagement.LookupLogger import LookupLogger
-from DataManagement.TemporalProfileSampler import TemporalProfileSampler
+from .DataManagement.LookupLogger import LookupLogger
+from .DataManagement.TemporalProfileSampler import TemporalProfileSampler
 
-class TransportProfiles:
+class TransportProfiles(object):
     def __init__(self, city, use_uk_holidays, customHolidays = [], logger=LookupLogger()):
         ''' Instantiate
         :param city: String specifying the city being modelled (must be in timezone format e.g. Europe/London)
@@ -105,13 +109,13 @@ class TransportProfiles:
         dl = pd.read_csv(file,skipinitialspace=True)
 
         # Should be 3x each season in header
-        if len(dl.keys()) != 8:
+        if len(list(dl.keys())) != 8:
             raise ValueError('There must be 8 columns in ' + file)
 
-        dl.columns = map(string.lower,  dl.columns.tolist())
+        dl.columns = list(map(string.lower,  dl.columns.tolist()))
         expectedHeadings = ['motorcycles', 'taxis', 'cars', 'buses', 'lgvs', 'rigids', 'artics']
-        matches = list(set(dl.keys()[1:]).intersection(expectedHeadings))
-        if len(matches) != len(dl.keys())-1:
+        matches = list(set(list(dl.keys())[1:]).intersection(expectedHeadings))
+        if len(matches) != len(list(dl.keys()))-1:
             raise ValueError('Top row of transport diurnal profiles must contain each of: ' + str(expectedHeadings))
 
         firstDataRow = 3
@@ -130,9 +134,9 @@ class TransportProfiles:
 
         # Try to extract the timezone from the file header
         try:
-            tz = pytz.timezone(dl[dl.keys()[1]][2])
+            tz = pytz.timezone(dl[list(dl.keys())[1]][2])
         except Exception:
-            raise ValueError('Invalid timezone "' + dl[dl.keys()[1]][2] + '" specified in ' + file +
+            raise ValueError('Invalid timezone "' + dl[list(dl.keys())[1]][2] + '" specified in ' + file +
                              '. This should be of the form "UTC" or "Europe/London" as per python timezone documentation')
 
         # Step through the list of transport types, adding the profiles
@@ -140,7 +144,7 @@ class TransportProfiles:
         try:
             sd = pd.datetime.strptime(dl[dl.columns[1]][0], '%Y-%m-%d')
             ed = pd.datetime.strptime(dl[dl.columns[1]][1], '%Y-%m-%d')
-        except Exception, e:
+        except Exception as e:
             raise Exception('Second column of Rows 2 and 3 of ' + file + ' must be dates in the format YYYY-mm-dd')
 
         sd = tz.localize(sd)

@@ -20,18 +20,24 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QThread
-from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QThread
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
+from qgis.PyQt.QtGui import QIcon
 from qgis.gui import *
-from qgis.core import QgsMessageLog
-from wall_height_dialog import WallHeightDialog
+from qgis.core import QgsMessageLog, QgsMapLayerProxyModel, Qgis
+from .wall_height_dialog import WallHeightDialog
 import os.path
-import wallalgorithms as wa
+from . import wallalgorithms as wa
 from ..Utilities.misc import *
-from wallworker import Worker
+from .wallworker import Worker
 import webbrowser
 
-class WallHeight:
+class WallHeight(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -164,7 +170,7 @@ class WallHeight:
         result = self.fileDialog.exec_()
         if result == 1:
             self.filePathH = self.fileDialog.selectedFiles()
-            self.filePathH[0] = self.filePathH[0] + '.tif'
+            self.filePathH[0] = self.filePathH[0]  # + '.tif'
             self.dlg.textOutputHeight.setText(self.filePathH[0])
             self.dlg.runButton.setEnabled(1)
 
@@ -173,7 +179,7 @@ class WallHeight:
         result = self.fileDialog.exec_()
         if result == 1:
             self.filePathA = self.fileDialog.selectedFiles()
-            self.filePathA[0] = self.filePathA[0] + '.tif'
+            self.filePathA[0] = self.filePathA[0]  # + '.tif'
             self.dlg.textOutputAspect.setText(self.filePathA[0])
 
     def run(self):
@@ -297,7 +303,7 @@ class WallHeight:
             self.dlg.pushButton.setEnabled(True)
         else:
             # notify the user that something went wrong
-            self.iface.messageBar().pushMessage('Operations cancelled either by user or error. See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.', level=QgsMessageBar.CRITICAL, duration=5)
+            self.iface.messageBar().pushMessage('Operations cancelled either by user or error. See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.', level=Qgis.Critical, duration=5)
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
@@ -305,13 +311,14 @@ class WallHeight:
             self.dlg.progressBar.setValue(0)
 
     def workerError(self, errorstring):
-        QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
+        # QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.Critical)
 
     def progress_update(self):
         self.steps += 1
         self.dlg.progressBar.setValue(self.steps)
 
     def help(self):
-        url = 'http://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Geometry%20Wall%20' \
-              'Height%20and%20Aspect.html'
+        # url = "file://" + self.plugin_dir + "/help/Index.html"
+        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Urban_Geometry:_Wall_Height_and_Aspect'
         webbrowser.open_new_tab(url)

@@ -1,3 +1,7 @@
+from __future__ import print_function
+from builtins import zip
+from builtins import str
+from builtins import range
 ####################### FOOTPRINT MODEL WITH ITERATIONS TO CALC NEW ZO AND ZD #######################################
 #%Date: 22 October 2015                                                                                            %#
 #%Author:                                                                                                          %#
@@ -153,7 +157,7 @@ def footprintiterKAM(iterations,z_0_input,z_d_input,z_ag,sigv,Obukhov,ustar,dir,
         domain_y = domain_y / d_input
         fy = fx
         full = np.zeros([fx, fy])
-        full[(fx+1)/2:int((fx+1)/2+(domain_x)),int((fy/2+1)-domain_y):int((fy/2+1)+domain_y+1)]=phi
+        full[int((fx+1)/2):int((fx+1)/2+(domain_x)),int((fy/2+1)-domain_y):int((fy/2+1)+domain_y+1)] = phi
         full[np.isnan(full)]=0
 
         ##Rotation for wind angle for absolute plot and correction for rotation algorithm
@@ -550,13 +554,15 @@ def FFP_climatology(zm=None, z0=None, umean=None, h=None, ol=None, sigmav=None, 
     valids = [True if not any([val is None for val in vals]) else False \
               for vals in zip(ustars, sigmavs, hs, ols, wind_dirs, zms)]
 
-    if verbosity > 1: print ''
+    if verbosity > 1: # fix_print_with_import
+        print('')
     for ix, (ustar, sigmav, h, ol, wind_dir, zm, z0, umean) \
             in enumerate(zip(ustars, sigmavs, hs, ols, wind_dirs, zms, z0s, umeans)):
 
         # Counter
         if verbosity > 1 and ix % pulse == 0:
-            print 'Calculating footprint ', ix+1, ' of ', ts_len
+            # fix_print_with_import
+            print('Calculating footprint ', ix+1, ' of ', ts_len)
 
         valids[ix] = check_ffp_inputs(ustar, sigmav, h, ol, wind_dir, zm, z0, umean, rslayer, verbosity)
 
@@ -630,7 +636,8 @@ def FFP_climatology(zm=None, z0=None, umean=None, h=None, ol=None, sigmav=None, 
     vs = None
     clevs = None
     if n==0:
-        print "No footprint calculated"
+        # fix_print_with_import
+        print("No footprint calculated")
         flag_err = 1
     else:
 
@@ -957,12 +964,15 @@ def raise_ffp_exception(code, verbosity):
         raise Exception(string)
     elif ex['type'] == exTypes['alert']:
         string = string + '\n Execution continues.'
-        if verbosity > 1: print string
+        if verbosity > 1:  # fix_print_with_import
+            print(string)
     elif ex['type'] == exTypes['error']:
         string = string + '\n Execution continues.'
-        if verbosity > 1: print string
+        if verbosity > 1:  # fix_print_with_import
+            print(string)
     else:
-        if verbosity > 1: print string
+        if verbosity > 1:  # fix_print_with_import
+            print(string)
 
 
 

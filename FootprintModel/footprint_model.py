@@ -20,21 +20,25 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox, QColor
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
+from qgis.PyQt.QtGui import QIcon
 from qgis.gui import *
-from qgis.core import *
-from footprint_model_dialog import FootprintModelDialog
+from qgis.core import QgsMapLayerProxyModel, QgsFeature, QgsGeometry, QgsVectorLayer, QgsProject
+from .footprint_model_dialog import FootprintModelDialog
 import os.path
 import numpy as np
-import KingsFootprint_UMEP as fp
+from . import KingsFootprint_UMEP as fp
 from osgeo import gdal
 import subprocess
 import sys
 import webbrowser
 
 
-class FootprintModel:
+class FootprintModel(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -95,26 +99,17 @@ class FootprintModel:
         self.filePath = None
         self.data = None
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(4)
-        self.fileDialog.setAcceptMode(1)
+        # self.fileDialog.setFileMode(4)
+        # self.fileDialog.setAcceptMode(1)
+        self.fileDialog.setFileMode(QFileDialog.Directory)
+        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
 
-        # self.layerComboManagerPoint = VectorLayerCombo(self.dlg.comboBox_Point)
-        # fieldgen = VectorLayerCombo(self.dlg.comboBox_Point, initLayer="", options={"geomType": QGis.Point})
         self.layerComboManagerPoint = QgsMapLayerComboBox(self.dlg.widgetPointLayer)
         self.layerComboManagerPoint.setCurrentIndex(-1)
         self.layerComboManagerPoint.setFilters(QgsMapLayerProxyModel.PointLayer)
         self.layerComboManagerPoint.setFixedWidth(175)
-        # self.layerComboManagerPointField = FieldCombo(self.dlg.comboBox_Field, fieldgen, initField="")
-        # self.layerComboManagerDSMbuildground = RasterLayerCombo(self.dlg.comboBox_DSMbuildground)
-        # RasterLayerCombo(self.dlg.comboBox_DSMbuildground, initLayer="")
-        # self.layerComboManagerDEM = RasterLayerCombo(self.dlg.comboBox_DEM)
-        # RasterLayerCombo(self.dlg.comboBox_DEM, initLayer="")
-        # self.layerComboManagerDSMbuild = RasterLayerCombo(self.dlg.comboBox_DSMbuild)
-        # RasterLayerCombo(self.dlg.comboBox_DSMbuild, initLayer="")
-        # self.layerComboManagerVEGDSM = RasterLayerCombo(self.dlg.comboBox_vegdsm)
-        # RasterLayerCombo(self.dlg.comboBox_vegdsm, initLayer="")
 
-        self.layerComboManagerDSMbuildground  = QgsMapLayerComboBox(self.dlg.widgetDSMbuildground )
+        self.layerComboManagerDSMbuildground = QgsMapLayerComboBox(self.dlg.widgetDSMbuildground)
         self.layerComboManagerDSMbuildground .setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerDSMbuildground .setFixedWidth(175)
         self.layerComboManagerDSMbuildground .setCurrentIndex(-1)
@@ -203,7 +198,7 @@ class FootprintModel:
                 action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
-        del self.toolbar
+        # del self.toolbar
 
     def run(self):
         self.dlg.show()
@@ -239,15 +234,15 @@ class FootprintModel:
 
     def create_point(self, point):
         self.dlg.closeButton.setEnabled(1)
-        QgsMapLayerRegistry.instance().addMapLayer(self.poiLayer)
+        QgsProject.instance().addMapLayer(self.poiLayer)
 
         # create the feature
         fc = int(self.provider.featureCount())
         feature = QgsFeature()
-        feature.setGeometry(QgsGeometry.fromPoint(point))
+        feature.setGeometry(QgsGeometry.fromPointXY(point))
         feature.setAttributes([fc, point.x(), point.y()])
         self.poiLayer.startEditing()
-        self.poiLayer.addFeature(feature, True)
+        self.poiLayer.addFeature(feature)  #, True
         self.poiLayer.commitChanges()
         self.poiLayer.triggerRepaint()
         self.dlg.setEnabled(True)
@@ -258,7 +253,7 @@ class FootprintModel:
 
     def select_point(self):  # Connected to "Select Point on Canves"
         if self.poiLayer is not None:
-            QgsMapLayerRegistry.instance().removeMapLayer(self.poiLayer.id())
+            QgsProject.instance().removeMapLayer(self.poiLayer.id())
         self.canvas.setMapTool(self.pointTool)  # Calls a canvas click and create_point
         self.dlg.setEnabled(False)
         self.create_point_layer()
@@ -384,9 +379,7 @@ class FootprintModel:
             gdalruntextdsm_build = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
                                    ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
                                    filePath_dsm_build + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
-            # gdalruntextdsm_build = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + dir_poly + \
-            #                        ' -crop_to_cutline -of GTiff ' + filePath_dsm_build + \
-            #                        ' ' + self.plugin_dir + '/data/clipdsm.tif'
+
             if sys.platform == 'win32':
                 subprocess.call(gdalruntextdsm_build, startupinfo=si)
             else:
@@ -467,9 +460,7 @@ class FootprintModel:
             gdalruntextvegdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
                                    ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
                                    filePath_vegdsm + '" "' + self.plugin_dir + '/data/clipvegdsm.tif"'
-            # gdalruntextdsm_build = 'gdalwarp -dstnodata -9999 -q -overwrite -cutline ' + dir_poly + \
-            #                        ' -crop_to_cutline -of GTiff ' + filePath_dsm_build + \
-            #                        ' ' + self.plugin_dir + '/data/clipdsm.tif'
+
             if sys.platform == 'win32':
                 subprocess.call(gdalruntextvegdsm, startupinfo=si)
             else:
@@ -544,9 +535,6 @@ class FootprintModel:
                         Obukhov=Obukhov,ustar=ustar,dir=wdir,porosity=por,h=pbl,bld=dsm,veg=vegdsm,rows=sizey,cols=sizex,res=res,
                         dlg=self.dlg,maxfetch=r,rm=Rm)
 
-            #QMessageBox.critical(None, "FPR model complete")
-            #return
-
             #If zd and z0 are lower than open country, set to open country
             for i in np.arange(0,it,1):
                 if Wz_d_output[i]< 0.03:
@@ -587,7 +575,11 @@ class FootprintModel:
 
                 rlayer.triggerRepaint()
 
+            QMessageBox.information(None, "Source Area Model: ", "Process successful!")
+            self.dlg.progressBar.setValue(0)
+
     def help(self):
-        url = "http://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Land%20Cover%20Land%20Cover%20" \
-              "Fraction%20(Point).html"
+        # url = "file://" + self.plugin_dir + "/help/Index.html"
+        url = "http://www.urban-climate.net/umep/UMEP_Manual#Pre-Processor:" \
+              "_Urban_Morphology:_Footprint_Model_.28Point.29"
         webbrowser.open_new_tab(url)

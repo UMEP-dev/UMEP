@@ -8,6 +8,7 @@ WhatYear - Finds year of a date, returns integer.
 WhatSeason - Finds season, returns integer.
 DateDiff - Finds the difference in days between two dates.
 '''
+from builtins import range
 import datetime as dt 
 from datetime import date as dtd
 from datetime import timedelta
@@ -26,37 +27,37 @@ def easterLookup(year):
     # Hard coded because parliament didn't set a constant date
     # Easter Monday bank holidays
     easters = {}
-    easters[2000] = [dtd(2000, 04, 24)]
-    easters[2001] = [dtd(2001, 04, 16)]
-    easters[2002] = [dtd(2002, 04, 1)]
-    easters[2003] = [dtd(2003, 04, 21)]
-    easters[2004] = [dtd(2004, 04, 12)]
-    easters[2005] = [dtd(2005, 03, 28)]
-    easters[2006] = [dtd(2006, 04, 17)]
-    easters[2007] = [dtd(2007, 04, 9)]
-    easters[2008] = [dtd(2008, 03, 24)]
-    easters[2009] = [dtd(2009, 04, 13)]
-    easters[2010] = [dtd(2010, 04, 05)]
-    easters[2011] = [dtd(2011, 04, 25)]
-    easters[2012] = [dtd(2012, 04, 9)]
-    easters[2013] = [dtd(2013, 04, 01)]
-    easters[2014] = [dtd(2014, 04, 21)]
-    easters[2015] = [dtd(2015, 04, 06)]
-    easters[2016] = [dtd(2016, 03, 28)]
-    easters[2017] = [dtd(2017, 04, 17)]
-    easters[2018] = [dtd(2018, 04, 02)]
-    easters[2019] = [dtd(2019, 04, 22)]
-    easters[2020] = [dtd(2020, 04, 13)]
+    easters[2000] = [dtd(2000, 0o4, 24)]
+    easters[2001] = [dtd(2001, 0o4, 16)]
+    easters[2002] = [dtd(2002, 0o4, 1)]
+    easters[2003] = [dtd(2003, 0o4, 21)]
+    easters[2004] = [dtd(2004, 0o4, 12)]
+    easters[2005] = [dtd(2005, 0o3, 28)]
+    easters[2006] = [dtd(2006, 0o4, 17)]
+    easters[2007] = [dtd(2007, 0o4, 9)]
+    easters[2008] = [dtd(2008, 0o3, 24)]
+    easters[2009] = [dtd(2009, 0o4, 13)]
+    easters[2010] = [dtd(2010, 0o4, 0o5)]
+    easters[2011] = [dtd(2011, 0o4, 25)]
+    easters[2012] = [dtd(2012, 0o4, 9)]
+    easters[2013] = [dtd(2013, 0o4, 0o1)]
+    easters[2014] = [dtd(2014, 0o4, 21)]
+    easters[2015] = [dtd(2015, 0o4, 0o6)]
+    easters[2016] = [dtd(2016, 0o3, 28)]
+    easters[2017] = [dtd(2017, 0o4, 17)]
+    easters[2018] = [dtd(2018, 0o4, 0o2)]
+    easters[2019] = [dtd(2019, 0o4, 22)]
+    easters[2020] = [dtd(2020, 0o4, 13)]
 
     # Can programatically get Good Friday from the above
-    for y in easters.keys():
+    for y in list(easters.keys()):
         easters[y].append(easters[y][0] - timedelta(3))
 
     return easters[year]
 
 def generateHolidays(firstYear, finalYear):
     # UK public holidays (fixed points or easily defined) between specified years (inclusive)
-    years = range(firstYear, finalYear + 1, 1)
+    years = list(range(firstYear, finalYear + 1, 1))
     allHolidays = []
     for y in years:
         allHolidays.extend(holidaysForYear(y))
@@ -68,10 +69,10 @@ def holidaysForYear(year):
     # Christmas day/boxing day falling on weekend isn't included (assumed standard weekend)
     holidays = []
     # New year:
-    holidays.append(dtd(year, 01, 01))
+    holidays.append(dtd(year, 0o1, 0o1))
     # If 2 or 3 january is a monday, this is the bank holiday
-    jan2 = dtd(year, 01, 02)
-    jan3 = dtd(year, 01, 03)
+    jan2 = dtd(year, 0o1, 0o2)
+    jan3 = dtd(year, 0o1, 0o3)
     if jan2.weekday() == 0:
         holidays.append(jan2)
     if jan3.weekday() == 0:
@@ -80,7 +81,7 @@ def holidaysForYear(year):
     # Get easter monday and friday bank holidays from lookup function
     holidays.extend(easterLookup(year))
     # Early and late may
-    may1 = dtd(year, 05, 01)
+    may1 = dtd(year, 0o5, 0o1)
     may1 = may1 if may1.weekday() is 0 else may1 + timedelta(7 - may1.weekday())
     holidays.append(may1)
     holidays.append(dtd(year, 5, 31) - timedelta(dtd(year, 5, 31).weekday()))

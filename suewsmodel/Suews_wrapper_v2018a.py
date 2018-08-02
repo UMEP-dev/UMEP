@@ -1,12 +1,16 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import str
 __author__ = 'xlinfr'
-from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox, QColor
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
+from qgis.PyQt.QtGui import QIcon, QColor
 
 
 def wrapper(pathtoplugin):
 
     import numpy as np
-    import suewsdataprocessing
-    import suewsplotting
+    from . import suewsdataprocessing
+    from . import suewsplotting
     import subprocess
     from ..Utilities import f90nml
     import os

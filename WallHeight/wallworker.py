@@ -1,9 +1,11 @@
-from PyQt4 import QtCore, QtGui
+from __future__ import absolute_import
+from builtins import range
+from qgis.PyQt import QtCore
 import traceback
 import numpy as np
 import scipy.misc as sc
 import math
-from wallalgorithms import get_ders
+from .wallalgorithms import get_ders
 import linecache
 import sys
 
@@ -73,11 +75,11 @@ class Worker(QtCore.QObject):
                 if h == 30:
                     filtmatrixbuild[:, filtmatrix.shape[0] - 1] = 0
                 if index == 225:
-                    n = filtmatrix.shape[0] - 1  #length(filtmatrix);
+                    n = filtmatrix.shape[0] - 1
                     filtmatrix1[0, 0] = 1
                     filtmatrix1[n, n] = 1
                 if index == 135:
-                    n = filtmatrix.shape[0] - 1  #length(filtmatrix);
+                    n = filtmatrix.shape[0] - 1
                     filtmatrix1[0, n] = 1
                     filtmatrix1[n, 0] = 1
 

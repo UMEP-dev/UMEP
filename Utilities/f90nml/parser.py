@@ -7,13 +7,17 @@
    :copyright: Copyright 2014 Marshall Ward, see AUTHORS for details.
    :license: Apache License, Version 2.0, see LICENSE for details.
 """
+from __future__ import absolute_import
+from builtins import next
+from builtins import range
+from builtins import object
 import copy
 import itertools
 import shlex
 from string import whitespace
 
-from fpy import pyfloat, pycomplex, pybool, pystr
-from namelist import NmlDict
+from .fpy import pyfloat, pycomplex, pybool, pystr
+from .namelist import NmlDict
 
 
 class Parser(object):
@@ -127,7 +131,7 @@ class Parser(object):
                 if self.token in ('/', '&', '$'):
 
                     # Append any remaining patched variables
-                    for v_name, v_val in grp_patch.items():
+                    for v_name, v_val in list(grp_patch.items()):
                         g_vars[v_name] = v_val
                         v_strs = nmls.var_strings(v_name, v_val)
                         for v_str in v_strs:
@@ -185,7 +189,7 @@ class Parser(object):
             i_r = 1 if not v_indices[0][2] else v_indices[0][2]
 
             if i_e:
-                v_idx = iter(range(i_s, i_e, i_r))
+                v_idx = iter(list(range(i_s, i_e, i_r)))
             else:
                 v_idx = (i_s + i_r * k for k in itertools.count())
         else:

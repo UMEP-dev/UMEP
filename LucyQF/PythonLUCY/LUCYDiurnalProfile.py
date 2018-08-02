@@ -1,3 +1,7 @@
+from __future__ import absolute_import
+from builtins import map
+from builtins import range
+from builtins import object
 # Object that stores and retrieves diurnal profiles for different seasons and times of day for LUCY
 # A profile is a week-long template of relative quantity e.g. traffic, energy use or metabolic rate used for scaling later.
 
@@ -9,10 +13,10 @@ try:
 except:
     pass
 import pytz
-from DataManagement.TemporalProfileSampler import TemporalProfileSampler, is_holiday
-from DataManagement.LookupLogger import LookupLogger
+from .DataManagement.TemporalProfileSampler import TemporalProfileSampler, is_holiday
+from .DataManagement.LookupLogger import LookupLogger
 from datetime import timedelta, datetime
-class LUCYDiurnalProfile:
+class LUCYDiurnalProfile(object):
     def __init__(self, areaTimezone, weekendDays, use_uk_holidays, other_holidays = [], logger= LookupLogger()):
         ''' Instantiate
         :param areaTimezone: Time zone string defining the study area's time zone
@@ -52,7 +56,7 @@ class LUCYDiurnalProfile:
         dl = pd.read_csv(file,skipinitialspace=True, header=None)
 
         # Expect certain keywords
-        rowHeadings = map(lower, dl[0][0:4])
+        rowHeadings = list(map(lower, dl[0][0:4]))
         if 'season' != rowHeadings[0]:
             raise ValueError('First column of row 1 must be \'Season\' in ' + file)
 
@@ -68,9 +72,9 @@ class LUCYDiurnalProfile:
         firstDataLine = 4
         # Try to extract the timezone from the file header
         try:
-            tz = pytz.timezone(dl[dl.keys()[1]][3])
+            tz = pytz.timezone(dl[list(dl.keys())[1]][3])
         except Exception:
-            raise ValueError('Invalid timezone "' + dl[dl.keys()[1]][3] + '" specified in ' + file +
+            raise ValueError('Invalid timezone "' + dl[list(dl.keys())[1]][3] + '" specified in ' + file +
                              '. This should be of the form "UTC" or "Europe/London" as per python timezone documentation')
 
         # Go through in triplets gathering up data for a template week
@@ -81,7 +85,7 @@ class LUCYDiurnalProfile:
             try:
                 sd = pd.datetime.strptime(dl[seasonStart][1], '%Y-%m-%d')
                 ed = pd.datetime.strptime(dl[seasonStart][2], '%Y-%m-%d')
-            except Exception, e:
+            except Exception as e:
                 raise Exception('Rows 2 and 3 of ' + file + ' must be dates in the format YYYY-mm-dd')
 
             sd = tz.localize(sd)
@@ -101,7 +105,7 @@ class LUCYDiurnalProfile:
             week = dl[seasonStart][firstDataLine:].astype('float')
             # Normalize each day's values by that day's sum so hourly relative variations are derived
             for day in range(0,7):
-                hours = range(day*24, (day+1)*24)
+                hours = list(range(day*24, (day+1)*24))
                 week.iloc[hours] = week.iloc[hours] / week.iloc[hours].sum()
             self.addWeeklyCycle(sd, ed, week)
 

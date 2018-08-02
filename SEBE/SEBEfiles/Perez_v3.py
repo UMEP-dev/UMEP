@@ -1,4 +1,6 @@
 from __future__ import division
+from __future__ import print_function
+from builtins import range
 import numpy as np
 
 
@@ -181,7 +183,7 @@ def Perez_v3(zen, azimuth, radD, radI, jday, patchchoice):
         skyvaultazi = np.empty((90, 361))
         for j in range(90):
             skyvaultalt[j, :] = 91-j
-            skyvaultazi[j, :] = range(361)
+            skyvaultazi[j, :] = list(range(361))
             
     elif patchchoice == 1:
         # Creating skyvault of patches of constant radians (Tregeneza and Sharples, 1993)

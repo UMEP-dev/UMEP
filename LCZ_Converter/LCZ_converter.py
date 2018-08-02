@@ -20,23 +20,31 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QThread, QSettings, QTranslator, qVersion
-from PyQt4.QtGui import QFileDialog, QIcon, QAction, QMessageBox, QTableWidgetItem
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import zip
+from builtins import str
+from builtins import range
+from builtins import object
+from qgis.PyQt.QtCore import QThread, QSettings, QTranslator, qVersion
+from qgis.PyQt.QtWidgets import QFileDialog, QAction, QMessageBox, QTableWidgetItem
+from qgis.PyQt.QtGui import QIcon
 from qgis.core import *
 from qgis.gui import *
 import os
 import os.path
 from osgeo import gdal
 # Initialize Qt resources from file resources.py
-import resources
+# from . import resources
 import webbrowser
-import qgis.analysis
+# import qgis.analysis
 # Import the code for the dialog
-from LCZ_converter_dialog import LCZ_testDialog
-from LCZworker import Worker
+from .LCZ_converter_dialog import LCZ_testDialog
+from .LCZworker import Worker
 import numpy as np
 
-class LCZ_test:
+class LCZ_test(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -78,8 +86,10 @@ class LCZ_test:
         self.dlg.colorButton.clicked.connect(self.color)
         self.dlg.progressBar.setValue(0)
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(4)
-        self.fileDialog.setAcceptMode(1)  # Save
+        # self.fileDialog.setFileMode(4)
+        # self.fileDialog.setAcceptMode(1)  # Save
+        self.fileDialog.setFileMode(QFileDialog.Directory)
+        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
         if self.dlg.radioButton_2.isChecked():
             self.dlg.pushButton_2.clicked.connect(self.updatetable)
         if self.dlg.radioButton.isChecked():
@@ -654,7 +664,8 @@ class LCZ_test:
         vlayer = QgsVectorLayer(poly.source(), "polygon", "ogr")
         prov = vlayer.dataProvider()
         fields = prov.fields()
-        idx = vlayer.fieldNameIndex(poly_field)
+        # idx = vlayer.fieldNameIndex(poly_field)
+        idx = vlayer.fields().indexFromName(poly_field)
         typetest = fields.at(idx).type()
         if typetest == 10:
             QMessageBox.critical(None, "ID field is sting type", "ID field must be either integer or float")
@@ -727,7 +738,7 @@ class LCZ_test:
 
     def workerError(self, errorstring):
         #strerror = "Worker thread raised an exception: " + str(e)
-        QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.Critical)
 
     def progress_update(self):
         self.steps +=1
@@ -754,5 +765,6 @@ class LCZ_test:
         self.dlg.close()
 
     def help(self):
-        url = 'http://umep-docs.readthedocs.io/en/latest/pre-processor/Spatial%20Data%20LCZ%20Converter.html'
+        # url = "file://" + self.plugin_dir + "/help/Index.html"
+        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Urban_Land_Cover:_LCZ_converter'
         webbrowser.open_new_tab(url)

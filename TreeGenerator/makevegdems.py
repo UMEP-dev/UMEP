@@ -1,5 +1,6 @@
+from builtins import range
 import numpy as np
-import matplotlib.pylab as plt
+# import matplotlib.pylab as plt
 
 def vegunitsgeneration(buildings, vegdem, vegdem2, ttype, height, trunk, dia, rowa, cola,sizex, sizey, scale):
     # This function creates the shape of each vegetation unit and locates it a grid.

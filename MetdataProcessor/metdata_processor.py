@@ -20,15 +20,20 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QFileDialog, QMessageBox, QIcon, QAction
-from metdata_processor_dialog import MetdataProcessorDialog
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtWidgets import QFileDialog, QMessageBox, QAction
+from qgis.PyQt.QtGui import QIcon
+from .metdata_processor_dialog import MetdataProcessorDialog
 import os.path
 import numpy as np
 import webbrowser
 
 
-class MetdataProcessor:
+class MetdataProcessor(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -230,7 +235,7 @@ class MetdataProcessor:
                 QMessageBox.information(self.dlg, "File imported", "If invalid data was detected such as strings or "
                                                                "other non-numrical characters, these data points could "
                                                                "result in that the MetdataProcessor "
-                                                               "will fail to create your UMEP-formatted inputdata.", 'Continue')
+                                                               "will fail to create your UMEP-formatted inputdata.") #, 'Continue'
             except Exception as e:
                 QMessageBox.critical(self.dlg, "Error: Check the number of columns in each line", str(e))
                 return
@@ -238,8 +243,8 @@ class MetdataProcessor:
     def start_progress(self):
 
         outputfile = self.fileDialog.getSaveFileName(None, "Save File As:", None, "Text Files (*.txt)")
-
-        if not outputfile:
+        # print(outputfile[0])
+        if not outputfile[0]:
             QMessageBox.critical(None, "Error", "An output text file (.txt) must be specified")
             return
 
@@ -625,16 +630,19 @@ class MetdataProcessor:
         #             '%6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f'
         numformat = '%d %d %d %d %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f ' \
                     '%.2f %.2f %.2f %.2f %.2f %.2f %.2f'
-        np.savetxt(outputfile, met_new, fmt=numformat, header=header, comments='')
+        np.savetxt(outputfile[0], met_new, fmt=numformat, header=header, comments='')
 
         self.dlg.progressBar.setValue(23)
 
         QMessageBox.information(None, "Metdata pre-processor", "Input data to UMEP processor generated")
 
     def run(self):
+        """Run method that performs all the real work"""
+        # show the dialog
         self.dlg.show()
         self.dlg.exec_()
 
     def help(self):
-        url = 'http://umep-docs.readthedocs.io/en/latest/pre-processor/Meteorological%20Data%20MetPreprocessor.html'
+        # url = "file://" + self.plugin_dir + "/help/Index.html"
+        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Meteorological_Data:_MetPreprocessor'
         webbrowser.open_new_tab(url)

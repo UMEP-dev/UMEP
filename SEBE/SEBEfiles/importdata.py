@@ -40,6 +40,8 @@ Importing ascii table using the specified number of header rows and the specifie
 @seealso{textscan, dlmread, csvread, load}
 @end deftypefn
 """
+from __future__ import print_function
+from builtins import str
 
 import os
 from PIL import Image
@@ -126,13 +128,13 @@ def importdata(*args):
 
     # If there are any empty elements in the output dict, then remove them
     if isinstance(output, dict) and len(output) == 1:
-        for key, val in output.copy().iteritems():    # copy() for py3 compatibility or use items()
+        for key, val in output.copy().items():    # copy() for py3 compatibility or use items()
             if not val:
                 del output[key]
 
     # If only one element is left, replace the dict with the element, i.e. output = output['onlyFieldLeft']
     # Update the list of fields
-    fields = output.keys()
+    fields = list(output.keys())
     if len(fields) == 1:
         output = output[fields[0]]
 
@@ -172,7 +174,7 @@ def importdata_ascii(fileName, delimiter, headerRows):
     # Put the header rows in output.textdata.
     if headerRows > 0:
         for i, el in enumerate(fileContentRows[0:headerRows]):
-            output['textdata'].append(unicode(el))    # struct in ML is converted to dict in py
+            output['textdata'].append(str(el))    # struct in ML is converted to dict in py
 
     # If space is the delimiter, then remove spaces in the beginning of each data row.
     if delimiter is ' ':
@@ -201,11 +203,13 @@ def importdata_ascii(fileName, delimiter, headerRows):
                 try:
                     output['data'][i, j] = float(el)
                 except ValueError:
-                    output['textdata'].append(unicode(el))    # using tuple (i,j) as key to dict textdata
+                    output['textdata'].append(str(el))    # using tuple (i,j) as key to dict textdata
 
     # Check wether rowheaders or colheaders should be used
-    print "text data"
-    print output['textdata']
+    # fix_print_with_import
+    print("text data")
+    # fix_print_with_import
+    print(output['textdata'])
     if headerRows == dataColumns and len(output['textdata']) == 1:    # getting the col size, assuming
                                                                                     # the dict is equivalent of struct in Matlab
         output['rowheaders'] = output['textdata']

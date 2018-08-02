@@ -1,3 +1,7 @@
+from builtins import map
+from builtins import str
+from builtins import range
+from builtins import object
 # Object that loads and stores GreaterQF parameters, given a namelist file
 from datetime import datetime as dt
 from datetime import timedelta as timedelta
@@ -5,11 +9,11 @@ from ...Utilities import f90nml as nml
 from string import lower
 import pytz
 
-class Params:
+class Params(object):
     def __init__(self, paramsFile):
         try:
             PARAMS = nml.read(paramsFile)
-        except Exception,e:
+        except Exception as e:
             raise ValueError('Could not process params file ' + paramsFile + ': ' + str(e))
 
         self.inputFile = paramsFile
@@ -32,7 +36,7 @@ class Params:
         self.fuelFractions = {} # Fraction of each vehicle type that's petrol and diesel
 
         expectedSections = ['params', 'waterHeatingFractions', 'roadAADTs', 'roadSpeeds', 'vehicleFractions', 'heatOfCombustion', 'petrolDieselFractions']
-        missingSections = list(set(map(lower, expectedSections)).difference(map(lower, PARAMS.keys())))
+        missingSections = list(set(map(lower, expectedSections)).difference(list(map(lower, list(PARAMS.keys())))))
         if len(missingSections) > 0:
             raise ValueError('The parameters file ' + paramsFile + ' is missing the following sections: ' + str(missingSections))
 
@@ -74,20 +78,20 @@ class Params:
     def roadData(self, PARAMS, paramsFile):
         # Road AADTs
         road_types = ['motorway', 'primary_road', 'secondary_road', 'other']
-        missing = list(set(road_types).difference(PARAMS['roadAADTs'].keys()))
+        missing = list(set(road_types).difference(list(PARAMS['roadAADTs'].keys())))
         if len(missing) == 0:
             self.roadAADTs = PARAMS['roadAADTs']
         else:
-            raise ValueError('Entry "roadAADTs" in parameters file should contain entries ' + str(road_types) + ' but contains ' + str(PARAMS['roadAADTs'].keys()))
+            raise ValueError('Entry "roadAADTs" in parameters file should contain entries ' + str(road_types) + ' but contains ' + str(list(PARAMS['roadAADTs'].keys())))
         # Road speeds
-        missing = list(set(road_types).difference(PARAMS['roadSpeeds'].keys()))
+        missing = list(set(road_types).difference(list(PARAMS['roadSpeeds'].keys())))
         if len(missing) == 0:
             self.roadSpeeds = PARAMS['roadSpeeds']
         else:
             raise ValueError('Entry "roadSpeeds" in parameters file should contain entries ' + str(road_types) + ' but contains ' + str(PARAMS['roadSpeeds']))
 
-        if 'vehicleage' not in PARAMS['params'].keys():
-            raise ValueError('Entry "params" in parameters file should contain "vehicleAge" parameter for vehicle age' + str(PARAMS['params'].keys()))
+        if 'vehicleage' not in list(PARAMS['params'].keys()):
+            raise ValueError('Entry "params" in parameters file should contain "vehicleAge" parameter for vehicle age' + str(list(PARAMS['params'].keys())))
         else:
             try:
                 self.vehicleAge = timedelta(days = 365 * float(PARAMS['params']['vehicleage']))
@@ -96,14 +100,14 @@ class Params:
 
         # Vehicle fractions
         required_fractions = ['motorway', 'primary_road', 'secondary_road', 'other']
-        missing = list(set(required_fractions).difference(PARAMS['vehicleFractions'].keys()))
+        missing = list(set(required_fractions).difference(list(PARAMS['vehicleFractions'].keys())))
 
         if len(missing) == 0:
             veh_frac_headings = ['car', 'lgv', 'motorcycle', 'taxi', 'bus', 'rigid', 'artic']
             # Each of the entries of PARAMS['vehicleFractions'] is a list corresponding to vehicle_fraction_headings
 
             # Loop around and build the dictionary of values
-            for fractionType in PARAMS['vehicleFractions'].keys():
+            for fractionType in list(PARAMS['vehicleFractions'].keys()):
                 if len(PARAMS['vehicleFractions'][fractionType]) < len(veh_frac_headings):
                     raise ValueError('"' + fractionType +
                                      '" under "vehicleFractions" in parameters file has only ' +
@@ -116,7 +120,7 @@ class Params:
 
         # Petrol and diesel fuel fractions
         expectedVehicles = ['motorcycle', 'taxi', 'car', 'bus', 'lgv', 'rigid', 'artic']
-        missingVehicles = set(expectedVehicles).difference(PARAMS['petrolDieselFractions'].keys())
+        missingVehicles = set(expectedVehicles).difference(list(PARAMS['petrolDieselFractions'].keys()))
         if len(missingVehicles) > 0:
             raise ValueError(paramsFile + ' is missing the following vehicles: ' + str(missingVehicles))
 
@@ -130,7 +134,7 @@ class Params:
     def hoc(self, PARAMS, paramsFile):
         # Heat of combustion. Read in [MJ/kg] and convert to [J/kg]
         expectedFuels = ['gas', 'petrol', 'diesel', 'crude_oil']
-        missingFuels = set(expectedFuels).difference(PARAMS['heatOfCombustion'].keys())
+        missingFuels = set(expectedFuels).difference(list(PARAMS['heatOfCombustion'].keys()))
         if len(missingFuels) > 0:
             raise ValueError(paramsFile + ' is missing the following entries: ' + str(missingFuels))
 
@@ -149,5 +153,5 @@ class Params:
             for hol in PARAMS['params']['custom_holidays']:
                 try:
                     self.customHolidays.append(dt.strptime(hol, '%Y-%m-%d').date())
-                except Exception, e:
+                except Exception as e:
                     raise ValueError('Invalid custom holiday "' + str(hol) + '" specified. Must be in format YYYY-mm-dd')

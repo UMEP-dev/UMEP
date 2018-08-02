@@ -1,4 +1,6 @@
-from PyQt4 import QtCore
+from builtins import next
+from builtins import str
+from qgis.PyQt import QtCore
 import traceback
 from qgis.core import *
 
@@ -6,7 +8,7 @@ from qgis.core import *
 class Worker(QtCore.QObject):
 
     finished = QtCore.pyqtSignal(object)
-    error = QtCore.pyqtSignal(Exception, basestring)
+    error = QtCore.pyqtSignal(Exception, str)
     progress = QtCore.pyqtSignal()
 
     def __init__(self, minx, maxy, sizex, sizey, point1, point2, xllcorner, ytlcorner, cellsize, dir_path, wall_file):
@@ -67,7 +69,7 @@ class Worker(QtCore.QObject):
             if self.killed is False:
                 self.progress.emit()
                 ret = wall_array
-        except Exception, e:
+        except Exception as e:
             # forward the exception upstream
             self.error.emit(e, traceback.format_exc())
         self.finished.emit(ret)

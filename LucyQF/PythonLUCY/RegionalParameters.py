@@ -1,15 +1,20 @@
+from __future__ import absolute_import
+from builtins import map
+from builtins import str
+from builtins import range
+from builtins import object
 from datetime import datetime
 
-from PyQt4.QtCore import QSettings
-from qgis.core import QgsDataSourceURI, QgsMapLayerRegistry, QgsMessageLog
-from DataManagement.SpatialAttributesSampler import SpatialAttributesSampler
-from DataManagement.spatialHelpers import *
-from DataManagement.LookupLogger import LookupLogger
+from qgis.PyQt.QtCore import QSettings
+from qgis.core import QgsDataSourceUri
+from .DataManagement.SpatialAttributesSampler import SpatialAttributesSampler
+from .DataManagement.spatialHelpers import *
+from .DataManagement.LookupLogger import LookupLogger
 import sqlite3 as lite
 from calendar import isleap
 def addQuotes(x): return "'" + x + "'"
 
-class RegionalParameters:
+class RegionalParameters(object):
     # Translate spatially and temporally resolved country-specific parameters to model output polygons. Samples values
     # rather than downscaling them.
     # Parameters: Times of waking, sleeping and duration over which sleep/wake transition occurs; economic status rating; summer cooling
@@ -55,7 +60,7 @@ class RegionalParameters:
         if not os.path.exists(database):
             raise ValueError('LQF Database file ' + database + ' not found')
         self.databaseLocation = database
-        self.dburi = QgsDataSourceURI()
+        self.dburi = QgsDataSourceUri()
         self.dburi.setDatabase(database)
         self.dbschema = ''
         self.dbtable = 'World'
@@ -119,7 +124,7 @@ class RegionalParameters:
         # Assign this population as vehicle, residential and metabolisng population data frames
         # This can be overriden later to inject specific distributions for the population types
         df = shapefile_attributes(self.attributedOutputLayer)
-        df.index = map(intOrString, df[self.worldAttributes.templateIdField])
+        df.index = list(map(intOrString, df[self.worldAttributes.templateIdField]))
         self.countryAssignments = df
 
         return self.attributedOutputLayer # This should be saved so it can be used with self.injectSampledLayer to save time later
@@ -134,7 +139,7 @@ class RegionalParameters:
         '''
         lyr = openShapeFileInMemory(filename, epsgCode, 'temp layer')
         ser = shapefile_attributes(lyr)
-        ser.index = map(intOrString, ser[self.worldAttributes.templateIdField])
+        ser.index = list(map(intOrString, ser[self.worldAttributes.templateIdField]))
         self.metabPop = ser['Pop']
         lyr = None
 
@@ -148,7 +153,7 @@ class RegionalParameters:
         '''
         lyr = openShapeFileInMemory(filename, epsgCode, 'temp layer')
         ser = shapefile_attributes(lyr)
-        ser.index = map(intOrString, ser[self.worldAttributes.templateIdField])
+        ser.index = list(map(intOrString, ser[self.worldAttributes.templateIdField]))
         self.vehPop = ser['Pop']
         lyr = None
 
@@ -162,7 +167,7 @@ class RegionalParameters:
         '''
         lyr = openShapeFileInMemory(filename, epsgCode, 'temp layer')
         ser = shapefile_attributes(lyr)
-        ser.index = map(intOrString, ser[self.worldAttributes.templateIdField])
+        ser.index = list(map(intOrString, ser[self.worldAttributes.templateIdField]))
         self.resPops = ser['Pop']
         lyr = None
 
@@ -191,7 +196,7 @@ class RegionalParameters:
         con = lite.connect(self.databaseLocation)
         self.extractPropertiesForCountries(con, countries)
         ca = shapefile_attributes(self.attributedOutputLayer)
-        ca.index = map(intOrString, ca[self.worldAttributes.templateIdField])
+        ca.index = list(map(intOrString, ca[self.worldAttributes.templateIdField]))
         self.countryAssignments = ca
 
     def extractPropertiesForCountries(self, con, countries):
@@ -298,7 +303,7 @@ class RegionalParameters:
         '''
         # Get list of 1 or 0 with no index.
         days = self.countryAssignments.loc[featureIds].join(self.weekendDays[['Mon', 'Tue', 'Wed', 'Thu', 'Fri','Sat', 'Sun']], on='admin')[['Mon', 'Tue', 'Wed', 'Thu', 'Fri','Sat', 'Sun']]
-        days.columns = range(0,7)
+        days.columns = list(range(0,7))
         return days[date.weekday()] > 0
 
     def getWeekendDaysByRegion(self):
@@ -306,7 +311,7 @@ class RegionalParameters:
         :return:  dict of {country: [int, int]} that shows which days of the week (0-6 = Monday-Sunday) are weekend days
         '''
         tempDays = self.weekendDays[['Mon', 'Tue', 'Wed', 'Thu', 'Fri','Sat', 'Sun']]
-        tempDays.columns = range(7)
+        tempDays.columns = list(range(7))
         return {idx: tempDays.columns[tempDays.loc[idx] > 0] for idx in tempDays.index}
 
     # def getCyclesForFeatureIDs(self, featureIds, weekend):
@@ -367,7 +372,7 @@ class RegionalParameters:
         # Country assignments
         # This can be overriden later to inject specific distributions for the population types
         countryAssignments = shapefile_attributes(self.attributedOutputLayer)
-        countryAssignments.index = map(intOrString, countryAssignments[self.worldAttributes.templateIdField])
+        countryAssignments.index = list(map(intOrString, countryAssignments[self.worldAttributes.templateIdField]))
 
         # Get national attributes for each country
         attrs = self.getNationalAttributes(requestYear)
@@ -425,7 +430,7 @@ class RegionalParameters:
         def doyToLeapDatetime(x, year):
             return datetime.strptime(str(year)+str(x+1 if (x > 59) and isleap(year) else x), '%Y%j').date()
         output = {}
-        for c in self.fixedHolidays.keys():
+        for c in list(self.fixedHolidays.keys()):
             output[c] = []
             for y in range(startDate.year, endDate.year+1):
                 null = [output[c].append(doyToLeapDatetime(d, y)) for d in self.fixedHolidays[c]]

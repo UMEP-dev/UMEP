@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import range
 # Helper methods to do spatial and shapefile-related manipulations
 # amg 23/06/2016
 import os
@@ -8,9 +10,9 @@ except:
     pass
 
 from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsRasterLayer, QgsGeometry, QgsRaster, QgsRectangle, QgsPoint, QgsField, QgsFeature, QgsSpatialIndex
-from qgis.core import QgsMapLayerRegistry, QgsSymbolV2, QgsGraduatedSymbolRendererV2, QgsRendererRangeV2, QgsFeatureRequest, QgsExpression, QgsDistanceArea, QgsCoordinateReferenceSystem, QgsCoordinateTransform
+from qgis.core import QgsSymbol, QgsGraduatedSymbolRenderer, QgsRendererRange, QgsFeatureRequest, QgsDistanceArea, QgsCoordinateReferenceSystem, QgsCoordinateTransform
 import processing # qgis processing framework
-from PyQt4.QtCore import QVariant, QPyNullVariant
+from qgis.PyQt.QtCore import QVariant, QPyNullVariant
 import tempfile
 
 def reprojectVectorLayer_threadSafe(filename, targetEpsgCode):
@@ -72,7 +74,7 @@ def reprojectVectorLayer(filename, targetEpsgCode):
     # Copy features
     for orig_feat in orig_layer.getFeatures():
         orig_id = orig_feat.id()
-        for fieldName in orig_fieldNames.keys():
+        for fieldName in list(orig_fieldNames.keys()):
             try:
                 new_val = float(orig_feat[orig_fieldNames[fieldName]])
                 reproj_layer.changeAttributeValue(orig_id, reproj_fieldNames[fieldName], new_val)
@@ -119,10 +121,10 @@ def calculate_fuel_use(inputLayer, inputIdField,
     petrolFields = {'motorcycle':'_FC_Pmcyc', 'artic':'_FC_Part', 'rigid':'_FC_Prig', 'taxi':'_FC_Ptaxi', 'car':'_FC_Pcar', 'bus':'_FC_Pbus', 'lgv':'_FC_Plgv'}
 
     # Get overall list of new attrib names
-    consumption_attributes = dieselFields.values()
-    consumption_attributes.extend(petrolFields.values())
+    consumption_attributes = list(dieselFields.values())
+    consumption_attributes.extend(list(petrolFields.values()))
     fieldMap = {'diesel':dieselFields, 'petrol':petrolFields}
-    modelledTypes = petrolFields.keys()
+    modelledTypes = list(petrolFields.keys())
 
     # Read-across from our road classes to EuroClass road classes (used in the FuelConsumption object)
     roadAcross = {'motorway':'motorway', 'primary_road':'urban', 'secondary_road':'urban', 'other':'urban'}
@@ -138,7 +140,7 @@ def calculate_fuel_use(inputLayer, inputIdField,
 
     for roadType in roadTypes: # For each road type in the file
         # If we don't explicitly consider this road type as motorway, A road or B road, just consider it "other"
-        if roadType not in roadTypeLookup.keys():
+        if roadType not in list(roadTypeLookup.keys()):
             roadTypeOfficial = 'other'
         else:
             roadTypeOfficial = roadTypeLookup[roadType]
@@ -208,7 +210,7 @@ def calculate_fuel_use(inputLayer, inputIdField,
             for key in modelledTypes:
                 aadtData[key] = np.array(inputLayer.getDoubleValues(vAADTFields[key], selectedOnly = True)[0])
             # Populate car, bus and LGV differently to above
-            for fuelType in fieldMap.keys():
+            for fuelType in list(fieldMap.keys()):
                 newValues[fieldMap[fuelType]['car']].loc[ids] =    aadtData['total_car'] *\
                                                                    modelParams.fuelFractions['car'][fuelType] *\
                                                                    lkm *\
@@ -224,8 +226,8 @@ def calculate_fuel_use(inputLayer, inputIdField,
             alreadyCalculated = ['car', 'lgv', 'bus']
 
         # The remaining vehicle types all get calculated in the same way so loop over fieldMap to save on code...
-        for fuelType in fieldMap.keys():
-            for vehType in fieldMap[fuelType].keys():
+        for fuelType in list(fieldMap.keys()):
+            for vehType in list(fieldMap[fuelType].keys()):
                 if vehType not in alreadyCalculated:
                     newValues[fieldMap[fuelType][vehType]].loc[ids] =    aadtData[vehType] * \
                                                                          modelParams.fuelFractions[vehType][fuelType] * \
@@ -477,9 +479,9 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
     # turn the input dictionary inside out to get all the output features touching a given input feature
     input_features = {}
 
-    for out_id in intersectedAmounts.keys():
-        for in_id in intersectedAmounts[out_id].keys():
-            if in_id not in input_features.keys():
+    for out_id in list(intersectedAmounts.keys()):
+        for in_id in list(intersectedAmounts[out_id].keys()):
+            if in_id not in list(input_features.keys()):
                 input_features[in_id] = {}
             # Each entry contains the area intersected, size and values of the input feature
             # Append the weighting attributes to the input data dict
@@ -500,11 +502,11 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
     disagg_weightings = {wa:{} for wa in weightingAttributes} # A weighting for each weighting attrib
 
     totals_already_available = True
-    if len(total_weightings.keys()) == 0:
+    if len(list(total_weightings.keys())) == 0:
         totals_already_available = False
         total_weightings = {wa:{} for wa in weightingAttributes}
 
-    elif len(total_weightings.keys()) != len(weightingAttributes):
+    elif len(list(total_weightings.keys())) != len(weightingAttributes):
         raise ValueError('Total weightings are not present for all weighting attributes')
 
     num_outfeats = {} # Keep track of the number of output features (reflects partial overlaps) intersecting each input feature
@@ -514,7 +516,7 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
         # everything in a partially-covered input area leaping into the output areas that cover it.
         inputAreaCovered = {}
 
-    for in_id in input_features.keys():
+    for in_id in list(input_features.keys()):
         num_outfeats[in_id] = 0.0
         if not totals_already_available:
             # Keep a running total of the weightings falling within input feature for normalisation
@@ -523,24 +525,24 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
             # Add up what proportion of input area has been covered
             inputAreaCovered[in_id] = 0.0
 
-        for out_id in input_features[in_id].keys():
+        for out_id in list(input_features[in_id].keys()):
             # If not all of the output area intersects the input area, don't use all of the output area's weighting
             # Use proportion_of_output_area_intersected * weighting as the weighting. This prevents an output area from "stealing"
             # all of the disaggregated value when only a sliver intersects the input area
             try:
                 fraction_intersected = input_features[in_id][out_id]['amountIntersected'] / input_features[in_id][out_id]['output_feature_area']
-            except ZeroDivisionError,e:
+            except ZeroDivisionError as e:
                 raise ValueError('The output area with ID %s has an area of zero. This is not allowed'%(str(out_id),))
 
             num_outfeats[in_id] += fraction_intersected
             if not totals_already_available:
                 try:
                     inputAreaCovered[in_id] += input_features[in_id][out_id]['amountIntersected']/input_features[in_id][out_id]['originalAmount']
-                except ZeroDivisionError,e:
+                except ZeroDivisionError as e:
                     raise ValueError('The input area with ID %s has an area of zero. This is not allowed'%(str(in_id),))
 
             for wa in weightingAttributes:
-                if out_id not in disagg_weightings[wa].keys(): # If none of the output areas in this input area, just allocate empty entries
+                if out_id not in list(disagg_weightings[wa].keys()): # If none of the output areas in this input area, just allocate empty entries
                     disagg_weightings[wa][out_id] = {} # Dict contains contribution from each input ID intersecting this out_id
 
             for wa in weightingAttributes:
@@ -558,8 +560,8 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
     #    in which case the totals are rightly used to downscale the "big" value.
     # If we find the total is zero over the whole input area, then spread everything evenly across inside that area
     #   to prevent throwing away the quantity to be disaggregated
-    for in_id in input_features.keys():
-        for out_id in input_features[in_id].keys():
+    for in_id in list(input_features.keys()):
+        for out_id in list(input_features[in_id].keys()):
             for wa in weightingAttributes:
                 # Only use those values that are available (may have been skipped above)
                 try:
@@ -890,8 +892,8 @@ def duplicateVectorLayer(inLayer, targetEPSG=None, label=None):
 
 
 def colourRanges(displayLayer, attribute, opacity, range_minima, range_maxima, colours):
-    from qgis.core import QgsMapLayerRegistry, QgsSymbolV2, QgsGraduatedSymbolRendererV2, QgsRendererRangeV2
-    from PyQt4.QtGui import  QColor
+    from qgis.core import QgsSymbol, QgsGraduatedSymbolRenderer, QgsRendererRange
+    from qgis.PyQt.QtGui import  QColor
 
     # Colour vector layer according to the value of attribute <<attribute>>, with ranges set out by <<range_minima>> (list), <<range_maxima>> (list)
     # using <<colours>>
@@ -899,17 +901,17 @@ def colourRanges(displayLayer, attribute, opacity, range_minima, range_maxima, c
     rangeList = []
     transparent = QColor(QColor(0, 0, 0, 0))
     for i in range(0, len(range_minima)):
-        symbol = QgsSymbolV2.defaultSymbol(displayLayer.geometryType())
+        symbol = QgsSymbol.defaultSymbol(displayLayer.geometryType())
         symbol.setColor(QColor(colours[i]))
         symbol.setAlpha(opacity)
         symbol.symbolLayer(0).setOutlineColor(transparent)
 
-        valueRange = QgsRendererRangeV2(range_minima[i], range_maxima[i], symbol,
+        valueRange = QgsRendererRange(range_minima[i], range_maxima[i], symbol,
                                         str(range_minima[i]) + ' - ' + str(range_maxima[i]))
         rangeList.append(valueRange)
 
-    renderer = QgsGraduatedSymbolRendererV2('', rangeList)
-    renderer.setMode(QgsGraduatedSymbolRendererV2.EqualInterval)
+    renderer = QgsGraduatedSymbolRenderer('', rangeList)
+    renderer.setMode(QgsGraduatedSymbolRenderer.EqualInterval)
     renderer.setClassAttribute(attribute)
     displayLayer.setRendererV2(renderer)
 
@@ -928,9 +930,9 @@ def populateShapefileFromTemplate(dataMatrix, primaryKey, templateShapeFile,
       :param templateEpsgCode:
     '''
 
-    from qgis.core import QgsVectorLayer,  QgsField, QgsFeature, QgsSpatialIndex, QgsMapLayerRegistry, QgsMessageLog
-    from PyQt4.QtCore import QVariant
-    if type(templateShapeFile) in [unicode, str]:
+    from qgis.core import QgsVectorLayer,  QgsField, QgsFeature, QgsSpatialIndex, QgsMessageLog
+    from qgis.PyQt.QtCore import QVariant
+    if type(templateShapeFile) in [str, str]:
         # Open existing layer and try to set its CRS
         layer=openShapeFileInMemory(templateShapeFile, templateEpsgCode, label=title)
 

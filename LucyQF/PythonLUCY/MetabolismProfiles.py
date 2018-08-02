@@ -1,3 +1,6 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 # Object that creates diurnal metabolism profiles
 
 try:
@@ -9,7 +12,7 @@ except:
 import pytz
 from datetime import timedelta
 
-class MetabolismProfiles:
+class MetabolismProfiles(object):
     def __init__(self, timezoneCountry, sleepLevel, workLevel):
         '''
         Instantiate
@@ -87,10 +90,14 @@ class MetabolismProfiles:
 def testIt():
     a = MetabolismProfiles('Europe/Athens', 75, 175)
     times = pd.date_range(start='2015-01-01 01:00', freq='3600s', periods=96, tz='UTC')
-    print a.getWattPerson(pd.Timestamp('2015-01-02 12:00:00+0000', offset='H'), 3600, 6.0, 22.0, 2.0)
+    # fix_print_with_import
+    print(a.getWattPerson(pd.Timestamp('2015-01-02 12:00:00+0000', offset='H'), 3600, 6.0, 22.0, 2.0))
 
     for t in times:
-        print str(t) + ' ' +str(a.getWattPerson(t, 1800, 8, 20, 2))
+        # fix_print_with_import
+        print(str(t) + ' ' +str(a.getWattPerson(t, 1800, 8, 20, 2)))
 
-    print times[0]
-    print times[0].to_datetime()
+    # fix_print_with_import
+    print(times[0])
+    # fix_print_with_import
+    print(times[0].to_datetime())

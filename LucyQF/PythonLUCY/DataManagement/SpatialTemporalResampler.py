@@ -1,8 +1,12 @@
-from spatialHelpers import *
+from __future__ import absolute_import
+from builtins import map
+from builtins import str
+from builtins import object
+from .spatialHelpers import *
 from qgis.core import QgsField, QgsVectorLayer, QgsSpatialIndex, QgsMessageLog, QgsCoordinateReferenceSystem, QgsCoordinateTransform
 import processing
 
-from PyQt4.QtCore import QVariant, QSettings
+from qgis.PyQt.QtCore import QVariant, QSettings
 try:
     import pandas as pd
     import numpy as np
@@ -12,10 +16,10 @@ except:
 import os
 from datetime import datetime as dt
 import tempfile
-from LookupLogger import LookupLogger
+from .LookupLogger import LookupLogger
 
 
-class SpatialTemporalResampler:
+class SpatialTemporalResampler(object):
     # Class that takes spatial data (QgsVectorLayers), associates them with a time and
     # allows them to be spatially resampled to output polygons based on attribute values
     # Also supports a single value for all space via same interface
@@ -47,7 +51,7 @@ class SpatialTemporalResampler:
         self.templateIdField = id_field
         self.templateEpsgCode = int(epsgCode)
 
-        if type(shapefile) in [str, unicode]:
+        if type(shapefile) in [str, str]:
             if not os.path.exists(shapefile):
                 raise ValueError('Shapefile: ' + shapefile + ' does not exist')
                     # Try and load a copy of the shapefile into memory. Allow explosion if fails.
@@ -67,7 +71,7 @@ class SpatialTemporalResampler:
         # Create mapping from real (numeric) feature ID to desired (string) feature ID
         a = shapefile_attributes(self.outputLayer)[id_field]
 
-        self.featureMapper = pd.Series(index = a.index, data = map(intOrString, a.values))
+        self.featureMapper = pd.Series(index = a.index, data = list(map(intOrString, a.values)))
         # record what was used to label features
         if self.logger is not None:
             self.logger.addEvent('Disagg', None, None, None, 'Labelling features using ' + id_field + ' for ' + str(shapefile))
@@ -80,7 +84,7 @@ class SpatialTemporalResampler:
         return self.outputLayer
 
     def getOutputFeatureIds(self):
-        return shapefile_attributes(self.outputLayer).keys()
+        return list(shapefile_attributes(self.outputLayer).keys())
 
     def dealWithSingleValue(self, value, startTime, attributeToUse):
         ''' Create a QgsVectorLayer based on self.outputLayer with field attributeToUse the same value all the way through '''
@@ -146,7 +150,7 @@ class SpatialTemporalResampler:
             # Load the layer
             try:
                 vectorLayer = openShapeFileInMemory(shapefileInput, targetEPSG=self.templateEpsgCode)
-            except Exception, e:
+            except Exception as e:
                 raise ValueError('Could not load shapefile at ' + shapefileInput)
 
             if reprojected:
@@ -185,7 +189,7 @@ class SpatialTemporalResampler:
         if startTime.tzinfo is None:
             raise ValueError('Start time must have a timezone attached')
 
-        if type(shapefileInput) not in [str, unicode]:
+        if type(shapefileInput) not in [str, str]:
             raise ValueError('Shapefile input (' + str(shapefileInput) + ') is not a string filename')
 
         if not os.path.exists(shapefileInput):
@@ -194,7 +198,7 @@ class SpatialTemporalResampler:
         # Load the layer straight from disk as we won't be making any modifications to it
         try:
             vectorLayer = loadShapeFile(shapefileInput)
-        except Exception, e:
+        except Exception as e:
             raise ValueError('Could not load shapefile at ' + shapefileInput)
 
         if type(attributeToUse) is not list:
@@ -212,7 +216,7 @@ class SpatialTemporalResampler:
         # ID field should be the same for both input layer and the one being considered, as both have been disaggregated
         # using the output layer
 
-        satts.index = map(intOrString, satts[self.templateIdField].loc[satts.index.tolist()])
+        satts.index = list(map(intOrString, satts[self.templateIdField].loc[satts.index.tolist()]))
 
         # Replace any QNullVariants with pd.nan
         if self.dataLayers is None:
@@ -359,7 +363,7 @@ class SpatialTemporalResampler:
             except:
                 return str(x)
 
-        readAcross = pd.Series(index=map(intorstring, t.values), data=map(intorstring, t.index))
+        readAcross = pd.Series(index=list(map(intorstring, t.values)), data=list(map(intorstring, t.index)))
         t = None
 
         # Get areas of input shapefile intersected by output shapefile, and proportions covered, and attribute vals
@@ -390,28 +394,28 @@ class SpatialTemporalResampler:
 
         # Select successfully identified output areas
 
-        newShapeFile.setSelectedFeatures(list(readAcross[disagg.keys()]))
+        newShapeFile.setSelectedFeatures(list(readAcross[list(disagg.keys())]))
 
         selectedOutputFeatures = newShapeFile.selectedFeatures()
         newShapeFile.startEditing()
         # Apply disaggregation to features
         for outputFeat in selectedOutputFeatures:  # For each output feature
             # Select the relevant features from the input layer
-            area_weightings = {inputAreaId: disagg[outputFeat[self.templateIdField]][inputAreaId] for inputAreaId in disagg[outputFeat[self.templateIdField]].keys()}
+            area_weightings = {inputAreaId: disagg[outputFeat[self.templateIdField]][inputAreaId] for inputAreaId in list(disagg[outputFeat[self.templateIdField]].keys())}
             # Calculate area-weighted average to get a single value for each output area
             for field in fieldsToSample:
                 # The values to disaggregate in all regions touching this output feature
-                input_values = {inputAreaId: intersectedAreas[outputFeat[self.templateIdField]][inputAreaId][field] for inputAreaId in intersectedAreas[outputFeat[self.templateIdField]].keys()}
+                input_values = {inputAreaId: intersectedAreas[outputFeat[self.templateIdField]][inputAreaId][field] for inputAreaId in list(intersectedAreas[outputFeat[self.templateIdField]].keys())}
                 # If an output area is influenced by multiple input areas, and a subset of these is invalid,
                 # assign them zero
-                for i in input_values.keys():
+                for i in list(input_values.keys()):
                     try:
                         input_values[i] = float(input_values[i])
                     except:
                         input_values[i] = 0
                 # Combine values in all input regions touching this output feature. If disagg_weightings missed one out it's because no intersection or NULL data.
                 # Any value intersecting an output area with NULL weighting will be excluded
-                outputAreasToUse = set(input_values.keys()).intersection(area_weightings.keys())
+                outputAreasToUse = set(input_values.keys()).intersection(list(area_weightings.keys()))
                 weighted_average = np.sum(np.array([input_values[in_id] * float(area_weightings[in_id]) for in_id in list(outputAreasToUse)]))
 
                 newShapeFile.changeAttributeValue(outputFeat.id(), fieldIndices[field], float(weighted_average))
@@ -442,7 +446,7 @@ class SpatialTemporalResampler:
         if type(input) is float:  # Assume a single value for all space
             return self.dealWithSingleValue(input, startTime, 'SINGLEVAL')
 
-        if type(input) in ([unicode, str]):  # Assume a filename
+        if type(input) in ([str, str]):  # Assume a filename
             if epsgCode is None:
                 raise ValueError('EPSG code must be provided if a shapefile is input')
             return self.dealWithVectorLayer(input, epsgCode, startTime, attributeToUse, weight_by, inputFieldId)

@@ -1,11 +1,13 @@
+from builtins import str
+from builtins import range
 # -*- coding: utf-8 -*-
-from PyQt4 import QtCore
-from PyQt4.QtCore import QVariant
-from PyQt4.QtGui import QMessageBox # QFileDialog, QAction, QIcon,
+from qgis.PyQt import QtCore
+from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtWidgets import QMessageBox  # QFileDialog, QAction, QIcon,
+from qgis.core import QgsFeature, QgsVectorFileWriter, QgsVectorDataProvider, QgsField, Qgis, QgsMessageLog
 # from qgis.gui import *
-from qgis.core import QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsRasterLayer, QgsGeometry, QgsMessageLog
-from qgis.core import *
-import traceback
+# from qgis.core import QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsRasterLayer, QgsGeometry, QgsMessageLog
+# import traceback
 from ..Utilities.imageMorphometricParms_v1 import *
 from ..Utilities import RoughnessCalcFunctionV2 as rg
 from scipy import *
@@ -20,6 +22,7 @@ import subprocess
 import sys
 import os
 import time
+
 
 class Worker(QtCore.QObject):
 
@@ -71,10 +74,7 @@ class Worker(QtCore.QObject):
         ret = 0
         imp_point = 0
 
-        # Allt arbete en trad ska utforas maste goras i en try-sats
         try:
-            # j = 0
-            # Loop som utfor det arbete som annars hade "hangt" anvandargranssnittet i Qgis
             pre = self.dlg.textOutput_prefix.text()
             header = ' Wd pai   fai   zH  zHmax   zHstd zd z0'
             numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
@@ -88,10 +88,8 @@ class Worker(QtCore.QObject):
                     os.makedirs(self.folderPath[0] + '/' + pre)
 
             for f in self.vlayer.getFeatures():  # looping through each grid polygon
-                # Kollar sa att traden inte har avbrutits, ifall den har det sa slutar loopning.
                 if self.killed is True:
                     break
-                # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True) #used for debugging
 
                 attributes = f.attributes()
                 geometry = f.geometry()
@@ -106,9 +104,10 @@ class Worker(QtCore.QObject):
                     # self.iface.messageBar().pushMessage("Test", str(loc))
                 else:
                     r = 0  # Uses as info to separate from IMP point to grid
-                    writer = QgsVectorFileWriter(self.dir_poly, "CP1250", self.fields, self.prov.geometryType(),
+                    # writer = QgsVectorFileWriter(self.dir_poly, "CP1250", self.fields, self.prov.geometryType(),
+                    #                              self.prov.crs(), "ESRI shapefile")
+                    writer = QgsVectorFileWriter(self.dir_poly, "CP1250", self.fields, self.prov.wkbType(),
                                                  self.prov.crs(), "ESRI shapefile")
-
                     if writer.hasError() != QgsVectorFileWriter.NoError:
                         self.iface.messageBar().pushMessage("Error when creating shapefile: ", str(writer.hasError()))
                     writer.addFeature(feature)
@@ -190,7 +189,7 @@ class Worker(QtCore.QObject):
                     if np.sum(dsm_array) == (dsm_array.shape[0] * dsm_array.shape[1] * nd):
                         QgsMessageLog.logMessage(
                             "Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes Only NoData Pixels",
-                            level=QgsMessageLog.CRITICAL)
+                            level=Qgis.Critical)
                         cal = 0
                     else:
                         dsm_array[dsm_array == nd] = np.mean(dem_array)
@@ -200,7 +199,7 @@ class Worker(QtCore.QObject):
                     if nodata_test.any():  # == True
                         QgsMessageLog.logMessage(
                             "Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes NoData Pixels",
-                            level=QgsMessageLog.CRITICAL)
+                            level=Qgis.Critical)
                         cal = 0
                     else:
                         cal = 1
@@ -312,10 +311,10 @@ class Worker(QtCore.QObject):
             vlayer.commitChanges()
             vlayer.updateFields()
 
-            if self.iface.mapCanvas().isCachingEnabled():
-                vlayer.setCacheImage(None)
-            else:
-                self.iface.mapCanvas().refresh()
+            # if self.iface.mapCanvas().isCachingEnabled():
+            #     vlayer.setCacheImage(None)
+            # else:
+            self.iface.mapCanvas().refresh()
         else:
             QMessageBox.critical(None, "Error", "Vector Layer does not support adding attributes")
 

@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import range
 ##########################################################################
 # WFDEI Interpolator
 ##########################################################################
@@ -243,7 +245,7 @@ def process_rainAmongN(rain, rainAmongN):
 
     rain_proc = rain.copy()
     rain_sub = rain_proc[rain_proc > 0]
-    rain_sub_ind = rain_sub.groupby(rain_sub).groups.values()
+    rain_sub_ind = list(rain_sub.groupby(rain_sub).groups.values())
     rain_sub_indx = np.array(
         [x for x in rain_sub_ind if len(x) == 3]).flatten()
     rain_sub = rain_proc[rain_sub_indx]

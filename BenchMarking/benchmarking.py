@@ -20,21 +20,22 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
-# Initialize Qt resources from file resources.py
-# import resources
-# Import the code for the dialog
-from benchmarking_dialog import BenchMarkingDialog
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
+from qgis.PyQt.QtGui import QIcon
+from .benchmarking_dialog import BenchMarkingDialog
 import os.path
 from ..Utilities import f90nml
 
-import Benchmark_SUEWS as bss
+from . import Benchmark_SUEWS as bss
 import numpy as np
 import webbrowser
 import shutil
 
-class BenchMarking:
+class BenchMarking(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -157,7 +158,7 @@ class BenchMarking:
         # Check the more unusual dependencies to prevent confusing errors later
         try:
             import pandas
-        except Exception, e:
+        except Exception as e:
             QMessageBox.critical(None, 'Error', 'The Benchmarking feature requires the pandas package to be installed. '
                                                 'Please consult the FAQ in the manual for further information on how'
                                                 'to install missing python packages.')
@@ -268,7 +269,7 @@ class BenchMarking:
 
     def pdf_save(self):
         self.outputfile = self.fileDialogPDF.getSaveFileName(None, "Save File As:", None, "PDF (*.pdf)")
-        self.dlg.textOutputPDF.setText(self.outputfile)
+        self.dlg.textOutputPDF.setText(self.outputfile[0])
 
     def start_progress(self):
 
@@ -325,6 +326,6 @@ class BenchMarking:
             shutil.copy(self.plugin_dir + '/benchmark.nml', self.dlg.textInput_NamelistOut.text())
 
     def help(self):
-        url = "http://umep-docs.readthedocs.io/en/latest/post_processor/Benchmark%20System.html"
+        url = "http://www.urban-climate.net/umep/UMEP_Manual#Benchmark_System"
         webbrowser.open_new_tab(url)
 

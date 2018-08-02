@@ -1,10 +1,13 @@
+from builtins import str
+from builtins import map
+from builtins import object
 try:
     import pandas as pd
 except:
     pass
 import os
 from string import lower
-class FuelConsumption():
+class FuelConsumption(object):
     def __init__(self, filename):
         ''' Class to read in fuel consumption file with prescribed format in g/km,
          and do lookups for different dates, road types and vehicle types, returning data in kg/km
@@ -33,19 +36,19 @@ class FuelConsumption():
 
         # Validate the entries
         # Index level 0 is date, level 1 is fuel, level 2 is vehicle type
-        roadsPresent = list(pd.unique(self.data.keys()))
+        roadsPresent = list(pd.unique(list(self.data.keys())))
 
-        missingRoads = list(set(self.roadTypes).difference(map(lower, roadsPresent)))
+        missingRoads = list(set(self.roadTypes).difference(list(map(lower, roadsPresent))))
         if len(missingRoads) > 0:
             raise ValueError('Not all of the required road types were found in ' + filename + '. Expected: ' + str(self.roadTypes) + ' but got ' + str(roadsPresent))
 
         fuelsPresent = list(pd.unique(self.data.index.levels[1]))
-        missingFuels = list(set(self.fuelTypes).difference(map(lower, fuelsPresent)))
+        missingFuels = list(set(self.fuelTypes).difference(list(map(lower, fuelsPresent))))
         if len(missingFuels) > 0:
             raise ValueError('Not all of the required fuel types were found in ' + filename + '. Expected: ' + str(self.fuelTypes) + ' but got ' + str(fuelsPresent))
 
         vehiclesPresent = list(pd.unique(self.data.index.levels[2]))
-        missingVehicles = list(set(self.vehicleTypes).difference(map(lower, vehiclesPresent)))
+        missingVehicles = list(set(self.vehicleTypes).difference(list(map(lower, vehiclesPresent))))
         if len(missingVehicles) > 0:
             raise ValueError('Not all of the required vehicle types were found in ' + filename + '. Expected: ' + str(self.vehicleTypes) + ' but got ' + str(missingVehicles))
 

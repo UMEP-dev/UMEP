@@ -20,17 +20,25 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import print_function
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from builtins import object
 
-from PyQt4.QtCore import QSettings, QTranslator, qVersion
-from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
+from qgis.PyQt.QtGui import QIcon
 from qgis.core import *
 from qgis.gui import *
-from suews_simple_dialog import SuewsSimpleDialog
+from .suews_simple_dialog import SuewsSimpleDialog
 from ..suewsmodel import Suews_wrapper_v2018a
 from ..ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
 from ..LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
 from ..Utilities import f90nml
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import numpy as np
 import shutil
 import sys
@@ -40,7 +48,7 @@ import time
 # from suewssimpleworker import Worker
 
 
-class SuewsSimple:
+class SuewsSimple(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -95,8 +103,10 @@ class SuewsSimple:
         self.fileDialogMet.setNameFilter("(*.txt)")
 
         self.fileDialogOut = QFileDialog()
-        self.fileDialogOut.setFileMode(4)
-        self.fileDialogOut.setAcceptMode(1)
+        # self.fileDialogOut.setFileMode(4)
+        # self.fileDialogOut.setAcceptMode(1)
+        self.fileDialogOut.setFileMode(QFileDialog.Directory)
+        self.fileDialogOut.setOption(QFileDialog.ShowDirsOnly, True)
         self.folderPathOut = None
         self.folderPath = None
 
@@ -182,7 +192,11 @@ class SuewsSimple:
         del self.toolbar
 
     def run(self):
+        # fix_print_with_import
+        # print(self.model_dir)
+
         if not (os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2018a') or os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2018a.exe')):
+            # QMessageBox.information(self.iface.mainWindow(),
             if QMessageBox.question(self.iface.mainWindow(), "OS specific binaries missing",
                                  "Before you start to use this plugin for the very first time, the OS specific suews\r\n"
                                  "program (4Mb) must be be download from the UMEP repository and stored\r\n"
@@ -197,13 +211,24 @@ class SuewsSimple:
                                                         "\r\n"
                                                         "\r\n"
                                  "Do you want to contiune with the download?", QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
+                # testfile = urllib.URLopener()
                 if sys.platform == 'win32':
-                    urllib.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695894_suews_v2018a.exe',
-                                       self.model_dir + os.sep + 'SUEWS_V2018a.exe')
+                    # print self.model_dir + os.sep + 'SUEWS_V2017b.exe'
+                    # testfile.retrieve('http://www.urban-climate.net/umep/repo/nib/win/SUEWS_V2017b.exe', self.model_dir + os.sep + 'SUEWS_V2017b.exe')
+                    urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695894_suews_v2018a.exe',
+                                      self.model_dir + os.sep + 'SUEWS_V2018a.exe')
+                    # testfile2 = urllib.URLopener()
+                    # testfile2.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cyggcc_s-seh-1.dll', self.model_dir + os.sep + 'cyggcc_s-seh-1.dll')
+                    # testfile3 = urllib.URLopener()
+                    # testfile3.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cyggfortran-3.dll', self.model_dir + os.sep + 'cyggfortran-3.dll')
+                    # testfile4 = urllib.URLopener()
+                    # testfile4.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cygquadmath-0.dll', self.model_dir + os.sep + 'cygquadmath-0.dll')
+                    # testfile5 = urllib.URLopener()
+                    # testfile5.retrieve('http://www.urban-climate.net/umep/repo/nib/win/cygwin1.dll', self.model_dir + os.sep + 'cygwin1.dll')
                 if sys.platform == 'linux2':
-                    urllib.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695887_suews_v2018a', self.model_dir + os.sep + 'SUEWS_V2018a')
+                    urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695887_suews_v2018a', self.model_dir + os.sep + 'SUEWS_V2018a')
                 if sys.platform == 'darwin':
-                    urllib.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695886_suews_v2018a', self.model_dir + os.sep + 'SUEWS_V2018a')
+                    urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695886_suews_v2018a', self.model_dir + os.sep + 'SUEWS_V2018a')
             else:
                 QMessageBox.critical(self.iface.mainWindow(), "Binaries not downloaded", "This plugin will not be able to start before binaries are downloaded")
                 return
@@ -330,72 +355,6 @@ class SuewsSimple:
         if outputfile:
             self.folderPathInit = outputfile
             self.write_to_init(self.model_dir + '/BaseFiles/InitialConditionsKc_2012.nml', self.folderPathInit)
-
-            # # DaysSinceRain = self.dlg.DaysSinceRain.text()
-            # # DailyMeanT = self.dlg.DailyMeanT.text()
-            # LeafCycle = self.dlg.comboBoxLeafCycle.currentIndex() - 1.
-            # SoilMoisture = self.dlg.spinBoxSoilMoisture.value()
-            # moist = int(SoilMoisture * 1.5)
-            #
-            # nml = f90nml.read(self.model_dir + '/BaseFiles/InitialConditionsKc_2012.nml')
-            # # nml['initialconditions']['dayssincerain'] = int(DaysSinceRain)
-            # # nml['initialconditions']['temp_c0'] = float(DailyMeanT)
-            # nml['initialconditions']['soilstorepavedstate'] = moist
-            # nml['initialconditions']['soilstorebldgsstate'] = moist
-            # nml['initialconditions']['soilstoreevetrstate'] = moist
-            # nml['initialconditions']['soilstoredectrstate'] = moist
-            # nml['initialconditions']['soilstoregrassstate'] = moist
-            # nml['initialconditions']['soilstorebsoilstate'] = moist
-            #
-            # if LeafCycle == 0:  # Winter
-            #     nml['initialconditions']['gdd_1_0'] = 0
-            #     nml['initialconditions']['gdd_2_0'] = -450
-            #     nml['initialconditions']['laiinitialevetr'] = 4
-            #     nml['initialconditions']['laiinitialdectr'] = 1
-            #     nml['initialconditions']['laiinitialgrass'] = 1.6
-            # elif LeafCycle == 1:
-            #     nml['initialconditions']['gdd_1_0'] = 50
-            #     nml['initialconditions']['gdd_2_0'] = -400
-            #     nml['initialconditions']['laiinitialevetr'] = 4.2
-            #     nml['initialconditions']['laiinitialdectr'] = 2.0
-            #     nml['initialconditions']['laiinitialgrass'] = 2.6
-            # elif LeafCycle == 2:
-            #     nml['initialconditions']['gdd_1_0'] = 150
-            #     nml['initialconditions']['gdd_2_0'] = -300
-            #     nml['initialconditions']['laiinitialevetr'] = 4.6
-            #     nml['initialconditions']['laiinitialdectr'] = 3.0
-            #     nml['initialconditions']['laiinitialgrass'] = 3.6
-            # elif LeafCycle == 3:
-            #     nml['initialconditions']['gdd_1_0'] = 225
-            #     nml['initialconditions']['gdd_2_0'] = -150
-            #     nml['initialconditions']['laiinitialevetr'] = 4.9
-            #     nml['initialconditions']['laiinitialdectr'] = 4.5
-            #     nml['initialconditions']['laiinitialgrass'] = 4.6
-            # elif LeafCycle == 4: # Summer
-            #     nml['initialconditions']['gdd_1_0'] = 300
-            #     nml['initialconditions']['gdd_2_0'] = 0
-            #     nml['initialconditions']['laiinitialevetr'] = 5.1
-            #     nml['initialconditions']['laiinitialdectr'] = 5.5
-            #     nml['initialconditions']['laiinitialgrass'] = 5.9
-            # elif LeafCycle == 5:
-            #     nml['initialconditions']['gdd_1_0'] = 225
-            #     nml['initialconditions']['gdd_2_0'] = -150
-            #     nml['initialconditions']['laiinitialevetr'] = 4.9
-            #     nml['initialconditions']['laiinitialdectr'] = 4,5
-            #     nml['initialconditions']['laiinitialgrass'] = 4.6
-            # elif LeafCycle == 6:
-            #     nml['initialconditions']['gdd_1_0'] = 150
-            #     nml['initialconditions']['gdd_2_0'] = -300
-            #     nml['initialconditions']['laiinitialevetr'] = 4.6
-            #     nml['initialconditions']['laiinitialdectr'] = 3.0
-            #     nml['initialconditions']['laiinitialgrass'] = 3.6
-            # elif LeafCycle == 7:
-            #     nml['initialconditions']['gdd_1_0'] = 50
-            #     nml['initialconditions']['gdd_2_0'] = -400
-            #     nml['initialconditions']['laiinitialevetr'] = 4.2
-            #     nml['initialconditions']['laiinitialdectr'] = 2.0
-            #     nml['initialconditions']['laiinitialgrass'] = 2.6
-            # nml.write(self.folderPathInit, force=True)
 
     def set_default_settings(self):
         f = open(self.model_dir + '/BaseFiles/SUEWS_SiteSelect.txt')
@@ -580,7 +539,7 @@ class SuewsSimple:
             Suews_wrapper_v2018a.wrapper(self.model_dir)
             time.sleep(1)
             self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.model_dir + " for "
-                            "additional information about the run", level=QgsMessageBar.INFO)
+                            "additional information about the run", level=Qgis.Success)
         except Exception as e:
             time.sleep(1)
             QMessageBox.critical(self.dlg, "An error occurred", str(e) + "\r\n\r\n"

@@ -1,3 +1,5 @@
+from builtins import range
+from builtins import object
 __author__ = 'Fredrik Lindberg'
 
 # This class will be used to plot output result from Suews
@@ -35,7 +37,7 @@ def make_dectime(dataout):
 
     return dectime
 
-class SuewsPlotting:
+class SuewsPlotting(object):
     def __init__(self):
         pass
 

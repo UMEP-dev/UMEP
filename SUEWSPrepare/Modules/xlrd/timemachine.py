@@ -8,6 +8,7 @@
 # usage: from timemachine import *
 
 from __future__ import print_function
+
 import sys
 
 python_version = sys.version_info[:2] # e.g. version 2.6 -> (2, 6)
@@ -23,7 +24,7 @@ if python_version >= (3, 0):
         if fmt.endswith('\n'):
             print(fmt[:-1] % vargs, file=f)
         else:
-            print(fmt % vargs, end=' ', file=f)        
+            print(fmt % vargs, end=' ', file=f)
     EXCEL_TEXT_TYPES = (str, bytes, bytearray) # xlwt: isinstance(obj, EXCEL_TEXT_TYPES)
     REPR = ascii
     xrange = range
@@ -40,7 +41,7 @@ else:
         if fmt.endswith('\n'):
             print(fmt[:-1] % vargs, file=f)
         else:
-            print(fmt % vargs, end=' ', file=f)        
+            print(fmt % vargs, end=' ', file=f)
     try:
         EXCEL_TEXT_TYPES = basestring # xlwt: isinstance(obj, EXCEL_TEXT_TYPES)
     except NameError:
@@ -49,4 +50,4 @@ else:
     xrange = xrange
     # following used only to overcome 2.x ElementTree gimmick which
     # returns text as `str` if it's ascii, otherwise `unicode`
-    ensure_unicode = unicode # used only in xlsx.py 
+    ensure_unicode = unicode # used only in xlsx.py

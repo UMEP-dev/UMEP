@@ -1,8 +1,9 @@
-# -*- coding: windows-1252 -*-
+# -*- coding: utf-8 -*-
 
-from struct import unpack, pack
+from struct import pack, unpack
+
 from . import BIFFRecords
-from .compat import xrange
+
 
 class StrCell(object):
     __slots__ = ["rowx", "colx", "xf_idx", "sst_idx"]
@@ -195,7 +196,7 @@ def _get_cells_biff_data_mul(rowx, cell_items):
         lastcolx = icolx
         j = i
         packed_record = ''
-        for j in xrange(i+1, nitems):
+        for j in range(i+1, nitems):
             jcolx, jcell = cell_items[j]
             if jcolx != lastcolx + 1:
                 nexti = j
@@ -224,7 +225,7 @@ def _get_cells_biff_data_mul(rowx, cell_items):
                 # MULRK record
                 nc = lastcolx - icolx + 1
                 pieces.append(pack('<4H', 0x00BD, 6 * nc + 6, rowx, icolx))
-                pieces.append(b''.join([pack('<Hi', xf_idx, value) for value, xf_idx in muldata]))
+                pieces.append(b''.join(pack('<Hi', xf_idx, value) for value, xf_idx in muldata))
                 pieces.append(pack('<H', lastcolx))
         else:
             if lastcolx == icolx:
@@ -235,10 +236,9 @@ def _get_cells_biff_data_mul(rowx, cell_items):
                 # MULBLANK record
                 nc = lastcolx - icolx + 1
                 pieces.append(pack('<4H', 0x00BE, 2 * nc + 6, rowx, icolx))
-                pieces.append(b''.join([pack('<H', xf_idx) for xf_idx in muldata]))
+                pieces.append(b''.join(pack('<H', xf_idx) for xf_idx in muldata))
                 pieces.append(pack('<H', lastcolx))
         if packed_record:
             pieces.append(packed_record)
         i = nexti
     return b''.join(pieces)
-

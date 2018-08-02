@@ -1,10 +1,9 @@
-from PyQt4 import QtCore
-# import traceback
-# from SEBEfiles import SEBE_2015a_calc
+from __future__ import print_function
+from builtins import range
+from qgis.PyQt import QtCore
 import numpy as np
 from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_13 import shadowingfunction_wallheight_13
 from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_23 import shadowingfunction_wallheight_23
-# from ..Utilities import shadowingfunctions as shadow
 import linecache
 import sys
 
@@ -266,7 +265,8 @@ class Worker(QtCore.QObject):
                     self.progress.emit()  # move progressbar forward
 
             # Including radiation from ground on walls as well as removing pixels high than walls
-            print np.copy(Energyyearwall).shape
+            # fix_print_with_import
+            print(np.copy(Energyyearwall).shape)
             wallmatrixbol = (Energyyearwall > 0).astype(float)
             Energyyearwall = (Energyyearwall + (np.sum(radmatR[:, 2]) * albedo)/2) * wallmatrixbol
 

@@ -8,7 +8,7 @@
 
 [general]
 name=UMEP
-qgisMinimumVersion=2.0
+qgisMinimumVersion=3.0
 description=Urban Multi-scale Environmental Predictor
 
 version=1.5
@@ -26,7 +26,7 @@ repository=https://bitbucket.org/fredrik_ucg/umep
 
 # Uncomment the following line and add your changelog:
 changelog=
-	1.5   : LONG TERM RELEASE.
+	1.5   : LONG TERM RELEASE. Early adopter release. Some parts of the plugin is not yet operational.
 	1.4.2 : Response to issue #42 and #46. Initiation of migration to QGIS3.
 	1.4.1 : Bug fix in land cover fraction calculations
 	1.4   : Response to issue #36 and bugfix in LQf
@@ -80,7 +80,7 @@ changelog=
 # Tags are comma separated with spaces allowed
 tags=urban climate, urban planning
 
-homepage=http://umep-docs.readthedocs.io/en/latest/index.html
+homepage=http://www.urban-climate.net/umep/
 category=Plugins
 icon=Icons/icon_umep.png
 

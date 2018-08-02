@@ -1,3 +1,4 @@
+from builtins import str
 # This file prints out run information used for each specific run
 from time import strftime
 from osgeo import osr

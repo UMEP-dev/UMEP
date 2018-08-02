@@ -20,11 +20,17 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QIcon, QAction, QFileDialog, QMessageBox
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 from qgis.core import *
 from qgis.gui import *
-from solweig_analyzer_dialog import SolweigAnalyzerDialog
+from .solweig_analyzer_dialog import SolweigAnalyzerDialog
 import os
 import webbrowser
 from osgeo import gdal
@@ -40,7 +46,7 @@ except ImportError:
     pass
 
 
-class SolweigAnalyzer:
+class SolweigAnalyzer(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -169,7 +175,7 @@ class SolweigAnalyzer:
         del self.toolbar
 
     def folder_path_model(self):
-        self.fileDialog.setFileMode(4)  # only folders
+        # self.fileDialog.setFileMode(4)  # only folders
         self.fileDialog.open()
         result = self.fileDialog.exec_()
         if result == 1:
@@ -259,8 +265,10 @@ class SolweigAnalyzer:
             self.dlg.spinBoxMovieMax.setValue(1)
 
     def folder_path_save(self):
-        self.fileDialog.setFileMode(4)
-        self.fileDialog.setAcceptMode(1)
+        # self.fileDialog.setFileMode(4)
+        # self.fileDialog.setAcceptMode(1)
+        self.fileDialog.setFileMode(QFileDialog.Directory)
+        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
         self.fileDialog.open()
         result = self.fileDialog.exec_()
         if result == 1:
@@ -451,7 +459,8 @@ class SolweigAnalyzer:
         # Diurnal mean
         if self.dlg.checkboxMean.isChecked():
             index = 0
-            print self.posAll
+            # fix_print_with_import
+            print(self.posAll)
             for i in self.posAll:
                 gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
                 grid = gdal_dsm.ReadAsArray().astype(np.float)
@@ -694,8 +703,7 @@ class SolweigAnalyzer:
         self.steps = 0
 
     def help(self):
-        url = 'http://umep-docs.readthedocs.io/en/latest/post_processor/Outdoor%20Thermal%20Comfort%20' \
-              'SOLWEIG%20Analyzer.html'
+        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Outdoor_Thermal_Comfort:_SOLWEIG_Analyzer'
         webbrowser.open_new_tab(url)
 
     def saveraster(self, gdal_data, filename, raster):

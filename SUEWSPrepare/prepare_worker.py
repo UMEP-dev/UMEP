@@ -1,6 +1,9 @@
-from PyQt4 import QtCore
+from builtins import next
+from builtins import str
+from builtins import range
+from qgis.PyQt import QtCore
 # from PyQt4.QtCore import QVariant
-from PyQt4.QtGui import QMessageBox  #, QFileDialog, QAction, QIcon
+from qgis.PyQt.QtWidgets import QMessageBox  #, QFileDialog, QAction, QIcon
 from qgis.core import *  # QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsRasterLayer, QgsGeometry, QgsMessageLog
 # from qgis.gui import QgsMessageBar
 import traceback
@@ -105,8 +108,8 @@ class Worker(QtCore.QObject):
                     QMessageBox.critical(None, "Error", "Meteorological data file has not been provided,"
                                                         " please check the main tab")
                     return
-                elif os.path.isfile(self.Metfile_path):
-                    with open(self.Metfile_path) as file:
+                elif os.path.isfile(self.Metfile_path[0]):
+                    with open(self.Metfile_path[0]) as file:
                         next(file)
                         for line in file:
                             split = line.split()
@@ -123,7 +126,7 @@ class Worker(QtCore.QObject):
 
                     # figure out the time res of input file
                     if ind == 1:
-                        met_old = np.genfromtxt(self.Metfile_path, skip_header=1, skip_footer=2)
+                        met_old = np.genfromtxt(self.Metfile_path[0], skip_header=1, skip_footer=2)
                         id = met_old[:, 1]
                         it = met_old[:, 2]
                         imin = met_old[:, 3]
@@ -216,7 +219,7 @@ class Worker(QtCore.QObject):
 
                 if self.LCF_from_file:
                     found_LCF_line = False
-                    with open(self.LCFfile_path) as file:
+                    with open(self.LCFfile_path[0]) as file:
                         next(file)
                         for line in file:
                             split = line.split()
@@ -315,7 +318,7 @@ class Worker(QtCore.QObject):
                 if self.IMP_from_file:
                     found_IMP_line = False
 
-                    with open(self.IMPfile_path) as file:
+                    with open(self.IMPfile_path[0]) as file:
                         next(file)
                         for line in file:
                             split = line.split()
@@ -343,7 +346,7 @@ class Worker(QtCore.QObject):
                 if self.IMPveg_from_file:
                     found_IMPveg_line = False
 
-                    with open(self.IMPvegfile_path) as file:
+                    with open(self.IMPvegfile_path[0]) as file:
                         next(file)
                         for line in file:
                             split = line.split()
@@ -645,7 +648,7 @@ class Worker(QtCore.QObject):
                 Code_ESTMClass_Bldgs5 = 99999
 
                 if self.land_use_from_file:
-                    with open(self.land_use_file_path) as file:
+                    with open(self.land_use_file_path[0]) as file:
                         next(file)
                         found_LUF_line = False
                         for line in file:
@@ -740,7 +743,7 @@ class Worker(QtCore.QObject):
                 self.progress.emit()
 
             # Writing met files and add lines in SIteSelect if multiple years
-            met_in = np.genfromtxt(self.Metfile_path, skip_header=1)
+            met_in = np.genfromtxt(self.Metfile_path[0], skip_header=1)
 
             YYYYmin = np.min(met_in[:, 0])
             YYYYmax = np.max(met_in[:, 0])
@@ -817,13 +820,13 @@ class Worker(QtCore.QObject):
                     except IOError as e:
                         QgsMessageLog.logMessage(
                             "Error copying output files with SUEWS_SiteSelect.txt: " + str(e),
-                            level=QgsMessageLog.CRITICAL)
+                            level=Qgis.Critical)
 
             if self.killed is False:
                 self.progress.emit()
                 ret = 1
 
-        except Exception, e:
+        except Exception as e:
             ret = 0
             errorstring = self.print_exception()
             self.error.emit(errorstring)

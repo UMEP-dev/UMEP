@@ -1,3 +1,6 @@
+from builtins import str
+from builtins import map
+from builtins import object
 from datetime import date as dtd
 import datetime as dt
 from ...Utilities import f90nml as nml
@@ -7,7 +10,7 @@ from ...Utilities import f90nml as nml
 def to_date(x):
     return dt.datetime.strptime(x, '%Y-%m-%d').date()
 
-class Config:
+class Config(object):
     def __init__(self):
 
         self.dt_start = None
@@ -43,14 +46,14 @@ class Config:
         # Load the properties from a namelist
         try:
             CONFIG = nml.read(configFile)
-        except Exception,e:
+        except Exception as e:
             raise ValueError('Could not process config file ' + configFile + ': ' + str(e))
 
         # Try dates out
         try:
-            self.dt_start = map(function=to_date, sequence=CONFIG['input_nml']['start_dates'])
-            self.dt_end = map(function=to_date, sequence=CONFIG['input_nml']['end_dates'])
-        except Exception, e:
+            self.dt_start = list(map(function=to_date, sequence=CONFIG['input_nml']['start_dates']))
+            self.dt_end = list(map(function=to_date, sequence=CONFIG['input_nml']['end_dates']))
+        except Exception as e:
             raise ValueError('Could not interpret dates for model configuration: ' + str(e))
 
         self.checkInput(CONFIG['input_nml'])

@@ -1,11 +1,13 @@
-from PyQt4 import QtGui, uic
-from PyQt4.QtGui import QListWidgetItem, QDialog
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplicationm
-from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
+from qgis.PyQt import uic
+from qgis.PyQt.QtWidgets import QDialog
+# from PyQt4 import QtGui, uic
+# from PyQt4.QtGui import QListWidgetItem, QDialog
+# from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplicationm
+# from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
 import os
 FORM_CLASS, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__), 'RunParamsDialog.ui'))
-from matplotlib import pyplot
-from datetime import datetime as dt
+# from matplotlib import pyplot
+# from datetime import datetime as dt
 
 
 class RunParamsDialog(QDialog, FORM_CLASS):

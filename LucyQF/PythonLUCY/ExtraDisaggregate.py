@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from builtins import map
+from builtins import str
 # Performs supplementary spatial disaggregation of GQF outputs.
 # Identifies relationships between two layers: A set of gridded land cover fractions and the QGF output grid
 # Saves dict that summarises this relationship so that disaggregation can occur
@@ -7,7 +10,7 @@ try:
 except:
     pass
 
-from DataManagement.spatialHelpers import openShapeFileInMemory, populateShapefileFromTemplate, disaggregate_weightings, intersecting_amounts, feature_areas, shapefile_attributes, intOrString, reprojectVectorLayer_threadSafe
+from .DataManagement.spatialHelpers import openShapeFileInMemory, populateShapefileFromTemplate, disaggregate_weightings, intersecting_amounts, feature_areas, shapefile_attributes, intOrString, reprojectVectorLayer_threadSafe
 from qgis.core import QgsSpatialIndex
 
 def ExtraDisaggregate(modelOutAreas, landCoverData, landCoverGrid, landCoverWeights, modelOutputIdField, gridIdField):
@@ -88,13 +91,13 @@ def performDisaggregation(layerToDisaggregate, idField, fieldsToDisaggregate, we
     areas = pd.Series(feature_areas(layerToDisaggregate))
     atts = shapefile_attributes(layerToDisaggregate)
     areaNames = atts[idField]
-    areas.index = map(intOrString, areaNames[areas.index])
-    atts.index =  map(intOrString, areaNames[atts.index])
+    areas.index = list(map(intOrString, areaNames[areas.index]))
+    atts.index =  list(map(intOrString, areaNames[atts.index]))
     atts = atts[fieldsToDisaggregate] # Data frame of row:input_id, col:parameter and data = quantity to disagg
 
     # Apply disaggregation to features
-    result = pd.DataFrame(index=weightings[weightingType].keys(), columns=atts.columns)
-    for oa in weightings[weightingType].keys():
+    result = pd.DataFrame(index=list(weightings[weightingType].keys()), columns=atts.columns)
+    for oa in list(weightings[weightingType].keys()):
         vals = pd.Series(weightings[weightingType][oa]) # Series of input_id:weighting
         result.loc[oa] = atts.loc[vals.index].transpose().multiply(vals).transpose().sum() # Produces a data frame of the weighted contribution from each input ID, then does col sums
 
@@ -115,19 +118,19 @@ def performSampling(layerToSample, idField, fieldsToSample, intersectedAmounts):
     # Build data frame of what to actually sample
     atts = shapefile_attributes(layerToSample)
     areaNames = atts[idField]
-    atts.index =  map(intOrString, areaNames[atts.index])
+    atts.index =  list(map(intOrString, areaNames[atts.index]))
     atts = atts[fieldsToSample] # Data frame of row:input_id, col:parameter and data = quantity to disagg
 
     # Sample from features
-    result = pd.DataFrame(index=intersectedAmounts.keys(), columns=fieldsToSample)
-    for oa in intersectedAmounts.keys():
+    result = pd.DataFrame(index=list(intersectedAmounts.keys()), columns=fieldsToSample)
+    for oa in list(intersectedAmounts.keys()):
         rawData =intersectedAmounts[oa]
-        numEntries = len(rawData.keys())
+        numEntries = len(list(rawData.keys()))
 
         if numEntries == 0:
             continue
         elif numEntries == 1:
-            inputId = rawData.keys()[0]
+            inputId = list(rawData.keys())[0]
         elif numEntries > 1:
             area_info = pd.DataFrame(rawData).transpose()
             # Take attribute from input area that most intersects the output area

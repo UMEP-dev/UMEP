@@ -1,3 +1,8 @@
+from __future__ import print_function
+from builtins import str
+from builtins import map
+from builtins import range
+from builtins import object
 from ...Utilities import f90nml as nml
 import os
 from datetime import datetime as dt
@@ -23,7 +28,7 @@ def validFile(x):
     if not os.path.exists(x):
         raise ValueError('The diurnal input file ' + str(x) + ' was not found')
 
-class DataSources:
+class DataSources(object):
     ''' Loads the data sources namelist, conducts validation and structures inputs for use with data management routines
     '''
     def __init__(self, configFile):
@@ -53,7 +58,7 @@ class DataSources:
 
         try:
             ds = nml.read(configFile)
-        except Exception, e:
+        except Exception as e:
             raise ValueError('Unable to read data sources config file at: ' + str(configFile))
 
         # Are all main entries present?
@@ -79,7 +84,7 @@ class DataSources:
                                 'workplacepop':'workPop_spat',
                                 'transportdata':'transport_spat'}
 
-        missing = list(set(expectedKeys_spatial).difference(ds.keys()))
+        missing = list(set(expectedKeys_spatial).difference(list(ds.keys())))
         if len(missing) > 0:
             raise ValueError('Spatial entries missing from ' + str(configFile) + ' in namelist: ' + str(missing))
 
@@ -87,10 +92,10 @@ class DataSources:
         for subEntry in expectedKeys_spatial:
             content_orig = ds[subEntry]
             # Do string matching, so make it all upper case
-            content = {upper(k):content_orig[k] for k in content_orig.keys()}
+            content = {upper(k):content_orig[k] for k in list(content_orig.keys())}
 
             # Check it's all lists or no lists
-            types = np.unique(map(type, content.values()))
+            types = np.unique(list(map(type, list(content.values()))))
             # are all sub-entries present?
             expectedNames_spat = ['shapefiles', 'startDates', 'epsgCodes', 'attribToUse', 'featureIds']
 
@@ -125,8 +130,8 @@ class DataSources:
                                       'AADT_rigid',
                                       'AADT_artic']
 
-            expectedNames_spat = map(upper, expectedNames_spat)
-            missing = list(set(map(upper, expectedNames_spat)).difference(content.keys()))
+            expectedNames_spat = list(map(upper, expectedNames_spat))
+            missing = list(set(map(upper, expectedNames_spat)).difference(list(content.keys())))
             if len(missing) > 0:
                 raise ValueError('Entries missing from ' + subEntry + ' in namelist: ' + str(missing))
 
@@ -136,7 +141,7 @@ class DataSources:
             #    raise ValueError(
             #        'The namelist entries for ' + subEntry + ' have inconsistent lengths: some are lists and some are not')
             #if list not in types:
-            for k in content.keys():
+            for k in list(content.keys()):
                 if content[k] == '':
                     content[k] = None
                 content[k] = [content[k]]
@@ -145,12 +150,12 @@ class DataSources:
             #if len(np.unique(lengths)) > 1:
             #    raise ValueError('The namelist entries for ' + subEntry + ' have inconsistent list lengths')
 
-            map(validateInput, content[expectedNames_spat[0]])
+            list(map(validateInput, content[expectedNames_spat[0]]))
             # Validate start dates
-            if 'STARTDATES' in content.keys():
+            if 'STARTDATES' in list(content.keys()):
                 try:
-                    content['STARTDATES'] = map(makeTimey, content['STARTDATES'])
-                except Exception, e:
+                    content['STARTDATES'] = list(map(makeTimey, content['STARTDATES']))
+                except Exception as e:
                     raise ValueError('One or more startDate entries is not in YYYY-mm-dd format for ' + subEntry + ':' + str(e))
 
                 # Ensure dates within a subentry are unique
@@ -253,9 +258,9 @@ class DataSources:
                                  'diurnalmetabolism': 'diurnMetab',
                                  'fuelconsumption': 'fuelConsumption'}
 
-        expectedKeys_temporal = destinations_temporal.keys()
+        expectedKeys_temporal = list(destinations_temporal.keys())
         expectedNames_temporal = ['profileFiles']
-        missing = list(set(map(upper, expectedKeys_temporal)).difference(map(upper, ds.keys())))
+        missing = list(set(map(upper, expectedKeys_temporal)).difference(list(map(upper, list(ds.keys())))))
 
         if len(missing) > 0:
             raise ValueError('Temporal entries missing from ' + str(configFile) + ' in namelist: ' + str(missing))
@@ -263,16 +268,16 @@ class DataSources:
         for entry in expectedKeys_temporal:
             content = ds[entry]
             # Validate sub-entries
-            missing = list(set(map(upper, expectedNames_temporal)).difference(map(upper, content.keys())))
+            missing = list(set(map(upper, expectedNames_temporal)).difference(list(map(upper, list(content.keys())))))
             if len(missing) > 0:
                 raise ValueError('Entries missing from ' + entry + ' in namelist: ' + str(missing))
 
             # Make sure everything is a list or everyting is a string
-            types = np.unique(map(type, content.values()))
+            types = np.unique(list(map(type, list(content.values()))))
             if len(types) > 1 and list in types:
                 raise ValueError('The namelist entries for ' + entry + ' have inconsistent lengths: some are lists and some are not')
             #if list not in types:
-            for k in content.keys():
+            for k in list(content.keys()):
                 # Replace empties with None, and make lists if not lists already
                 if len(content[k]) == 0:
                     content[k] = None
@@ -280,7 +285,7 @@ class DataSources:
                     content[k] = [content[k]]
 
             # Validate filenames
-            map(validFile, content['profileFiles'])
+            list(map(validFile, content['profileFiles']))
             # Having gotten this far means the entries are valid, so populate the object field
             entries = getattr(self, destinations_temporal[entry])
             for i in range(0, len(content['profileFiles']), 1):
@@ -315,7 +320,7 @@ def validate_transport(inputDict):
                           'AADT_rigid',
                           'AADT_artic']
 
-    missing = list(set(expectedNames).difference(inputDict.keys()))
+    missing = list(set(expectedNames).difference(list(inputDict.keys())))
     if(len(missing) > 0):
         raise ValueError('Entries missing from transportData section of data sources file:' + str(missing))
     road_class_entries = ['class_field', 'motorway_class', 'primary_class', 'secondary_class']
@@ -344,14 +349,14 @@ def validate_transport(inputDict):
                           'AADT_coach',
                           'AADT_rigid',
                           'AADT_artic']
-        missing = list(set(mandatory_aadts).difference(inputDict.keys()))
+        missing = list(set(mandatory_aadts).difference(list(inputDict.keys())))
         if len(missing) > 0:
             raise ValueError('The following AADT field names are missing from the transportData section of the data sources file: ' + str(missing))
 
         # See if the conditionally optional fields exist
         combination_aadts = {'AADT_total_LGV': ['AADT_petrol_LGV', 'AADT_diesel_LGV'],
                              'AADT_total_car': ['AADT_petrol_car', 'AADT_diesel_car']}
-        for one in combination_aadts.keys():
+        for one in list(combination_aadts.keys()):
             if type(inputDict[one]) is not str: # If the total value is not present, the other values must be
                 for other in combination_aadts[one]:
                     if type(inputDict[other]) is not str:
@@ -360,16 +365,28 @@ def validate_transport(inputDict):
 
 if __name__=="__main__":
     a = DataSources('C:\Users\pn910202\.qgis2\python\plugins\GreaterQF\PythonQF2\GQFInputs\dataSources_working.nml')
-    print a.resPop_spat
-    print a.outputAreas_spat
-    print a.transport_spat
-    print a.transport_spat[0]['AADT_fields']
-    print a.indGas_spat
-    print a.indElec_spat
-    print a.domGas_spat
-    print a.domElec_spat
-    print a.eco7_spat
-    print a.resPop_spat
-    print a.workPop_spat
-    print a.fuelConsumption
+    # fix_print_with_import
+    print(a.resPop_spat)
+    # fix_print_with_import
+    print(a.outputAreas_spat)
+    # fix_print_with_import
+    print(a.transport_spat)
+    # fix_print_with_import
+    print(a.transport_spat[0]['AADT_fields'])
+    # fix_print_with_import
+    print(a.indGas_spat)
+    # fix_print_with_import
+    print(a.indElec_spat)
+    # fix_print_with_import
+    print(a.domGas_spat)
+    # fix_print_with_import
+    print(a.domElec_spat)
+    # fix_print_with_import
+    print(a.eco7_spat)
+    # fix_print_with_import
+    print(a.resPop_spat)
+    # fix_print_with_import
+    print(a.workPop_spat)
+    # fix_print_with_import
+    print(a.fuelConsumption)
 

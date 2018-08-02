@@ -20,26 +20,30 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QObject, pyqtSignal, QThread
-from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QObject, pyqtSignal, QThread
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
+from qgis.PyQt.QtGui import QIcon
 from qgis.gui import *
 from osgeo import osr, ogr
-from watch_dialog import WATCHDataDialog
+from .watch_dialog import WATCHDataDialog
 from calendar import monthrange
 import os.path
 import shutil
 import webbrowser
 from ..Utilities.ncWMSConnector import NCWMS_Connector
-from WFDEIDownloader.WFDEI_Interpolator import *
+from .WFDEIDownloader.WFDEI_Interpolator import *
 import traceback
 import datetime
-from WatchWorker import WatchWorker
+from .WatchWorker import WatchWorker
 
 class DownloadDataWorker(QObject):
     # Worker to get netCDF data using a separate thread
     finished = pyqtSignal(object)
     update = pyqtSignal(object)
-    error = pyqtSignal(Exception, basestring)
+    error = pyqtSignal(Exception, str)
     def __init__(self, hw_start, hw_end, watch_vars, ll_lat, ll_lon, ur_lat, ur_lon):
         QObject.__init__(self)
         self.hw_start = hw_start
@@ -58,7 +62,7 @@ class DownloadDataWorker(QObject):
         try:
             output = self.webToTimeseries(self.hw_start, self.hw_end, self.watch_vars, self.ll_lat, self.ll_lon,self. ur_lat, self.ur_lon, self.update)
             self.finished.emit(output)
-        except Exception,e:
+        except Exception as e:
             self.error.emit(e, traceback.format_exc())
 
     def webToTimeseries(self, hw_start, hw_end, watch_vars, ll_lat, ll_lon, ur_lat, ur_lon, update=None):
@@ -83,7 +87,7 @@ class DownloadDataWorker(QObject):
         temp_netcdf = self.downloader.average_data(None, 'mean')
         return temp_netcdf
 
-class WATCHData:
+class WATCHData(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -176,14 +180,14 @@ class WATCHData:
         gzip_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'WFDEIDownloader/WFDEI-land-long-lat-height.txt.gz')
         try:
             a = open(text_file)
-        except IOError,e:
+        except IOError as e:
             try:
                 import gzip
                 with gzip.open(gzip_file, 'rb') as zipFile:
                     a = zipFile.read()
                 with open(text_file, 'wb') as outFile:
                     outFile.write(a)
-            except Exception, e:
+            except Exception as e:
                 QMessageBox.critical(None, 'ha', str(e))
                 raise Exception('Could not locate mappings textfile, nor decompress its zipped copy')
 
@@ -326,7 +330,7 @@ class WATCHData:
             refined_filename = self.fileDialog.getSaveFileName(None, "Save refined climate data to...", None, "Text Files (*.txt)")
             if (refined_filename is None) or (len(refined_filename) == 0):
                 return
-        except Exception, e:
+        except Exception as e:
             QMessageBox.critical(None, "Error", str(e))
             self.setRefinerButtonState(True)
             self.setDownloaderButtonState(True)
@@ -392,35 +396,35 @@ class WATCHData:
         # Check the more unusual dependencies to prevent confusing errors later
         try:
             import pandas
-        except Exception, e:
+        except Exception as e:
             QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the pandas package '
                                                 'to be installed. Please consult the FAQ in the manual for further '
                                                 'information on how to install missing python packages.')
             return
         try:
             import ftplib
-        except Exception, e:
+        except Exception as e:
             QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the ftplib package '
                                                 'to be installed. Please consult the FAQ in the manual for further '
                                                 'information on how to install missing python packages.')
             return
         try:
             import scipy
-        except Exception, e:
+        except Exception as e:
             QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the scipy package '
                                                 'to be installed. Please consult the FAQ in the manual for further '
                                                 'information on how to install missing python packages.')
             return
         try:
             import requests
-        except Exception, e:
+        except Exception as e:
             QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the requests package '
                                                 'to be installed. Please consult the FAQ in the manual for further '
                                                 'information on how to install missing python packages.')
             return
         try:
             import netCDF4 as nc4
-        except Exception, e:
+        except Exception as e:
             QMessageBox.critical(None, 'Error',
                                  'The WATCH data download/extract feature requires the NetCDF4 Python package '
                                  'to be installed. Please consult the FAQ in the manual for further '
@@ -437,8 +441,7 @@ class WATCHData:
             self.dlg.textOutput_AH.setText(self.folderPathAH[0])
 
     def help(self):
-        url = "http://umep-docs.readthedocs.io/en/latest/pre-processor/Meteorological%20Data%20" \
-              "Download%20data%20(WATCH).html"
+        url = "http://urban-climate.net/umep/UMEP_Manual#Meteorological_Data:_Download_data_.28WATCH.29"
         webbrowser.open_new_tab(url)
 
     def refine_worker_finished(self):
@@ -471,7 +474,7 @@ class WATCHData:
             download_filename = self.fileDialog.getSaveFileName(None, "Save downloaded WATCH data to...", None, "NetCDF Files (*.nc)")
             if (download_filename is None) or (len(download_filename) == 0):
                 return
-        except Exception, e:
+        except Exception as e:
             QMessageBox.critical(None, "Error", str(e))
             return
 

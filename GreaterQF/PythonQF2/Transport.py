@@ -1,12 +1,16 @@
+from __future__ import absolute_import
+from builtins import str
+from builtins import map
+from builtins import object
 from datetime import datetime as dt
 from string import lower
-from DataManagement.LookupLogger import LookupLogger
-from DataManagement.SpatialTemporalResampler import SpatialTemporalResampler
-from DataManagement.spatialHelpers import *
+from .DataManagement.LookupLogger import LookupLogger
+from .DataManagement.SpatialTemporalResampler import SpatialTemporalResampler
+from .DataManagement.spatialHelpers import *
 from qgis.core import QgsSpatialIndex
 from shutil import rmtree
 
-class Transport():
+class Transport(object):
     '''Produce transport energy data based on input vector map of road segments, along with traffic data'''
 
     def __init__(self, fuelConsumption, modelParams, logger=LookupLogger()):
@@ -64,7 +68,7 @@ class Transport():
             raise ValueError('Name of attribute containing road classification must be a string')
 
         # Check the list of identifiers for road types contain all three types
-        matchingRoadClasses = set(self.roadTypes).difference(roadTypeNames.keys())
+        matchingRoadClasses = set(self.roadTypes).difference(list(roadTypeNames.keys()))
         if len(matchingRoadClasses) > 0:
             raise ValueError('Dict containing road class identifiers must have keys: ' + str(self.roadTypes))
 
@@ -78,8 +82,8 @@ class Transport():
         :param epsgCode: EPSG code of shapefile
         :return: QgsVectorLayer of the shapefile provided
         '''
-        allFuelFields = self.dieselNames.values()
-        allFuelFields.extend(self.petrolNames.values())
+        allFuelFields = list(self.dieselNames.values())
+        allFuelFields.extend(list(self.petrolNames.values()))
         return self.transport.injectInput(filename, epsgCode, allFuelFields, startDate)
 
     def addTransportData(self, shapefile, startTime, epsgCode, roadTypeField, roadTypeNames, inputIdField, speedDataField=None, speedConversionFactor=None, totalAADTField=None, vAADTFields=None):
@@ -129,15 +133,15 @@ class Transport():
         if type(vAADTFields) is dict:
             allowedKeys1 = self.completeInputs
             allowedKeys2 = self.modelledTypes
-            missingFrom1 = list(set(allowedKeys1).difference(vAADTFields.keys()))
-            missingFrom2 = list(set(allowedKeys2).difference(vAADTFields.keys()))
+            missingFrom1 = list(set(allowedKeys1).difference(list(vAADTFields.keys())))
+            missingFrom2 = list(set(allowedKeys2).difference(list(vAADTFields.keys())))
             if len(missingFrom1) == 0:
                 completeInputAADTprovided = True
             elif len(missingFrom2) == 0:
                 modelledTypesAADTprovided = True
             else:
-                raise ValueError('The vehicle AADT field names provided are incomplete. Expected: ' + str(allowedKeys1) + ' OR ' + str(allowedKeys2) + '. Got: ' + str(vAADTFields.keys()))
-            fieldsToSample.extend(vAADTFields.values())
+                raise ValueError('The vehicle AADT field names provided are incomplete. Expected: ' + str(allowedKeys1) + ' OR ' + str(allowedKeys2) + '. Got: ' + str(list(vAADTFields.keys())))
+            fieldsToSample.extend(list(vAADTFields.values()))
 
         # Make a copy of the shapefile in a temp folder (we wish to change it)
         # Ensure the input layer has the right projection when it gets there
@@ -157,7 +161,7 @@ class Transport():
         fieldNames = {a.name(): i for i, a in enumerate(inputLayer.dataProvider().fields())}
 
         # Check that the requested field names are actually present in the layer
-        missingFields = list(set(fieldsToSample).difference(fieldNames.keys()))
+        missingFields = list(set(fieldsToSample).difference(list(fieldNames.keys())))
         if len(missingFields) > 0:
             raise ValueError('Some of the transport shapefile fields referenced were not found in the shapefile:' + str(missingFields))
 
@@ -179,7 +183,7 @@ class Transport():
 
         # Get translation to look up internal feature ID based on our preferred ID field
         t = shapefile_attributes(outputLayer)[self.transport.templateIdField]
-        featureMapper = pd.Series(index=map(intOrString, t.values), data=map(intOrString, t.index))
+        featureMapper = pd.Series(index=list(map(intOrString, t.values)), data=list(map(intOrString, t.index)))
         t = None
 
         # Convert road lengths and AADT data to total fuel use each day on each segment of road
@@ -191,8 +195,8 @@ class Transport():
 
         fuelUseData = fuelUseDict['fuelUse']
         fuelUseNames = fuelUseDict['names']
-        allFuelFields = fuelUseNames['petrol'].values()
-        allFuelFields.extend(fuelUseNames['diesel'].values())
+        allFuelFields = list(fuelUseNames['petrol'].values())
+        allFuelFields.extend(list(fuelUseNames['diesel'].values()))
         # Get road segment lengths inside each output polygon, along with attributes of each of these intersected segments
         intersectedLines = intersecting_amounts([], inputIndex, inputLayer, outputLayer, inputIdField, self.transport.templateIdField)
 
@@ -208,8 +212,8 @@ class Transport():
         # to disaggregate fuel use into each output feature, and to calculate total fuel use in each output feature
         areas = self.transport.getAreas()
         outputLayer.startEditing()
-        fuelConsumption = pd.DataFrame(index = intersectedLines.keys(), columns = newFieldIndices) # Results container for each feature
-        for outfeat_id in intersectedLines.keys():
+        fuelConsumption = pd.DataFrame(index = list(intersectedLines.keys()), columns = newFieldIndices) # Results container for each feature
+        for outfeat_id in list(intersectedLines.keys()):
             fuelConsumption[:].loc[outfeat_id] = 0
 
             if len(intersectedLines[outfeat_id]) > 0:

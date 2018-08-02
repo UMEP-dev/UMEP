@@ -20,19 +20,24 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion
-from PyQt4.QtGui import QFileDialog, QIcon, QAction, QMessageBox
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion
+from qgis.PyQt.QtWidgets import QFileDialog, QAction, QMessageBox
+from qgis.PyQt.QtGui import QIcon
 from qgis.core import *
 from qgis.gui import *
 # Initialize Qt resources from file resources.py
-import resources_rc
+# from . import resources_rc
 # Import the code for the dialog
-from land_cover_reclassifier_dialog import LandCoverReclassifierDialog
+from .land_cover_reclassifier_dialog import LandCoverReclassifierDialog
 import os.path
 from ..Utilities.misc import *
 import webbrowser
 
-class LandCoverReclassifier:
+class LandCoverReclassifier(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -68,8 +73,8 @@ class LandCoverReclassifier:
         self.dlg.helpButton.clicked.connect(self.help)
 
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(0)
-        self.fileDialog.setAcceptMode(1)  # Save
+        # self.fileDialog.setFileMode(0)
+        # self.fileDialog.setAcceptMode(1)  # Save
         self.fileDialog.setNameFilter("(*.tif *.tiff)")
 
         # Declare instance attributes
@@ -271,7 +276,7 @@ class LandCoverReclassifier:
         self.dlg.exec_()
 
     def help(self):
-        url = 'http://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Land%20Cover%20Land%20Cover%20' \
-              'Reclassifier.html'
+        # url = "file://" + self.plugin_dir + "/help/Index.html"
+        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Urban_Land_Cover:_Land_Cover_Reclassifier'
         webbrowser.open_new_tab(url)
 

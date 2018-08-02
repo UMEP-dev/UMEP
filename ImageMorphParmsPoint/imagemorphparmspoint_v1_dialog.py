@@ -22,15 +22,14 @@
 """
 
 import os
-import webbrowser
-
-from PyQt4 import QtGui, uic, QtCore
+from qgis.PyQt import uic
+from qgis.PyQt.QtWidgets import QDialog
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'imagemorphparmspoint_v1_dialog_base.ui'))
 
 
-class ImageMorphParmsPointDialog(QtGui.QDialog, FORM_CLASS):
+class ImageMorphParmsPointDialog(QDialog, FORM_CLASS):
     def __init__(self, parent=None):
         """Constructor."""
         super(ImageMorphParmsPointDialog, self).__init__(parent)
@@ -40,4 +39,3 @@ class ImageMorphParmsPointDialog(QtGui.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
-

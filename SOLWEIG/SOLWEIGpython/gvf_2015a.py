@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 import numpy as np
-from sunonsurface_2015a import sunonsurface_2015a
+from .sunonsurface_2015a import sunonsurface_2015a
 
 def gvf_2015a(wallsun,walls,buildings,scale,shadow,first,second,dirwalls,Tg,Tgwall,Ta,emis_grid,ewall,alb_grid,SBC,albedo_b,rows, cols,Twater,lc_grid,landcover):
     

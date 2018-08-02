@@ -20,18 +20,25 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt, QThread
-from PyQt4.QtGui import QAction, QIcon, QAbstractItemView, QMessageBox, QWidget, QHeaderView, QTableWidgetItem, QListWidgetItem, QFileDialog
-from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsRectangle, QgsPoint, QgsGeometry, QgsRasterLayer, QgsMapLayerRegistry
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import map
+from builtins import str
+from builtins import range
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt, QThread
+from qgis.PyQt.QtWidgets import QAction, QAbstractItemView, QMessageBox, QWidget, QHeaderView, QTableWidgetItem, QListWidgetItem, QFileDialog
+from qgis.PyQt.QtGui import QIcon
+from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsRectangle, QgsPoint, QgsGeometry, QgsRasterLayer, QgsProject
 # Initialize Qt resources from file resources.py
-import resources
+# from . import resources
 # Import the code for the dialog
-from umep_downloader_dialog import UMEP_Data_DownloadDialog
+from .umep_downloader_dialog import UMEP_Data_DownloadDialog
 import os.path
 import sys
 import subprocess
 import shutil
-
 try:
     # Assuming in UMEP folder strcuture, so get f90nml from Utilities
     from ..Utilities import f90nml
@@ -39,13 +46,13 @@ except:
     # If not present, assume plugin is standalone and has its own f90nml
     import f90nml
 
-import urllib2
-import urllib
+import urllib.request, urllib.error, urllib.parse
+import urllib.request, urllib.parse, urllib.error
 import xml.etree.ElementTree as etree
 import tempfile
 import numpy as np
-from GetMetaWorker import GetMetaWorker
-from DownloadDataWorker import DownloadDataWorker
+from .GetMetaWorker import GetMetaWorker
+from .DownloadDataWorker import DownloadDataWorker
 
 def getLayerMetadata(baseURL, layer_name):
     ''' Uses WCS DescribeCoverage request to get metadata from a layer of interest on a remote server
@@ -57,7 +64,7 @@ def getLayerMetadata(baseURL, layer_name):
     #### WCS data: For grid resolution and other detailed stuff
     # Get data
     coverageInfoURL = baseURL + '/wcs?SERVICE=WCS&VERSION=1.0.0&REQUEST=DescribeCoverage&coverage=%s'%(layer_name,)
-    f = urllib2.urlopen(coverageInfoURL)
+    f = urllib.request.urlopen(coverageInfoURL)
     data = f.read()
     f.close()
     root = etree.fromstring(data)
@@ -110,14 +117,14 @@ def getLayerMetadata(baseURL, layer_name):
         lowVals = limField.find("{http://www.opengis.net/gml}low")
         highVals = limField.find("{http://www.opengis.net/gml}high")
         if (lowVals is not None) and (highVals is not None):
-            lowVals = map(int, lowVals.text.split(" "))
-            highVals = map(int, highVals.text.split(" "))
+            lowVals = list(map(int, lowVals.text.split(" ")))
+            highVals = list(map(int, highVals.text.split(" ")))
             numXpoints = highVals[0] - lowVals[0]
             numYpoints = highVals[1] - lowVals[1]
             numPoints = {'x':numXpoints, 'y':numYpoints}
     # Get origin of grid in native CRS
     originField = gridField.find("{http://www.opengis.net/gml}origin/{http://www.opengis.net/gml}pos")
-    origin = map(float, originField.text.split(" ")) # assume x and y respectively.
+    origin = list(map(float, originField.text.split(" "))) # assume x and y respectively.
     originDict = {'x':origin[0], 'y':origin[1]}
 
     # Get grid extent in native SRS
@@ -127,9 +134,9 @@ def getLayerMetadata(baseURL, layer_name):
         highVals = envelopeVals[1]
         if (lowVals is not None) and (highVals is not None):
 
-            lowVals = map(float, lowVals.text.split(" "))
+            lowVals = list(map(float, lowVals.text.split(" ")))
 
-            highVals = map(float, highVals.text.split(" "))
+            highVals = list(map(float, highVals.text.split(" ")))
             extentDict = {'xMin':lowVals[0], 'xMax':highVals[0], 'yMin':lowVals[1], 'yMax':highVals[1]}
 
 
@@ -137,7 +144,7 @@ def getLayerMetadata(baseURL, layer_name):
 
     return result
 
-class UMEP_Data_Download:
+class UMEP_Data_Download(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -194,7 +201,7 @@ class UMEP_Data_Download:
     def runDownload_errorWrapper(self):
         try:
             self.runDownload()
-        except Exception,e:
+        except Exception as e:
             QMessageBox.critical(None, 'Error', str(e))
 
     def updateAbstract(self):
@@ -209,11 +216,11 @@ class UMEP_Data_Download:
         collection = self.readacross[collection[0].text()]
         # Omit first key from list as it should just be collection label
 
-        if self.dlg.tblDatasets.currentRow() > len(self.catalogue[collection].keys())-1:
+        if self.dlg.tblDatasets.currentRow() > len(list(self.catalogue[collection].keys()))-1:
             # If the selected row is beyond the end of the requested data, it's probably a bug
             return
         try:
-            subEntry = self.catalogue[collection].keys()[1:][self.dlg.tblDatasets.currentRow()]
+            subEntry = list(self.catalogue[collection].keys())[1:][self.dlg.tblDatasets.currentRow()]
         except:
             return
         baseURL =           self.catalogue[collection][subEntry][2]
@@ -257,10 +264,10 @@ class UMEP_Data_Download:
         except Exception:
             pass
 
-        f = urllib2.urlopen('http://www.urban-climate.net/umep/repo/catalogue.nml')
+        f = urllib.request.urlopen('http://www.urban-climate.net/umep/repo/catalogue.nml')
         tempFile = tempfile.mktemp(".nml")
         with open(tempFile, "w") as tmp:
-            tmp.write(f.read())
+            tmp.write(str(f.read()))
         f.close()
         tmp.close()
         self.catalogue = f90nml.read(tempFile)
@@ -320,7 +327,7 @@ class UMEP_Data_Download:
 
         txt = self.readacross[items[0].text()]
 
-        self.dlg.tblDatasets.setRowCount(len(self.catalogue[txt].keys())-1)
+        self.dlg.tblDatasets.setRowCount(len(list(self.catalogue[txt].keys()))-1)
         self.dlg.tblDatasets.setHorizontalHeaderLabels("Source;Description;Date;Resolution;Extent".split(";"))
         self.dlg.tblDatasets.setSelectionMode(QAbstractItemView.SingleSelection)
         header = self.dlg.tblDatasets.horizontalHeader()
@@ -377,11 +384,11 @@ class UMEP_Data_Download:
         collection = self.readacross[collection[0].text()]
         # Omit first key from list as it should just be collection label
 
-        if self.dlg.tblDatasets.currentRow() > len(self.catalogue[collection].keys()[1:]):
+        if self.dlg.tblDatasets.currentRow() > len(list(self.catalogue[collection].keys())[1:]):
             # If the selected row is beyond the end of the requested data, it's probably a bug
             return
 
-        subEntry = self.catalogue[collection].keys()[1:][self.dlg.tblDatasets.currentRow()]
+        subEntry = list(self.catalogue[collection].keys())[1:][self.dlg.tblDatasets.currentRow()]
         baseURL =           self.catalogue[collection][subEntry][2]
         #dataSourceType =    self.catalogue[collection][subEntry][1]
         layerName =         self.catalogue[collection][subEntry][3]
@@ -392,7 +399,7 @@ class UMEP_Data_Download:
         # Compare the requested data with the native parameters of the layer and tell the user something helpful
         # Read metadata
         try:
-            meta = getLayerMetadata(baseURL, urllib.quote(layerName))
+            meta = getLayerMetadata(baseURL, urllib.parse.quote(layerName))
         except:
             meta = None
 
@@ -551,7 +558,7 @@ class UMEP_Data_Download:
             crs.createFromId(int(returns['srs'].split(':')[1]))
             self.rasterLayer.setCrs(crs)
 
-        QgsMapLayerRegistry.instance().addMapLayer(self.rasterLayer)
+        QgsProject.instance().addMapLayer(self.rasterLayer)
 
     def tr(self, message):
         return QCoreApplication.translate('UMEP_Data_Download', message)

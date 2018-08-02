@@ -20,21 +20,28 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QThread, QCoreApplication
-from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+# from builtins import str
+from builtins import range
+# from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread, QCoreApplication
+from qgis.PyQt.QtWidgets import QAction, QMessageBox, QFileDialog
+from qgis.PyQt.QtGui import QIcon
 from qgis.gui import *
 from qgis.core import *
 import os
 from osgeo import gdal
 from ..Utilities.imageMorphometricParms_v1 import *
-from impgworker import Worker
-from image_morph_param_dialog import ImageMorphParamDialog
+from .impgworker import Worker
+from .image_morph_param_dialog import ImageMorphParamDialog
 import webbrowser
 
 # Initialize Qt resources from file resources.py
 # import resources_rc
 
-class ImageMorphParam:
+class ImageMorphParam(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -72,8 +79,10 @@ class ImageMorphParam:
         self.dlg.checkBoxOnlyBuilding.toggled.connect(self.text_enable)
 
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(4)
-        self.fileDialog.setAcceptMode(1)
+        # self.fileDialog.setFileMode(4)
+        # self.fileDialog.setAcceptMode(1)
+        self.fileDialog.setFileMode(QFileDialog.Directory)
+        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
 
         for i in range(1, 25):
             if 360 % i == 0:
@@ -95,9 +104,6 @@ class ImageMorphParam:
         # self.toolbar = self.iface.addToolBar(u'ImageMorphParam')
         # self.toolbar.setObjectName(u'ImageMorphParam')
 
-        # self.layerComboManagerPolygrid = VectorLayerCombo(self.dlg.comboBox_Polygrid)
-        # fieldgen = VectorLayerCombo(self.dlg.comboBox_Polygrid, initLayer="", options={"geomType": QGis.Polygon})
-        # self.layerComboManagerPolyField = FieldCombo(self.dlg.comboBox_Field, fieldgen, initField="")
         self.layerComboManagerPolygrid = QgsMapLayerComboBox(self.dlg.widgetPolygrid)
         self.layerComboManagerPolygrid.setCurrentIndex(-1)
         self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.PolygonLayer)
@@ -106,12 +112,6 @@ class ImageMorphParam:
         self.layerComboManagerPolyField .setFilters(QgsFieldProxyModel.Numeric)
         self.layerComboManagerPolygrid .layerChanged.connect(self.layerComboManagerPolyField.setLayer)
 
-        # self.layerComboManagerDSMbuildground = RasterLayerCombo(self.dlg.comboBox_DSMbuildground)
-        # RasterLayerCombo(self.dlg.comboBox_DSMbuildground, initLayer="")
-        # self.layerComboManagerDEM = RasterLayerCombo(self.dlg.comboBox_DEM)
-        # RasterLayerCombo(self.dlg.comboBox_DEM, initLayer="")
-        # self.layerComboManagerDSMbuild = RasterLayerCombo(self.dlg.comboBox_DSMbuild)
-        # RasterLayerCombo(self.dlg.comboBox_DSMbuild, initLayer="")
         self.layerComboManagerDSMbuildground = QgsMapLayerComboBox(self.dlg.widgetDSMbuildground)
         self.layerComboManagerDSMbuildground.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerDSMbuildground.setFixedWidth(175)
@@ -213,38 +213,31 @@ class ImageMorphParam:
             self.dlg.label_3.setEnabled(True)
             self.dlg.label_4.setEnabled(False)
 
-    # Metod som startar traden, knyter signaler fran traden till metoder. Se impgworker.py for det arbete som traden utfor.
     def startWorker(self, dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, iface, plugin_dir,
                     folderPath, dlg, imid, radius, degree, rm):
         # create a new worker instance
-        # Skapar en instans av metoden som innehaller det arbete som ska utforas i en trad
-
         worker = Worker(dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, iface,
                         plugin_dir, folderPath, dlg, imid, radius, degree, rm)
 
-        # andrar knappen som startar verktyget till en knapp som avbryter tradens arbete.
         self.dlg.runButton.setText('Cancel')
         self.dlg.runButton.clicked.disconnect()
         self.dlg.runButton.clicked.connect(worker.kill)
         self.dlg.closeButton.setEnabled(False)
 
-        # Skapar en trad som arbetet fran worker ska utforas i.
         thread = QThread(self.dlg)
         worker.moveToThread(thread)
-        # kopplar signaler fran traden till metoder i denna "fil"
+
         worker.finished.connect(self.workerFinished)
         worker.error.connect(self.workerError)
         worker.progress.connect(self.progress_update)
         thread.started.connect(worker.run)
-        # startar traden
+
         thread.start()
         self.thread = thread
         self.worker = worker
 
-    # Metod som ar kopplad till en signal som Worker(traden) skickar nar den utfort sitt arbete, killed ar en Boolean som
-    # skiljer mellan om traden blev "fardig" for att den gjorde sitt arbete eller om den avbrots
     def workerFinished(self, ret):
-        # Tar bort arbetaren (Worker) och traden den kors i
+
         try:
             self.worker.deleteLater()
         except RuntimeError:
@@ -253,16 +246,13 @@ class ImageMorphParam:
         self.thread.wait()
         self.thread.deleteLater()
 
-        #andra tillbaka Run-knappen till sitt vanliga tillstand och skicka ett meddelande till anvanderen.
         if ret == 1:
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
             self.dlg.closeButton.setEnabled(True)
             self.dlg.progressBar.setValue(0)
-            # QMessageBox.information(None, "Image Morphometric Parameters",
-            #                         "Process finished! Check General Messages (speech bubble, lower left) "
-            #                         "to obtain information of the process.")
+
             self.iface.messageBar().pushMessage("Image Morphometric Parameters",
                                     "Process finished! Check General Messages (speech bubble, lower left) "
                                     "to obtain information of the process.", duration=5)
@@ -275,20 +265,14 @@ class ImageMorphParam:
             QMessageBox.information(None, "Image Morphometric Parameters", "Operations cancelled, "
                                                                            "process unsuccessful! See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.")
 
-    #Metod som tar emot en signal fran traden ifall nagot gick fel, felmeddelanden skrivs till QGIS message log.
     def workerError(self, errorstring):
-        #strerror = str(errorstring)
-        QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.Critical)
 
-    #Metod som tar emot signaler koontinuerligt fran traden som berattar att ett berakningsframsteg gjorts, uppdaterar
-    #progressbar
     def progress_update(self):
         self.steps +=1
         self.dlg.progressBar.setValue(self.steps)
 
-    #Metoden som kors genom run-knappen, precis som tidigare.
     def start_progress(self):
-        #Steg for uppdatering av
         self.steps = 0
         poly = self.layerComboManagerPolygrid.currentLayer()
         if poly is None:
@@ -302,17 +286,15 @@ class ImageMorphParam:
         if poly_field is None:
             QMessageBox.critical(self.dlg, "Error", "An attribute filed with unique fields must be selected")
             return
-        # QMessageBox.information(None, "TEst", str(poly_field) )
         vlayer = QgsVectorLayer(poly.source(), "polygon", "ogr")
         prov = vlayer.dataProvider()
         fields = prov.fields()
-        idx = vlayer.fieldNameIndex(poly_field)
+        # idx = vlayer.fieldNameIndex(poly_field)
+        idx = vlayer.fields().indexFromName(poly_field)
 
         dir_poly = self.plugin_dir + '/data/poly_temp.shp'
-        # j = 0
         self.dlg.progressBar.setMaximum(vlayer.featureCount())
 
-        # skapar referenser till lagern som laddas in av anvandaren i comboboxes
         if self.dlg.checkBoxOnlyBuilding.isChecked():  # Only building heights
             dsm_build = self.layerComboManagerDSMbuild.currentLayer()
             dsm = None
@@ -359,24 +341,16 @@ class ImageMorphParam:
         radius = self.dlg.spinBoxDistance.value()
         degree = float(self.dlg.degreeBox.currentText())
 
-        # Startar arbetarmetoden och traden, se startworker metoden ovan.
         self.startWorker(dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, self.iface,
                          self.plugin_dir, self.folderPath, self.dlg, imid, radius, degree, rm)
 
-        # Allt som ska ske efter att arbetaren startats hanteras genom metoderna som tar emot signaler fran traden.
-        # Framforallt workerFinished metoden. Se impgworker.py filen for implementering av det arbete som traden utfor.
-
     def run(self):
-        """Run method that performs all the real work"""
-        # show the dialog
         self.dlg.show()
-        # Run the dialog event loop
         self.dlg.exec_()
-
         gdal.UseExceptions()
         gdal.AllRegister()
 
     def help(self):
-        url = "http://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Morphology%20Morphometric%20" \
-              "Calculator%20(Grid).html"
+        url = "http://www.urban-climate.net/umep/UMEP_Manual#Urban_Morphology:" \
+              "_Image_Morphometric_Parameter_Calculator_.28Grid.29"
         webbrowser.open_new_tab(url)

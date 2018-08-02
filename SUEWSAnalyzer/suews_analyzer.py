@@ -20,15 +20,21 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QVariant, QCoreApplication
-from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
-from PyQt4 import QtGui
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QVariant, QCoreApplication
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt import QtGui
 from qgis.core import *
 from qgis.gui import *
 # Initialize Qt resources from file resources.py
-import resources_rc
+# from . import resources_rc
 # Import the code for the dialog
-from suews_analyzer_dialog import SUEWSAnalyzerDialog
+from .suews_analyzer_dialog import SUEWSAnalyzerDialog
 import os.path
 import webbrowser
 from osgeo import gdal
@@ -49,7 +55,7 @@ except ImportError:
     pass
 
 
-class SUEWSAnalyzer:
+class SUEWSAnalyzer(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -355,7 +361,7 @@ class SUEWSAnalyzer:
 
     def geotiff_save(self):
         self.outputfile = self.fileDialog.getSaveFileName(None, "Save File As:", None, "GeoTIFF (*.tif)")
-        self.dlg.textOutput.setText(self.outputfile)
+        self.dlg.textOutput.setText(self.outputfile[0])
 
     def get_unit(self):
         uni = self.lineunit[self.id]
@@ -462,7 +468,8 @@ class SUEWSAnalyzer:
         vlayer = QgsVectorLayer(poly.source(), "polygon", "ogr")
         prov = vlayer.dataProvider()
         fields = prov.fields()
-        idx = vlayer.fieldNameIndex(poly_field)
+        # idx = vlayer.fieldNameIndex(poly_field)
+        idx = vlayer.fields().indexFromName(poly_field)
         typetest = fields.at(idx).type()
         if typetest == 10:
             QMessageBox.critical(self.dlg, "ID field is sting type", "ID field must be either integer or float")
@@ -522,7 +529,7 @@ class SUEWSAnalyzer:
             idvec = np.vstack((idvec, int(gid)))
 
         statvector = statvectemp[1:, :]
-        print idvec
+        # fix_print_with_import
         statmat = np.hstack((idvec[1:, :], statvector))
 
         numformat2 = '%8d %5.3f'
@@ -545,11 +552,11 @@ class SUEWSAnalyzer:
                 resx = self.dlg.doubleSpinBoxRes.value()
             else:
                 for f in vlayer.getFeatures():  # Taking first polygon. Could probably be done nicer
-                    geom = f.geometry().asPolygon()
+                    # geom = f.geometry().asPolygon()
+                    geom = f.geometry().asMultiPolygon()
                     break
-
-                resx = np.abs(geom[0][0].x() - geom[0][2].x())
-                resy = np.abs(geom[0][0].y() - geom[0][2].y())
+                resx = np.abs(geom[0][0][0][0] - geom[0][0][2][0])  # x
+                resy = np.abs(geom[0][0][0][1] - geom[0][0][2][1])  # y
 
                 if not resx == resy:
                     QMessageBox.critical(self.dlg, "Error", "Polygons not squared in current CRS")
@@ -601,7 +608,7 @@ class SUEWSAnalyzer:
                 # # Set colors
                 s = QgsRasterShader()
                 c = QgsColorRampShader()
-                c.setColorRampType(QgsColorRampShader.INTERPOLATED)
+                c.setColorRampType(QgsColorRampShader.Interpolated)
                 i = []
                 i.append(QgsColorRampShader.ColorRampItem(np.nanmin(gridout), QtGui.QColor('#2b83ba'), str(np.nanmin(gridout))))
                 i.append(QgsColorRampShader.ColorRampItem(np.nanmedian(gridout), QtGui.QColor('#ffffbf'), str(np.nanmedian(gridout))))

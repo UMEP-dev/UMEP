@@ -1,13 +1,14 @@
+from __future__ import absolute_import
 # Worker object for WATCH data refinement
-from PyQt4.QtCore import QObject, pyqtSignal
-from WFDEIDownloader.FTPdownload import *
+from qgis.PyQt.QtCore import QObject, pyqtSignal
+from .WFDEIDownloader.FTPdownload import *
 import traceback
-from WFDEIDownloader.WFDEI_Interpolator import *
+from .WFDEIDownloader.WFDEI_Interpolator import *
 
 
 class WatchWorker(QObject):
     finished = pyqtSignal(object)
-    error = pyqtSignal(Exception, basestring)
+    error = pyqtSignal(Exception, str)
     update = pyqtSignal(object)
 
     def __init__(self, rawdata, datestart, dateend, input_AH_path, output_path, lat, lon, hgt, UTC_offset_h, rainAmongN):
@@ -43,7 +44,7 @@ class WatchWorker(QObject):
                 runExtraction(self.rawdata, self.output_path, self.datestart.year,
                               self.dateend.year, self.hgt,
                               self.UTC_offset_h, self.rainAmongN, self.update)
-            except Exception, e:
+            except Exception as e:
                 self.error.emit(e, traceback.format_exc())
         else:
             # incorporating AH results
@@ -52,7 +53,7 @@ class WatchWorker(QObject):
                                  self.datestart.year, self.dateend.year,
                                  self.hgt,
                                  self.UTC_offset_h, self.rainAmongN, self.update)
-            except Exception, e:
+            except Exception as e:
                 self.error.emit(e, traceback.format_exc())
 
         self.finished.emit(None)

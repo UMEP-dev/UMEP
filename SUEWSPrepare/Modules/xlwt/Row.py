@@ -1,20 +1,16 @@
-# -*- coding: windows-1252 -*-
+# -*- coding: utf-8 -*-
 
-from . import BIFFRecords
-from . import Style
-from .Cell import StrCell, BlankCell, NumberCell, FormulaCell, MulBlankCell, BooleanCell, ErrorCell, \
-    _get_cells_biff_data_mul
-from . import ExcelFormula
 import datetime as dt
-from .Formatting import Font
-from .compat import basestring, xrange, int_types, iteritems
+from decimal import Decimal
 
-try:
-    from decimal import Decimal
-except ImportError:
-    # Python 2.3: decimal not supported; create dummy Decimal class
-    class Decimal(object):
-        pass
+import six
+
+from . import BIFFRecords, ExcelFormula, Style
+from .Cell import (
+    BlankCell, BooleanCell, ErrorCell, FormulaCell, MulBlankCell, NumberCell,
+    StrCell, _get_cells_biff_data_mul,
+)
+from .Formatting import Font
 
 
 class Row(object):
@@ -39,7 +35,7 @@ class Row(object):
                  "space_below"]
 
     def __init__(self, rowx, parent_sheet):
-        if not (isinstance(rowx, int_types) and 0 <= rowx <= 65535):
+        if not (isinstance(rowx, six.integer_types) and 0 <= rowx <= 65535):
             raise ValueError("row index was %r, not allowed by .xls format" % rowx)
         self.__idx = rowx
         self.__parent = parent_sheet
@@ -87,7 +83,7 @@ class Row(object):
             if iarg > sheet.last_used_col:
                 sheet.last_used_col = iarg
 
-    def __excel_date_dt(self, date): 
+    def __excel_date_dt(self, date):
         adj = False
         if isinstance(date, dt.date):
             if self.__parent_wb.dates_1904:
@@ -103,11 +99,11 @@ class Row(object):
             date = dt.datetime.combine(dt.datetime(1900, 1, 1), date)
             epoch = dt.datetime(1900, 1, 1)
         delta = date - epoch
-        xldate = delta.days + delta.seconds / 86400.0                      
+        xldate = delta.days + delta.seconds / 86400.0
         # Add a day for Excel's missing leap day in 1900
         if adj and xldate > 59:
             xldate += 1
-        return xldate    
+        return xldate
 
     def get_height_in_pixels(self):
         return self.__height_in_pixels
@@ -166,11 +162,11 @@ class Row(object):
 
     def insert_mulcells(self, colx1, colx2, cell_obj):
         self.insert_cell(colx1, cell_obj)
-        for col_index in xrange(colx1+1, colx2+1):
+        for col_index in range(colx1+1, colx2+1):
             self.insert_cell(col_index, None)
 
     def get_cells_biff_data(self):
-        cell_items = [item for item in iteritems(self.__cells) if item[1] is not None]
+        cell_items = [item for item in self.__cells.items() if item[1] is not None]
         cell_items.sort() # in column order
         return _get_cells_biff_data_mul(self.__idx, cell_items)
         # previously:
@@ -235,7 +231,7 @@ class Row(object):
         self.__adjust_height(style)
         self.__adjust_bound_col_idx(col)
         style_index = self.__parent_wb.add_style(style)
-        if isinstance(label, basestring):
+        if isinstance(label, six.string_types):
             if len(label) > 0:
                 self.insert_cell(col,
                     StrCell(self.__idx, col, style_index, self.__parent_wb.add_str(label))
@@ -244,7 +240,7 @@ class Row(object):
                 self.insert_cell(col, BlankCell(self.__idx, col, style_index))
         elif isinstance(label, bool): # bool is subclass of int; test bool first
             self.insert_cell(col, BooleanCell(self.__idx, col, style_index, label))
-        elif isinstance(label, int_types+(float, Decimal)):
+        elif isinstance(label, six.integer_types+(float, Decimal)):
             self.insert_cell(col, NumberCell(self.__idx, col, style_index, label))
         elif isinstance(label, (dt.datetime, dt.date, dt.time)):
             date_number = self.__excel_date_dt(label)
@@ -269,14 +265,14 @@ class Row(object):
     def __rich_text_helper(self, col, rich_text_list, style, style_index=None):
         if style_index is None:
             style_index = self.__parent_wb.add_style(style)
-        default_font = None    
+        default_font = None
         rt = []
         for data in rich_text_list:
-            if isinstance(data, basestring):
+            if isinstance(data, six.string_types):
                 s = data
                 font = default_font
             elif isinstance(data, (list, tuple)):
-                if not isinstance(data[0], basestring) or not isinstance(data[1], Font):
+                if not isinstance(data[0], six.string_types) or not isinstance(data[1], Font):
                     raise Exception ("Unexpected data type %r, %r" % (type(data[0]), type(data[1])))
                 s = data[0]
                 font = self.__parent_wb.add_font(data[1])
@@ -293,7 +289,3 @@ class Row(object):
 
     write_blanks = set_cell_mulblanks
     write_rich_text = set_cell_rich_text
-
-
-
-

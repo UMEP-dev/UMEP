@@ -1,5 +1,5 @@
 
-from PyQt4 import QtCore, QtGui
+from qgis.PyQt import QtCore, QtGui
 import traceback
 import numpy as np
 from ..Utilities import shadowingfunctions as shadow

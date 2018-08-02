@@ -1,11 +1,13 @@
+from __future__ import absolute_import
+from builtins import object
 from datetime import datetime
 
-from PyQt4.QtCore import QSettings
+from qgis.PyQt.QtCore import QSettings
 
-from DataManagement.SpatialTemporalResampler_LUCY import SpatialTemporalResampler_LUCY
-from DataManagement.spatialHelpers import *
-from DataManagement.LookupLogger import LookupLogger
-class Population:
+from .DataManagement.SpatialTemporalResampler_LUCY import SpatialTemporalResampler_LUCY
+from .DataManagement.spatialHelpers import *
+from .DataManagement.LookupLogger import LookupLogger
+class Population(object):
     # Store spatially and temporally resolved residential  population
     # Provides population density for each feateure
     # Makes heavy use of QGIS API

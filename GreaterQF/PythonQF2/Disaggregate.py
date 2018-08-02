@@ -1,11 +1,12 @@
+from __future__ import absolute_import
 import os
 import pickle
-from DataManagement.spatialHelpers import saveLayerToFile, loadShapeFile, shapefile_attributes, populateShapefileFromTemplate
-from DataManagement.temporalHelpers import makeUTC
-from EnergyUseData import EnergyUseData
-from FuelConsumption import FuelConsumption
-from Population import Population
-from Transport import Transport
+from .DataManagement.spatialHelpers import saveLayerToFile, loadShapeFile, shapefile_attributes, populateShapefileFromTemplate
+from .DataManagement.temporalHelpers import makeUTC
+from .EnergyUseData import EnergyUseData
+from .FuelConsumption import FuelConsumption
+from .Population import Population
+from .Transport import Transport
 
 def disaggregate(qfDataSources, qfParams, outputFolder):
     '''

@@ -23,13 +23,14 @@
 
 import os
 
-from PyQt4 import QtGui, uic
+from qgis.PyQt import uic
+from qgis.PyQt.QtWidgets import QWidget
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'main_tab.ui'))
 
 
-class MainTab(QtGui.QWidget, FORM_CLASS):
+class MainTab(QWidget, FORM_CLASS):
     def __init__(self, parent=None):
         """Constructor."""
         super(MainTab, self).__init__(parent)

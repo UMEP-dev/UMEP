@@ -1,8 +1,11 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import object
 # Stores and retrieves daily factors for buildings
 from datetime import datetime as dt
-from DataManagement.temporalHelpers import holidaysForYear
+from .DataManagement.temporalHelpers import holidaysForYear
 
-class DailyFact:
+class DailyFact(object):
     def __init__(self, use_uk_holidays, custom_holidays=[]):
         '''
         :param use_uk_holidays:  Boolean: Generate and use standard UK holidays
@@ -34,11 +37,19 @@ def testIt():
     import pandas as pd
     a = DailyFact(True)
     date = pd.date_range(pd.datetime.strptime('2015-01-01 00:00', '%Y-%m-%d %H:%M'), tz='Europe/London', periods=5)[1]
-    print a.getFact(dt.strptime('2015-01-01', '%Y-%m-%d'))
-    print a.getFact(dt.strptime('2015-01-02', '%Y-%m-%d'))
-    print a.getFact(dt.strptime('2015-01-03', '%Y-%m-%d'))
-    print a.getFact(dt.strptime('2015-01-04', '%Y-%m-%d'))
-    print a.getFact(dt.strptime('2015-01-05', '%Y-%m-%d'))
-    print a.getFact(dt.strptime('2015-01-06', '%Y-%m-%d'))
-    print a.getFact(dt.strptime('2015-01-07', '%Y-%m-%d'))
-    print a.getFact(dt.strptime('2015-01-08', '%Y-%m-%d'))
+    # fix_print_with_import
+    print(a.getFact(dt.strptime('2015-01-01', '%Y-%m-%d')))
+    # fix_print_with_import
+    print(a.getFact(dt.strptime('2015-01-02', '%Y-%m-%d')))
+    # fix_print_with_import
+    print(a.getFact(dt.strptime('2015-01-03', '%Y-%m-%d')))
+    # fix_print_with_import
+    print(a.getFact(dt.strptime('2015-01-04', '%Y-%m-%d')))
+    # fix_print_with_import
+    print(a.getFact(dt.strptime('2015-01-05', '%Y-%m-%d')))
+    # fix_print_with_import
+    print(a.getFact(dt.strptime('2015-01-06', '%Y-%m-%d')))
+    # fix_print_with_import
+    print(a.getFact(dt.strptime('2015-01-07', '%Y-%m-%d')))
+    # fix_print_with_import
+    print(a.getFact(dt.strptime('2015-01-08', '%Y-%m-%d')))

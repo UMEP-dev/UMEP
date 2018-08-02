@@ -20,22 +20,27 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
+from qgis.PyQt.QtGui import QIcon
 from qgis.gui import *
+from qgis.core import QgsMapLayerProxyModel
 # Initialize Qt resources from file resources.py
-import resources_rc
+# from . import resources_rc
 # Import the code for the dialog
-from shadow_generator_dialog import ShadowGeneratorDialog
+from .shadow_generator_dialog import ShadowGeneratorDialog
 from osgeo import gdal, osr
 #import gdal from gdalconst import *
 import os.path
-import dailyshading as dsh
+from . import dailyshading as dsh
 import numpy as np
 import webbrowser
 
 
-class ShadowGenerator:
+class ShadowGenerator(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -71,8 +76,10 @@ class ShadowGenerator:
         self.dlg.pushButtonHelp.clicked.connect(self.help)
         self.dlg.pushButtonSave.clicked.connect(self.folder_path)
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(4)
-        self.fileDialog.setAcceptMode(1)
+        # self.fileDialog.setFileMode(4)
+        # self.fileDialog.setAcceptMode(1)
+        self.fileDialog.setFileMode(QFileDialog.Directory)
+        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
 
         # Declare instance attributes
         self.actions = []
@@ -391,10 +398,14 @@ class ShadowGenerator:
             rlayer.triggerRepaint()
 
     def run(self):
+        """Run method that performs all the real work"""
+        # show the dialog
         self.dlg.show()
+        # Run the dialog event loop
         self.dlg.exec_()
 
     def help(self):
-        url = "http://umep-docs.readthedocs.io/en/latest/processor/Solar%20Radiation%20Daily%20Shadow%20Pattern.html"
+        # url = "file://" + self.plugin_dir + "/help/Index.html"
+        url = "http://www.urban-climate.net/umep/UMEP_Manual#Solar_Radiation:_Daily_Shadow_Pattern"
         webbrowser.open_new_tab(url)
 

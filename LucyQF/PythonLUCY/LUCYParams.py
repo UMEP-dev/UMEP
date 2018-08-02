@@ -1,3 +1,7 @@
+from builtins import map
+from builtins import str
+from builtins import range
+from builtins import object
 import os
 from ...Utilities import f90nml
 from datetime import datetime as dt
@@ -5,7 +9,7 @@ from string import lower
 import string
 
 
-class LUCYParams:
+class LUCYParams(object):
     def __init__(self, file):
         '''
         Read LUCY parameters file and return object or exception
@@ -24,15 +28,15 @@ class LUCYParams:
             self.avg_speed =         float(nml['params']['avgspeed'])
             if self.avg_speed > 64000:
                 raise ValueError('Average vehicle speed must not exceed 64 kph')
-            self.emission_factors = map(float, nml['params']['emissionfactors'])
+            self.emission_factors = list(map(float, nml['params']['emissionfactors']))
             self.BP_temp =          float(nml['params']['balance_point_temperature'])
             self.QV_multfactor =    float(nml['params']['QV_multfactor'])
             self.sleep_metab =      float(nml['params']['sleep_metab'])
             self.work_metab =       float(nml['params']['work_metab'])
 
-        except ValueError, e:
+        except ValueError as e:
             raise ValueError('Invalid parameter provided: ' + str(e))
-        except KeyError,e:
+        except KeyError as e:
             raise KeyError('Entry missing from parameters file: ' + str(e))
 
         # Model date options
@@ -47,13 +51,13 @@ class LUCYParams:
             self.use_uk_hols = True if nml['params']['use_uk_holidays'] == 1 else False
             self.use_custom_hols = True if nml['params']['use_custom_holidays'] == 1 else False
             self.custom_holidays = []
-        except KeyError, e:
+        except KeyError as e:
             raise KeyError('Entry %s not found in parameters file'%(str(e),))
 
         if self.use_custom_hols: # Only try and deal with custom holidays entry if it's set to 1
             def toDate(x): return dt.strptime(x, '%Y-%m-%d').date()
             try:
-                self.custom_holidays = map(toDate, nml['params']['custom_holidays'])
+                self.custom_holidays = list(map(toDate, nml['params']['custom_holidays']))
             except Exception:
                 raise ValueError('Custom holidays in parameters file must be in formatted YYYY-mm-dd')
 
@@ -70,7 +74,7 @@ class LUCYParams:
         # Validate land cover weightings (used for additional disaggregation)
         expectedClasses = ["paved", "buildings", "evergreentrees", "decidioustrees", "grass", "baresoil", "water"]
         types = ['building', 'transport', 'metabolism']
-        missing = set(map(lower,expectedClasses)).difference(map(lower, PARAMS['landCoverWeights'].keys()))
+        missing = set(map(lower,expectedClasses)).difference(list(map(lower, list(PARAMS['landCoverWeights'].keys()))))
         if len(missing) > 0:
             raise ValueError(paramsFile + ' is missing the following entries under "landCoverWeights": ' + string.join(list(missing), ","))
 
@@ -99,7 +103,7 @@ class LUCYParams:
 
         expectedEntries = ['Th', 'Tc', 'Ah', 'Ac', 'c', 'Tmax', 'Tmin']
 
-        missing = set(map(lower, expectedEntries)).difference(map(lower, PARAMS['CustomTemperatureResponse'].keys()))
+        missing = set(map(lower, expectedEntries)).difference(list(map(lower, list(PARAMS['CustomTemperatureResponse'].keys()))))
         if len(missing) > 0:
             raise ValueError(paramsFile + ' is missing the following entries under "CustomTemperatureResponse": ' + string.join(list(missing), ","))
         self.TResponse = {}
@@ -108,6 +112,6 @@ class LUCYParams:
                 self.TResponse[cl] = float(PARAMS['CustomTemperatureResponse'][cl.lower()])
             except ValueError:
                 raise ValueError('Custom temperature response parameters had invalid number in entry: ' + str(cl))
-            except Exception, e:
+            except Exception as e:
                 raise Exception(str(e))
 
