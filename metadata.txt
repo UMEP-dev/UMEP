@@ -11,7 +11,7 @@ name=UMEP
 qgisMinimumVersion=3.0
 description=Urban Multi-scale Environmental Predictor
 
-version=1.5
+version=3.5.1
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg
 email=fredrikl@gvc.gu.se
 
@@ -26,6 +26,7 @@ repository=https://bitbucket.org/fredrik_ucg/umep
 
 # Uncomment the following line and add your changelog:
 changelog=
+	3.5.1 : Early adopter release. bugfix in SUEWSSimple. Changed to version number 3.x.
 	1.5   : LONG TERM RELEASE. Early adopter release. Some parts of the plugin is not yet operational.
 	1.4.2 : Response to issue #42 and #46. Initiation of migration to QGIS3.
 	1.4.1 : Bug fix in land cover fraction calculations
@@ -78,9 +79,9 @@ changelog=
 	
 
 # Tags are comma separated with spaces allowed
-tags=urban climate, urban planning
+tags=urban climate, urban planning, shadow, modelling, urban morphology, urban geometry
 
-homepage=http://www.urban-climate.net/umep/
+homepage=http://umep-docs.readthedocs.io/en/latest/index.html
 category=Plugins
 icon=Icons/icon_umep.png
 

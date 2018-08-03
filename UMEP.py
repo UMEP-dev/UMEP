@@ -488,7 +488,7 @@ class UMEP(object):
         self.dlg.exec_()
 
     def help(self):
-        url = "http://urban-climate.net/umep/"
+        url = "https://umep-docs.readthedocs.io/en/latest/index.html"
         webbrowser.open_new_tab(url)
 
 
