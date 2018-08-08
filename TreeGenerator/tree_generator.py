@@ -23,7 +23,7 @@
 from __future__ import absolute_import
 from builtins import str
 from builtins import object
-from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from qgis.PyQt.QtWidgets import QAction, QMessageBox, QFileDialog
 from qgis.PyQt.QtGui import QIcon
 from qgis.core import *

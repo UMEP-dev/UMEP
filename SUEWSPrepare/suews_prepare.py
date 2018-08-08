@@ -28,7 +28,7 @@ from builtins import next
 from builtins import str
 from builtins import range
 from builtins import object
-from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread, QCoreApplication
 from qgis.PyQt.QtWidgets import QAction, QMessageBox, QLabel, QLineEdit, QGridLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QFileDialog
 from qgis.PyQt.QtGui import QIcon, QImage, QPixmap
 from qgis.core import *

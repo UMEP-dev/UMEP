@@ -26,7 +26,7 @@ standard_library.install_aliases()
 from builtins import str
 from builtins import range
 from builtins import object
-from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread, QCoreApplication
 from qgis.PyQt.QtWidgets import QFileDialog, QAction, QMessageBox
 from qgis.PyQt.QtGui import QIcon
 from qgis.core import *

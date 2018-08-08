@@ -25,7 +25,7 @@ standard_library.install_aliases()
 from builtins import str
 from builtins import object
 # Import the PyQt and QGIS libraries
-from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox # , QMovie
 from qgis.core import *
