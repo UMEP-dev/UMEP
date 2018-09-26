@@ -215,7 +215,7 @@ class DSMGenerator:
     def start_progress(self):
         import datetime
         start = datetime.datetime.now()
-        #Check OS and dep
+        # Check OS and dep
         if sys.platform == 'darwin':
             gdal_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/'
         else:
@@ -488,7 +488,7 @@ class DSMGenerator:
         # Convert polygon layer to raster
 
         # Define pixel_size and NoData value of new raster
-        pixel_size = int(self.dlg.spinBox.value())  # half picture size
+        pixel_size = self.dlg.spinBox.value()  # half picture size
 
         # Create the destination data source
         
@@ -496,19 +496,26 @@ class DSMGenerator:
                         ' -tr ' + str(pixel_size) + ' ' + str(pixel_size) + ' -l "' + str(polygon_ln) + '" "' \
                          + str(polygon_layer.source()) + '" "' + self.plugin_dir + '/temp/clipdsm.tif"'
 
-        gdalclipdem = gdal_os_dep + 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(self.xMin) + ' ' + str(self.yMin) + ' ' + str(self.xMax) + ' ' + str(self.yMax) +\
-                      ' -tr ' + str(pixel_size) + ' ' + str(pixel_size) + \
-                      ' -of GTiff ' + '"' + filepath_dem + '" "' + self.plugin_dir + '/temp/clipdem.tif"'
+        # gdalclipdem = gdal_os_dep + 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(self.xMin) + ' ' + str(self.yMin) + ' ' + str(self.xMax) + ' ' + str(self.yMax) +\
+        #               ' -tr ' + str(pixel_size) + ' ' + str(pixel_size) + \
+        #               ' -of GTiff ' + '"' + filepath_dem + '" "' + self.plugin_dir + '/temp/clipdem.tif"'
 
         # Rasterize
         if sys.platform == 'win32':
             si = subprocess.STARTUPINFO()
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             subprocess.call(gdalrasterize, startupinfo=si)
-            subprocess.call(gdalclipdem, startupinfo=si)
+            # subprocess.call(gdalclipdem, startupinfo=si)
+            gdal.Warp(self.plugin_dir + '/temp/clipdem.tif', filepath_dem, xRes=pixel_size, yRes=pixel_size)
         else:
             os.system(gdalrasterize)
-            os.system(gdalclipdem)
+            # os.system(gdalclipdem)
+            gdal.Warp(self.plugin_dir + '/temp/clipdem.tif', filepath_dem, xRes=pixel_size, yRes=pixel_size)
+
+        # Remove gdalwarp with gdal.Translate
+        # bigraster = gdal.Open(filepath_dem)
+        # bbox = (self.xMin, self.yMax, self.xMax, self.yMin)
+        # gdal.Translate(self.plugin_dir + '/data/clipdem.tif', bigraster, projWin=bbox)
 
         self.dlg.progressBar.setValue(3)
 

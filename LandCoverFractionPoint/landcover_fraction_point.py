@@ -349,11 +349,11 @@ class LandCoverFractionPoint:
     def start_process(self):
         # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
 
-        #Check OS and dep
-        if sys.platform == 'darwin':
-            gdalwarp_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdalwarp'
-        else:
-            gdalwarp_os_dep = 'gdalwarp'
+        # #Check OS and dep
+        # if sys.platform == 'darwin':
+        #     gdalwarp_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdalwarp'
+        # else:
+        #     gdalwarp_os_dep = 'gdalwarp'
 
         self.dlg.progressBar.setValue(0)
 
@@ -404,14 +404,20 @@ class LandCoverFractionPoint:
 
         provider = dsm_build.dataProvider()
         filePath_dsm_build = str(provider.dataSourceUri())
-        gdalruntextdsm_build = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-                               ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
-                               filePath_dsm_build + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
+        # gdalruntextdsm_build = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+        #                        ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+        #                        filePath_dsm_build + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
+        #
+        # if sys.platform == 'win32':
+        #     subprocess.call(gdalruntextdsm_build, startupinfo=si)
+        # else:
+        #     os.system(gdalruntextdsm_build)
 
-        if sys.platform == 'win32':
-            subprocess.call(gdalruntextdsm_build, startupinfo=si)
-        else:
-            os.system(gdalruntextdsm_build)
+        # Remove gdalwarp with gdal.Translate
+        bigraster = gdal.Open(filePath_dsm_build)
+        bbox = (x - r, y + r, x + r, y - r)
+        gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster, projWin=bbox)
+        bigraster = None
 
         dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
         dsm = dataset.ReadAsArray().astype(np.float)

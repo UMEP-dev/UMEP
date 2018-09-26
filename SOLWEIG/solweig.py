@@ -154,7 +154,6 @@ class SOLWEIG:
         self.dsm = None
         self.scale = None
         self.steps = 0
-        self.demforbuild = None
         self.dem = None
         self.lcgrid = None
         self.trans = None
@@ -440,7 +439,7 @@ class SOLWEIG:
             # Land cover #
             if self.dlg.checkBoxLandCover.isChecked():
                 self.landcover = 1
-                self.demforbuild = 0
+                demforbuild = 0
 
                 self.lcgrid = self.layerComboManagerLC.currentLayer()
 
@@ -467,7 +466,7 @@ class SOLWEIG:
 
             # DEM #
             if not self.dlg.checkBoxDEM.isChecked():
-                self.demforbuild = 1
+                demforbuild = 1
 
                 self.dem = self.layerComboManagerDEM.currentLayer()
 
@@ -702,7 +701,6 @@ class SOLWEIG:
                 buildings = self.dsm - self.dem
                 buildings[buildings < 2.] = 1.
                 buildings[buildings >= 2.] = 0.
-                #np.where(np.transpose(self.dsm - self.dem) < 2.)
 
             if self.dlg.checkBoxBuild.isChecked():
                 self.saveraster(self.gdal_dsm, self.folderPath[0] + '/buildings.tif', buildings)
@@ -774,14 +772,9 @@ class SOLWEIG:
                     return
 
                 for k in range(0, self.poisxy.shape[0]):
-                    poi_save = [] # np.zeros((1, 33))
-                    #data_out = self.folderPath[0] + '/POI_' + str(self.poisxy[k, 0]) + '.txt'
+                    poi_save = []  # np.zeros((1, 33))
                     data_out = self.folderPath[0] + '/POI_' + str(self.poiname[k]) + '.txt'
                     np.savetxt(data_out, poi_save,  delimiter=' ', header=header, comments='')  # fmt=numformat,
-                    #f_handle = file(data_out, 'a')
-                    #endoffile = [-9, -9]
-                    #np.savetxt(f_handle, endoffile, fmt='%2d')
-                    #f_handle.close()
 
             self.dlg.progressBar.setRange(0, Ta.__len__())
 
@@ -864,20 +857,14 @@ class SOLWEIG:
             timeaddN = 0.
             firstdaytime = 1.
 
-            # self.iface.messageBar().pushMessage("Ta.__len__  ", str(int(Ta.__len__())))
-            #self.iface.messageBar().pushMessage("__len__", str(buildings.shape[0]))
-            #self.iface.messageBar().pushMessage("__len__", str(self.lcgrid.shape[0]))
-
             WriteMetadataSOLWEIG.writeRunInfo(self.folderPath[0], filepath_dsm, self.gdal_dsm, self.usevegdem,
                                               filePath_cdsm, trunkfile, filePath_tdsm, lat, lon, UTC, self.landcover,
                                               filePath_lc, metfileexist, PathMet, self.metdata, self.plugin_dir,
                                               absK, absL, albedo_b, albedo_g, ewall, eground, onlyglobal, trunkratio,
-                                              self.trans, rows, cols, pos, elvis, cyl)
+                                              self.trans, rows, cols, pos, elvis, cyl, demforbuild)
 
             #  If metfile starts at night
             CI = 1.
-            # self.iface.messageBar().pushMessage("Ta", self.folderPath[0] + '/Tmrt_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[0, i])) + '_' + str(int(hours[0, i])) + str(int(minu[0, i])) + '.tif')
-            # self.iface.messageBar().pushMessage("hour", str(hours[5]))
             self.startWorker(self.dsm, self.scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
                         svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
                         self.vegdsm, self.vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, altitude,

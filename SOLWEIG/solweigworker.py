@@ -242,7 +242,7 @@ class Worker(QtCore.QObject):
 
                 Tmrt, Kdown, Kup, Ldown, Lup, Tg, ea, esky, I0, CI, shadow, firstdaytime, timestepdec, timeadd, \
                 Tgmap1, timeaddE, Tgmap1E, timeaddS, Tgmap1S, timeaddW, Tgmap1W, timeaddN, Tgmap1N, \
-                Keast, Ksouth, Kwest, Knorth, Least, Lsouth, Lwest, Lnorth, KsideI, TgOut1, TgOut \
+                Keast, Ksouth, Kwest, Knorth, Least, Lsouth, Lwest, Lnorth, KsideI, TgOut1, TgOut, radIout, radDout \
                     = so.Solweig_2015a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
                         svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
                         vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, altitude[0][i],
@@ -271,8 +271,8 @@ class Worker(QtCore.QObject):
                         poi_save[0, 4] = dectime[i]
                         poi_save[0, 5] = altitude[0][i]
                         poi_save[0, 6] = azimuth[0][i]
-                        poi_save[0, 7] = radI[i]
-                        poi_save[0, 8] = radD[i]
+                        poi_save[0, 7] = radIout
+                        poi_save[0, 8] = radDout
                         poi_save[0, 9] = radG[i]
                         poi_save[0, 10] = Kdown[int(poisxy[k, 2]), int(poisxy[k, 1])]
                         poi_save[0, 11] = Kup[int(poisxy[k, 2]), int(poisxy[k, 1])]

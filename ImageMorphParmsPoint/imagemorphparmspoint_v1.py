@@ -370,10 +370,10 @@ class ImageMorphParmsPoint:
     def start_process(self):
 
         #Check OS and dep
-        if sys.platform == 'darwin':
-            gdalwarp_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdalwarp'
-        else:
-            gdalwarp_os_dep = 'gdalwarp'
+        # if sys.platform == 'darwin':
+        #     gdalwarp_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdalwarp'
+        # else:
+        #     gdalwarp_os_dep = 'gdalwarp'
 
         # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
         self.dlg.progressBar.setValue(0)
@@ -427,14 +427,21 @@ class ImageMorphParmsPoint:
             provider = dsm_build.dataProvider()
             filePath_dsm_build = str(provider.dataSourceUri())
             # Kolla om memorylayer går att användas istället för dir_poly tempfilen.
-            gdalruntextdsm_build = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
-                                   filePath_dsm_build + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
-            # byta till gdal.Warp("aae.tif","aaa.asc", xRes=2.0, yRes=2.0, dstSRS='EPSG:3007')
-            if sys.platform == 'win32':
-                subprocess.call(gdalruntextdsm_build, startupinfo=si)
-            else:
-                os.system(gdalruntextdsm_build)
+            # gdalruntextdsm_build = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+            #                        ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+            #                        filePath_dsm_build + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
+            # # byta till gdal.Warp("aae.tif","aaa.asc", xRes=2.0, yRes=2.0, dstSRS='EPSG:3007')
+            # if sys.platform == 'win32':
+            #     subprocess.call(gdalruntextdsm_build, startupinfo=si)
+            # else:
+            #     os.system(gdalruntextdsm_build)
+
+
+            # Remove gdalwarp with gdal.Translate
+            bigraster = gdal.Open(filePath_dsm_build)
+            bbox = (x - r, y + r, x + r, y - r)
+            gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster, projWin=bbox)
+            bigraster = None
 
             dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
             dsm = dataset.ReadAsArray().astype(np.float)
@@ -459,21 +466,29 @@ class ImageMorphParmsPoint:
             provider = dem.dataProvider()
             filePath_dem = str(provider.dataSourceUri())
 
-            gdalruntextdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-                                               ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
-                                               filePath_dsm + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
-            gdalruntextdem = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
-                                   filePath_dem + '" "' + self.plugin_dir + '/data/clipdem.tif"'
+            # gdalruntextdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+            #                                    ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+            #                                    filePath_dsm + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
+            # gdalruntextdem = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+            #                        ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+            #                        filePath_dem + '" "' + self.plugin_dir + '/data/clipdem.tif"'
+            #
+            # if sys.platform == 'win32':
+            #     si = subprocess.STARTUPINFO()
+            #     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            #     subprocess.call(gdalruntextdsm, startupinfo=si)
+            #     subprocess.call(gdalruntextdem, startupinfo=si)
+            # else:
+            #     os.system(gdalruntextdsm)
+            #     os.system(gdalruntextdem)
 
-            if sys.platform == 'win32':
-                si = subprocess.STARTUPINFO()
-                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                subprocess.call(gdalruntextdsm, startupinfo=si)
-                subprocess.call(gdalruntextdem, startupinfo=si)
-            else:
-                os.system(gdalruntextdsm)
-                os.system(gdalruntextdem)
+            # Testing with gdal.Translate
+            bigraster = gdal.Open(filePath_dsm)
+            bbox = (x - r, y + r, x + r, y - r)
+            gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster, projWin=bbox)
+            bigraster = gdal.Open(filePath_dem)
+            bbox = (x - r, y + r, x + r, y - r)
+            gdal.Translate(self.plugin_dir + '/data/clipdem.tif', bigraster, projWin=bbox)
 
             dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
             dsm = dataset.ReadAsArray().astype(np.float)
@@ -516,11 +531,7 @@ class ImageMorphParmsPoint:
         zMax = immorphresult["zHmax"]
         zSdev = immorphresult["zH_sd"]
 
-        # self.iface.messageBar().pushMessage("fai", str(fai.shape[0]), level=QgsMessageBar.INFO)
-        zd,z0 = rg.RoughnessCalcMany(Roughnessmethod,zH,fai,pai,zMax,zSdev)
-        # self.iface.messageBar().pushMessage("Model run finished", "zH=" + str(zH) + "fai=" + str(fai) + "pai=" + str(pai) + "zMax=" + str(zMax) + "zSdev=" + str(zSdev) , level=QgsMessageBar.INFO)
-        # self.iface.messageBar().pushMessage("z0", str(z0), level=QgsMessageBar.INFO)
-        # self.iface.messageBar().pushMessage("zH", str(zH), level=QgsMessageBar.INFO)
+        zd,z0 = rg.RoughnessCalcMany(Roughnessmethod, zH, fai, pai, zMax, zSdev)
 
         # save to file
         pre = self.dlg.textOutput_prefix.text()
@@ -536,8 +547,7 @@ class ImageMorphParmsPoint:
         paiall = immorphresult["pai_all"]
         zMaxall = immorphresult["zHmax_all"]
         zSdevall = immorphresult["zH_sd_all"]
-        # self.iface.messageBar().pushMessage("Model run finished", "zH=" + str(zHall) + "fai=" + str(faiall) + "pai=" + str(paiall) + "zMax=" + str(zMaxall) + "zSdev=" + str(zSdevall) , level=QgsMessageBar.INFO)
-        zdall,z0all = rg.RoughnessCalc(Roughnessmethod,zHall,faiall,paiall,zMaxall,zSdevall)
+        zdall,z0all = rg.RoughnessCalc(Roughnessmethod, zHall, faiall, paiall, zMaxall, zSdevall)
         # If zd and z0 are lower than open country, set to open country
         if zdall < 0.2:
             zdall = 0.2
@@ -554,7 +564,6 @@ class ImageMorphParmsPoint:
         dataset2 = None
         dataset3 = None
 
-        #self.iface.messageBar().clearWidgets()
         QMessageBox.information(None, "Image Morphometric Parameters", "Process successful!")
 
     def run(self):

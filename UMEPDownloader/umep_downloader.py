@@ -31,6 +31,7 @@ import os.path
 import sys
 import subprocess
 import shutil
+from osgeo import gdal
 
 try:
     # Assuming in UMEP folder strcuture, so get f90nml from Utilities
@@ -511,31 +512,24 @@ class UMEP_Data_Download:
             res = self.dlg.spinBoxResolution.value()
 
             if not self.crs == canvasEPSG:
-                # QMessageBox.critical(None, 'test', filename2)
-                # return
-                if sys.platform == 'win32':
-                    si = subprocess.STARTUPINFO()
-                    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                else:
-                    si = None
-
-                # QMessageBox.critical(None, 'filename2', self.filename2)
-                # QMessageBox.critical(None, 'filename', self.filename)
-                gdalwarptext = 'gdalwarp -overwrite -q -s_srs ' + self.crs + ' -t_srs ' + canvasEPSG + ' -tr ' + \
-                               str(res) + ' ' + str(res) + ' -of GTiff ' + self.filename + ' ' + self.filename2
-                # QMessageBox.critical(None, 'test', gdalwarptext)
-                if sys.platform == 'win32':
-                    # QMessageBox.critical(None, 'test', 'here2')
-                    subprocess.call(gdalwarptext, startupinfo=si)
-                    # os.system(gdalwarptext)
-                else:
-                    os.system(gdalwarptext)
+                # if sys.platform == 'win32':
+                #     si = subprocess.STARTUPINFO()
+                #     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                # else:
+                #     si = None
+                #
+                # gdalwarptext = 'gdalwarp -overwrite -q -s_srs ' + self.crs + ' -t_srs ' + canvasEPSG + ' -tr ' + \
+                #                str(res) + ' ' + str(res) + ' -of GTiff ' + self.filename + ' ' + self.filename2
+                # if sys.platform == 'win32':
+                #     subprocess.call(gdalwarptext, startupinfo=si)
+                # else:
+                #     os.system(gdalwarptext)
+                gdal.Warp(self.filename2, self.filename, dstSRS=canvasEPSG, xRes=res, yRes=res)
             else:
                 shutil.copy(self.filename, self.filename2)
 
             os.remove(self.filename)
             returns['filename'] = self.filename2
-        # QMessageBox.critical(None, 'test', self.filename)
 
         # Set progress bar to 100 or 0
         self.dlg.progressBar.setValue(100)

@@ -6,7 +6,7 @@ from qgis.core import *  # QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsR
 import traceback
 from ..Utilities.landCoverFractions_v1 import *
 import numpy as np
-from osgeo import gdal
+from osgeo import gdal, ogr
 import subprocess
 import sys
 import linecache
@@ -43,11 +43,11 @@ class Worker(QtCore.QObject):
 
     def run(self):
 
-        #Check OS and dep
-        if sys.platform == 'darwin':
-            gdalwarp_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdalwarp'
-        else:
-            gdalwarp_os_dep = 'gdalwarp'
+        # #Check OS and dep
+        # if sys.platform == 'darwin':
+        #     gdalwarp_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdalwarp'
+        # else:
+        #     gdalwarp_os_dep = 'gdalwarp'
 
         ret = 0
         imp_point = 0
@@ -94,20 +94,35 @@ class Worker(QtCore.QObject):
                 filePath_lc_grid = str(provider.dataSourceUri())
 
                 if self.imid == 1:
-                    gdalruntextlc_grid = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-                                           ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
-                                           filePath_lc_grid + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
+                    bbox = (x - r, y + r, x + r, y - r)
+                    # gdalruntextlc_grid = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+                    #                        ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+                    #                        filePath_lc_grid + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
                 else:
-                    gdalruntextlc_grid = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -cutline ' + self.dir_poly + \
-                                           ' -crop_to_cutline -of GTiff "' + filePath_lc_grid + '" "' + \
-                                           self.plugin_dir + '/data/clipdsm.tif"'
+                    # Remove gdalwarp cuttoline with gdal.Translate. Cut to envelope of polygon feature
+                    VectorDriver = ogr.GetDriverByName("ESRI Shapefile")
+                    Vector = VectorDriver.Open(self.dir_poly, 0)
+                    layer = Vector.GetLayer()
+                    feature = layer.GetFeature(0)
+                    geom = feature.GetGeometryRef()
+                    minX, maxX, minY, maxY = geom.GetEnvelope()
+                    bbox = (minX, maxY, maxX, minY)  # Reorder bbox to use with gdal_translate
+                    Vector.Destroy()
+                    # gdalruntextlc_grid = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -cutline ' + self.dir_poly + \
+                    #                        ' -crop_to_cutline -of GTiff "' + filePath_lc_grid + '" "' + \
+                    #                        self.plugin_dir + '/data/clipdsm.tif"'
 
-                if sys.platform == 'win32':
-                    si = subprocess.STARTUPINFO()
-                    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                    subprocess.call(gdalruntextlc_grid, startupinfo=si)
-                else:
-                    os.system(gdalruntextlc_grid)
+                # if sys.platform == 'win32':
+                #     si = subprocess.STARTUPINFO()
+                #     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                #     subprocess.call(gdalruntextlc_grid, startupinfo=si)
+                # else:
+                #     os.system(gdalruntextlc_grid)
+
+                # Remove gdalwarp with gdal.Translate
+                bigraster = gdal.Open(filePath_lc_grid)
+                gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster, projWin=bbox)
+                bigraster = None
 
                 time.sleep(0.05)
                 dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')

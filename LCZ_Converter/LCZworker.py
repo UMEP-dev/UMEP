@@ -5,7 +5,7 @@ from qgis.core import *  # QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsR
 from LCZ_fractions import *
 import traceback
 import numpy as np
-from osgeo import gdal
+from osgeo import gdal, ogr
 import subprocess
 import sys
 import linecache
@@ -37,11 +37,11 @@ class Worker(QtCore.QObject):
 
     def run(self):
 
-        #Check OS and dep
-        if sys.platform == 'darwin':
-            gdalwarp_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdalwarp'
-        else:
-            gdalwarp_os_dep = 'gdalwarp'
+        # #Check OS and dep
+        # if sys.platform == 'darwin':
+        #     gdalwarp_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdalwarp'
+        # else:
+        #     gdalwarp_os_dep = 'gdalwarp'
 
         ret = 0
         arrmat1 = np.empty((1, 8))
@@ -73,14 +73,27 @@ class Worker(QtCore.QObject):
                 provider = self.lc_grid.dataProvider()
                 filePath_lc_grid = str(provider.dataSourceUri())
                 
-                gdalruntextlc_grid = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -cutline ' + self.dir_poly + ' -crop_to_cutline -of GTiff "' + filePath_lc_grid + '" "' +        self.plugin_dir + '/data/clipdsm.tif"'
+                # gdalruntextlc_grid = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -cutline ' + self.dir_poly + ' -crop_to_cutline -of GTiff "' + filePath_lc_grid + '" "' +        self.plugin_dir + '/data/clipdsm.tif"'
+                #
+                # if sys.platform == 'win32':
+                #     si = subprocess.STARTUPINFO()
+                #     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                #     subprocess.call(gdalruntextlc_grid, startupinfo=si)
+                # else:
+                #     os.system(gdalruntextlc_grid)
 
-                if sys.platform == 'win32':
-                    si = subprocess.STARTUPINFO()
-                    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                    subprocess.call(gdalruntextlc_grid, startupinfo=si)
-                else:
-                    os.system(gdalruntextlc_grid)
+                # Remove gdalwarp cuttoline with gdal.Translate. Cut to envelope of polygon feature
+                bigraster = gdal.Open(filePath_lc_grid)
+                VectorDriver = ogr.GetDriverByName("ESRI Shapefile")
+                Vector = VectorDriver.Open(self.dir_poly, 0)
+                layer = Vector.GetLayer()
+                feature = layer.GetFeature(0)
+                geom = feature.GetGeometryRef()
+                minX, maxX, minY, maxY = geom.GetEnvelope()
+                bbox = (minX, maxY, maxX, minY)  # Reorder bbox to use with gdal_translate
+                gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster, projWin=bbox)
+                bigraster = None
+                Vector.Destroy()
 
                 dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
                 lc_grid_array = dataset.ReadAsArray().astype(np.float)
