@@ -298,7 +298,6 @@ class SOLWEIG:
         if self.folderPath is None:
             QMessageBox.critical(self.dlg, "Error", "No save folder selected")
         else:
-            # self.dlg.textOutput.setText(self.folderPath[0])
             dsmlayer = self.layerComboManagerDSM.currentLayer()
 
             if dsmlayer is None:
@@ -316,37 +315,53 @@ class SOLWEIG:
             geotransform = self.gdal_dsm.GetGeoTransform()
             self.scale = 1 / geotransform[1]
             alt = self.dsm.mean()
-            # QMessageBox.critical(self.dlg, "TEst",str(self.scale))
-            # return
 
-            old_cs = osr.SpatialReference()
-            dsm_ref = dsmlayer.crs().toWkt()
-            old_cs.ImportFromWkt(dsm_ref)
-
-            wgs84_wkt = """
-                GEOGCS["WGS 84",
-                    DATUM["WGS_1984",
-                        SPHEROID["WGS 84",6378137,298.257223563,
-                            AUTHORITY["EPSG","7030"]],
-                        AUTHORITY["EPSG","6326"]],
-                    PRIMEM["Greenwich",0,
-                        AUTHORITY["EPSG","8901"]],
-                    UNIT["degree",0.01745329251994328,
-                        AUTHORITY["EPSG","9122"]],
-                    AUTHORITY["EPSG","4326"]]"""
-
-            new_cs = osr.SpatialReference()
-            new_cs.ImportFromWkt(wgs84_wkt)
-
-            transform = osr.CoordinateTransformation(old_cs, new_cs)
-
-            width = self.gdal_dsm.RasterXSize
-            height = self.gdal_dsm.RasterYSize
-            minx = geotransform[0]
-            miny = geotransform[3] + width * geotransform[4] + height * geotransform[5]
-            lonlat = transform.TransformPoint(minx, miny)
+            # new latlon finding code
+            projdsm = osr.SpatialReference(wkt=self.gdal_dsm.GetProjection())
+            projdsm.AutoIdentifyEPSG()
+            projdsmepsg = int(projdsm.GetAttrValue('AUTHORITY', 1))
+            new_cs = QgsCoordinateReferenceSystem(projdsmepsg)
+            wgs84 = QgsCoordinateReferenceSystem(4326)
+            transform = QgsCoordinateTransform(new_cs, wgs84)
+            width1 = self.gdal_dsm.RasterXSize
+            height1 = self.gdal_dsm.RasterYSize
+            gt = self.gdal_dsm.GetGeoTransform()
+            minx = gt[0]
+            miny = gt[3] + width1 * gt[4] + height1 * gt[5]
+            lonlat = transform.transform(minx, miny)
+            # geotransform = self.gdal_dsm.GetGeoTransform()
+            # scale = 1 / geotransform[1]
             lon = lonlat[0]
             lat = lonlat[1]
+
+            # old_cs = osr.SpatialReference()
+            # dsm_ref = dsmlayer.crs().toWkt()
+            # old_cs.ImportFromWkt(dsm_ref)
+            #
+            # wgs84_wkt = """
+            #     GEOGCS["WGS 84",
+            #         DATUM["WGS_1984",
+            #             SPHEROID["WGS 84",6378137,298.257223563,
+            #                 AUTHORITY["EPSG","7030"]],
+            #             AUTHORITY["EPSG","6326"]],
+            #         PRIMEM["Greenwich",0,
+            #             AUTHORITY["EPSG","8901"]],
+            #         UNIT["degree",0.01745329251994328,
+            #             AUTHORITY["EPSG","9122"]],
+            #         AUTHORITY["EPSG","4326"]]"""
+            #
+            # new_cs = osr.SpatialReference()
+            # new_cs.ImportFromWkt(wgs84_wkt)
+            #
+            # transform = osr.CoordinateTransformation(old_cs, new_cs)
+            #
+            # width = self.gdal_dsm.RasterXSize
+            # height = self.gdal_dsm.RasterYSize
+            # minx = geotransform[0]
+            # miny = geotransform[3] + width * geotransform[4] + height * geotransform[5]
+            # lonlat = transform.TransformPoint(minx, miny)
+            # lon = lonlat[0]
+            # lat = lonlat[1]
             UTC = self.dlg.spinBoxUTC.value()
 
             if (sizex * sizey) > 250000 and (sizex * sizey) <= 1000000:

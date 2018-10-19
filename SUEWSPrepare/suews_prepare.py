@@ -188,6 +188,7 @@ class SUEWSPrepare:
         self.utc = 0
         self.file_code = ''
         self.steps = 0
+        self.daypop = 0
 
         # Declare instance attributes
 

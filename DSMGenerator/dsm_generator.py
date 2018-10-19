@@ -23,7 +23,8 @@
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QFileInfo, QVariant
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox, QButtonGroup
 from qgis.gui import QgsMapLayerComboBox, QgsMapLayerProxyModel, QgsFieldComboBox, QgsFieldProxyModel
-from qgis.core import QgsVectorLayer, QgsField, QgsExpression, QgsVectorFileWriter
+from qgis.core import QgsVectorLayer, QgsField, QgsExpression, QgsVectorFileWriter, QgsCoordinateReferenceSystem, \
+    QgsCoordinateTransform
 from qgis.analysis import QgsZonalStatistics
 import webbrowser, subprocess, urllib, ogr, osr, string
 import numpy as np
@@ -224,24 +225,33 @@ class DSMGenerator:
         if self.dlg.canvasButton.isChecked():
             # Map Canvas
             extentCanvasCRS = self.iface.mapCanvas()
-            can_wkt = extentCanvasCRS.mapRenderer().destinationCrs().toWkt()
-            can_crs = osr.SpatialReference()
-            can_crs.ImportFromWkt(can_wkt)
+            srs = extentCanvasCRS.mapSettings().destinationCrs()
+            crs = str(srs.authid())
+            # old_crs = osr.SpatialReference()
+            # old_crs.ImportFromEPSG(int(crs[5:]))
+            can_crs = QgsCoordinateReferenceSystem(int(crs[5:]))
+            # can_wkt = extentCanvasCRS.mapRenderer().destinationCrs().toWkt()
+            # can_crs = osr.SpatialReference()
+            # can_crs.ImportFromWkt(can_wkt)
             # Raster Layer
             dem_layer = self.layerComboManagerDEM.currentLayer()
             dem_prov = dem_layer.dataProvider()
             dem_path = str(dem_prov.dataSourceUri())
             dem_raster = gdal.Open(dem_path)
-            #dem_wkt = dem_layer.exportToWkt()
-            dem_wkt = dem_raster.GetProjection()
-            dem_crs = osr.SpatialReference()
-            dem_crs.ImportFromWkt(dem_wkt)
-            #print can_crs, "-------------", dem_crs
-            if can_wkt != dem_crs:
+            projdsm = osr.SpatialReference(wkt=dem_raster.GetProjection())
+            projdsm.AutoIdentifyEPSG()
+            projdsmepsg = int(projdsm.GetAttrValue('AUTHORITY', 1))
+            dem_crs = QgsCoordinateReferenceSystem(projdsmepsg)
+
+            # dem_wkt = dem_raster.GetProjection()
+            # dem_crs = osr.SpatialReference()
+            # dem_crs.ImportFromWkt(dem_wkt)
+            if can_crs != dem_crs:
                 extentCanvas = self.iface.mapCanvas().extent()
                 extentDEM = dem_layer.extent()
 
-                transformExt = osr.CoordinateTransformation(can_crs, dem_crs)
+                transformExt = QgsCoordinateTransform(can_crs, dem_crs)
+                # transformExt = osr.CoordinateTransformation(can_crs, dem_crs)
 
                 canminx = extentCanvas.xMinimum()
                 canmaxx = extentCanvas.xMaximum()
@@ -251,10 +261,10 @@ class DSMGenerator:
                 canxymin = transformExt.TransformPoint(canminx, canminy)
                 canxymax = transformExt.TransformPoint(canmaxx, canmaxy)
 
-                extDiffminx = canxymin[0] - extentDEM.xMinimum() # If smaller than zero = warning
-                extDiffminy = canxymin[1] - extentDEM.yMinimum() # If smaller than zero = warning
-                extDiffmaxx = canxymax[0] - extentDEM.xMaximum() # If larger than zero = warning
-                extDiffmaxy = canxymax[0] - extentDEM.yMaximum() # If larger than zero = warning
+                extDiffminx = canxymin[0] - extentDEM.xMinimum()  # If smaller than zero = warning
+                extDiffminy = canxymin[1] - extentDEM.yMinimum()  # If smaller than zero = warning
+                extDiffmaxx = canxymax[0] - extentDEM.xMaximum()  # If larger than zero = warning
+                extDiffmaxy = canxymax[0] - extentDEM.yMaximum()  # If larger than zero = warning
 
                 if extDiffminx < 0 or extDiffminy < 0 or extDiffmaxx > 0 or extDiffmaxy > 0:
                     QMessageBox.warning(None, "Warning! Extent of map canvas is larger than raster extent.", "Change to an extent equal to or smaller than the raster extent.")
@@ -316,6 +326,7 @@ class DSMGenerator:
         self.dlg.progressBar.setValue(1)
 
         if self.dlg.checkBoxOSM.isChecked():
+            # TODO replace osr.CoordinateTransformation with QgsCoordinateTransform
             dem_original = gdal.Open(filepath_dem)
             dem_wkt = dem_original.GetProjection()
             ras_crs = osr.SpatialReference()

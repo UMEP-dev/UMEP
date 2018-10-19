@@ -147,26 +147,32 @@ class Worker(QtCore.QObject):
                 index = self.find_index(code)
                 new_line[index] = str(self.end_DLS)
 
-                old_cs = osr.SpatialReference()
-                vlayer_ref = self.vlayer.crs().toWkt()
-                old_cs.ImportFromWkt(vlayer_ref)
+                # old_cs = osr.SpatialReference()
+                # vlayer_ref = self.vlayer.crs().toWkt()
+                # old_cs.ImportFromWkt(vlayer_ref)
 
-                wgs84_wkt = """
-                GEOGCS["WGS 84",
-                    DATUM["WGS_1984",
-                        SPHEROID["WGS 84",6378137,298.257223563,
-                            AUTHORITY["EPSG","7030"]],
-                        AUTHORITY["EPSG","6326"]],
-                    PRIMEM["Greenwich",0,
-                        AUTHORITY["EPSG","8901"]],
-                    UNIT["degree",0.01745329251994328,
-                        AUTHORITY["EPSG","9122"]],
-                    AUTHORITY["EPSG","4326"]]"""
+                # new latlon finding code
+                crs = self.vlayer.crs().authid()
+                new_cs = QgsCoordinateReferenceSystem(int(crs[5:]))
+                wgs84 = QgsCoordinateReferenceSystem(4326)
+                transform = QgsCoordinateTransform(new_cs, wgs84)
 
-                new_cs = osr.SpatialReference()
-                new_cs.ImportFromWkt(wgs84_wkt)
-
-                transform = osr.CoordinateTransformation(old_cs, new_cs)
+                # wgs84_wkt = """
+                # GEOGCS["WGS 84",
+                #     DATUM["WGS_1984",
+                #         SPHEROID["WGS 84",6378137,298.257223563,
+                #             AUTHORITY["EPSG","7030"]],
+                #         AUTHORITY["EPSG","6326"]],
+                #     PRIMEM["Greenwich",0,
+                #         AUTHORITY["EPSG","8901"]],
+                #     UNIT["degree",0.01745329251994328,
+                #         AUTHORITY["EPSG","9122"]],
+                #     AUTHORITY["EPSG","4326"]]"""
+                #
+                # new_cs = osr.SpatialReference()
+                # new_cs.ImportFromWkt(wgs84_wkt)
+                #
+                # transform = osr.CoordinateTransformation(old_cs, new_cs)
 
                 centroid = feature.geometry().centroid().asPoint()
                 area = feature.geometry().area()
@@ -180,7 +186,8 @@ class Worker(QtCore.QObject):
                 else:
                     hectare = area
 
-                lonlat = transform.TransformPoint(centroid.x(), centroid.y())
+                lonlat = transform.transform(centroid.x(), centroid.y())
+                # lonlat = transform.TransformPoint(centroid.x(), centroid.y())
                 code = "lat"
                 index = self.find_index(code)
                 new_line[index] = '%.6f' % lonlat[1]
@@ -750,7 +757,8 @@ class Worker(QtCore.QObject):
             if YYYYmin < YYYYmax:
                 t = np.where(met_in[:,0]==YYYYmax)
                 if not t.__len__() > 1:
-                    YYYYmax = YYYYmin				
+                    # YYYYmax = YYYYmin
+                    YYYYmax = YYYYmax - 1  #  Issue #65
 
             lensiteselect = self.lines_to_write.__len__() - 2
             for YYYY in range(int(YYYYmin), int(YYYYmax) + 1):

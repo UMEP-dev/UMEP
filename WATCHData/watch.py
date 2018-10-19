@@ -23,6 +23,7 @@
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QObject, pyqtSignal, QThread
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
 from qgis.gui import *
+from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform
 from osgeo import osr, ogr
 from watch_dialog import WATCHDataDialog
 from calendar import monthrange
@@ -373,20 +374,34 @@ class WATCHData:
         canvas = self.iface.mapCanvas()
         srs = canvas.mapSettings().destinationCrs()
         crs = str(srs.authid())
-        # self.iface.messageBar().pushMessage("Coordinate selected", str(crs[5:]))
-        old_cs = osr.SpatialReference()
-        old_cs.ImportFromEPSG(int(crs[5:]))
+        # old_cs = osr.SpatialReference()
+        # old_cs.ImportFromEPSG(int(crs[5:]))
 
-        new_cs = osr.SpatialReference()
-        new_cs.ImportFromEPSG(4326)
+        # new latlon finding code
+        # projdsm = osr.SpatialReference(wkt=self.gdal_dsm.GetProjection())
+        # projdsm.AutoIdentifyEPSG()
+        # projdsmepsg = int(projdsm.GetAttrValue('AUTHORITY', 1))
+        new_cs = QgsCoordinateReferenceSystem(int(crs[5:]))
+        wgs84 = QgsCoordinateReferenceSystem(4326)
+        transform = QgsCoordinateTransform(new_cs, wgs84)
 
-        transform = osr.CoordinateTransformation(old_cs, new_cs)
+        latlon = transform.transform(point.x(), point.y())
+        # geotransform = self.gdal_dsm.GetGeoTransform()
+        # scale = 1 / geotransform[1]
+        # lon = lonlat[0]
+        # lat = lonlat[1]
+        #
+        #
+        # new_cs = osr.SpatialReference()
+        # new_cs.ImportFromEPSG(4326)
+        #
+        # transform = osr.CoordinateTransformation(old_cs, new_cs)
+        #
+        # latlon = ogr.CreateGeometryFromWkt('POINT (' + str(point.x()) + ' ' + str(point.y()) + ')')
+        # latlon.Transform(transform)
 
-        latlon = ogr.CreateGeometryFromWkt('POINT (' + str(point.x()) + ' ' + str(point.y()) + ')')
-        latlon.Transform(transform)
-
-        self.dlg.txtLon.setText(str(latlon.GetX()))
-        self.dlg.txtLat.setText(str(latlon.GetY()))
+        self.dlg.txtLon.setText(str(latlon[0]))
+        self.dlg.txtLat.setText(str(latlon[1]))
 
     def run(self):
         # Check the more unusual dependencies to prevent confusing errors later

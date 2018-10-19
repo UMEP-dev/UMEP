@@ -344,11 +344,11 @@ class FootprintModel:
             QMessageBox.critical(None, "Error", "Select a valid output folder")
             return
 
-        if sys.platform == 'win32':
-            si = subprocess.STARTUPINFO()
-            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        else:
-            si = None
+        # if sys.platform == 'win32':
+        #     si = subprocess.STARTUPINFO()
+        #     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        # else:
+        #     si = None
 
         if self.dlg.checkBoxVectorLayer.isChecked():
             point = self.layerComboManagerPoint.currentLayer()
