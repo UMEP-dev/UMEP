@@ -33,59 +33,12 @@ from calendar import monthrange
 import os.path
 import shutil
 import webbrowser
-from ..Utilities.ncWMSConnector import NCWMS_Connector
-from .WFDEIDownloader.WFDEI_Interpolator import *
-import traceback
+# from ..Utilities.ncWMSConnector import NCWMS_Connector
+# import traceback
 import datetime
 from .WatchWorker import WatchWorker
+from .WatchWorkerDownload import DownloadDataWorker
 
-class DownloadDataWorker(QObject):
-    # Worker to get netCDF data using a separate thread
-    finished = pyqtSignal(object)
-    update = pyqtSignal(object)
-    error = pyqtSignal(Exception, str)
-    def __init__(self, hw_start, hw_end, watch_vars, ll_lat, ll_lon, ur_lat, ur_lon):
-        QObject.__init__(self)
-        self.hw_start = hw_start
-        self.hw_end = hw_end
-        self.watch_vars = watch_vars
-        self.ll_lat = ll_lat
-        self.ll_lon = ll_lon
-        self.ur_lat = ur_lat
-        self.ur_lon = ur_lon
-        self.downloader = NCWMS_Connector()
-
-    def kill(self):
-        self.downloader.kill()
-
-    def run(self):
-        try:
-            output = self.webToTimeseries(self.hw_start, self.hw_end, self.watch_vars, self.ll_lat, self.ll_lon,self. ur_lat, self.ur_lon, self.update)
-            self.finished.emit(output)
-        except Exception as e:
-            self.error.emit(e, traceback.format_exc())
-
-    def webToTimeseries(self, hw_start, hw_end, watch_vars, ll_lat, ll_lon, ur_lat, ur_lon, update=None):
-        '''
-        Take WCS raster layer and save to local geoTiff
-        :param baseURL: Server URL up to the /wcs? part where the query string begins (not including the question mark)
-        :param layer_name: The coverage name on the WCS server
-        :param output_file: File to save as (GeoTIFF)
-        :param bbox: dict with WGS84 coordinates {xmin: float <lower left longitude>, xmax:float, ymin:float <upper right latitude>, ymax:float}
-        :param resolution: dict {x:float, y:float} containing the resolution to use
-        :param srs: string e.g. EPSG:4326: The layer CRS string
-        :return: Path to output file
-        '''
-        self.downloader.get_data(start_date=hw_start, # Connector will take the first moment of this date
-                            end_date=hw_end, # Connector will take the final second of this date
-                            variables=watch_vars, # Get all variables
-                            lowerleft_lat = ll_lat,
-                            lowerleft_lon = ll_lon,
-                            upperright_lat= ur_lat,
-                            upperright_lon= ur_lon,
-                            update=update)
-        temp_netcdf = self.downloader.average_data(None, 'mean')
-        return temp_netcdf
 
 class WATCHData(object):
     """QGIS Plugin Implementation."""
@@ -132,20 +85,14 @@ class WATCHData(object):
         self.dlg.cmdRunRefine.setEnabled(False)
 
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(4)
-        self.fileDialog.setAcceptMode(1)
+        # self.fileDialog.setFileMode(4)
+        # self.fileDialog.setAcceptMode(1)
 
-        self.dlg.progressBar.setRange(0,100)
+        self.dlg.progressBar.setRange(0, 100)
         self.dlg.progressBar.setValue(0)
 
-        self.watch_vars =  ['Tair',
-                                 'Wind',
-                                 'LWdown',
-                                 'PSurf',
-                                 'Qair',
-                                 'Rainf',
-                                 'Snowf',
-                                 'SWdown']
+        self.watch_vars = ['Tair', 'Wind', 'LWdown', 'PSurf', 'Qair', 'Rainf', 'Snowf', 'SWdown']
+
         # Parameters for downloader
         self.lat = None
         self.lon = None
@@ -163,7 +110,6 @@ class WATCHData(object):
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&WATCH data')
-        # TODO: We are going to let the user set this up in a future iteration
 
         # get reference to the canvas
         self.canvas = self.iface.mapCanvas()
@@ -262,10 +208,10 @@ class WATCHData(object):
         # del self.toolbar
 
     def validate_downloader_input(self):
-        ''' Validates user input for downloader section of form. Raises exception if a problem, commits
-        parameters to object if OK '''
+        """Validates user input for downloader section of form. Raises exception if a problem, commits
+        parameters to object if OK"""
 
-        # validate and record the  latitude and longitude boxes (must be WGS84)'''
+        # validate and record the  latitude and longitude boxes (must be WGS84)
         try:
             lon = float(self.dlg.txtLon.text())
         except:
@@ -298,14 +244,14 @@ class WATCHData(object):
             raise ValueError('Invalid end date (%s) entered'%(end_date,))
 
         days = monthrange(end_date.year, end_date.month)[1]
-        td = datetime.timedelta(days=days-1) # Use final day of month. ncWMSconnector takes the full final day of data
+        td = datetime.timedelta(days=days-1)  # Use final day of month. ncWMSconnector takes the full final day of data
         end_date = end_date + td
         self.start_date = start_date
         self.end_date = end_date
 
     def validate_refiner_input(self):
-        ''' Validates user input for downloader section of form. Raises exception if a problem, commits
-        parameters to object if OK '''
+        """Validates user input for downloader section of form. Raises exception if a problem, commits
+        parameters to object if OK"""
         try:
             hgt = float(self.dlg.textOutput_hgt.text())
         except:
@@ -323,11 +269,12 @@ class WATCHData(object):
             self.lqf_path = input_AH_path
 
     def refine(self):
-        ''' Refines downloaded data'''
+        """Refines downloaded data"""
         try:
-            self.validate_refiner_input() # Validate input co-ordinates and time range
+            self.validate_refiner_input()  # Validate input co-ordinates and time range
             # Before starting, ask user where to save netCDF file
             refined_filename = self.fileDialog.getSaveFileName(None, "Save refined climate data to...", None, "Text Files (*.txt)")
+            refined_filename = refined_filename[0]
             if (refined_filename is None) or (len(refined_filename) == 0):
                 return
         except Exception as e:
@@ -358,7 +305,6 @@ class WATCHData(object):
         worker.finished.connect(self.refine_worker_finished)
         worker.error.connect(self.refine_worker_error)
         worker.update.connect(self.update_progress)
-
         thr.started.connect(worker.run)
         thr.start()
         self.refine_thread = thr
@@ -369,7 +315,7 @@ class WATCHData(object):
         self.canvas.setMapTool(self.pointTool)  # Calls a canvas click and create_point
         self.dlg.setEnabled(False)
 
-    def create_point(self, point):  # Var kommer point ifran???
+    def create_point(self, point):
         # report map coordinates from a canvas click
         self.dlg.setEnabled(True)
         self.dlg.activateWindow()
@@ -377,7 +323,6 @@ class WATCHData(object):
         canvas = self.iface.mapCanvas()
         srs = canvas.mapSettings().destinationCrs()
         crs = str(srs.authid())
-        # self.iface.messageBar().pushMessage("Coordinate selected", str(crs[5:]))
         old_cs = osr.SpatialReference()
         old_cs.ImportFromEPSG(int(crs[5:]))
 
@@ -398,8 +343,8 @@ class WATCHData(object):
             import pandas
         except Exception as e:
             QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the pandas package '
-                                                'to be installed. Please consult the FAQ in the manual for further '
-                                                'information on how to install missing python packages.')
+                                                'to be installed OR upgraded. Please consult the FAQ in the manual '
+                                                'for further information on how to install missing python packages.')
             return
         try:
             import ftplib
@@ -431,7 +376,7 @@ class WATCHData(object):
                                  'information on how to install missing python packages.')
             return
         self.dlg.show()
-        result = self.dlg.exec_()
+        self.dlg.exec_()
 
     def folderAH(self):
         self.fileDialog.open()
@@ -452,7 +397,6 @@ class WATCHData(object):
         self.setRefinerButtonState(True)
         self.setDownloaderButtonState(True)
         QMessageBox.information(None, "Climate data refiner", "Data processed")
-        # self.iface.messageBar().pushMessage("Climate data refiner", "Data processed", level=QgsMessageBar.INFO)
         file_pattern = os.path.splitext(self.save_refined_file)[0] + '<YEAR>.txt'
         self.dlg.lblSavedRefined.setText(file_pattern)
 
@@ -462,16 +406,12 @@ class WATCHData(object):
         QMessageBox.critical(None, "Climate data refiner error:", strException)
 
     def download(self):
-        '''
-        Downloads WATCH data to netCDF file locally.
-        Returns
-        -------
-        '''
-
+        # Downloads WATCH data to netCDF file locally.
         try:
-            self.validate_downloader_input() # Validate input co-ordinates and time range
+            self.validate_downloader_input()  # Validate input co-ordinates and time range
             # Before starting, ask user where to save netCDF file
             download_filename = self.fileDialog.getSaveFileName(None, "Save downloaded WATCH data to...", None, "NetCDF Files (*.nc)")
+            download_filename = download_filename[0]
             if (download_filename is None) or (len(download_filename) == 0):
                 return
         except Exception as e:
@@ -490,6 +430,8 @@ class WATCHData(object):
         ur_lon = self.lon + 0.0001
 
         # Do download in separate thread and track progress
+        self.dlg.cmdRunDownload.clicked.disconnect()
+        self.dlg.cmdRunDownload.setText('Cancel')
         downloadWorker = DownloadDataWorker(self.start_date, self.end_date, self.watch_vars, ll_lat, ll_lon, ur_lat, ur_lon)
         thr = QThread(self.dlg)
         downloadWorker.moveToThread(thr)
@@ -498,16 +440,14 @@ class WATCHData(object):
         downloadWorker.finished.connect(self.downloadWorkerFinished)
         thr.started.connect(downloadWorker.run)
         thr.start()
-
         self.downloadThread = thr
         self.downloadWorker = downloadWorker
-        self.dlg.cmdRunDownload.clicked.disconnect()
-        self.dlg.cmdRunDownload.setText('Cancel')
+
         self.dlg.cmdRunDownload.clicked.connect(self.abort_download)
         self.dlg.progressBar.setValue(0)
 
     def update_progress(self, returns):
-        ''' Updates progress bar during download'''
+        # Updates progress bar during download
         self.dlg.progressBar.setValue(returns['progress'])
 
     def download_error(self, exception, text):
@@ -525,6 +465,10 @@ class WATCHData(object):
         self.dlg.progressBar.setValue(0)
 
     def downloadWorkerFinished(self, temp_netcdf):
+        self.downloadWorker.deleteLater()
+        self.downloadThread.quit()
+        self.downloadThread.wait()
+        self.downloadThread.deleteLater()
         # Ask the user where they'd like to save the file
         self.setDownloaderButtonState(True)  # Enable all buttons
         self.setRefinerButtonState(True)
@@ -534,7 +478,7 @@ class WATCHData(object):
         if self.save_downloaded_file is not None:
             shutil.copyfile(temp_netcdf, self.save_downloaded_file)
 
-        if os.path.exists(temp_netcdf): # remove the temp file
+        if os.path.exists(temp_netcdf):  # remove the temp file
             try:
                 os.remove(temp_netcdf)
             except:
@@ -565,3 +509,53 @@ class WATCHData(object):
         self.dlg.spinBoxUTC.setEnabled(state)
         self.dlg.spinBoxRain.setEnabled(state)
         self.dlg.textOutput_AH.setEnabled(state)
+
+
+# class DownloadDataWorker(QObject):
+#     # Worker to get netCDF data using a separate thread
+#     finished = pyqtSignal(object)
+#     update = pyqtSignal(object)
+#     error = pyqtSignal(Exception, str)
+#
+#     def __init__(self, hw_start, hw_end, watch_vars, ll_lat, ll_lon, ur_lat, ur_lon):
+#         QObject.__init__(self)
+#         self.hw_start = hw_start
+#         self.hw_end = hw_end
+#         self.watch_vars = watch_vars
+#         self.ll_lat = ll_lat
+#         self.ll_lon = ll_lon
+#         self.ur_lat = ur_lat
+#         self.ur_lon = ur_lon
+#         self.downloader = NCWMS_Connector()
+#
+#     def kill(self):
+#         self.downloader.kill()
+#
+#     def run(self):
+#         try:
+#             output = self.webToTimeseries(self.hw_start, self.hw_end, self.watch_vars, self.ll_lat, self.ll_lon,self. ur_lat, self.ur_lon, self.update)
+#             self.finished.emit(output)
+#         except Exception as e:
+#             self.error.emit(e, traceback.format_exc())
+#
+#     def webToTimeseries(self, hw_start, hw_end, watch_vars, ll_lat, ll_lon, ur_lat, ur_lon, update=None):
+#         """
+#         Take WCS raster layer and save to local geoTiff
+#         :param baseURL: Server URL up to the /wcs? part where the query string begins (not including the question mark)
+#         :param layer_name: The coverage name on the WCS server
+#         :param output_file: File to save as (GeoTIFF)
+#         :param bbox: dict with WGS84 coordinates {xmin: float <lower left longitude>, xmax:float, ymin:float <upper right latitude>, ymax:float}
+#         :param resolution: dict {x:float, y:float} containing the resolution to use
+#         :param srs: string e.g. EPSG:4326: The layer CRS string
+#         :return: Path to output file
+#         """
+#         self.downloader.get_data(start_date=hw_start, # Connector will take the first moment of this date
+#                             end_date=hw_end, # Connector will take the final second of this date
+#                             variables=watch_vars, # Get all variables
+#                             lowerleft_lat = ll_lat,
+#                             lowerleft_lon = ll_lon,
+#                             upperright_lat= ur_lat,
+#                             upperright_lon= ur_lon,
+#                             update=update)
+#         temp_netcdf = self.downloader.average_data(None, 'mean')
+#         return temp_netcdf

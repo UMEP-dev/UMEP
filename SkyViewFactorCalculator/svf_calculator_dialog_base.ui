@@ -9,14 +9,147 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>477</width>
-    <height>303</height>
+    <width>541</width>
+    <height>405</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Sky View Factor Calculator</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
+  <layout class="QGridLayout" name="gridLayout_6">
+   <item row="1" column="0" colspan="4">
+    <widget class="QFrame" name="frame_2">
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxNewMethod">
+        <property name="text">
+         <string>Use method with 145 shadow images instead of 655 (required for SOLWEIG v2019a and higher)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_11">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Wall height raster:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QWidget" name="widgetWH" native="true">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_12"/>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_10">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Wall aspect raster:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QWidget" name="widgetWA" native="true">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_13"/>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Output folder:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QLineEdit" name="textOutput"/>
+   </item>
+   <item row="2" column="3">
+    <widget class="QPushButton" name="pushButtonSave">
+     <property name="text">
+      <string>Select</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="3">
+    <widget class="QPushButton" name="runButton">
+     <property name="cursor">
+      <cursorShape>ArrowCursor</cursorShape>
+     </property>
+     <property name="text">
+      <string>Run</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QPushButton" name="pushButtonHelp">
+     <property name="text">
+      <string>Help</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1" colspan="2">
+    <widget class="QCheckBox" name="checkBoxIntoCanvas">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string>Add result to project</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="3">
+    <widget class="QPushButton" name="pushButton">
+     <property name="text">
+      <string>Close</string>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0" colspan="4">
     <widget class="QFrame" name="frame">
      <property name="frameShape">
@@ -189,67 +322,13 @@ p, li { white-space: pre-wrap; }
      </layout>
     </widget>
    </item>
-   <item row="1" column="0" colspan="2">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Output folder:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="2">
-    <widget class="QLineEdit" name="textOutput"/>
-   </item>
-   <item row="1" column="3">
-    <widget class="QPushButton" name="pushButtonSave">
-     <property name="text">
-      <string>Select</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0" colspan="3">
+   <item row="3" column="0" colspan="3">
     <widget class="QProgressBar" name="progressBar">
      <property name="value">
       <number>0</number>
      </property>
      <property name="textVisible">
       <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="3">
-    <widget class="QPushButton" name="runButton">
-     <property name="cursor">
-      <cursorShape>ArrowCursor</cursorShape>
-     </property>
-     <property name="text">
-      <string>Run</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QPushButton" name="pushButtonHelp">
-     <property name="text">
-      <string>Help</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1" colspan="2">
-    <widget class="QCheckBox" name="checkBoxIntoCanvas">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string>Add result to project</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="3">
-    <widget class="QPushButton" name="pushButton">
-     <property name="text">
-      <string>Close</string>
      </property>
     </widget>
    </item>
@@ -263,6 +342,7 @@ p, li { white-space: pre-wrap; }
   <zorder>runButton</zorder>
   <zorder>pushButton</zorder>
   <zorder>pushButtonHelp</zorder>
+  <zorder>frame_2</zorder>
  </widget>
  <resources/>
  <connections>
@@ -274,11 +354,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>144</x>
-     <y>158</y>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
-     <x>457</x>
-     <y>158</y>
+     <x>521</x>
+     <y>144</y>
     </hint>
    </hints>
   </connection>
@@ -289,12 +369,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>88</x>
-     <y>158</y>
+     <x>107</x>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
-     <x>457</x>
-     <y>187</y>
+     <x>521</x>
+     <y>173</y>
     </hint>
    </hints>
   </connection>
@@ -305,12 +385,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>457</x>
-     <y>158</y>
+     <x>521</x>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
-     <x>457</x>
-     <y>187</y>
+     <x>521</x>
+     <y>173</y>
     </hint>
    </hints>
   </connection>
@@ -321,12 +401,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>113</x>
-     <y>158</y>
+     <x>132</x>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
-     <x>235</x>
-     <y>187</y>
+     <x>267</x>
+     <y>173</y>
     </hint>
    </hints>
   </connection>
@@ -337,8 +417,8 @@ p, li { white-space: pre-wrap; }
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>467</x>
-     <y>293</y>
+     <x>531</x>
+     <y>395</y>
     </hint>
     <hint type="destinationlabel">
      <x>186</x>
@@ -353,12 +433,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>62</x>
-     <y>146</y>
+     <x>81</x>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
-     <x>250</x>
-     <y>80</y>
+     <x>521</x>
+     <y>84</y>
     </hint>
    </hints>
   </connection>
@@ -369,12 +449,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>340</x>
-     <y>145</y>
+     <x>521</x>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
-     <x>314</x>
-     <y>127</y>
+     <x>521</x>
+     <y>120</y>
     </hint>
    </hints>
   </connection>
@@ -385,8 +465,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>29</x>
-     <y>149</y>
+     <x>48</x>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
      <x>129</x>
@@ -401,12 +481,76 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>416</x>
-     <y>146</y>
+     <x>521</x>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
      <x>188</x>
      <y>110</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxNewMethod</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>label_11</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>35</x>
+     <y>207</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>193</x>
+     <y>247</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxNewMethod</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>label_10</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>68</x>
+     <y>205</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>185</x>
+     <y>285</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxNewMethod</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>widgetWH</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>85</x>
+     <y>209</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>292</x>
+     <y>244</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxNewMethod</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>widgetWA</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>60</x>
+     <y>211</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>279</x>
+     <y>284</y>
     </hint>
    </hints>
   </connection>

@@ -263,7 +263,7 @@ class DSMGenerator(object):
                 extDiffminx = canxymin[0] - extentDEM.xMinimum() # If smaller than zero = warning
                 extDiffminy = canxymin[1] - extentDEM.yMinimum() # If smaller than zero = warning
                 extDiffmaxx = canxymax[0] - extentDEM.xMaximum() # If larger than zero = warning
-                extDiffmaxy = canxymax[0] - extentDEM.yMaximum() # If larger than zero = warning
+                extDiffmaxy = canxymax[1] - extentDEM.yMaximum() # If larger than zero = warning
 
                 if extDiffminx < 0 or extDiffminy < 0 or extDiffmaxx > 0 or extDiffmaxy > 0:
                     QMessageBox.warning(None, "Warning! Extent of map canvas is larger than raster extent.", "Change to an extent equal to or smaller than the raster extent.")
@@ -401,10 +401,8 @@ class DSMGenerator(object):
             osmToShape = gdal_os_dep + 'ogr2ogr --config OSM_CONFIG_FILE "' + self.plugin_dir + '/osmconf.ini" -skipfailures -t_srs EPSG:' + str(
                 rasEPSG) + ' -overwrite -nlt POLYGON -f "ESRI Shapefile" "' + outputshp + '" "' + osmPath + '"'
 
-            Qgs
-
-            #print(osmToShape)
-            print(gdal_os_dep)
+                        #print(osmToShape)
+            # print(gdal_os_dep)
             #osmConf = 'export OSM_CONFIG_FILE=' + self.plugin_dir + '/osmconf.ini'
             #print(osmToShape)
             if sys.platform == 'win32':
@@ -526,7 +524,7 @@ class DSMGenerator(object):
         # Convert polygon layer to raster
 
         # Define pixel_size and NoData value of new raster
-        pixel_size = int(self.dlg.spinBox.value())  # half picture size
+        pixel_size = self.dlg.spinBox.value()  # half picture size
 
         # Create the destination data source
         
@@ -534,19 +532,21 @@ class DSMGenerator(object):
                         ' -tr ' + str(pixel_size) + ' ' + str(pixel_size) + ' -l "' + str(polygon_ln) + '" "' \
                          + str(polygon_layer.source()) + '" "' + self.plugin_dir + '/temp/clipdsm.tif"'
 
-        gdalclipdem = gdal_os_dep + 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(self.xMin) + ' ' + str(self.yMin) + ' ' + str(self.xMax) + ' ' + str(self.yMax) +\
-                      ' -tr ' + str(pixel_size) + ' ' + str(pixel_size) + \
-                      ' -of GTiff ' + '"' + filepath_dem + '" "' + self.plugin_dir + '/temp/clipdem.tif"'
+        # gdalclipdem = gdal_os_dep + 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(self.xMin) + ' ' + str(self.yMin) + ' ' + str(self.xMax) + ' ' + str(self.yMax) +\
+        #               ' -tr ' + str(pixel_size) + ' ' + str(pixel_size) + \
+        #               ' -of GTiff ' + '"' + filepath_dem + '" "' + self.plugin_dir + '/temp/clipdem.tif"'
 
         # Rasterize
         if sys.platform == 'win32':
             si = subprocess.STARTUPINFO()
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             subprocess.call(gdalrasterize, startupinfo=si)
-            subprocess.call(gdalclipdem, startupinfo=si)
+            # subprocess.call(gdalclipdem, startupinfo=si)
+            gdal.Warp(self.plugin_dir + '/temp/clipdem.tif', filepath_dem, xRes=pixel_size, yRes=pixel_size)
         else:
             os.system(gdalrasterize)
-            os.system(gdalclipdem)
+            gdal.Warp(self.plugin_dir + '/temp/clipdem.tif', filepath_dem, xRes=pixel_size, yRes=pixel_size)
+            # os.system(gdalclipdem)
 
         self.dlg.progressBar.setValue(3)
 

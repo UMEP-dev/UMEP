@@ -6,14 +6,14 @@ from ...Utilities.SEBESOLWEIGCommonFiles.clearnessindex_2013b import clearnessin
 from ...Utilities.SEBESOLWEIGCommonFiles.diffusefraction import diffusefraction
 from ...Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_13 import shadowingfunction_wallheight_13
 from ...Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_23 import shadowingfunction_wallheight_23
-from .gvf_2015a import gvf_2015a
+from .gvf_2018a import gvf_2018a
 from .cylindric_wedge import cylindric_wedge
 from .TsWaveDelay_2015a import TsWaveDelay_2015a
 from .Kup_veg_2015a import Kup_veg_2015a
 from .Lside_veg_v2015a import Lside_veg_v2015a
 from .Kside_veg_v2015a import Kside_veg_v2015a
 
-def Solweig_2015a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg, svfNveg, svfEveg, svfSveg,
+def Solweig_2018a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg, svfNveg, svfEveg, svfSveg,
                        svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg, vegdem, vegdem2, albedo_b, absK, absL,
                        ewall, Fside, Fup, altitude, azimuth, zen, jday, usevegdem, onlyglobal, buildings, location, psi,
                        landcover, lc_grid, dectime, altmax, dirwalls, walls, cyl, elvis, Ta, RH, radG, radD, radI, P,
@@ -133,7 +133,7 @@ def Solweig_2015a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, s
 
         # # # # Ground View Factors # # # #
         gvfLup, gvfalb, gvfalbnosh, gvfLupE, gvfalbE, gvfalbnoshE, gvfLupS, gvfalbS, gvfalbnoshS, gvfLupW, gvfalbW,\
-        gvfalbnoshW, gvfLupN, gvfalbN, gvfalbnoshN = gvf_2015a(wallsun, walls, buildings, scale, shadow, first,
+        gvfalbnoshW, gvfLupN, gvfalbN, gvfalbnoshN, gvfSum, gvfNorm = gvf_2018a(wallsun, walls, buildings, scale, shadow, first,
                 second, dirwalls, Tg, Tgwall, Ta, emis_grid, ewall, alb_grid, SBC, albedo_b, rows, cols,
                                                                  Twater, lc_grid, landcover)
 

@@ -310,6 +310,20 @@ class LandCoverFractionGrid(object):
         self.dlg.progressBar.setValue(self.steps)
 
     def run(self):
+        try:
+            import scipy
+        except Exception as e:
+            QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the scipy package '
+                                                'to be installed. Please consult the FAQ in the manual for further '
+                                                'information on how to install missing python packages.')
+            return
+        try:
+            import PIL
+        except Exception as e:
+            QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the Pillow package '
+                                                'to be installed. Please consult the FAQ in the manual for further '
+                                                'information on how to install missing python packages.')
+            return
         self.dlg.show()
         self.dlg.exec_()
         gdal.UseExceptions()

@@ -1,9 +1,8 @@
 from __future__ import absolute_import
 # Worker object for WATCH data refinement
 from qgis.PyQt.QtCore import QObject, pyqtSignal
-from .WFDEIDownloader.FTPdownload import *
 import traceback
-from .WFDEIDownloader.WFDEI_Interpolator import *
+from .WFDEIDownloader.WFDEI_Interpolator import runExtraction, runExtraction_AH
 
 
 class WatchWorker(QObject):
@@ -25,9 +24,9 @@ class WatchWorker(QObject):
         self.killed = False
         self.datestart = datestart
         self.dateend = dateend
-        self.rawdata = rawdata # NetCDF file containing raw data
+        self.rawdata = rawdata  # NetCDF file containing raw data
         self.input_AH_path = input_AH_path  # LQF outputs
-        self.output_path = output_path # Place to save file
+        self.output_path = output_path  # Place to save file
         self.lat = lat
         self.lon = lon
         self.hgt = hgt

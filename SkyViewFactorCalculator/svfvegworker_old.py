@@ -1,12 +1,17 @@
 
-from qgis.PyQt import QtCore
+from qgis.PyQt import QtCore, QtGui
+import traceback
 import numpy as np
 from ..Utilities import shadowingfunctions as shadow
+#import Skyviewfactor4d as svf
+#import shadowingfunctions as shadow
+#from osgeo import gdal
+#from osgeo.gdalconst import *
 
 import sys
 import linecache
 
-class VegWorker(QtCore.QObject):
+class VegWorkerOld(QtCore.QObject):
 
     finished = QtCore.pyqtSignal(object)
     error = QtCore.pyqtSignal(object)
@@ -22,13 +27,10 @@ class VegWorker(QtCore.QObject):
         self.dlg = dlg
 
     def run(self):
-        """
+        ret = None
         #%This m.file calculates Skyview factors on a VegetationDEM for the four cardinal points.
         #%It also calculates separate SVFs for vegetation units shadowed by buildings
         #%Created by Fredrik Lindberg 20080-30
-        # 20181004 - New version using 145 shadow castings
-        """
-        ret = None
         #%% Set up
         try:
             #self.dlg.progressBar.setRange(0, 655)
@@ -75,6 +77,7 @@ class VegWorker(QtCore.QObject):
                 for j in np.arange(0, (aziinterval[int(i)])):
                     if self.killed is True:
                         break
+                    #self.dlg.progressBar.setValue(index)
                     # print index
                     altitude = iangle[int(i)]
                     azimuth = iazimuth[int(index)-1]
@@ -85,7 +88,7 @@ class VegWorker(QtCore.QObject):
                     for k in np.arange(annulino[int(i)]+1, (annulino[int(i+1.)])+1):
                         #% changed to include 90
                         weight = self.annulus_weight(k, aziinterval[i])
-                        svfveg = svfveg + weight * vegsh
+                        svfveg = svfveg +  weight * vegsh
                         svfaveg = svfaveg + weight * vbshvegsh
                         weight = self.annulus_weight(k, aziintervalaniso[i])
                         if (azimuth >= 0) and (azimuth < 180):

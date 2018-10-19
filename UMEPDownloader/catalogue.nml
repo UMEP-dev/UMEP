@@ -1,0 +1,38 @@
+!UMEP Spatial downloader data catalogue
+! Each section is a different category (left hand menu)
+! The name shown for each section in the UI is specified using _label_ 
+! Each entry is a list with the following columns: Source, Standard (only "WCS" supported), Base URL, Layer name (including workspace prefix), Name to display in UI, Year, Resolution, Extent description, Additional information
+! Each entry must have a unique name within the section
+&popcount
+ _label_ = 'Population Count'
+   sedac1      ="SEDAC",  "WCS", "http://sedac.ciesin.columbia.edu/geoserver", "gpw-v4:gpw-v4-population-count-adjusted-to-2015-unwpp-country-totals_2000", "GPWv4: UN-Adjusted Population Count", "2000", "30 arc sec", "Worldwide", "Downloaded raster CRS/projection: EPSG:4326"
+   sedac2      ="SEDAC",  "WCS", "http://sedac.ciesin.columbia.edu/geoserver", "gpw-v4:gpw-v4-population-count-adjusted-to-2015-unwpp-country-totals_2005", "GPWv4: UN-Adjusted Population Count", "2005", "30 arc sec" , "Worldwide", "Downloaded raster CRS/projection: EPSG:4326"
+   sedac3      ="SEDAC",  "WCS", "http://sedac.ciesin.columbia.edu/geoserver", "gpw-v4:gpw-v4-population-count-adjusted-to-2015-unwpp-country-totals_2010", "GPWv4: UN-Adjusted Population Count", "2010", "30 arc sec", "Worldwide", "Downloaded raster CRS/projection: EPSG:4326"
+   sedac4      ="SEDAC",  "WCS", "http://sedac.ciesin.columbia.edu/geoserver", "gpw-v4:gpw-v4-population-count-adjusted-to-2015-unwpp-country-totals_2015", "GPWv4: UN-Adjusted Population Count", "2015", "30 arc sec", "Worldwide", "Downloaded raster CRS/projection: EPSG:4326"   
+   sedac5      ="SEDAC",  "WCS", "http://sedac.ciesin.columbia.edu/geoserver", "gpw-v4:gpw-v4-population-count-adjusted-to-2015-unwpp-country-totals_2020", "GPWv4: UN-Adjusted Population Count", "2020", "30 arc sec", "Worldwide", "Downloaded raster CRS/projection: EPSG:4326"
+   rdg_res100  ="UoR", "WCS", "http://51.140.49.104:8080/geoserver", "public:GreaterLondon_Residential_Population_100m_count", "London 100m residential population", "2011", "100m", "Greater London", "Downloaded raster CRS/projection: EPSG:32631"
+   rdg_wd100   ="UoR", "WCS", "http://51.140.49.104:8080/geoserver", "public:GreaterLondon_Workday_Population_100m_count", "London 100m workday population", "2011", "100m", "Greater London", "Downloaded raster CRS/projection: EPSG:32631"
+   rdg_res250  ="UoR", "WCS", "http://51.140.49.104:8080/geoserver", "public:GreaterLondon_Residential_Population_250m_count", "London 250m residential population", "2011", "250m", "Greater London", "Downloaded raster CRS/projection: EPSG:32631"
+   rdg_wd250   ="UoR", "WCS", "http://51.140.49.104:8080/geoserver", "public:GreaterLondon_Workday_Population_250m_count", "London 250m workday population", "2011", "250m", "Greater London", "Downloaded raster CRS/projection: EPSG:32631"
+
+   /
+&popdens
+  _label_ = 'Population Density'
+  sedac2      ="SEDAC",  "WCS", "http://sedac.ciesin.columbia.edu/geoserver", "gpw-v4:gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals_2000", "GPWv4: UN-Adjusted Population Density", "2000", "30 arc sec", "Worldwide", "Downloaded raster CRS/projection: EPSG:4326"
+  sedac2      ="SEDAC",  "WCS", "http://sedac.ciesin.columbia.edu/geoserver", "gpw-v4:gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals_2005", "GPWv4: UN-Adjusted Population Density", "2005", "30 arc sec", "Worldwide", "Downloaded raster CRS/projection: EPSG:4326"
+  sedac3      ="SEDAC",  "WCS", "http://sedac.ciesin.columbia.edu/geoserver", "gpw-v4:gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals_2010", "GPWv4: UN-Adjusted Population Density", "2010", "30 arc sec", "Worldwide", "Downloaded raster CRS/projection: EPSG:4326"
+  sedac4      ="SEDAC",  "WCS", "http://sedac.ciesin.columbia.edu/geoserver", "gpw-v4:gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals_2015", "GPWv4: UN-Adjusted Population Density", "2015", "30 arc sec", "Worldwide", "Downloaded raster CRS/projection: EPSG:4326"
+  sedac5      ="SEDAC",  "WCS", "http://sedac.ciesin.columbia.edu/geoserver", "gpw-v4:gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals_2020", "GPWv4: UN-Adjusted Population Density", "2020", "30 arc sec", "Worldwide", "Downloaded raster CRS/projection: EPSG:4326"
+  rdg_res100  ="UoR", "WCS", "http://51.140.49.104:8080/geoserver", "public:GreaterLondon_Residential_Population_100m_density", "London 100m residential population", "2011", "100m", "Greater London", "Downloaded raster CRS/projection: EPSG:32631"
+  rdg_wd100   ="UoR", "WCS", "http://51.140.49.104:8080/geoserver", "public:GreaterLondon_Workday_Population_100m_density", "London 100m workday population", "2011", "100m", "Greater London", "Downloaded raster CRS/projection: EPSG:32631"
+  rdg_res250  ="UoR", "WCS", "http://51.140.49.104:8080/geoserver", "public:GreaterLondon_Residential_Population_250m_density", "London 250m residential population", "2011", "250m", "Greater London", "Downloaded raster CRS/projection: EPSG:32631"
+  rdg_wd250   ="UoR", "WCS", "http://51.140.49.104:8080/geoserver", "public:GreaterLondon_Workday_Population_250m_density", "London 250m workday population", "2011", "250m", "Greater London", "Downloaded raster CRS/projection: EPSG:32631"  
+/
+&landcover
+  _label_ = 'Land cover classes'
+  sedac1 ="UoR", "WCS", "http://51.140.49.104:8080/geoserver", "public:London land cover classes", "London land cover classifications (test)", "Unknown", "1 metre", "Greater London", "Downloaded raster CRS/projection: EPSG:32631. Test dataset: Should not be used for analysis"
+/
+&dem
+ _label_ = 'Digital surface model'
+ UoR1 = "UoR", "WCS", "http://51.140.49.104:8080/geoserver", "public:London 2008 DSM 1m", "Greater London DSM", "2008", "1 metre", "Greater London", "Downloaded raster CRS/projection: EPSG:32631. Test dataset: Should not be used for analysis"
+ /

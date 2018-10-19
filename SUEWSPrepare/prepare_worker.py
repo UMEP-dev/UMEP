@@ -751,9 +751,13 @@ class Worker(QtCore.QObject):
 
             # check if full year
             if YYYYmin < YYYYmax:
-                t = np.where(met_in[:,0]==YYYYmax)
+                t = np.where(met_in[:, 0] == YYYYmax)
                 if not t.__len__() > 1:
-                    YYYYmax = YYYYmin				
+                    # YYYYmax = YYYYmin
+                    YYYYmax = YYYYmax - 1  # Issue #65
+
+            print(YYYYmin)
+            print(YYYYmax)
 
             lensiteselect = self.lines_to_write.__len__() - 2
             for YYYY in range(int(YYYYmin), int(YYYYmax) + 1):

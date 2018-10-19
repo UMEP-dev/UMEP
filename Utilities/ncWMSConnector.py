@@ -24,22 +24,14 @@ class InvalidTimeWindow(ValueError):
 class NCWMS_Connector(object):
 
     def __init__(self):
-        self.vars = ['Tair',
-                                 'Wind',
-                                 'LWdown',
-                                 'PSurf',
-                                 'Qair',
-                                 'Rainf',
-                                 'Snowf',
-                                 'SWdown']
-
-        self.start_date = dt(1979,0o1,0o1,00,00,00) # The first data point available in the dataset on the server
-        self.end_date = dt(2015,12,31,21,00,00) # The final data point available in the dataset on the server
-        self.time_res = 3600 * 3 # Time resolution of data in seconds
-        self.request_length = 200 # Number of days of data to request at a time from server (helps manage load on server and produce a progress bar)
-        self.request_params = {} # Holds a dict of request parameters
-        self.results = OrderedDict() # Stores a list of downloaded netCDF files for different time subsets, with start datetime as key
-        self.killed = False # Aborts execution if needed
+        self.vars = ['Tair', 'Wind', 'LWdown', 'PSurf', 'Qair', 'Rainf', 'Snowf', 'SWdown']
+        self.start_date = dt(1979, 0o1, 0o1, 00, 00, 00)  # The first data point available in the dataset on the server
+        self.end_date = dt(2015, 12, 31, 21, 00, 00)  # The final data point available in the dataset on the server
+        self.time_res = 3600 * 3  # Time resolution of data in seconds
+        self.request_length = 200  # Number of days of data to request at a time from server (helps manage load on server and produce a progress bar)
+        self.request_params = {}  # Holds a dict of request parameters
+        self.results = OrderedDict()  # Stores a list of downloaded netCDF files for different time subsets, with start datetime as key
+        self.killed = False  # Aborts execution if needed
 
     def kill(self):
         self.killed = True
@@ -122,7 +114,8 @@ class NCWMS_Connector(object):
         self.check_times(start_date, end_date)
 
         self.request_params = {'vars':variables, 'start_date':start_date, 'end_date':end_date, 'bbox': [lowerleft_lat, lowerleft_lon, upperright_lat, upperright_lon]}
-        start_dates = pd.date_range(start_date, end_date, freq='%dD'%(self.request_length,)).to_datetime()
+        # start_dates = pd.date_range(start_date, end_date, freq='%dD' % (self.request_length,)).to_datetime()
+        start_dates = pd.date_range(start_date, end_date, freq='%dD' % (self.request_length,))
 
         # Create queue of retrievals, and safeguard against over-running dataset end date
         for s in range(0, len(start_dates)):

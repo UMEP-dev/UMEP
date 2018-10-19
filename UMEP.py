@@ -38,9 +38,9 @@ from .WallHeight.wall_height import WallHeight
 from .TreeGenerator.tree_generator import TreeGenerator
 from .FootprintModel.footprint_model import FootprintModel
 from .LCZ_Converter.LCZ_converter import LCZ_test
-from .UMEPDownloader.umep_downloader import UMEP_Data_Download  # TODO: No data visible in plugin interface
+from .UMEPDownloader.umep_downloader import UMEP_Data_Download
 from .DSMGenerator.dsm_generator import DSMGenerator  # TODO: Working except for OSMImport
-from .WATCHData.watch import WATCHData  # TODO: Gives errors during download and/or processing
+from .WATCHData.watch import WATCHData
 # from .GreaterQF.greater_qf import GreaterQF  # TODO: Multiple changes required :Plugin blocker
 from .ExtremeFinder.extreme_finder import ExtremeFinder
 # from .LucyQf.LQF import LQF  # TODO: Multiple changes required :Plugin blocker

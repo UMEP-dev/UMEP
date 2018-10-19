@@ -30,15 +30,15 @@ from builtins import object
 from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt, QThread
 from qgis.PyQt.QtWidgets import QAction, QAbstractItemView, QMessageBox, QWidget, QHeaderView, QTableWidgetItem, QListWidgetItem, QFileDialog
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsRectangle, QgsPoint, QgsGeometry, QgsRasterLayer, QgsProject
+from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsRectangle, QgsPointXY, QgsGeometry, QgsRasterLayer, QgsProject
 # Initialize Qt resources from file resources.py
 # from . import resources
 # Import the code for the dialog
 from .umep_downloader_dialog import UMEP_Data_DownloadDialog
 import os.path
-import sys
-import subprocess
+from osgeo import gdal
 import shutil
+import osr
 try:
     # Assuming in UMEP folder strcuture, so get f90nml from Utilities
     from ..Utilities import f90nml
@@ -53,6 +53,7 @@ import tempfile
 import numpy as np
 from .GetMetaWorker import GetMetaWorker
 from .DownloadDataWorker import DownloadDataWorker
+import sys, os, subprocess
 
 def getLayerMetadata(baseURL, layer_name):
     ''' Uses WCS DescribeCoverage request to get metadata from a layer of interest on a remote server
@@ -196,7 +197,7 @@ class UMEP_Data_Download(object):
         self.rasterLayer = None
         self.extraAbstractText = ''
         # Get remote namelist and save to temp file
-        self.refreshList() # Load remotely-stored catalogue of data sources
+        self.refreshList()  # Load remotely-stored catalogue of data sources
 
     def runDownload_errorWrapper(self):
         try:
@@ -229,7 +230,7 @@ class UMEP_Data_Download(object):
         dataSourceName =    self.catalogue[collection][subEntry][0]
         layerDescription =  self.catalogue[collection][subEntry][4]
         layerDate =         self.catalogue[collection][subEntry][5]
-        self.extraAbstractText = '\n\nAdditional Information:\n' + self.catalogue[collection][subEntry][8] # Extra text for abstract box from namelist
+        self.extraAbstractText = '\n\nAdditional Information:\n' + self.catalogue[collection][subEntry][8]  # Extra text for abstract box from namelist
         # Get the WMS info in another thread because it takes just a little time
         wmsMetaDataWorker = GetMetaWorker(baseURL, layerName)
         thr = QThread(self.dlg)
@@ -264,20 +265,25 @@ class UMEP_Data_Download(object):
         except Exception:
             pass
 
-        f = urllib.request.urlopen('http://www.urban-climate.net/umep/repo/catalogue.nml')
-        tempFile = tempfile.mktemp(".nml")
-        with open(tempFile, "w") as tmp:
-            tmp.write(str(f.read()))
-        f.close()
-        tmp.close()
+        # urllib.request.urlretrieve('http://www.urban-climate.net/umep/repo/catalogue.nml', self.plugin_dir + '/catalogue.nml')
+        tempFile = self.plugin_dir + '/catalogue.nml'
+
+        # THIS PART DOES NOT WORK IN QGIS3
+        # tempFile = tempfile.mktemp(".nml")
+        # with open(tempFile, "w") as tmp:
+        #     tmp.write(str(f.read()))
+        # f.close()
+        # tmp.close()
+
         self.catalogue = f90nml.read(tempFile)
+
         # Populate categories side
         self.dlg.tblDatasets.setColumnCount(5)
 
         self.dlg.tblDatasets.setHorizontalHeaderLabels("Source;Description;Date;Resolution;Extent".split(";"))
         self.readacross = {}
         self.dlg.lstCategory.clear()
-        for i,key in enumerate(self.catalogue.keys()): # Each group
+        for i, key in enumerate(self.catalogue.keys()):  # Each group
             try:
                 label = self.catalogue[key]['_label_']
                 self.readacross[label] = key
@@ -292,25 +298,67 @@ class UMEP_Data_Download(object):
                 raise ValueError('The catalogue file was not valid')
 
     def getCanvasExtent(self):
-        ''' Get extent of canvas as WGS84 co-ordinates'''
+        ''' Get extent of canvas as WGS84 co-ordinates.
+            Lots of new untested for QGIS3 '''
+
         canvas = self.iface.mapCanvas()
-        canvasEPSG = canvas.mapRenderer().destinationCrs().authid()
+        # canvasEPSG = canvas.mapRenderer().destinationCrs().authid()
+        canvasEPSG = canvas.mapSettings().destinationCrs().authid()  # New for QGIS3
         # If EPSG:4326 (WGS84), then no need to do anything. If not, then transform.
         if canvasEPSG != "EPSG:4326":
             # Reproject to WGS84 (EPSG:4326)
-            canvas_crs = QgsCoordinateReferenceSystem()
-            canvas_crs.createFromUserInput(canvasEPSG)
-            target_crs = QgsCoordinateReferenceSystem()
-            target_crs.createFromUserInput('EPSG:4326')
-            crs_transform = QgsCoordinateTransform(canvas_crs, target_crs)
-            canvas_geom = crs_transform.transform(canvas.extent())
+            # canvas_crs = QgsCoordinateReferenceSystem()
+            # canvas_crs.createFromUserInput(canvasEPSG)
+
+            can_wkt = canvas.mapSettings().destinationCrs().toWkt()
+            canvas_crs = osr.SpatialReference()
+            canvas_crs.ImportFromWkt(can_wkt)
+
+            wgs84_wkt = """
+                    GEOGCS["WGS 84",
+                        DATUM["WGS_1984",
+                            SPHEROID["WGS 84",6378137,298.257223563,
+                                AUTHORITY["EPSG","7030"]],
+                            AUTHORITY["EPSG","6326"]],
+                        PRIMEM["Greenwich",0,
+                            AUTHORITY["EPSG","8901"]],
+                        UNIT["degree",0.01745329251994328,
+                            AUTHORITY["EPSG","9122"]],
+                        AUTHORITY["EPSG","4326"]]"""
+
+            target_crs = osr.SpatialReference()
+            target_crs.ImportFromWkt(wgs84_wkt)
+
+            # transform = osr.CoordinateTransformation(old_cs, new_cs)
+            # target_crs = QgsCoordinateReferenceSystem(4326)
+            # target_crs.createFromUserInput('EPSG:4326')
+            # crsSrc = QgsCoordinateReferenceSystem(4326)
+            # crs_transform = QgsCoordinateTransform(canvas_crs, target_crs)
+            crs_transform = osr.CoordinateTransformation(canvas_crs, target_crs)  # New for QGIS3
+            # canvas_geom = crs_transform.transform(canvas.extent())
+            # canvas_geom = crs_transform.TransformPoints(canvas.extent())
+
+            extentCanvas = self.iface.mapCanvas().extent()
+
+            canminx = extentCanvas.xMinimum()
+            canmaxx = extentCanvas.xMaximum()
+            canminy = extentCanvas.yMinimum()
+            canmaxy = extentCanvas.yMaximum()
+
+            canxymin = crs_transform.TransformPoint(canminx, canminy)
+            canxymax = crs_transform.TransformPoint(canmaxx, canmaxy)
+
+            self.bbox['xmin'] = float(canxymin[0])
+            self.bbox['xmax'] = float(canxymax[0])
+            self.bbox['ymin'] = float(canxymin[1])
+            self.bbox['ymax'] = float(canxymax[1])
         else:
             canvas_geom = canvas.extent()
 
-        self.bbox['xmin'] = canvas_geom.xMinimum()
-        self.bbox['xmax'] = canvas_geom.xMaximum()
-        self.bbox['ymin'] = canvas_geom.yMinimum()
-        self.bbox['ymax'] = canvas_geom.yMaximum()
+            self.bbox['xmin'] = canvas_geom.xMinimum()
+            self.bbox['xmax'] = canvas_geom.xMaximum()
+            self.bbox['ymin'] = canvas_geom.yMinimum()
+            self.bbox['ymax'] = canvas_geom.yMaximum()
 
         # Update UI elements
         self.dlg.txtLowerLeftLong.setValue(self.bbox['xmin'])
@@ -337,9 +385,9 @@ class UMEP_Data_Download(object):
         header.setResizeMode(3, QHeaderView.ResizeToContents)
         header.setResizeMode(4, QHeaderView.ResizeToContents)
         # Set column widths
-        indicesToUse = [0,4,5,6,7] # Use these entries from each list in the catalogue file
+        indicesToUse = [0, 4, 5, 6, 7]  # Use these entries from each list in the catalogue file
         idx = 0
-        for i,dataSource in enumerate(self.catalogue[txt]): # Each resource within each group
+        for i,dataSource in enumerate(self.catalogue[txt]):  # Each resource within each group
             if dataSource == '_label_':
                 continue # This is the category label
             for j in range(len(indicesToUse)):
@@ -413,10 +461,10 @@ class UMEP_Data_Download(object):
             target_crs = QgsCoordinateReferenceSystem()
             target_crs.createFromUserInput(meta['SRS'])
             crs_transform = QgsCoordinateTransform(request_crs, target_crs)
-            requested_rect = QgsRectangle(QgsPoint(self.bbox['xmin'], self.bbox['ymin']), QgsPoint(self.bbox['xmax'], self.bbox['ymax']))
+            requested_rect = QgsRectangle(QgsPointXY(self.bbox['xmin'], self.bbox['ymin']), QgsPointXY(self.bbox['xmax'], self.bbox['ymax']))
             transformed_rect = QgsGeometry().fromRect(crs_transform.transform(requested_rect)).boundingBox()
         else:
-            transformed_rect = QgsRectangle(QgsPoint(self.bbox['xmin'], self.bbox['ymin']), QgsPoint(self.bbox['xmax'], self.bbox['ymax']))
+            transformed_rect = QgsRectangle(QgsPointXY(self.bbox['xmin'], self.bbox['ymin']), QgsPointXY(self.bbox['xmax'], self.bbox['ymax']))
 
         request_bbox = {}
         request_bbox['xmin'] = transformed_rect.xMinimum()
@@ -436,8 +484,9 @@ class UMEP_Data_Download(object):
         req_resY = (request_bbox['ymax'] - request_bbox['ymin'])/500.0
 
         if (req_resY > meta['resolution']['y']) or (req_resX > meta['resolution']['x']):
-            res_message = 'The largest raster returned by this program is 500x500. The dataset has higher native resolution than this, so the downloaded file will be interpolated. Is this OK?'
-            req_res = {'x':req_resX, 'y':req_resY}
+            res_message = 'The largest raster returned by this program is 500x500. The dataset has higher native ' \
+                          'resolution than this, so the downloaded file will be interpolated. Is this OK?'
+            req_res = {'x': req_resX, 'y': req_resY}
             native = False
         else:
             if not self.dlg.checkBoxReproject.isChecked():
@@ -483,12 +532,20 @@ class UMEP_Data_Download(object):
                 QMessageBox.critical(None, 'Error in pixel resolution raster data', "Pixel resolution must be greater than 1 map unit")
                 return
 
-            self.filename2 = self.filename
+            self.filename2 = self.filename[0]
             self.filename = self.plugin_dir + '/tempgrid.tif'
             self.crs = meta['SRS']
 
+        ## TESTING
+        # bboxString = "%f,%f,%f,%f" % (self.bbox['xmin'], self.bbox['ymin'], self.bbox['xmax'], self.bbox['ymax'])
+        # bigURL = baseURL + '/wcs?SERVICE=WCS&VERSION=1.0.0&REQUEST=GetCoverage&coverage=%s&identifier=%s&bbox=%s&FORMAT=image/geotiff&CRS=%s&RESX=%f&RESY=%f'%(layerName, layerName, bboxString, meta['SRS'], req_res['x'], req_res['y'])
+        # print(bigURL)
+        # dataOut = "c:/temp/testing.tif"
+        # urllib.request.urlretrieve(bigURL, dataOut)
+        # return
+
         # Get the WMS info in another thread because it takes just a little time
-        downloadWorker = DownloadDataWorker(baseURL, layerName, self.filename, request_bbox, req_res, meta['SRS'])
+        downloadWorker = DownloadDataWorker(baseURL, layerName, self.filename[0], request_bbox, req_res, meta['SRS'])
         thr = QThread(self.dlg)
         downloadWorker.moveToThread(thr)
         downloadWorker.update.connect(self.updateProgress)
@@ -514,43 +571,39 @@ class UMEP_Data_Download(object):
         # reproject into canvas CRS
         if self.dlg.checkBoxReproject.isChecked():
             canvas = self.iface.mapCanvas()
-            canvasEPSG = canvas.mapRenderer().destinationCrs().authid()
+            # canvasEPSG = canvas.mapRenderer().destinationCrs().authid()
+            canvasEPSG = canvas.mapSettings().destinationCrs().authid()  # New for QGIS3
             res = self.dlg.spinBoxResolution.value()
 
             if not self.crs == canvasEPSG:
-                # QMessageBox.critical(None, 'test', filename2)
-                # return
-                if sys.platform == 'win32':
-                    si = subprocess.STARTUPINFO()
-                    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                else:
-                    si = None
-
-                # QMessageBox.critical(None, 'filename2', self.filename2)
-                # QMessageBox.critical(None, 'filename', self.filename)
-                gdalwarptext = 'gdalwarp -overwrite -q -s_srs ' + self.crs + ' -t_srs ' + canvasEPSG + ' -tr ' + \
-                               str(res) + ' ' + str(res) + ' -of GTiff ' + self.filename + ' ' + self.filename2
-                # QMessageBox.critical(None, 'test', gdalwarptext)
-                if sys.platform == 'win32':
-                    # QMessageBox.critical(None, 'test', 'here2')
-                    subprocess.call(gdalwarptext, startupinfo=si)
-                    # os.system(gdalwarptext)
-                else:
-                    os.system(gdalwarptext)
+                # if sys.platform == 'win32':
+                #     si = subprocess.STARTUPINFO()
+                #     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                # else:
+                #     si = None
+                # gdalwarptext = 'gdalwarp -overwrite -q -s_srs ' + self.crs + ' -t_srs ' + canvasEPSG + ' -tr ' + \
+                #                str(res) + ' ' + str(res) + ' -of GTiff ' + self.filename + ' ' + self.filename2
+                # print(gdalwarptext)
+                # if sys.platform == 'win32':
+                #     subprocess.call(gdalwarptext, startupinfo=si)
+                # else:
+                #     os.system(gdalwarptext)
+                gdal.Warp(self.filename2, self.filename, srcSRS=str(self.crs), dstSRS=str(canvasEPSG), xRes=res, yRes=res)
             else:
                 shutil.copy(self.filename, self.filename2)
 
             os.remove(self.filename)
             returns['filename'] = self.filename2
-        # QMessageBox.critical(None, 'test', self.filename)
+
+        print(returns['filename'])
 
         # Set progress bar to 100 or 0
         self.dlg.progressBar.setValue(100)
         # Get filename to use as layer label
-        lab = os.path.splitext(os.path.split(returns['filename'])[1])[0]
+        lab = os.path.splitext(os.path.split(str(returns['filename']))[1])[0]
 
         # Add to QGIS canvas as saved filename
-        self.rasterLayer = QgsRasterLayer(returns['filename'], "%s"%(lab,))
+        self.rasterLayer = QgsRasterLayer(str(returns['filename']), "%s"%(lab,))
 
         if not self.dlg.checkBoxReproject.isChecked():
             # Ensure the layer CRS is as declared (some WCS rasters lose their CRS embedded info for some reasons)

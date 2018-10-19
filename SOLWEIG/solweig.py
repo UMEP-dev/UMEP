@@ -432,7 +432,7 @@ class SOLWEIG(object):
             # Land cover #
             if self.dlg.checkBoxLandCover.isChecked():
                 self.landcover = 1
-                self.demforbuild = 0
+                demforbuild = 0
 
                 self.lcgrid = self.layerComboManagerLC.currentLayer()
 
@@ -459,7 +459,7 @@ class SOLWEIG(object):
 
             # DEM #
             if not self.dlg.checkBoxDEM.isChecked():
-                self.demforbuild = 1
+                demforbuild = 1
 
                 self.dem = self.layerComboManagerDEM.currentLayer()
 
@@ -626,6 +626,7 @@ class SOLWEIG(object):
                 radD = self.dlg.doubleSpinBoxradD.value()
                 radI = self.dlg.doubleSpinBoxradI.value()
                 Twater = self.dlg.doubleSpinBoxTwater.value()
+                Ws = self.dlg.doubleSpinBoxWs.value()
 
                 self.metdata[0, 0] = year
                 self.metdata[0, 1] = doy
@@ -636,6 +637,7 @@ class SOLWEIG(object):
                 self.metdata[0, 14] = radG
                 self.metdata[0, 21] = radD
                 self.metdata[0, 22] = radI
+                self.metdata[0, 9] = Ws
 
             # Other parameters #
             absK = self.dlg.doubleSpinBoxShortwaveHuman.value()
@@ -725,7 +727,7 @@ class SOLWEIG(object):
             if self.dlg.checkboxUsePOI.isChecked():
                 header = 'yyyy id   it imin dectime altitude azimuth kdir kdiff kglobal kdown   kup    keast ksouth ' \
                          'kwest knorth ldown   lup    least lsouth lwest  lnorth   Ta      Tg     RH    Esky   Tmrt    ' \
-                         'I0     CI   Shadow  SVF_b  SVF_bv KsideI'
+                         'I0     CI   Shadow  SVF_b  SVF_bv KsideI PET UTCI'
 
                 poilyr = self.layerComboManagerPOI.currentLayer()
                 if poilyr is None:
@@ -841,10 +843,20 @@ class SOLWEIG(object):
                                               filePath_cdsm, trunkfile, filePath_tdsm, lat, lon, UTC, self.landcover,
                                               filePath_lc, metfileexist, PathMet, self.metdata, self.plugin_dir,
                                               absK, absL, albedo_b, albedo_g, ewall, eground, onlyglobal, trunkratio,
-                                              self.trans, rows, cols, pos, elvis, cyl)
+                                              self.trans, rows, cols, pos, elvis, cyl, demforbuild)
 
             #  If metfile starts at night
             CI = 1.
+
+            # PET variables
+            mbody = self.dlg.doubleSpinBoxWeight.value()
+            ht = self.dlg.doubleSpinBoxHeight.value() / 100
+            clo = self.dlg.doubleSpinBoxClo.value()
+            age = self.dlg.doubleSpinBoxAge.value()
+            activity = self.dlg.doubleSpinBoxActivity.value()
+            sex = self.dlg.comboBoxGender.currentIndex() + 1
+            sensorheight = self.dlg.doubleSpinBoxWsHt.value()
+
             self.startWorker(self.dsm, self.scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
                         svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
                         self.vegdsm, self.vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, altitude,
@@ -854,7 +866,8 @@ class SOLWEIG(object):
                         bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, self.dlg,
-                        YYYY, DOY, hours, minu, self.gdal_dsm, self.folderPath, self.poisxy, self.poiname)
+                        YYYY, DOY, hours, minu, self.gdal_dsm, self.folderPath, self.poisxy, self.poiname, Ws, mbody,
+                        age, ht, activity, clo, sex, sensorheight)
 
             # # Main calcualtions
             # # Loop through time series
@@ -964,7 +977,8 @@ class SOLWEIG(object):
                         bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, dlg,
-                        YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname):
+                        YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname, Ws, mbody,
+                        age, ht, activity, clo, sex, sensorheight):
 
         # create a new worker instance
         worker = Worker(dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
@@ -976,7 +990,8 @@ class SOLWEIG(object):
                         bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, dlg,
-                        YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname)
+                        YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname, Ws, mbody,
+                        age, ht, activity, clo, sex, sensorheight)
 
         self.dlg.runButton.setText('Cancel')
         self.dlg.runButton.clicked.disconnect()

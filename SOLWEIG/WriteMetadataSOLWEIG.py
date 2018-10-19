@@ -6,7 +6,7 @@ from osgeo import osr
 
 def writeRunInfo(folderPath, filepath_dsm, gdal_dsm, usevegdem, filePath_cdsm, trunkfile, filePath_tdsm, lat, lon, UTC,
                  landcover, filePath_lc, metfileexist, filePath_metfile, metdata, plugin_dir, absK, absL, albedo_b,
-                 albedo_g, ewall, eground, onlyglobal, trunkratio, trans, rows, cols, pos, elvis, cyl):
+                 albedo_g, ewall, eground, onlyglobal, trunkratio, trans, rows, cols, pos, elvis, cyl, demforbuild):
 
     with open(folderPath + '/RunInfoSOLWEIG.txt', 'w') as file:
         file.write('This file provides run settings for the SOLWEIG run initiated at: '
@@ -58,6 +58,12 @@ def writeRunInfo(folderPath, filepath_dsm, gdal_dsm, usevegdem, filePath_cdsm, t
             file.write('\n')
         else:
             file.write('Landcover scheme inactive')
+            file.write('\n')
+        file.write('\n')
+        if demforbuild == 1:
+            file.write('DEM used to identify buildings')
+        else:
+            file.write('Land cover used to identify buildings')
             file.write('\n')
         file.write('\n')
         file.write('METEOROLOGICAL FORCING DATA')

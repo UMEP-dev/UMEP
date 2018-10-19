@@ -81,24 +81,24 @@ def lon_lat_grid(lat, lon):
     return lat, lon
 
 # Get City Index: WATCH
-def WATCH_get_city_index(lat, lon):
-    nc = Dataset(os.path.join(os.path.dirname(
-        os.path.realpath(__file__)), "WFD-land-lat-long-z.nc"))
-    for i in range(0, 67420):
-        if nc.variables['Latitude'][i] == lat and nc.variables['Longitude'][i] == lon:
-            index = i
-            break
-    return index
+# def WATCH_get_city_index(lat, lon):
+#     nc = Dataset(os.path.join(os.path.dirname(
+#         os.path.realpath(__file__)), "WFD-land-lat-long-z.nc"))
+#     for i in range(0, 67420):
+#         if nc.variables['Latitude'][i] == lat and nc.variables['Longitude'][i] == lon:
+#             index = i
+#             break
+#     return index
 
 # Get City Index: WFDEI
-def WFDEI_get_city_index(lat, lon):
-    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'WFDEI-land-long-lat-height.txt')) as f:
-        ls = [line.split() for line in f]
-
-    for i in range(7, len(ls)):
-        if float(ls[i][0]) == lon and float(ls[i][1]) == lat:
-            return int(ls[i][4]), int(ls[i][3])
-            break
+# def WFDEI_get_city_index(lat, lon):
+#     with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'WFDEI-land-long-lat-height.txt')) as f:
+#         ls = [line.split() for line in f]
+#
+#     for i in range(7, len(ls)):
+#         if float(ls[i][0]) == lon and float(ls[i][1]) == lat:
+#             return int(ls[i][4]), int(ls[i][3])
+#             break
 
 # calculate saturation vapour pressure [Pa]
 def evpsat(T_degC, p_hPa):
@@ -225,14 +225,14 @@ def load_WFDEI_3h(nc_file, progress=None):
     times = nc4.num2date(raw_data.variables['time'][:], units=raw_data.variables['time'].units)
     data_raw_3h = pd.DataFrame(index=times)
     for v in var_list:
-        data_raw_3h[v] = pd.Series(index = times, data=raw_data[v][:,0,0]) # Data should only represent one grid cell. If not, take the south-western grid cell (the first one)
+        data_raw_3h[v] = pd.Series(index = times, data=raw_data[v][:,0,0])  # Data should only represent one grid cell. If not, take the south-western grid cell (the first one)
     data_lat = raw_data.variables['lat'][0]
     data_lon = raw_data.variables['lon'][0]
     return (data_raw_3h, data_lat, data_lon)
 
 def random_x_N(x, N):
     list_N = np.zeros(N)
-    pos = random.sample(np.arange(N), x)
+    pos = random.sample(list(np.arange(N)), x)  # New in QGIS3. Must be a list
     list_N[pos] = 1
     return list_N
 
@@ -488,27 +488,6 @@ def process_SUEWS_forcing_1h_LST(data_raw_3h, lat, lon, hgt, UTC_offset_h, rainA
 
     return data_out_1h
 
-
-# def write_SUEWS_forcing_1h(rawdata, output_file, year_start, year_end, lat, lon, hgt, progress=None):
-#     # load raw 3-hourly data and write to text file
-#     # textObject is optional QText that has so we can keep the user informed
-#
-#     data_raw_3h = load_WFDEI_3h(rawdata, progress)
-#
-#     # process raw data to hourly forcings for SUEWS
-#     data_out_1h = process_SUEWS_forcing_1h(
-#         data_raw_3h, lat, lon, hgt, progress)
-#
-#     # output files for each year
-#     for year in range(year_start, year_end + 1):
-#         data_out_1h_year = data_out_1h[lambda df: (
-#             df.index - timedelta(minutes=60)).year == year]
-#         filename_parts = os.path.splitext(output_file)
-#         file_output_year = os.path.expanduser(
-#             filename_parts[0] + str(year) + filename_parts[1])
-#         data_out_1h_year.to_csv(file_output_year, sep=" ",
-#                                 index=False, float_format='%.4f')
-
 def write_SUEWS_forcing_1h_LST(rawdata, output_file, year_start, year_end, hgt, UTC_offset_h, rainAmongN, progress=None):
     # load raw 3-hourly data and write to text file
     # progress is optional QObject for a progress bar percentage display
@@ -520,7 +499,7 @@ def write_SUEWS_forcing_1h_LST(rawdata, output_file, year_start, year_end, hgt, 
         data_raw_3h, data_lat, data_lon, hgt, UTC_offset_h, rainAmongN, progress)
 
     # output files of each year
-
+    print(output_file)
     for year in range(year_start, year_end + 1):
         data_out_1h_year = data_out_1h[lambda df: (
             df.index - timedelta(minutes=60)).year == year]
@@ -529,7 +508,6 @@ def write_SUEWS_forcing_1h_LST(rawdata, output_file, year_start, year_end, hgt, 
             filename_parts[0] + str(year) + filename_parts[1])
         data_out_1h_year.to_csv(file_output_year, sep=" ",
                                 index=False, float_format='%.4f')
-
 
 # read in single AH CSV file
 def read_AH(fn):
@@ -616,8 +594,6 @@ def write_SUEWS_forcing_1h_AH_LST(input_path, input_AH_path, output_file, year_s
             data_out_1h_grid_year.to_csv(file_output_grid_year, sep=" ",
                                          index=False, float_format='%.4f')
 
-
-
 def runExtraction(rawdata, output_file, year_start, year_end, hgt, UTC_offset_h, rainAmongN, progress=None):
     # Extract the data.
     # textObject is optional Q text object(write) so we can keep the user
@@ -627,8 +603,7 @@ def runExtraction(rawdata, output_file, year_start, year_end, hgt, UTC_offset_h,
     if not os.path.lexists(os.path.split(output_file)[0]):
         raise ValueError('Output directory doesn\'t exist. Try again')
 
-    write_SUEWS_forcing_1h_LST(rawdata, output_file,
-                               year_start, year_end, hgt, UTC_offset_h, rainAmongN, progress)
+    write_SUEWS_forcing_1h_LST(rawdata, output_file, year_start, year_end, hgt, UTC_offset_h, rainAmongN, progress)
 
 def runExtraction_AH(input_path, input_AH_path, output_file, year_start, year_end, hgt, UTC_offset_h, rainAmongN, progress=None):
     # Extract the data.

@@ -2,21 +2,21 @@ from __future__ import absolute_import
 from builtins import str
 from builtins import range
 from qgis.PyQt import QtCore, QtGui
-import traceback
+# import traceback
 import numpy as np
 import linecache
 import sys
-from qgis.core import QgsFeature, QgsVectorFileWriter, QgsVectorDataProvider, QgsField, Qgis, QgsMessageLog
-
-
-from .SOLWEIGpython import Solweig_2015a_calc as so
+# from qgis.core import QgsFeature, QgsVectorFileWriter, QgsVectorDataProvider, QgsField, Qgis, QgsMessageLog
+from .SOLWEIGpython import Solweig_2018a_calc as so
 # from SOLWEIGpython.clearnessindex_2013b import clearnessindex_2013b
 from ..Utilities.SEBESOLWEIGCommonFiles.clearnessindex_2013b import clearnessindex_2013b
 from osgeo.gdalconst import *
 # from ..Utilities import shadowingfunctions as shadow
-
 from osgeo import gdal
 #from osgeo.gdalconst import *
+from . import PET_calculations as p
+from . import UTCI_calculations as utci
+
 
 class Worker(QtCore.QObject):
 
@@ -33,7 +33,8 @@ class Worker(QtCore.QObject):
                         bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, dlg,
-                        YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname):
+                        YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname, Ws, mbody,
+                        age, ht, activity, clo, sex, sensorheight):
 
         QtCore.QObject.__init__(self)
         self.killed = False
@@ -125,6 +126,14 @@ class Worker(QtCore.QObject):
         self.folderPath = folderPath
         self.poisxy = poisxy
         self.poiname = poiname
+        self.Ws = Ws
+        self.mbody = mbody
+        self.age = age
+        self.ht = ht
+        self.activity = activity
+        self.clo = clo
+        self.sex = sex
+        self.sensorheight = sensorheight
 
 
     def run(self):
@@ -216,14 +225,22 @@ class Worker(QtCore.QObject):
             folderPath = self.folderPath
             poisxy = self.poisxy
             poiname = self.poiname
+            Ws = self.Ws
+            mbody = self.mbody
+            age = self.age
+            ht = self.ht
+            activity = self.activity
+            clo = self.clo
+            sex = self.sex
+            sensorheight = self.sensorheight
 
             tmrtplot = np.zeros((rows, cols))
             TgOut1 = np.zeros((rows, cols))
 
-            numformat = '%d %d %d %d %.5f ' + '%.2f ' * 28
+            # numformat = '%d %d %d %d %.5f ' + '%.2f ' * 28
 
             numformat = '%d %d %d %d %.5f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f ' \
-                        '%.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f'
+                        '%.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f'
 
             for i in np.arange(0, Ta.__len__()):
                 self.progress.emit()  # move progressbar forward
@@ -250,8 +267,8 @@ class Worker(QtCore.QObject):
 
                 Tmrt, Kdown, Kup, Ldown, Lup, Tg, ea, esky, I0, CI, shadow, firstdaytime, timestepdec, timeadd, \
                 Tgmap1, timeaddE, Tgmap1E, timeaddS, Tgmap1S, timeaddW, Tgmap1W, timeaddN, Tgmap1N, \
-                Keast, Ksouth, Kwest, Knorth, Least, Lsouth, Lwest, Lnorth, KsideI, TgOut1, TgOut \
-                    = so.Solweig_2015a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
+                Keast, Ksouth, Kwest, Knorth, Least, Lsouth, Lwest, Lnorth, KsideI, TgOut1, TgOut, radIout, radDout \
+                    = so.Solweig_2018a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
                         svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
                         vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, altitude[0][i],
                         azimuth[0][i], zen[0][i], jday[0][i], usevegdem, onlyglobal, buildings, location,
@@ -271,7 +288,7 @@ class Worker(QtCore.QObject):
                 # Write to POIs
                 if not poisxy is None:
                     for k in range(0, self.poisxy.shape[0]):
-                        poi_save = np.zeros((1, 33))
+                        poi_save = np.zeros((1, 35))
                         poi_save[0, 0] = YYYY[0][i]
                         poi_save[0, 1] = jday[0][i]
                         poi_save[0, 2] = hours[i]
@@ -279,8 +296,8 @@ class Worker(QtCore.QObject):
                         poi_save[0, 4] = dectime[i]
                         poi_save[0, 5] = altitude[0][i]
                         poi_save[0, 6] = azimuth[0][i]
-                        poi_save[0, 7] = radI[i]
-                        poi_save[0, 8] = radD[i]
+                        poi_save[0, 7] = radIout
+                        poi_save[0, 8] = radDout
                         poi_save[0, 9] = radG[i]
                         poi_save[0, 10] = Kdown[int(poisxy[k, 2]), int(poisxy[k, 1])]
                         poi_save[0, 11] = Kup[int(poisxy[k, 2]), int(poisxy[k, 1])]
@@ -305,6 +322,21 @@ class Worker(QtCore.QObject):
                         poi_save[0, 30] = svf[int(poisxy[k, 2]), int(poisxy[k, 1])]
                         poi_save[0, 31] = svfbuveg[int(poisxy[k, 2]), int(poisxy[k, 1])]
                         poi_save[0, 32] = KsideI[int(poisxy[k, 2]), int(poisxy[k, 1])]
+                        # Recalculating wind speed based on pwerlaw
+                        WsPET = (1.1 / sensorheight) ** 0.2 * Ws[i]
+                        WsUTCI = (10. / sensorheight) ** 0.2 * Ws[i]
+                        print(WsUTCI)
+                        print(WsPET)
+                        print(Ta[i])
+                        print(RH[i])
+                        print(Tmrt[int(poisxy[k, 2]), int(poisxy[k, 1])])
+                        print(sex)
+                        resultPET = p._PET(Ta[i], RH[i], Tmrt[int(poisxy[k, 2]), int(poisxy[k, 1])], WsPET,
+                                           mbody, age, ht, activity, clo, sex)
+                        poi_save[0, 33] = resultPET
+                        resultUTCI = utci.utci_calculator(Ta[i], RH[i], Tmrt[int(poisxy[k, 2]), int(poisxy[k, 1])],
+                                                          WsUTCI)
+                        poi_save[0, 34] = resultUTCI
 
                         data_out = self.folderPath[0] + '/POI_' + str(self.poiname[k]) + '.txt'
                         # f_handle = file(data_out, 'a')
