@@ -79,7 +79,8 @@ class GreaterQF(object):
             import matplotlib as plt
         except Exception as e:
             QMessageBox.critical(None, 'Error',
-                                 'GQF requires the pandas and matplotlib packages to be installed. Please consult the manual for further information')
+                                 'This plugin requires the pandas and matplotlib packages to be installed. '
+                                 'Please consult the manual for further information')
             return
         self.dlg = GreaterQFDialog()
         self.setup() # Establish all object params
@@ -178,7 +179,7 @@ class GreaterQF(object):
         self.model.setPreProcessedInputFolder(processed)
 
     def help(self):
-        url = "http://urban-climate.net/umep/UMEP_Manual#Urban_Energy_Balance:_GQF"
+        url = "https://umep-docs.readthedocs.io/en/latest/processor/Urban%20Energy%20Balance%20GQ.html"
         webbrowser.open_new_tab(url)
 
     def visualise(self):

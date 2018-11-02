@@ -84,8 +84,8 @@ class BenchMarking(object):
         self.actions = []
         self.menu = self.tr(u'&Benchmarking')
         # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'BenchMarking')
-        self.toolbar.setObjectName(u'BenchMarking')
+        # self.toolbar = self.iface.addToolBar(u'BenchMarking')
+        # self.toolbar.setObjectName(u'BenchMarking')
 
         self.headernum = 1
         self.delim = None
@@ -143,6 +143,8 @@ class BenchMarking(object):
             callback=self.run,
             parent=self.iface.mainWindow())
 
+
+
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
@@ -159,7 +161,21 @@ class BenchMarking(object):
         try:
             import pandas
         except Exception as e:
-            QMessageBox.critical(None, 'Error', 'The Benchmarking feature requires the pandas package to be installed. '
+            QMessageBox.critical(None, 'Error', 'This plugin requires the pandas package to be installed. '
+                                                'Please consult the FAQ in the manual for further information on how'
+                                                'to install missing python packages.')
+            return
+        try:
+            import xarray
+        except Exception as e:
+            QMessageBox.critical(None, 'Error', 'This plugin requires the xarray package to be installed. '
+                                                'Please consult the FAQ in the manual for further information on how'
+                                                'to install missing python packages.')
+            return
+        try:
+            import matplotlib
+        except Exception as e:
+            QMessageBox.critical(None, 'Error', 'This plugin requires the matplotlib package to be installed. '
                                                 'Please consult the FAQ in the manual for further information on how'
                                                 'to install missing python packages.')
             return
@@ -191,6 +207,7 @@ class BenchMarking(object):
             except:
                 QMessageBox.critical(None, "Import Error",
                                      "Check number of header lines, delimiter format and if nodata are present")
+                self.dlg.textInput_BaseData.setText(str(''))
                 return
 
     def import_reffile(self):
@@ -205,6 +222,7 @@ class BenchMarking(object):
             except:
                 QMessageBox.critical(None, "Import Error",
                                      "Check number of header lines, delimiter format and if nodata are present")
+                self.dlg.textInput_RefData.setText(str(''))
                 return
 
     def import_data2file(self):
@@ -219,6 +237,7 @@ class BenchMarking(object):
             except:
                 QMessageBox.critical(None, "Import Error",
                                      "Check number of header lines, delimiter format and if nodata are present")
+                self.dlg.textInput_Data2.setText(str(''))
                 return
 
     def import_data3file(self):
@@ -233,6 +252,7 @@ class BenchMarking(object):
             except:
                 QMessageBox.critical(None, "Import Error",
                                      "Check number of header lines, delimiter format and if nodata are present")
+                self.dlg.textInput_Data3.setText(str(''))
                 return
 
     def import_data4file(self):
@@ -247,6 +267,7 @@ class BenchMarking(object):
             except:
                 QMessageBox.critical(None, "Import Error",
                                      "Check number of header lines, delimiter format and if nodata are present")
+                self.dlg.textInput_Data4.setText(str(''))
                 return
 
     def import_data5file(self):
@@ -261,11 +282,12 @@ class BenchMarking(object):
             except:
                 QMessageBox.critical(None, "Import Error",
                                      "Check number of header lines, delimiter format and if nodata are present")
+                self.dlg.textInput_Data5.setText(str(''))
                 return
 
     def nml_save(self):
         self.outputfile = self.fileDialogNMLout.getSaveFileName(None, "Save File As:", None, "namelist (*.nml)")
-        self.dlg.textInput_NamelistOut.setText(self.outputfile)
+        self.dlg.textInput_NamelistOut.setText(self.outputfile[0])
 
     def pdf_save(self):
         self.outputfile = self.fileDialogPDF.getSaveFileName(None, "Save File As:", None, "PDF (*.pdf)")
@@ -273,59 +295,68 @@ class BenchMarking(object):
 
     def start_progress(self):
 
-        if self.folderPath == 'None':
+        if self.dlg.textInput_BaseData.text() == '':
             QMessageBox.critical(None, "Error", "Select a valid input base dataset")
             return
 
         # change namelist settings
-        prm = f90nml.read(self.plugin_dir + '/benchmark_orig.nml')
+        prm = f90nml.read(self.plugin_dir + '/BTS_config_orig.nml')
 
-        prm['file']['input_basefile'] = str(self.folderPath[0])
+        prm['file']['path_obs'] = self.dlg.textInput_BaseData.text()
 
-        if self.folderPath1 == '':
+        if self.dlg.textInput_RefData.text() == '':
             QMessageBox.critical(None, "Error", "Select a valid reference dataset")
             return
         else:
-            prm['file']['input_reffile'] = str(self.folderPath1[0])
+            prm['file']['path_ref'] = self.dlg.textInput_RefData.text()
 
-        if self.dlg.checkBox_Data2.isChecked():
-            if self.folderPath2 == '':
-                QMessageBox.critical(None, "Error", "Select a valid reference dataset")
-                return
-            else:
-                prm['file']['input_cfgfiles(1)'] = str(self.folderPath2[0])
+        # if self.dlg.checkBox_Data2.isChecked():
+        if self.dlg.textInput_Data2.text() == '':
+            QMessageBox.critical(None, "Error", "Select a valid first comparison dataset")
+            return
+        else:
+            prm['file']['path_cfg(1)'] = self.dlg.textInput_Data2.text()
+            prm['file']['name_cfg(1)'] = 'Dataset1'
 
         if self.dlg.checkBox_Data3.isChecked():
-            if self.folderPath3 == '':
+            if self.dlg.textInput_Data3.text() == '':
                 QMessageBox.critical(None, "Error", "Select a valid reference dataset")
                 return
             else:
-                prm['file']['input_cfgfiles(2)'] = str(self.folderPath3[0])
+                prm['file']['path_cfg(2)'] = self.dlg.textInput_Data3.text()
+                prm['file']['name_cfg(2)'] = 'Dataset2'
 
         if self.dlg.checkBox_Data4.isChecked():
-            if self.folderPath4 == '':
+            if self.dlg.textInput_Data4.text() == '':
                 QMessageBox.critical(None, "Error", "Select a valid reference dataset")
                 return
             else:
-                prm['file']['input_cfgfiles(3)'] = str(self.folderPath4[0])
+                prm['file']['path_cfg(3)'] = self.dlg.textInput_Data4.text()
+                prm['file']['name_cfg(3)'] = 'Dataset3'
 
         if self.dlg.checkBox_Data5.isChecked():
-            if self.folderPath5 == '':
+            if self.dlg.extInput_Data5.text() == '':
                 QMessageBox.critical(None, "Error", "Select a valid reference dataset")
                 return
             else:
-                prm['file']['input_cfgfiles(4)'] = str(self.folderPath2[0])
+                prm['file']['path_cfg(4)'] = self.dlg.extInput_Data5.text()
+                prm['file']['name_cfg(4)'] = 'Dataset4'
 
-        prm['file']['output_pdf'] = str(self.dlg.textOutputPDF.text())
+        if self.dlg.textOutputPDF.text() == '':
+            QMessageBox.critical(None, "Error", "Select a path for the pdf output file")
+            return
+        else:
+            prm['file']['path_report_pdf'] = str(self.dlg.textOutputPDF.text())
 
         prm.write(self.plugin_dir + '/benchmark.nml', force=True)
 
-        bss.report_benchmark(self.plugin_dir + '/benchmark.nml', self.plugin_dir)
+        bss.report_benchmark_PDF(self.plugin_dir + '/benchmark.nml', self.plugin_dir)
+        # bss.report_benchmark_PDF(self.plugin_dir + '/benchmark.nml')
 
         if self.dlg.checkBox_NamelistOut.isChecked():
             shutil.copy(self.plugin_dir + '/benchmark.nml', self.dlg.textInput_NamelistOut.text())
 
     def help(self):
-        url = "http://www.urban-climate.net/umep/UMEP_Manual#Benchmark_System"
+        url = "https://umep-docs.readthedocs.io/en/latest/post_processor/Benchmark%20System.html"
         webbrowser.open_new_tab(url)
 

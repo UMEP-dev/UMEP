@@ -3,7 +3,8 @@ from builtins import range
 from qgis.PyQt import QtCore
 import traceback
 import numpy as np
-import scipy.misc as sc
+# import scipy.misc as sc
+import scipy.ndimage.interpolation as sc
 import math
 from .wallalgorithms import get_ders
 import linecache
@@ -65,10 +66,14 @@ class Worker(QtCore.QObject):
                 if self.killed is True:
                         break
                 # print h
-                filtmatrix1temp = sc.imrotate(filtmatrix, h, 'bilinear')
-                filtmatrix1 = np.round(filtmatrix1temp / 255.)
-                filtmatrixbuildtemp = sc.imrotate(buildfilt, h, 'nearest')
-                filtmatrixbuild = np.round(filtmatrixbuildtemp / 127.)
+                # filtmatrix1temp = sc.imrotate(filtmatrix, h, 'bilinear')
+                # filtmatrix1 = np.round(filtmatrix1temp / 255.)
+                # filtmatrixbuildtemp = sc.imrotate(buildfilt, h, 'nearest')
+                # filtmatrixbuild = np.round(filtmatrixbuildtemp / 127.)
+                filtmatrix1temp = sc.rotate(filtmatrix, h, order=1, reshape=False, mode='nearest')  # bilinear
+                filtmatrix1 = np.round(filtmatrix1temp)
+                filtmatrixbuildtemp = sc.rotate(buildfilt, h, order=0, reshape=False, mode='nearest')  # Nearest neighbor
+                filtmatrixbuild = np.round(filtmatrixbuildtemp)
                 index = 270-h
                 if h == 150:
                     filtmatrixbuild[:, filtmatrix.shape[0] - 1] = 0

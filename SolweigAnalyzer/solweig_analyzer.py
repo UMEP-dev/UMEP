@@ -86,6 +86,8 @@ class SolweigAnalyzer(object):
         self.dlg.comboBoxSpatialVariables.currentIndexChanged.connect(self.tmrtchosen)
         self.dlg.comboBoxSpatialVariables.currentIndexChanged.connect(self.moviescale)
         self.fileDialog = QFileDialog()
+        self.fileDialog.setFileMode(QFileDialog.Directory)
+        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
 
         self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetBuildings)
         self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
@@ -176,6 +178,15 @@ class SolweigAnalyzer(object):
 
     def folder_path_model(self):
         # self.fileDialog.setFileMode(4)  # only folders
+        self.dlg.comboBoxSpatialVariables.clear()
+        self.dlg.comboBoxSpecificMean.clear()
+        self.dlg.comboBoxSpecificMax.clear()
+        self.dlg.comboBoxSpecificMin.clear()
+        self.dlg.comboBox_POI.clear()
+        self.dlg.comboBox_POI_2.clear()
+
+        # self.fileDialog.setFileMode(QFileDialog.Directory)
+        # self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
         self.fileDialog.open()
         result = self.fileDialog.exec_()
         if result == 1:
@@ -267,8 +278,8 @@ class SolweigAnalyzer(object):
     def folder_path_save(self):
         # self.fileDialog.setFileMode(4)
         # self.fileDialog.setAcceptMode(1)
-        self.fileDialog.setFileMode(QFileDialog.Directory)
-        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
+        # self.fileDialog.setFileMode(QFileDialog.Directory)
+        # self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
         self.fileDialog.open()
         result = self.fileDialog.exec_()
         if result == 1:
@@ -302,7 +313,6 @@ class SolweigAnalyzer(object):
         dectime = datenum_yy + data1[:, 4]
 
         dates = dt.num2date(dectime)
-        # QMessageBox.critical(self.dlg, "data", str(dates))
 
         if not self.dlg.checkboxUsePOI.isChecked():
             # One variable
@@ -703,7 +713,7 @@ class SolweigAnalyzer(object):
         self.steps = 0
 
     def help(self):
-        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Outdoor_Thermal_Comfort:_SOLWEIG_Analyzer'
+        url = 'https://umep-docs.readthedocs.io/en/latest/post_processor/Outdoor%20Thermal%20Comfort%20SOLWEIG%20Analyzer.html#'
         webbrowser.open_new_tab(url)
 
     def saveraster(self, gdal_data, filename, raster):

@@ -10,17 +10,16 @@
 #%   Modified by Fredrik Lindberg 2010-01-09, fredrik.lindberg@kcl.ac.uk
 #%   Translated to Python 20150108
 #%--------------------------------------------------------------------------
-# a = dsm
-# b = dem
-# scale = 1/pixel resolution (m)
-# dtheta = 5.  # degree interval
+
 # import Image
-import scipy.ndimage.interpolation as sc
+# import scipy.ndimage.interpolation as sc
 # from scipy import misc as sc
 import numpy as np
-# import scipy.ndimage.interpolation as sc
+import scipy.ndimage.interpolation as sc
 # import PIL
 # import matplotlib.pylab as plt
+
+
 
 
 def landcover_v1(lc_grid, mid, dtheta, dlg, imp_point):
@@ -55,16 +54,11 @@ def landcover_v1(lc_grid, mid, dtheta, dlg, imp_point):
         if imp_point == 1:
             dlg.progressBar.setValue(angle)
 
-        d = sc.rotate(lc_grid, angle, reshape=False, mode='nearest')
-        # b = ((build.max()-build.min())/d.max())*d+build.min()
-        # d = sc.imrotate(lc_grid, angle, 'nearest')
-
         # d = sc.rotate(lc_grid, angle, reshape=False, mode='nearest')
-        b = np.round(((lc_grid.max()-lc_grid.min())/d.max())*d+lc_grid.min(), 0)
+        d = sc.rotate(lc_grid, angle, order=0, reshape=False, mode='nearest')
+        # b = ((build.max()-build.min())/d.max())*d+build.min()
 
-        # plt.matshow(b)
-        # plt.colorbar()
-        # plt.show()
+        b = np.round(((lc_grid.max()-lc_grid.min())/d.max())*d+lc_grid.min(), 0)
 
         bld = b[dY, dX]  # lc array
 

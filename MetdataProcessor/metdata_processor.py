@@ -181,7 +181,6 @@ class MetdataProcessor(object):
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.textInput.setText(self.folderPath[0])
             headernum = self.dlg.spinBoxHeader.value()
-            # delim = self.dlg.comboBox_sep.currentText()
             delimnum = self.dlg.comboBox_sep.currentIndex()
             delim = None
             if delimnum == 0:
@@ -194,8 +193,6 @@ class MetdataProcessor(object):
                 delim = ';'
             elif delimnum == 4:
                 delim = ':'
-
-            # QMessageBox.information(None, "Metdata pre-processor", delim)
 
             f = open(self.folderPath[0])
             header = f.readline().split(delim)
@@ -330,7 +327,6 @@ class MetdataProcessor(object):
             nshhh= int(abs((met_new[1, 2] - met_new[0, 2])) * 12)
             nshmin = int(abs((met_new[1, 3] - met_new[0, 3])) / 5)
             nsh = nshhh + nshmin
-            #QMessageBox.critical(None, "Test", str(nsh))
 
         # Check if time gap exists
         for i in range(0, met_new.shape[0] - 1):
@@ -338,7 +334,6 @@ class MetdataProcessor(object):
             dectime1 = met_new[i + 1, 0] + met_new[i + 1, 1] + met_new[i + 1, 2] / 24. + met_new[i + 1, 3] / (60. * 24.)
             timeres_old = np.round((dectime1 - dectime0) * (60. * 24.))
             nshtest = int(timeres_old / 5)
-            # print str(nshtest)
             if nshtest > nsh:
                 QMessageBox.critical(None, "Input data is not continuous", "There seems to be a time gap at line:"
                                                           " \n" + str(i + 1))
@@ -643,6 +638,5 @@ class MetdataProcessor(object):
         self.dlg.exec_()
 
     def help(self):
-        # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Meteorological_Data:_MetPreprocessor'
+        url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/Meteorological%20Data%20MetPreprocessor.html'
         webbrowser.open_new_tab(url)

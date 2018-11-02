@@ -39,6 +39,7 @@ import os.path
 from osgeo import gdal
 import shutil
 import osr
+import webbrowser
 try:
     # Assuming in UMEP folder strcuture, so get f90nml from Utilities
     from ..Utilities import f90nml
@@ -187,7 +188,7 @@ class UMEP_Data_Download(object):
         self.bbox = {}
 
         self.dlg.cmdRunCancel.clicked.connect(self.runDownload_errorWrapper)
-
+        self.dlg.pushButtonHelp.clicked.connect(self.help)
         self.dlg.cmdClose.clicked.connect(self.dlg.close)
         self.dlg.cmdUseCanvas.clicked.connect(self.getCanvasExtent)
         self.dlg.cmdRefreshCatalogue.clicked.connect(self.refreshList)
@@ -677,4 +678,6 @@ class UMEP_Data_Download(object):
         self.dlg.show()
         self.dlg.exec_()
 
-
+    def help(self):
+        url = "https://umep-docs.readthedocs.io/en/latest/pre-processor/Spatial%20Data%20Spatial%20Data%20Downloader.html"
+        webbrowser.open_new_tab(url)

@@ -1,27 +1,30 @@
-from builtins import zip
 #!/usr/bin/env python
+# Adjusted to fit UMEP plugin 20181024 - Fredrik
+from __future__ import print_function
 import numpy as np
-#import pandas as pd
-try:
-    import pandas as pd
-except:
-    pass  # Suppress warnings at QGIS loading time, but an error is shown later to make up for it
 import os
-import glob
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
 from ..Utilities import f90nml
+#import f90nml
+try:
+    import xarray as xr
+    from matplotlib import colors
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    from matplotlib.backends.backend_pdf import PdfPages
+except:
+    pass
 
 
-# read in SUEWS output
+# read SUEWS output results as an xarray.DataArray
 def readSO(fn, plugin_dir):
     # load conversion dict: 2016 --> 2017
+    # dict_2016to2017 = dict(pd.read_excel('header-2016to2017.xlsx').values)
     dict_2016to2017 = dict(pd.read_excel(os.path.join(
         plugin_dir, 'header-2016to2017.xlsx')).values)
     # dict_2016to2017 = dict(pd.read_excel('header-2016to2017.xlsx').values)
 
     filename = os.path.abspath(os.path.expanduser(fn))
-    rawdata = pd.read_csv(filename, sep='\s+')
+    rawdata = pd.read_csv(filename, sep='\s+', low_memory=False)
     # change column names to 2017 convention if needed
     varname = pd.Series(rawdata.columns).replace(dict_2016to2017)
     rawdata.columns = varname
@@ -30,7 +33,8 @@ def readSO(fn, plugin_dir):
     rawDT = rawdata.iloc[:, 0:4]
     # convert to pythonic datetime
     dtbase = pd.to_datetime(rawDT.iloc[:, 0], format='%Y')
-    dtday = pd.to_timedelta(rawDT['DOY'], unit='d')
+    # corrected DOY by deducting one day for timedelta
+    dtday = pd.to_timedelta(rawDT['DOY'] - 1, unit='d')
     dthour = pd.to_timedelta(rawDT['Hour'], unit='h')
     dtmin = pd.to_timedelta(rawDT['Min'], unit='m')
     resDT = dtbase + dtday + dthour + dtmin
@@ -38,9 +42,11 @@ def readSO(fn, plugin_dir):
     # get variable values
     resValue = rawdata.iloc[:, 5:].values
 
-    # construct datetime-indexed DataFrame
-    resData = pd.DataFrame(data=resValue, index=resDT, columns=varname[5:])
-    return resData
+    # construct datetime-indexed DataArray
+    resDA = xr.DataArray(data=resValue,
+                         coords=[resDT, varname[5:]],
+                         dims=['time', 'var'])
+    return resDA
 
 
 # RMSE:
@@ -76,60 +82,42 @@ def load_res_all(fn_nml, plugin_dir):
     # get all names
     prm = f90nml.read(fn_nml)
     prm_file = prm['file']
-    # listAll = [os.path.basename(x)
-    #            for x in glob.glob(os.path.join(dir_base, '*'))]
-    # listRef = ['ref', 'base']
-    # # names of configurations
-    # listCfg = [x for x in listAll if not x in listRef]
 
     # get filenames of results
-    fn_base = prm_file['input_basefile']
-    fn_ref = prm_file['input_reffile']
-    fn_cfg = prm_file['input_cfgfiles']
-    # fn_ref = glob.glob(os.path.join(dir_base, 'ref', '*txt'))[0]
-    # fn_obs = glob.glob(os.path.join(dir_base, 'base', '*txt'))[0]
-    # fn_cfg = [glob.glob(os.path.join(dir_base, cfg, '*txt'))[0]
-    #           for cfg in listCfg]
+    fn_obs = prm_file['path_obs']
+    fn_ref = prm_file['path_ref']
+    fn_cfg = prm_file['path_cfg']
+    name_cfg = prm_file['name_cfg']
 
     # load all data
     # get reference run
     rawdata_ref = readSO(fn_ref, plugin_dir)
 
     # get baseline
-    rawdata_base = readSO(fn_base, plugin_dir)
+    rawdata_obs = readSO(fn_obs, plugin_dir)
 
     # get benchmark runs
     # the configuration names need to be refined
-    listCfg = np.arange(len(fn_cfg)) + 1
-    rawdata_cfg = {cfg: readSO(fn, plugin_dir)
-                   for cfg, fn in zip(listCfg, fn_cfg)}
+    rawdata_cfg = {cfg: readSO(fn, plugin_dir) for cfg, fn in list(zip(name_cfg, fn_cfg))}
 
-    # pack the results into a pandas Panel
-    res = rawdata_cfg.copy()
-    res.update({'ref': rawdata_ref, 'base': rawdata_base})
-    res = pd.Panel(res)
+    # pack the results into an xarray Dataset
+    res_raw = rawdata_cfg.copy()
+    res_raw.update({'ref': rawdata_ref, 'obs': rawdata_obs})
+
+    # convert Dataset to DataFrame for easier processing
+    res = xr.Dataset(res_raw).to_dataframe()
+    # give configuration level a name
+    res.columns.rename('cfg', inplace=True)
 
     # data cleaning:
-    # 1. variables consisting of only NAN
-    # 2. timestamp with any NAN
-    res = pd.Panel({k: df.dropna(axis=1, how='all').dropna(axis=0, how='any')
-                    for k, df in res.to_frame().to_panel().items()})
+    # drop variables without valid values
+    res = res.dropna(axis=1, how='all')
+    # drop times with invalid values
+    res = res.dropna(axis=0, how='any')
 
-    # calculate benchmark metrics
-    return res
-
-
-# get results of selected variables
-def load_res_var(fn_nml, list_var_user, plugin_dir):
-    # get all variables
-    res_all = load_res_all(fn_nml, plugin_dir)
-    # available variables after data cleaning:
-    list_var_valid = res_all['base'].columns
-    # get valid variables by intersecting:
-    list_var = list_var_valid.intersection(list_var_user)
-
-    # select variables of interest
-    res = {k: v.loc[:, list_var] for k, v in res_all.items()}
+    # re-order levels to facilliate further selection
+    # top-down column levels: {'cfg','var'}
+    res = res.unstack().swaplevel('cfg', 'var', axis=1).sort_index(axis=1)
 
     return res
 
@@ -139,21 +127,24 @@ def load_res(fn_nml, plugin_dir):
     prm = f90nml.read(fn_nml)
     prm_benchmark = prm['benchmark']
     list_var = prm_benchmark['list_var']
-    if not (isinstance(list_var, str) or isinstance(list_var, list)):
-        res = load_res_all(fn_nml, plugin_dir)
-    else:
-        # res=kwargs.keys()
-        res = load_res_var(fn_nml, list_var, plugin_dir)
+
+    # load all variables
+    res = load_res_all(fn_nml, plugin_dir)
+    # select part of the variables
+    if (isinstance(list_var, str) or isinstance(list_var, list)):
+        res = res.loc[:, list_var]
+
+    # drop invalid values
+    res = res.dropna()
     return res
 
 
-def plotMatMetric(res, base, func, title):
+def plotMatMetric(res_metric, len_metric, title):
     # number of observations
-    n_obs = base.index.size
+    n_obs = len_metric
 
-    # calculate metrics
-    resPlot = pd.DataFrame([func(x, base)
-                            for k, x in res.items()], index=list(res.keys()))
+    # drop nan values
+    resPlot = res_metric.dropna()
 
     # rescale metrics values for plotting: [0,1]
     # resPlot_res = func_Norm(resPlot).dropna(axis=1)  # nan will be dropped
@@ -193,7 +184,8 @@ def plotMatMetric(res, base, func, title):
                 xcolor = 'black'
             else:
                 xcolor = 'white'
-            plt.annotate("{:4.2f}".format(sub_val.iloc[y, x]), xy=(x + 0.5, y + 0.5),
+            plt.annotate("{:4.2f}".format(sub_val.iloc[y, x]),
+                         xy=(x + 0.5, y + 0.5),
                          verticalalignment='center',
                          horizontalalignment='center',
                          fontsize=11,
@@ -209,13 +201,6 @@ def plotMatMetric(res, base, func, title):
     plt.title(title + ' (N=%d)' % n_obs, fontsize=16, weight='bold')
     # plt.savefig(filename, bbox_inches='tight')
     # plt.show()
-    return fig
-
-
-def plotMatMetricX(res_panel, func, title):
-    res_comp = pd.Panel({x: res_panel[x]
-                         for x in list(res_panel.keys()) if not x == 'base'})
-    fig = plotMatMetric(res_comp, res_panel['base'], func, title)
     return fig
 
 
@@ -249,16 +234,18 @@ def plotBarScore(res_score):
     ax.set_yticklabels(y_lbl, fontsize=12, weight='bold')
     # ax.invert_yaxis()
     ax.set_xlabel(
-        'Performance Score (larger scores indicate better performance)', fontsize=12, weight='bold')
+        'Performance Score \n(larger scores indicate better performance)',
+        fontsize=12, weight='bold')
     ax.set_title('Performance Comparison', fontsize=16, weight='bold')
     return fig_score
 
 
 # generate benchmark figures
-def benchmarkSUEWS(fn_nml, plugin_dir):
+def benchmark_SUEWS(fn_nml, plugin_dir):
     # load results in pandas Panel
     # data = load_res_all(dir_base)
-    data = load_res(fn_nml, plugin_dir)
+    res_raw = load_res(fn_nml, plugin_dir)
+    res_cfg = res_raw.swaplevel('cfg', 'var', axis=1).sort_index(axis=1)
 
     # all available metrics
     list_func_all = {'RMSE': func_RMSE,
@@ -273,18 +260,44 @@ def benchmarkSUEWS(fn_nml, plugin_dir):
     list_func = {k: list_func_all[k] for k in list_metric}
 
     # calculate metrics based on different functions:
-    res_metric = {f: pd.DataFrame([list_func[f](data[x], data['base'])
-                                   for x in list(data.keys()) if not x == 'base'],
-                                  index=[x for x in list(data.keys()) if not x == 'base']).dropna(axis=1)
-                  for f in list(list_func.keys())}
-    res_metric = pd.Panel(res_metric)
+    list_cfg = res_cfg.columns.get_level_values('cfg').unique()
+    list_cfg = list_cfg.drop('obs', errors='ignore')
+    res_metric = {f: pd.DataFrame(
+        [list_func[f](res_cfg[cfg], res_cfg['obs'])
+         for cfg in list_cfg],
+        index=list_cfg).dropna(axis=1).apply(np.round, decimals=2)
+        for f in list(list_func.keys())}
+    ds_metric = xr.Dataset(res_metric)
+    df_metric = ds_metric.to_dataframe()
 
+    # name the index levels
+    df_metric.index.rename(['cfg', 'var'], inplace=True)
+    # name the column levels
+    df_metric.columns.rename('stat', inplace=True)
+    # improve the layout
+    df_metric = df_metric.unstack()
+
+    # add some meta-info: size of valid comparison data
+    # NB: this is an EXPERIMENTAL test, not fully supported by pandas
+    df_metric.len_metric = res_cfg['obs'].shape[0]
+
+    return df_metric
+
+
+def benchmark_score(df_metric):
     # calculate overall performance:
     # this method is very simple at the moment and needs to be refined with
     # more options
-    res_score_sub = pd.DataFrame(
-        [1 - func_Norm(v.transpose().mean()) for key, v in res_metric.items()])
-    res_score = res_score_sub.mean(axis=0) * 100
+    res_score_sub = df_metric.apply(func_Norm).dropna(axis=1)
+    res_score = (1 - res_score_sub.mean(axis=1)) * 100
+
+    return res_score
+
+
+def plot_score_metric(df_metric):
+
+    # calculate overall performance score
+    res_score = benchmark_score(df_metric)
 
     # plotting:
     # 1. overall performance score
@@ -294,24 +307,167 @@ def benchmarkSUEWS(fn_nml, plugin_dir):
 
     # 2. sub-indicators
     # plot each metric in one page
-    fig_metric = {name_func: plotMatMetricX(data, list_func[name_func], name_func)
-                  for name_func in list(list_func.keys())}
+    len_metric = df_metric.len_metric
+    list_func = df_metric.columns.get_level_values('stat').unique()
+    fig_metric = {name_func: plotMatMetric(
+        df_metric[name_func],
+        len_metric, name_func)
+        for name_func in list_func}
     res_fig.update(fig_metric)
 
     return res_fig
 
 
 # output report in PDF
-def report_benchmark(fn_nml, plugin_dir):
+def report_benchmark_PDF(fn_nml, plugin_dir):
     prm = f90nml.read(fn_nml)
     prm_file = prm['file']
-    basename_output = prm_file['output_pdf']
-    prm_bmk = prm['benchmark']
-    list_metric = prm_bmk['list_metric']
-    figs = benchmarkSUEWS(fn_nml, plugin_dir)
-    with PdfPages(basename_output + '.pdf') as pdf:
+    basename_output = prm_file['path_report_pdf']
+    # basename_output = prm_file['output_pdf']
+
+    # calculate benchmark results
+    df_metric = benchmark_SUEWS(fn_nml, plugin_dir)
+
+    # plotting metric results
+    figs = plot_score_metric(df_metric)
+
+    with PdfPages(basename_output) as pdf:
         pdf.savefig(figs['score'], bbox_inches='tight', papertype='a4')
         for k, x in figs.items():
             if k != 'score':
                 pdf.savefig(x, bbox_inches='tight',
                             papertype='a4', orientation='portrait')
+
+
+# output report in HTML
+# normalise color values
+def colour_norm(res):
+    s = np.abs(res)
+    m = s.min()
+    M = s.max()
+    range = M - m
+    if range != 0:
+        norm = colors.Normalize(m, M)
+        normed = norm(s.values)
+    else:
+        normed = np.ones_like(res) * 0.5
+    return normed
+
+
+# set text colours
+def text_color(res):
+    normed = colour_norm(res)
+    c_text = [('black' if 0.4 < x < 0.6 else 'white') for x in normed]
+    return ['color: %s' % color for color in c_text]
+
+
+# set background colour
+def background_gradient(res, cmap='PuBu'):
+    normed = colour_norm(res)
+    # print normed
+    c_rgba = [plt.cm.get_cmap(cmap)(x)
+              if x != 0.5 else tuple(list(plt.cm.get_cmap(cmap)(x)[:3]) + [0])
+              for x in normed]
+    # print c_rgba
+    c = [colors.rgb2hex(x) for x in c_rgba]
+    # print c
+    return ['background-color: %s' % color for color in c]
+
+
+# generate matrix-like stat HTML
+def mat_stat_HTML(df_metric, styles):
+    # generate metric Styler
+    style_metric = df_metric.T.style
+    style_metric.apply(background_gradient, axis=1, cmap='PiYG_r')
+    style_metric.apply(text_color, axis=1)
+
+    style_metric = style_metric.set_table_styles(styles)
+    style_metric = style_metric.set_caption('SUEWS benchmark statistics')
+
+    res_html = style_metric.render()
+
+    return res_html
+
+
+# generate overall barplot of performance score HTML
+def bar_score_HTML(df_metric, styles):
+
+    df_score = benchmark_score(
+        df_metric).to_frame().rename(columns={0: 'score'})
+
+    # generate metric Styler
+    style_score = df_score.style
+    style_score.bar(align='left', color=['#d65f5f', '#5fba7d'])
+    style_score = style_score.set_table_styles(styles)
+    style_score = style_score.set_caption('SUEWS benchmark score')
+    res_html = style_score.render()
+
+    return res_html
+
+
+def report_benchmark_HTML(fn_nml, plugin_dir):
+    prm = f90nml.read(fn_nml)
+    prm_file = prm['file']
+    basename_output = prm_file['path_report_html']
+
+    styles = [
+        # table properties
+        dict(selector=" ",
+             props=[("margin", "0"),
+                    ('max-width', '200px'),
+                    ("font-family", '"Helvetica", "Arial", sans-serif'),
+                    ("border-collapse", "collapse"),
+                    ("border", "none"),
+                    ("border", "2px solid #ccf")
+                    ]),
+
+        # header color - optional
+        dict(selector="thead",
+             props=[("background-color", "#ABB2B9")
+                    ]),
+
+        # background shading
+        dict(selector="tbody tr:nth-child(even)",
+             props=[("background-color", "#fff")]),
+        dict(selector="tbody tr:nth-child(odd)",
+             props=[("background-color", "#eee")]),
+
+        # cell spacing
+        dict(selector="td",
+             props=[("padding", ".5em")]),
+
+        # header cell properties
+        dict(selector="th",
+             props=[("font-size", "125%"),
+                    ("padding", ".5em"),
+                    ("text-align", "center")]),
+
+        # caption placement
+        dict(selector="caption",
+             props=[("caption-side", "top")]),
+
+        # render hover last to override background-color
+        dict(selector="tbody tr:hover",
+             props=[("background-color", "%s" % "#add8e6")])]
+
+    # calculate benchmark results
+    df_metric = benchmark_SUEWS(fn_nml, plugin_dir)
+
+    # colour map
+    # cm = sns.light_palette("green", as_cmap=True)
+
+    # generate score Styler
+    score_html = bar_score_HTML(df_metric, styles)
+    # save html text
+    path_html = basename_output + '_score.html'
+    with open(path_html, 'w') as fn:
+        fn.write(score_html)
+        fn.close()
+
+    # generate metric Styler
+    stat_html = mat_stat_HTML(df_metric, styles)
+    # save html text
+    path_html = basename_output + '_stat.html'
+    with open(path_html, 'w') as fn:
+        fn.write(stat_html)
+        fn.close()

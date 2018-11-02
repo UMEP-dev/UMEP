@@ -13,7 +13,7 @@ from ..Utilities import RoughnessCalcFunctionV2 as rg
 from scipy import *
 import numpy as np
 import linecache
-from osgeo import gdal
+from osgeo import gdal, ogr
 import subprocess
 # import os
 # import PIL

@@ -3,8 +3,9 @@ from builtins import range
 __author__ = 'xlinfr'
 
 import numpy as np
-import scipy.misc as sc
+# import scipy.misc as sc
 import math
+import scipy.ndimage.interpolation as sc
 
 
 def findwalls(a, walllimit):
@@ -71,6 +72,7 @@ def filter1Goodwin_as_aspect_v3(walls, scale, a):
     buildfilt = np.zeros((int(filtersize), int(filtersize)))
 
     filtmatrix[:, filthalveceil - 1] = 1
+    n = filtmatrix.shape[0] - 1
     buildfilt[filthalveceil - 1, 0:filthalvefloor] = 1
     buildfilt[filthalveceil - 1, filthalveceil: int(filtersize)] = 2
 
@@ -80,22 +82,25 @@ def filter1Goodwin_as_aspect_v3(walls, scale, a):
     walls[walls > 0] = 1
 
     for h in range(0, 180):  # =0:1:180 #%increased resolution to 1 deg 20140911
-        # print h
-        filtmatrix1temp = sc.imrotate(filtmatrix, h, 'bilinear')
-        filtmatrix1 = np.round(filtmatrix1temp / 255.)
-        filtmatrixbuildtemp = sc.imrotate(buildfilt, h, 'nearest')
-        filtmatrixbuild = np.round(filtmatrixbuildtemp / 127.)
+        filtmatrix1temp = sc.rotate(filtmatrix, h, order=1, reshape=False, mode='nearest')  # bilinear
+        filtmatrix1 = np.round(filtmatrix1temp)
+        # filtmatrix1temp = sc.imrotate(filtmatrix, h, 'bilinear')
+        # filtmatrix1 = np.round(filtmatrix1temp / 255.)
+        # filtmatrixbuildtemp = sc.imrotate(buildfilt, h, 'nearest')
+        filtmatrixbuildtemp = sc.rotate(buildfilt, h, order=0, reshape=False, mode='nearest')  # Nearest neighbor
+        # filtmatrixbuild = np.round(filtmatrixbuildtemp / 127.)
+        filtmatrixbuild = np.round(filtmatrixbuildtemp)
         index = 270 - h
         if h == 150:
-            filtmatrixbuild[:, filtmatrix.shape[0] - 1] = 0
+            filtmatrixbuild[:, n] = 0
         if h == 30:
-            filtmatrixbuild[:, filtmatrix.shape[0] - 1] = 0
+            filtmatrixbuild[:, n] = 0
         if index == 225:
-            n = filtmatrix.shape[0] - 1  # length(filtmatrix);
+            # n = filtmatrix.shape[0] - 1  # length(filtmatrix);
             filtmatrix1[0, 0] = 1
             filtmatrix1[n, n] = 1
         if index == 135:
-            n = filtmatrix.shape[0] - 1  # length(filtmatrix);
+            # n = filtmatrix.shape[0] - 1  # length(filtmatrix);
             filtmatrix1[0, n] = 1
             filtmatrix1[n, 0] = 1
 

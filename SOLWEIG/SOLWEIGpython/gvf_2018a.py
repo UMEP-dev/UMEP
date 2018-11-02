@@ -1,6 +1,6 @@
 import numpy as np
 from .sunonsurface_2018a import sunonsurface_2018a
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 
 def gvf_2018a(wallsun, walls, buildings, scale, shadow, first, second, dirwalls, Tg, Tgwall, Ta, emis_grid, ewall,

@@ -101,8 +101,8 @@ class ExtremeFinder(object):
         self.menu = self.tr(u'&Extreme Finder')
 
         # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'ExtremeFinder')
-        self.toolbar.setObjectName(u'ExtremeFinder')
+        # self.toolbar = self.iface.addToolBar(u'ExtremeFinder')
+        # self.toolbar.setObjectName(u'ExtremeFinder')
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -242,7 +242,7 @@ class ExtremeFinder(object):
 
 
     def help(self):
-        url = "http://urban-climate.net/umep/UMEP_Manual#Outdoor_Thermal_Comfort:_ExtremeFinder"
+        url = "https://umep-docs.readthedocs.io/en/latest/processor/Outdoor%20Thermal%20Comfort%20ExtremeFinder.html"
         webbrowser.open_new_tab(url)
 
     def run(self):
@@ -250,13 +250,13 @@ class ExtremeFinder(object):
         try:
             import pandas as pd
         except Exception as e:
-            QMessageBox.critical(None, 'Error', 'The Extreme Finder requires the pandas package '
+            QMessageBox.critical(None, 'Error', 'This plugin requires the pandas package '
                                                 'to be installed. Please consult the manual for further information')
             return
         try:
             from netCDF4 import Dataset, date2num
         except Exception as e:
-            QMessageBox.critical(None, 'Error', 'The Extreme Finder requires the netCDF4 package '
+            QMessageBox.critical(None, 'Error', 'This plugin requires the netCDF4 package '
                                                 'to be installed. Please consult the manual for further information')
             return
 

@@ -5,7 +5,7 @@ from builtins import object
 import os
 from ...Utilities import f90nml
 from datetime import datetime as dt
-from string import lower
+# from string import lower
 import string
 
 
@@ -74,7 +74,7 @@ class LUCYParams(object):
         # Validate land cover weightings (used for additional disaggregation)
         expectedClasses = ["paved", "buildings", "evergreentrees", "decidioustrees", "grass", "baresoil", "water"]
         types = ['building', 'transport', 'metabolism']
-        missing = set(map(lower,expectedClasses)).difference(list(map(lower, list(PARAMS['landCoverWeights'].keys()))))
+        missing = set(map(str.lower,expectedClasses)).difference(list(map(str.lower, list(PARAMS['landCoverWeights'].keys()))))
         if len(missing) > 0:
             raise ValueError(paramsFile + ' is missing the following entries under "landCoverWeights": ' + string.join(list(missing), ","))
 
@@ -103,7 +103,7 @@ class LUCYParams(object):
 
         expectedEntries = ['Th', 'Tc', 'Ah', 'Ac', 'c', 'Tmax', 'Tmin']
 
-        missing = set(map(lower, expectedEntries)).difference(list(map(lower, list(PARAMS['CustomTemperatureResponse'].keys()))))
+        missing = set(map(str.lower, expectedEntries)).difference(list(map(str.lower, list(PARAMS['CustomTemperatureResponse'].keys()))))
         if len(missing) > 0:
             raise ValueError(paramsFile + ' is missing the following entries under "CustomTemperatureResponse": ' + string.join(list(missing), ","))
         self.TResponse = {}

@@ -43,13 +43,13 @@ from .DSMGenerator.dsm_generator import DSMGenerator  # TODO: Working except for
 from .WATCHData.watch import WATCHData
 # from .GreaterQF.greater_qf import GreaterQF  # TODO: Multiple changes required :Plugin blocker
 from .ExtremeFinder.extreme_finder import ExtremeFinder
-# from .LucyQf.LQF import LQF  # TODO: Multiple changes required :Plugin blocker
+from .LucyQf.LQF import LQF  # TODO: Multiple changes required :Plugin blocker
 from .SEBE.sebe import SEBE
 from .SuewsSimple.suews_simple import SuewsSimple
 from .SUEWSPrepare.suews_prepare import SUEWSPrepare
 from .SUEWS.suews import SUEWS
 from .SOLWEIG.solweig import SOLWEIG
-from .BenchMarking.benchmarking import BenchMarking  # TODO: KeyError: 'input_cfgfiles'
+from .BenchMarking.benchmarking import BenchMarking
 # from .SEBEVisual.sun import Sun  # TODO: Not able to run 2to3 converter :Plugin blocker
 from .SolweigAnalyzer.solweig_analyzer import SolweigAnalyzer
 from .SUEWSAnalyzer.suews_analyzer import SUEWSAnalyzer
@@ -472,9 +472,9 @@ class UMEP(object):
         sg.run()
 
     def LF(self):
-        QMessageBox.critical(self.dlg, "Plugin blocker",
-                             "This tool is not yet ported to QGIS3. Work still in progress.")
-        return
+        # QMessageBox.critical(self.dlg, "Plugin blocker",
+        #                      "This tool is not yet ported to QGIS3. Work still in progress.")
+        # return
         sg = LQF(self.iface)
         sg.run()
 

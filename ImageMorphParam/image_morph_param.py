@@ -348,23 +348,22 @@ class ImageMorphParam(object):
         try:
             import scipy
         except Exception as e:
-            QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the scipy package '
+            QMessageBox.critical(None, 'Error', 'This plugin requires the scipy package '
                                                 'to be installed. Please consult the FAQ in the manual for further '
                                                 'information on how to install missing python packages.')
             return
-        try:
-            import PIL
-        except Exception as e:
-            QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the Pillow package '
-                                                'to be installed. Please consult the FAQ in the manual for further '
-                                                'information on how to install missing python packages.')
-            return
+        # try:
+        #     import skimage
+        # except Exception as e:
+        #     QMessageBox.critical(None, 'Error', 'This plugin requires the scikit-image package '
+        #                                         'to be installed. Please consult the FAQ in the manual for further '
+        #                                         'information on how to install missing python packages.')
+        #     return
         self.dlg.show()
         self.dlg.exec_()
         gdal.UseExceptions()
         gdal.AllRegister()
 
     def help(self):
-        url = "http://www.urban-climate.net/umep/UMEP_Manual#Urban_Morphology:" \
-              "_Image_Morphometric_Parameter_Calculator_.28Grid.29"
+        url = "https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Morphology%20Morphometric%20Calculator%20(Grid).html"
         webbrowser.open_new_tab(url)

@@ -756,9 +756,6 @@ class Worker(QtCore.QObject):
                     # YYYYmax = YYYYmin
                     YYYYmax = YYYYmax - 1  # Issue #65
 
-            print(YYYYmin)
-            print(YYYYmax)
-
             lensiteselect = self.lines_to_write.__len__() - 2
             for YYYY in range(int(YYYYmin), int(YYYYmax) + 1):
                 # find start end end of 5 min file for each year

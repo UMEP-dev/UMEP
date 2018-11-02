@@ -9,7 +9,7 @@ try:
     import numpy as np
 except:
     pass
-from string import upper
+# from string import upper
 
 
 # Validate "shapefile" as either numeric or a valid file location
@@ -51,8 +51,7 @@ class LUCYDataSources(object):
 
         # Are all main entries present?
         # For shapefile inputs
-        expectedKeys_spatial = ['outputareas',
-                                'residentialpop']
+        expectedKeys_spatial = ['outputareas', 'residentialpop']
 
         # Get the database
         try:
@@ -62,6 +61,7 @@ class LUCYDataSources(object):
 
         if not os.path.exists(self.database):
             raise ValueError('LQF database file (%s) does not exist'%ds['database'])
+
         missing = list(set(expectedKeys_spatial).difference(list(ds.keys())))
         if len(missing) > 0:
             raise ValueError('Spatial entries missing from ' + str(configFile) + ' in namelist: ' + str(missing))
@@ -70,7 +70,7 @@ class LUCYDataSources(object):
         for subEntry in expectedKeys_spatial:
             content = ds[subEntry]
             # Check it's all lists or no lists
-            types = np.unique(list(map(type, list(content.values()))))
+            # types = np.unique(list(map(type, list(content.values()))))
             # are all required sub-entries present?
             if subEntry == "outputareas": # Special case for output areas
                 expectedNames_spat = ['shapefile', 'epsgCode', 'featureIds']
@@ -79,7 +79,8 @@ class LUCYDataSources(object):
             elif subEntry == "database":
                 expectedNames_spat = ['path']
 
-            missing = list(set(map(upper, expectedNames_spat)).difference(list(map(upper, list(content.keys())))))
+            # missing = list(set(map(upper, expectedNames_spat)).difference(list(map(upper, list(content.keys())))))
+            missing = list(set(map(str.upper, expectedNames_spat)).difference(list(map(str.upper, list(content.keys())))))
             if len(missing) > 0:
                 raise ValueError('Entries missing from ' + subEntry + ' in namelist: ' + str(missing))
 

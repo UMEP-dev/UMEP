@@ -209,8 +209,7 @@ class SUEWS(object):
         self.dlg.exec_()
 
     def help(self):
-        url = "http://umep-docs.readthedocs.io/en/latest/processor/Urban%20Energy%20Balance%20Urban%20Energy%20" \
-              "Balance%20(SUEWS.BLUEWS,%20advanced).html"
+        url = "https://umep-docs.readthedocs.io/en/latest/processor/Urban%20Energy%20Balance%20Urban%20Energy%20Balance%20(SUEWS.BLUEWS,%20advanced).html"
         webbrowser.open_new_tab(url)
 
     def folder_path_out(self):

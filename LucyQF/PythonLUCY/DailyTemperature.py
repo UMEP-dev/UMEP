@@ -6,7 +6,7 @@ from builtins import object
 # Object that stores and retrieves temperature each day
 
 import os
-from string import lower
+# from string import lower
 import pytz
 from .DataManagement.DailyLoading import DailyLoading
 try:
@@ -65,20 +65,21 @@ class DailyTemperature(object):
             raise ValueError('The file ' + file + ' does not exist')
 
         # Check file is of correct format
-        dl = pd.read_csv(file,skipinitialspace=True)
-        dl.columns = list(map(lower, dl.columns))
+        dl = pd.read_csv(file, skipinitialspace = True)
+        # dl.columns = list(map(lower, dl.columns))
+        dl.columns = dl.columns.str.lower()
         # Expect certain keywords
-        if 't_celsius' not in list(map(lower, list(dl.keys()))):
+        if 't_celsius' not in list(dl.keys()):
             raise ValueError('One of the column headers in ' + file + ' must be \'T_celsius\'')
 
-        rowHeaders = list(map(lower, dl.data[0:3]))
-        if 'startdate' != rowHeaders[0]:
+        # rowHeaders = list(map(lower, dl.data[0:3]))
+        if 'startdate' != dl.data[0].lower():  #rowHeaders[0]:
             raise ValueError('First column of second row must be \'StartDate\' in ' + file)
 
-        if 'enddate' != rowHeaders[1]:
+        if 'enddate' != dl.data[1].lower():  #rowHeaders[1]:
             raise ValueError('First column of third row must be \'EndDate\' in ' + file)
 
-        if 'timezone' != rowHeaders[2]:
+        if 'timezone' != dl.data[2].lower():  #rowHeaders[2]:
             raise ValueError('First column of fourth row must be \'Timezone\' in ' + file)
 
         firstDataLine = 3

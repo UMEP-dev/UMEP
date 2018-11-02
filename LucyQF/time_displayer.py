@@ -3,13 +3,9 @@ from builtins import map
 from builtins import str
 from qgis.PyQt import QtGui, uic
 from qgis.PyQt.QtWidgets import QListWidgetItem
-from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from qgis.PyQt.QtWidgets import QAction, QMessageBox, QFileDialog
-from qgis.PyQt.QtGui import QIcon
 import os
 FORM_CLASS, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__), 'time_displayer.ui'))
-from qgis.core import QgsMessageLog,  QgsMapLayerRegistry, QgsVectorLayer, QgsMapRenderer, QgsRectangle#
-
+from qgis.core import QgsProject, QgsRectangle, QgsMapRendererJob
 from .PythonLUCY.DataManagement.spatialHelpers import populateShapefileFromTemplate, colourRanges, openShapeFileInMemory, duplicateVectorLayer
 try:
     import pandas as pd
@@ -18,7 +14,7 @@ except:
     pass
 from datetime import datetime as dt
 from qgis.PyQt.QtGui import QImage, QColor, QPainter
-from qgis.PyQt.QtWidgets import QMessageBox
+from qgis.PyQt.QtWidgets import QMessageBox, QDialog
 from qgis.PyQt.QtCore import QSize
 
 # Creates a dialog box that allow different model output time slices to be visualised in QGIS
@@ -29,7 +25,7 @@ def intOrString(x):
     except:
         return str(x)
 
-class time_displayer(QtGui.QDialog, FORM_CLASS):
+class time_displayer(QDialog, FORM_CLASS):
     def __init__(self, model, iface, parent=None):
         '''
         Given a folder containing model outputs and DataSources object, this widget displays all available time steps
@@ -140,7 +136,7 @@ class time_displayer(QtGui.QDialog, FORM_CLASS):
                     colourRanges(new_layer, component, opacity, range_minima, range_maxima, colours)
                     new_layer.setLayerName(layerName)
                     layerId = new_layer.id()
-                    QgsMapLayerRegistry.instance().addMapLayer(new_layer)
+                    QgsProject.instance().addMapLayer(new_layer)
                     proportion = new_layer.extent().height() / new_layer.extent().width()
 
                 else:
@@ -149,7 +145,7 @@ class time_displayer(QtGui.QDialog, FORM_CLASS):
                     layer.setLayerName(layerName)
                     colourRanges(layer, component, opacity, range_minima, range_maxima, colours)
                     layerId = layer.id()
-                    QgsMapLayerRegistry.instance().addMapLayer(layer)
+                    QgsProject.instance().addMapLayer(layer)
                     proportion = layer.extent().height() / layer.extent().width()
 
 
@@ -173,7 +169,7 @@ class time_displayer(QtGui.QDialog, FORM_CLASS):
                 p.begin(img)
                 p.setRenderHint(QPainter.Antialiasing)
 
-                render = QgsMapRenderer()
+                render = QgsMapRendererJob()
 
                 # set layer set
                 lst = [layerId]  # add ID of every layer

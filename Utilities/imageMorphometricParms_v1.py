@@ -17,8 +17,8 @@
 # import Image
 # from scipy import *
 import numpy as np
-# import scipy.ndimage.interpolation as sc
-import scipy.misc as sc
+import scipy.ndimage.interpolation as sc
+# import scipy.misc as sc
 # import matplotlib as plt
 # import PIL
 from qgis.core import QgsMessageLog
@@ -75,13 +75,13 @@ def imagemorphparam_v2(dsm, dem, scale, mid, dtheta, dlg, imp_point):
             c = np.zeros((n, n))
 
             # Rotating building
-            d = sc.imrotate(build, angle, 'nearest')
-            # d = sc.rotate(build, angle, reshape=False, mode='nearest')
+            # d = sc.imrotate(build, angle, 'nearest')
+            d = sc.rotate(build, angle, order=0, reshape=False, mode='nearest')
             b = ((build.max()-build.min())/d.max())*d+build.min()
             a = b
             if dem.sum() != 0:  # ground heights
-                d = sc.imrotate(dsm, angle, 'nearest')
-                # d = sc.rotate(dsm, angle, reshape=False, mode='nearest')
+                # d = sc.imrotate(dsm, angle, 'nearest')
+                d = sc.rotate(build, angle, order=0, reshape=False, mode='nearest')
                 a = ((dsm.max()-dsm.min())/d.max())*d+dsm.min()
 
             #% convolve leading edge filter with domain

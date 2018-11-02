@@ -6,7 +6,7 @@ from builtins import object
 # A profile is a week-long template of relative quantity e.g. traffic, energy use or metabolic rate used for scaling later.
 
 import os
-from string import lower
+# from string import lower
 try:
     import pandas as pd
     import numpy as np
@@ -56,17 +56,17 @@ class LUCYDiurnalProfile(object):
         dl = pd.read_csv(file,skipinitialspace=True, header=None)
 
         # Expect certain keywords
-        rowHeadings = list(map(lower, dl[0][0:4]))
-        if 'season' != rowHeadings[0]:
+        # rowHeadings = list(map(lower, dl[0][0:4]))
+        if 'season' != dl[0][0].lower():  # rowHeadings[0]:
             raise ValueError('First column of row 1 must be \'Season\' in ' + file)
 
-        if 'startdate' != rowHeadings[1]:
+        if 'startdate' != dl[0][1].lower(): #rowHeadings[1]:
             raise ValueError('First column of row 2 must be \'StartDate\' in ' + file)
 
-        if 'enddate' != rowHeadings[2]:
+        if 'enddate' != dl[0][2].lower(): #rowHeadings[2]:
             raise ValueError('First column of row 3 must be \'EndDate\' in ' + file)
 
-        if 'timezone' != rowHeadings[3]:
+        if 'timezone' != dl[0][3].lower(): #rowHeadings[3]:
             raise ValueError('First column of row 4 must be \'Timezone\' in ' + file)
 
         firstDataLine = 4

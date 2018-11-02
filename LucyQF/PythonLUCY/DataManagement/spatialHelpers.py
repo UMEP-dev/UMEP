@@ -9,10 +9,10 @@ try:
 except:
     pass
 
-from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsRasterLayer, QgsGeometry, QgsRaster, QgsRectangle, QgsPoint, QgsField, QgsFeature, QgsSpatialIndex
-from qgis.core import QgsSymbol, QgsGraduatedSymbolRenderer, QgsRendererRange, QgsFeatureRequest, QgsDistanceArea, QgsCoordinateReferenceSystem, QgsCoordinateTransform
+from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsGeometry, QgsField, QgsFeature, QgsSpatialIndex, NULL
+from qgis.core import QgsProcessingAlgorithm, QgsFeatureRequest, QgsDistanceArea, QgsCoordinateReferenceSystem, QgsCoordinateTransform
 import processing # qgis processing framework
-from qgis.PyQt.QtCore import QVariant, QPyNullVariant
+from qgis.PyQt.QtCore import QVariant # , QPyNullVariant
 import tempfile
 
 def reprojectVectorLayer_threadSafe(filename, targetEpsgCode):
@@ -59,7 +59,8 @@ def reprojectVectorLayer(filename, targetEpsgCode):
     :return str: filename of reprojected shapefile (in a temporary directory)'''
     fobj, dest = tempfile.mkstemp(suffix='.shp')
 
-    processing.runalg('qgis:reprojectlayer', filename, "EPSG:" + str(targetEpsgCode), dest)
+    # processing.runalg('qgis:reprojectlayer', filename, "EPSG:" + str(targetEpsgCode), dest)
+    processing.run('qgis:reprojectlayer', {'INPUT': filename, 'EPSG': str(targetEpsgCode), 'OUTPUT': dest})   #UNTESTED
     os.close(fobj)
     # WORKAROUND FOR QGIS BUG: qgis:reprojectvectorlayer mishandles attributes so that QLongLong data types are
     # treated as int. This means large values have an integer overrun in the reprojected layer
@@ -685,7 +686,8 @@ def shapefile_attributes(layer):
             try:
                 vals.append(float(a))
             except Exception:
-                if type(a) is QPyNullVariant:
+                # if type(a) is QPyNullVariant:
+                if type(a) is NULL:
                     vals.append(np.nan)
                 else:
                     vals.append(a)
@@ -881,7 +883,8 @@ def duplicateVectorLayer(inLayer, targetEPSG=None, label=None):
     for feat in inLayer.getFeatures():
         a = QgsFeature()
         a.setGeometry(feat.geometry())
-        a.setFields(newLayer.pendingFields())
+        # a.setFields(newLayer.pendingFields())
+        a.setFields(newLayer.fields())
         a.setAttributes(feat.attributes())
         pr.addFeatures([a])  # Update layer
 
@@ -930,8 +933,8 @@ def populateShapefileFromTemplate(dataMatrix, primaryKey, templateShapeFile,
       :param templateEpsgCode:
     '''
 
-    from qgis.core import QgsVectorLayer,  QgsField, QgsFeature, QgsSpatialIndex, QgsMessageLog
-    from qgis.PyQt.QtCore import QVariant
+    # from qgis.core import QgsVectorLayer,  QgsField, QgsFeature, QgsSpatialIndex, QgsMessageLog
+    # from qgis.PyQt.QtCore import QVariant
     if type(templateShapeFile) in [str, str]:
         # Open existing layer and try to set its CRS
         layer=openShapeFileInMemory(templateShapeFile, templateEpsgCode, label=title)

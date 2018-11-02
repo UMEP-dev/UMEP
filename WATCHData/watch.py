@@ -342,28 +342,28 @@ class WATCHData(object):
         try:
             import pandas
         except Exception as e:
-            QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the pandas package '
+            QMessageBox.critical(None, 'Error', 'This plugin requires the pandas package '
                                                 'to be installed OR upgraded. Please consult the FAQ in the manual '
                                                 'for further information on how to install missing python packages.')
             return
         try:
             import ftplib
         except Exception as e:
-            QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the ftplib package '
+            QMessageBox.critical(None, 'Error', 'This plugin requires the ftplib package '
                                                 'to be installed. Please consult the FAQ in the manual for further '
                                                 'information on how to install missing python packages.')
             return
         try:
             import scipy
         except Exception as e:
-            QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the scipy package '
+            QMessageBox.critical(None, 'Error', 'This plugin requires the scipy package '
                                                 'to be installed. Please consult the FAQ in the manual for further '
                                                 'information on how to install missing python packages.')
             return
         try:
             import requests
         except Exception as e:
-            QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the requests package '
+            QMessageBox.critical(None, 'Error', 'This plugin requires the requests package '
                                                 'to be installed. Please consult the FAQ in the manual for further '
                                                 'information on how to install missing python packages.')
             return
@@ -371,7 +371,7 @@ class WATCHData(object):
             import netCDF4 as nc4
         except Exception as e:
             QMessageBox.critical(None, 'Error',
-                                 'The WATCH data download/extract feature requires the NetCDF4 Python package '
+                                 'This plugin requires the NetCDF4 Python package '
                                  'to be installed. Please consult the FAQ in the manual for further '
                                  'information on how to install missing python packages.')
             return
@@ -386,7 +386,7 @@ class WATCHData(object):
             self.dlg.textOutput_AH.setText(self.folderPathAH[0])
 
     def help(self):
-        url = "http://urban-climate.net/umep/UMEP_Manual#Meteorological_Data:_Download_data_.28WATCH.29"
+        url = "https://umep-docs.readthedocs.io/en/latest/pre-processor/Meteorological%20Data%20Download%20data%20(WATCH).html"
         webbrowser.open_new_tab(url)
 
     def refine_worker_finished(self):

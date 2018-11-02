@@ -596,7 +596,5 @@ class FootprintModel(object):
             self.dlg.progressBar.setValue(0)
 
     def help(self):
-        # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = "http://www.urban-climate.net/umep/UMEP_Manual#Pre-Processor:" \
-              "_Urban_Morphology:_Footprint_Model_.28Point.29"
+        url = "https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Morphology%20Source%20Area%20(Point).html"
         webbrowser.open_new_tab(url)

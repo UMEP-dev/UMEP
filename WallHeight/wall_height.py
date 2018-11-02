@@ -186,17 +186,17 @@ class WallHeight(object):
         try:
             import scipy
         except Exception as e:
-            QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the scipy package '
-                                                'to be installed. Please consult the FAQ in the manual for further '
+            QMessageBox.critical(None, 'Error', 'This plugin requires the scipy package to '
+                                                'be installed. Please consult the FAQ in the manual for further '
                                                 'information on how to install missing python packages.')
             return
-        try:
-            import PIL
-        except Exception as e:
-            QMessageBox.critical(None, 'Error', 'The WATCH data download/extract feature requires the Pillow package '
-                                                'to be installed. Please consult the FAQ in the manual for further '
-                                                'information on how to install missing python packages.')
-            return
+        # try:
+        #     import skimage
+        # except Exception as e:
+        #     QMessageBox.critical(None, 'Error', 'This plugin requires the scikit-image package to '
+        #                                         'be installed. Please consult the FAQ in the manual for further '
+        #                                         'information on how to install missing python packages.')
+        #     return
         self.dlg.show()
         self.dlg.exec_()
 
@@ -333,6 +333,5 @@ class WallHeight(object):
         self.dlg.progressBar.setValue(self.steps)
 
     def help(self):
-        # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Urban_Geometry:_Wall_Height_and_Aspect'
+        url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Geometry%20Wall%20Height%20and%20Aspect.html'
         webbrowser.open_new_tab(url)

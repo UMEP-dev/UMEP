@@ -775,8 +775,7 @@ class SkyViewFactorCalculator(object):
         self.dlg.exec_()
 
     def help(self):
-        # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Urban_Geometry:_Sky_View_Factor_Calculator'
+        url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Geometry%20Sky%20View%20Factor%20Calculator.html'
         # QDesktopServices.openUrl(QUrl(url))
         webbrowser.open_new_tab(url)
 

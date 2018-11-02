@@ -28,7 +28,7 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication,
 from qgis.PyQt.QtWidgets import QAction, QMessageBox, QFileDialog
 from qgis.PyQt.QtGui import QIcon
 from qgis.gui import QgsMessageBar
-from qgis.core import QgsVectorLayer, QgsMessageLog
+from qgis.core import QgsVectorLayer, QgsMessageLog, Qgis
 from .LQF_dialog import LQFDialog
 import os.path
 import webbrowser
@@ -81,7 +81,7 @@ class LQF(object):
             import pandas
         except Exception as e:
             QMessageBox.critical(None, 'Error',
-                                 'LQF requires the pandas package to be installed. '
+                                 'This plugin requires the pandas package to be installed. '
                                  'Please consult the manual for further information')
             return
 
@@ -90,7 +90,7 @@ class LQF(object):
             import netCDF4
         except Exception as e:
             QMessageBox.critical(None, 'Error',
-                                 'LQF requires the NetCDF4 package to be installed. '
+                                 'This plugin requires the NetCDF4 package to be installed. '
                                  'Please consult the manual for further information')
             return
 
@@ -99,7 +99,7 @@ class LQF(object):
             import matplotlib
         except Exception as e:
             QMessageBox.critical(None, 'Error',
-                                 'LQF requires the matplotlib package to be installed. '
+                                 'This plugin requires the matplotlib package to be installed. '
                                  'Please consult the manual for further information')
             return
 
@@ -114,8 +114,8 @@ class LQF(object):
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&LQF')
-        self.toolbar = self.iface.addToolBar(u'LQF')
-        self.toolbar.setObjectName(u'LQF')
+        # self.toolbar = self.iface.addToolBar(u'LQF')
+        # self.toolbar.setObjectName(u'LQF')
 
     def initialise(self):
         self.model = Model()                #LQF object
@@ -218,8 +218,10 @@ class LQF(object):
     def outputFolder(self):
         # Let user select folder into which model outputs will be saved
         fileDialog = QFileDialog()
-        fileDialog.setFileMode(4)
-        fileDialog.setAcceptMode(1)
+        fileDialog.setFileMode(QFileDialog.Directory)
+        fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
+        # fileDialog.setFileMode(4)
+        # fileDialog.setAcceptMode(1)
         result = fileDialog.exec_()
         if result == 1:
             self.model.setOutputDir(fileDialog.selectedFiles()[0])
@@ -279,7 +281,7 @@ class LQF(object):
 
     def workerError(self, strException):
         QMessageBox.critical(None, 'Data pre-processing error:', str(strException))
-        QgsMessageLog.logMessage(traceback.format_exc(), level=QgsMessageLog.WARNING)
+        QgsMessageLog.logMessage(traceback.format_exc(), level=Qgis.Warning)
 
         self.dlg.progressBar.setValue(0)
         self.dlg.cmdPrepare.setText('Prepare input data using Data sources')
@@ -291,7 +293,7 @@ class LQF(object):
         self.dlg.cmdPrepare.setEnabled(True)
 
     def help(self):
-        url = "http://urban-climate.net/umep/UMEP_Manual#Urban_Energy_Balance:_LQF"
+        url = "https://umep-docs.readthedocs.io/en/latest/processor/Urban%20Energy%20Balance%20LQ.html"
         webbrowser.open_new_tab(url)
 
     def dataSources(self):

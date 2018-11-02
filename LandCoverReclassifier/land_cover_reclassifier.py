@@ -276,7 +276,6 @@ class LandCoverReclassifier(object):
         self.dlg.exec_()
 
     def help(self):
-        # url = "file://" + self.plugin_dir + "/help/Index.html"
-        url = 'http://www.urban-climate.net/umep/UMEP_Manual#Urban_Land_Cover:_Land_Cover_Reclassifier'
+        url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Land%20Cover%20Land%20Cover%20Reclassifier.html'
         webbrowser.open_new_tab(url)
 

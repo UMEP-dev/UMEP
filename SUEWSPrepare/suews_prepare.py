@@ -53,7 +53,8 @@ import webbrowser
 try:
     import xlrd
 except ImportError:
-    QMessageBox.critical(None, 'Missing Python library', 'SUEWS Prepare requires the xlrd package to be installed. Please consult the UMEP manual for further information')
+    QMessageBox.critical(None, 'Missing Python library', 'This plugin requires the xlrd package to be installed. '
+                                                         'Please consult the UMEP manual for further information')
     pass
 
 

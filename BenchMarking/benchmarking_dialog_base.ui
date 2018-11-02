@@ -36,27 +36,17 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QCheckBox" name="checkBox_Data2">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="text">
-        <string>Add another comparison dataset</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="1">
       <widget class="QLineEdit" name="textInput_Data2">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item row="1" column="2">
       <widget class="QPushButton" name="pushButtonData_2">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="toolTip">
         <string>Select an existing text file with meteorological data at a temporal resolution between 5 min and 180 min (3 hours) that is divisible by 5 min. Specify column separator and number of header lines before importing data.</string>
@@ -69,7 +59,7 @@
      <item row="2" column="0">
       <widget class="QCheckBox" name="checkBox_Data3">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="text">
         <string>Add another comparison dataset</string>
@@ -160,6 +150,13 @@
       <widget class="QLabel" name="label">
        <property name="text">
         <string>First comparison dataset (reference):</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Add first comparison dataset</string>
        </property>
       </widget>
      </item>
@@ -429,54 +426,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_Data2</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>textInput_Data2</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>163</x>
-     <y>239</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>203</x>
-     <y>239</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_Data2</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>pushButtonData_2</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>103</x>
-     <y>241</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>421</x>
-     <y>243</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_Data2</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>checkBox_Data3</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>56</x>
-     <y>245</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>38</x>
-     <y>270</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>checkBox_Data3</sender>
    <signal>clicked(bool)</signal>
    <receiver>textInput_Data3</receiver>
@@ -521,22 +470,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>87</x>
      <y>300</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_Data3</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>checkBox_Data2</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>50</x>
-     <y>267</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>47</x>
-     <y>243</y>
     </hint>
    </hints>
   </connection>
