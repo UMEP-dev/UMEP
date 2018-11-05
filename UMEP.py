@@ -43,7 +43,7 @@ from .DSMGenerator.dsm_generator import DSMGenerator  # TODO: Working except for
 from .WATCHData.watch import WATCHData
 # from .GreaterQF.greater_qf import GreaterQF  # TODO: Multiple changes required :Plugin blocker
 from .ExtremeFinder.extreme_finder import ExtremeFinder
-from .LucyQf.LQF import LQF  # TODO: Multiple changes required :Plugin blocker
+from .LucyQF.LQF import LQF  # TODO: Multiple changes required :Plugin blocker
 from .SEBE.sebe import SEBE
 from .SuewsSimple.suews_simple import SuewsSimple
 from .SUEWSPrepare.suews_prepare import SUEWSPrepare

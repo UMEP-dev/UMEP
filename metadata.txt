@@ -11,7 +11,7 @@ name=UMEP
 qgisMinimumVersion=3.0
 description=Urban Multi-scale Environmental Predictor
 
-version=3.7.1
+version=3.7.2
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg
 email=fredrikl@gvc.gu.se
 
@@ -26,60 +26,61 @@ repository=https://bitbucket.org/fredrik_ucg/umep
 
 # Uncomment the following line and add your changelog:
 changelog=
+    3.7.2 : Bug fix in LQF where UMEP didnt load due to spelling issue. General clean up.
     3.7.1 : General bug fixing after release of QGIS 3.4. Issue #71 resolved.
     3.7   : General bug fixing. Issue #68 resolved. Benchmarking and ExtremeFinder activated.
     3.6   : Implemetations same as 1.5.3. New version of SOLWEIG (v2018a). General bug fixing. Issue #65 and #55 resolved. WATCH and Spatial data Downloader activated. New SVF plugin
     3.5.2 : Early adopter release. Adding missing imports of QCoreApplication
     3.5.1 : Early adopter release. bugfix in SUEWSSimple. Changed to version number 3.x.
-	1.5   : LONG TERM RELEASE. Early adopter release. Some parts of the plugin is not yet operational.
-	1.4.2 : Response to issue #42 and #46. Initiation of migration to QGIS3.
-	1.4.1 : Bug fix in land cover fraction calculations
-	1.4   : Response to issue #36 and bugfix in LQf
-	1.3   : Response on issue #35 and #37. General bug fixing.
-	1.2   : LONG TERM RELEASE. Response on issue #26. Bugfix in SUEWS interfaces. 
-	1.1.1 : Bug fix in SUEWSPrepare.
-	1.1   : LONG TERM RELEASE. Improvements in the Metdataprocessor.
-	1.0.1 : Bug fix in Metdataprocessor to cope with hourly data and DSMGenerator to cope with non metric CRS.
-	1.0   : First release to the official QGIS Python Plugins Repository.
-	0.6.3 : Bug fix in DSMGenerator.
-	0.6.2 : Bug fix in SOLWEIG where vegetation shadows were malfunctioning.
-	0.6.1 : Bug fix in DSMGeneraton when building vector polygon is used.
-	0.6.0 : LONG TERM RELEASE. New plugin: DSMGenerator.
-	0.5.5 : Issue #21 resolved (Issue in SUEWSSimple using external meteorological file).
-	0.5.4 : Bug in SOLWEIG when generating TDSM fixed.
-	0.5.3 : Bug fixing in Wall Height and aspect. Update on ShadowGenerator. General cleaning.
-	0.5.2 : Bug fixing in SUEWSSimple and Metdataprocessor. qgiscombomanager now replaced with QGIS core functions.
-	0.5.1 : Bug fixing to footprint model and update of the shadow casting algorithm.
-	0.5.0 : LONG TERM RELEASE. Includes SUEWS v2017b, Multiple updates and bug fixing.
-	0.4.2 : Issue #18 resolved. Work continued on replacing the qgiscombomanager with QGIS core functions.
-	0.4.1 : Work started on replacing the qgiscombomanager with QGIS core functions.
-	0.4.0 : LONG TERM RELEASE. Due to updates in QGIS, parts of UMEP failed. Therefore, a new long term version released.
-	0.3.1 : Bug fix in the SEBE model when only global radiation is available in the meteorological dataset.
-	0.3.0 : LONG TERM RELEASE. Plugin no longer marked as experimental.
-	0.2.17 : General bug fix.
-	0.2.16 : Improvement of SUEWSPrepare and SUEWSAnalyzer of cope with multiple years. General bug fixing
-	0.2.15 : New plugin: Benhmarking system. Bug fixing in LQF, GQF and LCZConverter
-	0.2.14 : New plugin: LQf (LUCY). Updates on GQf
-	0.2.13 : Major updates to ExtremeFinder plugin.
-	0.2.12 : New plugins: Spatial data Downloader and LCZConverter.
-	0.2.11 : Major changes in SUEWS-related plugins.
-	0.2.10 : New pugin: SUEWSAnalyzer. Geneal bug fixing.
-	0.2.9 : Improvments in ImageMorphGrid, SOLWEIGAnalyzer and the SUEWS plugins.
-	0.2.8 : Bug fixes in SUEWSSimple and Metdataprocessor.
-	0.2.7 : Issue #12 fixed. Animation included in SOLWEIGAnalyzer.
-	0.2.6 : New plugin: SOLWEIGAnalyzer. Bug fix to cope with multiple days in SOLWEIG.
-	0.2.5 : Fixed a blocking bug where python dependencies stop the plugin to start.
-	0.2.4 : New pre-prcessing plugin, TreeGenerator. General bug fixes.
-	0.2.3 : Major updates of the FootPrintModel and the SOLWEIG model.
-	0.2.2 : RunControl.nml edited online with Bitbucket.
-	0.2.1 : SOLWEIG added. Minos bug fixes.
-	0.2.0 : LONG TERM RELEASE. Bug fixes. New Plugins: WATCHData and GreaterQF (London).
-	0.1.5 : BETA. Inclusion of SUEWS v2016b. Bug fixes.
-	0.1.4 : LONG TERM RELEASE. Layouts added, many bug fixes, more documentation. New plugin: SUEWSPrepare.
-	0.1.3 : Bug in SuewsSimple fixed.
-	0.1.2 : Bug in Image morphometric where building heights were underestimated is now fixed.
-	0.1.1 : Bug fix issue #2 and #3. Data-folders are now created if missing. 
-	0.1   : Official release, VERSION 0.1 BETA.
+   1.5   : LONG TERM RELEASE. Early adopter release. Some parts of the plugin is not yet operational.
+   1.4.2 : Response to issue #42 and #46. Initiation of migration to QGIS3.
+   1.4.1 : Bug fix in land cover fraction calculations
+   1.4   : Response to issue #36 and bugfix in LQf
+   1.3   : Response on issue #35 and #37. General bug fixing.
+   1.2   : LONG TERM RELEASE. Response on issue #26. Bugfix in SUEWS interfaces. 
+   1.1.1 : Bug fix in SUEWSPrepare.
+   1.1   : LONG TERM RELEASE. Improvements in the Metdataprocessor.
+   1.0.1 : Bug fix in Metdataprocessor to cope with hourly data and DSMGenerator to cope with non metric CRS.
+   1.0   : First release to the official QGIS Python Plugins Repository.
+   0.6.3 : Bug fix in DSMGenerator.
+   0.6.2 : Bug fix in SOLWEIG where vegetation shadows were malfunctioning.
+   0.6.1 : Bug fix in DSMGeneraton when building vector polygon is used.
+   0.6.0 : LONG TERM RELEASE. New plugin: DSMGenerator.
+   0.5.5 : Issue #21 resolved (Issue in SUEWSSimple using external meteorological file).
+   0.5.4 : Bug in SOLWEIG when generating TDSM fixed.
+   0.5.3 : Bug fixing in Wall Height and aspect. Update on ShadowGenerator. General cleaning.
+   0.5.2 : Bug fixing in SUEWSSimple and Metdataprocessor. qgiscombomanager now replaced with QGIS core functions.
+   0.5.1 : Bug fixing to footprint model and update of the shadow casting algorithm.
+   0.5.0 : LONG TERM RELEASE. Includes SUEWS v2017b, Multiple updates and bug fixing.
+   0.4.2 : Issue #18 resolved. Work continued on replacing the qgiscombomanager with QGIS core functions.
+   0.4.1 : Work started on replacing the qgiscombomanager with QGIS core functions.
+   0.4.0 : LONG TERM RELEASE. Due to updates in QGIS, parts of UMEP failed. Therefore, a new long term version released.
+   0.3.1 : Bug fix in the SEBE model when only global radiation is available in the meteorological dataset.
+   0.3.0 : LONG TERM RELEASE. Plugin no longer marked as experimental.
+   0.2.17 : General bug fix.
+   0.2.16 : Improvement of SUEWSPrepare and SUEWSAnalyzer of cope with multiple years. General bug fixing
+   0.2.15 : New plugin: Benhmarking system. Bug fixing in LQF, GQF and LCZConverter
+   0.2.14 : New plugin: LQf (LUCY). Updates on GQf
+   0.2.13 : Major updates to ExtremeFinder plugin.
+   0.2.12 : New plugins: Spatial data Downloader and LCZConverter.
+   0.2.11 : Major changes in SUEWS-related plugins.
+   0.2.10 : New pugin: SUEWSAnalyzer. Geneal bug fixing.
+   0.2.9 : Improvments in ImageMorphGrid, SOLWEIGAnalyzer and the SUEWS plugins.
+   0.2.8 : Bug fixes in SUEWSSimple and Metdataprocessor.
+   0.2.7 : Issue #12 fixed. Animation included in SOLWEIGAnalyzer.
+   0.2.6 : New plugin: SOLWEIGAnalyzer. Bug fix to cope with multiple days in SOLWEIG.
+   0.2.5 : Fixed a blocking bug where python dependencies stop the plugin to start.
+   0.2.4 : New pre-prcessing plugin, TreeGenerator. General bug fixes.
+   0.2.3 : Major updates of the FootPrintModel and the SOLWEIG model.
+   0.2.2 : RunControl.nml edited online with Bitbucket.
+   0.2.1 : SOLWEIG added. Minos bug fixes.
+   0.2.0 : LONG TERM RELEASE. Bug fixes. New Plugins: WATCHData and GreaterQF (London).
+   0.1.5 : BETA. Inclusion of SUEWS v2016b. Bug fixes.
+   0.1.4 : LONG TERM RELEASE. Layouts added, many bug fixes, more documentation. New plugin: SUEWSPrepare.
+   0.1.3 : Bug in SuewsSimple fixed.
+   0.1.2 : Bug in Image morphometric where building heights were underestimated is now fixed.
+   0.1.1 : Bug fix issue #2 and #3. Data-folders are now created if missing. 
+   0.1   : Official release, VERSION 0.1 BETA.
 	
 
 # Tags are comma separated with spaces allowed
