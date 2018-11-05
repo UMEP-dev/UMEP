@@ -11,7 +11,7 @@ name=UMEP
 qgisMinimumVersion=2.0
 description=Urban Multi-scale Environmental Predictor
 
-version=1.6
+version=1.7
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg
 email=fredrikl@gvc.gu.se
 
@@ -26,8 +26,9 @@ repository=https://bitbucket.org/fredrik_ucg/umep
 
 # Uncomment the following line and add your changelog:
 changelog=
-        1.6   : General bug fixing. Issue #65 and #55 resolved.
-        1.5.3 : Response to issue #49 and #50. Removed os dependent gdalwarp. Changed to gdal.Warp function
+	1.7   : Bux fixing in Footprint model and others
+	1.6   : General bug fixing. Issue #65 and #55 resolved.
+	1.5.3 : Response to issue #49 and #50. Removed os dependent gdalwarp. Changed to gdal.Warp function
 	1.5   : LONG TERM RELEASE.
 	1.4.2 : Response to issue #42 and #46. Initiation of migration to QGIS3.
 	1.4.1 : Bug fix in land cover fraction calculations

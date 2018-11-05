@@ -292,11 +292,11 @@ class FootprintModel:
 
     def start_process(self):
 
-        # # Check OS and dep
-        # if sys.platform == 'darwin':
-        #     gdalwarp_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdalwarp'
-        # else:
-        #     gdalwarp_os_dep = 'gdalwarp'
+        # Check OS and dep
+        if sys.platform == 'darwin':
+            gdalwarp_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdalwarp'
+        else:
+            gdalwarp_os_dep = 'gdalwarp'
 
         if self.dlg.checkBoxUseFile.isChecked():
             if self.data == 'None':
@@ -381,19 +381,19 @@ class FootprintModel:
 
             provider = dsm_build.dataProvider()
             filePath_dsm_build = str(provider.dataSourceUri())
-            # gdalruntextdsm_build = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-            #                        ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
-            #                        filePath_dsm_build + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
-            #
-            # if sys.platform == 'win32':
-            #     subprocess.call(gdalruntextdsm_build, startupinfo=si)
-            # else:
-            #     os.system(gdalruntextdsm_build)
+            gdalruntextdsm_build = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+                                   filePath_dsm_build + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
+
+            if sys.platform == 'win32':
+                subprocess.call(gdalruntextdsm_build, startupinfo=si)
+            else:
+                os.system(gdalruntextdsm_build)
 
             # Remove gdalwarp with gdal.Translate
-            bigraster = gdal.Open(filePath_dsm_build)
-            bbox = (x - r, y + r, x + r, y - r)
-            gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster, projWin=bbox)
+            # bigraster = gdal.Open(filePath_dsm_build)
+            # bbox = (x - r, y + r, x + r, y - r)
+            # gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster, projWin=bbox)
 
             dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
             dsm = dataset.ReadAsArray().astype(np.float)
@@ -419,27 +419,27 @@ class FootprintModel:
             filePath_dem = str(provider.dataSourceUri())
 
             # Remove gdalwarp with gdal.Translate
-            bigraster_dsm = gdal.Open(filePath_dsm)
-            bigraster_dem = gdal.Open(filePath_dem)
-            bbox = (x - r, y + r, x + r, y - r)
-            gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster_dsm, projWin=bbox)
-            gdal.Translate(self.plugin_dir + '/data/clipdem.tif', bigraster_dem, projWin=bbox)
+            # bigraster_dsm = gdal.Open(filePath_dsm)
+            # bigraster_dem = gdal.Open(filePath_dem)
+            # bbox = (x - r, y + r, x + r, y - r)
+            # gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster_dsm, projWin=bbox)
+            # gdal.Translate(self.plugin_dir + '/data/clipdem.tif', bigraster_dem, projWin=bbox)
 
-            # gdalruntextdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-            #                                    ' ' + str(x + r ) + ' ' + str(y + r) + ' -of GTiff "' + \
-            #                                    filePath_dsm + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
-            # gdalruntextdem = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-            #                        ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
-            #                        filePath_dem + '" "' + self.plugin_dir + '/data/clipdem.tif"'
-            #
-            # if sys.platform == 'win32':
-            #     si = subprocess.STARTUPINFO()
-            #     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            #     subprocess.call(gdalruntextdsm, startupinfo=si)
-            #     subprocess.call(gdalruntextdem, startupinfo=si)
-            # else:
-            #     os.system(gdalruntextdsm)
-            #     os.system(gdalruntextdem)
+            gdalruntextdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+                                               ' ' + str(x + r ) + ' ' + str(y + r) + ' -of GTiff "' + \
+                                               filePath_dsm + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
+            gdalruntextdem = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+                                   filePath_dem + '" "' + self.plugin_dir + '/data/clipdem.tif"'
+
+            if sys.platform == 'win32':
+                si = subprocess.STARTUPINFO()
+                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                subprocess.call(gdalruntextdsm, startupinfo=si)
+                subprocess.call(gdalruntextdem, startupinfo=si)
+            else:
+                os.system(gdalruntextdsm)
+                os.system(gdalruntextdem)
 
             dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
             dsm = dataset.ReadAsArray().astype(np.float)
@@ -473,19 +473,19 @@ class FootprintModel:
             # # load raster
             provider = vegdsm.dataProvider()
             filePath_vegdsm = str(provider.dataSourceUri())
-            # gdalruntextvegdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-            #                        ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
-            #                        filePath_vegdsm + '" "' + self.plugin_dir + '/data/clipvegdsm.tif"'
-            #
-            # if sys.platform == 'win32':
-            #     subprocess.call(gdalruntextvegdsm, startupinfo=si)
-            # else:
-            #     os.system(gdalruntextvegdsm)
+            gdalruntextvegdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+                                   filePath_vegdsm + '" "' + self.plugin_dir + '/data/clipvegdsm.tif"'
+
+            if sys.platform == 'win32':
+                subprocess.call(gdalruntextvegdsm, startupinfo=si)
+            else:
+                os.system(gdalruntextvegdsm)
 
             # Remove gdalwarp with gdal.Translate
-            bigraster_vegdsm = gdal.Open(filePath_vegdsm)
-            bbox = (x - r, y + r, x + r, y - r)
-            gdal.Translate(self.plugin_dir + '/data/clipvegdsm.tif', bigraster_vegdsm, projWin=bbox)
+            # bigraster_vegdsm = gdal.Open(filePath_vegdsm)
+            # bbox = (x - r, y + r, x + r, y - r)
+            # gdal.Translate(self.plugin_dir + '/data/clipvegdsm.tif', bigraster_vegdsm, projWin=bbox)
 
             dataset = gdal.Open(self.plugin_dir + '/data/clipvegdsm.tif')
             vegdsm = dataset.ReadAsArray().astype(np.float)
