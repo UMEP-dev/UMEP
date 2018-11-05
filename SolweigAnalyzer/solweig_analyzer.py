@@ -184,6 +184,9 @@ class SolweigAnalyzer(object):
         self.dlg.comboBoxSpecificMin.clear()
         self.dlg.comboBox_POI.clear()
         self.dlg.comboBox_POI_2.clear()
+        self.dlg.comboBoxSpecificMean.addItem('Not Specified')
+        self.dlg.comboBoxSpecificMax.addItem('Not Specified')
+        self.dlg.comboBoxSpecificMin.addItem('Not Specified')
 
         # self.fileDialog.setFileMode(QFileDialog.Directory)
         # self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)

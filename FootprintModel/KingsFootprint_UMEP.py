@@ -157,6 +157,7 @@ def footprintiterKAM(iterations,z_0_input,z_d_input,z_ag,sigv,Obukhov,ustar,dir,
         domain_y = domain_y / d_input
         fy = fx
         full = np.zeros([fx, fy])
+        print(phi.shape)
         full[int((fx+1)/2):int((fx+1)/2+(domain_x)),int((fy/2+1)-domain_y):int((fy/2+1)+domain_y+1)] = phi
         full[np.isnan(full)]=0
 

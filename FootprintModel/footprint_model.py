@@ -287,11 +287,11 @@ class FootprintModel(object):
 
     def start_process(self):
 
-        # #Check OS and dep
-        # if sys.platform == 'darwin':
-        #     gdalwarp_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdalwarp'
-        # else:
-        #     gdalwarp_os_dep = 'gdalwarp'
+        #Check OS and dep
+        if sys.platform == 'darwin':
+            gdalwarp_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdalwarp'
+        else:
+            gdalwarp_os_dep = 'gdalwarp'
 
         if self.dlg.checkBoxUseFile.isChecked():
             if self.data == 'None':
@@ -376,19 +376,19 @@ class FootprintModel(object):
 
             provider = dsm_build.dataProvider()
             filePath_dsm_build = str(provider.dataSourceUri())
-            # gdalruntextdsm_build = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-            #                        ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
-            #                        filePath_dsm_build + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
-            #
-            # if sys.platform == 'win32':
-            #     subprocess.call(gdalruntextdsm_build, startupinfo=si)
-            # else:
-            #     os.system(gdalruntextdsm_build)
+            gdalruntextdsm_build = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+                                   filePath_dsm_build + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
+
+            if sys.platform == 'win32':
+                subprocess.call(gdalruntextdsm_build, startupinfo=si)
+            else:
+                os.system(gdalruntextdsm_build)
 
             # Remove gdalwarp with gdal.Translate
-            bigraster = gdal.Open(filePath_dsm_build)
-            bbox = (x - r, y + r, x + r, y - r)
-            gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster, projWin=bbox)
+            # bigraster = gdal.Open(filePath_dsm_build)
+            # bbox = (x - r, y + r, x + r, y - r)
+            # gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster, projWin=bbox)
 
             dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
             dsm = dataset.ReadAsArray().astype(np.float)
@@ -413,28 +413,34 @@ class FootprintModel(object):
             provider = dem.dataProvider()
             filePath_dem = str(provider.dataSourceUri())
 
-            # gdalruntextdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-            #                                    ' ' + str(x + r ) + ' ' + str(y + r) + ' -of GTiff "' + \
-            #                                    filePath_dsm + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
-            # gdalruntextdem = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-            #                        ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
-            #                        filePath_dem + '" "' + self.plugin_dir + '/data/clipdem.tif"'
-            #
-            # if sys.platform == 'win32':
-            #     si = subprocess.STARTUPINFO()
-            #     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            #     subprocess.call(gdalruntextdsm, startupinfo=si)
-            #     subprocess.call(gdalruntextdem, startupinfo=si)
-            # else:
-            #     os.system(gdalruntextdsm)
-            #     os.system(gdalruntextdem)
+            gdalruntextdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+                                               ' ' + str(x + r ) + ' ' + str(y + r) + ' -of GTiff "' + \
+                                               filePath_dsm + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
+            gdalruntextdem = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+                                   filePath_dem + '" "' + self.plugin_dir + '/data/clipdem.tif"'
 
-            # Remove gdalwarp with gdal.Translate
-            bigraster_dsm = gdal.Open(filePath_dsm)
-            bigraster_dem = gdal.Open(filePath_dem)
-            bbox = (x - r, y + r, x + r, y - r)
-            gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster_dsm, projWin=bbox)
-            gdal.Translate(self.plugin_dir + '/data/clipdem.tif', bigraster_dem, projWin=bbox)
+            if sys.platform == 'win32':
+                si = subprocess.STARTUPINFO()
+                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                subprocess.call(gdalruntextdsm, startupinfo=si)
+                subprocess.call(gdalruntextdem, startupinfo=si)
+            else:
+                os.system(gdalruntextdsm)
+                os.system(gdalruntextdem)
+
+            # Remove gdalwarp with gdal.Translate. Not working. Not same size of raster
+            # bigraster_dsm = gdal.Open(filePath_dsm)
+            # bigraster_dem = gdal.Open(filePath_dem)
+            # bbox = (x - r, y + r, x + r, y - r)
+            #
+            # geotransform = bigraster_dsm.GetGeoTransform()
+            # res = geotransform[1]
+            # gdal.Warp(self.plugin_dir + '/data/clipdsm.tif', bigraster_dsm, outputBounds = [x - r, y - r, x + r, y + r], xRes=res, yRes=res)
+            # gdal.Warp(self.plugin_dir + '/data/clipdem.tif', bigraster_dem, outputBounds=[x - r, y - r, x + r, y + r],
+            #           xRes=res, yRes=res)
+            # gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster_dsm, projWin=bbox)
+            # gdal.Translate(self.plugin_dir + '/data/clipdem.tif', bigraster_dem, projWin=bbox)
 
             dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
             dsm = dataset.ReadAsArray().astype(np.float)
@@ -445,7 +451,6 @@ class FootprintModel(object):
             sizey = dsm.shape[1]
 
             dsm = dsm - dem     #remove ground height
-
 
             if not (dsm.shape[0] == dem.shape[0]) & (dsm.shape[1] == dem.shape[1]):
                 QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
@@ -469,19 +474,19 @@ class FootprintModel(object):
             # load raster
             provider = vegdsm.dataProvider()
             filePath_vegdsm = str(provider.dataSourceUri())
-            # gdalruntextvegdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-            #                        ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
-            #                        filePath_vegdsm + '" "' + self.plugin_dir + '/data/clipvegdsm.tif"'
-            #
-            # if sys.platform == 'win32':
-            #     subprocess.call(gdalruntextvegdsm, startupinfo=si)
-            # else:
-            #     os.system(gdalruntextvegdsm)
+            gdalruntextvegdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+                                   filePath_vegdsm + '" "' + self.plugin_dir + '/data/clipvegdsm.tif"'
+
+            if sys.platform == 'win32':
+                subprocess.call(gdalruntextvegdsm, startupinfo=si)
+            else:
+                os.system(gdalruntextvegdsm)
 
             # Remove gdalwarp with gdal.Translate
-            bigraster_vegdsm = gdal.Open(filePath_vegdsm)
-            bbox = (x - r, y + r, x + r, y - r)
-            gdal.Translate(self.plugin_dir + '/data/clipvegdsm.tif', bigraster_vegdsm, projWin=bbox)
+            # bigraster_vegdsm = gdal.Open(filePath_vegdsm)
+            # bbox = (x - r, y + r, x + r, y - r)
+            # gdal.Translate(self.plugin_dir + '/data/clipvegdsm.tif', bigraster_vegdsm, projWin=bbox)
 
             dataset = gdal.Open(self.plugin_dir + '/data/clipvegdsm.tif')
             vegdsm = dataset.ReadAsArray().astype(np.float)
@@ -500,7 +505,6 @@ class FootprintModel(object):
             vegsizey = vegdsm.shape[1]
 
         por = por/100.          # convert to 0 - 1 scale
-        #QMessageBox.critical(None, "Error", str(por))
 
         geotransform = dataset.GetGeoTransform()
         # scale = 1 / geotransform[1]

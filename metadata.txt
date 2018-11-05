@@ -11,7 +11,7 @@ name=UMEP
 qgisMinimumVersion=3.0
 description=Urban Multi-scale Environmental Predictor
 
-version=3.7
+version=3.7.1
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg
 email=fredrikl@gvc.gu.se
 
@@ -26,10 +26,11 @@ repository=https://bitbucket.org/fredrik_ucg/umep
 
 # Uncomment the following line and add your changelog:
 changelog=
-        3.7   : General bug fixing. Issue #68 resolved. Benchmarking and ExtremeFinder activated.
-        3.6   : Implemetations same as 1.5.3. New version of SOLWEIG (v2018a). General bug fixing. Issue #65 and #55 resolved. WATCH and Spatial data Downloader activated. New SVF plugin
-        3.5.2 : Early adopter release. Adding missing imports of QCoreApplication
-        3.5.1 : Early adopter release. bugfix in SUEWSSimple. Changed to version number 3.x.
+    3.7.1 : General bug fixing after release of QGIS 3.4. Issue #71 resolved.
+    3.7   : General bug fixing. Issue #68 resolved. Benchmarking and ExtremeFinder activated.
+    3.6   : Implemetations same as 1.5.3. New version of SOLWEIG (v2018a). General bug fixing. Issue #65 and #55 resolved. WATCH and Spatial data Downloader activated. New SVF plugin
+    3.5.2 : Early adopter release. Adding missing imports of QCoreApplication
+    3.5.1 : Early adopter release. bugfix in SUEWSSimple. Changed to version number 3.x.
 	1.5   : LONG TERM RELEASE. Early adopter release. Some parts of the plugin is not yet operational.
 	1.4.2 : Response to issue #42 and #46. Initiation of migration to QGIS3.
 	1.4.1 : Bug fix in land cover fraction calculations
