@@ -18,6 +18,7 @@
 # from scipy import *
 import numpy as np
 import scipy.ndimage.interpolation as sc
+from qgis.core import *
 # import scipy.misc as sc
 # import matplotlib as plt
 # import PIL
@@ -125,7 +126,7 @@ def imagemorphparam_v2(dsm, dem, scale, mid, dtheta, dlg, imp_point):
         line = linecache.getline(filename, lineno, f.f_globals)
         errorstring = 'EXCEPTION IN {}, \nLINE {} "{}" \nERROR MESSAGE: {}'.format(filename, lineno, line.strip(),
                                                                                    exc_obj)
-        QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.Critical)
 
 
 def imagemorphparam_v1(dsm, dem, scale, mid, dtheta, dlg, imp_point):

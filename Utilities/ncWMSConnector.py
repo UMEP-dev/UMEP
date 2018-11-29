@@ -114,7 +114,7 @@ class NCWMS_Connector(object):
         self.check_times(start_date, end_date)
 
         self.request_params = {'vars':variables, 'start_date':start_date, 'end_date':end_date, 'bbox': [lowerleft_lat, lowerleft_lon, upperright_lat, upperright_lon]}
-        # start_dates = pd.date_range(start_date, end_date, freq='%dD' % (self.request_length,)).to_datetime()
+        # start_dates = pd.date_range(start_date, end_date, freq='%dD' % (self.request_length,)).to_datetime()  # to_datetime() not needed...
         start_dates = pd.date_range(start_date, end_date, freq='%dD' % (self.request_length,))
 
         # Create queue of retrievals, and safeguard against over-running dataset end date

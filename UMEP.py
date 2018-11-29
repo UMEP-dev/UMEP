@@ -43,7 +43,7 @@ from .DSMGenerator.dsm_generator import DSMGenerator  # TODO: Working except for
 from .WATCHData.watch import WATCHData
 # from .GreaterQF.greater_qf import GreaterQF  # TODO: Multiple changes required :Plugin blocker
 from .ExtremeFinder.extreme_finder import ExtremeFinder
-from .LucyQF.LQF import LQF  # TODO: Multiple changes required :Plugin blocker
+from .LucyQF.LQF import LQF
 from .SEBE.sebe import SEBE
 from .SuewsSimple.suews_simple import SuewsSimple
 from .SUEWSPrepare.suews_prepare import SUEWSPrepare
@@ -60,6 +60,7 @@ import webbrowser
 # Uncomment the section below if you want to debug in QGIS
 # import sys
 # sys.path.append('C:/OSGeo4W64/apps/Python27/Lib/site-packages/pydev')
+# sys.path.append('C:/Program Files/JetBrains/PyCharm 2017.3.4/helpers/pydev')
 # import pydevd
 
 
@@ -410,7 +411,6 @@ class UMEP(object):
 
     def WH(self):
         sg = WallHeight(self.iface)
-        # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)  #used for debugging
         sg.run()
 
     def SE(self):
@@ -476,6 +476,7 @@ class UMEP(object):
         #                      "This tool is not yet ported to QGIS3. Work still in progress.")
         # return
         sg = LQF(self.iface)
+        # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)  #used for debugging
         sg.run()
 
     def BSS(self):

@@ -134,7 +134,7 @@ class time_displayer(QDialog, FORM_CLASS):
                 layerName = component + t.strftime(' %Y-%m-%d %H:%M UTC')
                 if component == list(self.componentTranslation.values())[0]:
                     colourRanges(new_layer, component, opacity, range_minima, range_maxima, colours)
-                    new_layer.setLayerName(layerName)
+                    new_layer.setName(layerName)  #setLayerName()  before
                     layerId = new_layer.id()
                     QgsProject.instance().addMapLayer(new_layer)
                     proportion = new_layer.extent().height() / new_layer.extent().width()
@@ -142,7 +142,7 @@ class time_displayer(QDialog, FORM_CLASS):
                 else:
                     # Have to clone. Can't seem to duplicate a map layer...
                     layer = duplicateVectorLayer(new_layer)
-                    layer.setLayerName(layerName)
+                    layer.setName(layerName)  #setLayerName()  before
                     colourRanges(layer, component, opacity, range_minima, range_maxima, colours)
                     layerId = layer.id()
                     QgsProject.instance().addMapLayer(layer)
@@ -157,38 +157,39 @@ class time_displayer(QDialog, FORM_CLASS):
                     hSize = maxSize
                     vSize = maxSize*proportion
 
+                # Images is no longer produced. Fredrik 20181129
                 # create image in proportion with layer
-                img = QImage(QSize(hSize, vSize), QImage.Format_ARGB32_Premultiplied)
-
-                # set image's background color
-                color = QColor(255, 255, 255)
-                img.fill(color.rgb())
-
-                # create painter
-                p = QPainter()
-                p.begin(img)
-                p.setRenderHint(QPainter.Antialiasing)
-
-                render = QgsMapRendererJob()
-
-                # set layer set
-                lst = [layerId]  # add ID of every layer
-                render.setLayerSet(lst)
-
-                # set extent
-                rect = QgsRectangle(render.fullExtent())
-                rect.scale(1.1)
-                render.setExtent(rect)
-
-                # set output size
-                render.setOutputSize(img.size(), img.logicalDpiX())
-
-                # do the rendering
-                render.render(p)
-                p.end()
-
-                # save image
-                img.save(os.path.join(self.model.renderPath, component + t.strftime('_%Y-%m-%d_%H-%M_UTC.png')),"png")
+                # img = QImage(QSize(hSize, vSize), QImage.Format_ARGB32_Premultiplied)
+                #
+                # # set image's background color
+                # color = QColor(255, 255, 255)
+                # img.fill(color.rgb())
+                #
+                # # create painter
+                # p = QPainter()
+                # p.begin(img)
+                # p.setRenderHint(QPainter.Antialiasing)
+                #
+                # render = QgsMapRendererJob()
+                #
+                # # set layer set
+                # lst = [layerId]  # add ID of every layer
+                # render.setLayerSet(lst)
+                #
+                # # set extent
+                # rect = QgsRectangle(render.fullExtent())
+                # rect.scale(1.1)
+                # render.setExtent(rect)
+                #
+                # # set output size
+                # render.setOutputSize(img.size(), img.logicalDpiX())
+                #
+                # # do the rendering
+                # render.render(p)
+                # p.end()
+                #
+                # # save image
+                # img.save(os.path.join(self.model.renderPath, component + t.strftime('_%Y-%m-%d_%H-%M_UTC.png')),"png")
 
                     #
                     #

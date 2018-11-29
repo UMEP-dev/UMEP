@@ -342,23 +342,6 @@ class SOLWEIG(object):
             lat = lonlat[1]
             UTC = self.dlg.spinBoxUTC.value()
 
-            if (sizex * sizey) > 250000 and (sizex * sizey) <= 1000000:
-                QMessageBox.warning(self.dlg, "Semi lage grid",
-                                    "This process will take a couple of minutes. "
-                                    "Go and make yourself a cup of tea...")
-
-            if (sizex * sizey) > 1000000 and (sizex * sizey) <= 4000000:
-                QMessageBox.warning(self.dlg, "Large grid", "This process will take some time. "
-                                                                           "Go for lunch...")
-
-            if (sizex * sizey) > 4000000 and (sizex * sizey) <= 16000000:
-                QMessageBox.warning(self.dlg, "Very large grid", "This process will take a long time. "
-                                                                                "Go for lunch and for a walk...")
-
-            if (sizex * sizey) > 16000000:
-                QMessageBox.warning(self.dlg, "Huge grid", "This process will take a very long time. "
-                                                                          "Go home for the weekend or consider to tile your grid")
-
             # Vegetation DSMs #
             trunkfile = 0
             trunkratio = 0
@@ -453,6 +436,19 @@ class SOLWEIG(object):
                 if not (lcsizex == sizex) & (lcsizey == sizey):
                     QMessageBox.critical(self.dlg, "Error in land cover grid",
                                          "All grids must be of same extent and resolution")
+                    return
+
+                baddataConifer = (self.lcgrid == 3)
+                baddataDecid = (self.lcgrid == 4)
+                if baddataConifer.any():
+                    QMessageBox.critical(self.dlg, "Error in land cover grid",
+                                         "Land cover grid includes Confier land cover class. "
+                                         "Ground cover information (underneath canopy) is required.")
+                    return
+                if baddataDecid.any():
+                    QMessageBox.critical(self.dlg, "Error in land cover grid",
+                                         "Land cover grid includes Decidiuous land cover class. "
+                                         "Ground cover information (underneath canopy) is required.")
                     return
             else:
                 filePath_lc = None
@@ -599,6 +595,19 @@ class SOLWEIG(object):
                 QMessageBox.critical(self.dlg, "Error in wall aspect grid",
                                      "All grids must be of same extent and resolution")
                 return
+
+            if (sizex * sizey) > 250000 and (sizex * sizey) <= 1000000:
+                QMessageBox.warning(self.dlg, "Semi lage grid",
+                                    "This process will take a couple of minutes.")
+
+            if (sizex * sizey) > 1000000 and (sizex * sizey) <= 4000000:
+                QMessageBox.warning(self.dlg, "Large grid", "This process will take some time.")
+
+            if (sizex * sizey) > 4000000 and (sizex * sizey) <= 16000000:
+                QMessageBox.warning(self.dlg, "Very large grid", "This process will take a long time.")
+
+            if (sizex * sizey) > 16000000:
+                QMessageBox.warning(self.dlg, "Huge grid", "This process will take a very long time.")
 
             # Meteorological data #
             Twater = []

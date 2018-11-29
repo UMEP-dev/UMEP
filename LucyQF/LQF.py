@@ -37,7 +37,7 @@ from .PythonLUCY.LUCY import Model
 from .time_displayer import time_displayer
 from datetime import datetime as dt
 from datetime import timedelta as timedelta
-from .PythonLUCY.Disaggregate import DisaggregateWorker
+from .PythonLUCY.Disaggregate import DisaggregateWorker, disaggregate
 import traceback
 
 try:
@@ -200,8 +200,10 @@ class LQF(object):
         :return:
         '''
         fileDialog = QFileDialog()
-        fileDialog.setFileMode(2)
-        fileDialog.setAcceptMode(0)
+        # fileDialog.setFileMode(2)
+        # fileDialog.setAcceptMode(0)
+        fileDialog.setFileMode(QFileDialog.Directory)
+        fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
         result = fileDialog.exec_()
         if result == 1:
             selectedFolder = fileDialog.selectedFiles()[0]
@@ -240,28 +242,50 @@ class LQF(object):
         :return: Dict containing information about each disaggregated file, for use by model
         '''
 
-        # This is shifted to another thread
-
-        worker = DisaggregateWorker(ds=self.model.ds, params=self.model.parameters, outputFolder=self.model.downscaledPath, UMEPgrid=self.model.UMEPgrid, UMEPcoverFractions=self.model.UMEPcoverFractions, UMEPgridID=self.model.UMEPgridID)
-
-        thr = QThread(self.dlg)
-        worker.moveToThread(thr)
-        worker.finished.connect(self.disaggWorkerFinished)
-        worker.error.connect(self.workerError)
-        worker.update.connect(self.updateWorker)
-        thr.started.connect(worker.run)
-
-        self.dlg.cmdPrepare.setText('Cancel')
-        self.dlg.cmdPrepare.clicked.disconnect()
-        self.dlg.cmdPrepare.clicked.connect(worker.kill, Qt.UniqueConnection)
-        self.dlg.pushButtonClose.setEnabled(False)
-        self.dlg.cmdRunCancel.setEnabled(False)
-        self.dlg.pushButtonClose.setEnabled(False)
-        self.dlg.cmdLoadResults.setEnabled(False)
+        # TODO: this is a temprary fix for running outside the worker. Worker not working 20111123 Fredrik Needs to be fixed
         self.dlg.cmdPrepare.setEnabled(False)
-        thr.start()
-        self.thread = thr
-        self.worker = worker
+        if QMessageBox.question(self.dlg, "Prepare input data",
+                                "QGIS will freeze for a moment while preparing input. Du you want to continue?",
+                                QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
+            run = 1
+        else:
+            QMessageBox.critical(self.dlg, "Prepare input data", "No input data prepared. Model cannot be executed")
+            run = 0
+
+        if run == 1:
+            strDirectory = disaggregate(self.model.ds, self.model.parameters, self.model.downscaledPath,
+                                        self.model.UMEPgrid, self.model.UMEPcoverFractions, self.model.UMEPgridID, None)
+            self.dlg.cmdRunCancel.setEnabled(True)  # Model can now be run
+            self.dlg.pushButtonClose.setEnabled(True)
+            self.dlg.cmdLoadResults.setEnabled(True)
+            self.dlg.progressBar.setValue(100)
+            self.model.setPreProcessedInputFolder(strDirectory)
+            self.dlg.txtProcessedDataPath.setText(strDirectory)
+
+        self.dlg.cmdPrepare.setEnabled(True)
+
+        ## Worker not working 20111123 Fredrik Needs to be fixed
+        # # This is shifted to another thread
+        # worker = DisaggregateWorker(ds=self.model.ds, params=self.model.parameters, outputFolder=self.model.downscaledPath, UMEPgrid=self.model.UMEPgrid, UMEPcoverFractions=self.model.UMEPcoverFractions, UMEPgridID=self.model.UMEPgridID)
+        #
+        # thr = QThread(self.dlg)
+        # worker.moveToThread(thr)
+        # worker.finished.connect(self.disaggWorkerFinished)
+        # worker.error.connect(self.workerError)
+        # worker.update.connect(self.updateWorker)
+        # thr.started.connect(worker.run)
+        #
+        # self.dlg.cmdPrepare.setText('Cancel')
+        # self.dlg.cmdPrepare.clicked.disconnect()
+        # self.dlg.cmdPrepare.clicked.connect(worker.kill, Qt.UniqueConnection)
+        # self.dlg.pushButtonClose.setEnabled(False)
+        # self.dlg.cmdRunCancel.setEnabled(False)
+        # self.dlg.pushButtonClose.setEnabled(False)
+        # self.dlg.cmdLoadResults.setEnabled(False)
+        # self.dlg.cmdPrepare.setEnabled(False)
+        # thr.start()
+        # self.thread = thr
+        # self.worker = worker
 
     def disaggWorkerFinished(self, strDirectory):
         self.worker.deleteLater()
@@ -277,7 +301,7 @@ class LQF(object):
         self.model.setPreProcessedInputFolder(strDirectory)
         self.dlg.txtProcessedDataPath.setText(strDirectory)
         self.dlg.cmdPrepare.setEnabled(True)
-        self.iface.messageBar().pushMessage("LQF", "Input data has been processed. Model can now be run", level=QgsMessageBar.INFO)
+        self.iface.messageBar().pushMessage("LQF", "Input data has been processed. Model can now be run", level=Qgis.Info)
 
     def workerError(self, strException):
         QMessageBox.critical(None, 'Data pre-processing error:', str(strException))
@@ -379,8 +403,10 @@ class LQF(object):
     def loadResults(self):
         ''' Load a previous model run for visualisation'''
         fileDialog = QFileDialog()
-        fileDialog.setFileMode(2)
-        fileDialog.setAcceptMode(0)
+        # fileDialog.setFileMode(2)
+        # fileDialog.setAcceptMode(0)
+        fileDialog.setFileMode(QFileDialog.Directory)
+        fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
         result = fileDialog.exec_()
         if result == 1:
             selectedFolder = fileDialog.selectedFiles()[0]
@@ -496,7 +522,6 @@ class LQF(object):
             callback=self.run,
             parent=self.iface.mainWindow())
 
-
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
@@ -508,65 +533,75 @@ class LQF(object):
         del self.toolbar
 
     def startWorker(self):
-        # Do input validation
-        # Get start date(s): One start date if a range, multiple if a list
-        if self.dateRange:
-            # Date range supplied
-            if self.dlg.startDate.date().toPyDate() >= self.dlg.endDate.date().toPyDate():
-                QMessageBox.critical(None, 'Error', 'Start date must be earlier than end date')
-                return
-            startDates = [self.dlg.startDate.date().toPyDate()]
-            endDates = [self.dlg.endDate.date().toPyDate()]
+
+        #TODO: this is a temprary fix for running outside the worker. Worker not working 20111123 Fredrik Needs to be fixed
+        self.dlg.cmdPrepare.setEnabled(False)
+        if QMessageBox.question(self.dlg, "Running model",
+                                "QGIS will freeze for a moment while calculating anthropogenic heat. Du you want to continue?",
+                                QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
+            run = 1
         else:
-            # Date list supplied
-            # Parse date list
-            text = self.dlg.txtDateList.text()
-            dateList = text.split(',')
-            startDates = []
-            endDates = []
-            for date in dateList:
-                try:
-                    startDates.append(dt.strptime(date.strip(), '%Y-%m-%d'))
-                    endDates.append(startDates[-1] + timedelta(hours=24))
-                except Exception:
-                     QMessageBox.critical(None, 'Error', 'Invalid date list: ' + date + '. Must be comma-separated and in format YYYY-mm-dd')
-                     return
+            QMessageBox.critical(self.dlg, "Running model", "Operation cancelled. Model will not be executed")
+            run = 0
 
-        # Does the user want to also create SUEWS input files?
-        # makeNcdf = self.dlg.chkSUEWS.isChecked()
-        makeNcdf = False
-        # If a list, then generate end dates 24h after each start date
-        # Create a config dict for the model to use
-        self.dlg.cmdRunCancel.setEnabled(False)
-        self.dlg.pushButtonClose.setEnabled(False)
-        self.dlg.cmdLoadResults.setEnabled(False)
-        config = {'startDates':startDates, 'endDates':endDates, 'makeNetCDF':makeNcdf}
-        self.model.setConfig(config)
-        try:
-            self.model.run()
-            self.dlg.progressBar.setValue(100)
-            self.iface.messageBar().pushMessage("LQF", "Model run complete. Click 'visualise' to view output",
-                                            level=QgsMessageBar.INFO)
+        if run == 1:
+            # Do input validation
+            # Get start date(s): One start date if a range, multiple if a list
+            if self.dateRange:
+                # Date range supplied
+                if self.dlg.startDate.date().toPyDate() >= self.dlg.endDate.date().toPyDate():
+                    QMessageBox.critical(None, 'Error', 'Start date must be earlier than end date')
+                    return
+                startDates = [self.dlg.startDate.date().toPyDate()]
+                endDates = [self.dlg.endDate.date().toPyDate()]
+            else:
+                # Date list supplied
+                # Parse date list
+                text = self.dlg.txtDateList.text()
+                dateList = text.split(',')
+                startDates = []
+                endDates = []
+                for date in dateList:
+                    try:
+                        startDates.append(dt.strptime(date.strip(), '%Y-%m-%d'))
+                        endDates.append(startDates[-1] + timedelta(hours=24))
+                    except Exception:
+                         QMessageBox.critical(None, 'Error', 'Invalid date list: ' + date + '. Must be comma-separated and in format YYYY-mm-dd')
+                         return
 
-            # Change Run button to Clear button
-            self.dlg.cmdLoadResults.setText('Clear results')
-            self.dlg.cmdLoadResults.clicked.disconnect()
-            self.dlg.cmdLoadResults.clicked.connect(self.reset, Qt.UniqueConnection)
-            self.dlg.cmdLoadResults.setEnabled(True)
-            self.dlg.cmdVisualise.setEnabled(True)
+            # Does the user want to also create SUEWS input files?
+            # makeNcdf = self.dlg.chkSUEWS.isChecked()
+            makeNcdf = False
+            # If a list, then generate end dates 24h after each start date
+            # Create a config dict for the model to use
+            self.dlg.cmdRunCancel.setEnabled(False)
+            self.dlg.pushButtonClose.setEnabled(False)
+            self.dlg.cmdLoadResults.setEnabled(False)
+            config = {'startDates':startDates, 'endDates':endDates, 'makeNetCDF':makeNcdf}
+            self.model.setConfig(config)
 
-        except Exception as e:
-            QMessageBox.critical(None, 'Error running LQF', str(e))
-            QgsMessageLog.logMessage(traceback.format_exc(), level=QgsMessageLog.WARNING)
+            try:
+                self.model.run()
+                self.dlg.progressBar.setValue(100)
+                self.iface.messageBar().pushMessage("LQF", "Model run complete. Click 'visualise' to view output",
+                                                level=Qgis.Info)
 
+                # Change Run button to Clear button
+                self.dlg.cmdLoadResults.setText('Clear results')
+                self.dlg.cmdLoadResults.clicked.disconnect()
+                self.dlg.cmdLoadResults.clicked.connect(self.reset, Qt.UniqueConnection)
+                self.dlg.cmdLoadResults.setEnabled(True)
+                self.dlg.cmdVisualise.setEnabled(True)
 
-        self.dlg.cmdRunCancel.setText('Re-Run')
-        self.dlg.cmdRunCancel.setEnabled(True)
-        self.dlg.pushButtonClose.setEnabled(True)
+            except Exception as e:
+                QMessageBox.critical(None, 'Error running LQF', str(e))
+                QgsMessageLog.logMessage(traceback.format_exc(), level=Qgis.Warning)
+
+            self.dlg.cmdRunCancel.setText('Re-Run')
+            self.dlg.cmdRunCancel.setEnabled(True)
+            self.dlg.pushButtonClose.setEnabled(True)
 
     def run(self):
-        """Run method that performs all the real work"""
-        # show the dialog
         self.dlg.show()
         self.dlg.exec_()
 
@@ -581,6 +616,6 @@ class LQF(object):
         # Reset the "load results" button
         self.dlg.cmdLoadResults.clicked.disconnect()
         self.dlg.cmdLoadResults.setText('Load results')
-        self.dlg.cmdLoadResults.clicked.connect(self.loadResults, Qt.UniqueConnection)                               # Load a previous model run's results
+        self.dlg.cmdLoadResults.clicked.connect(self.loadResults, Qt.UniqueConnection)  # Load a previous run's results
         self.dlg.cmdLoadResults.setEnabled(True)
 

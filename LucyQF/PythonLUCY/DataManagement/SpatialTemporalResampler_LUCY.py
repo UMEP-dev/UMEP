@@ -103,7 +103,8 @@ class SpatialTemporalResampler_LUCY(SpatialTemporalResampler):
             disagg = disaggregate_weightings(intersectedAreas, newShapeFile, weight_by, total_weightings, self.templateIdField)[weight_by]
 
         # Select successfully identified output areas
-        newShapeFile.setSelectedFeatures(list(readAcross[list(disagg.keys())]))
+        # newShapeFile.setSelectedFeatures(list(readAcross[list(disagg.keys())]))
+        newShapeFile.selectByIds(list(readAcross[list(disagg.keys())]))  # new as from QGIS3
 
         selectedOutputFeatures = newShapeFile.selectedFeatures()
         newShapeFile.startEditing()
@@ -127,5 +128,7 @@ class SpatialTemporalResampler_LUCY(SpatialTemporalResampler):
                 newShapeFile.changeAttributeValue(outputFeat.id(), fieldIndices[field], float(weighted_average))
 
         newShapeFile.commitChanges()
-        newShapeFile.setSelectedFeatures([])  # De-select all features
+        # newShapeFile.setSelectedFeatures([])  # De-select all features
+        newShapeFile.selectByIds([])  # new as from QGIS3
+
         return newShapeFile

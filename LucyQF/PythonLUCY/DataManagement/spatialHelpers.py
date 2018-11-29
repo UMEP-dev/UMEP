@@ -10,7 +10,7 @@ except:
     pass
 
 from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsGeometry, QgsField, QgsFeature, QgsSpatialIndex, NULL
-from qgis.core import QgsProcessingAlgorithm, QgsFeatureRequest, QgsDistanceArea, QgsCoordinateReferenceSystem, QgsCoordinateTransform
+from qgis.core import QgsProcessingAlgorithm, QgsFeatureRequest, QgsDistanceArea, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsCoordinateTransformContext
 import processing # qgis processing framework
 from qgis.PyQt.QtCore import QVariant # , QPyNullVariant
 import tempfile
@@ -158,7 +158,8 @@ def calculate_fuel_use(inputLayer, inputIdField,
             fids.append(f.id())
             ids.append(intOrString(f[inputIdField]))
             lkm.append(f.geometry().length()/1000.0) # Length of segment in km
-        inputLayer.setSelectedFeatures(fids)
+        # inputLayer.setSelectedFeatures(fids)
+        inputLayer.selectByIds(fids)  # New as from QGIS3
         ids = np.array(ids)
         lkm = np.array(lkm)
 
@@ -240,7 +241,8 @@ def calculate_fuel_use(inputLayer, inputIdField,
                                                                 lkm *\
                                                                 fuelCon.getFuelConsumption(age, 'bus', rType_cons, fuelType)
 
-        inputLayer.setSelectedFeatures([]) # Deselect features ready for next loop
+        # inputLayer.setSelectedFeatures([]) # Deselect features ready for next loop
+        inputLayer.selectByIds([])  # New as from QGIS3
         # End of loop over road types
     return {'fuelUse':newValues, 'names':fieldMap}
 
@@ -260,15 +262,17 @@ def intersecting_amounts(fieldsToSample, inputIndex, inputLayer, new_layer, inpu
     # when comparing across different layers. Comparing areas within the same layer don't need this
     in_a = QgsDistanceArea()
     in_a.setEllipsoid(inputLayer.crs().ellipsoidAcronym())
-    in_a.setSourceCrs(inputLayer.crs())
-    in_a.setEllipsoidalMode(True)
-    in_a.computeAreaInit()
+    trans_context = QgsCoordinateTransformContext()  # new
+    in_a.setSourceCrs(inputLayer.crs(), trans_context) # now also trans_context
+    # in_a.setEllipsoidalMode(True)
+    # in_a.computeAreaInit()
 
     out_a = QgsDistanceArea()
     out_a.setEllipsoid(new_layer.crs().ellipsoidAcronym())
-    out_a.setSourceCrs(new_layer.crs())
-    out_a.setEllipsoidalMode(True)
-    out_a.computeAreaInit()
+    trans_context = QgsCoordinateTransformContext() # new
+    out_a.setSourceCrs(new_layer.crs(), trans_context)
+    # out_a.setEllipsoidalMode(True)
+    # out_a.computeAreaInit()
 
     # Get bounding box around combined output features
     # If there are fewer than 10 input features, work out if any of them totally subsume the entire output layer
@@ -301,7 +305,8 @@ def intersecting_amounts(fieldsToSample, inputIndex, inputLayer, new_layer, inpu
             raise ValueError('Output features must all be polygons')
         matching = inputIndex.intersects(outputFeat.geometry().boundingBox())  # IDs of input data features intersected by the output area polygon
         matchingInputAmounts = {}
-        inputLayer.setSelectedFeatures(matching)
+        # inputLayer.setSelectedFeatures(matching)
+        inputLayer.selectByIds(matching)  # New as from QGIS3
         selected = inputLayer.selectedFeatures() # Input features that intersect the bounding box of the output feature
 
         for featureMatched in selected:
@@ -337,15 +342,17 @@ def intersecting_amounts_LUCY(fieldsToSample, inputLayer, new_layer, inputLayerI
     # when comparing across different layers. Comparing areas within the same layer don't need this
     in_a = QgsDistanceArea()
     in_a.setEllipsoid(inputLayer.crs().ellipsoidAcronym())
-    in_a.setSourceCrs(inputLayer.crs())
-    in_a.setEllipsoidalMode(True)
-    in_a.computeAreaInit()
+    trans_context = QgsCoordinateTransformContext()  # new
+    in_a.setSourceCrs(inputLayer.crs(), trans_context)
+    # in_a.setEllipsoidalMode(True)
+    # in_a.computeAreaInit()
 
     out_a = QgsDistanceArea()
     out_a.setEllipsoid(new_layer.crs().ellipsoidAcronym())
-    out_a.setSourceCrs(new_layer.crs())
-    out_a.setEllipsoidalMode(True)
-    out_a.computeAreaInit()
+    trans_context = QgsCoordinateTransformContext()  # new
+    out_a.setSourceCrs(new_layer.crs(), trans_context) # now also trans_context
+    # out_a.setEllipsoidalMode(True) # not needed anymore
+    # out_a.computeAreaInit() # not available in QGIS3
 
     # Get bounding box around combined output features
     # If there are fewer than 10 input features, work out if any of them totally subsume the entire output layer
@@ -389,7 +396,8 @@ def intersecting_amounts_LUCY(fieldsToSample, inputLayer, new_layer, inputLayerI
 
         a.deleteFeature(outputFeat)
 
-        inputLayer.setSelectedFeatures(matchingInputIds)
+        # inputLayer.setSelectedFeatures(matchingInputIds)
+        inputLayer.selectByIds(matchingInputIds)  # New as from QGIS3
         selected = inputLayer.selectedFeatures() # Input features that intersect the bounding box of the output feature
         matchingInputAmounts = {}
 
@@ -448,9 +456,10 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
 
     out_a = QgsDistanceArea()
     out_a.setEllipsoid(output_layer.crs().ellipsoidAcronym())
-    out_a.setSourceCrs(output_layer.crs())
-    out_a.setEllipsoidalMode(True)
-    out_a.computeAreaInit()
+    trans_context = QgsCoordinateTransformContext()  # new
+    out_a.setSourceCrs(output_layer.crs(), trans_context)
+    # out_a.setEllipsoidalMode(True)
+    # out_a.computeAreaInit()
     # Check the requested weightingAttribute exists in the output layer. If not, make some noise
     if weightingAttributes is None:
         weightingAttributes = ['_AREA_'] # Reserved word
@@ -602,9 +611,10 @@ def feature_areas(layer):
     # Return dict of feature areas {feature_id:area m^2}
     out_a = QgsDistanceArea()
     out_a.setEllipsoid(layer.crs().ellipsoidAcronym())
-    out_a.setSourceCrs(layer.crs())
-    out_a.setEllipsoidalMode(True)
-    out_a.computeAreaInit()
+    trans_context = QgsCoordinateTransformContext()  # new
+    out_a.setSourceCrs(layer.crs(), trans_context)  # now also trans_context
+    # out_a.setEllipsoidalMode(True)  # not needed anymore
+    # out_a.computeAreaInit()  # not available in QGIS3
 
     areas = {}
     for feat in layer.getFeatures():
@@ -635,8 +645,9 @@ def convert_to_spatial_density(layer, attribute):
         Return updated layer (if layer is ogr, then it will be altered on disk)'''
     out_a = QgsDistanceArea() # Ensure metres are the unit rather than degrees
     out_a.setEllipsoid('WGS84')
-    out_a.setEllipsoidalMode(True)
-    out_a.setSourceCrs(layer.crs())
+    trans_context = QgsCoordinateTransformContext()  # new
+    # out_a.setEllipsoidalMode(True)
+    out_a.setSourceCrs(layer.crs(), trans_context)
 
     feats = layer.getFeatures()
     # Work out which entry in the field list is the one of interest
@@ -714,9 +725,11 @@ def sameFeatures(layer1, layer2):
     # Do all the features have the same geometry?
     geometryMatch = True
     for id in expectedFeatureIds:
-        layer1.setSelectedFeatures([id])
+        # layer1.setSelectedFeatures([id])
+        layer1.selectByIds([id])  # new as from QGIS3
         infeat = layer1.selectedFeatures()[0]
-        layer2.setSelectedFeatures([id])
+        # layer2.setSelectedFeatures([id])
+        layer2.selectByIds([id]) # new as from QGIS3
         outfeat = layer2.selectedFeatures()[0]
         if infeat.geometry() != outfeat.geometry():
             geometryMatch = False
@@ -802,15 +815,13 @@ def saveLayerToFile(layer, filename, targetCRS=None, label=None):
     :param label: Label of layer
     :return: None
     '''
-
     if os.path.exists(filename):
         deleted =QgsVectorFileWriter.deleteShapeFile(filename)
         if not deleted:
             raise IOError('Failed to delete existing vector file ' + str(filename) + '. The file may be in use. Please close it and try again.')
-
     error = QgsVectorFileWriter.writeAsVectorFormat(layer, filename, "CP1250", targetCRS, "ESRI Shapefile")
 
-    if error != QgsVectorFileWriter.NoError:
+    if error[0] != QgsVectorFileWriter.NoError:  # error now have two variables 20181122
         raise IOError('Failed to write vector file ' + str(filename))
 
 def addNewField(inLayer, fieldNames, initialValue=None):
@@ -906,8 +917,8 @@ def colourRanges(displayLayer, attribute, opacity, range_minima, range_maxima, c
     for i in range(0, len(range_minima)):
         symbol = QgsSymbol.defaultSymbol(displayLayer.geometryType())
         symbol.setColor(QColor(colours[i]))
-        symbol.setAlpha(opacity)
-        symbol.symbolLayer(0).setOutlineColor(transparent)
+        symbol.setOpacity(opacity)  # setAlpha is now setOpacity
+        # symbol.symbolLayer(0).setOutlineColor(transparent)
 
         valueRange = QgsRendererRange(range_minima[i], range_maxima[i], symbol,
                                         str(range_minima[i]) + ' - ' + str(range_maxima[i]))
@@ -916,7 +927,7 @@ def colourRanges(displayLayer, attribute, opacity, range_minima, range_maxima, c
     renderer = QgsGraduatedSymbolRenderer('', rangeList)
     renderer.setMode(QgsGraduatedSymbolRenderer.EqualInterval)
     renderer.setClassAttribute(attribute)
-    displayLayer.setRendererV2(renderer)
+    displayLayer.setRenderer(renderer)  #setRendererV2 before
 
 
 def populateShapefileFromTemplate(dataMatrix, primaryKey, templateShapeFile,
@@ -980,7 +991,8 @@ def populateShapefileFromTemplate(dataMatrix, primaryKey, templateShapeFile,
             areaId = str(featId)
 
         for fld in attribs:
-            idx = layer.fieldNameIndex(fld)
+            # idx = layer.fieldNameIndex(fld)
+            idx = layer.fields().indexFromName(fld)
             nulls = dataMatrix[fld].isnull()
             nulls = nulls.index[nulls]
             try:

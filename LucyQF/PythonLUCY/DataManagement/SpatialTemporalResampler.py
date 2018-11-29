@@ -394,7 +394,8 @@ class SpatialTemporalResampler(object):
 
         # Select successfully identified output areas
 
-        newShapeFile.setSelectedFeatures(list(readAcross[list(disagg.keys())]))
+        # newShapeFile.setSelectedFeatures(list(readAcross[list(disagg.keys())]))
+        newShapeFile.selectByIds(list(readAcross[list(disagg.keys())]))  # new as from QGIS3
 
         selectedOutputFeatures = newShapeFile.selectedFeatures()
         newShapeFile.startEditing()
@@ -421,7 +422,8 @@ class SpatialTemporalResampler(object):
                 newShapeFile.changeAttributeValue(outputFeat.id(), fieldIndices[field], float(weighted_average))
 
         newShapeFile.commitChanges()
-        newShapeFile.setSelectedFeatures([])  # De-select all features
+        # newShapeFile.setSelectedFeatures([])  # De-select all features
+        newShapeFile.selectByIds([])  # New as from QGIS3
         return newShapeFile
 
     def addInput(self, input, startTime, attributeToUse, inputFieldId, weight_by=None, epsgCode=None):

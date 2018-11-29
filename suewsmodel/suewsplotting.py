@@ -112,7 +112,7 @@ class SuewsPlotting(object):
         writeoption = dataout.shape[1]
         mv = 0
         if writeoption < 38:
-            mv = 2
+            mv = 3
 
         dectime = make_dectime(dataout)
         dates = dt.num2date(dectime)
@@ -175,8 +175,9 @@ class SuewsPlotting(object):
         ax3 = plt.subplot(1, 2, 2, sharex=ax1)
         ax3.plot(pltmonth, wu, 'go-', label='$W-use$')
         ax3.plot(pltmonth, -st, 'ro-', label='$Storage$')
-        ax3.plot(pltmonth, -evap, 'bo-', label='$E$')
+        ax3.plot(pltmonth, -evap, 'bo-', label='$Evap$')
         ax3.plot(pltmonth, -drain, 'ko-', label='$Runoff$')
+        # ax3.plot(pltmonth, precip, 'b+', label='$Precip$')
         ax3.bar(pltmonth, precip, width=0.5, edgecolor='b', align='center', label='$Precip$')
         ax3.set_xlabel('$Month$', fontsize=14)
         ax3.set_ylabel('$mm$', fontsize=14)

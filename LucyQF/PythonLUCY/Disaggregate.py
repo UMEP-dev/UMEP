@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from builtins import map
 from qgis.PyQt.QtCore import QObject, pyqtSignal
+from qgis.core import QgsVectorLayerUtils
 import traceback
 import os
 import pickle
@@ -67,12 +68,12 @@ def disaggregate(ds, params, outputFolder, UMEPgrid=None, UMEPcoverFractions=Non
 
     # Disaggregate residential population to output features
     pop = Population()
-
     pop.setOutputShapefile(outShp, outEpsg, outFeatIds)
     rp = ds.resPop_spat[0]
         # Take a look at the residential population data and see if there are any people in it.
     testPop = loadShapeFile(rp['shapefile'], rp['epsgCode'])
-    vals = pd.Series(list(map(floatOrNone, testPop.getValues('Pop')[0])))
+    # vals = pd.Series(list(map(floatOrNone, testPop.getValues('Pop')[0])))  # getValues moved in QGIS3
+    vals = pd.Series(list(map(floatOrNone, QgsVectorLayerUtils.getValues(testPop, 'Pop')[0])))
     if sum(vals.dropna()) == 0:
         raise Exception('The input population file has zero population')
     testPop = None
@@ -88,12 +89,12 @@ def disaggregate(ds, params, outputFolder, UMEPgrid=None, UMEPcoverFractions=Non
     scaledPopFile = os.path.join(outputFolder, filename)
     saveLayerToFile(lyr, scaledPopFile, pop.getOutputLayer().crs(), 'Res pop scaled')
     # Test the disaggregated shapefile to make sure it contains people
-    vals = pd.Series(list(map(floatOrNone, lyr.getValues('Pop')[0])))
+    vals = pd.Series(list(map(floatOrNone, QgsVectorLayerUtils.getValues(lyr, 'Pop')[0])))
     if sum(vals.dropna()) == 0:
         raise Exception('The output shapefile did not overlap any of the population data, so the model cannot run')
     returnDict['resPop'].append({'file':filename, 'EPSG':rp['epsgCode'], 'startDate':rp['startDate'], 'attribute':attrib, 'featureIds':outFeatIds})
 
-    update.emit(10)
+    # update.emit(10)
     # Assign country ID to each of the disaggregated population features and allow national attributes to be looked up by feature ID
     atts = RegionalParameters()
     atts.setWorldDatabase(ds.database)
@@ -103,7 +104,7 @@ def disaggregate(ds, params, outputFolder, UMEPgrid=None, UMEPcoverFractions=Non
     saveLayerToFile(allocatedLayer, allocationFile, allocatedLayer.crs(), 'Regional allocations')
     allocatedLayer = None
     atts = None
-    update.emit(20)
+    # update.emit(20)
     returnDict['allocations'] = {'file':alloc_filename, 'EPSG':outEpsg, 'startDate':rp['startDate'], 'attribute':None, 'featureIds':outFeatIds}
     # If land cover information available, do extra disaggregation of the above population
     if (UMEPcoverFractions is not None) and (UMEPgrid is not None) and (UMEPgridID is not None):
@@ -123,7 +124,7 @@ def disaggregate(ds, params, outputFolder, UMEPgrid=None, UMEPcoverFractions=Non
         # Get intersecting weightings
 
         (intersectedAmounts, weightings) = ExtraDisaggregate(ds.outputAreas_spat['shapefile'], UMEPcoverFractions, UMEPgrid, params.landCoverWeights, ds.outputAreas_spat['featureIds'], UMEPgridID)
-        update.emit(40)
+        # update.emit(40)
         # Residential population
         rp = returnDict['resPop'][0]
         # High-res locations of metabolising population
@@ -136,7 +137,7 @@ def disaggregate(ds, params, outputFolder, UMEPgrid=None, UMEPcoverFractions=Non
         saveLayerToFile(metabLayer, os.path.join(outputFolder, filename), metabLayer.crs(), 'Metabolic population loadings')
         returnDict['extra_disagg']['metabolism'].append({'file':filename, 'EPSG':UMEPEPSG, 'startDate':rp['startDate'], 'attribute':rp['attribute'], 'featureIds':UMEPgridID})
         metabLayer = None
-        update.emit(60)
+        # update.emit(60)
         # Assign country ID to each of the disaggregated population features and allow national attributes to be looked up by feature ID
         atts2 = RegionalParameters()
         atts2.setWorldDatabase(ds.database)
@@ -146,7 +147,7 @@ def disaggregate(ds, params, outputFolder, UMEPgrid=None, UMEPcoverFractions=Non
         returnDict['extra_disagg']['allocations'] = {'file':allocationFile, 'EPSG':UMEPEPSG, 'featureIds':UMEPgridID}
         allocatedLayer = None
         # Since the same input and output grids are being used every time, don't do this using SpatialTemporalResampler. Instead, make use of the face we only have to do intersected_areas once.
-        update.emit(70)
+        # update.emit(70)
         # Distribute population amongst buildings for building energy calculation
         bldgData = performDisaggregation(layerToDisaggregate=popLayer, idField=rp['featureIds'], fieldsToDisaggregate=[rp['attribute']], weightingType='building', weightings=weightings)
         bldgLayer = populateShapefileFromTemplate(dataMatrix=bldgData, primaryKey=UMEPgridID, templateShapeFile=UMEPgrid, templateEpsgCode=UMEPEPSG)
@@ -154,7 +155,7 @@ def disaggregate(ds, params, outputFolder, UMEPgrid=None, UMEPcoverFractions=Non
         saveLayerToFile(bldgLayer, os.path.join(outputFolder, filename), bldgLayer.crs(), 'Building energy')
         returnDict['extra_disagg']['building'].append({'file':filename, 'EPSG':UMEPEPSG, 'startDate':rp['startDate'], 'attribute':rp['attribute'], 'featureIds':outFeatIds})
         bldgLayer = None
-        update.emit(80)
+        # update.emit(80)
         # Distribute population onto paved areas for vehicle calculation; vehicles will follow them there.
         transData = performDisaggregation(layerToDisaggregate=popLayer, idField=rp['featureIds'], fieldsToDisaggregate=rp['attribute'], weightingType='transport', weightings=weightings)
         transLayer = populateShapefileFromTemplate(dataMatrix=transData, primaryKey=UMEPgridID, templateShapeFile=UMEPgrid, templateEpsgCode=UMEPEPSG)
@@ -164,7 +165,7 @@ def disaggregate(ds, params, outputFolder, UMEPgrid=None, UMEPcoverFractions=Non
         transLayer = None
         popLayer = None
         atts2 = None
-        update.emit(90)
+        # update.emit(90)
     # Pickle the dictionary as a manifest file
     with open(os.path.join(outputFolder, 'MANIFEST'), 'wb') as outpickle:
         pickle.dump(returnDict, outpickle)
@@ -173,5 +174,5 @@ def disaggregate(ds, params, outputFolder, UMEPgrid=None, UMEPcoverFractions=Non
     popLayer = None
     atts = None
     lyr = None
-    update.emit(100)
+    # update.emit(100)
     return outputFolder

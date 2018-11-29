@@ -415,7 +415,8 @@ class Model(object):
 
             # Execute model calculations for each UTC hour and produce output files
             for t in range(0,24):
-                ts_dt = diurnal_times[t].to_datetime()
+                ts_dt = diurnal_times[t].to_pydatetime() # to_datetime() changed to to_pydatetime()
+
                 # Get offset between UTC and the modelled time zone
                 localLookupTimeBin = cityTimezone.localize(ts_dt.replace(tzinfo=None))
                 tzOffset = ts_dt - localLookupTimeBin

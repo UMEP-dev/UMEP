@@ -96,7 +96,8 @@ class SpatialAttributesSampler(SpatialTemporalResampler):
             # Work out disaggregation factor baed on area intersected
             # Use "big" totals of weightings if the same attribute present in the input data file
 
-            newShapeFile.setSelectedFeatures(list(readAcross[list(intersectedAreas.keys())]))
+            # newShapeFile.setSelectedFeatures(list(readAcross[list(intersectedAreas.keys())]))
+            newShapeFile.selectByIds(list(readAcross[list(intersectedAreas.keys())]))  # new as from QGIS3
             selectedOutputFeatures = newShapeFile.selectedFeatures()
             newShapeFile.startEditing()
             # Apply disaggregation to features
@@ -125,5 +126,6 @@ class SpatialAttributesSampler(SpatialTemporalResampler):
                     newShapeFile.changeAttributeValue(outputFeat.id(), fieldIndices[field], floatorstring(inputValues[field]))
 
         newShapeFile.commitChanges()
-        newShapeFile.setSelectedFeatures([])  # De-select all features
+        # newShapeFile.setSelectedFeatures([])  # De-select all features
+        newShapeFile.selectByIds([])  # new as from QGIS3
         return newShapeFile
