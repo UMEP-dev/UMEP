@@ -217,7 +217,7 @@ class WallHeight:
             walllimit = self.dlg.doubleSpinBoxHeight.value()
             # self.iface.messageBar().pushMessage("SEBE", str(walllimit))
             self.walls = wa.findwalls(self.dsm, walllimit)
-            saveraster(self.gdal_dsm, self.filePathH[0], self.walls)
+            self.saverasternd(self.gdal_dsm, self.filePathH[0], self.walls)
             # dirwalls = wa.filter1Goodwin_as_aspect_v3(self.walls, self.scale, self.dsm)
             if self.dlg.checkBoxAspect.isChecked():
                 self.startWorker(self.walls, self.scale, self.dsm, self.dlg)
@@ -241,6 +241,23 @@ class WallHeight:
             #     if hasattr(rlayer2, "setCacheImage"):
             #         rlayer2.setCacheImage(None)
             #     rlayer2.triggerRepaint()
+
+    def saverasternd(self, gdal_data, filename, raster):
+        rows = gdal_data.RasterYSize
+        cols = gdal_data.RasterXSize
+
+        outDs = gdal.GetDriverByName("GTiff").Create(filename, cols, rows, int(1), GDT_Float32)
+        outBand = outDs.GetRasterBand(1)
+
+        # write the data
+        outBand.WriteArray(raster, 0, 0)
+        # flush data to disk, set the NoData value and calculate stats
+        outBand.FlushCache()
+        # outBand.SetNoDataValue(-9999)
+
+        # georeference the image and set the projection
+        outDs.SetGeoTransform(gdal_data.GetGeoTransform())
+        outDs.SetProjection(gdal_data.GetProjection())
 
     def startWorker(self, walls, scale, dsm, dlg):
 
@@ -276,7 +293,7 @@ class WallHeight:
             # Energyyearwall = ret["Energyyearwall"]
             # vegdata = ret["vegdata"]
             # layer, total_area = ret
-            saveraster(self.gdal_dsm, self.filePathA[0], dirwalls)
+            self.saverasternd(self.gdal_dsm, self.filePathA[0], dirwalls)
 
             # QMessageBox.information(None, "Wall generator", "Wall grid(s) successfully generated")
             # self.iface.messageBar().pushMessage("Wall generator", "Wall grid(s) successfully generated")

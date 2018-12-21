@@ -325,14 +325,14 @@ class MetdataProcessor:
             nshhh= int(abs((met_new[1, 2] - met_new[0, 2])) * 12)
             nshmin = int(abs((met_new[1, 3] - met_new[0, 3])) / 5)
             nsh = nshhh + nshmin
-            #QMessageBox.critical(None, "Test", str(nsh))
+            # QMessageBox.critical(None, "Test", str(nsh))
 
         # Check if time gap exists
         for i in range(0, met_new.shape[0] - 1):
-            dectime0 = met_new[i, 0] + met_new[i, 1] + met_new[i, 2] / 24. + met_new[i, 3] / (60. * 24.)
-            dectime1 = met_new[i + 1, 0] + met_new[i + 1, 1] + met_new[i + 1, 2] / 24. + met_new[i + 1, 3] / (60. * 24.)
+            dectime0 = float(met_new[i, 0] + met_new[i, 1] + met_new[i, 2]) / 24. + float(met_new[i, 3]) / (60. * 24.)
+            dectime1 = float(met_new[i + 1, 0] + met_new[i + 1, 1] + met_new[i + 1, 2]) / 24. + float(met_new[i + 1, 3]) / (60. * 24.)
             timeres_old = np.round((dectime1 - dectime0) * (60. * 24.))
-            nshtest = int(timeres_old / 5)
+            nshtest = int(timeres_old / 5.)
             # print str(nshtest)
             if nshtest > nsh:
                 QMessageBox.critical(None, "Input data is not continuous", "There seems to be a time gap at line:"

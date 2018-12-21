@@ -776,8 +776,11 @@ class SOLWEIG:
 
                     #self.poisxy[ind, 0] = f.attributes()[idx]
                     self.poisxy[ind, 0] = ind
-                    self.poisxy[ind, 1] = np.round(x - minx)
-                    self.poisxy[ind, 2] = np.round(miny + rows - y)
+                    self.poisxy[ind, 1] = np.round((x - minx) * self.scale)
+                    if miny >= 0:
+                        self.poisxy[ind, 2] = np.round(miny + rows * self.scale - y)
+                    else:
+                        self.poisxy[ind, 2] = np.round((miny + rows * (1 / self.scale) - y) * self.scale)
                     #attributes = f.attributes()
                     ind += 1
 
