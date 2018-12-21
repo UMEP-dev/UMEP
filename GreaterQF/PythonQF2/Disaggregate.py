@@ -37,7 +37,7 @@ def disaggregate(qfDataSources, qfParams, outputFolder):
     returnDict['domGas'] = []
     returnDict['domEco7'] = []
     returnDict['transport'] = []
-
+    print('D1')
     for rp in qfDataSources.resPop_spat:
         pop.setResPop(rp['shapefile'],
                       startTime=makeUTC(rp['startDate']),
@@ -49,7 +49,7 @@ def disaggregate(qfDataSources, qfParams, outputFolder):
         (ds, attrib) = pop.getResPopLayer(makeUTC(rp['startDate']))
         saveLayerToFile(ds, outFile, pop.getOutputLayer().crs(), 'Res pop scaled')
         returnDict['resPop'].append({'file':outFile, 'EPSG':rp['epsgCode'], 'startDate':rp['startDate'], 'attribute':attrib, 'featureIds':outFeatIds})
-
+    print('D2')
     # Raw residential population data: disaggregate and save
     for wp in qfDataSources.workPop_spat:
         pop.setWorkPop(wp['shapefile'],
@@ -66,21 +66,30 @@ def disaggregate(qfDataSources, qfParams, outputFolder):
 
     # Set up building energy use data: total energy use for each area.
     bldgEnergy = EnergyUseData()
+    print('D3')
     # Industrial electricity, downscaled by workplace population
     for ie in qfDataSources.indElec_spat:
+        print(str(ie))
+        print('D3a')
         (workpop, workpopattrib) = pop.getWorkPopLayer(makeUTC(ie['startDate']))     # Note: Population data is used for the output features. This means that population changing over time has to be incorporated
+        print('D3b')
         bldgEnergy.setOutputShapefile(workpop, workpop.dataProvider().crs().authid().split(':')[1], outFeatIds)
+        print('D3c')
         bldgEnergy.setIndustrialElec(ie['shapefile'],
                                      startTime=makeUTC(ie['startDate']),
                                      attributeToUse=ie['attribToUse'],
                                      inputFieldId=ie['featureIds'],
                                      weight_by=workpopattrib,
                                      epsgCode=ie['epsgCode'])
+        print('D3d')
         (ds, attrib) = bldgEnergy.getIndustrialElecLayer(makeUTC(ie['startDate']))
+        print('D3e')
         outFile = os.path.join(outputFolder, 'IndElec_starting' + ie['startDate'].strftime('%Y-%m-%d') + '.shp')
+        print('D3f')
         saveLayerToFile(ds, outFile, bldgEnergy.getOutputLayer().crs(), 'ind elec gas downscaled')
+        print('D3g')
         returnDict['indElec'].append({'file':outFile, 'EPSG':ie['epsgCode'], 'startDate':ie['startDate'], 'attribute':attrib, 'featureIds':outFeatIds})
-
+    print('D4')
     # Industrial gas
     for ig in qfDataSources.indGas_spat:
         (output, workpopattrib) = pop.getWorkPopLayer(makeUTC(ig['startDate']))     # Disaggregate by workplace pop
@@ -95,7 +104,7 @@ def disaggregate(qfDataSources, qfParams, outputFolder):
         (ds, attrib) = bldgEnergy.getIndustrialGasLayer(makeUTC(ie['startDate']))
         saveLayerToFile(ds, outFile, bldgEnergy.getOutputLayer().crs(), 'ind gas downscaled')
         returnDict['indGas'].append({'file':outFile, 'EPSG':ig['epsgCode'], 'startDate':ig['startDate'], 'attribute':attrib, 'featureIds':outFeatIds})
-
+    print('D5')
     # Domestic gas
     for dg in qfDataSources.domGas_spat:
         (output, respopattrib) = pop.getResPopLayer(makeUTC(dg['startDate']))     # Disaggregate by residential pop
@@ -110,7 +119,7 @@ def disaggregate(qfDataSources, qfParams, outputFolder):
         (ds, attrib) = bldgEnergy.getDomesticGasLayer(makeUTC(ie['startDate']))
         saveLayerToFile(ds, outFile, bldgEnergy.getOutputLayer().crs(), 'dom gas downscaled')
         returnDict['domGas'].append({'file':outFile, 'EPSG':dg['epsgCode'], 'startDate':dg['startDate'], 'attribute':attrib, 'featureIds':outFeatIds})
-
+    print('D6')
     # Domestic elec
     for de in qfDataSources.domElec_spat:
         (output, respopattrib) = pop.getResPopLayer(makeUTC(dg['startDate']))     # Disaggregate by residential pop
@@ -127,8 +136,8 @@ def disaggregate(qfDataSources, qfParams, outputFolder):
         (ds, attrib) = bldgEnergy.getDomesticElecLayer(makeUTC(ie['startDate']))
         saveLayerToFile(ds, outFile, bldgEnergy.getOutputLayer().crs(), 'dom elec downscaled')
         returnDict['domElec'].append({'file':outFile, 'EPSG':de['epsgCode'], 'startDate':de['startDate'], 'attribute':attrib, 'featureIds':outFeatIds})
-
-# Domestic elec economy 7
+    print('D7')
+    # Domestic elec economy 7
     for e7 in qfDataSources.eco7_spat:
         (output, respopattrib) = pop.getResPopLayer(makeUTC(e7['startDate']))     # Disaggregate by residential pop
         if type(respopattrib) is list:
@@ -145,7 +154,7 @@ def disaggregate(qfDataSources, qfParams, outputFolder):
 
         saveLayerToFile(ds, outFile, bldgEnergy.getOutputLayer().crs(), 'Economy 7 downscaled')
         returnDict['domEco7'].append({'file':outFile, 'EPSG':e7['epsgCode'], 'startDate':e7['startDate'], 'attribute':attrib, 'featureIds':outFeatIds})
-
+    print('D8')
     # Set up transport fuel consumption in each output area
     fc = FuelConsumption(qfDataSources.fuelConsumption[0]['profileFile'])
     t = Transport(fc, qfParams)
@@ -164,7 +173,7 @@ def disaggregate(qfDataSources, qfParams, outputFolder):
         outFile = os.path.join(outputFolder, 'DailyFuelUse_starting' + tr['startDate'].strftime('%Y-%m-%d') + '.shp')
         saveLayerToFile(sf, outFile, bldgEnergy.getOutputLayer().crs(), 'Fuel use daily')
         returnDict['transport'].append({'file':outFile, 'EPSG':tr['epsgCode'], 'startDate':tr['startDate'], 'featureIds':outFeatIds})
-
+    print('D9')
     # Pickle the dictionary as a manifest file
     with open(os.path.join(outputFolder, 'MANIFEST'), 'wb') as outpickle:
         pickle.dump(returnDict, outpickle)

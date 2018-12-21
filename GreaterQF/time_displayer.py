@@ -1,11 +1,11 @@
 from __future__ import absolute_import
 from builtins import map
 from builtins import str
-from qgis.PyQt import QtGui, uic
-from qgis.PyQt.QtWidgets import QListWidgetItem
-from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from qgis.PyQt.QtWidgets import QAction, QMessageBox, QFileDialog
-from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt import uic
+from qgis.PyQt.QtWidgets import QListWidgetItem, QDialog
+# from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+# from qgis.PyQt.QtWidgets import QAction, QMessageBox, QFileDialog
+# from qgis.PyQt.QtGui import QIcon
 import os
 FORM_CLASS, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__), 'time_displayer.ui'))
 from qgis.core import QgsMapRendererJob, QgsRectangle, QgsProject
@@ -33,7 +33,7 @@ def intOrString(x):
     except:
         return str(x)
 
-class time_displayer(QtGui.QDialog, FORM_CLASS):
+class time_displayer(QDialog, FORM_CLASS):
     def __init__(self, model, iface, parent=None):
         '''
         Given a folder containing model outputs and DataSources object, this widget displays all available time steps

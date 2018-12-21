@@ -36,6 +36,8 @@ from . import wallalgorithms as wa
 from ..Utilities.misc import *
 from .wallworker import Worker
 import webbrowser
+from osgeo import gdal
+from osgeo.gdalconst import *
 
 class WallHeight(object):
     """QGIS Plugin Implementation."""
@@ -190,13 +192,7 @@ class WallHeight(object):
                                                 'be installed. Please consult the FAQ in the manual for further '
                                                 'information on how to install missing python packages.')
             return
-        # try:
-        #     import skimage
-        # except Exception as e:
-        #     QMessageBox.critical(None, 'Error', 'This plugin requires the scikit-image package to '
-        #                                         'be installed. Please consult the FAQ in the manual for further '
-        #                                         'information on how to install missing python packages.')
-        #     return
+
         self.dlg.show()
         self.dlg.exec_()
 
@@ -209,7 +205,6 @@ class WallHeight(object):
         if self.filePathH is None:
             QMessageBox.critical(self.dlg, "Error", "No wall height file specified")
         else:
-            #dsmlayer = self.layerComboManagerDSM.getLayer()
             dsmlayer = self.layerComboManagerDSM.currentLayer()
 
             if dsmlayer is None:
@@ -219,34 +214,21 @@ class WallHeight(object):
             provider = dsmlayer.dataProvider()
             filepath_dsm = str(provider.dataSourceUri())
 
-            # self.gdal_dsm = gdal.Open(filepath_dsm, gdal.GA_ReadOnly)
-            # myBand = self.gdal_dsm.GetRasterBand(1)
-            # scanline = myBand.ReadRaster(0, 0, myBand.XSize, 1, myBand.XSize, 1, gdal.GDT_Byte)
-            # import array
-            # self.dsm = array.array('B', scanline)
-            # myBand = None
-            # myImg = None
-
             self.gdal_dsm = gdal.Open(filepath_dsm)
             self.dsm = self.gdal_dsm.ReadAsArray().astype(np.float)
             geotransform = self.gdal_dsm.GetGeoTransform()
             self.scale = 1 / geotransform[1]
-            # self.iface.messageBar().pushMessage("scale", str(self.scale))
-            # return
 
             walllimit = self.dlg.doubleSpinBoxHeight.value()
-            # self.iface.messageBar().pushMessage("SEBE", str(walllimit))
             self.walls = wa.findwalls(self.dsm, walllimit)
-            saveraster(self.gdal_dsm, self.filePathH[0], self.walls)
+
+            # Workaround to avoid NoDataValues
+            self.saverasternd(self.gdal_dsm, self.filePathH[0], self.walls)
+
             # dirwalls = wa.filter1Goodwin_as_aspect_v3(self.walls, self.scale, self.dsm)
             if self.dlg.checkBoxAspect.isChecked():
                 self.startWorker(self.walls, self.scale, self.dsm, self.dlg)
-                # dirwalls = wa.filter1Goodwin_as_aspect_v3(walls, self.scale, self.dsm)
-        #         saveraster(self.gdal_dsm, self.filePathA[0], dirwalls)
-        #
-        # QMessageBox.information(None, "Wall generator", "Wall grid(s) successfully generated")
-        # # self.iface.messageBar().pushMessage("Wall generator", "Wall grid(s) successfully generated")
-        #
+
         # load height result into canvas
         if self.dlg.checkBoxIntoCanvas.isChecked():
             rlayer = self.iface.addRasterLayer(self.filePathH[0])
@@ -255,12 +237,22 @@ class WallHeight(object):
                 rlayer.setCacheImage(None)
             rlayer.triggerRepaint()
 
-            # if self.filePathA[0]:
-            #     rlayer2 = self.iface.addRasterLayer(self.filePathA[0])
-            #
-            #     if hasattr(rlayer2, "setCacheImage"):
-            #         rlayer2.setCacheImage(None)
-            #     rlayer2.triggerRepaint()
+    def saverasternd(self, gdal_data, filename, raster):
+        rows = gdal_data.RasterYSize
+        cols = gdal_data.RasterXSize
+
+        outDs = gdal.GetDriverByName("GTiff").Create(filename, cols, rows, int(1), GDT_Float32)
+        outBand = outDs.GetRasterBand(1)
+
+        # write the data
+        outBand.WriteArray(raster, 0, 0)
+        # flush data to disk, set the NoData value and calculate stats
+        outBand.FlushCache()
+        # outBand.SetNoDataValue(-9999)
+
+        # georeference the image and set the projection
+        outDs.SetGeoTransform(gdal_data.GetGeoTransform())
+        outDs.SetProjection(gdal_data.GetProjection())
 
     def startWorker(self, walls, scale, dsm, dlg):
 
@@ -293,13 +285,9 @@ class WallHeight(object):
         if ret is not None:
             # report the result
             dirwalls = ret["dirwalls"]
-            # Energyyearwall = ret["Energyyearwall"]
-            # vegdata = ret["vegdata"]
-            # layer, total_area = ret
-            saveraster(self.gdal_dsm, self.filePathA[0], dirwalls)
 
-            # QMessageBox.information(None, "Wall generator", "Wall grid(s) successfully generated")
-            # self.iface.messageBar().pushMessage("Wall generator", "Wall grid(s) successfully generated")
+            # Workaround to avoid NoDataValues
+            self.saverasternd(self.gdal_dsm, self.filePathA[0], dirwalls)
 
             # load aspect result into canvas
             if self.dlg.checkBoxAspect.isChecked():
@@ -325,7 +313,6 @@ class WallHeight(object):
             self.dlg.progressBar.setValue(0)
 
     def workerError(self, errorstring):
-        # QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
         QgsMessageLog.logMessage(errorstring, level=Qgis.Critical)
 
     def progress_update(self):

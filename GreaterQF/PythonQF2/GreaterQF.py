@@ -193,7 +193,7 @@ class Model(object):
         :param logFolder:
         :return:
         '''
-
+        print('one')
         # Get partitioning and heat of combustion values
         partitions = Partitions(self.config, self.parameters)
         props = partitions.fluxProp  # Proportion of possible fluxes (latent, wastewater, sensible based on what user selected) to include in results
@@ -209,18 +209,18 @@ class Model(object):
                 timeBins = bins
             else:
                 timeBins = timeBins.append(bins)
-
+        print('two')
         # Make some aliases for the output layer for brevity
         outShp = self.ds.outputAreas_spat['shapefile']
         outFeatIds =  self.ds.outputAreas_spat['featureIds']
         outEpsg = self.ds.outputAreas_spat['epsgCode']
-
+        print('three')
         # Populate temporal disaggregation objects
         # Building energy daily loadings (temporal disaggregation from Annual to daily)
         dailyE = DailyEnergyLoading(self.parameters.city, useUKholidays=self.parameters.useUKholidays)
         # Each component has 1..n data sources. Add each one, looping over them
         [dailyE.addLoadings(den['profileFile']) for den in self.ds.dailyEnergy]
-
+        print('four')
         # Building energy diurnal cycles (temporal disaggregation from daily to half-hourly). These are provided in local time (London)
         diurnalE = EnergyProfiles(self.parameters.city, use_uk_holidays=self.parameters.useUKholidays, customHolidays=self.parameters.customHolidays)
         [diurnalE.addDomElec(de['profileFile']) for de in self.ds.diurnDomElec]
@@ -228,11 +228,11 @@ class Model(object):
         [diurnalE.addEconomy7(e7['profileFile']) for e7 in self.ds.diurnEco7]
         [diurnalE.addIndElec(ie['profileFile']) for ie in self.ds.diurnIndElec]
         [diurnalE.addIndGas(ig['profileFile']) for ig in self.ds.diurnIndGas]
-
+        print('five')
         # Diurnal traffic patterns
         diurnalT = TransportProfiles(self.parameters.city, use_uk_holidays=self.parameters.useUKholidays, customHolidays=self.parameters.customHolidays)
         [diurnalT.addProfiles(tr['profileFile']) for tr in self.ds.diurnalTraffic]
-
+        print('six')
         # Workday metabolism profile
         hap = HumanActivityProfiles(self.parameters.city, use_uk_holidays=self.parameters.useUKholidays, customHolidays=self.parameters.customHolidays)
         [hap.addProfiles(ha['profileFile']) for ha in self.ds.diurnMetab]
@@ -242,7 +242,7 @@ class Model(object):
         [pop.injectWorkPop(wp['file'], makeUTC(wp['startDate']), wp['attribute'], wp['EPSG']) for wp in self.processedDataList['workPop']]
         bldgEnergy = EnergyUseData()
         bldgEnergy.setOutputShapefile(outShp, outEpsg, outFeatIds)
-
+        print('seven')
         [bldgEnergy.injectDomesticElec(rp['file'], makeUTC(rp['startDate']), rp['attribute'], rp['EPSG']) for rp in self.processedDataList['domElec']]
         [bldgEnergy.injectDomesticGas(rp['file'], makeUTC(rp['startDate']), rp['attribute'], rp['EPSG']) for rp in self.processedDataList['domGas']]
         [bldgEnergy.injectEconomy7Elec(rp['file'], makeUTC(rp['startDate']), rp['attribute'], rp['EPSG']) for rp in self.processedDataList['domEco7']]
@@ -255,15 +255,15 @@ class Model(object):
         ds = None
         # Get daily factors
         df = DailyFact(self.parameters.useUKholidays) # Use UK holidays
-
+        print('eight')
         # Get area of each output feature, along with its identifier
         areas = (bldgEnergy.domGas.getOutputFeatureAreas())
-
+        print('nine')
         for tb in timeBins:
             WH = QF(areas.index.tolist(), tb.to_pydatetime(), 1800, bldgEnergy, diurnalE, dailyE, pop, trans, diurnalT, hap, df,  props, self.parameters.heatOfCombustion)
             # Write out the full time step to a file
             WH.to_csv(os.path.join(self.modelOutputPath, tb.strftime(self.dateStructure)), index_label='featureId')
-
+        print('ten')
         # Write log files to disk for traceability
         bldgEnergy.logger.writeFile(os.path.join(self.logPath, 'EnergyUseSpatial.txt'))
         pop.logger.writeFile(os.path.join(self.logPath, 'PopulationSpatial.txt'))

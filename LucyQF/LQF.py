@@ -221,7 +221,6 @@ class LQF(object):
         # Let user select folder into which model outputs will be saved
         fileDialog = QFileDialog()
         fileDialog.setFileMode(QFileDialog.Directory)
-        fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
         # fileDialog.setFileMode(4)
         # fileDialog.setAcceptMode(1)
         result = fileDialog.exec_()

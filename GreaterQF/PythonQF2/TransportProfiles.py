@@ -112,7 +112,7 @@ class TransportProfiles(object):
         if len(list(dl.keys())) != 8:
             raise ValueError('There must be 8 columns in ' + file)
 
-        dl.columns = list(map(string.lower,  dl.columns.tolist()))
+        dl.columns = list(map(str.lower,  dl.columns.tolist()))
         expectedHeadings = ['motorcycles', 'taxis', 'cars', 'buses', 'lgvs', 'rigids', 'artics']
         matches = list(set(list(dl.keys())[1:]).intersection(expectedHeadings))
         if len(matches) != len(list(dl.keys()))-1:

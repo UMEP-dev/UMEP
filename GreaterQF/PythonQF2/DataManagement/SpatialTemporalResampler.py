@@ -1,12 +1,12 @@
 from __future__ import absolute_import
 from builtins import map
-from builtins import str
+# from builtins import str
 from builtins import object
 from .spatialHelpers import *
-from qgis.core import QgsField, QgsVectorLayer, QgsSpatialIndex, QgsMessageLog, QgsCoordinateReferenceSystem, QgsCoordinateTransform
-import processing
+from qgis.core import QgsField, QgsVectorLayer, QgsSpatialIndex
+# import processing
 
-from qgis.PyQt.QtCore import QVariant, QSettings
+from qgis.PyQt.QtCore import QVariant
 try:
     import pandas as pd
     import numpy as np
@@ -144,14 +144,20 @@ class SpatialTemporalResampler(object):
 
             # If the input layer isn't the same projection as the output layer, then produce a copy that's the right projection and use that instead
             reprojected = False
+            print(epsgCode)
+            print(self.templateEpsgCode)
             if int(epsgCode) != self.templateEpsgCode:
+                print('STR3aa')
                 dest = reprojectVectorLayer(shapefileInput, self.templateEpsgCode)
+                print('STR3ab')
                 shapefileInput = dest
                 reprojected = True
 
             # Load the layer
             try:
+                print('STR3ac')
                 vectorLayer = openShapeFileInMemory(shapefileInput, targetEPSG=self.templateEpsgCode)
+                print('STR3ad')
 
             except Exception as e:
                 raise ValueError('Could not load shapefile at ' + shapefileInput)
@@ -256,7 +262,7 @@ class SpatialTemporalResampler(object):
 
         # self.logger.addEvent('LayerLookup', requestDate.date(), layer_idx.date(), attrib,
         #                      'Looked up ' + str(attrib) + ' in vector layer attributes for ' + requestDate.strftime('%Y-%m-%d') + '. Gave data for ' + str(layer_idx.strftime('%Y-%m-%d')))
-        # toc = dt.now()
+        # toc = dt.now()getTableForDate
         # print 'Time taken for spatial lookup:' + str((toc-tic).microseconds/1000) + ' sec'
         # Just return the field(s) of interest
         return tbl[attrib]
@@ -393,7 +399,8 @@ class SpatialTemporalResampler(object):
 
         # Select successfully identified output areas
 
-        newShapeFile.setSelectedFeatures(list(readAcross[list(disagg.keys())]))
+        # newShapeFile.setSelectedFeatures(list(readAcross[list(disagg.keys())]))
+        newShapeFile.selectByIds(list(readAcross[list(disagg.keys())]))  # new as from QGIS3
 
         selectedOutputFeatures = newShapeFile.selectedFeatures()
         newShapeFile.startEditing()
@@ -420,7 +427,8 @@ class SpatialTemporalResampler(object):
                 newShapeFile.changeAttributeValue(outputFeat.id(), fieldIndices[field], float(weighted_average))
 
         newShapeFile.commitChanges()
-        newShapeFile.setSelectedFeatures([])  # De-select all features
+        # newShapeFile.setSelectedFeatures([])  # De-select all features
+        newShapeFile.selectByIds([])  # new as from QGIS3
         return newShapeFile
 
     def addInput(self, input, startTime, attributeToUse, inputFieldId, weight_by=None, epsgCode=None):

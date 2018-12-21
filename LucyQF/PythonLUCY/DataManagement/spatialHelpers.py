@@ -9,8 +9,9 @@ try:
 except:
     pass
 
-from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsGeometry, QgsField, QgsFeature, QgsSpatialIndex, NULL
-from qgis.core import QgsProcessingAlgorithm, QgsFeatureRequest, QgsDistanceArea, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsCoordinateTransformContext
+from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsGeometry, QgsField, QgsFeature, QgsSpatialIndex, NULL,\
+    QgsFeatureRequest, QgsDistanceArea, QgsCoordinateReferenceSystem, QgsCoordinateTransform, \
+    QgsCoordinateTransformContext, QgsVectorLayerUtils
 import processing # qgis processing framework
 from qgis.PyQt.QtCore import QVariant # , QPyNullVariant
 import tempfile
@@ -60,7 +61,7 @@ def reprojectVectorLayer(filename, targetEpsgCode):
     fobj, dest = tempfile.mkstemp(suffix='.shp')
 
     # processing.runalg('qgis:reprojectlayer', filename, "EPSG:" + str(targetEpsgCode), dest)
-    processing.run('qgis:reprojectlayer', {'INPUT': filename, 'EPSG': str(targetEpsgCode), 'OUTPUT': dest})   #UNTESTED
+    processing.run('qgis:reprojectlayer', {'INPUT': filename, 'TARGET_CRS': 'EPSG:' + str(targetEpsgCode), 'OUTPUT': dest}) # QGIS3 syntax
     os.close(fobj)
     # WORKAROUND FOR QGIS BUG: qgis:reprojectvectorlayer mishandles attributes so that QLongLong data types are
     # treated as int. This means large values have an integer overrun in the reprojected layer
@@ -137,7 +138,9 @@ def calculate_fuel_use(inputLayer, inputIdField,
     newValues = pd.DataFrame(index=allIds, columns=consumption_attributes) # Results holder: a value for every combination of fuel & vehicle type for each feature ID
 
     # Get features for each road type
-    roadTypes = list(set(inputLayer.getValues(roadTypeField)[0])) # Unique road types that are present in shapefile
+
+    roadTypes = list(set(QgsVectorLayerUtils.getValues(inputLayer, roadTypeField)[0]))  # Unique road types that are present in shapefile
+    # roadTypes = list(set(inputLayer.getValues(roadTypeField)[0])) # Unique road types that are present in shapefile
 
     for roadType in roadTypes: # For each road type in the file
         # If we don't explicitly consider this road type as motorway, A road or B road, just consider it "other"
@@ -472,7 +475,8 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
     for wa in weightingAttributes:
         # Check each attribute (except _AREA_) is in the output shapefile
         if wa != '_AREA_':
-            if output_layer.fieldNameIndex(wa) == -1:
+            # if output_layer.fieldNameIndex(wa) == -1:
+            if output_layer.fields().indexFromName(wa) == -1:
                 raise ValueError('Weighting attribute:' + str(wa) + ' not in the output shapefile.')
 
     weighting_attrib = {wa:{} for wa in weightingAttributes}

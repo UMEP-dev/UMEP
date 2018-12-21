@@ -39,6 +39,7 @@ from .dsm_generator_dialog import DSMGeneratorDialog
 import os.path
 import sys
 from osgeo.gdalconst import *
+import shutil
 
 class DSMGenerator(object):
     """QGIS Plugin Implementation."""
@@ -377,23 +378,25 @@ class DSMGenerator(object):
 
             # Make data queries to overpass-api
             urlStr = 'http://overpass-api.de/api/map?bbox=' + str(lonlatmin[0]) + ',' + str(lonlatmin[1]) + ',' + str(lonlatmax[0]) + ',' + str(lonlatmax[1])
-            osmXml = urllib.request.urlopen(urlStr).read()
-            #print urlStr
+            # osmXml = urllib.request.urlopen(urlStr).read()
+            osmXml = urllib.request.urlretrieve(urlStr)
+            # print(osmXml[1])
 
             # Make OSM building file
             osmPath = self.plugin_dir + '/temp/OSM_building.osm'
-            osmFile = open(osmPath, 'w')
-            osmFile.write(str(osmXml))
-            if os.fstat(osmFile.fileno()).st_size < 1:
-                urlStr = 'http://api.openstreetmap.org/api/0.6/map?bbox=' + str(lonlatmin[0]) + ',' + str(lonlatmin[1]) + ',' + str(lonlatmax[0]) + ',' + str(lonlatmax[1])
-                osmXml = urllib.request.urlopen(urlStr).read()
-                osmFile.write(str(osmXml))
-                #print 'Open Street Map'
-                if os.fstat(osmFile.fileno()).st_size < 1:
-                    QMessageBox.critical(None, "Error", "No OSM data available")
-                    return
-
-            osmFile.close()
+            # osmFile = open(osmPath, 'w')
+            # osmFile.write(str(osmXml))
+            shutil.copyfile(osmXml[0], osmPath)
+            # if os.fstat(osmFile.fileno()).st_size < 1:
+            #     urlStr = 'http://api.openstreetmap.org/api/0.6/map?bbox=' + str(lonlatmin[0]) + ',' + str(lonlatmin[1]) + ',' + str(lonlatmax[0]) + ',' + str(lonlatmax[1])
+            #     osmXml = urllib.request.urlopen(urlStr).read()
+            #     osmFile.write(str(osmXml))
+            #     # print(osmXml)
+            #     if os.fstat(osmFile.fileno()).st_size < 1:
+            #         QMessageBox.critical(None, "Error", "No OSM data available")
+            #         return
+            #
+            # osmFile.close()
 
             outputshp = self.plugin_dir + '/temp/'
 
@@ -401,8 +404,6 @@ class DSMGenerator(object):
             osmToShape = gdal_os_dep + 'ogr2ogr --config OSM_CONFIG_FILE "' + self.plugin_dir + '/osmconf.ini" -skipfailures -t_srs EPSG:' + str(
                 rasEPSG) + ' -overwrite -nlt POLYGON -f "ESRI Shapefile" "' + outputshp + '" "' + osmPath + '"'
 
-                        #print(osmToShape)
-            # print(gdal_os_dep)
             #osmConf = 'export OSM_CONFIG_FILE=' + self.plugin_dir + '/osmconf.ini'
             #print(osmToShape)
             if sys.platform == 'win32':
@@ -422,7 +423,7 @@ class DSMGenerator(object):
 
             osmPolygonPath = outputshp + 'multipolygons.shp'
             vlayer = QgsVectorLayer(osmPolygonPath, 'multipolygons', 'ogr')
-            #print(vlayer.isValid())
+            print(vlayer.isValid())
             polygon_layer = vlayer
             fileInfo = QFileInfo(polygon_layer.source())
             polygon_ln = fileInfo.baseName()
@@ -532,21 +533,21 @@ class DSMGenerator(object):
                         ' -tr ' + str(pixel_size) + ' ' + str(pixel_size) + ' -l "' + str(polygon_ln) + '" "' \
                          + str(polygon_layer.source()) + '" "' + self.plugin_dir + '/temp/clipdsm.tif"'
 
-        # gdalclipdem = gdal_os_dep + 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(self.xMin) + ' ' + str(self.yMin) + ' ' + str(self.xMax) + ' ' + str(self.yMax) +\
-        #               ' -tr ' + str(pixel_size) + ' ' + str(pixel_size) + \
-        #               ' -of GTiff ' + '"' + filepath_dem + '" "' + self.plugin_dir + '/temp/clipdem.tif"'
+        gdalclipdem = gdal_os_dep + 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(self.xMin) + ' ' + str(self.yMin) + ' ' + str(self.xMax) + ' ' + str(self.yMax) +\
+                      ' -tr ' + str(pixel_size) + ' ' + str(pixel_size) + \
+                      ' -of GTiff ' + '"' + filepath_dem + '" "' + self.plugin_dir + '/temp/clipdem.tif"'
 
         # Rasterize
         if sys.platform == 'win32':
             si = subprocess.STARTUPINFO()
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             subprocess.call(gdalrasterize, startupinfo=si)
-            # subprocess.call(gdalclipdem, startupinfo=si)
-            gdal.Warp(self.plugin_dir + '/temp/clipdem.tif', filepath_dem, xRes=pixel_size, yRes=pixel_size)
+            subprocess.call(gdalclipdem, startupinfo=si)
+            # gdal.Warp(self.plugin_dir + '/temp/clipdem.tif', filepath_dem, xRes=pixel_size, yRes=pixel_size)
         else:
             os.system(gdalrasterize)
-            gdal.Warp(self.plugin_dir + '/temp/clipdem.tif', filepath_dem, xRes=pixel_size, yRes=pixel_size)
-            # os.system(gdalclipdem)
+            # gdal.Warp(self.plugin_dir + '/temp/clipdem.tif', filepath_dem, xRes=pixel_size, yRes=pixel_size)
+            os.system(gdalclipdem)
 
         self.dlg.progressBar.setValue(3)
 
@@ -598,25 +599,25 @@ class DSMGenerator(object):
         self.dlg.progressBar.setValue(4)
 
         # Save raster
-        def saveraster(gdal_data, filename,
-                       raster):  # gdal_data = raster extent, filename = output filename, raster = numpy array (raster to be saved)
-            rows = gdal_data.RasterYSize
-            cols = gdal_data.RasterXSize
+        # def saveraster(gdal_data, filename,
+        #                raster):  # gdal_data = raster extent, filename = output filename, raster = numpy array (raster to be saved)
+        rows = dsm_raster.RasterYSize
+        cols = dsm_raster.RasterXSize
 
-            outDs = gdal.GetDriverByName("GTiff").Create(filename, cols, rows, int(1), GDT_Float32)
-            outBand = outDs.GetRasterBand(1)
+        outDs = gdal.GetDriverByName("GTiff").Create(self.DSMoutputfile[0], cols, rows, int(1), GDT_Float32)
+        outBand = outDs.GetRasterBand(1)
 
-            # write the data
-            outBand.WriteArray(raster, 0, 0)
-            # flush data to disk, set the NoData value and calculate stats
-            outBand.FlushCache()
-            outBand.SetNoDataValue(-9999)
+        # write the data
+        outBand.WriteArray(dsm_array, 0, 0)
+        # flush data to disk, set the NoData value and calculate stats
+        outBand.FlushCache()
+        outBand.SetNoDataValue(-9999)
 
-            # georeference the image and set the projection
-            outDs.SetGeoTransform(gdal_data.GetGeoTransform())
-            outDs.SetProjection(gdal_data.GetProjection())
+        # georeference the image and set the projection
+        outDs.SetGeoTransform(dsm_raster.GetGeoTransform())
+        outDs.SetProjection(dsm_raster.GetProjection())
 
-        saveraster(dsm_raster, self.DSMoutputfile[0], dsm_array)
+        # saveraster(dsm_raster, self.DSMoutputfile[0], dsm_array)
 
         # Load result into canvas
         rlayer = self.iface.addRasterLayer(self.DSMoutputfile[0])
@@ -639,7 +640,7 @@ class DSMGenerator(object):
 
         self.resetPlugin()
 
-        #print "finished run: %s\n\n" % (datetime.datetime.now() - start)
+        print("finished run: %s\n\n" % (datetime.datetime.now() - start))
 
     def resetPlugin(self):       # Reset plugin
         self.dlg.canvasButton.setAutoExclusive(False)

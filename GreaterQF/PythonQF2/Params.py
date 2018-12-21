@@ -1,12 +1,12 @@
 from builtins import map
-from builtins import str
+# from builtins import str
 from builtins import range
 from builtins import object
 # Object that loads and stores GreaterQF parameters, given a namelist file
 from datetime import datetime as dt
 from datetime import timedelta as timedelta
 from ...Utilities import f90nml as nml
-from string import lower
+# from string import lower
 import pytz
 
 class Params(object):
@@ -36,7 +36,7 @@ class Params(object):
         self.fuelFractions = {} # Fraction of each vehicle type that's petrol and diesel
 
         expectedSections = ['params', 'waterHeatingFractions', 'roadAADTs', 'roadSpeeds', 'vehicleFractions', 'heatOfCombustion', 'petrolDieselFractions']
-        missingSections = list(set(map(lower, expectedSections)).difference(list(map(lower, list(PARAMS.keys())))))
+        missingSections = list(set(map(str.lower, expectedSections)).difference(list(map(str.lower, list(PARAMS.keys())))))
         if len(missingSections) > 0:
             raise ValueError('The parameters file ' + paramsFile + ' is missing the following sections: ' + str(missingSections))
 

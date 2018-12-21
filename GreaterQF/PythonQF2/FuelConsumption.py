@@ -1,4 +1,4 @@
-from builtins import str
+# from builtins import str
 from builtins import map
 from builtins import object
 try:
@@ -6,7 +6,7 @@ try:
 except:
     pass
 import os
-from string import lower
+# from string import lower
 class FuelConsumption(object):
     def __init__(self, filename):
         ''' Class to read in fuel consumption file with prescribed format in g/km,
@@ -38,24 +38,32 @@ class FuelConsumption(object):
         # Index level 0 is date, level 1 is fuel, level 2 is vehicle type
         roadsPresent = list(pd.unique(list(self.data.keys())))
 
-        missingRoads = list(set(self.roadTypes).difference(list(map(lower, roadsPresent))))
+        missingRoads = list(set(self.roadTypes).difference(list(map(str.lower, roadsPresent))))
         if len(missingRoads) > 0:
             raise ValueError('Not all of the required road types were found in ' + filename + '. Expected: ' + str(self.roadTypes) + ' but got ' + str(roadsPresent))
 
         fuelsPresent = list(pd.unique(self.data.index.levels[1]))
-        missingFuels = list(set(self.fuelTypes).difference(list(map(lower, fuelsPresent))))
+        missingFuels = list(set(self.fuelTypes).difference(list(map(str.lower, fuelsPresent))))
         if len(missingFuels) > 0:
             raise ValueError('Not all of the required fuel types were found in ' + filename + '. Expected: ' + str(self.fuelTypes) + ' but got ' + str(fuelsPresent))
 
         vehiclesPresent = list(pd.unique(self.data.index.levels[2]))
-        missingVehicles = list(set(self.vehicleTypes).difference(list(map(lower, vehiclesPresent))))
+        missingVehicles = list(set(self.vehicleTypes).difference(list(map(str.lower, vehiclesPresent))))
         if len(missingVehicles) > 0:
             raise ValueError('Not all of the required vehicle types were found in ' + filename + '. Expected: ' + str(self.vehicleTypes) + ' but got ' + str(missingVehicles))
 
         # Map lexical matches to expected indices to avoid case sensitivites
-        self.roadMatch = {expected: roadsPresent[map(lower, roadsPresent).index(expected)] for expected in self.roadTypes}
-        self.fuelMatch = {expected: fuelsPresent[map(lower, fuelsPresent).index(expected)] for expected in self.fuelTypes}
-        self.vehicleMatch = {expected: vehiclesPresent[map(lower, vehiclesPresent).index(expected)] for expected in self.vehicleTypes}
+        # self.roadMatch = {expected: roadsPresent[map(str.lower, roadsPresent).index(expected)] for expected in self.roadTypes}
+        # self.fuelMatch = {expected: fuelsPresent[map(str.lower, fuelsPresent).index(expected)] for expected in self.fuelTypes}
+        # self.vehicleMatch = {expected: vehiclesPresent[map(str.lower, vehiclesPresent).index(expected)] for expected in self.vehicleTypes}
+
+        ## TODO UNTESTED
+        self.roadMatch = {expected: roadsPresent[list(map(str.lower, roadsPresent)).index(expected)] for expected in
+                          self.roadTypes}
+        self.fuelMatch = {expected: fuelsPresent[list(map(str.lower, fuelsPresent)).index(expected)] for expected in
+                          self.fuelTypes}
+        self.vehicleMatch = {expected: vehiclesPresent[list(map(str.lower, vehiclesPresent)).index(expected)] for expected in
+                             self.vehicleTypes}
 
     def getFuelConsumption(self, date, vehicle, road, fuel):
         '''

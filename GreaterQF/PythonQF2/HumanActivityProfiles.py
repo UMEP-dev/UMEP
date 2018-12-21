@@ -5,7 +5,7 @@ from builtins import object
 # Object that stores and retrieves diurnal cycles of metabolic activity profiles for different seasons and times of day for GreaterQF
 
 import os
-from string import lower
+# from string import lower
 try:
     import numpy as np
     import pandas as pd
@@ -64,7 +64,7 @@ class HumanActivityProfiles(object):
         # Should be 3x each season in header
         if (len(list(dl.keys()))-1)%3 != 0:
             raise ValueError('There must be 6 columns for each named season in ' + file)
-        rowHeaders = list(map(lower, dl[0][0:6]))
+        rowHeaders = list(map(str.lower, dl[0][0:6]))
 
         firstDataRow = 6
         # Expect certain keywords
@@ -87,10 +87,10 @@ class HumanActivityProfiles(object):
             raise ValueError('First column of row 6 must be \'Timezone\' (of data for that season) in ' + file)
 
         # Check that the right "Type" entries are present
-        if 'energy' != lower(dl[1][2]):
+        if 'energy' != str.lower(dl[1][2]):
             raise ValueError('Second column of row 3 must be \'Energy\' (metabolic energy) in ' + file)
 
-        if 'fraction' != lower(dl[2][2]):
+        if 'fraction' != str.lower(dl[2][2]):
             raise ValueError('Second column of row 3 must be \'Fraction\' (fraction of population doing work) in ' + file)
 
         if len(pd.unique(dl.iloc[2][1:])) != 2:

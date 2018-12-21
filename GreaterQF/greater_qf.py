@@ -90,8 +90,8 @@ class GreaterQF(object):
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&GQF')
-        self.toolbar = self.iface.addToolBar(u'GQF')
-        self.toolbar.setObjectName(u'GQF')
+        # self.toolbar = self.iface.addToolBar(u'GQF')
+        # self.toolbar.setObjectName(u'GQF')
 
     def connectButtons(self):
         ''' Connect buttons to default actions '''
@@ -128,8 +128,10 @@ class GreaterQF(object):
         '''
 
         fileDialog = QFileDialog()
-        fileDialog.setFileMode(2)
-        fileDialog.setAcceptMode(0)
+        fileDialog.setFileMode(QFileDialog.Directory)
+        fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
+        # fileDialog.setFileMode(2)
+        # fileDialog.setAcceptMode(0)
         result = fileDialog.exec_()
         if result == 1:
             selectedFolder = fileDialog.selectedFiles()[0]
@@ -147,8 +149,10 @@ class GreaterQF(object):
     def outputFolder(self):
         # Let user select folder into which model outputs will be saved
         fileDialog = QFileDialog()
-        fileDialog.setFileMode(4)
-        fileDialog.setAcceptMode(1)
+        fileDialog.setFileMode(QFileDialog.Directory)
+        fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
+        # fileDialog.setFileMode(4)
+        # fileDialog.setAcceptMode(1)
         result = fileDialog.exec_()
         if result == 1:
             self.model.setOutputDir(fileDialog.selectedFiles()[0])
@@ -211,8 +215,10 @@ class GreaterQF(object):
         self.reset() # Clear everything as we are loading previous results
 
         fileDialog = QFileDialog()
-        fileDialog.setFileMode(2)
-        fileDialog.setAcceptMode(0)
+        # fileDialog.setFileMode(2)
+        # fileDialog.setAcceptMode(0)
+        fileDialog.setFileMode(QFileDialog.Directory)
+        fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
         result = fileDialog.exec_()
         if result == 1:
             selectedFolder = fileDialog.selectedFiles()[0]
@@ -246,9 +252,6 @@ class GreaterQF(object):
             except Exception as e:
                 QMessageBox.critical(None, 'Error loading previous model configuration', str(e) + '. Re-runs not available')
                 self.dlg.cmdRunCancel.setEnabled(False)
-
-
-
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -401,18 +404,18 @@ class GreaterQF(object):
         self.dlg.cmdRunCancel.setEnabled(False)
         self.dlg.pushButtonClose.setEnabled(False)
         # RUN MODEL HERE
-
-        try:
-            self.model.run()
-            self.dlg.progressBar.setValue(100)
-            self.iface.messageBar().pushMessage("GQF", "Model run complete. Click 'visualise' to view output",
-                                            level=QgsMessageBar.INFO)
-            # Swap the "load" button to a "Clear" button
-            self.dlg.cmdLoadResults.clicked.disconnect()
-            self.dlg.cmdLoadResults.clicked.connect(self.reset, Qt.UniqueConnection)
-            self.dlg.cmdLoadResults.setText('Clear data')
-        except Exception as e:
-            QMessageBox.critical(None, 'Error running GQF', str(e))
+        self.model.run() #TODO Moved it outside to find error
+        # try:
+        #     self.model.run()
+        #     self.dlg.progressBar.setValue(100)
+        #     self.iface.messageBar().pushMessage("GQF", "Model run complete. Click 'visualise' to view output",
+        #                                     level=QgsMessageBar.INFO)
+        #     # Swap the "load" button to a "Clear" button
+        #     self.dlg.cmdLoadResults.clicked.disconnect()
+        #     self.dlg.cmdLoadResults.clicked.connect(self.reset, Qt.UniqueConnection)
+        #     self.dlg.cmdLoadResults.setText('Clear data')
+        # except Exception as e:
+        #     QMessageBox.critical(None, 'Error running GQF', str(e))
 
         self.dlg.cmdRunCancel.setEnabled(True)
         self.dlg.pushButtonClose.setEnabled(True)

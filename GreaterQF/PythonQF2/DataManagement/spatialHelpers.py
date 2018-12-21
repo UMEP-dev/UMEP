@@ -9,11 +9,12 @@ try:
     import pandas as pd
 except:
     pass
-from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsRasterLayer, QgsGeometry, QgsRaster, QgsRectangle, QgsPoint, QgsField, QgsFeature, QgsSpatialIndex, QgsMessageLog
-from qgis.core import QgsSymbol, QgsGraduatedSymbolRenderer, QgsRendererRange, QgsFeatureRequest, QgsExpression, QgsDistanceArea
-from qgis.analysis import QgsZonalStatistics
+
+from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsGeometry, QgsField, QgsFeature, QgsSpatialIndex, NULL,\
+    QgsFeatureRequest, QgsDistanceArea, QgsCoordinateReferenceSystem, QgsCoordinateTransform, \
+    QgsCoordinateTransformContext, QgsVectorLayerUtils
 import processing # qgis processing framework
-from qgis.PyQt.QtCore import QVariant, QPyNullVariant
+from qgis.PyQt.QtCore import QVariant # , QPyNullVariant
 import tempfile
 # from string import lower
 
@@ -62,30 +63,36 @@ def reprojectVectorLayer(filename, targetEpsgCode):
         raise ValueError('Filename must be a string')
 
     dest = os.path.join(tempfile.mkdtemp() + 'reprojected.shp')
-    processing.runalg('qgis:reprojectlayer', filename, "EPSG:" + str(targetEpsgCode), dest)
+    # processing.runalg('qgis:reprojectlayer', filename, "EPSG:" + str(targetEpsgCode), dest)
+    # print('SHREPR')
+    processing.run('qgis:reprojectlayer', {'INPUT': filename, 'TARGET_CRS': 'EPSG:' + str(targetEpsgCode), 'OUTPUT': dest}) # QGIS3 syntax
+
+    # This seems to be fixed now 20181214 - Fredrik
     # WORKAROUND FOR QGIS BUG: qgis:reprojectvectorlayer mishandles attributes so that QLongLong data types are
     # treated as int. This means large values have an integer overrun in the reprojected layer
 
     # This workaround operates by opening both files and copying the attributes from the original layer into the new one
-    orig_layer = loadShapeFile(filename)
-    reproj_layer = loadShapeFile(dest, targetEPSG=targetEpsgCode)
-
-    reproj_layer.startEditing()
-    orig_fieldNames = {a.name(): i for i, a in enumerate(orig_layer.dataProvider().fields())}
-    reproj_fieldNames = {a.name(): i for i, a in enumerate(reproj_layer.dataProvider().fields())}
-    # Copy features
-    for orig_feat in orig_layer.getFeatures():
-        orig_id = orig_feat.id()
-        for fieldName in list(orig_fieldNames.keys()):
-            try:
-                new_val = float(orig_feat[orig_fieldNames[fieldName]])
-                reproj_layer.changeAttributeValue(orig_id, reproj_fieldNames[fieldName], new_val)
-            except Exception:
-                continue
-    reproj_layer.commitChanges()
-    orig_feat = None
-    reproj_layer = None
-    orig_layer = None
+    # print('SHREPR1a')
+    # orig_layer = loadShapeFile(filename)
+    # print('SHREPR1b')
+    # reproj_layer = loadShapeFile(dest, targetEPSG=targetEpsgCode)
+    # print('SHREPR1c')
+    # reproj_layer.startEditing()
+    # orig_fieldNames = {a.name(): i for i, a in enumerate(orig_layer.dataProvider().fields())}
+    # reproj_fieldNames = {a.name(): i for i, a in enumerate(reproj_layer.dataProvider().fields())}
+    # # Copy features
+    # for orig_feat in orig_layer.getFeatures():
+    #     orig_id = orig_feat.id()
+    #     for fieldName in list(orig_fieldNames.keys()):
+    #         try:
+    #             new_val = float(orig_feat[orig_fieldNames[fieldName]])
+    #             reproj_layer.changeAttributeValue(orig_id, reproj_fieldNames[fieldName], new_val)
+    #         except Exception:
+    #             continue
+    # reproj_layer.commitChanges()
+    # orig_feat = None
+    # reproj_layer = None
+    # orig_layer = None
     # END OF WORKAROUND
     return dest
 
@@ -115,8 +122,9 @@ def calculate_fuel_use(inputLayer, inputIdField,
     # Make sure any lengths are calculated independently of CRS
     in_a = QgsDistanceArea()
     in_a.setEllipsoid('WGS84')
-    in_a.setEllipsoidalMode(True)
-    in_a.setSourceCrs(inputLayer.crs())
+    trans_context = QgsCoordinateTransformContext()  # new
+    # in_a.setEllipsoidalMode(True)
+    in_a.setSourceCrs(inputLayer.crs(), trans_context)
 
     # Add new attributes to inputLayer into which results will go
     totalAADTAvailable = False
@@ -144,7 +152,8 @@ def calculate_fuel_use(inputLayer, inputIdField,
     newValues = pd.DataFrame(index=allIds, columns=consumption_attributes) # Results holder: a value for every combination of fuel & vehicle type for each feature ID
 
     # Get features for each road type
-    roadTypes = list(set(inputLayer.getValues(roadTypeField)[0])) # Unique road types that are present in shapefile
+    roadTypes = list(set(QgsVectorLayerUtils.getValues(inputLayer, roadTypeField)[0]))  # Unique road types that are present in shapefile
+    # roadTypes = list(set(inputLayer.getValues(roadTypeField)[0])) # Unique road types that are present in shapefile
 
     for roadType in roadTypes: # For each road type in the file
         # If we don't explicitly consider this road type as motorway, A road or B road, just consider it "other"
@@ -165,7 +174,8 @@ def calculate_fuel_use(inputLayer, inputIdField,
             fids.append(f.id())
             ids.append(intOrString(f[inputIdField]))
             lkm.append(in_a.measureLine(f.geometry().asPolyline())/1000.0) # Length of segment in km
-        inputLayer.setSelectedFeatures(fids)
+        # inputLayer.setSelectedFeatures(fids)
+        inputLayer.selectByIds(fids)  # New as from QGIS3
         #ids = np.array(ids)
         lkm = pd.Series(index=ids, data=lkm)
 
@@ -246,7 +256,8 @@ def calculate_fuel_use(inputLayer, inputIdField,
                                                                 lkm *\
                                                                 fuelCon.getFuelConsumption(age, 'bus', rType_cons, fuelType)
 
-        inputLayer.setSelectedFeatures([]) # Deselect features ready for next loop
+        # inputLayer.setSelectedFeatures([]) # Deselect features ready for next loop
+        inputLayer.selectByIds([])  # New as from QGIS3
         # End of loop over road types
     return {'fuelUse':newValues, 'names':fieldMap}
 
@@ -266,14 +277,17 @@ def intersecting_amounts(fieldsToSample, inputIndex, inputLayer, new_layer, inpu
     # when comparing across different layers. Comparing areas within the same layer don't need this
     in_a = QgsDistanceArea()
     in_a.setEllipsoid('WGS84')
-    in_a.setEllipsoidalMode(True)
-    in_a.setSourceCrs(inputLayer.crs())
+    trans_context = QgsCoordinateTransformContext()  # new
+    in_a.setSourceCrs(inputLayer.crs(), trans_context)  # now also trans_context
+    # in_a.setEllipsoidalMode(True)
+    # in_a.setSourceCrs(inputLayer.crs())
 
     out_a = QgsDistanceArea()
     out_a.setEllipsoid('WGS84')
-    out_a.setEllipsoidalMode(True)
-    out_a.setSourceCrs(new_layer.crs())
-
+    trans_context = QgsCoordinateTransformContext()  # new
+    out_a.setSourceCrs(new_layer.crs(), trans_context)
+    # out_a.setEllipsoidalMode(True)
+    # out_a.setSourceCrs(new_layer.crs())
 
     # Get bounding box around combined output features
     # If there are fewer than 10 input features, work out if any of them totally subsume the entire output layer
@@ -306,7 +320,8 @@ def intersecting_amounts(fieldsToSample, inputIndex, inputLayer, new_layer, inpu
             raise ValueError('Output features must all be polygons')
         matching = inputIndex.intersects(outputFeat.geometry().boundingBox())  # IDs of input data features intersected by the output area polygon
         matchingInputAmounts = {}
-        inputLayer.setSelectedFeatures(matching)
+        # inputLayer.setSelectedFeatures(matching)
+        inputLayer.selectByIds(matching)  # New as from QGIS3
         selected = inputLayer.selectedFeatures() # Input features that intersect the bounding box of the output feature
 
         for featureMatched in selected:
@@ -342,13 +357,17 @@ def intersecting_amounts_LUCY(fieldsToSample, inputLayer, new_layer, inputLayerI
     # when comparing across different layers. Comparing areas within the same layer don't need this
     in_a = QgsDistanceArea()
     in_a.setEllipsoid('WGS84')
-    in_a.setEllipsoidalMode(True)
-    in_a.setSourceCrs(inputLayer.crs())
+    trans_context = QgsCoordinateTransformContext()  # new
+    in_a.setSourceCrs(inputLayer.crs(), trans_context)
+    # in_a.setEllipsoidalMode(True)
+    # in_a.setSourceCrs(inputLayer.crs())
 
     out_a = QgsDistanceArea()
     out_a.setEllipsoid('WGS84')
-    out_a.setEllipsoidalMode(True)
-    out_a.setSourceCrs(new_layer.crs())
+    trans_context = QgsCoordinateTransformContext()  # new
+    in_a.setSourceCrs(inputLayer.crs(), trans_context)
+    # out_a.setEllipsoidalMode(True)
+    # out_a.setSourceCrs(new_layer.crs())
 
     # Get bounding box around combined output features
     # If there are fewer than 10 input features, work out if any of them totally subsume the entire output layer
@@ -392,7 +411,8 @@ def intersecting_amounts_LUCY(fieldsToSample, inputLayer, new_layer, inputLayerI
 
         a.deleteFeature(outputFeat)
 
-        inputLayer.setSelectedFeatures(matchingInputIds)
+        # inputLayer.setSelectedFeatures(matchingInputIds)
+        inputLayer.selectByIds(matchingInputIds)  # New as from QGIS3
         selected = inputLayer.selectedFeatures() # Input features that intersect the bounding box of the output feature
         matchingInputAmounts = {}
 
@@ -450,8 +470,10 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
     # Calculate feature areas in square metres, because intersecting_amount are stated in square metres
     out_a = QgsDistanceArea()
     out_a.setEllipsoid('WGS84')
-    out_a.setEllipsoidalMode(True)
-    out_a.setSourceCrs(output_layer.crs())
+    trans_context = QgsCoordinateTransformContext()  # new
+    out_a.setSourceCrs(output_layer.crs(), trans_context)
+    # out_a.setEllipsoidalMode(True)
+    # out_a.setSourceCrs(output_layer.crs())
 
     # Check the requested weightingAttribute exists in the output layer. If not, make some noise
     if weightingAttributes is None:
@@ -465,7 +487,8 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
     for wa in weightingAttributes:
         # Check each attribute (except _AREA_) is in the output shapefile
         if wa != '_AREA_':
-            if output_layer.fieldNameIndex(wa) == -1:
+            # if output_layer.fieldNameIndex(wa) == -1:
+            if output_layer.fields().indexFromName(wa) == -1:
                 raise ValueError('Weighting attribute:' + str(wa) + ' not in the output shapefile.')
 
     weighting_attrib = {wa:{} for wa in weightingAttributes}
@@ -593,11 +616,13 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
 #     return featureVals
 
 def feature_areas(layer):
-   # Return dict of feature areas {feature_id:area m^2}
+    # Return dict of feature areas {feature_id:area m^2}
     out_a = QgsDistanceArea() # Ensure metres are the unit rather than degrees
     out_a.setEllipsoid('WGS84')
-    out_a.setEllipsoidalMode(True)
-    out_a.setSourceCrs(layer.crs())
+    trans_context = QgsCoordinateTransformContext()  # new
+    out_a.setSourceCrs(layer.crs(), trans_context)  # now also trans_context
+    # out_a.setEllipsoidalMode(True)
+    # out_a.setSourceCrs(layer.crs())
 
     areas = {}
     for feat in layer.getFeatures():
@@ -628,8 +653,9 @@ def convert_to_spatial_density(layer, attribute):
         Return updated layer (if layer is ogr, then it will be altered on disk)'''
     out_a = QgsDistanceArea() # Ensure metres are the unit rather than degrees
     out_a.setEllipsoid('WGS84')
-    out_a.setEllipsoidalMode(True)
-    out_a.setSourceCrs(layer.crs())
+    trans_context = QgsCoordinateTransformContext()  # new
+    # out_a.setEllipsoidalMode(True)
+    out_a.setSourceCrs(layer.crs(), trans_context)
 
     feats = layer.getFeatures()
     # Work out which entry in the field list is the one of interest
@@ -679,7 +705,8 @@ def shapefile_attributes(layer):
             try:
                 vals.append(float(a))
             except Exception:
-                if type(a) is QPyNullVariant:
+                # if type(a) is QPyNullVariant:
+                if type(a) is NULL:
                     vals.append(np.nan)
                 else:
                     vals.append(a)
@@ -706,9 +733,11 @@ def sameFeatures(layer1, layer2):
     # Do all the features have the same geometry?
     geometryMatch = True
     for id in expectedFeatureIds:
-        layer1.setSelectedFeatures([id])
+        # layer1.setSelectedFeatures([id])
+        layer1.selectByIds([id])  # new as from QGIS3
         infeat = layer1.selectedFeatures()[0]
-        layer2.setSelectedFeatures([id])
+        # layer2.setSelectedFeatures([id])
+        layer2.selectByIds([id])  # new as from QGIS3
         outfeat = layer2.selectedFeatures()[0]
         if infeat.geometry() != outfeat.geometry():
             geometryMatch = False
@@ -761,17 +790,21 @@ def findPrimaryKeyField(primaryKeyName, layerDefinition):
 
 def loadShapeFile(filename, targetEPSG=None):
     # Opens a shapefile. Note that any changes to this shapefile will be written straight to disk
+    # print('SHLOAD22a')
     layer = QgsVectorLayer(filename, 'Shapefile', 'ogr')
+    # print('SHLOAD22b')
     if not layer:
         raise Exception('Shapefile %s not valid')%(filename,)
     if targetEPSG is None:
         try:
+            # print('SHLOAD22c')
             targetEPSG = layer.dataProvider().crs().authid().split(':')[1]
         except Exception:
             raise ValueError('Could not determine a CRS for shapefile %s'%(filename,))
     crs = layer.crs()
     crs.createFromId(int(targetEPSG))
     layer.setCrs(crs)
+    # print('SH2LOAD2d')
     return layer
 
 def openShapeFileInMemory(filename, targetEPSG=None, label="Layer"):
@@ -806,7 +839,7 @@ def saveLayerToFile(layer, filename, targetCRS=None, label=None):
 
     error = QgsVectorFileWriter.writeAsVectorFormat(layer, filename, "CP1250", targetCRS, "ESRI Shapefile")
 
-    if error != QgsVectorFileWriter.NoError:
+    if error[0] != QgsVectorFileWriter.NoError:  # error now have two variables 20181122
         raise IOError('Failed to write vector file ' + str(filename))
 
 def addNewField(inLayer, fieldNames, initialValue=None):
@@ -879,7 +912,8 @@ def duplicateVectorLayer(inLayer, targetEPSG=None, label=None):
     for feat in inLayer.getFeatures():
         a = QgsFeature()
         a.setGeometry(feat.geometry())
-        a.setFields(newLayer.pendingFields())
+        # a.setFields(newLayer.pendingFields())
+        a.setFields(newLayer.fields())
         a.setAttributes(feat.attributes())
         pr.addFeatures([a])  # Update layer
 
@@ -889,7 +923,7 @@ def duplicateVectorLayer(inLayer, targetEPSG=None, label=None):
     return newLayer
 
 def colourRanges(displayLayer, attribute, opacity, range_minima, range_maxima, colours):
-    from qgis.core import QgsSymbolV2, QgsGraduatedSymbolRendererV2, QgsRendererRangeV2
+    from qgis.core import QgsSymbol, QgsGraduatedSymbolRenderer, QgsRendererRange
     from qgis.PyQt.QtGui import  QColor
 
     # Colour vector layer according to the value of attribute <<attribute>>, with ranges set out by <<range_minima>> (list), <<range_maxima>> (list)
@@ -898,17 +932,17 @@ def colourRanges(displayLayer, attribute, opacity, range_minima, range_maxima, c
     rangeList = []
     transparent = QColor(QColor(0, 0, 0, 0))
     for i in range(0, len(range_minima)):
-        symbol = QgsSymbolV2.defaultSymbol(displayLayer.geometryType())
+        symbol = QgsSymbol.defaultSymbol(displayLayer.geometryType())
         symbol.setColor(QColor(colours[i]))
         symbol.setAlpha(opacity)
         symbol.symbolLayer(0).setOutlineColor(transparent)
 
-        valueRange = QgsRendererRangeV2(range_minima[i], range_maxima[i], symbol,
+        valueRange = QgsRendererRange(range_minima[i], range_maxima[i], symbol,
                                         str(range_minima[i]) + ' - ' + str(range_maxima[i]))
         rangeList.append(valueRange)
 
-    renderer = QgsGraduatedSymbolRendererV2('', rangeList)
-    renderer.setMode(QgsGraduatedSymbolRendererV2.EqualInterval)
+    renderer = QgsGraduatedSymbolRenderer('', rangeList)
+    renderer.setMode(QgsGraduatedSymbolRenderer.EqualInterval)
     renderer.setClassAttribute(attribute)
     displayLayer.setRendererV2(renderer)
 
@@ -973,7 +1007,8 @@ def populateShapefileFromTemplate(dataMatrix, primaryKey, templateShapeFile,
             areaId = str(featId)
 
         for fld in attribs:
-            idx = layer.fieldNameIndex(fld)
+            # idx = layer.fieldNameIndex(fld)
+            idx = layer.fields().indexFromName(fld)
             nulls = dataMatrix[fld].isnull()
             nulls = nulls.index[nulls]
             try:

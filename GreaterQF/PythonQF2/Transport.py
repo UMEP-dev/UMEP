@@ -1,9 +1,9 @@
 from __future__ import absolute_import
-from builtins import str
+# from builtins import str
 from builtins import map
 from builtins import object
 from datetime import datetime as dt
-from string import lower
+# from string import lower
 from .DataManagement.LookupLogger import LookupLogger
 from .DataManagement.SpatialTemporalResampler import SpatialTemporalResampler
 from .DataManagement.spatialHelpers import *
@@ -249,9 +249,9 @@ class Transport(object):
         :return: String of the column name to use
         '''
 
-        if lower(fuelType) == 'petrol':
+        if str.lower(fuelType) == 'petrol':
             name = self.petrolNames[vehType]
-        if lower(fuelType) == 'diesel':
+        if str.lower(fuelType) == 'diesel':
             name = self.dieselNames[vehType]
 
         return name

@@ -84,7 +84,7 @@ class SpatialTemporalResampler_LUCY(SpatialTemporalResampler):
         # Use "big" totals of weightings if the same attribute present in the input data file
         total_weightings = {} # Assume no "big" totals are available
         # fix_print_with_import
-        print('WB:' + str(weight_by))
+        # print('WB:' + str(weight_by))
         if weight_by in get_field_names(inputLayer):
             atts = shapefile_attributes(inputLayer)
             total_weightings = {weight_by:{intOrString(atts[inputIdField].loc[idx]):atts[weight_by].loc[idx] for idx in atts.index}}
@@ -103,7 +103,8 @@ class SpatialTemporalResampler_LUCY(SpatialTemporalResampler):
             disagg = disaggregate_weightings(intersectedAreas, newShapeFile, weight_by, total_weightings, self.templateIdField)[weight_by]
 
         # Select successfully identified output areas
-        newShapeFile.setSelectedFeatures(list(readAcross[list(disagg.keys())]))
+        # newShapeFile.setSelectedFeatures(list(readAcross[list(disagg.keys())]))
+        newShapeFile.selectByIds(list(readAcross[list(disagg.keys())]))  # new as from QGIS3
 
         selectedOutputFeatures = newShapeFile.selectedFeatures()
         newShapeFile.startEditing()
@@ -127,5 +128,7 @@ class SpatialTemporalResampler_LUCY(SpatialTemporalResampler):
                 newShapeFile.changeAttributeValue(outputFeat.id(), fieldIndices[field], float(weighted_average))
 
         newShapeFile.commitChanges()
-        newShapeFile.setSelectedFeatures([])  # De-select all features
+        # newShapeFile.setSelectedFeatures([])  # De-select all features
+        newShapeFile.selectByIds([])  # new as from QGIS3
+
         return newShapeFile

@@ -325,19 +325,12 @@ class Worker(QtCore.QObject):
                         # Recalculating wind speed based on pwerlaw
                         WsPET = (1.1 / sensorheight) ** 0.2 * Ws[i]
                         WsUTCI = (10. / sensorheight) ** 0.2 * Ws[i]
-                        print(WsUTCI)
-                        print(WsPET)
-                        print(Ta[i])
-                        print(RH[i])
-                        print(Tmrt[int(poisxy[k, 2]), int(poisxy[k, 1])])
-                        print(sex)
                         resultPET = p._PET(Ta[i], RH[i], Tmrt[int(poisxy[k, 2]), int(poisxy[k, 1])], WsPET,
                                            mbody, age, ht, activity, clo, sex)
                         poi_save[0, 33] = resultPET
                         resultUTCI = utci.utci_calculator(Ta[i], RH[i], Tmrt[int(poisxy[k, 2]), int(poisxy[k, 1])],
                                                           WsUTCI)
                         poi_save[0, 34] = resultUTCI
-
                         data_out = self.folderPath[0] + '/POI_' + str(self.poiname[k]) + '.txt'
                         # f_handle = file(data_out, 'a')
                         f_handle = open(data_out, 'ab')

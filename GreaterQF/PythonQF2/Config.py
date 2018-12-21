@@ -78,14 +78,14 @@ class Config(object):
         a['input_nml']['end_date'] = self.dt_start.strftime('YYYY-mm-dd')
         nml.write(a, filename)
 
-def testIt():
-    a = Config()
-    b = {}
-    b['all_qf'] = 1
-    b['sensible_qf'] =1
-    b['latent_qf'] = 0
-    b['wastewater_qf'] = 1
-    b['start_date'] = '2016-01-01'
-    b['end_date'] = '2017-01-01'
-    a.loadFromDictionary(b)
-    a.saveNamelist('c:\\testoutput\\namelist.nml')
+# def testIt():
+#     a = Config()
+#     b = {}
+#     b['all_qf'] = 1
+#     b['sensible_qf'] =1
+#     b['latent_qf'] = 0
+#     b['wastewater_qf'] = 1
+#     b['start_date'] = '2016-01-01'
+#     b['end_date'] = '2017-01-01'
+#     a.loadFromDictionary(b)
+#     a.saveNamelist('c:\\testoutput\\namelist.nml')

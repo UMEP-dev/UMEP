@@ -6,7 +6,7 @@ from builtins import object
 # An energy profile is a week-long template of relative energy use that changes only with season
 
 import os
-from string import lower
+# from string import lower
 try:
     import numpy as np
     import pandas as pd
@@ -111,7 +111,7 @@ class EnergyProfiles(object):
             raise ValueError('There must be 3 columns for each named season in ' + file)
 
         # Expect certain keywords
-        rowHeadings = list(map(lower, dl[0][0:6]))
+        rowHeadings = list(map(str.lower, dl[0][0:6]))
         if 'season' != rowHeadings[0]:
             raise ValueError('First column of row 1 must be \'Season\' in ' + file)
 

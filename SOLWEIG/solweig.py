@@ -756,17 +756,18 @@ class SOLWEIG(object):
                 self.poiname = []
                 self.poisxy = np.zeros((numfeat, 3)) - 999
                 ind = 0
-                for f in vlayer.getFeatures():  # looping through each grid polygon
+                for f in vlayer.getFeatures():  # looping through each POI
                     y = f.geometry().centroid().asPoint().y()
                     x = f.geometry().centroid().asPoint().x()
 
                     self.poiname.append(f.attributes()[idx])
-
-                    #self.poisxy[ind, 0] = f.attributes()[idx]
                     self.poisxy[ind, 0] = ind
-                    self.poisxy[ind, 1] = np.round(x - minx)
-                    self.poisxy[ind, 2] = np.round(miny + rows - y)
-                    #attributes = f.attributes()
+                    self.poisxy[ind, 1] = np.round((x - minx) * self.scale)
+                    if miny >= 0:
+                        self.poisxy[ind, 2] = np.round(miny + rows * self.scale - y)
+                    else:
+                        self.poisxy[ind, 2] = np.round((miny + rows * (1 / self.scale) - y) * self.scale)
+
                     ind += 1
 
                 uni = set(self.poiname)

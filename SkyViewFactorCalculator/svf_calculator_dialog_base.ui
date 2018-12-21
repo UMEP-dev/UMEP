@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>541</width>
+    <width>555</width>
     <height>405</height>
    </rect>
   </property>
@@ -29,7 +29,7 @@
       <item row="0" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxNewMethod">
         <property name="text">
-         <string>Use method with 145 shadow images instead of 655 (required for SOLWEIG v2019a and higher)</string>
+         <string>Use method with 145 shadow images instead of 655 (required for anisotrophic sky (SOLWEIG&gt;v2019a)</string>
         </property>
        </widget>
       </item>

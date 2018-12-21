@@ -111,21 +111,21 @@ class TransportEnergyData(object):
     def setEnergy(self, input, startTime, attributeToUse, weight_by=None, epsgCode=None):
         self.energy.addInput(input, startTime, attributeToUse, weight_by=weight_by, epsgCode=epsgCode)
 
-def testIt():
-    # Set up output polygons
-    a = TransportEnergyData()
-    LLSOApolygons = 'C:\Users\pn910202\Dropbox\Shapefilecombos\PopDens\PopDens_2014_LSOA.shp'
-    LLSOAproj = 27700
-    a.setOutputShapefile(LLSOApolygons, LLSOAproj, id_field="LSOA11CD")
-
-    # Domestic gas shapefile - must be kWh/year
-    trans = {}
-    trans['shapefile'] = 'C:\\Users\\pn910202\\Dropbox\\Shapefilecombos\\Transport\\08transport.shp'
-    trans['epsg'] = 27700
-    trans['field_to_use'] = ['Motorc', 'Taxi', 'Cars', 'Bus', 'LGV', 'HGVRig', 'HGVArt']  # Can be found in QGIS > view attributes table
-    trans['start_date'] = datetime.strptime('2008-01-01', '%Y-%m-%d')
-    a.setEnergy(trans['shapefile'], trans['start_date'], trans['field_to_use'], epsgCode=trans['epsg'])
-    # Get downscaled shapefiles for 2014
-    # fix_print_with_import
-    print(a.getEnergyTable(datetime.strptime('2013-01-01', '%Y-%m-%d')))
+# def testIt():
+#     # Set up output polygons
+#     a = TransportEnergyData()
+#     LLSOApolygons = 'C:\Users\pn910202\Dropbox\Shapefilecombos\PopDens\PopDens_2014_LSOA.shp'
+#     LLSOAproj = 27700
+#     a.setOutputShapefile(LLSOApolygons, LLSOAproj, id_field="LSOA11CD")
+#
+#     # Domestic gas shapefile - must be kWh/year
+#     trans = {}
+#     trans['shapefile'] = 'C:\\Users\\pn910202\\Dropbox\\Shapefilecombos\\Transport\\08transport.shp'
+#     trans['epsg'] = 27700
+#     trans['field_to_use'] = ['Motorc', 'Taxi', 'Cars', 'Bus', 'LGV', 'HGVRig', 'HGVArt']  # Can be found in QGIS > view attributes table
+#     trans['start_date'] = datetime.strptime('2008-01-01', '%Y-%m-%d')
+#     a.setEnergy(trans['shapefile'], trans['start_date'], trans['field_to_use'], epsgCode=trans['epsg'])
+#     # Get downscaled shapefiles for 2014
+#     # fix_print_with_import
+#     print(a.getEnergyTable(datetime.strptime('2013-01-01', '%Y-%m-%d')))
 

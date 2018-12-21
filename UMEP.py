@@ -41,7 +41,7 @@ from .LCZ_Converter.LCZ_converter import LCZ_test
 from .UMEPDownloader.umep_downloader import UMEP_Data_Download
 from .DSMGenerator.dsm_generator import DSMGenerator  # TODO: Working except for OSMImport
 from .WATCHData.watch import WATCHData
-# from .GreaterQF.greater_qf import GreaterQF  # TODO: Multiple changes required :Plugin blocker
+from .GreaterQF.greater_qf import GreaterQF
 from .ExtremeFinder.extreme_finder import ExtremeFinder
 from .LucyQF.LQF import LQF
 from .SEBE.sebe import SEBE
