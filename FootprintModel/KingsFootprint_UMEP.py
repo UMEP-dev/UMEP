@@ -18,7 +18,7 @@ from builtins import range
 # from PIL import Image
 import numpy as np
 import math as math
-import scipy.misc as sc
+# import scipy.misc as sc
 # from scipy.ndimage.interpolation import rotate as imrotate
 # from matplotlib.patches import Circle
 from scipy.optimize import fsolve

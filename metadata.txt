@@ -11,7 +11,7 @@ name=UMEP
 qgisMinimumVersion=3.0
 description=Urban Multi-scale Environmental Predictor
 
-version=3.9
+version=3.9.1
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg
 email=fredrikl@gvc.gu.se
 
@@ -26,6 +26,7 @@ repository=https://bitbucket.org/fredrik_ucg/umep
 
 # Uncomment the following line and add your changelog:
 changelog=
+   3.9.1 : Bugfix in FootPrintModel plugin
    3.9   : Response to Issue #75 and #77
    3.8   : LQf now operational (beta). Bugfix in SuewsSimple and SuewsAnalyzer.
    3.7.2 : Bug fix in LQF where UMEP didnt load due to spelling issue. General clean up.
@@ -88,7 +89,7 @@ changelog=
 # Tags are comma separated with spaces allowed
 tags=urban climate, urban planning, shadow, modelling, urban morphology, urban geometry
 
-homepage=http://umep-docs.readthedocs.io/en/latest/index.html
+homepage=http://umep-docs.readthedocs.io
 category=Plugins
 icon=Icons/icon_umep.png
 
