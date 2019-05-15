@@ -422,7 +422,6 @@ class ImageMorphParmsPoint(object):
 
             provider = dsm_build.dataProvider()
             filePath_dsm_build = str(provider.dataSourceUri())
-            # Kolla om memorylayer går att användas istället för dir_poly tempfilen.
             # gdalruntextdsm_build = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
             #                        ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
             #                        filePath_dsm_build + '" "' + self.plugin_dir + '/data/clipdsm.tif"'

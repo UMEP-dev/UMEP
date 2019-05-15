@@ -4,9 +4,9 @@ Created on 10 apr 2014
 @author: nke
 '''
 # Import the PyQt and QGIS libraries
-from PyQt4.QtCore import pyqtSignal
-from qgis.core import *
-from qgis.gui import *
+from qgis.PyQt.QtCore import pyqtSignal
+from qgis.core import QgsGeometry
+from qgis.gui import QgsMapToolEmitPoint
 
 
 class FeatureTool(QgsMapToolEmitPoint):
@@ -23,13 +23,14 @@ class FeatureTool(QgsMapToolEmitPoint):
     def canvasPressEvent(self, e):
         currentLayer = self.canvas.currentLayer()
         point = self.toMapCoordinates(e.pos())
-        pntGeom = QgsGeometry.fromPoint(point)
+        pntGeom = QgsGeometry.fromPointXY(point)
         pntbuf = pntGeom.buffer((self.canvas.mapUnitsPerPixel() * 2),0)
         rect = pntbuf.boundingBox()
         cLayer = self.canvas.currentLayer()
         selectList = None
         if cLayer:
-               selectList = cLayer.select(rect,True) 
+               # selectList = cLayer.select(rect,True)
+               selectList = cLayer.selectByRect()
                if cLayer.selectedFeatureCount() is not 0:
                    self.selectedFeature.emit()
                

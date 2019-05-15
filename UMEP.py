@@ -39,9 +39,9 @@ from .TreeGenerator.tree_generator import TreeGenerator
 from .FootprintModel.footprint_model import FootprintModel
 from .LCZ_Converter.LCZ_converter import LCZ_test
 from .UMEPDownloader.umep_downloader import UMEP_Data_Download
-from .DSMGenerator.dsm_generator import DSMGenerator  # TODO: Working except for OSMImport
+from .DSMGenerator.dsm_generator import DSMGenerator
 from .WATCHData.watch import WATCHData
-from .GreaterQF.greater_qf import GreaterQF
+from .GreaterQF.greater_qf import GreaterQF # TODO: Not functional
 from .ExtremeFinder.extreme_finder import ExtremeFinder
 from .LucyQF.LQF import LQF
 from .SEBE.sebe import SEBE
@@ -50,7 +50,7 @@ from .SUEWSPrepare.suews_prepare import SUEWSPrepare
 from .SUEWS.suews import SUEWS
 from .SOLWEIG.solweig import SOLWEIG
 from .BenchMarking.benchmarking import BenchMarking
-# from .SEBEVisual.sun import Sun  # TODO: Not able to run 2to3 converter :Plugin blocker
+from .SEBEVisual.sun import Sun  # TODO: Not able to run 2to3 converter :Plugin blocker
 from .SolweigAnalyzer.solweig_analyzer import SolweigAnalyzer
 from .SUEWSAnalyzer.suews_analyzer import SUEWSAnalyzer
 from .UMEP_about import UMEPDialogAbout
@@ -433,9 +433,9 @@ class UMEP(object):
         sg.run()
 
     def GF(self):
-        QMessageBox.critical(self.dlg, "Plugin blocker",
-                             "This tool is not yet ported to QGIS3. Work still in progress.")
-        return
+        # QMessageBox.critical(self.dlg, "Plugin blocker",
+        #                      "This tool is not yet ported to QGIS3. Work still in progress.")
+        # return
         sg = GreaterQF(self.iface)
         sg.run()
 

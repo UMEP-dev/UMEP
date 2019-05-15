@@ -4,15 +4,15 @@ Created on 10 apr 2014
 @author: nke
 '''
 # Import the PyQt and QGIS libraries
-from PyQt4.QtCore import pyqtSignal, Qt
-from PyQt4.QtGui import QColor
-from qgis.core import *
-from qgis.gui import *
+from qgis.PyQt.QtCore import pyqtSignal, Qt
+from qgis.PyQt.QtGui import QColor
+from qgis.core import QgsPointXY, QgsGeometry
+from qgis.gui import QgsMapToolEmitPoint, QgsRubberBand
 
 
 class AreaTool(QgsMapToolEmitPoint):
 
-    areaComplete = pyqtSignal(QgsPoint, QgsPoint)
+    areaComplete = pyqtSignal(QgsPointXY, QgsPointXY)
     areaStart = None
     areaEnd = None
     areaRubberband1 = None
@@ -26,8 +26,7 @@ class AreaTool(QgsMapToolEmitPoint):
         #Create a reference to the map canvas
         self.canvas = canvas
         QgsMapToolEmitPoint.__init__(self, self.canvas)
-    
-   
+
     def canvasMoveEvent(self, event):
         if self.areaStart:
             point = self.toMapCoordinates(event.pos())
@@ -46,27 +45,27 @@ class AreaTool(QgsMapToolEmitPoint):
                 self.areaRubberband4 = QgsRubberBand(self.canvas, False)
                 self.areaRubberband4.setColor(QColor(Qt.red))
             if self.areaEnd is None:
-                point1 = QgsPoint(point.x(), self.areaStart.y())
-                point2 = QgsPoint(self.areaStart.x(), point.y())
+                point1 = QgsPointXY(point.x(), self.areaStart.y())
+                point2 = QgsPointXY(self.areaStart.x(), point.y())
                 points1 = [self.areaStart, point1]
                 points2 = [self.areaStart, point2]
                 points3 = [point1, point]
                 points4 = [point2, point]
-                self.areaRubberband1.setToGeometry(QgsGeometry.fromPolyline(points1), None)
-                self.areaRubberband2.setToGeometry(QgsGeometry.fromPolyline(points2), None)
-                self.areaRubberband3.setToGeometry(QgsGeometry.fromPolyline(points3), None)
-                self.areaRubberband4.setToGeometry(QgsGeometry.fromPolyline(points4), None)
+                self.areaRubberband1.setToGeometry(QgsGeometry.fromPolylineXY(points1), None) # was fromPolyline before. Might need a QgsPoint object
+                self.areaRubberband2.setToGeometry(QgsGeometry.fromPolylineXY(points2), None)
+                self.areaRubberband3.setToGeometry(QgsGeometry.fromPolylineXY(points3), None)
+                self.areaRubberband4.setToGeometry(QgsGeometry.fromPolylineXY(points4), None)
             else:
-                point1 = QgsPoint(self.areaEnd.x(), self.areaStart.y())
-                point2 = QgsPoint(self.areaStart.x(), self.areaEnd.y())
+                point1 = QgsPointXY(self.areaEnd.x(), self.areaStart.y())
+                point2 = QgsPointXY(self.areaStart.x(), self.areaEnd.y())
                 points1 = [self.areaStart, point1]
                 points2 = [self.areaStart, point2]
                 points3 = [point1, self.areaEnd]
                 points4 = [point2, self.areaEnd]
-                self.areaRubberband1.setToGeometry(QgsGeometry.fromPolyline(points1), None)
-                self.areaRubberband2.setToGeometry(QgsGeometry.fromPolyline(points2), None)
-                self.areaRubberband3.setToGeometry(QgsGeometry.fromPolyline(points3), None)
-                self.areaRubberband4.setToGeometry(QgsGeometry.fromPolyline(points4), None)
+                self.areaRubberband1.setToGeometry(QgsGeometry.fromPolylineXY(points1), None)
+                self.areaRubberband2.setToGeometry(QgsGeometry.fromPolylineXY(points2), None)
+                self.areaRubberband3.setToGeometry(QgsGeometry.fromPolylineXY(points3), None)
+                self.areaRubberband4.setToGeometry(QgsGeometry.fromPolylineXY(points4), None)
     
     def canvasPressEvent(self, e):
         if self.areaStart is None:

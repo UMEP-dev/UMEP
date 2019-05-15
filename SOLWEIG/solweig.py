@@ -92,6 +92,11 @@ class SOLWEIG(object):
         self.fileDialogSVF = QFileDialog()
         self.fileDialogSVF.setNameFilter("(svfs.zip)")
 
+        # Shadow matrices (Perez)
+        self.dlg.pushButtonImportPerez.clicked.connect(self.perez_file)
+        self.fileDialogPerez = QFileDialog()
+        self.fileDialogPerez.setNameFilter("(shadowmats.npz)")
+
         # Declare instance attributes
         self.actions = []
         # self.menu = self.tr(u'&SOLWEIG')
@@ -239,6 +244,14 @@ class SOLWEIG(object):
             self.folderPathSVF = self.fileDialogSVF.selectedFiles()
             self.dlg.textInputSVF.setText(self.folderPathSVF[0])
 
+    # Perez
+    def perez_file(self):
+        self.fileDialogPerez.open()
+        result = self.fileDialogPerez.exec_()
+        if result == 1:
+            self.folderPathPerez = self.fileDialogPerez.selectedFiles()
+            self.dlg.textInputPerez.setText(self.folderPathPerez[0])
+
     def read_metdata(self):
         headernum = 1
         delim = ' '
@@ -308,9 +321,15 @@ class SOLWEIG(object):
             cols = self.dsm.shape[1]
             geotransform = self.gdal_dsm.GetGeoTransform()
             self.scale = 1 / geotransform[1]
-            alt = self.dsm.mean()
-            # QMessageBox.critical(self.dlg, "TEst",str(self.scale))
-            # return
+            alt = np.median(self.dsm)
+            if alt < 0:
+                alt = 3
+
+            # response to issue #85
+            nd = self.gdal_dsm.GetRasterBand(1).GetNoDataValue()
+            self.dsm[self.dsm == nd] = 0.
+            if self.dsm.min() < 0:
+                self.dsm = self.dsm + np.abs(self.dsm.min())
 
             old_cs = osr.SpatialReference()
             dsm_ref = dsmlayer.crs().toWkt()
@@ -652,14 +671,23 @@ class SOLWEIG(object):
             absK = self.dlg.doubleSpinBoxShortwaveHuman.value()
             absL = self.dlg.doubleSpinBoxLongwaveHuman.value()
             pos = self.dlg.comboBox_posture.currentIndex()
+
+            if self.dlg.CheckBoxBox.isChecked():
+                cyl = 1
+            else:
+                cyl = 0
+
             if pos == 0:
                 Fside = 0.22
                 Fup = 0.06
                 height = 1.1
+                Fcyl = 0.28
             else:
                 Fside = 0.166666
                 Fup = 0.166666
                 height = 0.75
+                Fcyl = 0.2
+
             albedo_b = self.dlg.doubleSpinBoxAlbedo_w.value()
             albedo_g = self.dlg.doubleSpinBoxAlbedo_g.value()
             ewall = self.dlg.doubleSpinBoxEmis_w.value()
@@ -669,11 +697,6 @@ class SOLWEIG(object):
                 elvis = 1
             else:
                 elvis = 0
-
-            if self.dlg.CheckBoxBox.isChecked():
-                cyl = 1
-            else:
-                cyl = 0
 
             # %Initialization of maps
             Knight = np.zeros((rows, cols))
@@ -732,6 +755,20 @@ class SOLWEIG(object):
             Ws = self.metdata[:, 9]
             # %Wd=met(:,13);
 
+            # Check if diffuse and direct radiation exist
+            if metfileexist == 1:
+                if onlyglobal == 0:
+                    if np.min(radD) == -999:
+                        QMessageBox.critical(self.dlg, "Diffuse radiation include NoData values",
+                                             'Tick in the box "Estimate diffuse and direct shortwave..." or aqcuire '
+                                             'observed values from external data sources.')
+                        return
+                    if np.min(radI) == -999:
+                        QMessageBox.critical(self.dlg, "Direct radiation include NoData values",
+                                             'Tick in the box "Estimate diffuse and direct shortwave..." or aqcuire '
+                                             'observed values from external data sources.')
+                        return
+
             # POIs check
             if self.dlg.checkboxUsePOI.isChecked():
                 header = 'yyyy id   it imin dectime altitude azimuth kdir kdiff kglobal kdown   kup    keast ksouth ' \
@@ -748,7 +785,7 @@ class SOLWEIG(object):
                     QMessageBox.critical(self.dlg, "Error", "An attribute with unique values must be selected")
                     return
                 vlayer = QgsVectorLayer(poilyr.source(), "point", "ogr")
-                prov = vlayer.dataProvider()
+                # prov = vlayer.dataProvider()
                 #fields = prov.fields()
                 # idx = vlayer.fieldNameIndex(poi_field)
                 idx = vlayer.fields().indexFromName(poi_field)
@@ -764,9 +801,9 @@ class SOLWEIG(object):
                     self.poisxy[ind, 0] = ind
                     self.poisxy[ind, 1] = np.round((x - minx) * self.scale)
                     if miny >= 0:
-                        self.poisxy[ind, 2] = np.round(miny + rows * self.scale - y)
+                        self.poisxy[ind, 2] = np.round((miny + rows * (1. / self.scale) - y) * self.scale)
                     else:
-                        self.poisxy[ind, 2] = np.round((miny + rows * (1 / self.scale) - y) * self.scale)
+                        self.poisxy[ind, 2] = np.round((miny + rows * (1. / self.scale) - y) * self.scale)
 
                     ind += 1
 
@@ -817,6 +854,28 @@ class SOLWEIG(object):
                 bush = np.zeros([rows, cols])
                 amaxvalue = 0
 
+            # Import shadow matrices (Anisotropic sky)
+            if self.dlg.checkBoxPerez.isChecked():
+                if self.folderPathPerez is None:
+                    QMessageBox.critical(self.dlg, "Error", "No Shadow file is selected. Use the Sky View Factor"
+                                                            "Calculator to generate shadowmats.npz")
+                    return
+                else:
+                    ani = 1
+                    data = np.load(self.folderPathPerez[0])
+                    shmat = data['shadowmat']
+                    vegshmat = data['vegshadowmat']
+                    if self.usevegdem == 1:
+                        diffsh = np.zeros((rows, cols, 145))
+                        for i in range(0, 145):
+                            diffsh[:, :, i] = shmat[:, :, i] - (1 - vegshmat[:, :, i]) * (1 - psi)
+                    else:
+                        diffsh = shmat
+
+            else:
+                ani = 0
+                diffsh = None
+
             # % Ts parameterisation maps
             if self.landcover == 1.:
                 if np.max(self.lcgrid) > 7 or np.min(self.lcgrid) < 1:
@@ -853,7 +912,7 @@ class SOLWEIG(object):
                                               filePath_cdsm, trunkfile, filePath_tdsm, lat, lon, UTC, self.landcover,
                                               filePath_lc, metfileexist, PathMet, self.metdata, self.plugin_dir,
                                               absK, absL, albedo_b, albedo_g, ewall, eground, onlyglobal, trunkratio,
-                                              self.trans, rows, cols, pos, elvis, cyl, demforbuild)
+                                              self.trans, rows, cols, pos, elvis, cyl, demforbuild, ani)
 
             #  If metfile starts at night
             CI = 1.
@@ -869,7 +928,7 @@ class SOLWEIG(object):
 
             self.startWorker(self.dsm, self.scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
                         svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
-                        self.vegdsm, self.vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, altitude,
+                        self.vegdsm, self.vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, Fcyl, altitude,
                         azimuth, zen, jday, self.usevegdem, onlyglobal, buildings, location,
                         psi, self.landcover, self.lcgrid, dectime, altmax, self.wallaspect,
                         self.wallheight, cyl, elvis, Ta, RH, radG, radD, radI, P, amaxvalue,
@@ -877,7 +936,7 @@ class SOLWEIG(object):
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, self.dlg,
                         YYYY, DOY, hours, minu, self.gdal_dsm, self.folderPath, self.poisxy, self.poiname, Ws, mbody,
-                        age, ht, activity, clo, sex, sensorheight)
+                        age, ht, activity, clo, sex, sensorheight, diffsh, ani)
 
             # # Main calcualtions
             # # Loop through time series
@@ -980,7 +1039,7 @@ class SOLWEIG(object):
 
     def startWorker(self, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
                         svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
-                        vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, altitude,
+                        vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, Fcyl, altitude,
                         azimuth, zen, jday, usevegdem, onlyglobal, buildings, location,
                         psi, landcover, lcgrid, dectime, altmax, wallaspect,
                         wallheight, cyl, elvis, Ta, RH, radG, radD, radI, P, amaxvalue,
@@ -988,12 +1047,12 @@ class SOLWEIG(object):
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, dlg,
                         YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname, Ws, mbody,
-                        age, ht, activity, clo, sex, sensorheight):
+                        age, ht, activity, clo, sex, sensorheight, diffsh, ani):
 
         # create a new worker instance
         worker = Worker(dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
                         svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
-                        vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, altitude,
+                        vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, Fcyl, altitude,
                         azimuth, zen, jday, usevegdem, onlyglobal, buildings, location,
                         psi, landcover, lcgrid, dectime, altmax, wallaspect,
                         wallheight, cyl, elvis, Ta, RH, radG, radD, radI, P, amaxvalue,
@@ -1001,7 +1060,7 @@ class SOLWEIG(object):
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, dlg,
                         YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname, Ws, mbody,
-                        age, ht, activity, clo, sex, sensorheight)
+                        age, ht, activity, clo, sex, sensorheight, diffsh, ani)
 
         self.dlg.runButton.setText('Cancel')
         self.dlg.runButton.clicked.disconnect()

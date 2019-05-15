@@ -279,6 +279,12 @@ class SEBE(object):
             sizex = self.dsm.shape[0]
             sizey = self.dsm.shape[1]
 
+            # response to issue #85
+            nd = self.gdal_dsm.GetRasterBand(1).GetNoDataValue()
+            self.dsm[self.dsm == nd] = 0.
+            if self.dsm.min() < 0:
+                self.dsm = self.dsm + np.abs(self.dsm.min())
+
             # Get latlon from grid coordinate system
             old_cs = osr.SpatialReference()
             dsm_ref = dsmlayer.crs().toWkt()
@@ -425,7 +431,9 @@ class SEBE(object):
                 return
 
             # Prepare metdata
-            alt = self.dsm.mean()
+            alt = np.median(self.dsm)
+            if alt < 0:
+                alt = 3
             location = {'longitude': lon, 'latitude': lat, 'altitude': alt}
             YYYY, altitude, azimuth, zen, jday, leafon, dectime, altmax = \
                 Solweig_2015a_metdata_noload(self.metdata,location, UTC)

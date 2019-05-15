@@ -6,7 +6,7 @@ from osgeo import osr
 
 def writeRunInfo(folderPath, filepath_dsm, gdal_dsm, usevegdem, filePath_cdsm, trunkfile, filePath_tdsm, lat, lon, UTC,
                  landcover, filePath_lc, metfileexist, filePath_metfile, metdata, plugin_dir, absK, absL, albedo_b,
-                 albedo_g, ewall, eground, onlyglobal, trunkratio, trans, rows, cols, pos, elvis, cyl, demforbuild):
+                 albedo_g, ewall, eground, onlyglobal, trunkratio, trans, rows, cols, pos, elvis, cyl, demforbuild, ani):
 
     with open(folderPath + '/RunInfoSOLWEIG.txt', 'w') as file:
         file.write('This file provides run settings for the SOLWEIG run initiated at: '
@@ -126,5 +126,10 @@ def writeRunInfo(folderPath, filepath_dsm, gdal_dsm, usevegdem, filePath_cdsm, t
             file.write('Human considered as a cylinder')
         else:
             file.write('Human considered as a standing cube')
+        file.write('\n')
+        if ani == 1:
+            file.write('Anisotropic sky (Perez et al. 1993)')
+        else:
+            file.write('Isotropic sky')
         file.write('\n')
         file.close()

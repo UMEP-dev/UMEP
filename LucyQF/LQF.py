@@ -241,7 +241,7 @@ class LQF(object):
         :return: Dict containing information about each disaggregated file, for use by model
         '''
 
-        # TODO: this is a temprary fix for running outside the worker. Worker not working 20111123 Fredrik Needs to be fixed
+        # TODO: this is a temprary fix for running outside the worker. Worker not working 20181123 Fredrik Needs to be fixed
         self.dlg.cmdPrepare.setEnabled(False)
         if QMessageBox.question(self.dlg, "Prepare input data",
                                 "QGIS will freeze for a moment while preparing input. Du you want to continue?",

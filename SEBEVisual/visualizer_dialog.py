@@ -23,13 +23,14 @@
 
 import os
 
-from qgis.PyQt import QtGui, uic
+from qgis.PyQt import uic
+from qgis.PyQt.QtWidgets import QDialog
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'visualizer_dialog_base.ui'))
 
 
-class VisualizerDialog(QtGui.QDialog, FORM_CLASS):
+class VisualizerDialog(QDialog, FORM_CLASS):
     def __init__(self, parent=None):
         """Constructor."""
         super(VisualizerDialog, self).__init__(parent)

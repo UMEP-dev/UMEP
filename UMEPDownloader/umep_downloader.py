@@ -182,8 +182,8 @@ class UMEP_Data_Download(object):
         self.actions = []
         self.menu = self.tr(u'&UMEP data downloader')
         # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'UMEP_Data_Download')
-        self.toolbar.setObjectName(u'UMEP_Data_Download')
+        # self.toolbar = self.iface.addToolBar(u'UMEP_Data_Download')
+        # self.toolbar.setObjectName(u'UMEP_Data_Download')
 
         self.bbox = {}
 
@@ -380,11 +380,11 @@ class UMEP_Data_Download(object):
         self.dlg.tblDatasets.setHorizontalHeaderLabels("Source;Description;Date;Resolution;Extent".split(";"))
         self.dlg.tblDatasets.setSelectionMode(QAbstractItemView.SingleSelection)
         header = self.dlg.tblDatasets.horizontalHeader()
-        header.setResizeMode(0, QHeaderView.ResizeToContents)
-        header.setResizeMode(1, QHeaderView.ResizeToContents)
-        header.setResizeMode(2, QHeaderView.ResizeToContents)
-        header.setResizeMode(3, QHeaderView.ResizeToContents)
-        header.setResizeMode(4, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(4, QHeaderView.ResizeToContents)
         # Set column widths
         indicesToUse = [0, 4, 5, 6, 7]  # Use these entries from each list in the catalogue file
         idx = 0

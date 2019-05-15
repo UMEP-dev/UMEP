@@ -87,27 +87,13 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lonlat, sizex, sizey, tv, UTC, use
         azi[i] = sun['azimuth']
 
         time_vector = dt.datetime(year, month, day, HHMMSS[0], HHMMSS[1], HHMMSS[2])
-        # alt[i] = pys.GetAltitude(lat, lon, time_vector, 0)
-        # if onetime == 1:
-        #     if alt[i] < 0:
-        #         QMessageBox.critical(None, "Sun altitude below zero", "Grid with only NaNs will be procduced. Try again...")
-        #         return
-        #
-        # azi[i] = abs(pys.GetAzimuth(lat, lon, time_vector, 0)) - 180
-        # if azi[i] < 0:
-        #     azi[i] = azi[i] + 360
-        # if np.isinf(azi[i]):
-        #     azi[i] = 0.000000001
-        # QMessageBox.critical(None, "time", str(time['hour']) + str(time['min']))
-        # QMessageBox.critical(None, "Test", str(azi[i]) + ' ' + str(alt[i]))
+
         if alt[i] > 0:
             if usevegdem == 0:
                 sh = shadow.shadowingfunctionglobalradiation(dsm, azi[i], alt[i], scale, dlg, 0)
                 shtot = shtot + sh
 
             else:
-                # print str(vegdem)
-                # print str(vegdem2)
                 vegsh, sh, _, wallsh, wallsun, wallshve, _, facesun = shadowingfunction_wallheight_23(dsm, vegdem,
                                                                                                       vegdem2,
                                                                                                       azi[i], alt[i],

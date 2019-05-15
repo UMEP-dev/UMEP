@@ -17,14 +17,14 @@
    <string>Metdata processor</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_4">
-   <item row="6" column="2">
+   <item row="7" column="2">
     <widget class="QPushButton" name="pushButtonClose">
      <property name="text">
       <string>Close</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
+   <item row="7" column="0">
     <widget class="QPushButton" name="helpButton">
      <property name="enabled">
       <bool>true</bool>
@@ -37,7 +37,7 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
+   <item row="7" column="1">
     <widget class="QPushButton" name="pushButtonExport">
      <property name="enabled">
       <bool>true</bool>
@@ -50,7 +50,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0" colspan="3">
+   <item row="4" column="0" colspan="3">
     <widget class="QCheckBox" name="checkBoxQuality">
      <property name="enabled">
       <bool>true</bool>
@@ -66,7 +66,7 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0" colspan="3">
+   <item row="5" column="0" colspan="3">
     <widget class="QProgressBar" name="progressBar">
      <property name="value">
       <number>0</number>
@@ -192,6 +192,13 @@ p, li { white-space: pre-wrap; }
          <widget class="QLineEdit" name="textInput"/>
         </item>
        </layout>
+      </item>
+      <item row="4" column="0">
+       <widget class="QCheckBox" name="checkBoxEPW">
+        <property name="text">
+         <string>Data is in EPW format (EnergyPlus Weather file)</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -402,7 +409,7 @@ p, li { white-space: pre-wrap; }
      </layout>
     </widget>
    </item>
-   <item row="6" column="3">
+   <item row="7" column="3">
     <spacer name="horizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -415,7 +422,7 @@ p, li { white-space: pre-wrap; }
      </property>
     </spacer>
    </item>
-   <item row="0" column="3" rowspan="7" colspan="2">
+   <item row="0" column="3" rowspan="8" colspan="2">
     <widget class="QFrame" name="frame">
      <property name="enabled">
       <bool>true</bool>
@@ -873,7 +880,7 @@ p, li { white-space: pre-wrap; }
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>339</x>
+     <x>284</x>
      <y>604</y>
     </hint>
     <hint type="destinationlabel">
@@ -889,12 +896,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>107</x>
-     <y>247</y>
+     <x>127</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
-     <x>327</x>
-     <y>274</y>
+     <x>272</x>
+     <y>243</y>
     </hint>
    </hints>
   </connection>
@@ -905,12 +912,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>247</y>
+     <x>70</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
-     <x>288</x>
-     <y>302</y>
+     <x>272</x>
+     <y>271</y>
     </hint>
    </hints>
   </connection>
@@ -921,12 +928,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>47</x>
-     <y>327</y>
+     <x>67</x>
+     <y>296</y>
     </hint>
     <hint type="destinationlabel">
-     <x>327</x>
-     <y>354</y>
+     <x>272</x>
+     <y>323</y>
     </hint>
    </hints>
   </connection>
@@ -937,12 +944,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>100</x>
-     <y>327</y>
+     <x>120</x>
+     <y>296</y>
     </hint>
     <hint type="destinationlabel">
-     <x>323</x>
-     <y>380</y>
+     <x>272</x>
+     <y>349</y>
     </hint>
    </hints>
   </connection>
@@ -953,12 +960,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>75</x>
-     <y>327</y>
+     <x>95</x>
+     <y>296</y>
     </hint>
     <hint type="destinationlabel">
-     <x>322</x>
-     <y>406</y>
+     <x>272</x>
+     <y>375</y>
     </hint>
    </hints>
   </connection>
@@ -969,12 +976,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>58</x>
-     <y>431</y>
+     <x>78</x>
+     <y>400</y>
     </hint>
     <hint type="destinationlabel">
-     <x>311</x>
-     <y>458</y>
+     <x>272</x>
+     <y>427</y>
     </hint>
    </hints>
   </connection>
@@ -985,12 +992,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>40</x>
-     <y>431</y>
+     <x>60</x>
+     <y>400</y>
     </hint>
     <hint type="destinationlabel">
-     <x>315</x>
-     <y>484</y>
+     <x>272</x>
+     <y>453</y>
     </hint>
    </hints>
   </connection>
@@ -1001,12 +1008,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>44</x>
-     <y>431</y>
+     <x>64</x>
+     <y>400</y>
     </hint>
     <hint type="destinationlabel">
-     <x>312</x>
-     <y>510</y>
+     <x>272</x>
+     <y>479</y>
     </hint>
    </hints>
   </connection>
@@ -1327,6 +1334,70 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>430</x>
      <y>314</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxEPW</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>frame_3</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>133</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>169</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxEPW</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>comboBox_sep</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>36</x>
+     <y>137</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>177</x>
+     <y>82</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxEPW</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>spinBoxHeader</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>23</x>
+     <y>133</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>164</x>
+     <y>54</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxEPW</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>frame</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>48</x>
+     <y>138</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>298</x>
+     <y>28</y>
     </hint>
    </hints>
   </connection>

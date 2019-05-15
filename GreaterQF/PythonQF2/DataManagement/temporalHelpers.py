@@ -1,4 +1,3 @@
-from builtins import str
 # Helper methods for temporal calculations and calendar events
 
 from datetime import datetime as dt
@@ -11,8 +10,8 @@ except:
     pass
 
 def calc_easter(year):
-    '''Returns Easter Sunday as a date object. Confirmed working by Andy"
-    Credit: http: // code.activestate.com / recipes / 576517 - calculate - easter - western - given - a - year '''
+    '''Returns Easter Sunday as a date object. Confirmed working by Andy
+    Credit: http://code.activestate.com/recipes/576517-calculate-easter-western-given-a-year'''
     a = year % 19
     b = year // 100
     c = year % 100
@@ -29,7 +28,7 @@ def is_holiday(timeStepEnd, use_UK, extraHolidays):
      extraHolidays: List of datetime objects containing any extra holidays.
      UK holidays generated automatically unless unexpected'''
 
-    if type(timeStepEnd) in [type(dt(2015, 1, 1)), pd.datetime(2015, 1, 1), pd.tslib.Timestamp]:
+    if type(timeStepEnd) in [type(dt(2015, 1, 1)), pd.datetime(2015, 1, 1), pd.Timestamp]:
         reqDate = timeStepEnd.date()
     elif type(timeStepEnd) is type(dtd(2015, 1, 1)):
         reqDate = timeStepEnd

@@ -36,6 +36,7 @@ import webbrowser
 from osgeo import gdal
 from osgeo.gdalconst import *
 import numpy as np
+import datetime
 try:
     import matplotlib.pylab as plt
     import matplotlib.dates as dt
@@ -309,13 +310,18 @@ class SolweigAnalyzer(object):
         frac = ''
         varunit = [deg, deg, wm2, wm2, wm2, wm2, wm2, wm2, wm2, degC, degC, frac, frac, degC, wm2, frac, frac]
 
-        datenum_yy = np.zeros(data1.shape[0])
+        dates = []
         for i in range(0, data1.shape[0]):  # making date number
-            datenum_yy[i] = dt.date2num(dt.datetime.datetime(int(data1[i, 0]), 1, 1))
+            dates.append(dt.datetime.datetime(int(data1[i, 0]), 1, 1) + datetime.timedelta(days=data1[i, 1], hours=data1[i, 2], minutes=data1[i, 3]))
 
-        dectime = datenum_yy + data1[:, 4]
-
-        dates = dt.num2date(dectime)
+        # datenum_yy = np.zeros(data1.shape[0])
+        # for i in range(0, data1.shape[0]):  # making date number
+        #     datenum_yy[i] = dt.date2num(dt.datetime.datetime(int(data1[i, 0]), 1, 1))
+        #
+        # dectime = datenum_yy + data1[:, 4]
+        #
+        # dates = dt.num2date(dectime)
+        print(dates)
 
         if not self.dlg.checkboxUsePOI.isChecked():
             # One variable

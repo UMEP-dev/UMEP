@@ -1,12 +1,8 @@
-from __future__ import absolute_import
-from builtins import map
-# from builtins import str
-from builtins import object
 from .spatialHelpers import *
-from qgis.core import QgsField, QgsVectorLayer, QgsSpatialIndex
+from qgis.core import QgsField, QgsVectorLayer, QgsSpatialIndex, QgsMessageLog, QgsCoordinateReferenceSystem, QgsCoordinateTransform
 # import processing
 
-from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtCore import QVariant, QSettings
 try:
     import pandas as pd
     import numpy as np
@@ -17,7 +13,7 @@ from datetime import datetime as dt
 from .LookupLogger import LookupLogger
 from shutil import rmtree
 
-class SpatialTemporalResampler(object):
+class SpatialTemporalResampler:
     # Class that takes spatial data (QgsVectorLayers), associates them with a time and
     # allows them to be spatially resampled to output polygons based on attribute values
     # Also supports a single value for all space via same interface
@@ -62,6 +58,7 @@ class SpatialTemporalResampler(object):
         if type(shapefile) is QgsVectorLayer:
             self.outputLayer = shapefile
 
+        # print('output layer', self.outputLayer)
         # Ensure the ID field exists
         fields = get_field_names(self.outputLayer)
         if id_field not in fields:
@@ -144,20 +141,14 @@ class SpatialTemporalResampler(object):
 
             # If the input layer isn't the same projection as the output layer, then produce a copy that's the right projection and use that instead
             reprojected = False
-            print(epsgCode)
-            print(self.templateEpsgCode)
             if int(epsgCode) != self.templateEpsgCode:
-                print('STR3aa')
                 dest = reprojectVectorLayer(shapefileInput, self.templateEpsgCode)
-                print('STR3ab')
                 shapefileInput = dest
                 reprojected = True
 
             # Load the layer
             try:
-                print('STR3ac')
                 vectorLayer = openShapeFileInMemory(shapefileInput, targetEPSG=self.templateEpsgCode)
-                print('STR3ad')
 
             except Exception as e:
                 raise ValueError('Could not load shapefile at ' + shapefileInput)
@@ -262,7 +253,7 @@ class SpatialTemporalResampler(object):
 
         # self.logger.addEvent('LayerLookup', requestDate.date(), layer_idx.date(), attrib,
         #                      'Looked up ' + str(attrib) + ' in vector layer attributes for ' + requestDate.strftime('%Y-%m-%d') + '. Gave data for ' + str(layer_idx.strftime('%Y-%m-%d')))
-        # toc = dt.now()getTableForDate
+        # toc = dt.now()
         # print 'Time taken for spatial lookup:' + str((toc-tic).microseconds/1000) + ' sec'
         # Just return the field(s) of interest
         return tbl[attrib]
@@ -328,7 +319,7 @@ class SpatialTemporalResampler(object):
         # Determine which input features intersect the bounding box of the output feature,
         # then do a real intersection.
         for feat in inputLayer.getFeatures():
-            inputIndex.insertFeature(feat)
+            inputIndex.addFeature(feat)
 
         # If the inputLayer and outputLayer spatial units are the same, then disaggregation does not need to happen.
         if sameFeatures(inputLayer, self.outputLayer):
@@ -399,8 +390,7 @@ class SpatialTemporalResampler(object):
 
         # Select successfully identified output areas
 
-        # newShapeFile.setSelectedFeatures(list(readAcross[list(disagg.keys())]))
-        newShapeFile.selectByIds(list(readAcross[list(disagg.keys())]))  # new as from QGIS3
+        newShapeFile.selectByIds(list(readAcross[list(disagg.keys())]))
 
         selectedOutputFeatures = newShapeFile.selectedFeatures()
         newShapeFile.startEditing()
@@ -427,8 +417,7 @@ class SpatialTemporalResampler(object):
                 newShapeFile.changeAttributeValue(outputFeat.id(), fieldIndices[field], float(weighted_average))
 
         newShapeFile.commitChanges()
-        # newShapeFile.setSelectedFeatures([])  # De-select all features
-        newShapeFile.selectByIds([])  # new as from QGIS3
+        newShapeFile.selectByIds([])  # De-select all features
         return newShapeFile
 
     def addInput(self, input, startTime, attributeToUse, inputFieldId, weight_by=None, epsgCode=None):

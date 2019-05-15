@@ -6,6 +6,7 @@ TimeAggregation=60          ! Minutes to aggregate to
 PlotMonthlyStat=1			! Plots monthly inputOutput plots
 ChooseGridStat=			    ! Specify gridcode to plot
 ChooseYearStat=		        ! Specify year to plot
+PlotForcing=1                   ! Plot forcing data
 /
 
 

@@ -45,6 +45,7 @@ from ..suewsmodel import suewsdataprocessing
 from ..suewsmodel import suewsplotting
 import sys
 import subprocess
+import datetime
 
 try:
     import matplotlib.pylab as plt
@@ -284,7 +285,7 @@ class SUEWSAnalyzer(object):
             f.close()
             self.idgrid = gridcodemetmat[1:, :]
 
-            dataunit = self.fileoutputpath + '/' + self.fileCode + '_SUEWS_OutputFormat.txt'
+            dataunit = self.plugin_dir + '/SUEWS_OutputFormatOption1.txt'  # File moved to plugin directory
             f = open(dataunit)
             lin = f.readlines()
             self.lineunit = lin[3].split(";")
@@ -709,12 +710,19 @@ class SUEWSAnalyzer(object):
                 QMessageBox.critical(self.dlg, "Error", "No plot variable is selected")
                 return
 
-            datenum_yy = np.zeros(data1.shape[0])
+            dates = []
             for i in range(0, data1.shape[0]):  # making date number
-                datenum_yy[i] = dt.date2num(dt.datetime.datetime(int(data1[i, 0]), 1, 1))
+                dates.append(
+                    dt.datetime.datetime(int(data1[i, 0]), 1, 1) + datetime.timedelta(days=data1[i, 1] - 1,
+                                                                                        hours=data1[i, 2],
+                                                                                        minutes=data1[i, 3]))
 
-            dectime = datenum_yy + data1[:, 4] - 1 #TODO: remove -1 when SUEWS output is changed
-            dates = dt.num2date(dectime)
+            # datenum_yy = np.zeros(data1.shape[0])
+            # for i in range(0, data1.shape[0]):  # making date number
+            #     datenum_yy[i] = dt.date2num(dt.datetime.datetime(int(data1[i, 0]), 1, 1))
+            #
+            # dectime = datenum_yy + data1[:, 4] - 1 #TODO: remove -1 when SUEWS output is changed
+            # dates = dt.num2date(dectime)
 
             if not self.dlg.checkboxPOIAnother.isChecked():
                 # One variable

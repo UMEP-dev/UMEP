@@ -285,7 +285,6 @@ class NCWMS_Connector(object):
                  'DATASET': 'watch',
                  'VARIABLES':','.join(self.request_params['vars']),
                  'TIME':'%s/%s'%(start_period.strftime('%Y-%m-%dT%H:%M:%S'),end_period.strftime('%Y-%m-%dT%H:%M:%S'))}
-
         try:
             dataOut = tempfile.mktemp('.nc')
         except Exception as e:

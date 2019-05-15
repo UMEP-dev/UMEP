@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>555</width>
-    <height>405</height>
+    <height>333</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,66 +31,6 @@
         <property name="text">
          <string>Use method with 145 shadow images instead of 655 (required for anisotrophic sky (SOLWEIG&gt;v2019a)</string>
         </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_11">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Wall height raster:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QWidget" name="widgetWH" native="true">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>175</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_12"/>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_10">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Wall aspect raster:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QWidget" name="widgetWA" native="true">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>175</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_13"/>
        </widget>
       </item>
      </layout>
@@ -487,70 +427,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>188</x>
      <y>110</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxNewMethod</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>label_11</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>35</x>
-     <y>207</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>193</x>
-     <y>247</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxNewMethod</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>label_10</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>68</x>
-     <y>205</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>185</x>
-     <y>285</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxNewMethod</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>widgetWH</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>85</x>
-     <y>209</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>292</x>
-     <y>244</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxNewMethod</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>widgetWA</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>60</x>
-     <y>211</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>279</x>
-     <y>284</y>
     </hint>
    </hints>
   </connection>

@@ -2,7 +2,7 @@ from builtins import next
 from builtins import str
 from qgis.PyQt import QtCore
 import traceback
-from qgis.core import *
+from qgis.core import QgsPointXY, QgsMessageLog, Qgis, QgsRectangle
 
 
 class Worker(QtCore.QObject):
@@ -33,13 +33,13 @@ class Worker(QtCore.QObject):
             wall_array = []
             xstart = self.minx - self.xllcorner + 1
             ystart = self.ytlcorner - self.maxy + 1
-            rectpoint = QgsPoint(self.point1.x() - self.xllcorner + 1, self.ytlcorner - self.point1.y() + 1)
-            rectpoint2 = QgsPoint(self.point2.x() - self.xllcorner + 1, self.ytlcorner - self.point2.y() + 1)
+            rectpoint = QgsPointXY(self.point1.x() - self.xllcorner + 1, self.ytlcorner - self.point1.y() + 1)
+            rectpoint2 = QgsPointXY(self.point2.x() - self.xllcorner + 1, self.ytlcorner - self.point2.y() + 1)
 
-            QgsMessageLog.logMessage('xstart: ' + str(xstart), level=QgsMessageLog.CRITICAL)
-            QgsMessageLog.logMessage('ystart: ' + str(ystart), level=QgsMessageLog.CRITICAL)
-            QgsMessageLog.logMessage('point1: ' + str(rectpoint), level=QgsMessageLog.CRITICAL)
-            QgsMessageLog.logMessage('point2: ' + str(rectpoint2), level=QgsMessageLog.CRITICAL)
+            QgsMessageLog.logMessage('xstart: ' + str(xstart), level=Qgis.Critical)
+            QgsMessageLog.logMessage('ystart: ' + str(ystart), level=Qgis.Critical)
+            QgsMessageLog.logMessage('point1: ' + str(rectpoint), level=Qgis.Critical)
+            QgsMessageLog.logMessage('point2: ' + str(rectpoint2), level=Qgis.Critical)
             #rectpoint = QgsPoint(xstart, yend)
             #rectpoint2 = QgsPoint(xend, ystart)
             rect = QgsRectangle(rectpoint, rectpoint2)
@@ -53,8 +53,8 @@ class Worker(QtCore.QObject):
                     string = line.split()
                     x = float(string[1])
                     y = float(string[0])
-                    testpoint = QgsPoint(x, y)
-                    testpoint2 = QgsPoint(x + self.cellsize - 0.00001, y + self.cellsize - 0.00001)
+                    testpoint = QgsPointXY(x, y)
+                    testpoint2 = QgsPointXY(x + self.cellsize - 0.00001, y + self.cellsize - 0.00001)
                     testrect = QgsRectangle(testpoint, testpoint2)
                     if testrect.intersects(rect):
                         for e in string:

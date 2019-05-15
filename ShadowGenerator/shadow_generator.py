@@ -26,7 +26,7 @@ from builtins import object
 from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 from qgis.PyQt.QtGui import QIcon
-from qgis.gui import *
+from qgis.gui import QgsMapLayerComboBox
 from qgis.core import QgsMapLayerProxyModel
 # Initialize Qt resources from file resources.py
 # from . import resources_rc
@@ -251,8 +251,14 @@ class ShadowGenerator(object):
         filepath_dsm = str(provider.dataSourceUri())
 
         gdal_dsm = gdal.Open(filepath_dsm)
-
         dsm = gdal_dsm.ReadAsArray().astype(np.float)
+
+        # response to issue #85
+        nd = gdal_dsm.GetRasterBand(1).GetNoDataValue()
+        dsm[dsm == nd] = 0.
+        if dsm.min() < 0:
+            dsm = dsm + np.abs(dsm.min())
+
         sizex = dsm.shape[0]
         sizey = dsm.shape[1]
 

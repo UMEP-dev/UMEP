@@ -1,14 +1,10 @@
-from __future__ import print_function
-from __future__ import absolute_import
-# from builtins import str
-from builtins import object
-# from datetime import datetime
+from datetime import datetime
 from .DataManagement.LookupLogger import LookupLogger
 from .DataManagement.SpatialTemporalResampler import SpatialTemporalResampler
 from .DataManagement.spatialHelpers import *
 from qgis.PyQt.QtCore import QSettings
 
-class EnergyUseData(object):
+class EnergyUseData:
     # Store spatially and temporally resolved energy use data for GreaterQF model
     # Makes heavy use of QGIS API
 
@@ -41,7 +37,6 @@ class EnergyUseData(object):
         :param id_field: field (attribute) name containing unique identifiers
         :return: None
         '''
-
         self.domGas.setOutputShapefile(layer, epsgCode, id_field)
         self.indGas.setOutputShapefile(layer, epsgCode, id_field)
         self.domElec.setOutputShapefile(layer, epsgCode, id_field)
@@ -79,7 +74,6 @@ class EnergyUseData(object):
 
     def setIndustrialElec(self, input, startTime, attributeToUse, inputFieldId, weight_by=None, epsgCode=None):
         return self.indElec.addInput(input, startTime, attributeToUse, inputFieldId, weight_by=weight_by, epsgCode=epsgCode)
-
     def injectIndustrialElec(self, input, startTime, attributeToUse, epsgCode=None):
         return self.indElec.injectInput(input, epsgCode, attributeToUse, startTime)
 
@@ -95,41 +89,59 @@ class EnergyUseData(object):
 
     def setEconomy7Elec(self, input, startTime, attributeToUse, inputFieldId, weight_by=None, epsgCode=None):
         return self.economy7Elec.addInput(input, startTime, attributeToUse, inputFieldId, weight_by=weight_by, epsgCode=epsgCode)
-
     def injectEconomy7Elec(self, input, startTime, attributeToUse, epsgCode=None):
         return self.economy7Elec.injectInput(input, epsgCode, attributeToUse, startTime)
+
 
     # GETTERS
     def getEnergyTable(self, requestDate, energyType):
         # Get pandas data frame of all energy usage for requested date and for requested energy type(s)
         if type(energyType) is not type(list()):
             energyType = [energyType]
-        print('EnergyTYpe=' + str(energyType))
+
         types = []
         typeLabels = []
         #self.logger.addEvent('Lookup', requestDate.date(), None, str(typeLabels), 'Requesting energy data from shapefile attributes')
         if 'de' in energyType:
             de = self.domElec.getTableForDate(requestDate)
+            # print(type(de*1))
+            # print(de.values)
+            # print(de.values[0])
+            # print(type(de.values[0,0]))
+            # print(type(de.values[0,0]+1))
+            # print(de.values[0, 0])
+            # print(de.values[0, 0]+1)
+            # for x in de.values.flat:
+            #     if not isinstance(x,float):
+            #         print(x)
+            #         print(type(x))
+            # val = np.array([x if isinstance(x,float) else np.nan for x in de.values.flat]).reshape(-1, 1)
+            # de = pd.DataFrame(val, index=de.index, columns=de.columns)
+            # print(type(val[0,0]))
             types.append(de)
             typeLabels.append('DomElec')
 
         if 'ig' in energyType:
             ig = self.indGas.getTableForDate(requestDate)
+            print('ig',ig.values[0, 0])
             types.append(ig)
             typeLabels.append('IndGas')
 
         if 'ie' in energyType:
             ie = self.indElec.getTableForDate(requestDate)
+            print('ie', ie.values[0, 0])
             types.append(ie)
             typeLabels.append('IndElec')
 
         if 'dg' in energyType:
             dg = self.domGas.getTableForDate(requestDate)
+            print('dg', dg.values[0, 0])
             types.append(dg)
             typeLabels.append('DomGas')
 
         if 'e7' in energyType:
             e7 = self.economy7Elec.getTableForDate(requestDate)
+            print('e7', e7.values[0, 0])
             types.append(e7)
             typeLabels.append('Eco7')
 
@@ -138,15 +150,13 @@ class EnergyUseData(object):
         else:
             combined_refined = types[0]
 
+
         combined_refined.columns = typeLabels
         # Since energy data is all still kWh/year, convert it to W
+        # print(combined_refined.dtype, type(combined_refined))
+        combined_refined = combined_refined.astype('float') * 1000 / (365.25 * 24)
+        # print('seems pass',1/0)
 
-        # Here is the issue. combind_refind is not float64 in QGIS3
-        # tested with .toFloat()
-        # tested with pd.to_numeric()
-        print(combined_refined.dtypes)
-        print(combined_refined)
-        combined_refined = combined_refined * 1000.0 / (365.25 * 24)  # testing with float as QGIS3 show type error
         # And normalise by area of each polygon to get W/m2
         combined_refined = combined_refined.divide(self.domElec.getAreas(), axis='index')
         self.logger.addEvent('Lookup', requestDate.date(), None, str(typeLabels), 'Converting from kWh/yr to W/m2')
@@ -227,52 +237,51 @@ class EnergyUseData(object):
         return (layer, attrib)
 
 
-# def testIt():
-#     # Set up output polygons
-#     a = EnergyUseData()
-#     LLSOApolygons = 'C:\Users\pn910202\Dropbox\Shapefilecombos\PopDens\PopDens_2014_LSOA.shp'
-#     LLSOAproj = 27700
-#     a.setOutputShapefile(LLSOApolygons, LLSOAproj, id_field="LSOA11CD")
-#     MSOApolygons = 'N:/GreaterQF_input/GreaterLondon_Shapefiles/MSOA/MSOA_2011_London_gen_MHW.shp'
-#     MSOAproj = 27700
-#
-#     # Domestic gas shapefile - must be kWh/year
-#     domestic_gas = {}
-#     domestic_gas['shapefile'] = 'C:\Users\pn910202\Dropbox\Shapefilecombos\LSOA_elec_gas_2014\LSOA_elec_gas_2014.shp'
-#     domestic_gas['epsg'] = 27700
-#     domestic_gas['field_to_use'] = 'GasDom'  # Can be found in QGIS > view attributes table
-#     domestic_gas['start_date'] = datetime.strptime('2014-01-01', '%Y-%m-%d')
-#
-#     # Domestic electricity - must be kWh/year
-#     domestic_elec = {}
-#     domestic_elec['shapefile'] = 'C:\Users\pn910202\Dropbox\Shapefilecombos\LSOA_elec_gas_2014\LSOA_elec_gas_2014.shp'
-#     domestic_elec['epsg'] = 27700
-#     domestic_elec['field_to_use'] = 'TElDom'  # Can be found in QGIS > view attributes table
-#     domestic_elec['start_date'] = datetime.strptime('2014-01-01', '%Y-%m-%d')
-#
-#     # Industrial gas - must be kWh/year
-#     industrial_gas = {}
-#     industrial_gas['shapefile'] = 'C:\Users\pn910202\Dropbox\Shapefilecombos\MSOA_elec_gas_2014\MSOA_elec_gas_2014.shp'
-#     industrial_gas['epsg'] = 27700
-#     industrial_gas['field_to_use'] = 'GasInd'  # Can be found in QGIS > view attributes table
-#     industrial_gas['start_date'] = datetime.strptime('2014-01-01', '%Y-%m-%d')
-#
-#     # Industrial Electricity - must be kWh/year
-#     industrial_elec = {}
-#     industrial_elec['shapefile'] = 'C:\Users\pn910202\Dropbox\Shapefilecombos\LA_energy_2014\LA_energy_2014.shp'
-#     industrial_elec['epsg'] = 4326
-#     industrial_elec['field_to_use'] = 'ElInd_kWh'  # Can be found in QGIS > view attributes table
-#     industrial_elec['start_date'] = datetime.strptime('2014-01-01', '%Y-%m-%d')
-#
-#     # Set simple values for each component for 2014
-#     a.setDomesticElec(domestic_elec['shapefile'], datetime.strptime('2014-01-01', '%Y-%m-%d'),
-#                       domestic_elec['field_to_use'], epsgCode=domestic_elec['epsg'])
-#     a.setDomesticGas(1.0, datetime.strptime('2014-01-01', '%Y-%m-%d'), 'DomGas',)
-#     a.setIndustrialElec(2.0, datetime.strptime('2014-01-01', '%Y-%m-%d'), 'DomGas')
-#     a.setIndustrialGas(3.0, datetime.strptime('2014-01-01', '%Y-%m-%d'), 'DomGas')
-#     a.setEconomy7Elec(7.0, datetime.strptime('2014-01-01', '%Y-%m-%d'), 'DomGas')
-#     # Get downscaled shapefiles for 2014
-#     # fix_print_with_import
-#     print(a.getEnergyTable(datetime.strptime('2013-01-01', '%Y-%m-%d')))
-#
-#     return a.getDomesticElecLayer(datetime.strptime('2014-01-01', '%Y-%m-%d'))
+def testIt():
+    # Set up output polygons
+    a = EnergyUseData()
+    LLSOApolygons = 'C:\\Users\pn910202\Dropbox\Shapefilecombos\PopDens\PopDens_2014_LSOA.shp'
+    LLSOAproj = 27700
+    a.setOutputShapefile(LLSOApolygons, LLSOAproj, id_field="LSOA11CD")
+    MSOApolygons = 'N:/GreaterQF_input/GreaterLondon_Shapefiles/MSOA/MSOA_2011_London_gen_MHW.shp'
+    MSOAproj = 27700
+
+    # Domestic gas shapefile - must be kWh/year
+    domestic_gas = {}
+    domestic_gas['shapefile'] = 'C:\\Users\pn910202\Dropbox\Shapefilecombos\LSOA_elec_gas_2014\LSOA_elec_gas_2014.shp'
+    domestic_gas['epsg'] = 27700
+    domestic_gas['field_to_use'] = 'GasDom'  # Can be found in QGIS > view attributes table
+    domestic_gas['start_date'] = datetime.strptime('2014-01-01', '%Y-%m-%d')
+
+    # Domestic electricity - must be kWh/year
+    domestic_elec = {}
+    domestic_elec['shapefile'] = 'C:\\Users\pn910202\Dropbox\Shapefilecombos\LSOA_elec_gas_2014\LSOA_elec_gas_2014.shp'
+    domestic_elec['epsg'] = 27700
+    domestic_elec['field_to_use'] = 'TElDom'  # Can be found in QGIS > view attributes table
+    domestic_elec['start_date'] = datetime.strptime('2014-01-01', '%Y-%m-%d')
+
+    # Industrial gas - must be kWh/year
+    industrial_gas = {}
+    industrial_gas['shapefile'] = 'C:\\Users\pn910202\Dropbox\Shapefilecombos\MSOA_elec_gas_2014\MSOA_elec_gas_2014.shp'
+    industrial_gas['epsg'] = 27700
+    industrial_gas['field_to_use'] = 'GasInd'  # Can be found in QGIS > view attributes table
+    industrial_gas['start_date'] = datetime.strptime('2014-01-01', '%Y-%m-%d')
+
+    # Industrial Electricity - must be kWh/year
+    industrial_elec = {}
+    industrial_elec['shapefile'] = 'C:\\Users\pn910202\Dropbox\Shapefilecombos\LA_energy_2014\LA_energy_2014.shp'
+    industrial_elec['epsg'] = 4326
+    industrial_elec['field_to_use'] = 'ElInd_kWh'  # Can be found in QGIS > view attributes table
+    industrial_elec['start_date'] = datetime.strptime('2014-01-01', '%Y-%m-%d')
+
+    # Set simple values for each component for 2014
+    a.setDomesticElec(domestic_elec['shapefile'], datetime.strptime('2014-01-01', '%Y-%m-%d'),
+                      domestic_elec['field_to_use'], epsgCode=domestic_elec['epsg'])
+    a.setDomesticGas(1.0, datetime.strptime('2014-01-01', '%Y-%m-%d'), 'DomGas',)
+    a.setIndustrialElec(2.0, datetime.strptime('2014-01-01', '%Y-%m-%d'), 'DomGas')
+    a.setIndustrialGas(3.0, datetime.strptime('2014-01-01', '%Y-%m-%d'), 'DomGas')
+    a.setEconomy7Elec(7.0, datetime.strptime('2014-01-01', '%Y-%m-%d'), 'DomGas')
+    # Get downscaled shapefiles for 2014
+    print(a.getEnergyTable(datetime.strptime('2013-01-01', '%Y-%m-%d')))
+
+    return a.getDomesticElecLayer(datetime.strptime('2014-01-01', '%Y-%m-%d'))

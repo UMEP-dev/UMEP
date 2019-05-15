@@ -1,7 +1,8 @@
 from qgis.PyQt import QtCore
 import numpy as np
-from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_13 import shadowingfunction_wallheight_13
-from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_23 import shadowingfunction_wallheight_23
+from ..Utilities import shadowingfunctions as shadow
+# from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_13 import shadowingfunction_wallheight_13
+# from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_23 import shadowingfunction_wallheight_23
 
 import sys
 import linecache
@@ -12,7 +13,7 @@ class Worker(QtCore.QObject):
     error = QtCore.pyqtSignal(object)
     progress = QtCore.pyqtSignal()
 
-    def __init__(self, a, vegdem, vegdem2, scale, usevegdem, wallheight, wallaspect, dlg):
+    def __init__(self, a, vegdem, vegdem2, scale, usevegdem, dlg):
         QtCore.QObject.__init__(self)
         self.killed = False
         self.a = a
@@ -21,8 +22,8 @@ class Worker(QtCore.QObject):
         self.scale = scale
         self.usevegdem = usevegdem
         self.dlg = dlg
-        self.wallheight = wallheight
-        self.wallaspect = wallaspect
+        # self.wallheight = wallheight
+        # self.wallaspect = wallaspect
 
     def run(self):
         """
@@ -68,11 +69,11 @@ class Worker(QtCore.QObject):
 
             shmat = np.zeros((rows, cols, 145))
             vegshmat = np.zeros((rows, cols, 145))
-            vbshvegshmat = np.zeros((rows, cols, 145))
-            wallshmat = np.zeros((rows, cols, 145))
-            wallsunmat = np.zeros((rows, cols, 145))
-            wallshvemat = np.zeros((rows, cols, 145))
-            facesunmat = np.zeros((rows, cols, 145))
+            # vbshvegshmat = np.zeros((rows, cols, 145))
+            # wallshmat = np.zeros((rows, cols, 145))
+            # wallsunmat = np.zeros((rows, cols, 145))
+            # wallshvemat = np.zeros((rows, cols, 145))
+            # facesunmat = np.zeros((rows, cols, 145))
 
             index = int(0)
             iangle = np.array([6, 18, 30, 42, 54, 66, 78, 90])
@@ -104,22 +105,27 @@ class Worker(QtCore.QObject):
 
                     # Casting shadow
                     if self.usevegdem == 1:
-                        vegsh, sh, vbshvegsh, wallsh, wallsun, wallshve, _, facesun = shadowingfunction_wallheight_23(
-                            self.a, self.vegdem, self.vegdem2, azimuth, altitude, self.scale,amaxvalue, bush,
-                            self.wallheight, self.wallaspect * np.pi / 180.)
+                        shadowresult = shadow.shadowingfunction_20(self.a, self.vegdem, self.vegdem2, azimuth, altitude,
+                                                                   self.scale, amaxvalue, bush, self.dlg, 1)
+                        vegsh = shadowresult["vegsh"]
+                        vbshvegsh = shadowresult["vbshvegsh"]
+                        # vegsh, sh, vbshvegsh, wallsh, wallsun, wallshve, _, facesun = shadowingfunction_wallheight_23(
+                        #     self.a, self.vegdem, self.vegdem2, azimuth, altitude, self.scale,amaxvalue, bush,
+                        #     self.wallheight, self.wallaspect * np.pi / 180.)
                         # shadow = sh - (1 - vegsh) * (1 - psi)
-                        wallshvemat[:, :, index] = wallshve
+                        # wallshvemat[:, :, index] = wallshve
                         vegshmat[:, :, index] = vegsh
-                        vbshvegshmat[:, :, index] = vbshvegsh
-                    else:
-                        sh, wallsh, wallsun, facesh, facesun = shadowingfunction_wallheight_13(self.a, azimuth,
-                                                        altitude, self.scale, self.wallheight,
-                                                        self.wallaspect * np.pi / 180.)
+                        # vbshvegshmat[:, :, index] = vbshvegsh
+                    # else:
+                    #     sh, wallsh, wallsun, facesh, facesun = shadowingfunction_wallheight_13(self.a, azimuth,
+                    #                                     altitude, self.scale, self.wallheight,
+                    #                                     self.wallaspect * np.pi / 180.)
+                    sh = shadow.shadowingfunctionglobalradiation(self.a, azimuth, altitude, self.scale, self.dlg, 1)
                         # shadow = sh
                     shmat[:, :, index] = sh
-                    wallshmat[:, :, index] = wallsh
-                    wallsunmat[:, :, index] = wallsun
-                    facesunmat[:, :, index] = facesun
+                    # wallshmat[:, :, index] = wallsh
+                    # wallsunmat[:, :, index] = wallsun
+                    # facesunmat[:, :, index] = facesun
                     # sh = shadow.shadowingfunctionglobalradiation(self.a, azimuth, altitude, self.scale, self.dlg, 1)
 
                     # Calculate svfs
@@ -195,9 +201,10 @@ class Worker(QtCore.QObject):
             svfresult = {'svf': svf, 'svfE': svfE, 'svfS': svfS, 'svfW': svfW, 'svfN': svfN,
                          'svfveg': svfveg, 'svfEveg': svfEveg, 'svfSveg': svfSveg, 'svfWveg': svfWveg,
                          'svfNveg': svfNveg, 'svfaveg': svfaveg, 'svfEaveg': svfEaveg, 'svfSaveg': svfSaveg,
-                         'svfWaveg': svfWaveg, 'svfNaveg': svfNaveg, 'shmat': shmat,'vegshmat': vegshmat,
-                         'vbshvegshmat': vbshvegshmat, 'wallshmat': wallshmat, 'wallsunmat': wallsunmat,
-                         'wallshvemat': wallshvemat, 'facesunmat': facesunmat}
+                         'svfWaveg': svfWaveg, 'svfNaveg': svfNaveg, 'shmat': shmat,'vegshmat': vegshmat}
+                            # ,
+                         # 'vbshvegshmat': vbshvegshmat, 'wallshmat': wallshmat, 'wallsunmat': wallsunmat,
+                         # 'wallshvemat': wallshvemat, 'facesunmat': facesunmat}
 
             if self.killed is False:
                 self.progress.emit()

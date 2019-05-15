@@ -28,11 +28,11 @@ from builtins import object
 from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox # , QMovie
-from qgis.core import *
-from qgis.utils import *
+from qgis.core import QgsRasterLayer, QgsProject, QgsVectorLayer, QgsFeature, QgsRectangle, QgsGeometry, QgsMessageLog, Qgis
+#from qgis.utils import *
 
 # Initialize Qt resources from file resources.py
-from . import resources
+# from . import resources
 
 import os.path
 from osgeo import gdal
@@ -54,7 +54,8 @@ from .tools.areaTool import AreaTool
 # import tools.GLWidget
 try:
     # import tools.GLWidget as GLWidget
-    from . import tools.GLWidget
+    #from . import tools.GLWidget
+	from .tools.GLWidget import GLWidget
 except ImportError:
     pass
 
@@ -103,12 +104,14 @@ class Sun(object):
         self.height_file = 'dsm.tif'
 
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(2)
-        self.fileDialog.setAcceptMode(0)
+        self.fileDialog.setFileMode(QFileDialog.Directory)
+        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
+        # self.fileDialog.setFileMode(2)
+        # self.fileDialog.setAcceptMode(0)
 
         #Create a reference to the map canvas
         self.canvas = self.iface.mapCanvas()
-        
+
         #Create tools
         self.areaTool = AreaTool(self.canvas)
 
@@ -128,13 +131,13 @@ class Sun(object):
         self.toolBar = self.iface.addToolBar("Sun Toolbar")
      
         #Action for initializing the plugin, will add shape-files and OLlayer to the QGis-project
-        self.initialize = QAction(
-            QIcon(":/plugins/sun/initicon.png"),
-            u"Initialize plugin environment", self.iface.mainWindow())
-
-        self.initialize.triggered.connect(self.run)
-
-        self.toolBar.addAction(self.initialize)
+        # self.initialize = QAction(
+        #     QIcon(":/plugins/sun/initicon.png"),
+        #     u"Initialize plugin environment", self.iface.mainWindow())
+        #
+        # self.initialize.triggered.connect(self.run)
+        #
+        # self.toolBar.addAction(self.initialize)
 
         self.areaTool.areaComplete.connect(self.display_area)
 
@@ -167,9 +170,14 @@ class Sun(object):
             self.visDlg.textOutput.setText(self.dir_path[0])
 
         self.layer = QgsRasterLayer(self.dir_path[0] + '/Energyyearroof.tif', "Energy Roof Layer")
-        test = QgsMapLayerRegistry.instance().addMapLayer(self.layer)
-        test.loadNamedStyle(self.plugin_dir + '/SEBE_kwh.qml')
-        test.triggerRepaint()
+        if not self.layer.isValid():
+            QMessageBox.critical(None, "Error", "Could not find valid .tif file in directory")
+            return
+        # test = QgsMapLayerRegistry.instance().addMapLayer(self.layer)
+        rlayer = self.iface.addRasterLayer(self.dir_path[0] + '/Energyyearroof.tif')
+        # test = QgsProject.instance().addMapLayer(self.layer)
+        rlayer.loadNamedStyle(self.plugin_dir + '/SEBE_kwh.qml')
+        rlayer.triggerRepaint()
 
         # rlayer = self.iface.addRasterLayer(self.dir_path[0] + '/Energyyearroof.tif')
         #
@@ -203,9 +211,7 @@ class Sun(object):
         #     splitline = line.split()
         #     self.cellsize = float(splitline[1])
 
-        if not self.layer.isValid():
-            QMessageBox.critical(None, "Error", "Could not find valid .tif file in directory")
-            return
+
 
         self.gdal_dsm = gdal.Open(self.dir_path[0] + '/' + self.height_file)
         self.ncols = self.gdal_dsm.RasterXSize
@@ -229,7 +235,8 @@ class Sun(object):
             self.polyLayer.selectAll()
             self.polyLayer.deleteSelectedFeatures()
             self.polyLayer.commitChanges()
-            QgsMapLayerRegistry.instance().removeMapLayer(self.polyLayer.id())
+            # QgsMapLayerRegistry.instance().removeMapLayer(self.polyLayer.id())
+            QgsProject.instance().removeMapLayer(self.polyLayer.id())
 
         srs = self.canvas.mapSettings().destinationCrs()
         crs = str(srs.authid())
@@ -237,16 +244,18 @@ class Sun(object):
         self.polyLayer = QgsVectorLayer(uri, "Study area", "memory")
         provider = self.polyLayer.dataProvider()
 
-        fc = int(provider.featureCount())
+        # fc = int(provider.featureCount())
+        fc = int(self.polyLayer.featureCount())
         featurepoly = QgsFeature()
 
         rect = QgsRectangle(point1, point2)
         featurepoly.setGeometry(QgsGeometry.fromRect(rect))
         featurepoly.setAttributes([fc])
         self.polyLayer.startEditing()
-        self.polyLayer.addFeature(featurepoly, True)
+        self.polyLayer.addFeature(featurepoly)  # , True
         self.polyLayer.commitChanges()
-        QgsMapLayerRegistry.instance().addMapLayer(self.polyLayer)
+        # QgsMapLayerRegistry.instance().addMapLayer(self.polyLayer)
+        QgsProject.instance().addMapLayer(self.polyLayer)
 
         self.polyLayer.setLayerTransparency(42)
 
@@ -283,12 +292,18 @@ class Sun(object):
 
         toplefty = self.yllcorner + fullsizey
 
-        gdalclip_build = 'gdal_translate -a_nodata -9999 -projwin ' + str(minx) + ' ' + str(maxy)\
-                         + ' ' + str(maxx) + ' ' + str(miny) + \
-                         ' -of GTiff ' + self.dir_path[0] + '/' + self.roofground_file + ' ' \
-                         + self.plugin_dir + '/data/temp.tif'
+        # Remove gdaltranslate with gdal.Translate
+        bigraster = gdal.Open(self.dir_path[0] + '/' + self.roofground_file)
+        bbox = (minx, maxy, maxx, miny)
+        gdal.Translate(self.plugin_dir + '/data/temp.tif', bigraster, projWin=bbox)
+        bigraster = None
 
-        subprocess.call(gdalclip_build, startupinfo=si)
+        # gdalclip_build = 'gdal_translate -a_nodata -9999 -projwin ' + str(minx) + ' ' + str(maxy)\
+        #                  + ' ' + str(maxx) + ' ' + str(miny) + \
+        #                  ' -of GTiff ' + self.dir_path[0] + '/' + self.roofground_file + ' ' \
+        #                  + self.plugin_dir + '/data/temp.tif'
+        #
+        # subprocess.call(gdalclip_build, startupinfo=si)
 
         dataset = gdal.Open(self.plugin_dir + '/data/temp.tif')
         self.energy_array = dataset.ReadAsArray().astype(np.float)
@@ -296,11 +311,17 @@ class Sun(object):
         sizex = self.energy_array.shape[1]
         sizey = self.energy_array.shape[0]
 
-        gdalclipasc_build = 'gdal_translate -a_nodata -9999 -projwin ' + str(minx) + ' ' + str(maxy) + ' ' + str(maxx) +\
-                            ' ' + str(miny) + ' -of GTiff ' + self.dir_path[0] + '/' + self.height_file + ' ' + \
-                            self.plugin_dir + '/data/temp_asc.tif'
+        # Remove gdaltranslate with gdal.Translate
+        bigraster = gdal.Open(self.dir_path[0] + '/' + self.height_file)
+        bbox = (minx, maxy, maxx, miny)
+        gdal.Translate(self.plugin_dir + '/data/temp_asc.tif', bigraster, projWin=bbox)
+        bigraster = None
 
-        subprocess.call(gdalclipasc_build, startupinfo=si)
+        # gdalclipasc_build = 'gdal_translate -a_nodata -9999 -projwin ' + str(minx) + ' ' + str(maxy) + ' ' + str(maxx) +\
+        #                     ' ' + str(miny) + ' -of GTiff ' + self.dir_path[0] + '/' + self.height_file + ' ' + \
+        #                     self.plugin_dir + '/data/temp_asc.tif'
+        #
+        # subprocess.call(gdalclipasc_build, startupinfo=si)
 
         dataset = gdal.Open(self.plugin_dir + '/data/temp_asc.tif')
         self.asc_array = dataset.ReadAsArray().astype(np.float)
@@ -335,7 +356,7 @@ class Sun(object):
 
     def workerError(self, e, exception_string):
         strerror = "Worker thread raised an exception: " + str(e)
-        QgsMessageLog.logMessage(strerror.format(exception_string), level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage(strerror.format(exception_string), level=Qgis.Critical)
 
     def progress_update(self):
         pass
@@ -353,13 +374,13 @@ class Sun(object):
         self.thread.deleteLater()
 
         if ret is not None:
-            QgsMessageLog.logMessage('WALL_ARRAY length: ' + str(len(ret)), level=QgsMessageLog.CRITICAL)
-            QgsMessageLog.logMessage('WALL_ARRAY: ' + str(ret), level=QgsMessageLog.CRITICAL)
-            QgsMessageLog.logMessage('ASC_ARRAY: ' + str(self.asc_array), level=QgsMessageLog.CRITICAL)
+            QgsMessageLog.logMessage('WALL_ARRAY length: ' + str(len(ret)), level=Qgis.Critical)
+            QgsMessageLog.logMessage('WALL_ARRAY: ' + str(ret), level=Qgis.Critical)
+            QgsMessageLog.logMessage('ASC_ARRAY: ' + str(self.asc_array), level=Qgis.Critical)
             if self.gl_widget is not None:
                 self.visDlg.layout.removeWidget(self.gl_widget)
 
-            self.gl_widget = tools.GLWidget.GLWidget(self.energy_array, self.asc_array, wall_array, self.cellsize,
+            self.gl_widget = GLWidget(self.energy_array, self.asc_array, wall_array, self.cellsize,
                                                self.visDlg)
             self.visDlg.layout.addWidget(self.gl_widget)
 

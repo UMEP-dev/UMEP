@@ -69,7 +69,8 @@ def shadowingfunctionglobalradiation(a, azimuth, altitude, scale, dlg, forsvf):
         yp1 = -((dy-absdy)/2.)+1.
         yp2 = sizey-(dy+absdy)/2.
         temp[int(xp1)-1:int(xp2), int(yp1)-1:int(yp2)] = a[int(xc1)-1:int(xc2), int(yc1)-1:int(yc2)]-dz
-        f = np.maximum(f, temp)
+        # f = np.maximum(f, temp)  # bad performance in python3. Replaced with fmax
+        f = np.fmax(f, temp)
         index += 1.
 
     f = f-a
@@ -153,7 +154,8 @@ def shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue
         tempvegdem[int(xp1)-1:int(xp2), int(yp1)-1:int(yp2)] = vegdem[int(xc1)-1:int(xc2), int(yc1)-1:int(yc2)]-dz
         tempvegdem2[int(xp1)-1:int(xp2), int(yp1)-1:int(yp2)] = vegdem2[int(xc1)-1:int(xc2), int(yc1)-1:int(yc2)]-dz
         temp[int(xp1)-1:int(xp2), int(yp1)-1:int(yp2)] = a[int(xc1)-1:int(xc2), int(yc1)-1:int(yc2)]-dz
-        f = np.maximum(f, temp)
+        # f = np.maximum(f, temp) # bad performance in python3. Replaced with fmax
+        f = np.fmax(f, temp)
         sh[(f > a)] = 1.
         sh[(f <= a)] = 0.
         #%Moving building shadow
@@ -163,7 +165,8 @@ def shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue
         #%vegdem2 above DEM
         # vegsh2 = np.float(fabovea)-np.float(gabovea)
         vegsh2 = np.subtract(fabovea, gabovea, dtype=np.float)
-        vegsh = np.maximum(vegsh, vegsh2)
+        # vegsh = np.maximum(vegsh, vegsh2) # bad performance in python3. Replaced with fmax
+        vegsh = np.fmax(vegsh, vegsh2)
         vegsh[(vegsh*sh > 0.)] = 0.
         #% removing shadows 'behind' buildings
         vbshvegsh = vegsh+vbshvegsh
@@ -179,7 +182,8 @@ def shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue
         if np.logical_and(bush.max() > 0., np.max((fabovea*bush)) > 0.):
             tempbush[0:sizex, 0:sizey] = 0.
             tempbush[int(xp1)-1:int(xp2), int(yp1)-1:int(yp2)] = bush[int(xc1)-1:int(xc2),int(yc1)-1:int(yc2)]-dz
-            g = np.maximum(g, tempbush)
+            # g = np.maximum(g, tempbush) # bad performance in python3. Replaced with fmax
+            g = np.fmax(g, tempbush)
             g *= bushplant
         index += 1.
 

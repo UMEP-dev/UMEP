@@ -107,14 +107,14 @@ class SkyViewFactorCalculator(object):
         self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerVEGDSM2.setFixedWidth(200)
         self.layerComboManagerVEGDSM2.setCurrentIndex(-1)
-        self.layerComboManagerWH = QgsMapLayerComboBox(self.dlg.widgetWH)
-        self.layerComboManagerWH.setFilters(QgsMapLayerProxyModel.RasterLayer)
-        self.layerComboManagerWH.setFixedWidth(175)
-        self.layerComboManagerWH.setCurrentIndex(-1)
-        self.layerComboManagerWA = QgsMapLayerComboBox(self.dlg.widgetWA)
-        self.layerComboManagerWA.setFilters(QgsMapLayerProxyModel.RasterLayer)
-        self.layerComboManagerWA.setFixedWidth(175)
-        self.layerComboManagerWA.setCurrentIndex(-1)
+        # self.layerComboManagerWH = QgsMapLayerComboBox(self.dlg.widgetWH)
+        # self.layerComboManagerWH.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        # self.layerComboManagerWH.setFixedWidth(175)
+        # self.layerComboManagerWH.setCurrentIndex(-1)
+        # self.layerComboManagerWA = QgsMapLayerComboBox(self.dlg.widgetWA)
+        # self.layerComboManagerWA.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        # self.layerComboManagerWA.setFixedWidth(175)
+        # self.layerComboManagerWA.setCurrentIndex(-1)
 
         self.thread = None
         self.worker = None
@@ -257,9 +257,9 @@ class SkyViewFactorCalculator(object):
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.textOutput.setText(self.folderPath[0])
 
-    def startWorker(self, dsm, vegdem, vegdem2, scale, usevegdem, wheight, waspect, dlg):
+    def startWorker(self, dsm, vegdem, vegdem2, scale, usevegdem, dlg):
 
-        worker = Worker(dsm, vegdem, vegdem2, scale, usevegdem, wheight, waspect, dlg)
+        worker = Worker(dsm, vegdem, vegdem2, scale, usevegdem, dlg)
 
         self.dlg.runButton.setText('Cancel')
         self.dlg.runButton.clicked.disconnect()
@@ -494,15 +494,15 @@ class SkyViewFactorCalculator(object):
             # Save shadow images for SOLWEIG 2019a
             shmat = ret["shmat"]
             vegshmat = ret["vegshmat"]
-            vbshvegshmat = ret["vbshvegshmat"]
-            wallshmat = ret["wallshmat"]
-            wallsunmat = ret["wallsunmat"]
-            wallshvemat = ret["wallshvemat"]
-            facesunmat = ret["facesunmat"]
+            # vbshvegshmat = ret["vbshvegshmat"]
+            # wallshmat = ret["wallshmat"]
+            # wallsunmat = ret["wallsunmat"]
+            # wallshvemat = ret["wallshvemat"]
+            # facesunmat = ret["facesunmat"]
 
-            np.savez_compressed(self.folderPath[0] + '/' + "shadowmats.npz", shadowmat=shmat, vegshadowmat=vegshmat,
-                                vbshvegshmat=vbshvegshmat, wallshmat=wallshmat, wallsunmat=wallsunmat,
-                                facesunmat=facesunmat, wallshvemat=wallshvemat)
+            np.savez_compressed(self.folderPath[0] + '/' + "shadowmats.npz", shadowmat=shmat, vegshadowmat=vegshmat) #,
+                                # vbshvegshmat=vbshvegshmat, wallshmat=wallshmat, wallsunmat=wallsunmat,
+                                # facesunmat=facesunmat, wallshvemat=wallshvemat)
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
                 rlayer = self.iface.addRasterLayer(filename)
@@ -515,13 +515,13 @@ class SkyViewFactorCalculator(object):
                     rlayer.repaintRequested.emit()
                 rlayer.triggerRepaint()
 
-                QMessageBox.information(self.iface.mainWindow(), "Sky View Factor Calculator",
-                                        "SVF grid(s) successfully generated")
-                self.dlg.runButton.setText('Run')
-                self.dlg.runButton.clicked.disconnect()
-                self.dlg.runButton.clicked.connect(self.start_progress)
-                self.dlg.pushButton.setEnabled(True)
-                self.dlg.progressBar.setValue(0)
+            QMessageBox.information(self.iface.mainWindow(), "Sky View Factor Calculator",
+                                    "SVF grid(s) successfully generated")
+            self.dlg.runButton.setText('Run')
+            self.dlg.runButton.clicked.disconnect()
+            self.dlg.runButton.clicked.connect(self.start_progress)
+            self.dlg.pushButton.setEnabled(True)
+            self.dlg.progressBar.setValue(0)
         else:
             self.iface.messageBar().pushMessage('Operations cancelled either by user or error. See the General tab in '
                                                 'Log Meassages Panel (speech bubble, lower right) for more information.'
@@ -657,6 +657,12 @@ class SkyViewFactorCalculator(object):
             geotransform = self.gdal_dsm.GetGeoTransform()
             self.scale = 1 / geotransform[1]
 
+            # response to issue #85
+            nd = self.gdal_dsm.GetRasterBand(1).GetNoDataValue()
+            self.dsm[self.dsm == nd] = 0.
+            if self.dsm.min() < 0:
+                self.dsm = self.dsm + np.abs(self.dsm.min())
+
             if (sizex * sizey) > 250000 and (sizex * sizey) <= 1000000:
                 QMessageBox.warning(self.iface.mainWindow(), "Semi lage grid", "This process will take a couple of minutes. "
                                                         "Go and make yourself a cup of tea...")
@@ -724,36 +730,36 @@ class SkyViewFactorCalculator(object):
                 self.vegdsm2 = self.dsm * 0.0
                 self.usevegdem = 0
 
-            if self.dlg.checkBoxNewMethod.isChecked():
-                # wall height layer
-                whlayer = self.layerComboManagerWH.currentLayer()
-                if whlayer is None:
-                    QMessageBox.critical(None, "Error", "No valid wall height raster layer is selected")
-                    return
-                provider = whlayer.dataProvider()
-                filepath_wh = str(provider.dataSourceUri())
-                self.gdal_wh = gdal.Open(filepath_wh)
-                self.wheight = self.gdal_wh.ReadAsArray().astype(np.float)
-                vhsizex = self.wheight.shape[0]
-                vhsizey = self.wheight.shape[1]
-                if not (vhsizex == sizex) & (vhsizey == sizey):  # &
-                    QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
-                    return
-
-                # wall aspectlayer
-                walayer = self.layerComboManagerWA.currentLayer()
-                if walayer is None:
-                    QMessageBox.critical(None, "Error", "No valid wall aspect raster layer is selected")
-                    return
-                provider = walayer.dataProvider()
-                filepath_wa = str(provider.dataSourceUri())
-                self.gdal_wa = gdal.Open(filepath_wa)
-                self.waspect = self.gdal_wa.ReadAsArray().astype(np.float)
-                vasizex = self.waspect.shape[0]
-                vasizey = self.waspect.shape[1]
-                if not (vasizex == sizex) & (vasizey == sizey):
-                    QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
-                    return
+            # if self.dlg.checkBoxNewMethod.isChecked():
+            #     # wall height layer
+            #     whlayer = self.layerComboManagerWH.currentLayer()
+            #     if whlayer is None:
+            #         QMessageBox.critical(None, "Error", "No valid wall height raster layer is selected")
+            #         return
+            #     provider = whlayer.dataProvider()
+            #     filepath_wh = str(provider.dataSourceUri())
+            #     self.gdal_wh = gdal.Open(filepath_wh)
+            #     self.wheight = self.gdal_wh.ReadAsArray().astype(np.float)
+            #     vhsizex = self.wheight.shape[0]
+            #     vhsizey = self.wheight.shape[1]
+            #     if not (vhsizex == sizex) & (vhsizey == sizey):  # &
+            #         QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+            #         return
+            #
+            #     # wall aspectlayer
+            #     walayer = self.layerComboManagerWA.currentLayer()
+            #     if walayer is None:
+            #         QMessageBox.critical(None, "Error", "No valid wall aspect raster layer is selected")
+            #         return
+            #     provider = walayer.dataProvider()
+            #     filepath_wa = str(provider.dataSourceUri())
+            #     self.gdal_wa = gdal.Open(filepath_wa)
+            #     self.waspect = self.gdal_wa.ReadAsArray().astype(np.float)
+            #     vasizex = self.waspect.shape[0]
+            #     vasizey = self.waspect.shape[1]
+            #     if not (vasizex == sizex) & (vasizey == sizey):
+            #         QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+            #         return
 
             if self.folderPath is 'None':
                 QMessageBox.critical(self.dlg, "Error", "No selected folder")
@@ -761,12 +767,15 @@ class SkyViewFactorCalculator(object):
             else:
                 if self.dlg.checkBoxNewMethod.isChecked():
                     self.dlg.progressBar.setRange(0, 145)
-                    self.startWorker(self.dsm, self.vegdsm, self.vegdsm2, self.scale, self.usevegdem, self.wheight, self.waspect, self.dlg)
+                    # self.startWorker(self.dsm, self.vegdsm, self.vegdsm2, self.scale, self.usevegdem, self.wheight, self.waspect, self.dlg)
+                    self.startWorker(self.dsm, self.vegdsm, self.vegdsm2, self.scale, self.usevegdem, self.dlg)
                 else:
-                    self.dlg.progressBar.setRange(0, 655)
+                    if self.usevegdem == 0:
+                        self.dlg.progressBar.setRange(0, 655)
+                    else:
+                        self.dlg.progressBar.setRange(0, 1310)
                     self.startWorkerOld(self.dsm, self.scale, self.dlg)
                     if self.usevegdem == 1:
-                        self.dlg.progressBar.setRange(0, 1310)
                         self.startVegWorkerOld(self.dsm, self.scale, self.vegdsm, self.vegdsm2, self.dlg)
 
     def run(self):

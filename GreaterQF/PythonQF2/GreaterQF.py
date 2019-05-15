@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from builtins import str
-from builtins import range
-from builtins import object
 import os
 import pickle
 import re
@@ -21,8 +17,9 @@ from .Calcs3 import QF
 from .DailyEnergyLoading import DailyEnergyLoading
 from .DailyFactors import DailyFact
 from .Disaggregate import disaggregate
-from .EnergyProfiles import EnergyProfiles # For temporal energy use profiles
-from .EnergyUseData import EnergyUseData   # For spatially disaggregated energy use data
+from .EnergyProfiles import EnergyProfiles  # For temporal energy use profiles
+# For spatially disaggregated energy use data
+from .EnergyUseData import EnergyUseData
 from .FuelConsumption import FuelConsumption
 from .GQFDataSources import DataSources
 from .HumanActivityProfiles import HumanActivityProfiles
@@ -31,40 +28,54 @@ from .Partitions import Partitions
 from .Population import Population
 from .Transport import Transport
 from .TransportProfiles import TransportProfiles
+# from multiprocessing import Pool
+# pool=Pool()
 
 
-class Model(object):
+def QF_save(input_QF, path_save):
+    WF = QF(*input_QF)
+    WF.to_csv(path_save, index_label='featureId')
+
+class Model():
     ''' Class that encapsulates a GreaterQF model instance'''
+
     def __init__(self):
         # Define the subfolders that should be present after each model run
-        self.subFolders = {'render':'Images',
-                           'config':'ConfigFiles',
-                           'output':'ModelOutput',
-                           'logs':'Logs',
-                           'disagg':'DownscaledData'}
+        self.subFolders = {'render': 'Images',
+                           'config': 'ConfigFiles',
+                           'output': 'ModelOutput',
+                           'logs': 'Logs',
+                           'disagg': 'DownscaledData'}
 
         # Set placeholders
         self.parameters = None          # GQF Parameters object
         self.ds = None                  # GQFDataSources object
         self.config = None              # GQF Config object
         self.resultsAvailable = False   # Flag to determine whether the model has run yet
-        self.processedDataList = None   # Dict containing details of processed input data files
+        # Dict containing details of processed input data files
+        self.processedDataList = None
 
         # Path placeholders
         self.modelRoot = None           # Main model output directory
         self.processedInputData = None  # Folder containing already processed input data
-        self.downscaledPath = None      # Folder where processed input data should ultimately be stored
+        # Folder where processed input data should ultimately be stored
+        self.downscaledPath = None
         self.logPath = None             # Folder containing output logs
         self.modelOutputPath = None     # Folder containing model results
-        self.configPath = None          # Folder containing copies of data sources and parameter files
+        # Folder containing copies of data sources and parameter files
+        self.configPath = None
         self.renderPath = None          # Folder containing rendered images from visualisation
 
         # Output file information
         # Filename format information so data can be retrieved
-        self.reg = 'GQF[0-9]{4}[0-9]{2}[0-9]{2}_[0-9]{2}-[0-9]{2}\.csv'   # Regex
-        self.dateStructure  = 'GQF%Y%m%d_%H-%M.csv'                               # Time format to use when saving output files
-        self.fileList = None                                                      # List of model output files indexed by time
-        self.outputAreas = None                                                   # Output area IDs
+        # Regex
+        self.reg = r'GQF[0-9]{4}[0-9]{2}[0-9]{2}_[0-9]{2}-[0-9]{2}\.csv'
+        # Time format to use when saving output files
+        self.dateStructure = 'GQF%Y%m%d_%H-%M.csv'
+        # List of model output files indexed by time
+        self.fileList = None
+        # Output area IDs
+        self.outputAreas = None
 
     def setParameters(self, file):
         ''' Set model parameters from GQF parameters file
@@ -80,15 +91,19 @@ class Model(object):
         :return: Path to processed data
         '''
         if self.ds is None:
-            raise Exception('Data sources file must be set  before processing input data')
+            raise Exception(
+                'Data sources file must be set before processing input data')
 
         if self.parameters is None:
-            raise Exception('Model parameters file must be set before processing input data')
+            raise Exception(
+                'Model parameters file must be set before processing input data')
 
         if self.downscaledPath is None:
-            raise Exception('Model output folder needs to be set before processing input data')
+            raise Exception(
+                'Model output folder needs to be set before processing input data')
 
-        processedPath = disaggregate(qfDataSources=self.ds, outputFolder=self.downscaledPath, qfParams=self.parameters)
+        processedPath = disaggregate(
+            qfDataSources=self.ds, outputFolder=self.downscaledPath, qfParams=self.parameters)
         return processedPath
 
     def setDataSources(self, file):
@@ -131,7 +146,8 @@ class Model(object):
         :return: None
         '''
         if self.downscaledPath is None:
-            raise Exception('Model output folder must be set before choosing a folder containing existing pre-processed input data (it gets copied there)')
+            raise Exception(
+                'Model output folder must be set before choosing a folder containing existing pre-processed input data (it gets copied there)')
 
         # Validate pre-processed inputs
         expectedManifest = os.path.join(path, 'MANIFEST')
@@ -139,11 +155,13 @@ class Model(object):
             with open(expectedManifest, 'rb') as manf:
                 manif = pickle.load(manf)
                 if type(manif) is not dict:
-                    raise Exception(path + ' does not seem to be a valid store of processed input data (manifest file missing)')
+                    raise Exception(
+                        path + ' does not seem to be a valid store of processed input data (manifest file missing)')
                 self.processedDataList = manif
                 self.processedInputData = path
         else:
-            raise Exception('The specified processed input data path ' + path + ' does not exist')
+            raise Exception(
+                'The specified processed input data path ' + path + ' does not exist')
 
     def run(self):
         ''' Run model based on configuration, parameters and pre-processed input data'''
@@ -154,7 +172,8 @@ class Model(object):
             raise Exception('self.setConfig must be used before model run')
 
         if self.ds is None:
-            raise Exception('self.setDataSources must be used before model run')
+            raise Exception(
+                'self.setDataSources must be used before model run')
 
         if self.parameters is None:
             raise Exception('self.setParameters must be used before model run')
@@ -167,13 +186,16 @@ class Model(object):
 
         # If necessary, copy the pre-processed inputs to the /DownscaledData/ subdirectory of model output
         if self.processedInputData != self.downscaledPath:
-            dir_util.copy_tree(src=self.processedInputData, dst=self.downscaledPath, update=True)
+            dir_util.copy_tree(src=self.processedInputData,
+                               dst=self.downscaledPath, update=True)
 
         # Copy data sources and parameters files to output folder for traceability
         # Exception should only arise if they are copying to themselves, in which case it's fine
         try:
-            copyfile(self.parameters.inputFile, os.path.join(self.configPath, 'Parameters.nml'))
-            copyfile(self.ds.inputFile, os.path.join(self.configPath, 'DataSources.nml'))
+            copyfile(self.parameters.inputFile, os.path.join(
+                self.configPath, 'Parameters.nml'))
+            copyfile(self.ds.inputFile, os.path.join(
+                self.configPath, 'DataSources.nml'))
         except Exception:
             pass
 
@@ -193,83 +215,139 @@ class Model(object):
         :param logFolder:
         :return:
         '''
-        print('one')
+
         # Get partitioning and heat of combustion values
         partitions = Partitions(self.config, self.parameters)
-        props = partitions.fluxProp  # Proportion of possible fluxes (latent, wastewater, sensible based on what user selected) to include in results
+        # Proportion of possible fluxes (latent, wastewater, sensible based on what user selected) to include in results
+        props = partitions.fluxProp
         startDates = self.config.dt_start
         endDates = self.config.dt_end
         # Set up UTC time bins @ 30 min intervals
-        for i in range(0,len(startDates),1):
-            bins = pd.date_range(pd.datetime.strptime(startDates[i].strftime('%Y-%m-%d %H:%M'), '%Y-%m-%d %H:%M') + timedelta(seconds=1800),
-                                 pd.datetime.strptime(endDates[i].strftime('%Y-%m-%d %H:%M'), '%Y-%m-%d %H:%M'),
-                                 tz='UTC',
-                                 freq='30Min')
-            if i == 0:
-                timeBins = bins
-            else:
-                timeBins = timeBins.append(bins)
-        print('two')
+        # for i in range(0,len(startDates),1):
+        #     bins = pd.date_range(pd.datetime.strptime(startDates[i].strftime('%Y-%m-%d %H:%M'), '%Y-%m-%d %H:%M') + timedelta(seconds=1800),
+        #                          pd.datetime.strptime(endDates[i].strftime('%Y-%m-%d %H:%M'), '%Y-%m-%d %H:%M'),
+        #                          tz='UTC',
+        #                          freq='30Min')
+        #     if i == 0:
+        #         timeBins = bins
+        #     else:
+        #         timeBins = timeBins.append(bins)
+
+        # timeBins = pd.date_range(
+        #     pd.to_datetime(startDates) + timedelta(seconds=1800),
+        #     # pd.datetime.strptime(startDates, '%Y-%m-%d %H:%M') + timedelta(seconds=1800),
+        #     pd.to_datetime(endDates) + timedelta(seconds=1800),
+        #     # pd.datetime.strptime(endDates, '%Y-%m-%d %H:%M'),
+        #     tz='UTC',
+        #     freq='30Min')
+
+        try:
+            # offline scenario
+            timeBins = pd.date_range(
+                pd.to_datetime(startDates) + timedelta(seconds=1800),
+                pd.to_datetime(endDates) + timedelta(seconds=1800),
+                tz='UTC',
+                freq='30Min')
+        except:
+            # UMEP scenario
+            timeBins = pd.date_range(
+                startDates[0] + timedelta(seconds=1800),
+                endDates[0] + timedelta(seconds=1800),
+                tz='UTC',
+                freq='30Min')
+
         # Make some aliases for the output layer for brevity
         outShp = self.ds.outputAreas_spat['shapefile']
-        outFeatIds =  self.ds.outputAreas_spat['featureIds']
+        outFeatIds = self.ds.outputAreas_spat['featureIds']
         outEpsg = self.ds.outputAreas_spat['epsgCode']
-        print('three')
+
         # Populate temporal disaggregation objects
         # Building energy daily loadings (temporal disaggregation from Annual to daily)
-        dailyE = DailyEnergyLoading(self.parameters.city, useUKholidays=self.parameters.useUKholidays)
+        dailyE = DailyEnergyLoading(
+            self.parameters.city, useUKholidays=self.parameters.useUKholidays)
         # Each component has 1..n data sources. Add each one, looping over them
         [dailyE.addLoadings(den['profileFile']) for den in self.ds.dailyEnergy]
-        print('four')
+
         # Building energy diurnal cycles (temporal disaggregation from daily to half-hourly). These are provided in local time (London)
-        diurnalE = EnergyProfiles(self.parameters.city, use_uk_holidays=self.parameters.useUKholidays, customHolidays=self.parameters.customHolidays)
+        diurnalE = EnergyProfiles(
+            self.parameters.city, use_uk_holidays=self.parameters.useUKholidays, customHolidays=self.parameters.customHolidays)
         [diurnalE.addDomElec(de['profileFile']) for de in self.ds.diurnDomElec]
         [diurnalE.addDomGas(dg['profileFile']) for dg in self.ds.diurnDomGas]
         [diurnalE.addEconomy7(e7['profileFile']) for e7 in self.ds.diurnEco7]
         [diurnalE.addIndElec(ie['profileFile']) for ie in self.ds.diurnIndElec]
         [diurnalE.addIndGas(ig['profileFile']) for ig in self.ds.diurnIndGas]
-        print('five')
+
         # Diurnal traffic patterns
-        diurnalT = TransportProfiles(self.parameters.city, use_uk_holidays=self.parameters.useUKholidays, customHolidays=self.parameters.customHolidays)
-        [diurnalT.addProfiles(tr['profileFile']) for tr in self.ds.diurnalTraffic]
-        print('six')
+        diurnalT = TransportProfiles(
+            self.parameters.city, use_uk_holidays=self.parameters.useUKholidays, customHolidays=self.parameters.customHolidays)
+        [diurnalT.addProfiles(tr['profileFile'])
+         for tr in self.ds.diurnalTraffic]
+
         # Workday metabolism profile
-        hap = HumanActivityProfiles(self.parameters.city, use_uk_holidays=self.parameters.useUKholidays, customHolidays=self.parameters.customHolidays)
+        hap = HumanActivityProfiles(
+            self.parameters.city, use_uk_holidays=self.parameters.useUKholidays, customHolidays=self.parameters.customHolidays)
         [hap.addProfiles(ha['profileFile']) for ha in self.ds.diurnMetab]
         pop = Population()
         pop.setOutputShapefile(outShp, outEpsg, outFeatIds)
-        [pop.injectResPop(rp['file'], makeUTC(rp['startDate']), rp['attribute'], rp['EPSG']) for rp in self.processedDataList['resPop']]
-        [pop.injectWorkPop(wp['file'], makeUTC(wp['startDate']), wp['attribute'], wp['EPSG']) for wp in self.processedDataList['workPop']]
+        [pop.injectResPop(rp['file'], makeUTC(rp['startDate']), rp['attribute'],
+                          rp['EPSG']) for rp in self.processedDataList['resPop']]
+        [pop.injectWorkPop(wp['file'], makeUTC(wp['startDate']), wp['attribute'], wp['EPSG'])
+         for wp in self.processedDataList['workPop']]
         bldgEnergy = EnergyUseData()
         bldgEnergy.setOutputShapefile(outShp, outEpsg, outFeatIds)
-        print('seven')
-        [bldgEnergy.injectDomesticElec(rp['file'], makeUTC(rp['startDate']), rp['attribute'], rp['EPSG']) for rp in self.processedDataList['domElec']]
-        [bldgEnergy.injectDomesticGas(rp['file'], makeUTC(rp['startDate']), rp['attribute'], rp['EPSG']) for rp in self.processedDataList['domGas']]
-        [bldgEnergy.injectEconomy7Elec(rp['file'], makeUTC(rp['startDate']), rp['attribute'], rp['EPSG']) for rp in self.processedDataList['domEco7']]
-        [bldgEnergy.injectIndustrialElec(rp['file'], makeUTC(rp['startDate']), rp['attribute'], rp['EPSG']) for rp in self.processedDataList['indElec']]
-        [bldgEnergy.injectIndustrialGas(rp['file'], makeUTC(rp['startDate']), rp['attribute'], rp['EPSG']) for rp in self.processedDataList['indGas']]
+
+        [bldgEnergy.injectDomesticElec(rp['file'], makeUTC(
+            rp['startDate']), rp['attribute'], rp['EPSG']) for rp in self.processedDataList['domElec']]
+        [bldgEnergy.injectDomesticGas(rp['file'], makeUTC(
+            rp['startDate']), rp['attribute'], rp['EPSG']) for rp in self.processedDataList['domGas']]
+        [bldgEnergy.injectEconomy7Elec(rp['file'], makeUTC(
+            rp['startDate']), rp['attribute'], rp['EPSG']) for rp in self.processedDataList['domEco7']]
+        [bldgEnergy.injectIndustrialElec(rp['file'], makeUTC(
+            rp['startDate']), rp['attribute'], rp['EPSG']) for rp in self.processedDataList['indElec']]
+        [bldgEnergy.injectIndustrialGas(rp['file'], makeUTC(
+            rp['startDate']), rp['attribute'], rp['EPSG']) for rp in self.processedDataList['indGas']]
         fc = FuelConsumption(self.ds.fuelConsumption[0]['profileFile'])
         trans = Transport(fc, self.parameters)
         trans.setOutputShapefile(outShp, outEpsg, outFeatIds)
-        [trans.injectFuelConsumption(rp['file'], makeUTC(rp['startDate']), rp['EPSG']) for rp in self.processedDataList['transport']]
+        [trans.injectFuelConsumption(rp['file'], makeUTC(
+            rp['startDate']), rp['EPSG']) for rp in self.processedDataList['transport']]
         ds = None
         # Get daily factors
-        df = DailyFact(self.parameters.useUKholidays) # Use UK holidays
-        print('eight')
+        df = DailyFact(self.parameters.useUKholidays)  # Use UK holidays
+
         # Get area of each output feature, along with its identifier
         areas = (bldgEnergy.domGas.getOutputFeatureAreas())
-        print('nine')
+
         for tb in timeBins:
-            WH = QF(areas.index.tolist(), tb.to_pydatetime(), 1800, bldgEnergy, diurnalE, dailyE, pop, trans, diurnalT, hap, df,  props, self.parameters.heatOfCombustion)
+            WH = QF(areas.index.tolist(), tb.to_pydatetime(), 1800, bldgEnergy, diurnalE,
+                    dailyE, pop, trans, diurnalT, hap, df,  props, self.parameters.heatOfCombustion)
             # Write out the full time step to a file
-            WH.to_csv(os.path.join(self.modelOutputPath, tb.strftime(self.dateStructure)), index_label='featureId')
-        print('ten')
+            WH.to_csv(os.path.join(self.modelOutputPath, tb.strftime(
+                self.dateStructure)), index_label='featureId')
+
+        # multiprocessing won't work due to inability to pickle objects
+        # list_input_QF = [
+        #     (areas.index.tolist(), tb.to_pydatetime(), 1800, bldgEnergy, diurnalE,
+        #      dailyE, pop, trans, diurnalT, hap, df,  props, self.parameters.heatOfCombustion)
+        #     for tb in timeBins]
+        # list_path_save = [
+        #     os.path.join(self.modelOutputPath, tb.strftime(self.dateStructure))
+        #     for tb in timeBins]
+        # list_WH = pool.starmap(QF_save, zip(list_input_QF, list_path_save))
+
+
+
         # Write log files to disk for traceability
-        bldgEnergy.logger.writeFile(os.path.join(self.logPath, 'EnergyUseSpatial.txt'))
-        pop.logger.writeFile(os.path.join(self.logPath, 'PopulationSpatial.txt'))
-        trans.logger.writeFile(os.path.join(self.logPath, 'transportSpatial.txt'))
-        hap.logger.writeFile(os.path.join(self.logPath, 'humanActivityProfiles.txt'))
-        diurnalT.logger.writeFile(os.path.join(self.logPath, 'diurnalTransport.txt'))
+        bldgEnergy.logger.writeFile(os.path.join(
+            self.logPath, 'EnergyUseSpatial.txt'))
+        pop.logger.writeFile(os.path.join(
+            self.logPath, 'PopulationSpatial.txt'))
+        trans.logger.writeFile(os.path.join(
+            self.logPath, 'transportSpatial.txt'))
+        hap.logger.writeFile(os.path.join(
+            self.logPath, 'humanActivityProfiles.txt'))
+        diurnalT.logger.writeFile(os.path.join(
+            self.logPath, 'diurnalTransport.txt'))
         dailyE.logger.writeFile(os.path.join(self.logPath, 'dailyEnergy.txt'))
 
     def loadModelResults(self, path):
@@ -280,27 +358,31 @@ class Model(object):
         '''
         # Check model outputs are intact, and set if so
         if not os.path.exists(path):
-            raise Exception('Model output directory ' + str(path) + ' not found')
+            raise Exception('Model output directory ' +
+                            str(path) + ' not found')
 
         for sub in list(self.subFolders.values()):
             directory = os.path.join(path, sub)
             if not os.path.exists(directory):
-                raise Exception('Chosen model output folder ' + str(path) + ' did not contain enough subfolders to be genuine')
+                raise Exception('Chosen model output folder ' + str(path) +
+                                ' did not contain enough subfolders to be genuine')
 
         # If directory structure checks out, try populating the object
         self.setOutputDir(path)
-        self.setPreProcessedInputFolder(os.path.join(path, self.subFolders['disagg']))
+        self.setPreProcessedInputFolder(
+            os.path.join(path, self.subFolders['disagg']))
 
         # Don't populate the config or datasources fields: Only allow re-runs through an explicit method call
 
         # Scan folder for files matching the expected pattern
         files = os.listdir(self.modelOutputPath)
         tz = timezone('UTC')
-        self.fileList={}
+        self.fileList = {}
         for f in files:
             a = re.search(self.reg, f)
             if a is not None:
-                self.fileList[tz.localize(dt.strptime(f, self.dateStructure))] = os.path.join(self.modelOutputPath, f)
+                self.fileList[tz.localize(dt.strptime(f, self.dateStructure))] = os.path.join(
+                    self.modelOutputPath, f)
 
         self.fileList = pd.Series(self.fileList)
 
@@ -311,12 +393,13 @@ class Model(object):
         firstFile = pd.read_csv(self.fileList[0], header=0, index_col=0)
         self.outputAreas = list(firstFile.index)
         self.resultsAvailable = True
-        return {'outputPath':self.modelOutputPath,
-                'processedInputData':self.processedInputData,
-                'logPath':self.logPath,
-                'paramsFile':os.path.join(self.configPath,  'Parameters.nml'),
-                'dsFile':os.path.join(self.configPath, 'DataSources.nml')}
+        return {'outputPath': self.modelOutputPath,
+                'processedInputData': self.processedInputData,
+                'logPath': self.logPath,
+                'paramsFile': os.path.join(self.configPath,  'Parameters.nml'),
+                'dsFile': os.path.join(self.configPath, 'DataSources.nml')}
 
+    ## Try to uncomment 20190507
     def fetchResultsForLocation(self, id, startTime, endTime):
         '''
         Gets time series for feature ID between startTime and endTime for Total, Building, Metabolic and Transport QF

@@ -1,16 +1,14 @@
-from __future__ import print_function
-from builtins import str
-from builtins import map
-from builtins import range
-from builtins import object
-from ...Utilities import f90nml as nml
 import os
 from datetime import datetime as dt
+try:
+    import f90nml as nml
+except:
+    from ...Utilities import f90nml as nml
 try:
     import numpy as np
 except:
     pass
-# from string import upper, lower
+from .string_func import upper, lower
 
 # Validate "shapefile" as either numeric or a valid file location
 def validateInput(x):
@@ -28,7 +26,7 @@ def validFile(x):
     if not os.path.exists(x):
         raise ValueError('The diurnal input file ' + str(x) + ' was not found')
 
-class DataSources(object):
+class DataSources:
     ''' Loads the data sources namelist, conducts validation and structures inputs for use with data management routines
     '''
     def __init__(self, configFile):
@@ -90,13 +88,15 @@ class DataSources(object):
 
         # Loop over the spatial data sources to validate
         for subEntry in expectedKeys_spatial:
+            print(subEntry)
             content_orig = ds[subEntry]
-
             # Do string matching, so make it all upper case
-            content = {str.upper(k):content_orig[k] for k in list(content_orig.keys())}
+            content = {upper(k):content_orig[k] for k in list(content_orig.keys())}
 
             # Check it's all lists or no lists
+            # print('here', list(content.values()))
             # types = np.unique(list(map(type, list(content.values()))))
+            types = set(map(type, list(content.values())))
             # are all sub-entries present?
             expectedNames_spat = ['shapefiles', 'startDates', 'epsgCodes', 'attribToUse', 'featureIds']
 
@@ -131,8 +131,8 @@ class DataSources(object):
                                       'AADT_rigid',
                                       'AADT_artic']
 
-            expectedNames_spat = list(map(str.upper, expectedNames_spat))
-            missing = list(set(map(str.upper, expectedNames_spat)).difference(list(content.keys())))
+            expectedNames_spat = list(map(upper, expectedNames_spat))
+            missing = list(set(map(upper, expectedNames_spat)).difference(list(content.keys())))
             if len(missing) > 0:
                 raise ValueError('Entries missing from ' + subEntry + ' in namelist: ' + str(missing))
 
@@ -186,18 +186,18 @@ class DataSources(object):
                                       'speed_field':content['SPEED_FIELD'][i],
                                       'speed_multiplier':content['SPEED_MULTIPLIER'][i],
                                       'AADT_total':content['AADT_TOTAL'][i],
-                                      'AADT_diesel_car':content[str.upper('AADT_diesel_car')][i],
-                                      'AADT_petrol_car':content[str.upper('AADT_petrol_car')][i],
-                                      'AADT_total_car':content[str.upper('AADT_total_car')][i],
-                                      'AADT_diesel_LGV':content[str.upper('AADT_diesel_LGV')][i],
-                                      'AADT_petrol_LGV':content[str.upper('AADT_petrol_LGV')][i],
-                                      'AADT_total_LGV':content[str.upper('AADT_total_LGV')][i],
-                                      'AADT_motorcycle':content[str.upper('AADT_motorcycle')][i],
-                                      'AADT_taxi':content[str.upper('AADT_taxi')][i],
-                                      'AADT_bus':content[str.upper('AADT_bus')][i],
-                                      'AADT_coach':content[str.upper('AADT_coach')][i],
-                                      'AADT_rigid':content[str.upper('AADT_RIGID')][i],
-                                      'AADT_artic':content[str.upper('AADT_ARTIC')][i]}
+                                      'AADT_diesel_car':content[upper('AADT_diesel_car')][i],
+                                      'AADT_petrol_car':content[upper('AADT_petrol_car')][i],
+                                      'AADT_total_car':content[upper('AADT_total_car')][i],
+                                      'AADT_diesel_LGV':content[upper('AADT_diesel_LGV')][i],
+                                      'AADT_petrol_LGV':content[upper('AADT_petrol_LGV')][i],
+                                      'AADT_total_LGV':content[upper('AADT_total_LGV')][i],
+                                      'AADT_motorcycle':content[upper('AADT_motorcycle')][i],
+                                      'AADT_taxi':content[upper('AADT_taxi')][i],
+                                      'AADT_bus':content[upper('AADT_bus')][i],
+                                      'AADT_coach':content[upper('AADT_coach')][i],
+                                      'AADT_rigid':content[upper('AADT_RIGID')][i],
+                                      'AADT_artic':content[upper('AADT_ARTIC')][i]}
 
                 validate_transport(dataValues)
                 aadtByVehicle =       ['AADT_diesel_car',
@@ -217,7 +217,7 @@ class DataSources(object):
                 aadtFields = {}
                 for a in aadtByVehicle:
                     if dataValues[a] is not None:
-                        aadtFields[str.lower(a[5:])] = dataValues[a]
+                        aadtFields[lower(a[5:])] = dataValues[a]
                 mandatoryFields =  ['shapefile',
                                     'startDate',
                                     'epsgCode',
@@ -261,7 +261,7 @@ class DataSources(object):
 
         expectedKeys_temporal = list(destinations_temporal.keys())
         expectedNames_temporal = ['profileFiles']
-        missing = list(set(map(str.upper, expectedKeys_temporal)).difference(list(map(str.upper, list(ds.keys())))))
+        missing = list(set(map(upper, expectedKeys_temporal)).difference(list(map(upper, list(ds.keys())))))
 
         if len(missing) > 0:
             raise ValueError('Temporal entries missing from ' + str(configFile) + ' in namelist: ' + str(missing))
@@ -269,7 +269,7 @@ class DataSources(object):
         for entry in expectedKeys_temporal:
             content = ds[entry]
             # Validate sub-entries
-            missing = list(set(map(str.upper, expectedNames_temporal)).difference(list(map(str.upper, list(content.keys())))))
+            missing = list(set(map(upper, expectedNames_temporal)).difference(list(map(upper, list(content.keys())))))
             if len(missing) > 0:
                 raise ValueError('Entries missing from ' + entry + ' in namelist: ' + str(missing))
 
@@ -364,30 +364,18 @@ def validate_transport(inputDict):
                         raise Exception('Entry ' + other + ' in transportData section of data sources file must be an attribute name if ' + one + ' is not set')
 
 
-# if __name__=="__main__":
-#     a = DataSources('C:\Users\pn910202\.qgis2\python\plugins\GreaterQF\PythonQF2\GQFInputs\dataSources_working.nml')
-#     # fix_print_with_import
-#     print(a.resPop_spat)
-#     # fix_print_with_import
-#     print(a.outputAreas_spat)
-#     # fix_print_with_import
-#     print(a.transport_spat)
-#     # fix_print_with_import
-#     print(a.transport_spat[0]['AADT_fields'])
-#     # fix_print_with_import
-#     print(a.indGas_spat)
-#     # fix_print_with_import
-#     print(a.indElec_spat)
-#     # fix_print_with_import
-#     print(a.domGas_spat)
-#     # fix_print_with_import
-#     print(a.domElec_spat)
-#     # fix_print_with_import
-#     print(a.eco7_spat)
-#     # fix_print_with_import
-#     print(a.resPop_spat)
-#     # fix_print_with_import
-#     print(a.workPop_spat)
-#     # fix_print_with_import
-#     print(a.fuelConsumption)
+if __name__=="__main__":
+    a = DataSources('C:\\Users\pn910202\.qgis2\python\plugins\GreaterQF\PythonQF2\GQFInputs\dataSources_working.nml')
+    print(a.resPop_spat)
+    print(a.outputAreas_spat)
+    print(a.transport_spat)
+    print(a.transport_spat[0]['AADT_fields'])
+    print(a.indGas_spat)
+    print(a.indElec_spat)
+    print(a.domGas_spat)
+    print(a.domElec_spat)
+    print(a.eco7_spat)
+    print(a.resPop_spat)
+    print(a.workPop_spat)
+    print(a.fuelConsumption)
 

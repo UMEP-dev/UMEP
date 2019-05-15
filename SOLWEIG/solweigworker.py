@@ -7,7 +7,7 @@ import numpy as np
 import linecache
 import sys
 # from qgis.core import QgsFeature, QgsVectorFileWriter, QgsVectorDataProvider, QgsField, Qgis, QgsMessageLog
-from .SOLWEIGpython import Solweig_2018a_calc as so
+from .SOLWEIGpython import Solweig_2019a_calc as so
 # from SOLWEIGpython.clearnessindex_2013b import clearnessindex_2013b
 from ..Utilities.SEBESOLWEIGCommonFiles.clearnessindex_2013b import clearnessindex_2013b
 from osgeo.gdalconst import *
@@ -26,7 +26,7 @@ class Worker(QtCore.QObject):
 
     def __init__(self, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
                         svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
-                        vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, altitude,
+                        vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, Fcyl, altitude,
                         azimuth, zen, jday, usevegdem, onlyglobal, buildings, location,
                         psi, landcover, lcgrid, dectime, altmax, wallaspect,
                         wallheight, cyl, elvis, Ta, RH, radG, radD, radI, P, amaxvalue,
@@ -34,7 +34,7 @@ class Worker(QtCore.QObject):
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, dlg,
                         YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname, Ws, mbody,
-                        age, ht, activity, clo, sex, sensorheight):
+                        age, ht, activity, clo, sex, sensorheight, diffsh, ani):
 
         QtCore.QObject.__init__(self)
         self.killed = False
@@ -66,6 +66,7 @@ class Worker(QtCore.QObject):
         self.ewall = ewall
         self.Fside = Fside
         self.Fup = Fup
+        self.Fcyl = Fcyl
         self.altitude = altitude
         self.azimuth = azimuth
         self.zen = zen
@@ -134,6 +135,8 @@ class Worker(QtCore.QObject):
         self.clo = clo
         self.sex = sex
         self.sensorheight = sensorheight
+        self.ani = ani
+        self.diffsh = diffsh
 
 
     def run(self):
@@ -166,6 +169,7 @@ class Worker(QtCore.QObject):
             ewall = self.ewall
             Fside = self.Fside
             Fup = self.Fup
+            Fcyl = self.Fcyl
             altitude = self.altitude
             azimuth = self.azimuth
             zen = self.zen
@@ -233,9 +237,12 @@ class Worker(QtCore.QObject):
             clo = self.clo
             sex = self.sex
             sensorheight = self.sensorheight
+            ani = self.ani
+            diffsh = self.diffsh
 
             tmrtplot = np.zeros((rows, cols))
             TgOut1 = np.zeros((rows, cols))
+            #TgOut = np.zeros((rows, cols))
 
             # numformat = '%d %d %d %d %.5f ' + '%.2f ' * 28
 
@@ -248,35 +255,35 @@ class Worker(QtCore.QObject):
                 if self.landcover == 1:
                     if ((dectime[i] - np.floor(dectime[i]))) == 0 or (i == 0):
                         Twater = np.mean(Ta[jday[0] == np.floor(dectime[i])])
-
+                print(dectime[i])
                 # Nocturnal cloudfraction from Offerle et al. 2003
                 if (dectime[i] - np.floor(dectime[i])) == 0:
-                    # alt = altitude[i:altitude.__len__()]
-                    # alt2 = np.where(alt > 1)
-                    # rise = alt2[1][0]
                     daylines = np.where(np.floor(dectime) == dectime[i])
-                    alt = altitude[0][daylines]
-                    alt2 = np.where(alt > 1)
-                    rise = alt2[0][0]
-                    [_, CI, _, _, _] = clearnessindex_2013b(zen[0, i + rise + 1], jday[0, i + rise + 1],
-                                                            Ta[i + rise + 1],
-                                                            RH[i + rise + 1] / 100., radG[i + rise + 1], location,
-                                                            P[i + rise + 1])  # i+rise+1 to match matlab code. correct?
-                    if (CI > 1) or (CI == np.inf):
-                        CI = 1
+                    if daylines.__len__() > 1:
+                        alt = altitude[0][daylines]
+                        alt2 = np.where(alt > 1)
+                        rise = alt2[0][0]
+                        [_, CI, _, _, _] = clearnessindex_2013b(zen[0, i + rise + 1], jday[0, i + rise + 1],
+                                                                Ta[i + rise + 1],
+                                                                RH[i + rise + 1] / 100., radG[i + rise + 1], location,
+                                                                P[i + rise + 1])  # i+rise+1 to match matlab code. correct?
+                        if (CI > 1.) or (CI == np.inf):
+                            CI = 1.
+                    else:
+                        CI = 1.
 
                 Tmrt, Kdown, Kup, Ldown, Lup, Tg, ea, esky, I0, CI, shadow, firstdaytime, timestepdec, timeadd, \
                 Tgmap1, timeaddE, Tgmap1E, timeaddS, Tgmap1S, timeaddW, Tgmap1W, timeaddN, Tgmap1N, \
                 Keast, Ksouth, Kwest, Knorth, Least, Lsouth, Lwest, Lnorth, KsideI, TgOut1, TgOut, radIout, radDout \
-                    = so.Solweig_2018a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
+                    = so.Solweig_2019a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
                         svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
-                        vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, altitude[0][i],
+                        vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, Fcyl, altitude[0][i],
                         azimuth[0][i], zen[0][i], jday[0][i], usevegdem, onlyglobal, buildings, location,
                         psi[0][i], landcover, lcgrid, dectime[i], altmax[0][i], wallaspect,
                         wallheight, cyl, elvis, Ta[i], RH[i], radG[i], radD[i], radI[i], P[i], amaxvalue,
                         bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
-                        timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, TgOut1)
+                        timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, TgOut1, diffsh, ani)
 
                 tmrtplot = tmrtplot + Tmrt
 

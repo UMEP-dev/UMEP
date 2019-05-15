@@ -148,16 +148,15 @@ class time_displayer(QDialog, FORM_CLASS):
                     QgsProject.instance().addMapLayer(layer)
                     proportion = layer.extent().height() / layer.extent().width()
 
-
-                maxSize = 2000 # Max size of output image
-                if proportion > 1:
-                    hSize = maxSize / proportion
-                    vSize = maxSize
-                else:
-                    hSize = maxSize
-                    vSize = maxSize*proportion
-
                 # Images is no longer produced. Fredrik 20181129
+                # maxSize = 2000 # Max size of output image
+                # if proportion > 1:
+                #     hSize = maxSize / proportion
+                #     vSize = maxSize
+                # else:
+                #     hSize = maxSize
+                #     vSize = maxSize*proportion
+                #
                 # create image in proportion with layer
                 # img = QImage(QSize(hSize, vSize), QImage.Format_ARGB32_Premultiplied)
                 #

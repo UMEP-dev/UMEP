@@ -2,10 +2,11 @@ from builtins import range
 from builtins import object
 __author__ = 'Fredrik Lindberg'
 
-# This class will be used to plot output result from Suews
+# This module will be used to plot output result from Suews
 import numpy as np
+import datetime
 try:
-    import matplotlib.pylab as plt
+    import matplotlib.pyplot as plt
     import matplotlib.dates as dt
     nomatplot = 0
 except ImportError:
@@ -37,6 +38,14 @@ def make_dectime(dataout):
 
     return dectime
 
+def make_datetime(dataout):
+    datenum_yy = []
+    for i in range(0, dataout.shape[0]): # making date number
+        datenum_yy.append(dt.datetime.datetime(int(dataout[i, 0]), 1, 1) + datetime.timedelta(days=dataout[i, 1] - 1, hours=dataout[i, 2],minutes=dataout[i, 3]))
+
+    return datenum_yy
+
+
 class SuewsPlotting(object):
     def __init__(self):
         pass
@@ -45,8 +54,11 @@ class SuewsPlotting(object):
 
         writeoption = dataout.shape[1]
 
-        dectime = make_dectime(dataout)
-        dates = dt.num2date(dectime)
+        # dectime = make_dectime(dataout)
+        dates = make_datetime(dataout)
+        # dates = dt.num2date(dectime)
+        # dates = dataout[:, 4]
+        # print(dates)
 
         plt.figure(1, figsize=(15, 7), facecolor='white')
         ax1 = plt.subplot(3, 1, 1)
@@ -93,13 +105,16 @@ class SuewsPlotting(object):
         ax4 = ax3.twinx()
         ax3.plot(dates, lai, 'g-', label='$LAI$')
         ax3.legend(bbox_to_anchor=(1.16, 0.5))
-        ax4.bar(dectime, datain[:, 13], width=0.0, edgecolor='b', label='$Precip$')
-        ax4.plot(dectime, smd, 'k', label='$SMD$')
+        # ax4.bar(dectime, datain[:, 13], width=0.0, edgecolor='b', label='$Precip$')
+        # ax4.plot(dectime, smd, 'k', label='$SMD$')
+        ax4.bar(dates, datain[:, 13], width=0.0, edgecolor='b', label='$Precip$')
+        ax4.plot(dates, smd, 'k', label='$SMD$')
         ax4.set_ylim([0, max(max(datain[:, 13]), max(smd))])
         ax3.set_xlabel('Time', fontsize=14)
         ax3.set_ylabel('$LAI$', color='g', fontsize=14)
         ax4.set_ylabel('$mm$', color='b', fontsize=14)
-        ax3.set_xlim([min(dectime), max(dectime)])
+        # ax3.set_xlim([min(dectime), max(dectime)])
+        ax3.set_xlim([min(dates), max(dates)])
         pos1 = ax3.get_position()
         pos2 = [pos1.x0 - 0.07, pos1.y0 - 0.02, pos1.width * 1.05, pos1.height * 1.1]
         ax3.set_position(pos2)
@@ -160,7 +175,7 @@ class SuewsPlotting(object):
         ax1.plot(pltmonth, Qstar, 'go-', label='$Q*$')
         ax1.plot(pltmonth, -Qh, 'ro-', label='$Q_H$')
         ax1.plot(pltmonth, -Qe, 'bo-', label='$Q_E$')
-        ax1.plot(pltmonth, -Qs, 'ko-', label='$\Delta Q_S$')
+        ax1.plot(pltmonth, -Qs, 'ko-', label=r'$\Delta Q_S$')
         ax1.plot(pltmonth, Qf, 'co-', label='$Q_F$')
         ax1.plot(pltmonth, Qf * 0, 'k')
         ax1.set_xlim([1, 12])

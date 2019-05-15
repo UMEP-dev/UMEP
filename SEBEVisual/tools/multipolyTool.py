@@ -4,10 +4,10 @@ Created on 10 apr 2014
 @author: nke
 '''
 # Import the PyQt and QGIS libraries
-from PyQt4.QtCore import pyqtSignal, Qt
-from PyQt4.QtGui import QColor
-from qgis.core import *
-from qgis.gui import *
+from qgis.PyQt.QtCore import pyqtSignal, Qt
+from qgis.PyQt.QtGui import QColor
+from qgis.core import QgsFeature, QgsGeometry, QgsPointXY
+from qgis.gui import QgsMapTool, QgsRubberBand
 
 
 class MultiPolyTool(QgsMapTool):
@@ -42,8 +42,8 @@ class MultiPolyTool(QgsMapTool):
             points1 = [self.latestPoint, point]
             points2 = [point, self.pointList[0]]
             
-            self.rubberband1.setToGeometry(QgsGeometry.fromPolyline(points1),None)
-            self.rubberband2.setToGeometry(QgsGeometry.fromPolyline(points2),None)
+            self.rubberband1.setToGeometry(QgsGeometry.fromPolylineXY(points1),None)
+            self.rubberband2.setToGeometry(QgsGeometry.fromPolylineXY(points2),None)
 
     def canvasPressEvent(self, e):
         if e.button() == Qt.LeftButton:
@@ -54,16 +54,16 @@ class MultiPolyTool(QgsMapTool):
                 rubberband = QgsRubberBand(self.canvas, False)
                 rubberband.setColor(QColor(Qt.red))
                 newPoint = self.toMapCoordinates(e.pos())
-                points = [QgsPoint(self.latestPoint.x(),self.latestPoint.y()),QgsPoint(newPoint.x(),newPoint.y())]
-                self.pointList.append(QgsPoint(newPoint.x(),newPoint.y()))
-                rubberband.setToGeometry(QgsGeometry.fromPolyline(points), None)
+                points = [QgsPointXY(self.latestPoint.x(),self.latestPoint.y()),QgsPointXY(newPoint.x(),newPoint.y())]
+                self.pointList.append(QgsPointXY(newPoint.x(),newPoint.y()))
+                rubberband.setToGeometry(QgsGeometry.fromPolylineXY(points), None)
                 self.rubberbandList.append(rubberband)
                 self.latestPoint = newPoint
         elif e.button() == Qt.RightButton:
             self.Done = True
-            self.poly.setGeometry(QgsGeometry.fromPolygon([self.pointList]))
+            self.poly.setGeometry(QgsGeometry.fromPolygonXY([self.pointList]))  # was fromPolygon() before
             self.polyComplete.emit(self.poly)
-            
+
             for rubberband in self.rubberbandList:
                 rubberband.reset()
             self.rubberband1.reset()

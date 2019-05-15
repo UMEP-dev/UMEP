@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from builtins import map
-from builtins import str
-from builtins import object
 # Object that stores and retrieves diurnal cycles of road traffic for different seasons and times of day for GreaterQF
 # An energy profile is a week-long template of relative energy use that changes only with season
 
@@ -16,7 +12,7 @@ import pytz
 from .DataManagement.LookupLogger import LookupLogger
 from .DataManagement.TemporalProfileSampler import TemporalProfileSampler
 
-class TransportProfiles(object):
+class TransportProfiles:
     def __init__(self, city, use_uk_holidays, customHolidays = [], logger=LookupLogger()):
         ''' Instantiate
         :param city: String specifying the city being modelled (must be in timezone format e.g. Europe/London)
@@ -112,7 +108,8 @@ class TransportProfiles(object):
         if len(list(dl.keys())) != 8:
             raise ValueError('There must be 8 columns in ' + file)
 
-        dl.columns = list(map(str.lower,  dl.columns.tolist()))
+        # dl.columns = list(map(string.lower,  dl.columns.tolist()))
+        dl.columns = dl.columns.str.lower()
         expectedHeadings = ['motorcycles', 'taxis', 'cars', 'buses', 'lgvs', 'rigids', 'artics']
         matches = list(set(list(dl.keys())[1:]).intersection(expectedHeadings))
         if len(matches) != len(list(dl.keys()))-1:
@@ -152,9 +149,10 @@ class TransportProfiles(object):
 
         for transportType in expectedHeadings:
             # Normalize each week series (over the whole week) so it's a weighting factor
-            dl[transportType][firstDataRow:] = dl[transportType][firstDataRow:].astype('float')/dl[transportType][firstDataRow:].astype('float').mean()
+            # dl.loc[firstDataRow:,transportType] = dl.loc[firstDataRow:,transportType].astype('float')/dl.loc[firstDataRow:,transportType].astype('float').mean()
+            dl.loc[firstDataRow:,transportType] = dl.loc[firstDataRow:,transportType].astype('float')/dl.loc[firstDataRow:,transportType].astype('float').mean()
             # Assign to the relevant element of this object
             subObj = getattr(self, transportType.lower())
             if subObj is None:
                 raise Exception('Programming error: The wrong transport type has been referenced')
-            subObj.addPeriod(startDate=sd, endDate=ed, dataSeries=dl[transportType][firstDataRow:])
+            subObj.addPeriod(startDate=sd, endDate=ed, dataSeries=dl.loc[firstDataRow:,transportType])
