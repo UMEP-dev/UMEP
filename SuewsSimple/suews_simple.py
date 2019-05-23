@@ -44,7 +44,7 @@ import sys
 import urllib
 import zipfile
 # from .suewssimpleworker import Worker
-from ..suewsmodel import suewstask
+# from ..suewsmodel import suewstask
 
 try:
     import matplotlib.pyplot as plt

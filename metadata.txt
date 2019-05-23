@@ -11,7 +11,7 @@ name=UMEP
 qgisMinimumVersion=3.0
 description=Urban Multi-scale Environmental Predictor
 
-version=3.10
+version=3.10.1
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg
 email=fredrikl@gvc.gu.se
 
@@ -28,6 +28,7 @@ repository=https://bitbucket.org/fredrik_ucg/umep
 
 # Uncomment the following line and add your changelog:
 changelog=
+   3.10.1: Response to issue #93.
    3.10  : LONG TERM RELEASE. GQf now operational. Response to issue #92.
    3.9.2 : Bugfix in DSMGEnerator. Response to issue #85 and #91. New SVFCalculator method. SOLWEIG v2019a. SUEWS v2018c.
    3.9.1 : Bugfix in FootPrintModel plugin

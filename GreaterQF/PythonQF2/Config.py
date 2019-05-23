@@ -2,7 +2,10 @@ from datetime import date as dtd
 import datetime as dt
 # import f90nml as nml
 # import f90nml as nml
-import f90nml as nml
+try:
+    import f90nml as nml
+except:
+    from ...Utilities import f90nml as nml
 
 # Enter date as YYYY,MM,DD
 #StartDate = dt.date(raw_input("Enter Date YYYY/MM/DD:"))
