@@ -123,25 +123,25 @@ class EnergyUseData:
 
         if 'ig' in energyType:
             ig = self.indGas.getTableForDate(requestDate)
-            print('ig',ig.values[0, 0])
+            #print('ig',ig.values[0, 0])
             types.append(ig)
             typeLabels.append('IndGas')
 
         if 'ie' in energyType:
             ie = self.indElec.getTableForDate(requestDate)
-            print('ie', ie.values[0, 0])
+            #print('ie', ie.values[0, 0])
             types.append(ie)
             typeLabels.append('IndElec')
 
         if 'dg' in energyType:
             dg = self.domGas.getTableForDate(requestDate)
-            print('dg', dg.values[0, 0])
+            #print('dg', dg.values[0, 0])
             types.append(dg)
             typeLabels.append('DomGas')
 
         if 'e7' in energyType:
             e7 = self.economy7Elec.getTableForDate(requestDate)
-            print('e7', e7.values[0, 0])
+            #print('e7', e7.values[0, 0])
             types.append(e7)
             typeLabels.append('Eco7')
 

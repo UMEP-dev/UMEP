@@ -88,7 +88,7 @@ class DataSources:
 
         # Loop over the spatial data sources to validate
         for subEntry in expectedKeys_spatial:
-            print(subEntry)
+            #print(subEntry)
             content_orig = ds[subEntry]
             # Do string matching, so make it all upper case
             content = {upper(k):content_orig[k] for k in list(content_orig.keys())}

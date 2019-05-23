@@ -1,5 +1,5 @@
 from .spatialHelpers import *
-from qgis.core import QgsField, QgsVectorLayer, QgsSpatialIndex, QgsMessageLog, QgsCoordinateReferenceSystem, QgsCoordinateTransform
+from qgis.core import QgsField
 import processing
 
 from qgis.PyQt.QtCore import QVariant, QSettings
@@ -11,8 +11,8 @@ except:
 import os
 from datetime import datetime as dt
 import tempfile
-from LookupLogger import LookupLogger
-from SpatialTemporalResampler import SpatialTemporalResampler
+from .LookupLogger import LookupLogger
+from .SpatialTemporalResampler import SpatialTemporalResampler
 
 class SpatialTemporalResampler_LUCY(SpatialTemporalResampler):
     # Class that takes spatial data (QgsVectorLayers), associates them with a time and

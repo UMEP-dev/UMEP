@@ -26,7 +26,7 @@ from builtins import object
 from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt
 from qgis.PyQt.QtWidgets import QAction, QMessageBox, QFileDialog
 from qgis.PyQt.QtGui import QIcon
-from qgis.gui import QgsMessageBar
+from qgis.core import Qgis
 from .greater_qf_dialog import GreaterQFDialog
 from datetime import timedelta
 from datetime import datetime as dt
@@ -178,9 +178,20 @@ class GreaterQF(object):
         Disaggregates model inputs to files on hard drive (saves user having to repeat over and over)
         :return: Dict containing information about each disaggregated file, for use by model
         '''
-        processed = self.model.processInputData()
-        self.dlg.txtProcessedDataPath.setText(processed) # Update the UI to show path being used
-        self.model.setPreProcessedInputFolder(processed)
+
+        self.dlg.cmdPrepare.setEnabled(False)
+        if QMessageBox.question(self.dlg, "Prepare input data",
+                                "QGIS will freeze for a moment while preparing input. Du you want to continue?",
+                                QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
+            run = 1
+        else:
+            QMessageBox.critical(self.dlg, "Prepare input data", "No input data prepared. Model cannot be executed")
+            run = 0
+
+        if run == 1:
+            processed = self.model.processInputData()
+            self.dlg.txtProcessedDataPath.setText(processed)  # Update the UI to show path being used
+            self.model.setPreProcessedInputFolder(processed)
 
     def help(self):
         url = "https://umep-docs.readthedocs.io/en/latest/processor/Urban%20Energy%20Balance%20GQ.html"
@@ -404,18 +415,18 @@ class GreaterQF(object):
         self.dlg.cmdRunCancel.setEnabled(False)
         self.dlg.pushButtonClose.setEnabled(False)
         # RUN MODEL HERE
-        self.model.run() #TODO Moved it outside to find error
-        # try:
-        #     self.model.run()
-        #     self.dlg.progressBar.setValue(100)
-        #     self.iface.messageBar().pushMessage("GQF", "Model run complete. Click 'visualise' to view output",
-        #                                     level=QgsMessageBar.INFO)
-        #     # Swap the "load" button to a "Clear" button
-        #     self.dlg.cmdLoadResults.clicked.disconnect()
-        #     self.dlg.cmdLoadResults.clicked.connect(self.reset, Qt.UniqueConnection)
-        #     self.dlg.cmdLoadResults.setText('Clear data')
-        # except Exception as e:
-        #     QMessageBox.critical(None, 'Error running GQF', str(e))
+        #self.model.run() #TODO Moved it outside to find error
+        try:
+            self.model.run()
+            self.dlg.progressBar.setValue(100)
+            self.iface.messageBar().pushMessage("GQF", "Model run complete. Click 'visualise' to view output",
+                                            level=Qgis.Info)
+            # Swap the "load" button to a "Clear" button
+            self.dlg.cmdLoadResults.clicked.disconnect()
+            self.dlg.cmdLoadResults.clicked.connect(self.reset, Qt.UniqueConnection)
+            self.dlg.cmdLoadResults.setText('Clear data')
+        except Exception as e:
+            QMessageBox.critical(None, 'Error running GQF', str(e))
 
         self.dlg.cmdRunCancel.setEnabled(True)
         self.dlg.pushButtonClose.setEnabled(True)

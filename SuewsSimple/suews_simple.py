@@ -30,7 +30,7 @@ from builtins import object
 from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QThread
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import Qgis, QgsApplication, QgsTask, QgsMessageLog
+from qgis.core import Qgis
 from .suews_simple_dialog import SuewsSimpleDialog
 from ..suewsmodel import Suews_wrapper_v2018c
 from ..ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint

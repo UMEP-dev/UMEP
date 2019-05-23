@@ -251,8 +251,8 @@ class Model():
         except:
             # UMEP scenario
             timeBins = pd.date_range(
-                startDates[0] + timedelta(seconds=1800),
-                endDates[0] + timedelta(seconds=1800),
+                pd.to_datetime(startDates[0]) + timedelta(seconds=1800),
+                pd.to_datetime(endDates[0]) + timedelta(seconds=1800),
                 tz='UTC',
                 freq='30Min')
 

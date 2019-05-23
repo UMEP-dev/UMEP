@@ -29,7 +29,7 @@ class Config:
     def checkInput(self, inputDict):
         matchedNames = set(inputDict.keys()).intersection(self.expected_names)
         missingNames = set(self.expected_names).difference(matchedNames)
-        print((self.dt_start, self.dt_end))
+        #print((self.dt_start, self.dt_end))
         if len(missingNames) > 0:
             raise ValueError(
                 'Required entries missing from config file. This should have ' + str(missingNames))
@@ -45,7 +45,7 @@ class Config:
         # self.dt_start = configDict['start_dates'] # Assume already datetime objects
         # self.dt_end = configDict['end_dates']
         # Don't assume already datetime objects
-        print(configDict['start_dates'][0])
+        #print(configDict['start_dates'][0])
         self.dt_start = configDict['start_dates']
         self.dt_end = configDict['end_dates']
         # self.dt_start = dt.datetime.strptime(configDict['start_dates'][0], '%Y-%m-%d')
