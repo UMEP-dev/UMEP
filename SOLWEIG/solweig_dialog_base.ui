@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1121</width>
-    <height>792</height>
+    <height>816</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -670,15 +670,15 @@ p, li { white-space: pre-wrap; }
           <property name="toolTip">
            <string>Settings used if no meteorological dataset is used.</string>
           </property>
+          <property name="displayFormat">
+           <string>HH:mm</string>
+          </property>
           <property name="time">
            <time>
             <hour>12</hour>
             <minute>30</minute>
             <second>0</second>
            </time>
-          </property>
-          <property name="displayFormat">
-           <string>HH:mm</string>
           </property>
          </widget>
         </item>
@@ -1367,6 +1367,9 @@ p, li { white-space: pre-wrap; }
           <height>30</height>
          </size>
         </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The Canopy DSM should be given in meters above ground level. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>
         </property>
@@ -1380,6 +1383,9 @@ p, li { white-space: pre-wrap; }
           <width>175</width>
           <height>30</height>
          </size>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The wall height grid should be given in meters above ground and can be generated with the Wall height and Aspect tool. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>
@@ -1396,6 +1402,9 @@ p, li { white-space: pre-wrap; }
           <width>175</width>
           <height>30</height>
          </size>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The Trunk zone DSM should be references to meters above ground level. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>
@@ -1414,6 +1423,9 @@ p, li { white-space: pre-wrap; }
           <height>30</height>
          </size>
         </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The DEM should be given in meters above ground level. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>
         </property>
@@ -1431,6 +1443,9 @@ p, li { white-space: pre-wrap; }
           <height>30</height>
          </size>
         </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The default land cover grid can include 5 classes (buildings, paved, grass, bare soil, water) and should represent ground cover i.e. material on ground surface (under vegetation).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>
         </property>
@@ -1444,6 +1459,9 @@ p, li { white-space: pre-wrap; }
           <width>175</width>
           <height>30</height>
          </size>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The wall aspect grid should be given in degrees and can be generated with the Wall height and Aspect tool. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>
@@ -1717,7 +1735,7 @@ p, li { white-space: pre-wrap; }
          <bool>true</bool>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tick this in if you want to save your building grid that is generated (GeoTIFF).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tick this in if you want treat the diffuse shortwave sky as anisotrophic.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>Use anisotropic model for diffuse radiation (Perez et al. 1993)</string>
@@ -1731,6 +1749,9 @@ p, li { white-space: pre-wrap; }
           <width>175</width>
           <height>30</height>
          </size>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The building and ground DSM should be given in  meters above sea level. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>
@@ -1800,7 +1821,7 @@ p, li { white-space: pre-wrap; }
            <bool>false</bool>
           </property>
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The SOLWEIG model make use of SVFs to calculate T&lt;span style=&quot; vertical-align:sub;&quot;&gt;mrt&lt;/span&gt;. The zip-file needed can be created with the SkyViewFactor calculator found in the UMEP Pre-processor. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;These shadow maps can be generated with the SVFCalculator (*.npz). &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Select</string>

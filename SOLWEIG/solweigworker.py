@@ -255,7 +255,7 @@ class Worker(QtCore.QObject):
                 if self.landcover == 1:
                     if ((dectime[i] - np.floor(dectime[i]))) == 0 or (i == 0):
                         Twater = np.mean(Ta[jday[0] == np.floor(dectime[i])])
-                print(dectime[i])
+                # print(dectime[i])
                 # Nocturnal cloudfraction from Offerle et al. 2003
                 if (dectime[i] - np.floor(dectime[i])) == 0:
                     daylines = np.where(np.floor(dectime) == dectime[i])
@@ -329,7 +329,7 @@ class Worker(QtCore.QObject):
                         poi_save[0, 30] = svf[int(poisxy[k, 2]), int(poisxy[k, 1])]
                         poi_save[0, 31] = svfbuveg[int(poisxy[k, 2]), int(poisxy[k, 1])]
                         poi_save[0, 32] = KsideI[int(poisxy[k, 2]), int(poisxy[k, 1])]
-                        # Recalculating wind speed based on pwerlaw
+                        # Recalculating wind speed based on powerlaw
                         WsPET = (1.1 / sensorheight) ** 0.2 * Ws[i]
                         WsUTCI = (10. / sensorheight) ** 0.2 * Ws[i]
                         resultPET = p._PET(Ta[i], RH[i], Tmrt[int(poisxy[k, 2]), int(poisxy[k, 1])], WsPET,
@@ -372,7 +372,6 @@ class Worker(QtCore.QObject):
                     self.saveraster(gdal_dsm, folderPath[0] + '/Shadow_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
                                     + '_' + XH + str(int(hours[i])) + XM + str(int(minu[i])) + w + '.tif', shadow)
 
-            tmrtplot = tmrtplot / Ta.__len__()
             solweigresult = {'tmrtplot': tmrtplot, 'altitude': altitude}
 
             if self.killed is False:

@@ -429,13 +429,14 @@ class UMEP(object):
         sg.run()
 
     def WA(self):
+        QMessageBox.critical(self.dlg, "Plugin not functional",
+                             "This tool is currenly not operational."
+                             "See issue #96 in our code repository (https://bitbucket.org/fredrik_ucg/umep/issues) for more info.")
+        return
         sg = WATCHData(self.iface)
         sg.run()
 
     def GF(self):
-        # QMessageBox.critical(self.dlg, "Plugin blocker",
-        #                      "This tool is not yet ported to QGIS3. Work still in progress.")
-        # return
         sg = GreaterQF(self.iface)
         sg.run()
 
@@ -472,9 +473,6 @@ class UMEP(object):
         sg.run()
 
     def LF(self):
-        # QMessageBox.critical(self.dlg, "Plugin blocker",
-        #                      "This tool is not yet ported to QGIS3. Work still in progress.")
-        # return
         sg = LQF(self.iface)
         # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)  #used for debugging
         sg.run()

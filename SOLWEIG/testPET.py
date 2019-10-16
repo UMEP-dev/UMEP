@@ -15,4 +15,4 @@ clo = 0.9
 
 # result = p._PET(ta,RH,tmrt,v,mbody,age,ht,activity,clo,sex)
 result = utci.utci_calculator(ta, RH, tmrt, v)
-print(result)
+# print(result)

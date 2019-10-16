@@ -138,9 +138,9 @@ def Perez_v3(zen, azimuth, radD, radI, jday, patchchoice):
         # m_a=0;m_b=0;m_c=0;m_d=0;m_e=0;
         PerezBrightness = 0
     if altitude < 0:
-        print("Airmass")
-        print(AirMass)
-        print(PerezBrightness)
+        #print("Airmass")
+        #print(AirMass)
+        #print(PerezBrightness)
     # sky clearness bins
     if PerezClearness < 1.065:
         intClearness = 0

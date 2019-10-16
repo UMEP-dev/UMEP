@@ -121,8 +121,6 @@ def Solweig_2019a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, s
 
         # Shadow  images
         if usevegdem == 1:
-            # print str(vegdem)
-            # print str(vegdem2)
             vegsh, sh, _, wallsh, wallsun, wallshve, _, facesun = shadowingfunction_wallheight_23(dsm, vegdem, vegdem2,
                                         azimuth, altitude, scale, amaxvalue, bush, walls, dirwalls * np.pi / 180.)
             shadow = sh - (1 - vegsh) * (1 - psi)
@@ -130,8 +128,6 @@ def Solweig_2019a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, s
             sh, wallsh, wallsun, facesh, facesun = shadowingfunction_wallheight_13(dsm, azimuth, altitude, scale,
                                                                                    walls, dirwalls * np.pi / 180.)
             shadow = sh
-
-#            shadow[50,50] = 1
 
         # # # Surface temperature parameterisation during daytime # # # #
         # new using max sun alt.instead of  dfm

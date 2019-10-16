@@ -312,7 +312,7 @@ class SolweigAnalyzer(object):
 
         dates = []
         for i in range(0, data1.shape[0]):  # making date number
-            dates.append(dt.datetime.datetime(int(data1[i, 0]), 1, 1) + datetime.timedelta(days=data1[i, 1], hours=data1[i, 2], minutes=data1[i, 3]))
+            dates.append(dt.datetime.datetime(int(data1[i, 0]), 1, 1) + datetime.timedelta(days=data1[i, 1] - 1, hours=data1[i, 2], minutes=data1[i, 3]))
 
         # datenum_yy = np.zeros(data1.shape[0])
         # for i in range(0, data1.shape[0]):  # making date number
@@ -321,7 +321,7 @@ class SolweigAnalyzer(object):
         # dectime = datenum_yy + data1[:, 4]
         #
         # dates = dt.num2date(dectime)
-        print(dates)
+        # print(dates)
 
         if not self.dlg.checkboxUsePOI.isChecked():
             # One variable

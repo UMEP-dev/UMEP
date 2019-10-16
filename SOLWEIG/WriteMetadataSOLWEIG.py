@@ -12,7 +12,7 @@ def writeRunInfo(folderPath, filepath_dsm, gdal_dsm, usevegdem, filePath_cdsm, t
         file.write('This file provides run settings for the SOLWEIG run initiated at: '
                    + strftime("%a, %d %b %Y %H:%M:%S"))
         file.write('\n')
-        file.write('Version: ' + 'SOLWEIG v2015a')
+        file.write('Version: ' + 'SOLWEIG v2019a')
         file.write('\n')
         file.write('\n')
         file.write('SURFACE DATA')
