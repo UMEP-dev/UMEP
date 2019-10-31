@@ -46,6 +46,7 @@ from ..suewsmodel import suewsplotting
 import sys
 import subprocess
 import datetime
+import shutil
 
 try:
     import matplotlib.pylab as plt
@@ -242,6 +243,7 @@ class SUEWSAnalyzer(object):
 
             tstep = nml['runcontrol']['tstep']
             self.tstep = int(float(tstep) / 60)
+            writeoutoption = nml['runcontrol']['writeoutoption']
 
             mm = 0
             while mm < 60:
@@ -285,7 +287,7 @@ class SUEWSAnalyzer(object):
             f.close()
             self.idgrid = gridcodemetmat[1:, :]
 
-            dataunit = self.plugin_dir + '/SUEWS_OutputFormatOption1.txt'  # File moved to plugin directory
+            dataunit = self.plugin_dir + '/SUEWS_OutputFormatOption' + str(int(writeoutoption)) + '.txt'  # File moved to plugin directory
             f = open(dataunit)
             lin = f.readlines()
             self.lineunit = lin[3].split(";")
@@ -570,6 +572,12 @@ class SUEWSAnalyzer(object):
                 return
             else:
                 filename = self.dlg.textOutput.text()
+
+            if os.path.isfile(self.plugin_dir + '/tempgrid.tif'): # response to issue 103
+                try:
+                    shutil.rmtree(self.plugin_dir + '/tempgrid.tif')
+                except OSError:
+                    os.remove(self.plugin_dir + '/tempgrid.tif')
 
             # Check OS and dep
             if sys.platform == 'darwin':

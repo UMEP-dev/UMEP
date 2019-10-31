@@ -372,6 +372,7 @@ class Worker(QtCore.QObject):
                     self.saveraster(gdal_dsm, folderPath[0] + '/Shadow_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
                                     + '_' + XH + str(int(hours[i])) + XM + str(int(minu[i])) + w + '.tif', shadow)
 
+            tmrtplot = tmrtplot / Ta.__len__()  # fix average Tmrt instead of sum, 20191022
             solweigresult = {'tmrtplot': tmrtplot, 'altitude': altitude}
 
             if self.killed is False:
