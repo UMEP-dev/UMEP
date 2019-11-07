@@ -10,7 +10,7 @@ from qgis.core import *  # QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsR
 import traceback
 from ..Utilities.landCoverFractions_v1 import *
 import numpy as np
-from osgeo import gdal
+from osgeo import gdal, ogr
 import subprocess
 import sys
 import linecache
