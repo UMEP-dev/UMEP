@@ -1,9 +1,11 @@
-from builtins import range
-from ..Utilities import shadowingfunctions as shadow
-from ..Utilities.SEBESOLWEIGCommonFiles import sun_position as sp
 import datetime as dt
+from builtins import range
+
+from ..Utilities import shadowingfunctions as shadow
 from ..Utilities.misc import *
-from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_23 import shadowingfunction_wallheight_23
+from ..Utilities.SEBESOLWEIGCommonFiles import sun_position as sp
+from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_23 import \
+    shadowingfunction_wallheight_23
 
 
 def dailyshading(dsm, vegdsm, vegdsm2, scale, lonlat, sizex, sizey, tv, UTC, usevegdem, timeInterval, onetime, dlg, folder, gdal_data, trans, dst):
@@ -94,23 +96,23 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lonlat, sizex, sizey, tv, UTC, use
                 shtot = shtot + sh
 
             else:
-                vegsh, sh, _, wallsh, wallsun, wallshve, _, facesun = shadowingfunction_wallheight_23(dsm, vegdem,
-                                                                                                      vegdem2,
-                                                                                                      azi[i], alt[i],
-                                                                                                      scale, amaxvalue,
-                                                                                                      bush, walls,
-                                                                                                      dirwalls * np.pi / 180.)
+                # vegsh, sh, _, wallsh, wallsun, wallshve, _, facesun = shadowingfunction_wallheight_23(dsm, vegdem,
+                                                                                                    #   vegdem2,
+                                                                                                    #   azi[i], alt[i],
+                                                                                                    #   scale, amaxvalue,
+                                                                                                    # #   bush, walls,
+                                                                                                    #   dirwalls * np.pi / 180.)
 
-                # shadowresult = shadow.shadowingfunction_20(dsm, vegdem, vegdem2, azi[i], alt[i], scale, amaxvalue,
-                #                                            bush, dlg, 0)
-                # vegsh = shadowresult["vegsh"]
-                # sh = shadowresult["sh"]
+                shadowresult = shadow.shadowingfunction_20(dsm, vegdem, vegdem2, azi[i], alt[i], scale, amaxvalue,
+                                                           bush, dlg, 0)
+                vegsh = shadowresult["vegsh"]
+                sh = shadowresult["sh"]
                 sh=sh-(1-vegsh)*(1-psi)
                 vegshtot = vegshtot + sh
 
             if onetime == 0:
                 timestr = time_vector.strftime("%Y%m%d_%H%M")
-                filename = folder + '/shadow_' + timestr + '_LST.tif'
+                filename = folder + '/Shadow_' + timestr + '_LST.tif'
                 saveraster(gdal_data, filename, sh)
 
             index += 1

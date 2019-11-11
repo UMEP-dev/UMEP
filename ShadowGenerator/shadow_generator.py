@@ -382,7 +382,7 @@ class ShadowGenerator(object):
                 savestr = '/shadow_fraction_on'
             else:
                 timestr = time_vector.strftime("%Y%m%d_%H%M")
-                savestr = '/shadow_at_'
+                savestr = '/Shadow_at_'
 
         filename = self.folderPath[0] + savestr + timestr + '_LST.tif'
 
