@@ -37,7 +37,7 @@ import sys
 import webbrowser
 import urllib.request, urllib.parse, urllib.error
 from ..Utilities import f90nml
-from ..suewsmodel import Suews_wrapper_v2018c
+from ..suewsmodel import suews_wrapper
 import zipfile
 
 class SUEWS(object):

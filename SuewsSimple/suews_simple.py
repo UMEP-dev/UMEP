@@ -32,7 +32,7 @@ from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 from qgis.PyQt.QtGui import QIcon
 from qgis.core import Qgis
 from .suews_simple_dialog import SuewsSimpleDialog
-from ..suewsmodel import Suews_wrapper_v2018c
+from ..suewsmodel import suews_wrapper
 from ..ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
 from ..LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
 from ..Utilities import f90nml
