@@ -1,7 +1,7 @@
-# This file contains metadata for your plugin. Since 
-# version 2.0 of QGIS this is the proper way to supply 
-# information about a plugin. The old method of 
-# embedding metadata in __init__.py will 
+# This file contains metadata for your plugin. Since
+# version 2.0 of QGIS this is the proper way to supply
+# information about a plugin. The old method of
+# embedding metadata in __init__.py will
 # is no longer supported since version 2.0.
 
 # This file should be included when you package your plugin.# Mandatory items:
@@ -11,14 +11,14 @@ name=UMEP
 qgisMinimumVersion=3.0
 description=Urban Multi-scale Environmental Predictor
 
-version=3.10.7
+version=3.10.8
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg
 email=fredrikl@gvc.gu.se
 
 about=UMEP is an extensive plugin designed for urban climate in general and climate sensitive planning applications in particular. The plugin consist of a pre-processor, a processor and a post-processor. This plugin is a collaboration between University of Gothenburg, University of Helsinki and University of Reading.
 
 Many of tools in UMEP requires the scipy and pandas python libraries. See Section 2.2 in the UMEP manual (http://umep-docs.readthedocs.io).
-      
+
 tracker=https://bitbucket.org/fredrik_ucg/umep/issues
 repository=https://bitbucket.org/fredrik_ucg/umep
 
@@ -51,7 +51,7 @@ changelog=
    1.4.1 : Bug fix in land cover fraction calculations
    1.4   : Response to issue #36 and bugfix in LQf
    1.3   : Response on issue #35 and #37. General bug fixing.
-   1.2   : LONG TERM RELEASE. Response on issue #26. Bugfix in SUEWS interfaces. 
+   1.2   : LONG TERM RELEASE. Response on issue #26. Bugfix in SUEWS interfaces.
    1.1.1 : Bug fix in SUEWSPrepare.
    1.1   : LONG TERM RELEASE. Improvements in the Metdataprocessor.
    1.0.1 : Bug fix in Metdataprocessor to cope with hourly data and DSMGenerator to cope with non metric CRS.
@@ -93,9 +93,9 @@ changelog=
    0.1.4 : LONG TERM RELEASE. Layouts added, many bug fixes, more documentation. New plugin: SUEWSPrepare.
    0.1.3 : Bug in SuewsSimple fixed.
    0.1.2 : Bug in Image morphometric where building heights were underestimated is now fixed.
-   0.1.1 : Bug fix issue #2 and #3. Data-folders are now created if missing. 
+   0.1.1 : Bug fix issue #2 and #3. Data-folders are now created if missing.
    0.1   : Official release, VERSION 0.1 BETA.
-	
+
 
 # Tags are comma separated with spaces allowed
 tags=urban climate, urban planning, shadow, modelling, urban morphology, urban geometry

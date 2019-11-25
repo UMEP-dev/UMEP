@@ -353,7 +353,7 @@ class SUEWS(object):
             QMessageBox.information(None, "Model information", "Model run will now start. QGIS might freeze during "
                                                                "calcualtion. This will be fixed in future versions.")
         try:
-            Suews_wrapper_v2018c.wrapper(self.model_dir)
+            suews_wrapper.wrapper(self.model_dir)
 
             # Use spin up:
             if self.dlg.checkBoxSpinup.isChecked():
@@ -388,7 +388,7 @@ class SUEWS(object):
 
                 fs.close()
 
-                Suews_wrapper_v2018c.wrapper(self.model_dir)
+                suews_wrapper.wrapper(self.model_dir)
 
         except Exception as e:
             QMessageBox.critical(None, "An error occurred", str(e) + "\r\n\r\n"

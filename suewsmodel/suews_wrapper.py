@@ -18,6 +18,7 @@ def wrapper(pathtoplugin):
     import os
     import sys
     import stat
+    from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
     sys.path.append(pathtoplugin)
 
     try:
@@ -30,8 +31,12 @@ def wrapper(pathtoplugin):
     su = suewsdataprocessing.SuewsDataProcessing()
     plp = suewsplottingpandas.SuewsPlottingPandas()
 
+    QMessageBox.information(
+        None, "Model information",
+        "SuPy run will now start. QGIS might freeze during ")
+
     # supy
-    path_runcontrol = Path(pathtoplugin + '/RunControl.nml')
+    path_runcontrol = Path(pathtoplugin) / 'RunControl.nml'
     df_state_init = sp.init_supy(path_runcontrol)
     grid = df_state_init.index[0]
     df_forcing = sp.load_forcing_grid(path_runcontrol, grid)
@@ -43,7 +48,7 @@ def wrapper(pathtoplugin):
     # plt.show()
 
     # # read namelist, Runcontrol.nml
-    nml = f90nml.read(pathtoplugin + '/RunControl.nml')
+    nml = f90nml.read(path_runcontrol)
     # fileinputpath = nml['runcontrol']['fileinputpath']
     fileoutputpath = nml['runcontrol']['fileoutputpath']
     filecode = nml['runcontrol']['filecode']
@@ -56,20 +61,22 @@ def wrapper(pathtoplugin):
     # resolutionfilesin = nml['runcontrol']['resolutionfilesin']
     # KeepTstepFilesIn = nml['runcontrol']['KeepTstepFilesIn']
 
-    suews_out = fileoutputpath + filecode + str(grid) + '_SUEWSout_' + str(int(timeaggregation / 60.)) + '.txt'
-    str_out = df_output_suews_rsmp.to_string(float_format='%8.2f', na_rep='-999', justify='right', )
-    with open(suews_out, 'w') as file_out:
-        print(str_out, file=file_out)
+    list_path_save=sp.save_supy(df_output,df_state_final,path_runcontrol=path_runcontrol)
+
+    # suews_out = fileoutputpath + filecode + str(grid) + '_SUEWSout_' + str(int(timeaggregation / 60.)) + '.txt'
+    # str_out = df_output_suews_rsmp.to_string(float_format='%8.2f', na_rep='-999', justify='right', )
+    # with open(suews_out, 'w') as file_out:
+    #     print(str_out, file=file_out)
 
 
     # pandasplotting
     # read namelist, plot.nml
-        plotnml = f90nml.read(pathtoplugin + '/plot.nml')
-        plotbasic = plotnml['plot']['plotbasic']
+    plotnml = f90nml.read(pathtoplugin + '/plot.nml')
+    plotbasic = plotnml['plot']['plotbasic']
     #     choosegridbasic = plotnml['plot']['choosegridbasic']
     #     chooseyearbasic = plotnml['plot']['chooseyearbasic']
     #     # timeaggregation = plotnml['plot']['timeaggregation']
-        plotmonthlystat = plotnml['plot']['plotmonthlystat']
+    plotmonthlystat = plotnml['plot']['plotmonthlystat']
     #     choosegridstat = plotnml['plot']['choosegridstat']
     #     chooseyearstat = plotnml['plot']['chooseyearstat']
     #     TimeCol_plot = np.array([1, 2, 3, 4]) - 1
@@ -150,7 +157,7 @@ def wrapper(pathtoplugin):
     #
     # subprocess.call(suewsbat)
 
-        # --- plot results --- #
+    # --- plot results --- #
     # if nomatplot == 0:
     #     # read namelist, plot.nml
     #     plotnml = f90nml.read(pathtoplugin + '/plot.nml')
@@ -242,8 +249,3 @@ def wrapper(pathtoplugin):
     #         if os.path.isfile(data_out):
     #             os.remove(data_out)
     #     ind += 1
-
-
-
-
-

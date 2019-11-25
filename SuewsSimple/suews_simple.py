@@ -531,9 +531,9 @@ class SuewsSimple(object):
                                                                               "\r\n"
                                                                               "Do you want to contiune?",
                                 QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
-            # Suews_wrapper_v2018c.wrapper(self.model_dir)
+            # suews_wrapper.wrapper(self.model_dir)
             try:
-                Suews_wrapper_v2018c.wrapper(self.model_dir)
+                suews_wrapper.wrapper(self.model_dir)
                 self.iface.messageBar().pushMessage("Model run successful", "Model run finished", level=Qgis.Success)
             except Exception as e:
                 QMessageBox.critical(self.dlg, "An error occurred", str(e) + "\r\n\r\n"
