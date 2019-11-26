@@ -203,7 +203,7 @@ class SuewsSimple(object):
                     zipped = zipfile.ZipFile(self.model_dir + os.sep + 'temp.zip')
                     zipped.extract(modelver + '.exe', self.model_dir)
                     # urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695894_suews_v2018a.exe', self.model_dir + os.sep + 'SUEWS_V2018a.exe')
-                if sys.platform == 'linux2':
+                if sys.platform.startswith('linux'):
                     urllib.request.urlretrieve('https://zenodo.org/record/2574410/files/SUEWS_2018c_Linux.zip?download=1', self.model_dir + os.sep + 'temp.zip')
                     zipped = zipfile.ZipFile(self.model_dir + os.sep + 'temp.zip')
                     zipped.extract(modelver, self.model_dir)

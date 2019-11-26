@@ -11,7 +11,7 @@ name=UMEP
 qgisMinimumVersion=3.0
 description=Urban Multi-scale Environmental Predictor
 
-version=3.10.7
+version=3.10.8
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg
 email=fredrikl@gvc.gu.se
 
@@ -28,6 +28,7 @@ repository=https://bitbucket.org/fredrik_ucg/umep
 
 # Uncomment the following line and add your changelog:
 changelog=
+   3.10.8: Response to issue #113.
    3.10.7: Update to be able to visualse shadow animations in SOLWEIGAnalyser.
    3.10.6: Response to issue #108.
    3.10.5: Response to issue #103.

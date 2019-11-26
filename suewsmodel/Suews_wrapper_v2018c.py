@@ -85,13 +85,17 @@ def wrapper(pathtoplugin):
         suewsstring0 = 'REM' + '\n'
         suewsstring1 = 'cd ' + os.path.dirname(os.path.abspath(__file__)) + '\n'
         suewsstring2 = os.path.dirname(os.path.abspath(__file__)) + os.path.sep + prog_name
+        #suewsstring1 = 'cd ' + "'" + os.path.dirname(os.path.abspath(__file__)) + "'" + '\n'
+        #suewsstring2 = "start " + '"" "' + os.path.dirname(os.path.abspath(__file__)) + os.path.sep + prog_name + '"'
         suewsbat = wf + '/runsuews.bat'
         f = open(suewsbat, 'w')
 
-    if pf == 'darwin' or pf == 'linux2':
+    if pf == 'darwin' or pf.startswith('linux'):
         suewsstring0 = '#!/bin/bash' + '\n'
-        suewsstring1 = 'cd ' + os.path.dirname(os.path.abspath(__file__)) + '\n'
-        suewsstring2 = os.path.dirname(os.path.abspath(__file__)) + os.path.sep + prog_name
+        #suewsstring1 = 'cd ' + os.path.dirname(os.path.abspath(__file__)) + '\n'
+        suewsstring1 = 'cd ' + "'" + os.path.dirname(os.path.abspath(__file__)) + "'" + '\n'
+        #suewsstring2 = os.path.dirname(os.path.abspath(__file__)) + os.path.sep + prog_name
+        suewsstring2 = "./" + prog_name
         suewsbat = wf + '/runsuews.sh'
         f = open(suewsbat, 'w')
         st = os.stat(wf + '/runsuews.sh')
