@@ -32,42 +32,57 @@ def wrapper(pathtoplugin):
     plp = suewsplottingpandas.SuewsPlottingPandas()
 
     QMessageBox.information(
-        None, "Model information",
-        "SuPy run will now start. QGIS might freeze during ")
+        None,
+        "Model information",
+        "SuPy run will now start. QGIS might freeze during simulation.",
+    )
 
-    # supy
+    #####################################################################################
+    # SuPy
+
+    # SuPy initialisation
     path_runcontrol = Path(pathtoplugin) / 'RunControl.nml'
     df_state_init = sp.init_supy(path_runcontrol)
     grid = df_state_init.index[0]
     df_forcing = sp.load_forcing_grid(path_runcontrol, grid)
-    df_output, df_state_final = sp.run_supy(df_forcing, df_state_init, check_input=True)
-    df_output_suews = df_output['SUEWS']
-    df_output_suews_rsmp = df_output_suews.loc[grid].resample('1h').mean()
+
+    # SuPy simulation
+    df_output, df_state_final = sp.run_supy(df_forcing,
+                                            df_state_init,
+                                            check_input=True)
+
+    # resampling SuPy results for plotting
+    df_output_suews = df_output.loc[grid, 'SUEWS']
+    df_output_suews_rsmp = df_output_suews.resample('1h').mean()
+
+    # use SuPy function to save results
+    list_path_save = sp.save_supy(df_output,
+                                  df_state_final,
+                                  path_runcontrol=path_runcontrol)
+    #####################################################################################
+
     # import matplotlib.pyplot as plt
     # df_output_suews_rsmp.loc[:, ['QN', 'QS', 'QE', 'QH', 'QF']].plot()
     # plt.show()
 
     # # read namelist, Runcontrol.nml
-    nml = f90nml.read(path_runcontrol)
+    # nml = f90nml.read(path_runcontrol)
     # fileinputpath = nml['runcontrol']['fileinputpath']
-    fileoutputpath = nml['runcontrol']['fileoutputpath']
-    filecode = nml['runcontrol']['filecode']
+    # fileoutputpath = nml['runcontrol']['fileoutputpath']
+    # filecode = nml['runcontrol']['filecode']
     # multiplemetfiles = nml['runcontrol']['multiplemetfiles']
     # snowuse = nml['runcontrol']['snowuse']
     # qschoice = nml['runcontrol']['storageheatmethod']
     # multipleestmfiles = nml['runcontrol']['multipleestmfiles']
     # tstep = nml['runcontrol']['tstep']
-    timeaggregation = nml['runcontrol']['resolutionfilesout']
+    # timeaggregation = nml['runcontrol']['resolutionfilesout']
     # resolutionfilesin = nml['runcontrol']['resolutionfilesin']
     # KeepTstepFilesIn = nml['runcontrol']['KeepTstepFilesIn']
-
-    list_path_save=sp.save_supy(df_output,df_state_final,path_runcontrol=path_runcontrol)
 
     # suews_out = fileoutputpath + filecode + str(grid) + '_SUEWSout_' + str(int(timeaggregation / 60.)) + '.txt'
     # str_out = df_output_suews_rsmp.to_string(float_format='%8.2f', na_rep='-999', justify='right', )
     # with open(suews_out, 'w') as file_out:
     #     print(str_out, file=file_out)
-
 
     # pandasplotting
     # read namelist, plot.nml
