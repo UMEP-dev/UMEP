@@ -35,6 +35,15 @@ from .resources import *
 from .suews_converter_dialog import SUEWSConverterDialog
 import os.path
 
+try:
+    from supy.util._converter import convert_table
+except Exception as e:
+    QMessageBox.critical(None, 'Error', 'This plugin requires the supy package to be installed OR upgraded'
+                                        '. See Section 2.3 in the UMEP-manual for further'
+                                        'information on how to install missing python packages in QGIS3.')
+    pass
+
+
 
 class SUEWSConverter:
     """QGIS Plugin Implementation."""
@@ -210,6 +219,7 @@ class SUEWSConverter:
     def run(self):
         """Run method that performs all the real work"""
 
+
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
         if self.first_start == True:
@@ -230,12 +240,15 @@ class SUEWSConverter:
         webbrowser.open_new_tab(url)
 
     def start_progress(self):
+
         fromDir = self.dlg.textInput.text()
         toDir = self.dlg.textOutput.text()
         fromVer = self.dlg.comboBoxOld.currentText()
         toVer = self.dlg.comboBoxNew.currentText()
 
         self.iface.messageBar().pushMessage("Info", fromDir + ' ' + toDir + ' ' + fromVer + ' ' + toVer, level=Qgis.Success)
+        convert_table(fromDir, toDir, fromVer, toVer)
+
 
     # a chained conversion across multiple versions
     # def convert_table(self, fromDir, toDir, fromVer, toVer):
