@@ -47,6 +47,7 @@ from .LucyQF.LQF import LQF
 from .SEBE.sebe import SEBE
 from .SuewsSimple.suews_simple import SuewsSimple
 from .SUEWSPrepare.suews_prepare import SUEWSPrepare
+from .suews_converter.suews_converter import SUEWSConverter
 from .SUEWS.suews import SUEWS
 from .SOLWEIG.solweig import SOLWEIG
 from .BenchMarking.benchmarking import BenchMarking
@@ -130,6 +131,9 @@ class UMEP(object):
         self.SUEWSPrepare_Action = QAction("SUEWS Prepare", self.iface.mainWindow())
         self.Pre_Menu.addAction(self.SUEWSPrepare_Action)
         self.SUEWSPrepare_Action.triggered.connect(self.SUEWS_Prepare)
+        self.SUEWSConvert_Action = QAction("SUEWS Converter", self.iface.mainWindow())
+        self.Pre_Menu.addAction(self.SUEWSConvert_Action)
+        self.SUEWSConvert_Action.triggered.connect(self.SUEWS_Convert)
 
 
         # Sub-actions to Surface Morphology
@@ -275,6 +279,7 @@ class UMEP(object):
 
         # Icons
         self.SUEWSPrepare_Action.setIcon(QIcon(self.plugin_dir + "/Icons/SuewsLogo.png"))
+        self.SUEWSConvert_Action.setIcon(QIcon(self.plugin_dir + "/Icons/SuewsLogo.png"))
         self.SUEWSSIMPLE_Action.setIcon(QIcon(self.plugin_dir + "/Icons/SuewsLogo.png"))
         self.SUEWS_Action.setIcon(QIcon(self.plugin_dir + "/Icons/SuewsLogo.png"))
         self.SVF_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_svf.png"))
@@ -395,6 +400,10 @@ class UMEP(object):
 
     def SUEWS_Prepare(self):
         sg = SUEWSPrepare(self.iface)
+        sg.run()
+
+    def SUEWS_Convert(self):
+        sg = SUEWSConverter(self.iface)
         sg.run()
 
     def LCG(self):
