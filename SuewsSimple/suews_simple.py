@@ -43,6 +43,8 @@ import webbrowser
 import sys
 import urllib
 import zipfile
+import tempfile
+from pathlib import Path
 # from .suewssimpleworker import Worker
 # from ..suewsmodel import suewstask
 
@@ -114,6 +116,9 @@ class SuewsSimple(object):
         self.model_dir = os.path.normpath(self.plugin_dir + os.sep + os.pardir + os.sep + 'suewsmodel')
         # sys.path.append(self.model_dir)
 
+        if not (os.path.isdir(self.model_dir + '/Input')):
+            os.mkdir(self.model_dir + '/Input')
+
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
@@ -175,49 +180,51 @@ class SuewsSimple(object):
 
     def run(self):
 
-        # try:
-        #     import supy
-        # except Exception as e:
-        #     QMessageBox.critical(None, 'Error', 'This plugin requires the supy package to be installed OR upgraded. '
-        #                                         'Please see Section 2.2 in the UMEP-manual for further information on '
-        #                                         'how to install missing python packages in QGIS3.')
-        #     return
-        modelver = 'SUEWS_V2018c'
-        if not (os.path.isfile(self.model_dir + os.sep + modelver) or os.path.isfile(self.model_dir + os.sep + modelver + '.exe')):
-            if QMessageBox.question(self.iface.mainWindow(), "OS specific binaries missing",
-                                 "Before you start to use this plugin for the very first time, the OS specific suews\r\n"
-                                 "program (1Mb) must be be download from the UMEP repository and stored\r\n"
-                                 "in your plugin directory: "
-                                 "(" + self.model_dir + ").\r\n"
-                                                        "\r\n"
-                                 "Join the email-list for updates and other information:\r\n"
-                                 "http://www.lists.rdg.ac.uk/mailman/listinfo/met-umep.\r\n"
-                                                        "\r\n"
-                                 "UMEP on the web:\r\n"
-                                 "http://www.urban-climate.net/umep/\r\n"
-                                                        "\r\n"
-                                                        "\r\n"
-                                 "Do you want to contiune with the download?", QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
-                if sys.platform == 'win32':
-                    urllib.request.urlretrieve('https://zenodo.org/record/2574410/files/SUEWS_2018c_win64.zip?download=1', self.model_dir + os.sep + 'temp.zip')
-                    zipped = zipfile.ZipFile(self.model_dir + os.sep + 'temp.zip')
-                    zipped.extract(modelver + '.exe', self.model_dir)
-                    # urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695894_suews_v2018a.exe', self.model_dir + os.sep + 'SUEWS_V2018a.exe')
-                if sys.platform == 'linux2':
-                    urllib.request.urlretrieve('https://zenodo.org/record/2574410/files/SUEWS_2018c_Linux.zip?download=1', self.model_dir + os.sep + 'temp.zip')
-                    zipped = zipfile.ZipFile(self.model_dir + os.sep + 'temp.zip')
-                    zipped.extract(modelver, self.model_dir)
-                    # urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695887_suews_v2018a', self.model_dir + os.sep + 'SUEWS_V2018a')
-                if sys.platform == 'darwin':
-                    urllib.request.urlretrieve('https://zenodo.org/record/2574410/files/SUEWS_2018c_macOS.zip?download=1', self.model_dir + os.sep + 'temp.zip')
-                    zipped = zipfile.ZipFile(self.model_dir + os.sep + 'temp.zip')
-                    zipped.extract(modelver, self.model_dir)
-                    # urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695886_suews_v2018a', self.model_dir + os.sep + 'SUEWS_V2018a')
-                zipped.close()
-                os.remove(self.model_dir + os.sep + 'temp.zip')
-            else:
-                QMessageBox.critical(self.iface.mainWindow(), "Binaries not downloaded", "This plugin will not be able to start before binaries are downloaded")
-                return
+        try:
+            import supy
+        except Exception as e:
+            QMessageBox.critical(None, 'Error', 'This plugin requires the supy package to be installed OR upgraded'
+                                                '(ver >= 2019.11.25). See Section 2.3 in the UMEP-manual for further'
+                                                'information on how to install missing python packages in QGIS3.')
+            return
+
+        self.supylib = sys.modules["supy"].__path__[0]
+        # modelver = 'SUEWS_V2018c'
+        # if not (os.path.isfile(self.model_dir + os.sep + modelver) or os.path.isfile(self.model_dir + os.sep + modelver + '.exe')):
+        #     if QMessageBox.question(self.iface.mainWindow(), "OS specific binaries missing",
+        #                          "Before you start to use this plugin for the very first time, the OS specific suews\r\n"
+        #                          "program (1Mb) must be be download from the UMEP repository and stored\r\n"
+        #                          "in your plugin directory: "
+        #                          "(" + self.model_dir + ").\r\n"
+        #                                                 "\r\n"
+        #                          "Join the email-list for updates and other information:\r\n"
+        #                          "http://www.lists.rdg.ac.uk/mailman/listinfo/met-umep.\r\n"
+        #                                                 "\r\n"
+        #                          "UMEP on the web:\r\n"
+        #                          "http://www.urban-climate.net/umep/\r\n"
+        #                                                 "\r\n"
+        #                                                 "\r\n"
+        #                          "Do you want to contiune with the download?", QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
+        #         if sys.platform == 'win32':
+        #             urllib.request.urlretrieve('https://zenodo.org/record/2574410/files/SUEWS_2018c_win64.zip?download=1', self.model_dir + os.sep + 'temp.zip')
+        #             zipped = zipfile.ZipFile(self.model_dir + os.sep + 'temp.zip')
+        #             zipped.extract(modelver + '.exe', self.model_dir)
+        #             # urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695894_suews_v2018a.exe', self.model_dir + os.sep + 'SUEWS_V2018a.exe')
+        #         if sys.platform == 'linux2':
+        #             urllib.request.urlretrieve('https://zenodo.org/record/2574410/files/SUEWS_2018c_Linux.zip?download=1', self.model_dir + os.sep + 'temp.zip')
+        #             zipped = zipfile.ZipFile(self.model_dir + os.sep + 'temp.zip')
+        #             zipped.extract(modelver, self.model_dir)
+        #             # urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695887_suews_v2018a', self.model_dir + os.sep + 'SUEWS_V2018a')
+        #         if sys.platform == 'darwin':
+        #             urllib.request.urlretrieve('https://zenodo.org/record/2574410/files/SUEWS_2018c_macOS.zip?download=1', self.model_dir + os.sep + 'temp.zip')
+        #             zipped = zipfile.ZipFile(self.model_dir + os.sep + 'temp.zip')
+        #             zipped.extract(modelver, self.model_dir)
+        #             # urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695886_suews_v2018a', self.model_dir + os.sep + 'SUEWS_V2018a')
+        #         zipped.close()
+        #         os.remove(self.model_dir + os.sep + 'temp.zip')
+        #     else:
+        #         QMessageBox.critical(self.iface.mainWindow(), "Binaries not downloaded", "This plugin will not be able to start before binaries are downloaded")
+        #         return
 
         self.dlg.show()
         self.dlg.exec_()
@@ -343,7 +350,8 @@ class SuewsSimple(object):
             self.write_to_init(self.model_dir + '/BaseFiles/InitialConditionsKc_2012.nml', self.folderPathInit)
 
     def set_default_settings(self):
-        f1 = open(self.model_dir + '/BaseFiles/SUEWS_SiteSelect.txt')
+        f1 = open(self.supylib + '/sample_run/Input/SUEWS_SiteSelect.txt')
+        #f1 = open(self.model_dir + '/BaseFiles/SUEWS_SiteSelect.txt')
         lin = f1.readlines()
         index = 2
         lines = lin[index].split()
@@ -368,13 +376,15 @@ class SuewsSimple(object):
         f1.close()
         self.dlg.comboBoxLeafCycle.setCurrentIndex(1)
 
-        nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
+        #nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
+        nml = f90nml.read(self.supylib + '/sample_run/RunControl.nml')
 
         self.dlg.FileCode.setText(str(nml['runcontrol']['FileCode']))
 
         self.dlg.UTC.setText('0')
 
-        self.dlg.textInputMetdata.setText(self.model_dir + '/BaseFiles/Kc_2012_data_60.txt')
+        #self.dlg.textInputMetdata.setText(self.model_dir + '/BaseFiles/Kc_2012_data_60.txt')
+        self.dlg.textInputMetdata.setText(self.supylib + '/sample_run/Input/Kc_2012_data_60.txt')
         self.dlg.textOutput.setText(self.model_dir  + '/Output/')
         self.dlg.spinBoxSoilMoisture.setValue(100)
 
@@ -398,6 +408,16 @@ class SuewsSimple(object):
             QMessageBox.critical(self.iface.mainWindow(), "Non-consistency Error", "A relatively large difference in "
                 "building fraction between the Vegetation DSM and the landcover grid was found: " + str(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - float(self.dlg.lineEdit_paiveg.text())))
             return
+
+        # Copy basefiles from sample_run
+        basefiles = ['ESTMinput.nml', 'SUEWS_AnthropogenicEmission.txt', 'SUEWS_BiogenCO2.txt', 'SUEWS_Conductance.txt', 'SUEWS_ESTMCoefficients.txt', 'SUEWS_Irrigation.txt', 
+        'SUEWS_NonVeg.txt', 'SUEWS_OHMCoefficients.txt', 'SUEWS_Profiles.txt', 'SUEWS_Snow.txt', 'SUEWS_Soil.txt', 'SUEWS_Water.txt', 'SUEWS_Veg.txt', 'SUEWS_WithinGridWaterDist.txt']
+        for i in range(0, basefiles.__len__()):
+            try:
+                shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.model_dir + '/Input/' + basefiles[i])
+            except:
+                os.remove(self.model_dir + '/Input/' + basefiles[i])
+                shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.model_dir + '/Input/' + basefiles[i]) 
 
         # Getting values from GUI
         YYYY = self.dlg.lineEdit_YYYY.text()
@@ -428,8 +448,30 @@ class SuewsSimple(object):
                                                                                    " equal to 1 (" + str(LCtest) + ")")
             return
 
+        # def resultcheck(self, landcoverresult):
+        # total = 0.
+        # arr = landcoverresult["lc_frac_all"]
+
+        # for x in range(0, len(arr[0])):
+        #     total += arr[0, x]
+
+        # if total != 1.0:
+        #     diff = total - 1.0
+
+        #     maxnumber = max(arr[0])
+
+        #     for x in range(0, len(arr[0])):
+        #         if maxnumber == arr[0, x]:
+        #             arr[0, x] -= diff
+        #             break
+
+        # landcoverresult["lc_frac_all"] = arr
+
+        # return landcoverresult
+
         # Create new SiteSelect
-        f = open(self.model_dir + '/BaseFiles/SUEWS_SiteSelect.txt', 'r')
+        #f = open(self.model_dir + '/BaseFiles/SUEWS_SiteSelect.txt', 'r')
+        f = open(self.supylib + '/sample_run/Input/SUEWS_SiteSelect.txt', 'r')
         lin = f.readlines()
         index = 2
         lines = np.array(lin[index].split())
@@ -467,7 +509,6 @@ class SuewsSimple(object):
         f2.write(lin[3 + 1])
         f.close()
         f2.close()
-        # self.write_site_select(1, newdata, f)
 
         # Plots or not
         if self.dlg.checkBoxPlots.isChecked():
@@ -487,8 +528,9 @@ class SuewsSimple(object):
         # Create new RunControl
         inmetfile = self.dlg.textInputMetdata.text()
         outfolder = self.dlg.textOutput.text()
-        nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
-        if not (faiBuild == -999.0 or faiveg == -999.0):
+        #nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
+        nml = f90nml.read(self.supylib + '/sample_run/RunControl.nml')
+        if (faiBuild == -999.0 or faiveg == -999.0):
             nml['runcontrol']['RoughLenMomMethod'] = 3
 
         resolutionfilesin = nml['runcontrol']['resolutionfilesin']
@@ -500,11 +542,13 @@ class SuewsSimple(object):
             shutil.copy(inmetfile, runmetfile)
 
         nml['runcontrol']['fileCode'] = str(filecode)
-        nml['runcontrol']['fileoutputpath'] = outfolder
-        nml['runcontrol']['fileinputpath'] = self.model_dir + '/Input/'
+        nml['runcontrol']['FileOutputPath'] = outfolder
+        nml['runcontrol']['FileInputPath'] = self.model_dir + '/Input/'
+        nml['runcontrol']['SnowUse'] = 0
         nml.write(self.model_dir + '/RunControl.nml', force=True)
 
-        initfilein = self.model_dir + '/BaseFiles/InitialConditionsKc_2012.nml'
+        #initfilein = self.model_dir + '/BaseFiles/InitialConditionsKc_2012.nml'
+        initfilein = self.supylib + '/sample_run/Input/InitialConditionsKc_2012.nml'
         initfileout = self.model_dir + '/Input/InitialConditions' + str(filecode) + '_' + str(YYYY) + '.nml'
         self.write_to_init(initfilein, initfileout)
 
@@ -523,13 +567,13 @@ class SuewsSimple(object):
         # print('testafter')
 
         if QMessageBox.question(self.iface.mainWindow(), "Model information", "Model run will now start. "
-                                                                              "QGIS might freeze during calculation."
-                                                                              "\r\n"
-                                                                              "\r\n"
-                                                                              "This will be fixed in future versions."
-                                                                              "\r\n"
-                                                                              "\r\n"
-                                                                              "Do you want to contiune?",
+                                                            "QGIS might freeze during calculation."
+                                                            "\r\n"
+                                                            "\r\n"
+                                                            "This will be fixed in future versions."
+                                                            "\r\n"
+                                                            "\r\n"
+                                                            "Do you want to contiune?",
                                 QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
             # suews_wrapper.wrapper(self.model_dir)
             try:
@@ -537,13 +581,12 @@ class SuewsSimple(object):
                 self.iface.messageBar().pushMessage("Model run successful", "Model run finished", level=Qgis.Success)
             except Exception as e:
                 QMessageBox.critical(self.dlg, "An error occurred", str(e) + "\r\n\r\n"
-                                            "Check problems.txt in " + self.model_dir + "\r\n\r\n"
-                                            "Please report any errors to https://bitbucket.org/fredrik_ucg/umep/issues")
+                                "Check: " + str(list(Path(tempfile.gettempdir()).glob('SuPy.log'))[0]) + "\r\n\r\n"
+                                "Please report any errors to https://bitbucket.org/fredrik_ucg/umep/issues")
                 return
 
         else:
-            QMessageBox.critical(self.iface.mainWindow(), "Model termination",
-                                 "Model calculation cancelled")
+            QMessageBox.critical(self.iface.mainWindow(), "Model termination", "Model calculation cancelled")
             return
 
         shutil.copy(self.model_dir + '/RunControl.nml', outfolder + '/RunControl.nml')

@@ -39,6 +39,8 @@ import urllib.request, urllib.parse, urllib.error
 from ..Utilities import f90nml
 from ..suewsmodel import suews_wrapper
 import zipfile
+import tempfile
+from pathlib import Path
 
 class SUEWS(object):
     """QGIS Plugin Implementation."""
@@ -79,6 +81,9 @@ class SUEWS(object):
         # TODO: We are going to let the user set this up in a future iteration
 
         self.model_dir = os.path.normpath(self.plugin_dir + os.sep + os.pardir + os.sep + 'suewsmodel')
+
+        if not (os.path.isdir(self.model_dir + '/Input')):
+            os.mkdir(self.model_dir + '/Input')
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -142,59 +147,60 @@ class SUEWS(object):
 
     def run(self):
 
-        # try:
-        #     import supy
-        # except Exception as e:
-        #     QMessageBox.critical(None, 'Error', 'This plugin requires the supy package to be installed OR upgraded. '
-        #                                         'Please see Section 2.2 in the UMEP-manual for further information on '
-        #                                         'how to install missing python packages in QGIS3.')
-        #     return
+        try:
+            import supy
+        except Exception as e:
+            QMessageBox.critical(None, 'Error', 'This plugin requires the supy package to be installed OR upgraded'
+                                                '(ver >= 2019.11.25). See Section 2.3 in the UMEP-manual for further'
+                                                'information on how to install missing python packages in QGIS3.')
+            return
 
-        modelver = 'SUEWS_V2018c'
-        if not (os.path.isfile(self.model_dir + os.sep + modelver) or os.path.isfile(
-                self.model_dir + os.sep + modelver + '.exe')):
-            if QMessageBox.question(self.iface.mainWindow(), "OS specific binaries missing",
-                                    "Before you start to use this plugin for the very first time, the OS specific suews\r\n"
-                                    "program (1Mb) must be be download from the UMEP repository and stored\r\n"
-                                    "in your plugin directory: "
-                                    "(" + self.model_dir + ").\r\n"
-                                                           "\r\n"
-                                                           "Join the email-list for updates and other information:\r\n"
-                                                           "http://www.lists.rdg.ac.uk/mailman/listinfo/met-umep.\r\n"
-                                                           "\r\n"
-                                                           "UMEP on the web:\r\n"
-                                                           "http://www.urban-climate.net/umep/\r\n"
-                                                           "\r\n"
-                                                           "\r\n"
-                                                           "Do you want to contiune with the download?",
-                                    QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
-                if sys.platform == 'win32':
-                    urllib.request.urlretrieve(
-                        'https://zenodo.org/record/2574410/files/SUEWS_2018c_win64.zip?download=1',
-                        self.model_dir + os.sep + 'temp.zip')
-                    zipped = zipfile.ZipFile(self.model_dir + os.sep + 'temp.zip')
-                    zipped.extract(modelver + '.exe', self.model_dir)
-                    # urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695894_suews_v2018a.exe', self.model_dir + os.sep + 'SUEWS_V2018a.exe')
-                if sys.platform == 'linux2':
-                    urllib.request.urlretrieve(
-                        'https://zenodo.org/record/2574410/files/SUEWS_2018c_Linux.zip?download=1',
-                        self.model_dir + os.sep + 'temp.zip')
-                    zipped = zipfile.ZipFile(self.model_dir + os.sep + 'temp.zip')
-                    zipped.extract(modelver, self.model_dir)
-                    # urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695887_suews_v2018a', self.model_dir + os.sep + 'SUEWS_V2018a')
-                if sys.platform == 'darwin':
-                    urllib.request.urlretrieve(
-                        'https://zenodo.org/record/2574410/files/SUEWS_2018c_macOS.zip?download=1',
-                        self.model_dir + os.sep + 'temp.zip')
-                    zipped = zipfile.ZipFile(self.model_dir + os.sep + 'temp.zip')
-                    zipped.extract(modelver, self.model_dir)
-                    # urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695886_suews_v2018a', self.model_dir + os.sep + 'SUEWS_V2018a')
-                zipped.close()
-                os.remove(self.model_dir + os.sep + 'temp.zip')
-            else:
-                QMessageBox.critical(self.iface.mainWindow(), "Binaries not downloaded",
-                                     "This plugin will not be able to start before binaries are downloaded")
-                return
+        self.supylib = sys.modules["supy"].__path__[0]
+        # modelver = 'SUEWS_V2018c'
+        # if not (os.path.isfile(self.model_dir + os.sep + modelver) or os.path.isfile(
+        #         self.model_dir + os.sep + modelver + '.exe')):
+        #     if QMessageBox.question(self.iface.mainWindow(), "OS specific binaries missing",
+        #                             "Before you start to use this plugin for the very first time, the OS specific suews\r\n"
+        #                             "program (1Mb) must be be download from the UMEP repository and stored\r\n"
+        #                             "in your plugin directory: "
+        #                             "(" + self.model_dir + ").\r\n"
+        #                                                    "\r\n"
+        #                                                    "Join the email-list for updates and other information:\r\n"
+        #                                                    "http://www.lists.rdg.ac.uk/mailman/listinfo/met-umep.\r\n"
+        #                                                    "\r\n"
+        #                                                    "UMEP on the web:\r\n"
+        #                                                    "http://www.urban-climate.net/umep/\r\n"
+        #                                                    "\r\n"
+        #                                                    "\r\n"
+        #                                                    "Do you want to contiune with the download?",
+        #                             QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
+        #         if sys.platform == 'win32':
+        #             urllib.request.urlretrieve(
+        #                 'https://zenodo.org/record/2574410/files/SUEWS_2018c_win64.zip?download=1',
+        #                 self.model_dir + os.sep + 'temp.zip')
+        #             zipped = zipfile.ZipFile(self.model_dir + os.sep + 'temp.zip')
+        #             zipped.extract(modelver + '.exe', self.model_dir)
+        #             # urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695894_suews_v2018a.exe', self.model_dir + os.sep + 'SUEWS_V2018a.exe')
+        #         if sys.platform == 'linux2':
+        #             urllib.request.urlretrieve(
+        #                 'https://zenodo.org/record/2574410/files/SUEWS_2018c_Linux.zip?download=1',
+        #                 self.model_dir + os.sep + 'temp.zip')
+        #             zipped = zipfile.ZipFile(self.model_dir + os.sep + 'temp.zip')
+        #             zipped.extract(modelver, self.model_dir)
+        #             # urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695887_suews_v2018a', self.model_dir + os.sep + 'SUEWS_V2018a')
+        #         if sys.platform == 'darwin':
+        #             urllib.request.urlretrieve(
+        #                 'https://zenodo.org/record/2574410/files/SUEWS_2018c_macOS.zip?download=1',
+        #                 self.model_dir + os.sep + 'temp.zip')
+        #             zipped = zipfile.ZipFile(self.model_dir + os.sep + 'temp.zip')
+        #             zipped.extract(modelver, self.model_dir)
+        #             # urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695886_suews_v2018a', self.model_dir + os.sep + 'SUEWS_V2018a')
+        #         zipped.close()
+        #         os.remove(self.model_dir + os.sep + 'temp.zip')
+        #     else:
+        #         QMessageBox.critical(self.iface.mainWindow(), "Binaries not downloaded",
+        #                              "This plugin will not be able to start before binaries are downloaded")
+        #         return
 
         self.dlg.show()
         self.dlg.exec_()
@@ -264,12 +270,8 @@ class SUEWS(object):
         # else:
         usecbl = 0
 
-        # if self.dlg.checkBoxSOLWEIG.isChecked():
-        #     usesolweig = 1
-        # else:
-        usesolweig = 0
-
-        nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
+        # nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
+        nml = f90nml.read(self.supylib + '/sample_run/RunControl.nml')
         nml['runcontrol']['CBLuse'] = int(usecbl)
         nml['runcontrol']['SnowUse'] = int(usesnow)
         nml['runcontrol']['NetRadiationMethod'] = int(Net)
@@ -316,7 +318,7 @@ class SUEWS(object):
             sitein = infolder + "/" + 'SUEWS_SiteSelect.txt'
             fs = open(sitein)
             lin = fs.readlines()
-            index = 3
+            index = 2
             gridcode = ''
             lines = lin[index].split()
             yyyy = int(lines[1])
@@ -373,7 +375,7 @@ class SUEWS(object):
                     yyyy = int(lines[1])
                     gridcode = lines[0]
 
-                    os.rename(infolder + '/InitialConditions' + filecode + gridcode + '_' + str(yyyy + 1) + '.nml',
+                    os.rename(outfolder + '/InitialConditions' + filecode + gridcode + '_' + str(yyyy + 1) + '_EndofRun.nml',
                               infolder + '/InitialConditions' + filecode + gridcode + '_' + str(yyyy) + '.nml')
                     index += 1
                     lines = lin[index].split()
@@ -391,9 +393,9 @@ class SUEWS(object):
                 suews_wrapper.wrapper(self.model_dir)
 
         except Exception as e:
-            QMessageBox.critical(None, "An error occurred", str(e) + "\r\n\r\n"
-                                       "Check problems.txt in " + self.model_dir + "\r\n\r\n"
-                                       "Please report any errors to https://bitbucket.org/fredrik_ucg/umep/issues")
+            QMessageBox.critical(self.dlg, "An error occurred", str(e) + "\r\n\r\n"
+                                "Check: " + str(list(Path(tempfile.gettempdir()).glob('SuPy.log'))[0]) + "\r\n\r\n"
+                                "Please report any errors to https://bitbucket.org/fredrik_ucg/umep/issues")
             return
 
         shutil.copy(self.model_dir + '/RunControl.nml', outfolder + '/RunControl.nml')

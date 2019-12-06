@@ -12,7 +12,8 @@ def wrapper(pathtoplugin):
     from pathlib import Path
     import numpy as np
     from . import suewsdataprocessing
-    from . import suewsplottingpandas
+    # from . import suewsplottingpandas
+    from . import suewsplotting
     import subprocess
     from ..Utilities import f90nml
     import os
@@ -29,13 +30,14 @@ def wrapper(pathtoplugin):
         pass
 
     su = suewsdataprocessing.SuewsDataProcessing()
-    plp = suewsplottingpandas.SuewsPlottingPandas()
+    # plp = suewsplottingpandas.SuewsPlottingPandas()
+    pl = suewsplotting.SuewsPlotting()
 
-    QMessageBox.information(
-        None,
-        "Model information",
-        "SuPy run will now start. QGIS might freeze during simulation.",
-    )
+    # QMessageBox.information(
+    #     None,
+    #     "Model information",
+    #     "SuPy run will now start. QGIS might freeze during simulation.",
+    # )
 
     #####################################################################################
     # SuPy
@@ -61,7 +63,6 @@ def wrapper(pathtoplugin):
                                   path_runcontrol=path_runcontrol)
     #####################################################################################
 
-    # import matplotlib.pyplot as plt
     # df_output_suews_rsmp.loc[:, ['QN', 'QS', 'QE', 'QH', 'QF']].plot()
     # plt.show()
 
@@ -84,24 +85,125 @@ def wrapper(pathtoplugin):
     # with open(suews_out, 'w') as file_out:
     #     print(str_out, file=file_out)
 
-    # pandasplotting
-    # read namelist, plot.nml
-    plotnml = f90nml.read(pathtoplugin + '/plot.nml')
-    plotbasic = plotnml['plot']['plotbasic']
-    #     choosegridbasic = plotnml['plot']['choosegridbasic']
-    #     chooseyearbasic = plotnml['plot']['chooseyearbasic']
-    #     # timeaggregation = plotnml['plot']['timeaggregation']
-    plotmonthlystat = plotnml['plot']['plotmonthlystat']
-    #     choosegridstat = plotnml['plot']['choosegridstat']
-    #     chooseyearstat = plotnml['plot']['chooseyearstat']
-    #     TimeCol_plot = np.array([1, 2, 3, 4]) - 1
-    #     SumCol_plot = np.array([14]) - 1
-    #     LastCol_plot = np.array([16]) - 1
 
+            # --- plot results --- #
     if nomatplot == 0:
-        if plotbasic == 1:
-            plp.plotbasic(df_output_suews_rsmp, df_forcing)
+        # read namelists; RunControl.nml and plot.nml
+        nml = f90nml.read(pathtoplugin + '/RunControl.nml')
+        plotnml = f90nml.read(pathtoplugin + '/plot.nml')
+        plotbasic = plotnml['plot']['plotbasic']
+        choosegridbasic = plotnml['plot']['choosegridbasic']
+        chooseyearbasic = plotnml['plot']['chooseyearbasic']
+        filecode = nml['runcontrol']['filecode']
+        fileoutputpath = nml['runcontrol']['fileoutputpath']
+        fileinputpath = nml['runcontrol']['fileinputpath']
+        resolutionfilesin = nml['runcontrol']['resolutionfilesin']
+        # timeaggregation = plotnml['plot']['timeaggregation']
+        timeaggregation = nml['runcontrol']['resolutionfilesout']
+        multiplemetfiles = nml['runcontrol']['multiplemetfiles']
+        plotmonthlystat = plotnml['plot']['plotmonthlystat']
+        choosegridstat = plotnml['plot']['choosegridstat']
+        chooseyearstat = plotnml['plot']['chooseyearstat']
+        TimeCol_plot = np.array([1, 2, 3, 4]) - 1
+        SumCol_plot = np.array([14]) - 1
+        LastCol_plot = np.array([16]) - 1
 
+        # Open SiteSelect to get year and gridnames
+        sitein = fileinputpath + 'SUEWS_SiteSelect.txt'
+        fs = open(sitein)
+        lin = fs.readlines()
+        index = 2
+        loop_out = ''
+        gridcodeestm = ''
+        ts_in = ''
+        gridcodemet = ''
+        # while loop_out != '-9':
+        lines = lin[index].split()
+        YYYY = int(lines[1])
+        gridcode = lines[0]  # for plotting
+        if multiplemetfiles == 0:  # one file
+            if index == 2:
+                # gridcodemet = ''
+                data_in = fileinputpath + filecode + '_' + str(YYYY) + gridcodemet + '_data_' + str(int(int(resolutionfilesin) / 60.)) + '.txt'  # No grid code in the name, nov 2015
+                # data_in = fileinputpath + filecode + '_' + str(YYYY) + gridcodemet + '_data.txt'  # No grid code in the name, nov 2015
+                met_old = np.genfromtxt(data_in, skip_header=1, missing_values='**********', filling_values=-9999) #  skip_footer=2,
+                # met_old = np.loadtxt(data_in, skiprows=1)
+                if met_old[1, 3] - met_old[0, 3] == 5:
+                    met_new = met_old
+                else:
+                    met_new = su.tofivemin_v1(met_old)
+        fs.close()
+
+        suews_out = fileoutputpath + filecode + gridcode + '_' + str(YYYY) + '_SUEWS_' + str(
+            int(timeaggregation / 60.)) + '.txt'
+
+        if plotbasic == 1:
+            # if choosegridbasic:
+            #     gridcode = choosegridbasic
+
+            # if chooseyearbasic:
+            #     YYYY = chooseyearbasic
+
+            suews_plottime = np.loadtxt(suews_out, skiprows=1)
+            suews_plottimeold = su.from5mintoanytime(met_new, SumCol_plot, LastCol_plot, TimeCol_plot, int(timeaggregation/60.))
+
+            pl.plotbasic(suews_plottime, suews_plottimeold)
+
+        if plotmonthlystat == 1:
+            # if choosegridstat:
+            #     gridcode = choosegridstat
+
+            # if chooseyearstat:
+            #     YYYY = chooseyearstat
+
+            suews_plottime = np.loadtxt(suews_out, skiprows=1)
+            suews_plottimeold = su.from5mintoanytime(met_new, SumCol_plot, LastCol_plot, TimeCol_plot,
+                                                     int(timeaggregation / 60.))
+
+            pl.plotmonthlystatistics(suews_plottime, suews_plottimeold)
+
+        if plotmonthlystat == 1:
+            plt.show()
+
+        if plotbasic == 1:
+            plt.show()
+    else:
+        print("No plots generated - No matplotlib installed")
+
+    # # pandasplotting !TODO: Use pandas for plotting instead
+    # # read namelist, plot.nml
+    # plotnml = f90nml.read(pathtoplugin + '/plot.nml')
+    # plotbasic = plotnml['plot']['plotbasic']
+    # #     choosegridbasic = plotnml['plot']['choosegridbasic']
+    # #     chooseyearbasic = plotnml['plot']['chooseyearbasic']
+    # #     # timeaggregation = plotnml['plot']['timeaggregation']
+    # plotmonthlystat = plotnml['plot']['plotmonthlystat']
+    # #     choosegridstat = plotnml['plot']['choosegridstat']
+    # #     chooseyearstat = plotnml['plot']['chooseyearstat']
+    # #     TimeCol_plot = np.array([1, 2, 3, 4]) - 1
+    # #     SumCol_plot = np.array([14]) - 1
+    # #     LastCol_plot = np.array([16]) - 1
+
+    # if nomatplot == 0:
+    #     if plotbasic == 1:
+    #         plp.plotbasic(df_output_suews_rsmp, df_forcing)
+    #     if plotmonthlystat == 1:
+    #         plp.plot
+
+            # if plotmonthlystat == 1:
+        #     plt.show()
+
+        # if plotbasic == 1:
+        #     plt.show()
+    
+    
+    
+    
+    
+    
+    
+    
+    
     # return df_output_suews_rsmp
 
     # # Working folder
@@ -237,11 +339,7 @@ def wrapper(pathtoplugin):
     #         # pl.plotmonthlystatistics(suews_result, met_old)
     #         pl.plotmonthlystatistics(suews_plottime, suews_plottimeold)
     #
-        if plotmonthlystat == 1:
-            plt.show()
 
-        if plotbasic == 1:
-            plt.show()
     # else:
     #     print("No plots generated - No matplotlib installed")
 

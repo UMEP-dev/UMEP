@@ -155,15 +155,11 @@ class SUEWSPrepare(object):
         self.dlg.runButton.clicked.connect(self.generate)
 
         self.outputDialog = QFileDialog()
-        # self.outputDialog.setFileMode(4)
-        # self.outputDialog.setAcceptMode(1)
         self.outputDialog.setFileMode(QFileDialog.Directory)
         self.outputDialog.setOption(QFileDialog.ShowDirsOnly, True)
 
         self.fileDialog = QFileDialog()
-        # self.fileDialog.setFileMode(0)
         self.fileDialog.setFileMode(QFileDialog.ExistingFile)
-        # self.fileDialog.setAcceptMode(0)
 
         self.change_dialog = ChangeDialog()
 
@@ -203,12 +199,7 @@ class SUEWSPrepare(object):
         self.steps = 0
 
         # Declare instance attributes
-
         self.actions = []
-        # self.menu = self.tr(u'&SUEWS Prepare')
-        # TODO: We are going to let the user set this up in a future iteration
-        # self.toolbar = self.iface.addToolBar(u'SUEWSPrepare')
-        # self.toolbar.setObjectName(u'SUEWSPrepare')
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -345,263 +336,6 @@ class SUEWSPrepare(object):
 
         self.dlg.tabWidget.addTab(tab, str(title))
 
-    # def setup_tabs_outdated2(self):
-    #
-    #     self.dlg.tabWidget.clear()
-    #     self.widget_list = []
-    #
-    #     main_tab = MainTab()
-    #     self.setup_maintab(main_tab)
-    #
-    #     paved_tab = PavedTab()
-    #     buildings_tab = BuildingsTab()
-    #     evergreen_tab = EvergreenTab()
-    #     decidious_tab = DecidiousTab()
-    #     grass_tab = GrassTab()
-    #     baresoil_tab = BareSoilTab()
-    #     water_tab = WaterTab()
-    #     conductance_tab = ConductanceTab()
-    #     snow_tab = SnowTab()
-    #     anthro_tab = AnthroTab()
-    #     energy_tab = EnergyTab()
-    #     irrigation_tab = IrrigationTab()
-    #     wateruse_tab = WaterUseTab()
-    #
-    #     imp_paved_widget = TemplateWidget(self.impsheet, self.output_nonveg, "Paved surface characteristics", 1, 661)
-    #     self.widget_list.append(imp_paved_widget)
-    #     imp_buildings_widget = TemplateWidget(self.impsheet, self.output_nonveg, "Building surface characteristics", 2,
-    #                                           662)
-    #     self.widget_list.append(imp_buildings_widget)
-    #     veg_evergreen_widget = TemplateWidget(self.vegsheet, self.output_veg, "Evergreen surface characteristics", 3,
-    #                       661)
-    #     self.widget_list.append(veg_evergreen_widget)
-    #     veg_decidious_widget = TemplateWidget(self.vegsheet, self.output_veg, "Decidious surface characteristics", 4,
-    #                       662)
-    #     self.widget_list.append(veg_decidious_widget)
-    #     veg_grass_widget = TemplateWidget(self.vegsheet, self.output_veg, "Grass surface characteristics", 5, 663)
-    #     self.widget_list.append(veg_grass_widget)
-    #     imp_baresoil_widget = TemplateWidget(self.impsheet, self.output_nonveg, "Bare soil surface characteristics", 6,
-    #                                          663)
-    #     self.widget_list.append(imp_baresoil_widget)
-    #     water_widget = TemplateWidget(self.watersheet, self.output_water, "Water surface characteristics", None, 661)
-    #     self.widget_list.append(water_widget)
-    #     conductance_widget = TemplateWidget(self.condsheet, self.output_cond, "Surface conductance parameters", None,
-    #                                         100)
-    #     self.widget_list.append(conductance_widget)
-    #     snow_widget = TemplateWidget(self.snowsheet, self.output_snow, "Snow surface characteristics", None, 660)
-    #     self.widget_list.append(snow_widget)
-    #     prof_snow1_widget = TemplateWidget(self.profsheet, self.output_prof, "Snow clearing profile (Weekdays)", 1, 660)
-    #     self.widget_list.append(prof_snow1_widget)
-    #     prof_snow2_widget = TemplateWidget(self.profsheet, self.output_prof, "Snow clearing profile (Weekends)", 1, 660)
-    #     self.widget_list.append(prof_snow2_widget)
-    #     heat_widget = TemplateWidget(self.heatsheet, self.output_heat, "Modelling anthropogenic heat flux", None, 661)
-    #     self.widget_list.append(heat_widget)
-    #     prof_energy1_widget = TemplateWidget(self.profsheet, self.output_prof, "Energy use profile (Weekdays)", 2, 661)
-    #     self.widget_list.append(prof_energy1_widget)
-    #     prof_energy2_widget = TemplateWidget(self.profsheet, self.output_prof, "Energy use profile (Weekends)", 3, 662)
-    #     self.widget_list.append(prof_energy2_widget)
-    #     irr_widget = TemplateWidget(self.irrsheet, self.output_irr, "Modelling irrigation", None, 660)
-    #     self.widget_list.append(irr_widget)
-    #     prof_wateruse1_widget = TemplateWidget(self.profsheet, self.output_prof,
-    #                                            "Water use profile (Manual irrigation, Weekdays)", 1, 660)
-    #     self.widget_list.append(prof_wateruse1_widget)
-    #     prof_wateruse2_widget = TemplateWidget(self.profsheet, self.output_prof,
-    #                                            "Water use profile (Manual irrigation, Weekends)", 1, 660)
-    #     self.widget_list.append(prof_wateruse2_widget)
-    #     prof_wateruse3_widget = TemplateWidget(self.profsheet, self.output_prof,
-    #                                            "Water use profile (Automatic irrigation, Weekdays)", 1, 660)
-    #     self.widget_list.append(prof_wateruse3_widget)
-    #     prof_wateruse4_widget = TemplateWidget(self.profsheet, self.output_prof,
-    #                                            "Water use profile (Automatic irrigation, Weekends)", 1, 660)
-    #     self.widget_list.append(prof_wateruse4_widget)
-    #
-    #     paved_tab.Layout.addWidget(imp_paved_widget)
-    #
-    #     buildings_tab.Layout.addWidget(imp_buildings_widget)
-    #
-    #     evergreen_tab.Layout.addWidget(veg_evergreen_widget)
-    #
-    #     decidious_tab.Layout.addWidget(veg_decidious_widget)
-    #
-    #     grass_tab.Layout.addWidget(veg_grass_widget)
-    #
-    #     baresoil_tab.Layout.addWidget(imp_baresoil_widget)
-    #
-    #     water_tab.Layout.addWidget(water_widget)
-    #
-    #     conductance_tab.Layout.addWidget(conductance_widget)
-    #
-    #     snow_tab.Layout.addWidget(snow_widget)
-    #     snow_tab.Layout2.addWidget(prof_snow1_widget)
-    #     snow_tab.Layout2.addWidget(prof_snow2_widget)
-    #
-    #     anthro_tab.Layout.addWidget(heat_widget)
-    #
-    #     energy_tab.Layout.addWidget(prof_energy1_widget)
-    #     energy_tab.Layout.addWidget(prof_energy2_widget)
-    #
-    #     irrigation_tab.Layout.addWidget(irr_widget)
-    #
-    #     wateruse_tab.Layout.addWidget(prof_wateruse1_widget)
-    #     wateruse_tab.Layout.addWidget(prof_wateruse2_widget)
-    #     wateruse_tab.Layout2.addWidget(prof_wateruse3_widget)
-    #     wateruse_tab.Layout2.addWidget(prof_wateruse4_widget)
-    #
-    #     self.dlg.tabWidget.addTab(main_tab, "Main settings")
-    #     self.dlg.tabWidget.addTab(paved_tab, "Paved")
-    #     self.dlg.tabWidget.addTab(buildings_tab, "Building")
-    #     self.dlg.tabWidget.addTab(evergreen_tab, "Evergreen")
-    #     self.dlg.tabWidget.addTab(decidious_tab, "Decidious")
-    #     self.dlg.tabWidget.addTab(grass_tab, "Grass")
-    #     self.dlg.tabWidget.addTab(baresoil_tab, "Bare Soil")
-    #     self.dlg.tabWidget.addTab(water_tab, "Water")
-    #     self.dlg.tabWidget.addTab(conductance_tab, "Conductance")
-    #     self.dlg.tabWidget.addTab(snow_tab, "Snow")
-    #     self.dlg.tabWidget.addTab(anthro_tab, "Anthropogenic")
-    #     self.dlg.tabWidget.addTab(energy_tab, "Energy")
-    #     self.dlg.tabWidget.addTab(irrigation_tab, "Irrigation")
-    #     self.dlg.tabWidget.addTab(wateruse_tab, "Water Use")
-    #
-    #     for widget in self.widget_list:
-    #         widget.setup_widget()
-    #         widget.make_edits_signal.connect(self.make_edits)
-    #         widget.edit_mode_signal.connect(self.edit_mode)
-    #         widget.cancel_edits_signal.connect(self.cancel_edits)
-
-    # def setup_tabs_outdated(self):
-    #     self.dlg.tabWidget.clear()
-    #
-    #     main_tab = MainTab()
-    #     self.setup_maintab(main_tab)
-    #
-    #     paved_tab = PavedTab()
-    #     buildings_tab = BuildingsTab()
-    #     baresoil_tab = BareSoilTab()
-    #     evergreen_tab = EvergreenTab()
-    #     decidious_tab = DecidiousTab()
-    #     grass_tab = GrassTab()
-    #     water_tab = WaterTab()
-    #     conductance_tab = ConductanceTab()
-    #     snow_tab = SnowTab()
-    #     anthro_tab = AnthroTab()
-    #     energy_tab = EnergyTab()
-    #     irrigation_tab = IrrigationTab()
-    #     wateruse_tab = WaterUseTab()
-    #
-    #     conductance_widget = TemplateWidget()
-    #     heat_widget = TemplateWidget()
-    #     imp_paved_widget = TemplateWidget()
-    #     imp_buildings_widget = TemplateWidget()
-    #     irr_widget = TemplateWidget()
-    #     imp_baresoil_widget = TemplateWidget()
-    #     prof_snow1_widget = TemplateWidget()
-    #     prof_snow2_widget = TemplateWidget()
-    #     prof_energy1_widget = TemplateWidget()
-    #     prof_energy2_widget = TemplateWidget()
-    #     prof_wateruse1_widget = TemplateWidget()
-    #     prof_wateruse2_widget = TemplateWidget()
-    #     prof_wateruse3_widget = TemplateWidget()
-    #     prof_wateruse4_widget = TemplateWidget()
-    #     snow_widget = TemplateWidget()
-    #     water_widget = TemplateWidget()
-    #     veg_evergreen_widget = TemplateWidget()
-    #     veg_decidious_widget = TemplateWidget()
-    #     veg_grass_widget = TemplateWidget()
-    #
-    #     paved_tab.Layout.addWidget(imp_paved_widget)
-    #
-    #     buildings_tab.Layout.addWidget(imp_buildings_widget)
-    #
-    #     baresoil_tab.Layout.addWidget(imp_baresoil_widget)
-    #
-    #     evergreen_tab.Layout.addWidget(veg_evergreen_widget)
-    #
-    #     decidious_tab.Layout.addWidget(veg_decidious_widget)
-    #
-    #     grass_tab.Layout.addWidget(veg_grass_widget)
-    #
-    #     water_tab.Layout.addWidget(water_widget)
-    #
-    #     conductance_tab.Layout.addWidget(conductance_widget)
-    #
-    #     snow_tab.Layout.addWidget(snow_widget)
-    #     snow_tab.Layout2.addWidget(prof_snow1_widget)
-    #     snow_tab.Layout2.addWidget(prof_snow2_widget)
-    #
-    #     anthro_tab.Layout.addWidget(heat_widget)
-    #
-    #     energy_tab.Layout.addWidget(prof_energy1_widget)
-    #     energy_tab.Layout.addWidget(prof_energy2_widget)
-    #
-    #     irrigation_tab.Layout.addWidget(irr_widget)
-    #
-    #     wateruse_tab.Layout.addWidget(prof_wateruse1_widget)
-    #     wateruse_tab.Layout.addWidget(prof_wateruse2_widget)
-    #     wateruse_tab.Layout2.addWidget(prof_wateruse3_widget)
-    #     wateruse_tab.Layout2.addWidget(prof_wateruse4_widget)
-    #
-    #     self.dlg.tabWidget.addTab(main_tab, "Main settings")
-    #     self.dlg.tabWidget.addTab(paved_tab, "Paved")
-    #     self.dlg.tabWidget.addTab(buildings_tab, "Building")
-    #     self.dlg.tabWidget.addTab(baresoil_tab, "Bare Soil")
-    #     self.dlg.tabWidget.addTab(evergreen_tab, "Evergreen")
-    #     self.dlg.tabWidget.addTab(decidious_tab, "Decidious")
-    #     self.dlg.tabWidget.addTab(grass_tab, "Grass")
-    #     self.dlg.tabWidget.addTab(water_tab, "Water")
-    #     self.dlg.tabWidget.addTab(conductance_tab, "Conductance")
-    #     self.dlg.tabWidget.addTab(snow_tab, "Snow")
-    #     self.dlg.tabWidget.addTab(anthro_tab, "Anthropogenic")
-    #     self.dlg.tabWidget.addTab(energy_tab, "Energy")
-    #     self.dlg.tabWidget.addTab(irrigation_tab, "Irrigation")
-    #     self.dlg.tabWidget.addTab(wateruse_tab, "Water Use")
-    #
-    #     self.setup_widget(imp_paved_widget, self.impsheet, self.output_nonveg, "Paved surface characteristics", 1, 661)
-    #
-    #     self.setup_widget(imp_buildings_widget, self.impsheet, self.output_nonveg,
-    #                       "Building surface characteristics", 2, 662)
-    #
-    #     self.setup_widget(veg_evergreen_widget, self.vegsheet, self.output_veg, "Evergreen surface characteristics", 3,
-    #                       661)
-    #
-    #     self.setup_widget(veg_decidious_widget, self.vegsheet, self.output_veg, "Decidious surface characteristics", 4,
-    #                       662)
-    #
-    #     self.setup_widget(veg_grass_widget, self.vegsheet, self.output_veg, "Grass surface characteristics", 5, 663)
-    #
-    #     self.setup_widget(imp_baresoil_widget, self.impsheet, self.output_nonveg,
-    #                       "Bare soil surface characteristics", 6, 663)
-    #
-    #     self.setup_widget(water_widget, self.watersheet, self.output_water, "Water surface characteristics", None, 661)
-    #
-    #     self.setup_widget(conductance_widget, self.condsheet, self.output_cond, "Surface conductance parameters", None,
-    #                       100)
-    #
-    #     self.setup_widget(snow_widget, self.snowsheet, self.output_snow, "Snow surface characteristics", None, 660)
-    #
-    #     self.setup_widget(prof_snow1_widget, self.profsheet, self.output_prof, "Snow clearing profile (Weekdays)", 1)
-    #
-    #     self.setup_widget(prof_snow2_widget, self.profsheet, self.output_prof, "Snow clearing profile (Weekends)", 2)
-    #
-    #     self.setup_widget(heat_widget, self.heatsheet, self.output_heat, "Modelling anthropogenic heat flux")
-    #
-    #     self.setup_widget(prof_energy1_widget, self.profsheet, self.output_prof, "Energy use profile (Weekdays)", 3)
-    #
-    #     self.setup_widget(prof_energy2_widget, self.profsheet, self.output_prof, "Energy use profile (Weekends)", 4)
-    #
-    #     self.setup_widget(irr_widget, self.irrsheet, self.output_irr, "Modelling irrigation")
-    #
-    #     self.setup_widget(prof_wateruse1_widget, self.profsheet, self.output_prof,
-    #                       "Water use profile (Manual irrigation, Weekdays)", 5)
-    #
-    #     self.setup_widget(prof_wateruse2_widget, self.profsheet, self.output_prof,
-    #                       "Water use profile (Manual irrigation, Weekends)", 6)
-    #
-    #     self.setup_widget(prof_wateruse3_widget, self.profsheet, self.output_prof,
-    #                       "Water use profile (Automatic irrigation, Weekdays)", 7)
-    #
-    #     self.setup_widget(prof_wateruse4_widget, self.profsheet, self.output_prof,
-    #                       "Water use profile (Automatic irrigation, Weekends)", 8)
-
     def setup_maintab(self, widget):
 
         self.LCF_from_file = True
@@ -619,9 +353,6 @@ class SUEWSPrepare(object):
 
         widget.checkBox_day.stateChanged.connect(lambda: self.popdaystate(widget))
 
-        # self.layerComboManagerPolygrid = VectorLayerCombo(widget.comboBox_Polygrid)
-        # self.fieldgen = VectorLayerCombo(widget.comboBox_Polygrid, initLayer="", options={"geomType": QGis.Polygon})
-        # self.layerComboManagerPolyField = FieldCombo(widget.comboBox_Field, self.fieldgen, initField="")
         self.layerComboManagerPolygrid = QgsMapLayerComboBox(widget.widgetPolygonLayer)
         self.layerComboManagerPolygrid.setCurrentIndex(-1)
         self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.PolygonLayer)
@@ -643,24 +374,6 @@ class SUEWSPrepare(object):
         self.wall_area = QgsFieldComboBox(widget.widgetWallArea)
         self.wall_area.setFilters(QgsFieldProxyModel.Numeric)
         self.layerComboManagerPolygrid.layerChanged.connect(self.wall_area.setLayer)
-
-        # self.LCF_Paved = FieldCombo(widget.LCF_Paved, self.fieldgen, initField="")
-        # self.LCF_Buildings = FieldCombo(widget.LCF_Buildings, self.fieldgen, initField="")
-        # self.LCF_Evergreen = FieldCombo(widget.LCF_Evergreen, self.fieldgen, initField="")
-        # self.LCF_Decidious = FieldCombo(widget.LCF_Decidious, self.fieldgen, initField="")
-        # self.LCF_Grass = FieldCombo(widget.LCF_Grass, self.fieldgen, initField="")
-        # self.LCF_Baresoil = FieldCombo(widget.LCF_Baresoil, self.fieldgen, initField="")
-        # self.LCF_Water = FieldCombo(widget.LCF_Water, self.fieldgen, initField="")
-        #
-        # self.IMP_mean_height = FieldCombo(widget.IMP_mean, self.fieldgen, initField="")
-        # self.IMP_z0 = FieldCombo(widget.IMP_z0, self.fieldgen, initField="")
-        # self.IMP_zd = FieldCombo(widget.IMP_zd, self.fieldgen, initField="")
-        # self.IMP_fai = FieldCombo(widget.IMP_fai, self.fieldgen, initField="")
-        #
-        # self.IMPveg_mean_height_dec = FieldCombo(widget.IMPveg_mean_dec, self.fieldgen, initField="")
-        # self.IMPveg_mean_height_eve = FieldCombo(widget.IMPveg_mean_eve, self.fieldgen, initField="")
-        # self.IMPveg_fai_dec = FieldCombo(widget.IMPveg_fai_dec, self.fieldgen, initField="")
-        # self.IMPveg_fai_eve = FieldCombo(widget.IMPveg_fai_eve, self.fieldgen, initField="")
 
         widget.pushButtonImportLCF.clicked.connect(lambda: self.set_LCFfile_path(widget))
         widget.pushButtonImportIMPVeg.clicked.connect(lambda: self.set_IMPvegfile_path(widget))

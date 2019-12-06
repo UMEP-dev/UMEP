@@ -126,7 +126,7 @@ class SuewsPlotting(object):
 
         writeoption = dataout.shape[1]
         mv = 0
-        if writeoption < 38:
+        if writeoption < 39:
             mv = 3
 
         dectime = make_dectime(dataout)

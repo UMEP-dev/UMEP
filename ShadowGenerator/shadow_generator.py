@@ -291,6 +291,10 @@ class ShadowGenerator(object):
         lonlat = transform.TransformPoint(minx, miny)
         geotransform = gdal_dsm.GetGeoTransform()
         scale = 1 / geotransform[1]
+        lon = lonlat[0]
+        lat = lonlat[1]
+        # print(str(lon))
+        # print(str(lat))
 
         trans = self.dlg.spinBoxTrans.value() / 100.0
 
