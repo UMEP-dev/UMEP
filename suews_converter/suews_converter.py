@@ -262,13 +262,11 @@ class SUEWSConverter:
             pass
 
         fromDir = self.dlg.textInput.text().rstrip('RunControl.nml')
-        print(fromDir)
         toDir = self.dlg.textOutput.text()
         fromVer = self.dlg.comboBoxOld.currentText()
         toVer = self.dlg.comboBoxNew.currentText()
-        convert_table(fromDir, toDir, fromVer, toVer)  # temp location
         try:
-            # convert_table(fromDir, toDir, fromVer, toVer)
+            convert_table(fromDir, toDir, fromVer, toVer)
             self.iface.messageBar().pushMessage("SUEWS Converter", "Data successfully converted between: "
                         + fromVer + " to " + toVer, level=Qgis.Success)
         except Exception as e:
