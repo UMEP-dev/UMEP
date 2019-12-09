@@ -28,6 +28,7 @@ from qgis.gui import QgsMessageBar
 import webbrowser
 from qgis.core import Qgis
 from pathlib import Path
+import tempfile
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -35,14 +36,13 @@ from .resources import *
 from .suews_converter_dialog import SUEWSConverterDialog
 import os.path
 
-try:
-    from supy.util._converter import convert_table
-except Exception as e:
-    QMessageBox.critical(None, 'Error', 'This plugin requires the supy package to be installed OR upgraded'
-                                        '. See Section 2.3 in the UMEP-manual for further'
-                                        'information on how to install missing python packages in QGIS3.')
-    pass
-
+# try:
+#     from supy.util._converter import convert_table
+# except Exception as e:
+#     QMessageBox.critical(None, 'SUEWS Converter', 'This plugin requires the supy package to be installed OR upgraded. '
+#                                         'See Section 2.3 in the UMEP-manual for furtherinformation on how ' 
+#                                         'to install external python packages in QGIS3.')
+#     pass
 
 
 class SUEWSConverter:
@@ -85,6 +85,8 @@ class SUEWSConverter:
         self.fileDialog = QFileDialog()
         self.fileDialog.setFileMode(QFileDialog.Directory)
         self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
+        self.fileDialognml = QFileDialog()
+        self.fileDialognml.setNameFilter("(RunControl.nml)")
 
         # Check if plugin was started the first time in current QGIS session
         # Must be set in initGui() to survive plugin reloads
@@ -210,15 +212,29 @@ class SUEWSConverter:
             self.dlg.textOutput.setText(self.folderPathOut[0])
 
     def folder_path_in(self):
-        self.fileDialog.open()
-        result = self.fileDialog.exec_()
+
+        self.fileDialognml.open()
+        result = self.fileDialognml.exec_()
         if result == 1:
-            self.folderPathOut = self.fileDialog.selectedFiles()
+            self.folderPathOut = self.fileDialognml.selectedFiles()
             self.dlg.textInput.setText(self.folderPathOut[0])
+
+        # self.fileDialog.open()
+        # result = self.fileDialog.exec_()
+        # if result == 1:
+        #     self.folderPathOut = self.fileDialog.selectedFiles()
+        #     self.dlg.textInput.setText(self.folderPathOut[0])
 
     def run(self):
         """Run method that performs all the real work"""
 
+        try:
+            from supy.util._converter import convert_table
+        except Exception as e:
+            QMessageBox.critical(None, 'SUEWS Converter', 'This plugin requires the supy package to be installed OR upgraded. '
+                                        'See Section 2.3 in the UMEP-manual for further information on how ' 
+                                        'to install external python packages in QGIS3.')
+            return
 
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
@@ -240,89 +256,24 @@ class SUEWSConverter:
         webbrowser.open_new_tab(url)
 
     def start_progress(self):
+        try:
+            from supy.util._converter import convert_table
+        except:
+            pass
 
-        fromDir = self.dlg.textInput.text()
+        fromDir = self.dlg.textInput.text().rstrip('RunControl.nml')
+        print(fromDir)
         toDir = self.dlg.textOutput.text()
         fromVer = self.dlg.comboBoxOld.currentText()
         toVer = self.dlg.comboBoxNew.currentText()
-
-        self.iface.messageBar().pushMessage("Info", fromDir + ' ' + toDir + ' ' + fromVer + ' ' + toVer, level=Qgis.Success)
-        convert_table(fromDir, toDir, fromVer, toVer)
-
-
-    # a chained conversion across multiple versions
-    # def convert_table(self, fromDir, toDir, fromVer, toVer):
-    #     chain_ver = version_list(fromVer, toVer)
-    #     len_chain = chain_ver[0]
-    #     logger_supy.info(
-    #         f'working on chained conversion {len_chain} actions to take')
-    #     logger_supy.info(
-    #         f'chained list: {chain_ver[1:]} \n')
-    #     tempDir_1 = 'temp1'
-    #     tempDir_2 = 'temp2'
-    #     i = chain_ver[0]
-    #     # Create temporary folders
-    #     if os.path.exists(tempDir_1) is False:
-    #         os.mkdir(tempDir_1)
-    #     if os.path.exists(tempDir_2) is False:
-    #         os.mkdir(tempDir_2)
-
-    #     # flatten all file structures in tempDir_1
-    #     # locate input folder
-    #     ser_nml = load_SUEWS_nml(str(Path(fromDir)/'RunControl.nml')).runcontrol
-    #     path_input = (Path(fromDir)/ser_nml['fileinputpath']).resolve()
-    #     list_table_input = (
-    #         [x for x in path_input.glob('SUEWS*.txt')]
-    #         + [x for x in path_input.glob('*.nml')]
-    #         + [x for x in Path(fromDir).resolve().glob('*.nml')]
-    #     )
-    #     # copy flattened files into tempDir_1 for later processing
-    #     tempDir_1 = 'temp1'
-    #     for fileX in list_table_input:
-    #         copyfile(fileX.resolve(), Path(tempDir_1) / (fileX.name))
-    #     # print(list_table_input)
-    #     # print(tempDir_1)
-
-    #     # Indirect version conversion process
-    #     while i > 1:
-    #         logger_supy.info(f'working on: {chain_ver[i + 1]} --> {chain_ver[i]}')
-    #         if i % 2:
-    #             tempDir_2 = 'temp2'
-    #             SUEWS_Converter_single(
-    #                 tempDir_1, tempDir_2, chain_ver[i + 1], chain_ver[i])
-    #             tempDir_1 = 'temp1'
-    #             # Remove input temporary folders
-    #             rmtree(tempDir_1, ignore_errors=True)
-
-    #         else:
-    #             tempDir_1 = 'temp1'
-    #             SUEWS_Converter_single(
-    #                 tempDir_2, tempDir_1, chain_ver[i + 1], chain_ver[i])
-    #             tempDir_2 = 'temp2'
-    #             # Remove input temporary folders
-    #             rmtree(tempDir_2, ignore_errors=True)
-    #             # this loop always break in this part
-    #         i -= 1
-    #     logger_supy.info(f'working on: {chain_ver[i + 1]} --> {chain_ver[i]}')
-    #     SUEWS_Converter_single(tempDir_1, toDir, chain_ver[2], chain_ver[1])
-    #     # Remove temporary folders
-    #     rmtree(tempDir_1, ignore_errors=True)
-    #     rmtree(tempDir_2, ignore_errors=True)
-
-    #     # cleaning and move input tables into the `input` folder
-    #     ser_nml = load_SUEWS_nml(str(Path(toDir)/'RunControl.nml')).runcontrol
-
-    #     path_input = (Path(toDir)/ser_nml['fileinputpath']).resolve()
-    #     path_output = (Path(toDir)/ser_nml['fileoutputpath']).resolve()
-    #     path_input.mkdir(exist_ok=True)
-    #     path_output.mkdir(exist_ok=True)
-
-    #     list_table_input = (
-    #         [x for x in Path(toDir).glob('SUEWS*.txt')]
-    #         + [x for x in Path(toDir).glob('*.nml') if 'RunControl' not in str(x)]
-    #     )
-
-    #     for fileX in list_table_input:
-    #         move(fileX.resolve(), path_input / (fileX.name))
-
+        convert_table(fromDir, toDir, fromVer, toVer)  # temp location
+        try:
+            # convert_table(fromDir, toDir, fromVer, toVer)
+            self.iface.messageBar().pushMessage("SUEWS Converter", "Data successfully converted between: "
+                        + fromVer + " to " + toVer, level=Qgis.Success)
+        except Exception as e:
+            QMessageBox.critical(self.dlg, "An error occurred", str(e) + "\r\n\r\n"
+                                "Check: " + str(list(Path(tempfile.gettempdir()).glob('SuPy.log'))[0]) + "\r\n\r\n"
+                                "Please report any errors to https://bitbucket.org/fredrik_ucg/umep/issues")
+            return
 

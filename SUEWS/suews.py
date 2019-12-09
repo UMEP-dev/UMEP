@@ -150,9 +150,9 @@ class SUEWS(object):
         try:
             import supy
         except Exception as e:
-            QMessageBox.critical(None, 'Error', 'This plugin requires the supy package to be installed OR upgraded'
-                                                '(ver >= 2019.11.25). See Section 2.3 in the UMEP-manual for further'
-                                                'information on how to install missing python packages in QGIS3.')
+            QMessageBox.critical(None, 'SUEWS Advanced', 'This plugin requires the supy package to be installed OR upgraded. '
+                                                'See Section 2.3 in the UMEP-manual for further information on how ' 
+                                                'to install external python packages in QGIS3.')
             return
 
         self.supylib = sys.modules["supy"].__path__[0]

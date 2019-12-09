@@ -183,9 +183,9 @@ class SuewsSimple(object):
         try:
             import supy
         except Exception as e:
-            QMessageBox.critical(None, 'Error', 'This plugin requires the supy package to be installed OR upgraded'
-                                                '. See Section 2.3 in the UMEP-manual for further'
-                                                'information on how to install missing python packages in QGIS3.')
+            QMessageBox.critical(None, 'SuPy library missing', 'This plugin requires the supy package to be installed OR upgraded. '
+                                                'See Section 2.3 in the UMEP-manual for further information on how ' 
+                                                'to install missing/external python packages in QGIS3.')
             return
 
         self.supylib = sys.modules["supy"].__path__[0]
@@ -410,14 +410,14 @@ class SuewsSimple(object):
             return
 
         # Copy basefiles from sample_run
-        basefiles = ['ESTMinput.nml', 'SUEWS_AnthropogenicEmission.txt', 'SUEWS_BiogenCO2.txt', 'SUEWS_Conductance.txt', 'SUEWS_ESTMCoefficients.txt', 'SUEWS_Irrigation.txt',
+        basefiles = ['ESTMinput.nml', 'SUEWS_AnthropogenicEmission.txt', 'SUEWS_BiogenCO2.txt', 'SUEWS_Conductance.txt', 'SUEWS_ESTMCoefficients.txt', 'SUEWS_Irrigation.txt', 
         'SUEWS_NonVeg.txt', 'SUEWS_OHMCoefficients.txt', 'SUEWS_Profiles.txt', 'SUEWS_Snow.txt', 'SUEWS_Soil.txt', 'SUEWS_Water.txt', 'SUEWS_Veg.txt', 'SUEWS_WithinGridWaterDist.txt']
         for i in range(0, basefiles.__len__()):
             try:
                 shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.model_dir + '/Input/' + basefiles[i])
             except:
                 os.remove(self.model_dir + '/Input/' + basefiles[i])
-                shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.model_dir + '/Input/' + basefiles[i])
+                shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.model_dir + '/Input/' + basefiles[i]) 
 
         # Getting values from GUI
         YYYY = self.dlg.lineEdit_YYYY.text()

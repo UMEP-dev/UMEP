@@ -86,7 +86,7 @@ class SUEWSPrepare(object):
 
         self.input_path = self.plugin_dir + '/Input/'
         self.output_path = self.plugin_dir[:-12] + 'suewsmodel/'
-        self.output_heat = 'SUEWS_AnthropogenicHeat.txt'
+        self.output_heat = 'SUEWS_AnthropogenicEmission.txt' #'SUEWS_AnthropogenicHeat.txt'
         self.output_file_list.append(self.output_heat)
         self.output_cond = 'SUEWS_Conductance.txt'
         self.output_file_list.append(self.output_cond)
@@ -133,7 +133,7 @@ class SUEWSPrepare(object):
         self.init_data = xlrd.open_workbook(self.init_path)
         self.header_data = xlrd.open_workbook(self.header_file_path)
         self.isEditable = False
-        self.heatsheet = self.data.sheet_by_name("SUEWS_AnthropogenicHeat")
+        self.heatsheet = self.data.sheet_by_name("SUEWS_AnthropogenicEmission") #SUEWS_AnthropogenicHeat")
         self.condsheet = self.data.sheet_by_name("SUEWS_Conductance")
         self.irrsheet = self.data.sheet_by_name("SUEWS_Irrigation")
         self.impsheet = self.data.sheet_by_name("SUEWS_NonVeg")
@@ -187,10 +187,8 @@ class SUEWSPrepare(object):
         self.IMPveg_fai_eve = None
         self.wall_area = None
         self.daypop = 0
-
         self.start_DLS = 85
         self.end_DLS = 302
-
         self.day_since_rain = 0
         self.leaf_cycle = 0
         self.soil_moisture = 100
@@ -770,7 +768,7 @@ class SUEWSPrepare(object):
 
     def update_sheets(self):
         self.data = xlrd.open_workbook(self.file_path)
-        self.heatsheet = self.data.sheet_by_name("SUEWS_AnthropogenicHeat")
+        self.heatsheet = self.data.sheet_by_name("SUEWS_AnthropogenicEmission") #SUEWS_AnthropogenicHeat")
         self.condsheet = self.data.sheet_by_name("SUEWS_Conductance")
         self.irrsheet = self.data.sheet_by_name("SUEWS_Irrigation")
         self.impsheet = self.data.sheet_by_name("SUEWS_NonVeg")

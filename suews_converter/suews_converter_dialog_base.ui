@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>431</width>
+    <width>330</width>
     <height>192</height>
    </rect>
   </property>
@@ -14,36 +14,6 @@
    <string>SUEWS Converter</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="0" column="0">
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_25">
-       <property name="text">
-        <string>Old version</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buddy">
-        <cstring></cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_26">
-       <property name="text">
-        <string>New version</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buddy">
-        <cstring></cstring>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
    <item row="0" column="1">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
@@ -122,45 +92,51 @@
      </item>
     </layout>
    </item>
+   <item row="0" column="0">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="1">
+      <widget class="QLabel" name="label_25">
+       <property name="text">
+        <string>Old version</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="buddy">
+        <cstring></cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLabel" name="label_26">
+       <property name="text">
+        <string>New version</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="buddy">
+        <cstring></cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
    <item row="1" column="0" colspan="2">
     <layout class="QGridLayout" name="gridLayout_3">
-     <item row="0" column="0" colspan="2">
-      <widget class="QLineEdit" name="textInput"/>
-     </item>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="pushButtonLoad">
-       <property name="text">
-        <string>Input folder</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0" colspan="2">
-      <widget class="QLineEdit" name="textOutput"/>
-     </item>
-     <item row="1" column="2">
-      <widget class="QPushButton" name="pushButtonSave">
-       <property name="text">
-        <string>Output folder</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2">
-      <widget class="QPushButton" name="runButton">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="text">
-        <string>Run</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QPushButton" name="helpButton">
-       <property name="text">
-        <string>Help</string>
-       </property>
-      </widget>
-     </item>
      <item row="3" column="1">
       <spacer name="horizontalSpacer">
        <property name="orientation">
@@ -174,6 +150,26 @@
        </property>
       </spacer>
      </item>
+     <item row="0" column="0" colspan="2">
+      <widget class="QLineEdit" name="textInput"/>
+     </item>
+     <item row="2" column="2">
+      <widget class="QPushButton" name="runButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Run</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="pushButtonLoad">
+       <property name="text">
+        <string>Load RunControl</string>
+       </property>
+      </widget>
+     </item>
      <item row="3" column="2">
       <widget class="QPushButton" name="closeButton">
        <property name="enabled">
@@ -181,6 +177,23 @@
        </property>
        <property name="text">
         <string>Close</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QPushButton" name="pushButtonSave">
+       <property name="text">
+        <string>Output folder</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="2">
+      <widget class="QLineEdit" name="textOutput"/>
+     </item>
+     <item row="3" column="0">
+      <widget class="QPushButton" name="helpButton">
+       <property name="text">
+        <string>Help</string>
        </property>
       </widget>
      </item>
