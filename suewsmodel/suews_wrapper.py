@@ -51,7 +51,9 @@ def wrapper(pathtoplugin):
     # SuPy simulation
     df_output, df_state_final = sp.run_supy(df_forcing,
                                             df_state_init,
-                                            check_input=True)
+                                            check_input=True,
+                                            serial_mode=True,
+                                            )
 
     # resampling SuPy results for plotting
     df_output_suews = df_output.loc[grid, 'SUEWS']
@@ -195,15 +197,15 @@ def wrapper(pathtoplugin):
 
         # if plotbasic == 1:
         #     plt.show()
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
     # return df_output_suews_rsmp
 
     # # Working folder
