@@ -182,14 +182,20 @@ class Worker(QtCore.QObject):
 
                 else:
                     hectare = area
-
+                gdalver = float(gdal.__version__[0])
                 lonlat = transform.TransformPoint(centroid.x(), centroid.y())
                 code = "lat"
                 index = self.find_index(code)
-                new_line[index] = '%.6f' % lonlat[1]
+                if gdalver == 3.:
+                    new_line[index] = '%.6f' % lonlat[0] #changed to gdal 3
+                else:
+                    new_line[index] = '%.6f' % lonlat[1] #changed to gdal 2
                 code = "lng"
                 index = self.find_index(code)
-                new_line[index] = '%.6f' % lonlat[0]
+                if gdalver == 3.:
+                    new_line[index] = '%.6f' % lonlat[1] #changed to gdal 3
+                else:
+                    new_line[index] = '%.6f' % lonlat[0] #changed to gdal 2
 
                 code = "Timezone"
                 index = self.find_index(code)
@@ -287,14 +293,14 @@ class Worker(QtCore.QObject):
                 index = self.find_index(code)
                 new_line[index] = str(irrFr_Grass)
 
-                Traffic_Rate = 99999
-                BuildEnergy_Use = 99999
-                code = "TrafficRate"
+                TrafficRate_WD = -999
+                TrafficRate_WE = -999
+                code = "TrafficRate_WD"
                 index = self.find_index(code)
-                new_line[index] = str(Traffic_Rate)
-                code = "BuildEnergyUse"
+                new_line[index] = str(TrafficRate_WD)
+                code = "TrafficRate_WE"
                 index = self.find_index(code)
-                new_line[index] = str(BuildEnergy_Use)
+                new_line[index] = str(TrafficRate_WE)
 
                 QF0_BEU_WD = 0.88
                 QF0_BEU_WE = 0.88

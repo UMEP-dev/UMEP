@@ -49,6 +49,8 @@ import urllib.request, urllib.error, urllib.parse
 import fileinput
 import itertools
 import webbrowser
+import os
+import shutil
 
 try:
     import xlrd
@@ -123,6 +125,20 @@ class SUEWSPrepare(object):
         self.IMPveg_from_file = True
         self.wall_area_info = False
         self.land_use_from_file = False
+
+        # Copy basefiles from sample_run
+        self.supylib = sys.modules["supy"].__path__[0]
+        if not (os.path.isdir(self.output_path + '/Input')):
+            os.mkdir(self.output_path + '/Input')
+        basefiles = ['ESTMinput.nml', 'SUEWS_AnthropogenicEmission.txt', 'SUEWS_BiogenCO2.txt', 'SUEWS_Conductance.txt', 'SUEWS_ESTMCoefficients.txt', 'SUEWS_Irrigation.txt', 
+        'SUEWS_NonVeg.txt', 'SUEWS_OHMCoefficients.txt', 'SUEWS_Profiles.txt', 'SUEWS_Snow.txt', 'SUEWS_Soil.txt', 'SUEWS_Water.txt', 'SUEWS_Veg.txt', 'SUEWS_WithinGridWaterDist.txt']
+        for i in range(0, basefiles.__len__()):
+            if not (os.path.isfile(self.output_path + '/Input/' + basefiles[i])):
+                try:
+                    shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.output_path + '/Input/' + basefiles[i])
+                except:
+                    os.remove(self.output_path + '/Input/' + basefiles[i])
+                    shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.output_path + '/Input/' + basefiles[i])
 
         self.file_path = self.plugin_dir + '/Input/SUEWS_SiteLibrary.xls'
         self.init_path = self.plugin_dir + '/Input/SUEWS_init.xlsx'

@@ -349,10 +349,17 @@ class UMEP_Data_Download(object):
             canxymin = crs_transform.TransformPoint(canminx, canminy)
             canxymax = crs_transform.TransformPoint(canmaxx, canmaxy)
 
-            self.bbox['xmin'] = float(canxymin[0])
-            self.bbox['xmax'] = float(canxymax[0])
-            self.bbox['ymin'] = float(canxymin[1])
-            self.bbox['ymax'] = float(canxymax[1])
+            gdalver = float(gdal.__version__[0])
+            if gdalver == 3.:
+                self.bbox['xmin'] = float(canxymin[1]) #changed to gdal 3
+                self.bbox['xmax'] = float(canxymax[1]) #changed to gdal 3
+                self.bbox['ymin'] = float(canxymin[0]) #changed to gdal 3
+                self.bbox['ymax'] = float(canxymax[0]) #changed to gdal 3
+            else:
+                self.bbox['xmin'] = float(canxymin[0]) #changed to gdal 2
+                self.bbox['xmax'] = float(canxymax[0]) #changed to gdal 2
+                self.bbox['ymin'] = float(canxymin[1]) #changed to gdal 2
+                self.bbox['ymax'] = float(canxymax[1]) #changed to gdal 2
         else:
             canvas_geom = canvas.extent()
 

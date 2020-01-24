@@ -245,7 +245,7 @@ class SUEWSAnalyzer(object):
             self.tstep = int(float(tstep) / 60)
             writeoutoption = nml['runcontrol']['writeoutoption']
 
-            mm = 0
+            mm = 0 #This doesn't work when hourly file starts with e.g.15
             while mm < 60:
                 self.dlg.comboBox_mm.addItem(str(mm))
                 mm += self.resout

@@ -352,13 +352,7 @@ class ImageMorphParam(object):
                                                 'to be installed. Please consult the FAQ in the manual for further '
                                                 'information on how to install missing python packages.')
             return
-        # try:
-        #     import skimage
-        # except Exception as e:
-        #     QMessageBox.critical(None, 'Error', 'This plugin requires the scikit-image package '
-        #                                         'to be installed. Please consult the FAQ in the manual for further '
-        #                                         'information on how to install missing python packages.')
-        #     return
+
         self.dlg.show()
         self.dlg.exec_()
         gdal.UseExceptions()

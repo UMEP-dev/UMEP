@@ -41,6 +41,7 @@ from .LCZ_Converter.LCZ_converter import LCZ_test
 from .UMEPDownloader.umep_downloader import UMEP_Data_Download
 from .DSMGenerator.dsm_generator import DSMGenerator
 from .WATCHData.watch import WATCHData
+from .copernicus_data.copernicus_data import CopernicusData
 from .GreaterQF.greater_qf import GreaterQF # TODO: Not functional
 from .ExtremeFinder.extreme_finder import ExtremeFinder
 from .LucyQF.LQF import LQF
@@ -154,6 +155,9 @@ class UMEP(object):
         self.PFD_Action = QAction("Download data (WATCH)", self.iface.mainWindow())
         self.MD_Menu.addAction(self.PFD_Action)
         self.PFD_Action.triggered.connect(self.WA)
+        self.ERA_Action = QAction("Download data (ERA5)", self.iface.mainWindow())
+        self.MD_Menu.addAction(self.ERA_Action)
+        self.ERA_Action.triggered.connect(self.ERA)
 
         # Sub-actions to Spatial Data Preparation
         self.SDD_Action = QAction("Spatial Data Downloader", self.iface.mainWindow())
@@ -297,6 +301,7 @@ class UMEP(object):
         self.Manual_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_umep.png"))
         self.PED_Action.setIcon(QIcon(self.plugin_dir + "/Icons/metdata.png"))
         self.PFD_Action.setIcon(QIcon(self.plugin_dir + "/Icons/watch.png"))
+        self.ERA_Action.setIcon(QIcon(self.plugin_dir + "/Icons/watch.png"))
         self.MRT_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_solweig.png"))
         self.SOLWEIGa_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_solweig.png"))
         self.SUEWSa_Action.setIcon(QIcon(self.plugin_dir + "/Icons/SuewsLogo.png"))
@@ -440,9 +445,14 @@ class UMEP(object):
     def WA(self):
         QMessageBox.critical(self.dlg, "Plugin not functional",
                              "This tool is currenly not operational."
-                             "See issue #96 in our code repository (https://bitbucket.org/fredrik_ucg/umep/issues) for more info.")
+                             "See issue #96 in our code repository (https://bitbucket.org/fredrik_ucg/umep/issues) for more info."
+                             " Use ERA5 downloader instead.")
         return
         sg = WATCHData(self.iface)
+        sg.run()
+
+    def ERA(self):
+        sg = CopernicusData(self.iface)
         sg.run()
 
     def GF(self):

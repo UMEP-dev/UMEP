@@ -258,11 +258,18 @@ class DSMGenerator(object):
                 canxymin = transformExt.TransformPoint(canminx, canminy)
                 canxymax = transformExt.TransformPoint(canmaxx, canmaxy)
 
-                extDiffminx = canxymin[0] - extentDEM.xMinimum() # If smaller than zero = warning
-                extDiffminy = canxymin[1] - extentDEM.yMinimum() # If smaller than zero = warning
-                extDiffmaxx = canxymax[0] - extentDEM.xMaximum() # If larger than zero = warning
-                extDiffmaxy = canxymax[1] - extentDEM.yMaximum() # If larger than zero = warning
-
+                gdalver = float(gdal.__version__[0])
+                if gdalver == 3.:
+                    extDiffminx = canxymin[1] - extentDEM.xMinimum() # If smaller than zero = warning #changed to gdal 3
+                    extDiffminy = canxymin[0] - extentDEM.yMinimum() # If smaller than zero = warning #changed to gdal 3
+                    extDiffmaxx = canxymax[1] - extentDEM.xMaximum() # If larger than zero = warning #changed to gdal 3
+                    extDiffmaxy = canxymax[0] - extentDEM.yMaximum() # If larger than zero = warning #changed to gdal 3
+                else:
+                    extDiffminx = canxymin[0] - extentDEM.xMinimum() # If smaller than zero = warning #changed to gdal 2
+                    extDiffminy = canxymin[1] - extentDEM.yMinimum() # If smaller than zero = warning #changed to gdal 2
+                    extDiffmaxx = canxymax[0] - extentDEM.xMaximum() # If larger than zero = warning #changed to gdal 2
+                    extDiffmaxy = canxymax[1] - extentDEM.yMaximum() # If larger than zero = warning #changed to gdal 2
+                
                 if extDiffminx < 0 or extDiffminy < 0 or extDiffmaxx > 0 or extDiffmaxy > 0:
                     QMessageBox.warning(None, "Warning! Extent of map canvas is larger than raster extent.", "Change to an extent equal to or smaller than the raster extent.")
                     return
@@ -363,18 +370,30 @@ class DSMGenerator(object):
             miny = float(self.yMin)
             maxx = float(self.xMax)
             maxy = float(self.yMax)
-            lonlatmin = transform.TransformPoint(minx, miny)
-            lonlatmax = transform.TransformPoint(maxx, maxy)
+            gdalver = float(gdal.__version__[0])
+            if gdalver == 3.:
+                lonlatmin = transform.TransformPoint(miny, minx) #changed to gdal 3
+                lonlatmax = transform.TransformPoint(maxy, maxx) #changed to gdal 3
+            else:
+                lonlatmin = transform.TransformPoint(minx, miny)
+                lonlatmax = transform.TransformPoint(maxx, maxy)
 
             if ras_crs != old_crs:
                 rasTrans = osr.CoordinateTransformation(old_crs, ras_crs)
                 raslonlatmin = rasTrans.TransformPoint(float(self.xMin), float(self.yMin))
                 raslonlatmax = rasTrans.TransformPoint(float(self.xMax), float(self.yMax))
 
-                self.xMin = raslonlatmin[0]
-                self.yMin = raslonlatmin[1]
-                self.xMax = raslonlatmax[0]
-                self.yMax = raslonlatmax[1]
+                gdalver = float(gdal.__version__[0])
+                if gdalver == 3.:
+                    self.xMin = raslonlatmin[1] #changed to gdal 3
+                    self.yMin = raslonlatmin[0] #changed to gdal 3
+                    self.xMax = raslonlatmax[1] #changed to gdal 3
+                    self.yMax = raslonlatmax[0] #changed to gdal 3
+                else:
+                    self.xMin = raslonlatmin[0] #changed to gdal 2
+                    self.yMin = raslonlatmin[1] #changed to gdal 2
+                    self.xMax = raslonlatmax[0] #changed to gdal 2
+                    self.yMax = raslonlatmax[1] #changed to gdal 2
 
             # Make data queries to overpass-api
             urlStr = 'http://overpass-api.de/api/map?bbox=' + str(lonlatmin[0]) + ',' + str(lonlatmin[1]) + ',' + str(lonlatmax[0]) + ',' + str(lonlatmax[1])
@@ -500,10 +519,10 @@ class DSMGenerator(object):
         sortPoly = outputshp + 'sortPoly.shp'
 
         if self.dlg.checkBoxOSM.isChecked():
-            ascHeight = gdal_os_dep + 'ogr2ogr -sql "SELECT * FROM multipolygons ORDER BY height_asl ASC" ' + sortPoly + ' ' + osmPolygonPath
+            ascHeight = gdal_os_dep + 'ogr2ogr -sql "SELECT * FROM multipolygons ORDER BY height_asl ASC" "' + sortPoly + '" "' + str(osmPolygonPath) +'"'
         else:
-            ascHeight = gdal_os_dep + 'ogr2ogr -sql "SELECT * FROM ' + polygon_ln + ' ORDER BY height_asl ASC" -t_srs EPSG:' + str(
-                dem_epsg) + ' ' + sortPoly + ' ' + polygon_layer.source()
+            ascHeight = gdal_os_dep + 'ogr2ogr -select "height_asl" -sql "SELECT * FROM "' + str(polygon_ln) + '" ORDER BY height_asl ASC" -t_srs EPSG:' + str(
+                dem_epsg) + ' "' + str(sortPoly) + '" "' + str(polygon_layer.source()) + '"'
 
         if sys.platform == 'win32':
             si = subprocess.STARTUPINFO()

@@ -312,8 +312,13 @@ class SEBE(object):
             minx = geotransform[0]
             miny = geotransform[3] + width*geotransform[4] + height*geotransform[5]
             lonlat = transform.TransformPoint(minx, miny)
-            lon = lonlat[0]
-            lat = lonlat[1]
+            gdalver = float(gdal.__version__[0])
+            if gdalver == 3.:
+                lon = lonlat[1] #changed to gdal 3
+                lat = lonlat[0] #changed to gdal 3
+            else:
+                lon = lonlat[0] #changed to gdal 2
+                lat = lonlat[1] #changed to gdal 2
             self.scale = 1 / geotransform[1]
             # self.iface.messageBar().pushMessage("SEBE", str(lonlat),level=QgsMessageBar.INFO)
 
