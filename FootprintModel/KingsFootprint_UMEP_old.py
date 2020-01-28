@@ -22,7 +22,6 @@ import math as math
 # from scipy.ndimage.interpolation import rotate as imrotate
 # from matplotlib.patches import Circle
 from scipy.optimize import fsolve
-from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 # import copy as copy
 import scipy.ndimage.interpolation as scnd
 from osgeo import gdal
@@ -88,12 +87,10 @@ def footprintiterKAM(iterations,z_0_input,z_d_input,z_ag,sigv,Obukhov,ustar,dir,
 
         ###Implementation of root finding for eqn 39 & 40###
         ##Fequ_m formulation but optimized for python {X2} {J} ##EQUATION 39
-        #QMessageBox.critical(None,"a", "before lambda m")
         fequ_m= lambda m: (I_1(2.*m,z_1,z_2,z_m)*(I_3(m,z_0/z_m,z_1,z_2,z_m)+J_2(m,z_1,z_2,z_m,L,f_psi_m(z*z_m,z_m,L))))-(I_2(2.*m,1,z_1,z_2,z_m)*(I_2(2.*m,z_0/z_m,z_1,z_2,z_m)+ J_1(m,z_1,z_2,z_m,L,f_psi_m(z*z_m,z_m,L))))
         m = fsolve(fequ_m,0.2)
 
         ##fequ_n formulation but optimized for python {X3} {K} ##EQUATION 40
-        #QMessageBox.critical(None, "a","before lambda n")
         fequ_n = lambda n: I_1(2.*n,z_1,z_2,z_m)*J_2(n,z_1,z_2,z_m,L,f_z_phi_c(z*z_m,z_m,L)) - I_2(2.*n,1,z_1,z_2,z_m)*J_1(n,z_1,z_2,z_m,L,f_z_phi_c(z*z_m,z_m,L))
         n = fsolve(fequ_n,0.5)      #solve when fequ_n falls to zero with starting guess of 0.5
 
@@ -198,35 +195,35 @@ def phi_c(z,L):
 #function I_1 {C} ## EQUATION 42
 def I_1(p,z_1,z_2,z_m):
     z = np.linspace(z_1/z_m,z_2/z_m,1000)
-    dz = np.diff(z,axis=0)
-    z = z[0:(len(z) - 1)] + dz/2.
+    dz = np.diff(z)
+    z=z[0:(len(z)-1)]+dz/2
     d=np.sum((z**p)*dz)
     return d
 ##function I_2 {D} ##EQUATION 43
 def I_2(p,z0,z_1,z_2,z_m):
     z = np.linspace(z_1/z_m,z_2/z_m,1000)
-    dz = np.diff(z,axis=0)
+    dz = np.diff(z)
     z=z[0:(len(z)-1)]+dz/2
     d=np.sum((z**p)*np.log(z/z0)*dz)
     return d
 ##function I_3 {E} ##EQUATION 44
 def I_3(p,z0,z_1,z_2,z_m):
     z = np.linspace(z_1/z_m,z_2/z_m,1000)
-    dz = np.diff(z,axis=0)
+    dz = np.diff(z)
     z=z[0:(len(z)-1)]+dz/2
     d=np.sum((z**p)*np.log(z)*np.log(z/z0)*dz)        #z0
     return d
 ##function J_1 {F2} #EQUATION 45     (for use in equation 40)
 def J_1(p,z_1,z_2,z_m,L,fun):
     z = np.linspace(z_1/z_m,z_2/z_m,1000)
-    dz = np.diff(z,axis=0)
+    dz = np.diff(z)
     z=z[0:(len(z)-1)]+dz/2
     d=np.sum((z**p)*fun*dz)
     return d
 ##function J_2 {G2} #EQUATION 46    (for use in equation 40)
 def J_2(p,z_1,z_2,z_m,L,fun):
     z = np.linspace(z_1/z_m,z_2/z_m,1000)
-    dz = np.diff(z,axis=0)
+    dz = np.diff(z)
     z=z[0:(len(z)-1)]+dz/2
     d=np.sum((z**p)*fun*np.log(z)*dz)
     return d

@@ -27,8 +27,10 @@ class DownloadDataWorker(QObject):
 
     def run(self):
         try:
-            sp.util.download_era5(self.lat, self.lon, self.start_date, self.end_date) #, dir_save=self.plugin_dir
-            sp.util.gen_forcing_era5(self.lat, self.lon, self.start_date, self.end_date) #, dir_save=self.plugin_dir)
+            sp.util.gen_forcing_era5(self.lat, self.lon, self.start_date, self.end_date, dir_save=self.folderPath)
+
+            # sp.util.gen_forcing_era5(self.lat, self.lon, self.start_date, self.end_date, dir_save=self.folderPath[0])
+
             self.finished.emit()
         except Exception as e:
             self.error.emit(e, traceback.format_exc())

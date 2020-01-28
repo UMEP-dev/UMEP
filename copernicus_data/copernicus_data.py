@@ -31,6 +31,8 @@ import webbrowser
 import datetime
 from calendar import monthrange
 from .WorkerDownload import DownloadDataWorker
+import logging
+import sys
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -180,15 +182,37 @@ class CopernicusData:
         self.dlg.setEnabled(True)
         self.dlg.activateWindow()
 
+        # Strange things here since gdal 3.x Maybe to be fixed in other click parts...?
         canvas = self.iface.mapCanvas()
         srs = canvas.mapSettings().destinationCrs()
-        crs = str(srs.authid())
+        # crs = str(srs.authid())
+        # print(srs.authid())
+        # old_cs = osr.SpatialReference()
+        # old_cs.ImportFromEPSG(int(crs[5:]))
+        
         old_cs = osr.SpatialReference()
-        old_cs.ImportFromEPSG(int(crs[5:]))
+        crs_ref = srs.toWkt()
+        old_cs.ImportFromWkt(crs_ref)
+        # print(old_cs)
+
+        # new_cs = osr.SpatialReference()
+        # new_cs.ImportFromEPSG(4326)
+
+        wgs84_wkt = """
+        GEOGCS["WGS 84",
+            DATUM["WGS_1984",
+                SPHEROID["WGS 84",6378137,298.257223563,
+                    AUTHORITY["EPSG","7030"]],
+                AUTHORITY["EPSG","6326"]],
+            PRIMEM["Greenwich",0,
+                AUTHORITY["EPSG","8901"]],
+            UNIT["degree",0.01745329251994328,
+                AUTHORITY["EPSG","9122"]],
+            AUTHORITY["EPSG","4326"]]"""
 
         new_cs = osr.SpatialReference()
-        new_cs.ImportFromEPSG(4326)
-
+        new_cs.ImportFromWkt(wgs84_wkt)
+    
         transform = osr.CoordinateTransformation(old_cs, new_cs)
 
         latlon = ogr.CreateGeometryFromWkt(
@@ -197,11 +221,11 @@ class CopernicusData:
 
         gdalver = float(gdal.__version__[0])
         if gdalver == 3.:
-            self.dlg.txtLon.setText(str(latlon.GetY())) # changed to gdal 3
-            self.dlg.txtLat.setText(str(latlon.GetX())) # changed to gdal 3
+            self.dlg.txtLon.setText(str(latlon.GetY()))  # changed to gdal 3
+            self.dlg.txtLat.setText(str(latlon.GetX()))  # changed to gdal 3
         else:
-            self.dlg.txtLon.setText(str(latlon.GetX())) # changed to gdal 2
-            self.dlg.txtLat.setText(str(latlon.GetY())) # changed to gdal 2
+            self.dlg.txtLon.setText(str(latlon.GetX()))  # changed to gdal 2
+            self.dlg.txtLat.setText(str(latlon.GetY()))  # changed to gdal 2
 
         self.dlg.progressBar.setValue(0)
 
@@ -246,21 +270,23 @@ class CopernicusData:
             raise ValueError(
                 'Invalid latitude co-ordinate entered (must be -90 to 90)')
 
-        self.lat = lat 
-        self.lon = lon 
+        self.lat = lat
+        self.lon = lon
 
         # validate date range and add to object properties if OK
         start_date = self.dlg.txtStartDate.text()
+
         try:
-            start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
+            start_datetest = datetime.datetime.strptime(start_date, '%Y-%m-%d')
         except Exception:
-            raise ValueError('Invalid start date (%s) entered' % (start_date,))
+            raise ValueError('Invalid start date (%s) entered' %
+                             (start_datetest,))
 
         end_date = self.dlg.txtEndDate.text()
         try:
-            end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d')
+            end_datetest = datetime.datetime.strptime(end_date, '%Y-%m-%d')
         except Exception:
-            raise ValueError('Invalid end date (%s) entered' % (end_date,))
+            raise ValueError('Invalid end date (%s) entered' % (end_datetest,))
 
         if start_date >= end_date:
             raise ValueError('Start date is greater or equal than end date')
@@ -277,25 +303,11 @@ class CopernicusData:
             self.save_downloaded_folder = self.folderPath[0]
 
     def download(self):
-        if QMessageBox.question(self.iface.mainWindow(), "Information", "Data will now be downloaded from the "
-                                "Copernicus project (https://cds.climate.copernicus.eu/)."
-                                "\r\n"
-                                "\r\n"
-                                "1 month of data takes about 6 minutes depending on traffic"
-                                "and your internet connection."
-                                "\r\n"
-                                "\r\n"
-                                "The QGIS session will be active while data is processed."
-                                "\r\n"
-                                "\r\n"
-                                "Do you want to contiune?",
-                                QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
-                                test=4
-        else:
-            QMessageBox.critical(self.iface.mainWindow(), "Process aborted", "Download cancelled")
-            return
+        try:
+            import supy as sp
+        except:
+            pass
 
-            # Downloads ERA5 data
         try:
             self.validate_downloader_input()  # Validate input co-ordinates and time range
             # Before starting, ask user where to save
@@ -306,22 +318,50 @@ class CopernicusData:
             QMessageBox.critical(None, "Error", str(e))
             return
 
-        # print(self.lat)
-        # print(self.lon)
-        # print(self.start_date)
-        # print(self.end_date)
-        # print(self.folderPath[0])
+        if QMessageBox.question(self.iface.mainWindow(), "Information", "Data will now be downloaded from the "
+                                    "Copernicus project (https://cds.climate.copernicus.eu/)."
+                                    "\r\n"
+                                    "\r\n"
+                                    "1 month of data takes about 6 minutes depending on traffic and your internet connection."
+                                    "\r\n"
+                                    "\r\n"
+                                    # "The QGIS session will be active while data is processed."
+                                    "NOTE: QGIS will freeze while task is running. This will be fixed in upcoming versions"
+                                    "\r\n"
+                                    "\r\n"
+                                    "Do you want to contiune?",
+                                    QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
+                test = 4
+        else:
+            QMessageBox.critical(self.iface.mainWindow(),
+                                 "Process aborted", "Download cancelled")
+            return
+
+        print(self.lat)
+        print(self.lon)
+        print(self.start_date)
+        print(self.end_date)
+        print(self.folderPath[0])
         self.dlg.progressBar.setValue(50)
         # return
 
+        # logger_sp = logging.getLogger('SuPy')
+        # logger_sp.disabled = True
+
         # put in worker
-        # sp.util.download_era5(self.lat, self.lon, "2001-01-10", "2001-01-12") #, dir_save=self.plugin_dir
-        # sp.util.gen_forcing_era5(self.lat, self.lon, "2001-01-10", "2001-01-12") #, dir_save=self.plugin_dir)
+        sp.util.gen_forcing_era5(
+            self.lat, self.lon, self.start_date, self.end_date, dir_save=self.folderPath[0])
+        self.dlg.progressBar.setValue(100)
+        QMessageBox.information(
+            self.dlg, "Data Download (ERA5)", "Data downlaoded and processed succesfully")
+
+        return
 
         # Do download in separate thread and track progress
         self.dlg.cmdRunDownload.clicked.disconnect()
         self.dlg.cmdRunDownload.setText('Cancel')
-        downloadWorker = DownloadDataWorker(self.start_date, self.end_date, self.folderPath, self.lat, self.lon)
+        downloadWorker = DownloadDataWorker(
+            self.lat, self.lon, self.start_date, self.end_date, self.folderPath[0])
         thr = QThread(self.dlg)
         downloadWorker.moveToThread(thr)
         downloadWorker.update.connect(self.update_progress)
@@ -333,7 +373,6 @@ class CopernicusData:
         self.downloadWorker = downloadWorker
 
         self.dlg.cmdRunDownload.clicked.connect(self.abort_download)
-        self.dlg.progressBar.setValue(100)
 
     def update_progress(self, returns):
         # Updates progress bar during download
@@ -366,6 +405,10 @@ class CopernicusData:
 
         # Update the UI to reflect the saved file
         self.dlg.lblSavedDownloaded.setText(self.folderPath[0])
+        self.dlg.progressBar.setValue(100)
+
+        QMessageBox.information(
+            self.dlg, "Data Download (ERA5)", "Data downlaoded and processed succesfully")
 
     def setDownloaderButtonState(self, state):
         ''' Enable or disable all dialog buttons in downloader section

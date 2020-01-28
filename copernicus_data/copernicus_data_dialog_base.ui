@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>492</width>
-    <height>188</height>
+    <width>530</width>
+    <height>196</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -192,8 +192,8 @@
             <minute>0</minute>
             <second>0</second>
             <year>2010</year>
-            <month>2</month>
-            <day>1</day>
+            <month>1</month>
+            <day>2</day>
            </datetime>
           </property>
           <property name="minimumDateTime">
@@ -226,8 +226,8 @@
           <property name="date">
            <date>
             <year>2010</year>
-            <month>2</month>
-            <day>1</day>
+            <month>1</month>
+            <day>2</day>
            </date>
           </property>
          </widget>
