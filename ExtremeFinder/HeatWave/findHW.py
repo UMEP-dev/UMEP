@@ -28,8 +28,8 @@ def get_ncdata(filepath, year_start, year_end, data_variable_name):
     Tair = pd.Series(xTair, index=xdate)
     unit = nc.variables[data_variable_name].units
     try:  # If lat and lon are available, use them. The user will be prompted to enter them later if they're not present.
-        lat = nc.variables['lat'][0] # If more than one latitude and longitude included, just take the first corner
-        lon = nc.variables['lon'][0]
+        lat = nc.variables['latitude'][0] # If more than one latitude and longitude included, just take the first corner
+        lon = nc.variables['longitude'][0]
     except:
         lat = None
         lon = None
@@ -49,8 +49,8 @@ def get_ncmetadata(filepath):
 
     xdate = num2date(times[:], times.units)
     try:  # If lat and lon are available, use them. The user will be prompted to enter them later if they're not present.
-        lat = nc.variables['lat'][0] # If more than one latitude and longitude included, just take the first corner
-        lon = nc.variables['lon'][0]
+        lat = nc.variables['latitude'][0] # If more than one latitude and longitude included, just take the first corner
+        lon = nc.variables['longitude'][0]
     except:
         lat = None
         lon = None

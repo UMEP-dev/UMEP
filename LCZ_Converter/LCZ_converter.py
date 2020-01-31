@@ -124,9 +124,9 @@ class LCZ_test(object):
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&LCZ_converter')
-        self.toolbar = self.iface.addToolBar(u'LCZ_test')
-        self.toolbar.setObjectName(u'LCZ_test')
+        # self.menu = self.tr(u'&LCZ_converter')
+        # self.toolbar = self.iface.addToolBar(u'LCZ_test')
+        # self.toolbar.setObjectName(u'LCZ_test')
 
         if not (os.path.isdir(self.plugin_dir + '/data')):
             os.mkdir(self.plugin_dir + '/data')
@@ -680,7 +680,9 @@ class LCZ_test(object):
         if self.folderPath == 'None':
             QMessageBox.critical(None, "Error", "Select a valid output folder")
             return
-        # self.iface.messageBar().pushMessage("test: ", str(test))
+        if not (lc_grid.crs() == vlayer.crs()):
+            QMessageBox.critical(None, "Coordinate Reference System Error", "The vector polygon grid and the LCZ raster layer have different CRSs")
+            return
 
         self.startWorker(lc_grid, poly, vlayer, prov, fields, idx, dir_poly, self.iface,
                          self.plugin_dir, self.folderPath, self.dlg)

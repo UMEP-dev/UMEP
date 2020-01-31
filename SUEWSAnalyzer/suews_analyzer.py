@@ -480,8 +480,7 @@ class SUEWSAnalyzer(object):
 
         # for i in range(0, self.idgrid.shape[0]): # loop over vector grid instead
         for f in vlayer.getFeatures():
-            # gid = str(self.idgrid[i, 0])
-            gid = str(f.attributes()[idx])
+            gid = str(int(f.attributes()[idx]))
             datawhole = np.genfromtxt(self.fileoutputpath + '/' + self.fileCode + gid + '_'
                                      + str(self.YYYY) + '_SUEWS_' + str(self.resout) + '.txt', skip_header=1,
                                      missing_values='**********', filling_values=-9999)

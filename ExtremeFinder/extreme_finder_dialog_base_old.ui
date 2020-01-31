@@ -266,7 +266,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="label_19">
         <property name="text">
-         <string>Data for this tool can be obtained using the UMEP ERA5 downloader</string>
+         <string>Data for this tool can be obtained using the UMEP WATCH downloader</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -348,6 +348,16 @@
            </item>
            <item>
             <property name="text">
+             <string>Qair</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Wind</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>PSurf</string>
             </property>
            </item>
@@ -359,6 +369,11 @@
            <item>
             <property name="text">
              <string>LWdown</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Snowf</string>
             </property>
            </item>
            <item>

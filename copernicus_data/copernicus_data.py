@@ -21,7 +21,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QObject, pyqtSignal, QThread
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QObject, QThread
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 from qgis.gui import QgsMapToolEmitPoint
@@ -30,7 +30,7 @@ import os.path
 import webbrowser
 import datetime
 from calendar import monthrange
-from .WorkerDownload import DownloadDataWorker
+from .WorkerDownload import Worker
 import logging
 import sys
 
@@ -87,7 +87,7 @@ class CopernicusData:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&Copernicus Data')
+        # self.menu = self.tr(u'&Copernicus Data')
 
         # get reference to the canvas
         self.canvas = self.iface.mapCanvas()
@@ -95,6 +95,9 @@ class CopernicusData:
         self.point = None
         self.pointx = None
         self.pointy = None
+
+        self.thread = None
+        self.worker = None
 
         # #g pin tool
         self.pointTool = QgsMapToolEmitPoint(self.canvas)
@@ -325,8 +328,8 @@ class CopernicusData:
                                     "1 month of data takes about 6 minutes depending on traffic and your internet connection."
                                     "\r\n"
                                     "\r\n"
-                                    # "The QGIS session will be active while data is processed."
-                                    "NOTE: QGIS will freeze while task is running. This will be fixed in upcoming versions"
+                                    "The QGIS session will be active while data is processed. If you like to monitor the download"
+                                    "process from the CDS API, open your Python Console in QGIS."
                                     "\r\n"
                                     "\r\n"
                                     "Do you want to contiune?",
@@ -337,78 +340,99 @@ class CopernicusData:
                                  "Process aborted", "Download cancelled")
             return
 
-        print(self.lat)
-        print(self.lon)
-        print(self.start_date)
-        print(self.end_date)
-        print(self.folderPath[0])
-        self.dlg.progressBar.setValue(50)
+        # print(self.lat)
+        # print(self.lon)
+        # print(self.start_date)
+        # print(self.end_date)
+        # print(self.folderPath[0])
+        # self.dlg.progressBar.setValue(20)
+
+        self.dlg.progressBar.setMinimum(0)
+        self.dlg.progressBar.setMaximum(0)
+        self.dlg.progressBar.setValue(0)
+
         # return
 
         # logger_sp = logging.getLogger('SuPy')
         # logger_sp.disabled = True
 
         # put in worker
-        sp.util.gen_forcing_era5(
-            self.lat, self.lon, self.start_date, self.end_date, dir_save=self.folderPath[0])
-        self.dlg.progressBar.setValue(100)
-        QMessageBox.information(
-            self.dlg, "Data Download (ERA5)", "Data downlaoded and processed succesfully")
+        # sp.util.gen_forcing_era5(
+            # self.lat, self.lon, self.start_date, self.end_date, dir_save=self.folderPath[0])
+        # self.dlg.progressBar.setValue(100)
+        # QMessageBox.information(
+            # self.dlg, "Data Download (ERA5)", "Data downlaoded and processed succesfully")
 
-        return
+        # return
+
+        self.startWorker(self.lat, self.lon, self.start_date, self.end_date, self.folderPath)
+
+    def startWorker(self, lat, lon, start_date, end_date, folderPath):
 
         # Do download in separate thread and track progress
-        self.dlg.cmdRunDownload.clicked.disconnect()
+        worker = Worker(lat, lon, start_date, end_date, folderPath[0])
+        
         self.dlg.cmdRunDownload.setText('Cancel')
-        downloadWorker = DownloadDataWorker(
-            self.lat, self.lon, self.start_date, self.end_date, self.folderPath[0])
-        thr = QThread(self.dlg)
-        downloadWorker.moveToThread(thr)
-        downloadWorker.update.connect(self.update_progress)
-        downloadWorker.error.connect(self.download_error)
-        downloadWorker.finished.connect(self.downloadWorkerFinished)
-        thr.started.connect(downloadWorker.run)
-        thr.start()
-        self.downloadThread = thr
-        self.downloadWorker = downloadWorker
-
+        self.dlg.cmdRunDownload.clicked.disconnect()
         self.dlg.cmdRunDownload.clicked.connect(self.abort_download)
+        self.dlg.cmdClose.setEnabled(False)
+        
+        thread = QThread(self.dlg)
+        worker.moveToThread(thread)
 
-    def update_progress(self, returns):
-        # Updates progress bar during download
-        self.dlg.progressBar.setValue(returns['progress'])
+        worker.finished.connect(self.workerFinished)
+        worker.error.connect(self.download_error)
+        thread.started.connect(worker.run)
+        
+        thread.start()
+        self.thread = thread
+        self.worker = worker
 
-    def download_error(self, exception, text):
+    def workerFinished(self, ret):
+        try:
+            self.worker.deleteLater()
+        except RuntimeError:
+             pass
+        self.thread.quit()
+        self.thread.wait()
+        self.thread.deleteLater()
+
+
+        if ret == 1:
+            self.dlg.cmdRunDownload.setText('Run')
+            self.dlg.cmdRunDownload.clicked.disconnect()
+            self.dlg.cmdRunDownload.clicked.connect(self.download)
+            self.setDownloaderButtonState(True)
+
+            # Update the UI to reflect the saved file
+            self.dlg.lblSavedDownloaded.setText(self.folderPath[0])
+            self.dlg.progressBar.setValue(100)
+
+            QMessageBox.information(self.dlg, "Data Download (ERA5)", "Data downlaoded and processed succesfully")
+
+            self.iface.messageBar().pushMessage("Data Download (ERA5)",
+                                    "Data downlaoded and processed succesfully", duration=5)
+        else:
+            self.dlg.cmdRunDownload.setText('Run')
+            self.dlg.cmdRunDownload.clicked.disconnect()
+            self.dlg.cmdRunDownload.clicked.connect(self.download)
+            self.setDownloaderButtonState(True)
+            self.dlg.progressBar.setValue(0)
+            QMessageBox.information(None, "Data Download (ERA5)", "Operations cancelled, "
+                    "process unsuccessful! See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.")
+
+    def download_error(self, errorstring):
         self.setDownloaderButtonState(True)
-        QMessageBox.critical(
-            None, "Error", 'Data download not completed: %s' % (str(exception),))
-
+        QgsMessageLog.logMessage(errorstring, level=Qgis.Critical)
+        
     def abort_download(self):
-        self.downloadWorker.kill()
+        self.dlg.progressBar.setValue(0)
+        self.worker.kill()
         # Enable all buttons in downloader.
         self.setDownloaderButtonState(True)
         self.dlg.cmdRunDownload.clicked.disconnect()
         self.dlg.cmdRunDownload.setText('Run')
         self.dlg.cmdRunDownload.clicked.connect(self.download)
-        self.dlg.progressBar.setValue(0)
-
-    def downloadWorkerFinished(self):
-        self.downloadWorker.deleteLater()
-        self.downloadThread.quit()
-        self.downloadThread.wait()
-        self.downloadThread.deleteLater()
-        # Ask the user where they'd like to save the file
-        self.setDownloaderButtonState(True)  # Enable all buttons
-        self.dlg.cmdRunDownload.clicked.disconnect()
-        self.dlg.cmdRunDownload.setText('Run')
-        self.dlg.cmdRunDownload.clicked.connect(self.download)
-
-        # Update the UI to reflect the saved file
-        self.dlg.lblSavedDownloaded.setText(self.folderPath[0])
-        self.dlg.progressBar.setValue(100)
-
-        QMessageBox.information(
-            self.dlg, "Data Download (ERA5)", "Data downlaoded and processed succesfully")
 
     def setDownloaderButtonState(self, state):
         ''' Enable or disable all dialog buttons in downloader section

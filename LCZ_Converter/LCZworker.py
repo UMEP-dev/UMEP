@@ -103,7 +103,8 @@ class Worker(QtCore.QObject):
                 lc_grid_array = dataset.ReadAsArray().astype(np.float)
                 nd = dataset.GetRasterBand(1).GetNoDataValue()
                 nodata_test = (lc_grid_array == nd)
-                if np.sum(lc_grid_array) == (lc_grid_array.shape[0] * lc_grid_array.shape[1] * nd):
+                if nodata_test.any():
+                # if np.sum(lc_grid_array) == (lc_grid_array.shape[0] * lc_grid_array.shape[1] * nd):
                     QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes Only NoData Pixels", level=Qgis.Critical)
                     cal = 0
                 else:
