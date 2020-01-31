@@ -17,7 +17,7 @@ def locate_py():
     # pre-defined paths for python executable
     dict_pybin = {
         "Darwin": path_py / "bin" / "python3",
-        "Windows": path_py / "python3.exe",
+        "Windows": path_py / "python.exe",
         "Linux": path_py,
     }
 
