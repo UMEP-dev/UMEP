@@ -17,7 +17,7 @@ def locate_py():
     # pre-defined paths for python executable
     dict_pybin = {
         "Darwin": path_py / "bin" / "python3",
-        "Windows": path_py / "python.exe",
+        "Windows": path_py / "python3.exe",
         "Linux": path_py,
     }
 
@@ -44,17 +44,20 @@ def check_supy_version():
 
 # install supy
 def install_supy(ver=None):
-
     str_ver = f"=={ver}" if ver else ""
     try:
         path_pybin = locate_py()
         list_cmd = f"{str(path_pybin)} -m pip install supy{str_ver} -U --user".split()
-        list_info = subprocess.check_output(list_cmd, encoding="UTF8").split("\n")
+        str_info = subprocess.check_output(
+            list_cmd, stderr=subprocess.STDOUT, encoding="UTF8"
+        )
+
+        str_info = str_info.split("\n")[-2]
 
         str_info = list_info[-2].strip()
         str_info = (
             str_info
-            if len(str_info) > 0
+            if 'Successfully installed supy' in str_info
             else f"supy{str_ver} has already been installed!"
         )
         return str_info
