@@ -242,9 +242,13 @@ class SUEWS(object):
                     filenamemetdata = file
 
             underscorePos = ([pos for pos, char in enumerate(filenamemetdata) if char == '_'])
+            if (underscorePos[1] - underscorePos[0]) == 1:
+                addunderscore = '_'
+            else:
+                addunderscore = ''
             numunderscores = underscorePos.__len__()
             inputRes = filenamemetdata[underscorePos[numunderscores - 1] + 1:filenamemetdata.find('.')]
-            filecode = filenamemetdata[0:underscorePos[0]]
+            filecode = filenamemetdata[0:underscorePos[0]] + addunderscore
         else:
             inputRes = self.dlg.InputRes.text()
             filecode = self.dlg.FileCode.text()
@@ -354,6 +358,7 @@ class SUEWS(object):
         else:
             QMessageBox.information(None, "Model information", "Model run will now start. QGIS might freeze during "
                                                                "calcualtion. This will be fixed in future versions.")
+                                                    
         try:
             suews_wrapper.wrapper(self.model_dir)
 
