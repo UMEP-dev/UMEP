@@ -52,9 +52,8 @@ def install_supy(ver=None):
             list_cmd, stderr=subprocess.STDOUT, encoding="UTF8"
         )
 
-        str_info = str_info.split("\n")[-2]
+        str_info = str_info.split("\n")[-2].strip()
 
-        str_info = list_info[-2].strip()
         str_info = (
             str_info
             if 'Successfully installed supy' in str_info
