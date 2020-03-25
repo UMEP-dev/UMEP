@@ -552,6 +552,10 @@ class SuewsSimple(object):
         initfileout = self.model_dir + '/Input/InitialConditions' + str(filecode) + '_' + str(YYYY) + '.nml'
         self.write_to_init(initfilein, initfileout)
 
+        # self.dlg.progressBar.setMinimum(0)
+        # self.dlg.progressBar.setMaximum(0)
+        # self.dlg.progressBar.setValue(0)
+
         # TODO: Put suews in a worker or a QgsTask. Task is working but no correct message when model is finished.
         # self.startWorker(self.iface, self.model_dir, self.dlg)
 
@@ -576,6 +580,8 @@ class SuewsSimple(object):
                                                             "Do you want to contiune?",
                                 QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
             # suews_wrapper.wrapper(self.model_dir)
+            self.dlg.activateWindow()
+            
             try:
                 suews_wrapper.wrapper(self.model_dir)
                 self.iface.messageBar().pushMessage("Model run successful", "Model run finished", level=Qgis.Success)

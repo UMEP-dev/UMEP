@@ -100,7 +100,7 @@ class Worker(QtCore.QObject):
                 code = "Grid"
                 index = self.find_index(code)
                 new_line[index] = str(feat_id)
-
+                print('Processing ID: ' + str(feat_id))
                 year = None
                 year2 = None
 
@@ -361,8 +361,8 @@ class Worker(QtCore.QObject):
                                 IMPveg_heights_mean_dec = split[3]
                                 IMPveg_fai_eve = split[2]
                                 IMPveg_fai_dec = split[2]
-                                IMPveg_max_eve = split[4]  # not used yet
-                                IMPveg_sd_eve = split[5]  # not used yet
+                                IMPveg_max_eve = split[4]  #TODO not used yet
+                                IMPveg_sd_eve = split[5]  #TODO not used yet
                                 IMPveg_max_dec = split[4]
                                 IMPveg_sd_dec = split[5]
                                 found_IMPveg_line = True
@@ -391,29 +391,30 @@ class Worker(QtCore.QObject):
 
                 # New calcualtion of rouhgness params v2017 (Kent et al. 2017b)
 				# Evergreen not yet included in the calculations
-                if (float(LCF_decidious) == 0 and float(LCF_evergreen) == 0 and float(LCF_buildings) == 0):
-                    sdComb = 0
-                    zMax = 0
-                    pai = 0
+                LCF_de = float(LCF_decidious)
+                LCF_ev = float(LCF_evergreen)
+                LCF_bu = float(LCF_buildings)
+                LCF_tr = LCF_de + LCF_ev # temporary fix while ev and de is not separated, issue 155
+                if (LCF_de  == 0 and LCF_ev == 0 and LCF_bu == 0):
                     zH = 0
-                    fai = 0
+                    zMAx = 0
+                else:
+                    zH = (float(IMP_heights_mean) * LCF_bu + float(IMPveg_heights_mean_eve) * LCF_ev + float(IMPveg_heights_mean_dec) * LCF_de) / (LCF_bu + LCF_ev + LCF_de)                    
+                    zMax = max(float(IMPveg_max_dec),float(IMP_max))
+
+                if (LCF_de  == 0 and LCF_ev == 0 and LCF_bu == 0):
+                    sdComb = 0
                     IMP_z0 = 0
                     IMP_zd = 0
                     # sdTree = np.sqrt((IMPveg_sd_eve ^ 2 / LCF_evergreen * area) + (IMPveg_sd_dec ^ 2 / LCF_decidious * area))  # not used yet
-                elif (float(LCF_decidious) == 0 and float(LCF_buildings) != 0):
-                    zH = (float(IMP_heights_mean) * float(LCF_buildings) + float(IMPveg_heights_mean_eve) * float(LCF_evergreen) + float(IMPveg_heights_mean_dec) * float(LCF_decidious)) / (float(LCF_buildings) + float(LCF_evergreen) + float(LCF_decidious))
-                    zMax = max(float(IMPveg_max_dec),float(IMP_max))
-                    sdComb = np.sqrt(float(IMP_sd) ** 2. / (float(LCF_buildings) * float(area)))
-                elif (float(LCF_decidious) != 0 and float(LCF_buildings) == 0):
-                    zH = (float(IMP_heights_mean) * float(LCF_buildings) + float(IMPveg_heights_mean_eve) * float(LCF_evergreen) + float(IMPveg_heights_mean_dec) * float(LCF_decidious)) / (float(LCF_buildings) + float(LCF_evergreen) + float(LCF_decidious))
-                    zMax = max(float(IMPveg_max_dec),float(IMP_max))
-                    sdComb = np.sqrt(float(IMPveg_sd_dec) ** 2. / (float(LCF_decidious) * float(area)))
-                elif (float(LCF_decidious) != 0 and float(LCF_buildings) != 0):
-                    zH = (float(IMP_heights_mean) * float(LCF_buildings) + float(IMPveg_heights_mean_eve) * float(LCF_evergreen) + float(IMPveg_heights_mean_dec) * float(LCF_decidious)) / (float(LCF_buildings) + float(LCF_evergreen) + float(LCF_decidious))
-                    zMax = max(float(IMPveg_max_dec),float(IMP_max))
-                    sdComb = np.sqrt(float(IMPveg_sd_dec) ** 2. / (float(LCF_decidious) * float(area)) + float(IMP_sd) ** 2. / (float(LCF_buildings) * float(area)))
+                elif (LCF_tr == 0 and LCF_bu != 0):
+                    sdComb = np.sqrt(float(IMP_sd) ** 2. / (fLCF_bu * float(area)))
+                elif (LCF_tr != 0 and LCF_bu == 0):
+                    sdComb = np.sqrt(float(IMPveg_sd_dec) ** 2. / (LCF_tr * float(area)))
+                elif (LCF_tr != 0 and LCF_bu != 0):
+                    sdComb = np.sqrt(float(IMPveg_sd_dec) ** 2. / (LCF_tr * float(area)) + float(IMP_sd) ** 2. / (LCF_bu * float(area)))
 
-                pai = float(LCF_buildings) + float(LCF_evergreen) + float(LCF_decidious)
+                pai = LCF_bu + LCF_ev + LCF_de
                 
                 # paiall = (planareaB + planareaV) / AT
                 porosity = 0.2  # This should change with season. Net, set for Summer

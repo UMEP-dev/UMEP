@@ -11,7 +11,7 @@ name=UMEP
 qgisMinimumVersion=3.0
 description=Urban Multi-scale Environmental Predictor
 
-version=3.12.2
+version=3.12.3
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg
 email=fredrikl@gvc.gu.se
 
@@ -28,6 +28,7 @@ repository=https://bitbucket.org/fredrik_ucg/umep
 
 # Uncomment the following line and add your changelog:
 changelog=
+   3.12.3: Response to issue #155.
    3.12.2: Response to issues #135. Experimental test for auto installation of python libraries.
    3.12.1: Response to issues #131, #133, #134. DownloadData (ERA5) and ExtremeFinder updated.
    3.12  : LONG TERM RELEASE. Response to issues #96, #125, #129 and #130. Configuring for gdal3. New plugin DownloadData (ERA5) (Still experimental).

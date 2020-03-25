@@ -37,7 +37,7 @@ from qgis.gui import *
 from .suews_analyzer_dialog import SUEWSAnalyzerDialog
 import os.path
 import webbrowser
-from osgeo import gdal
+from osgeo import gdal, ogr, osr
 from osgeo.gdalconst import *
 from ..Utilities import f90nml
 import numpy as np
@@ -579,22 +579,25 @@ class SUEWSAnalyzer(object):
                     os.remove(self.plugin_dir + '/tempgrid.tif')
 
             # Check OS and dep
-            if sys.platform == 'darwin':
-                gdalrast_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdal_rasterize'
-            else:
-                gdalrast_os_dep = 'gdal_rasterize'
+            # if sys.platform == 'darwin':
+            #     gdalrast_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdal_rasterize'
+            # else:
+            #     gdalrast_os_dep = 'gdal_rasterize'
 
-            gdalraster = gdalrast_os_dep + ' -a ' + str(poly_field) + ' -ot Float32 -of GTiff -te ' + str(xmin) + ' ' \
-                         + str(ymin) + ' ' + str(xmax) + ' ' + str(ymax) + ' -tr ' + str(resx) + ' ' + str(resx) + \
-                         ' -co COMPRESS=DEFLATE -co PREDICTOR=1 -co ZLEVEL=5 -l ' + polyname + ' "' + \
-                         poly.source() + '" "' + self.plugin_dir + '/tempgrid.tif"'
+            # gdalraster = gdalrast_os_dep + ' -a ' + str(poly_field) + ' -ot Float32 -of GTiff -te ' + str(xmin) + ' ' \
+            #              + str(ymin) + ' ' + str(xmax) + ' ' + str(ymax) + ' -tr ' + str(resx) + ' ' + str(resx) + \
+            #              ' -co COMPRESS=DEFLATE -co PREDICTOR=1 -co ZLEVEL=5 -l ' + polyname + ' "' + \
+            #              poly.source() + '" "' + self.plugin_dir + '/tempgrid.tif"'
 
-            if sys.platform == 'win32':
-                si = subprocess.STARTUPINFO()
-                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                subprocess.call(gdalraster, startupinfo=si)
-            else:
-                os.system(gdalraster)
+            # if sys.platform == 'win32':
+            #     si = subprocess.STARTUPINFO()
+            #     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            #     subprocess.call(gdalraster, startupinfo=si)
+            # else:
+            #     os.system(gdalraster)
+
+            crs = vlayer.crs().toWkt()
+            self.rasterize(str(poly.source()), str(self.plugin_dir + '/tempgrid.tif'), str(poly_field), resx, crs, extent)
 
             dataset = gdal.Open(self.plugin_dir + '/tempgrid.tif')
             idgrid_array = dataset.ReadAsArray().astype(np.float)
@@ -824,6 +827,50 @@ class SUEWSAnalyzer(object):
             plt.show()
 
     def help(self):
-        url = 'http://umep-docs.readthedocs.io/en/latest/post_processor/Urban%20Energy%20Balance%20' \
-              'SUEWS%20Analyser.html'
+        url = 'http://umep-docs.readthedocs.io/en/latest/post_processor/Urban%20Energy%20Balance%20SUEWS%20Analyser.html'
         webbrowser.open_new_tab(url)
+
+    def rasterize(self, src, dst, attribute, resolution, crs, extent, all_touch=False, na=-9999):
+
+        # Open shapefile, retrieve the layer
+        print(src)
+        src_data = ogr.Open(src)
+        layer = src_data.GetLayer()
+
+        # Use transform to derive coordinates and dimensions
+        # xmin = extent[0]
+        # ymin = extent[1]
+        # xmax = extent[2]
+        # ymax = extent[3]
+        xmax = extent.xMaximum()
+        xmin = extent.xMinimum()
+        ymax = extent.yMaximum()
+        ymin = extent.yMinimum()
+
+        # Create the target raster layer
+        cols = int((xmax - xmin)/resolution)
+        rows = int((ymax - ymin)/resolution) + 1
+        trgt = gdal.GetDriverByName("GTiff").Create(dst, cols, rows, 1, gdal.GDT_Float32)
+        trgt.SetGeoTransform((xmin, resolution, 0, ymax, 0, -resolution))
+
+        # Add crs
+        refs = osr.SpatialReference()
+        refs.ImportFromWkt(crs)
+        trgt.SetProjection(refs.ExportToWkt())
+
+        # Set no value
+        band = trgt.GetRasterBand(1)
+        band.SetNoDataValue(na)
+
+        # Set options
+        if all_touch is True:
+            ops = ["-at", "ATTRIBUTE=" + attribute]
+        else:
+            ops = ["ATTRIBUTE=" + attribute]
+
+        # Finally rasterize
+        gdal.RasterizeLayer(trgt, [1], layer, options=ops)
+
+        # Close target an source rasters
+        del trgt
+        del src_data 

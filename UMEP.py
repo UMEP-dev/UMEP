@@ -41,8 +41,7 @@ from .LCZ_Converter.LCZ_converter import LCZ_test
 from .UMEPDownloader.umep_downloader import UMEP_Data_Download
 from .DSMGenerator.dsm_generator import DSMGenerator
 from .WATCHData.watch import WATCHData
-from .copernicus_data.copernicus_data import CopernicusData
-from .GreaterQF.greater_qf import GreaterQF # TODO: Not functional
+from .GreaterQF.greater_qf import GreaterQF
 from .ExtremeFinder.extreme_finder import ExtremeFinder
 from .LucyQF.LQF import LQF
 from .SEBE.sebe import SEBE
@@ -55,6 +54,7 @@ from .BenchMarking.benchmarking import BenchMarking
 from .SEBEVisual.sun import Sun  # TODO: Not able to run 2to3 converter :Plugin blocker
 from .SolweigAnalyzer.solweig_analyzer import SolweigAnalyzer
 from .SUEWSAnalyzer.suews_analyzer import SUEWSAnalyzer
+from .copernicus_data.copernicus_data import CopernicusData
 from .UMEP_about import UMEPDialogAbout
 import os.path
 import webbrowser
