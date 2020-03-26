@@ -14,7 +14,7 @@ except:
                                     "Restart QGIS before you continue.")
         except Exception as e:
             QMessageBox.information(None, "An error occurred",
-                                    "SuPy not installed. report any errors to https://bitbucket.org/fredrik_ucg/umep/issues")
+                                    "SuPy not installed. report any errors to https://github.com/UMEP-dev/UMEP/issues")
     else:
         QMessageBox.information(None,
                                 "Information", "SuPy not installed. Some UMEP tool will not be functioning proparly.")

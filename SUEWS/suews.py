@@ -400,7 +400,7 @@ class SUEWS(object):
         except Exception as e:
             QMessageBox.critical(self.dlg, "An error occurred", str(e) + "\r\n\r\n"
                                 "Check: " + str(list(Path(tempfile.gettempdir()).glob('SuPy.log'))[0]) + "\r\n\r\n"
-                                "Please report any errors to https://bitbucket.org/fredrik_ucg/umep/issues")
+                                "Please report any errors to https://github.com/UMEP-dev/UMEP/issues")
             return
 
         shutil.copy(self.model_dir + '/RunControl.nml', outfolder + '/RunControl.nml')
