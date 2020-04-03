@@ -406,6 +406,8 @@ class CopernicusData:
 
             # Update the UI to reflect the saved file
             self.dlg.lblSavedDownloaded.setText(self.folderPath[0])
+            # self.dlg.progressBar.setValue(100)
+            self.dlg.progressBar.setRange(0, 100)
             self.dlg.progressBar.setValue(100)
 
             QMessageBox.information(self.dlg, "Data Download (ERA5)", "Data downlaoded and processed succesfully")

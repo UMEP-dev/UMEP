@@ -11,13 +11,13 @@ name=UMEP
 qgisMinimumVersion=3.0
 description=Urban Multi-scale Environmental Predictor
 
-version=3.13
+version=3.13.1
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg
 email=fredrikl@gvc.gu.se
 
 about=UMEP is an extensive plugin designed for urban climate in general and climate sensitive planning applications in particular. The plugin consist of a pre-processor, a processor and a post-processor. This plugin is a collaboration between University of Gothenburg, University of Helsinki and University of Reading.
 
-Many of tools in UMEP requires the scipy and pandas python libraries. See Section 2.2 in the UMEP manual (http://umep-docs.readthedocs.io).
+Many of tools in UMEP requires the scipy and pandas python libraries. See Section 2.3 in the UMEP manual (http://umep-docs.readthedocs.io).
 
 tracker=https://github.com/UMEP-dev/UMEP/issues
 repository=https://github.com/UMEP-dev/UMEP
@@ -28,6 +28,7 @@ repository=https://github.com/UMEP-dev/UMEP
 
 # Uncomment the following line and add your changelog:
 changelog=
+   3.13.1: Response to issues #107, #116, #121 and #156. SEBE (Visualisation) now active again (experimental).
    3.13  : LONG TERM RELEASE. Migration of repository to Github (https://github.com/UMEP-dev/UMEP)
    3.12.3: Response to issue #155.
    3.12.2: Response to issues #135. Experimental test for auto installation of python libraries.

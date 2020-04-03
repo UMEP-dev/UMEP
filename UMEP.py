@@ -40,7 +40,7 @@ from .FootprintModel.footprint_model import FootprintModel
 from .LCZ_Converter.LCZ_converter import LCZ_test
 from .UMEPDownloader.umep_downloader import UMEP_Data_Download
 from .DSMGenerator.dsm_generator import DSMGenerator
-from .WATCHData.watch import WATCHData
+# from .WATCHData.watch import WATCHData
 from .GreaterQF.greater_qf import GreaterQF
 from .ExtremeFinder.extreme_finder import ExtremeFinder
 from .LucyQF.LQF import LQF
@@ -51,7 +51,7 @@ from .suews_converter.suews_converter import SUEWSConverter
 from .SUEWS.suews import SUEWS
 from .SOLWEIG.solweig import SOLWEIG
 from .BenchMarking.benchmarking import BenchMarking
-from .SEBEVisual.sun import Sun  # TODO: Not able to run 2to3 converter :Plugin blocker
+from .SEBEVisual.sun import Visual  # TODO: Not able to run 2to3 converter :Plugin blocker
 from .SolweigAnalyzer.solweig_analyzer import SolweigAnalyzer
 from .SUEWSAnalyzer.suews_analyzer import SUEWSAnalyzer
 from .copernicus_data.copernicus_data import CopernicusData
@@ -432,10 +432,7 @@ class UMEP(object):
         sg.run()
 
     def SEv(self):
-        QMessageBox.critical(self.dlg, "Plugin blocker",
-                             "This tool is not yet ported to QGIS3. Work still in progress.")
-        return
-        sg = Sun(self.iface)
+        sg = Visual(self.iface)
         sg.run()
 
     def FP(self):
@@ -444,9 +441,9 @@ class UMEP(object):
 
     def WA(self):
         QMessageBox.critical(self.dlg, "Plugin not functional",
-                             "This tool is currenly not operational."
-                             "See issue #96 in our code repository (https://github.com/UMEP-dev/UMEP/issues/96) for more info."
-                             " Use ERA5 downloader instead.")
+                             "This tool is currenly not operational. \n"
+                             "See issue #96 in our code repository (https://github.com/UMEP-dev/UMEP/issues/96) for more info. \n"
+                             "Use ERA5 downloader instead.")
         return
         sg = WATCHData(self.iface)
         sg.run()

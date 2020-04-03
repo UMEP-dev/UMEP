@@ -20,9 +20,8 @@
  ***************************************************************************/
  This script initializes the plugin, making it known to QGIS.
 """
-from __future__ import absolute_import
 
 def classFactory(iface):
     # load Sun class from file Sun
-    from .sun import Sun
-    return Sun(iface)
+    from sun import Visual
+    return Visual(iface)

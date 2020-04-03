@@ -885,8 +885,11 @@ class SOLWEIG(object):
             # % Ts parameterisation maps
             if self.landcover == 1.:
                 if np.max(self.lcgrid) > 7 or np.min(self.lcgrid) < 1:
-                    QMessageBox.critical(self.dlg, "Error", "The land cover grid includes values not appropriate for UMEP-formatted land cover grid (should be integer between 1 and 7).")
+                    QMessageBox.warning(self.dlg, "Attention!", "The land cover grid includes integer values higher (or lower) than UMEP-formatted" 
+                        "land cover grid (should be integer between 1 and 7). If other LC-classes should be included they also need to be included in landcoverclasses_2016a.txt")
                     return
+                    # QMessageBox.critical(self.dlg, "Error", "The land cover grid includes values not appropriate for UMEP-formatted land cover grid (should be integer between 1 and 7).")
+                    # return
                 if np.where(self.lcgrid) == 3 or np.where(self.lcgrid) == 4:
                     QMessageBox.critical(self.dlg, "Error",
                                          "The land cover grid includes values (decidouos and/or conifer) not appropriate for SOLWEIG-formatted land cover grid (should not include 3 or 4).")

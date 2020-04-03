@@ -17,5 +17,5 @@ except:
                                     "SuPy not installed. report any errors to https://github.com/UMEP-dev/UMEP/issues")
     else:
         QMessageBox.information(None,
-                                "Information", "SuPy not installed. Some UMEP tool will not be functioning proparly.")
+                                "Information", "SuPy not installed. Some UMEP tools will not be fully operational.")
 # setup_supy(ver='2020.1.23')
