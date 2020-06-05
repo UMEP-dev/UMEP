@@ -23,5 +23,5 @@
 
 def classFactory(iface):
     # load Sun class from file Sun
-    from sun import Visual
+    from .sun import Visual
     return Visual(iface)

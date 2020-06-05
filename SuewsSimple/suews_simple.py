@@ -269,7 +269,7 @@ class SuewsSimple(object):
             try:
                 data = np.loadtxt(self.folderPath[0],skiprows=headernum, delimiter=delim)
             except:
-                QMessageBox.critical(None, "Import Error", "The file does not have the correct format")
+                QMessageBox.critical(self.dlg, "Import Error", "The file does not have the correct format")
                 return
             self.dlg.lineEdit_zHBuild.setText(str(data[2]))
             self.dlg.lineEdit_faiBuild.setText(str(data[1]))
@@ -290,7 +290,7 @@ class SuewsSimple(object):
             try:
                 data = np.loadtxt(self.folderPath[0],skiprows=headernum, delimiter=delim)
             except:
-                QMessageBox.critical(None, "Import Error", "The file does not have the correct format")
+                QMessageBox.critical(self.dlg, "Import Error", "The file does not have the correct format")
                 return
             self.dlg.lineEdit_zHveg.setText(str(data[2]))
             self.dlg.lineEdit_faiveg.setText(str(data[1]))
@@ -311,7 +311,7 @@ class SuewsSimple(object):
             try:
                 data = np.loadtxt(self.folderPath[0],skiprows=headernum, delimiter=delim)
             except:
-                QMessageBox.critical(self.iface.mainWindow(), "Import Error", "The file does not have the correct format")
+                QMessageBox.critical(self.dlg, "Import Error", "The file does not have the correct format")
                 return
             self.dlg.pai_paved.setText(str(data[0]))
             self.dlg.pai_build.setText(str(data[1]))
@@ -355,7 +355,7 @@ class SuewsSimple(object):
         lin = f1.readlines()
         index = 2
         lines = lin[index].split()
-        self.dlg.lineEdit_YYYY.setText(lines[1])
+        self.dlg.lineEdit_YYYY.setText(str(int(float(lines[1]))))
         self.dlg.pai_paved.setText(lines[13])
         self.dlg.pai_build.setText(lines[14])
         self.dlg.pai_evergreen.setText(lines[15])
@@ -363,15 +363,15 @@ class SuewsSimple(object):
         self.dlg.pai_grass.setText(lines[17])
         self.dlg.pai_baresoil.setText(lines[18])
         self.dlg.pai_water.setText(lines[19])
-        self.dlg.lineEdit_zHBuild.setText(lines[23])
-        self.dlg.lineEdit_faiBuild.setText(lines[28])
+        self.dlg.lineEdit_zHBuild.setText(lines[27]) #2020a: +4 cols from 20
+        self.dlg.lineEdit_faiBuild.setText(lines[32])
         self.dlg.lineEdit_paiBuild.setText(lines[14])
-        self.dlg.lineEdit_zHveg.setText(str((float(lines[24]) + float(lines[25])) / 2))
-        self.dlg.lineEdit_faiveg.setText(str((float(lines[29]) + float(lines[30])) / 2))
+        self.dlg.lineEdit_zHveg.setText(str((float(lines[28]) + float(lines[29])) / 2))
+        self.dlg.lineEdit_faiveg.setText(str((float(lines[33]) + float(lines[34])) / 2))
         self.dlg.lineEdit_paiveg.setText(str(float(lines[15]) + float(lines[16])))
         self.dlg.Latitude.setText(lines[4])
         self.dlg.Longitude.setText(lines[5])
-        self.dlg.PopDensNight.setText(lines[32])
+        self.dlg.PopDensNight.setText(lines[36])
         self.dlg.Height.setText(lines[9])
         f1.close()
         self.dlg.comboBoxLeafCycle.setCurrentIndex(1)
@@ -384,7 +384,7 @@ class SuewsSimple(object):
         self.dlg.UTC.setText('0')
 
         #self.dlg.textInputMetdata.setText(self.model_dir + '/BaseFiles/Kc_2012_data_60.txt')
-        self.dlg.textInputMetdata.setText(self.supylib + '/sample_run/Input/Kc_2012_data_60.txt')
+        self.dlg.textInputMetdata.setText(self.supylib + '/sample_run/Input/Kc_2011_data_60.txt')
         self.dlg.textOutput.setText(self.model_dir  + '/Output/')
         self.dlg.spinBoxSoilMoisture.setValue(100)
 
@@ -401,11 +401,11 @@ class SuewsSimple(object):
 
         # Checking consistency between fractions
         if np.abs(float(self.dlg.pai_build.text()) - float(self.dlg.lineEdit_paiBuild.text())) > 0.05:
-            QMessageBox.critical(self.iface.mainWindow(), "Non-consistency Error", "A relatively large difference in "
+            QMessageBox.critical(self.dlg, "Non-consistency Error", "A relatively large difference in "
                 "building fraction between the DSM and the landcover grid was found: " + str(float(self.dlg.pai_build.text()) - float(self.dlg.lineEdit_paiBuild.text())))
             return
         if np.abs(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - float(self.dlg.lineEdit_paiveg.text())) > 0.05:
-            QMessageBox.critical(self.iface.mainWindow(), "Non-consistency Error", "A relatively large difference in "
+            QMessageBox.critical(self.dlg, "Non-consistency Error", "A relatively large difference in "
                 "building fraction between the Vegetation DSM and the landcover grid was found: " + str(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - float(self.dlg.lineEdit_paiveg.text())))
             return
 
@@ -444,7 +444,7 @@ class SuewsSimple(object):
         # Checking LC fractions = 1
         LCtest = float(pai_paved) + float(pai_build) + float(pai_evergreen) + float(pai_decid) + float(pai_grass) + float(pai_baresoil) + float(pai_water)
         if not LCtest == 1.:
-            QMessageBox.critical(self.iface.mainWindow(), "Non-consistency Error", "Sum of Land cover fraction is not"
+            QMessageBox.critical(self.dlg, "Non-consistency Error", "Sum of Land cover fraction is not"
                                                                                    " equal to 1 (" + str(LCtest) + ")")
             return
 
@@ -548,7 +548,7 @@ class SuewsSimple(object):
         nml.write(self.model_dir + '/RunControl.nml', force=True)
 
         #initfilein = self.model_dir + '/BaseFiles/InitialConditionsKc_2012.nml'
-        initfilein = self.supylib + '/sample_run/Input/InitialConditionsKc_2012.nml'
+        initfilein = self.supylib + '/sample_run/Input/InitialConditionsKc_2011.nml'
         initfileout = self.model_dir + '/Input/InitialConditions' + str(filecode) + '_' + str(YYYY) + '.nml'
         self.write_to_init(initfilein, initfileout)
 
@@ -579,15 +579,15 @@ class SuewsSimple(object):
                                                             "\r\n"
                                                             "Do you want to contiune?",
                                 QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
-            # suews_wrapper.wrapper(self.model_dir)
+            #suews_wrapper.wrapper(self.model_dir)
             self.dlg.activateWindow()
             
             try:
-                suews_wrapper.wrapper(self.model_dir)
+                suews_wrapper.wrapper(self.model_dir, year=YYYY)
                 self.iface.messageBar().pushMessage("Model run successful", "Model run finished", level=Qgis.Success)
             except Exception as e:
                 QMessageBox.critical(self.dlg, "An error occurred", str(e) + "\r\n\r\n"
-                                "Check: " + str(list(Path(tempfile.gettempdir()).glob('SuPy.log'))[0]) + "\r\n\r\n"
+                                "Check also: " + str(list(Path.cwd().glob('SuPy.log'))[0]) + "\r\n\r\n"
                                 "Please report any errors to https://github.com/UMEP-dev/UMEP/issues")
                 return
 

@@ -4,10 +4,11 @@ Created on 10 apr 2014
 @author: nke
 '''
 # Import the PyQt and QGIS libraries
-from qgis.PyQt.QtCore import *
-from qgis.PyQt.QtGui import *
-from qgis.core import *
-from qgis.gui import *
+from qgis.PyQt.QtWidgets import QMessageBox
+from qgis.PyQt.QtCore import Qt, pyqtSignal
+from qgis.PyQt.QtGui import QColor
+from qgis.core import QgsGeometry, QgsPoint, QgsPointXY
+from qgis.gui import QgsMapTool, QgsMapToolEmitPoint, QgsRubberBand
 
 # class AreaTool(QgsMapToolEmitPoint):
 # class AreaTool(QgsMapTool):
@@ -79,16 +80,15 @@ class AreaTool(QgsMapToolEmitPoint):
     '''
     classdocs
     '''
-    areaComplete = pyqtSignal(QgsPoint, QgsPoint)
-    areaStart = None
-    areaEnd = None
-    areaRubberband1 = None
-    areaRubberband2 = None
-    areaRubberband3 = None
-    areaRubberband4 = None
-
-
+    areaComplete = pyqtSignal(QgsPointXY, QgsPointXY)
+    
     def __init__(self, canvas):
+        self.areaStart = None
+        self.areaEnd = None
+        self.areaRubberband1 = None
+        self.areaRubberband2 = None
+        self.areaRubberband3 = None
+        self.areaRubberband4 = None
         
         #Create a reference to the map canvas
         self.canvas = canvas
@@ -97,6 +97,7 @@ class AreaTool(QgsMapToolEmitPoint):
     def canvasMoveEvent(self, event):
         if self.areaStart:
             point = self.toMapCoordinates(event.pos())
+            point = QgsPoint(point.x(), point.y())
             if self.areaRubberband1:
                  self.areaRubberband1.reset()
                  self.areaRubberband2.reset()
@@ -114,21 +115,10 @@ class AreaTool(QgsMapToolEmitPoint):
             if self.areaEnd is None:
                 point1 = QgsPoint(point.x(), self.areaStart.y())
                 point2 = QgsPoint(self.areaStart.x(), point.y())
-                points1 = [self.areaStart, point1]
-                points2 = [self.areaStart, point2]
+                points1 = [QgsPoint(self.areaStart), point1]
+                points2 = [QgsPoint(self.areaStart), point2]
                 points3 = [point1, point]
                 points4 = [point2, point]
-                self.areaRubberband1.setToGeometry(QgsGeometry.fromPolyline(points1), None)
-                self.areaRubberband2.setToGeometry(QgsGeometry.fromPolyline(points2), None)
-                self.areaRubberband3.setToGeometry(QgsGeometry.fromPolyline(points3), None)
-                self.areaRubberband4.setToGeometry(QgsGeometry.fromPolyline(points4), None)
-            else:
-                point1 = QgsPoint(self.areaEnd.x(), self.areaStart.y())
-                point2 = QgsPoint(self.areaStart.x(), self.areaEnd.y())
-                points1 = [self.areaStart, point1]
-                points2 = [self.areaStart, point2]
-                points3 = [point1, self.areaEnd]
-                points4 = [point2, self.areaEnd]
                 self.areaRubberband1.setToGeometry(QgsGeometry.fromPolyline(points1), None)
                 self.areaRubberband2.setToGeometry(QgsGeometry.fromPolyline(points2), None)
                 self.areaRubberband3.setToGeometry(QgsGeometry.fromPolyline(points3), None)
@@ -139,7 +129,6 @@ class AreaTool(QgsMapToolEmitPoint):
             self.areaStart = self.toMapCoordinates(e.pos())
         else:
             self.areaEnd = self.toMapCoordinates(e.pos())
-            
             self.areaComplete.emit(self.areaStart, self.areaEnd)
             
             self.areaRubberband1.reset()
@@ -149,4 +138,5 @@ class AreaTool(QgsMapToolEmitPoint):
 
             self.areaStart = None
             self.areaEnd = None
-
+            QgsMapTool.deactivate(self)
+            self.deactivated.emit()

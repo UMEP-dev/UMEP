@@ -142,8 +142,6 @@ class SUEWS(object):
                 self.tr(u'&SUEWS'),
                 action)
             self.iface.removeToolBarIcon(action)
-        # remove the toolbar
-        # del self.toolbar
 
     def run(self):
 
@@ -156,52 +154,6 @@ class SUEWS(object):
             return
 
         self.supylib = sys.modules["supy"].__path__[0]
-        # modelver = 'SUEWS_V2018c'
-        # if not (os.path.isfile(self.model_dir + os.sep + modelver) or os.path.isfile(
-        #         self.model_dir + os.sep + modelver + '.exe')):
-        #     if QMessageBox.question(self.iface.mainWindow(), "OS specific binaries missing",
-        #                             "Before you start to use this plugin for the very first time, the OS specific suews\r\n"
-        #                             "program (1Mb) must be be download from the UMEP repository and stored\r\n"
-        #                             "in your plugin directory: "
-        #                             "(" + self.model_dir + ").\r\n"
-        #                                                    "\r\n"
-        #                                                    "Join the email-list for updates and other information:\r\n"
-        #                                                    "http://www.lists.rdg.ac.uk/mailman/listinfo/met-umep.\r\n"
-        #                                                    "\r\n"
-        #                                                    "UMEP on the web:\r\n"
-        #                                                    "http://www.urban-climate.net/umep/\r\n"
-        #                                                    "\r\n"
-        #                                                    "\r\n"
-        #                                                    "Do you want to contiune with the download?",
-        #                             QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
-        #         if sys.platform == 'win32':
-        #             urllib.request.urlretrieve(
-        #                 'https://zenodo.org/record/2574410/files/SUEWS_2018c_win64.zip?download=1',
-        #                 self.model_dir + os.sep + 'temp.zip')
-        #             zipped = zipfile.ZipFile(self.model_dir + os.sep + 'temp.zip')
-        #             zipped.extract(modelver + '.exe', self.model_dir)
-        #             # urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695894_suews_v2018a.exe', self.model_dir + os.sep + 'SUEWS_V2018a.exe')
-        #         if sys.platform == 'linux2':
-        #             urllib.request.urlretrieve(
-        #                 'https://zenodo.org/record/2574410/files/SUEWS_2018c_Linux.zip?download=1',
-        #                 self.model_dir + os.sep + 'temp.zip')
-        #             zipped = zipfile.ZipFile(self.model_dir + os.sep + 'temp.zip')
-        #             zipped.extract(modelver, self.model_dir)
-        #             # urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695887_suews_v2018a', self.model_dir + os.sep + 'SUEWS_V2018a')
-        #         if sys.platform == 'darwin':
-        #             urllib.request.urlretrieve(
-        #                 'https://zenodo.org/record/2574410/files/SUEWS_2018c_macOS.zip?download=1',
-        #                 self.model_dir + os.sep + 'temp.zip')
-        #             zipped = zipfile.ZipFile(self.model_dir + os.sep + 'temp.zip')
-        #             zipped.extract(modelver, self.model_dir)
-        #             # urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695886_suews_v2018a', self.model_dir + os.sep + 'SUEWS_V2018a')
-        #         zipped.close()
-        #         os.remove(self.model_dir + os.sep + 'temp.zip')
-        #     else:
-        #         QMessageBox.critical(self.iface.mainWindow(), "Binaries not downloaded",
-        #                              "This plugin will not be able to start before binaries are downloaded")
-        #         return
-
         self.dlg.show()
         self.dlg.exec_()
 
@@ -274,7 +226,6 @@ class SUEWS(object):
         # else:
         usecbl = 0
 
-        # nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
         nml = f90nml.read(self.supylib + '/sample_run/RunControl.nml')
         nml['runcontrol']['CBLuse'] = int(usecbl)
         nml['runcontrol']['SnowUse'] = int(usesnow)
@@ -348,15 +299,15 @@ class SUEWS(object):
             linesperyear = int(minperyear / 60.)
 
             if (count - 1) == linesperyear:
-                QMessageBox.information(None, "Model information", "Model run will now start. QGIS might freeze during "
+                QMessageBox.information(self.dlg, "Model information", "Model run will now start. QGIS might freeze during "
                                                            "calculation. This will be fixed in future versions. As spin-up"
                                                                    "is choosen model will run twice (double computation time required).")
             else:
-                QMessageBox.critical(None, "Error in spin-up", "The meteorological forcing data is not one year long."
+                QMessageBox.critical(self.dlg, "Error in spin-up", "The meteorological forcing data is not one year long."
                                                                "Either adjust your file or run without spin-up.")
                 return
         else:
-            QMessageBox.information(None, "Model information", "Model run will now start. QGIS might freeze during "
+            QMessageBox.information(self.dlg, "Model information", "Model run will now start. QGIS might freeze during "
                                                                "calcualtion. This will be fixed in future versions.")
                                                     
         try:
@@ -399,7 +350,7 @@ class SUEWS(object):
 
         except Exception as e:
             QMessageBox.critical(self.dlg, "An error occurred", str(e) + "\r\n\r\n"
-                                "Check: " + str(list(Path(tempfile.gettempdir()).glob('SuPy.log'))[0]) + "\r\n\r\n"
+                                "Check: " + str(list(Path.cwd().glob('SuPy.log'))[0]) + "\r\n\r\n"
                                 "Please report any errors to https://github.com/UMEP-dev/UMEP/issues")
             return
 

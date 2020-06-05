@@ -1,0 +1,11 @@
+# this is a comment and will be ignored!
+# seperate data with arbitrary number of spaces!
+#
+# Parameters are normalized to 1W peak power!
+#
+# Header:
+# Description_with_underscore_instead_space   k1 k2 k3 k4 k5 k6
+c-Si_Huld   -0.01724 -0.0447 -0.0047 .000149 .000147 .000005
+CdTe_Huld   -0.046689 -0.072844 -0.002262 0.000276 0.000159 -0.000006
+CIGS_Huld   -0.005521 -0.038492 -0.003701 -.000899 -0.001248 0.000001
+Solar_Irrad   0. 0. 0. 0. 0. 0.

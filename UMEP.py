@@ -22,6 +22,7 @@
 """
 from __future__ import absolute_import
 from builtins import object
+import sys
 from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from qgis.PyQt.QtWidgets import QMenu, QAction, QMessageBox
 from qgis.PyQt.QtGui import QIcon
@@ -45,13 +46,19 @@ from .GreaterQF.greater_qf import GreaterQF
 from .ExtremeFinder.extreme_finder import ExtremeFinder
 from .LucyQF.LQF import LQF
 from .SEBE.sebe import SEBE
+# from .SEBEpv.sebepv import SEBEpv      # MRevesz
 from .SuewsSimple.suews_simple import SuewsSimple
 from .SUEWSPrepare.suews_prepare import SUEWSPrepare
 from .suews_converter.suews_converter import SUEWSConverter
 from .SUEWS.suews import SUEWS
 from .SOLWEIG.solweig import SOLWEIG
 from .BenchMarking.benchmarking import BenchMarking
-from .SEBEVisual.sun import Visual  # TODO: Not able to run 2to3 converter :Plugin blocker
+if sys.platform == 'linux2' or sys.platform == 'linux': #TODO test PyQt5 import instead
+    QMessageBox.critical(None, "SEBE Visual not functional on this OS",
+                             "This tool is currenly not operational on this OS. \n"
+                             "Use Windows or MacOS instead.")
+else:
+    from .SEBEVisual.sun import Visual
 from .SolweigAnalyzer.solweig_analyzer import SolweigAnalyzer
 from .SUEWSAnalyzer.suews_analyzer import SUEWSAnalyzer
 from .copernicus_data.copernicus_data import CopernicusData
@@ -232,14 +239,11 @@ class UMEP(object):
         self.SUEWS_Action = QAction("Urban Energy Balance (SUEWS/BLUEWS, Advanced)", self.iface.mainWindow())
         self.UEB_Menu.addAction(self.SUEWS_Action)
         self.SUEWS_Action.triggered.connect(self.SUEWS_advanced)
-        # self.LUMPS_Action = QAction("Urban Energy Balance (LUMPS)", self.iface.mainWindow())
-        # self.UEB_Menu.addAction(self.LUMPS_Action)
-        # self.LUMPS_Action.setEnabled(False)
-        # self.CBL_Action = QAction("UEB + CBL (BLUEWS/BLUMPS)", self.iface.mainWindow())
-        # self.UEB_Menu.addAction(self.CBL_Action)
-        # self.CBL_Action.setEnabled(False)
 
         # Sub-menus to Solar radiation
+        # self.SEBEpv_Action = QAction("Photovoltaic Yield on Building Envelopes (SEBEpv)", self.iface.mainWindow())      # MRevesz
+        # self.SUN_Menu.addAction(self.SEBEpv_Action)      # MRevesz
+        # self.SEBEpv_Action.triggered.connect(self.SEpv)
         self.SEBE_Action = QAction("Solar Energy on Building Envelopes (SEBE)", self.iface.mainWindow())
         self.SUN_Menu.addAction(self.SEBE_Action)
         self.SEBE_Action.triggered.connect(self.SE)
@@ -431,16 +435,25 @@ class UMEP(object):
         sg = SEBE(self.iface)
         sg.run()
 
+    # def SEpv(self):      # MRevesz
+    #     sg = SEBEpv(self.iface)
+    #     sg.run()
+
     def SEv(self):
-        sg = Visual(self.iface)
-        sg.run()
+        if sys.platform == 'linux2' or sys.platform == 'linux':
+            QMessageBox.critical(None, "SEBE Visualisation plugin not functional on this OS",
+                             "This tool is currenly not operational on this OS. \n"
+                             "Use Windows or MacOS instead.")
+        else:
+            sg = Visual(self.iface)
+            sg.run()
 
     def FP(self):
         sg = FootprintModel(self.iface)
         sg.run()
 
     def WA(self):
-        QMessageBox.critical(self.dlg, "Plugin not functional",
+        QMessageBox.critical(None, "WATCH plugin not functional",
                              "This tool is currenly not operational. \n"
                              "See issue #96 in our code repository (https://github.com/UMEP-dev/UMEP/issues/96) for more info. \n"
                              "Use ERA5 downloader instead.")

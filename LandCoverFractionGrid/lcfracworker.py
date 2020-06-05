@@ -64,7 +64,7 @@ class Worker(QtCore.QObject):
 
         # temporary fix for mac, ISSUE #15
         pf = sys.platform
-        if pf == 'darwin' or pf == 'linux2':
+        if pf == 'darwin' or pf == 'linux2' or pf == 'linux':
             if not os.path.exists(self.folderPath[0] + '/' + pre):
                 os.makedirs(self.folderPath[0] + '/' + pre)
 

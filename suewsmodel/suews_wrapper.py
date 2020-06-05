@@ -6,7 +6,7 @@ __author__ = 'xlinfr'
 # from qgis.PyQt.QtGui import QIcon, QColor
 
 
-def wrapper(pathtoplugin):
+def wrapper(pathtoplugin, year=None):
 
     import supy as sp
     from pathlib import Path
@@ -46,14 +46,15 @@ def wrapper(pathtoplugin):
     path_runcontrol = Path(pathtoplugin) / 'RunControl.nml'
     df_state_init = sp.init_supy(path_runcontrol)
     grid = df_state_init.index[0]
-    df_forcing = sp.load_forcing_grid(path_runcontrol, grid)
+    #year=2011
+    if year:
+        df_forcing = sp.load_forcing_grid(path_runcontrol, grid).loc[f'{year}'] # new (loc) from 2020a
+    else:
+        df_forcing = sp.load_forcing_grid(path_runcontrol, grid)
+
 
     # SuPy simulation
-    df_output, df_state_final = sp.run_supy(df_forcing,
-                                            df_state_init,
-                                            check_input=True,
-                                            serial_mode=True,
-                                            )
+    df_output, df_state_final = sp.run_supy(df_forcing, df_state_init, check_input=True, serial_mode=True)
 
     # resampling SuPy results for plotting
     df_output_suews = df_output.loc[grid, 'SUEWS']

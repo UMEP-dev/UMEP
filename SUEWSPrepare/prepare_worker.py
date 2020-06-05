@@ -283,6 +283,11 @@ class Worker(QtCore.QObject):
                 irrFr_EveTr = 0
                 irrFr_DecTr = 0
                 irrFr_Grass = 0
+                IrrFr_Bldgs = 0
+                IrrFr_Paved = 0
+                IrrFr_Water = 0
+                IrrFr_BSoil = 0
+
                 code = "IrrFr_EveTr"
                 index = self.find_index(code)
                 new_line[index] = str(irrFr_EveTr)
@@ -292,9 +297,21 @@ class Worker(QtCore.QObject):
                 code = "IrrFr_Grass"
                 index = self.find_index(code)
                 new_line[index] = str(irrFr_Grass)
+                code = "IrrFr_Bldgs"
+                index = self.find_index(code)
+                new_line[index] = str(IrrFr_Bldgs)
+                code = "IrrFr_Paved"
+                index = self.find_index(code)
+                new_line[index] = str(IrrFr_Paved)
+                code = "IrrFr_Water"
+                index = self.find_index(code)
+                new_line[index] = str(IrrFr_Water)
+                code = "IrrFr_BSoil"
+                index = self.find_index(code)
+                new_line[index] = str(IrrFr_BSoil)
 
-                TrafficRate_WD = -999
-                TrafficRate_WE = -999
+                TrafficRate_WD = 0.01
+                TrafficRate_WE = 0.01
                 code = "TrafficRate_WD"
                 index = self.find_index(code)
                 new_line[index] = str(TrafficRate_WD)
@@ -408,7 +425,7 @@ class Worker(QtCore.QObject):
                     IMP_zd = 0
                     # sdTree = np.sqrt((IMPveg_sd_eve ^ 2 / LCF_evergreen * area) + (IMPveg_sd_dec ^ 2 / LCF_decidious * area))  # not used yet
                 elif (LCF_tr == 0 and LCF_bu != 0):
-                    sdComb = np.sqrt(float(IMP_sd) ** 2. / (fLCF_bu * float(area)))
+                    sdComb = np.sqrt(float(IMP_sd) ** 2. / (LCF_bu * float(area)))  # Fix (fLCF_bu) issue #162
                 elif (LCF_tr != 0 and LCF_bu == 0):
                     sdComb = np.sqrt(float(IMPveg_sd_dec) ** 2. / (LCF_tr * float(area)))
                 elif (LCF_tr != 0 and LCF_bu != 0):
@@ -472,7 +489,7 @@ class Worker(QtCore.QObject):
                 if self.daypop == 1:
                     pop_density_day = feature.attribute(self.pop_density_day.currentField())
                 else:
-                    pop_density_day = -999
+                    pop_density_day = pop_density_night
                 #TODO include warning if pop dens is empty field - include if statement?
                 code = "PopDensDay"
                 index = self.find_index(code)
@@ -480,7 +497,6 @@ class Worker(QtCore.QObject):
                 code = "PopDensNight"
                 index = self.find_index(code)
                 new_line[index] = '%.3f' % pop_density_night
-
                 for widget in self.widget_list:
                     if widget.get_checkstate():
                         code_field = str(widget.comboBox_uniquecodes.currentText())
