@@ -53,12 +53,12 @@ from .suews_converter.suews_converter import SUEWSConverter
 from .SUEWS.suews import SUEWS
 from .SOLWEIG.solweig import SOLWEIG
 from .BenchMarking.benchmarking import BenchMarking
-if sys.platform == 'linux2' or sys.platform == 'linux': #TODO test PyQt5 import instead
-    QMessageBox.critical(None, "SEBE Visual not functional on this OS",
-                             "This tool is currenly not operational on this OS. \n"
-                             "Use Windows or MacOS instead.")
-else:
-    from .SEBEVisual.sun import Visual
+# if sys.platform == 'linux2' or sys.platform == 'linux': #TODO test PyQt5 import instead
+#     QMessageBox.critical(None, "SEBE Visual not functional on this OS",
+#                              "This tool is currenly not operational on this OS. \n"
+#                              "Use Windows or MacOS instead.")
+# else:
+from .SEBEVisual.sun import Visual
 from .SolweigAnalyzer.solweig_analyzer import SolweigAnalyzer
 from .SUEWSAnalyzer.suews_analyzer import SUEWSAnalyzer
 from .copernicus_data.copernicus_data import CopernicusData

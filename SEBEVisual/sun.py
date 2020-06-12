@@ -51,7 +51,10 @@ from matplotlib import colorbar, colors
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 from .visualizer_dialog import VisualizerDialog
-from .tools.GLWidget import VisWidget
+try:
+    from .tools.GLWidget import VisWidget
+except:
+    pass
 from .tools.areaTool import AreaTool
 from .tools.lineEditDragDrop import LineEditDragFile
 from .wallworker import WallWorker
@@ -191,7 +194,14 @@ class Visual:
     def run(self):
         """ Initialisation method
         :return:
-        """        
+        """      
+        try:
+            import OpenGL.GL as gl
+            from OpenGL.GLU import gluPerspective, gluLookAt, gluOrtho2D
+        except Exception as e:
+            QMessageBox.critical(None, "SEBE Visual not functional on this OS",
+                             "This tool is currenly not operational on this OS. \n"
+                             "Use Windows instead.")
         
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
@@ -437,6 +447,7 @@ class Visual:
 
         self.polyLayer.triggerRepaint()
         self.visDlg.ButtonVisualize.setEnabled(1)
+        self.visDlg.activateWindow()
 
     def visualize(self):
         """Load data files, prepare area clipping, initiate visualisation"""

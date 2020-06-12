@@ -432,12 +432,12 @@ class ShadowGenerator(object):
 
             if onetime == 0:
                 timestr = time_vector.strftime("%Y%m%d")
-                savestr = '/shadow_fraction_on'
+                savestr = '/shadow_fraction_on_'
             else:
                 timestr = time_vector.strftime("%Y%m%d_%H%M")
                 savestr = '/Shadow_at_'
 
-        filename = self.folderPath[0] + savestr + timestr + '_LST.tif'
+        filename = self.folderPath[0] + savestr + timestr + '.tif'
 
         dsh.saveraster(gdal_dsm, filename, shfinal)
 

@@ -1,10 +1,16 @@
 import logging
-import OpenGL.GL as gl
-from OpenGL.GLU import gluPerspective, gluLookAt, gluOrtho2D
+try:
+    import OpenGL.GL as gl
+    from OpenGL.GLU import gluPerspective, gluLookAt, gluOrtho2D
+except:
+    pass
 from qgis.PyQt import QtWidgets
 from qgis.PyQt import QtGui
 from qgis.PyQt import QtCore
-from PyQt5.QtOpenGL import *
+try:
+    from PyQt5.QtOpenGL import *
+except:
+    pass
 import numpy as np  # only for testing with test data arrays
 from matplotlib import cm     # used to get "viridis"-colormap
 

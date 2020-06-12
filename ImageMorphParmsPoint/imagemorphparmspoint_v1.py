@@ -518,15 +518,21 @@ class ImageMorphParmsPoint(object):
         zSdevall = immorphresult["zH_sd_all"]
         # self.iface.messageBar().pushMessage("Model run finished", "zH=" + str(zHall) + "fai=" + str(faiall) + "pai=" + str(paiall) + "zMax=" + str(zMaxall) + "zSdev=" + str(zSdevall) , level=QgsMessageBar.INFO)
         zdall,z0all = rg.RoughnessCalc(Roughnessmethod,zHall,faiall,paiall,zMaxall,zSdevall)
+        
         # If zd and z0 are lower than open country, set to open country
         if zdall < 0.2:
             zdall = 0.2
         if z0all < 0.03:
             z0all = 0.03
+
+        # If pai is larger than 0 and fai is zero, set fai to 0.001. Issue # 164
+        if paiall > 0.:
+            if faiall == 0.:
+                faiall = 0.001
+
         header = ' pai  fai   zH    zHmax    zHstd zd z0'
         numformat = '%4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
-        arr2 = np.array([[immorphresult["pai_all"], immorphresult["fai_all"], immorphresult["zH_all"],
-                          immorphresult["zHmax_all"], immorphresult["zH_sd_all"],zdall,z0all]])
+        arr2 = np.array([[paiall, faiall, zHall,zMaxall, zSdevall,zdall,z0all]])
         np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'IMPPoint_isotropic.txt', arr2,
                    fmt=numformat, delimiter=' ', header=header, comments='')
 

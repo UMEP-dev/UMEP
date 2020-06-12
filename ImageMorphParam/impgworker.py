@@ -250,6 +250,7 @@ class Worker(QtCore.QObject):
 
                     zd, z0 = rg.RoughnessCalcMany(self.rm, zH, fai, pai, zMax, zSdev)
 
+
                     # save to file
                     # header = ' Wd pai   fai   zH  zHmax   zHstd zd z0'
                     # numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
@@ -272,8 +273,12 @@ class Worker(QtCore.QObject):
                     if z0all == 0.0:
                         z0all = 0.03
 
-                    arr2 = np.array([[f.attributes()[self.idx], immorphresult["pai_all"], immorphresult["fai_all"], immorphresult["zH_all"],
-                                      immorphresult["zHmax_all"], immorphresult["zH_sd_all"], zdall, z0all]])
+                    # If pai is larger than 0 and fai is zero, set fai to 0.001. Issue # 164
+                    if paiall > 0.:
+                        if faiall == 0.:
+                            faiall = 0.001
+
+                    arr2 = np.array([[f.attributes()[self.idx], paiall, faiall, zHall, zMaxall, zSdevall, zdall, z0all]])
 
                     arrmat = np.vstack([arrmat, arr2])
 

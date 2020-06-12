@@ -252,7 +252,7 @@ class SUEWSConverter:
             pass
 
     def help(self):
-        url = "https://umep-docs.readthedocs.io/en/latest/processor/Urban%20Energy%20Balance%20Urban%20Energy%20Balance%20(SUEWS.BLUEWS,%20advanced).html"
+        url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/SUEWSConverer.html'
         webbrowser.open_new_tab(url)
 
     def start_progress(self):
