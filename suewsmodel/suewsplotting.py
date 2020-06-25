@@ -73,7 +73,7 @@ class SuewsPlotting(object):
         pos1 = ax1.get_position()
         pos2 = [pos1.x0 - 0.07, pos1.y0 + 0.04, pos1.width * 1.05, pos1.height * 1.1]
         ax1.set_position(pos2)
-        plt.legend(bbox_to_anchor=(1.13, 1.08))
+        plt.legend(bbox_to_anchor=(1.02, 1.0), loc='upper left', borderaxespad=0.)
 
         ax2 = plt.subplot(3, 1, 2, sharex=ax1)
         ax2.plot(dates, dataout[:, 12],'k', label='$Q_S$')
@@ -92,7 +92,7 @@ class SuewsPlotting(object):
         pos1 = ax2.get_position()
         pos2 = [pos1.x0 - 0.07, pos1.y0 + 0.01, pos1.width * 1.05, pos1.height * 1.1]
         ax2.set_position(pos2)
-        plt.legend(bbox_to_anchor=(1.13, 1.0))
+        plt.legend(bbox_to_anchor=(1.02, 1.0), loc='upper left', borderaxespad=0.)
 
         if writeoption > 38:
             lai = dataout[:, 56]
@@ -104,7 +104,7 @@ class SuewsPlotting(object):
         ax3 = plt.subplot(3, 1, 3, sharex=ax1)
         ax4 = ax3.twinx()
         ax3.plot(dates, lai, 'g-', label='$LAI$')
-        ax3.legend(bbox_to_anchor=(1.16, 0.5))
+        ax3.legend(bbox_to_anchor=(1.05, 0.5), loc='upper left', borderaxespad=0.)
         # ax4.bar(dectime, datain[:, 13], width=0.0, edgecolor='b', label='$Precip$')
         # ax4.plot(dectime, smd, 'k', label='$SMD$')
         ax4.bar(dates, datain[:, 13], width=0.0, edgecolor='b', label='$Precip$')
@@ -120,7 +120,7 @@ class SuewsPlotting(object):
         ax3.set_position(pos2)
         ax4.set_position(pos2)
         # plt.legend(bbox_to_anchor=(1.16, 1.0))
-        ax4.legend(bbox_to_anchor=(1.16, 1.0))
+        ax4.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left', borderaxespad=0.)
 
     def plotmonthlystatistics(self, dataout, datain):
 
@@ -185,7 +185,7 @@ class SuewsPlotting(object):
         pos1 = ax1.get_position()
         pos2 = [pos1.x0 - 0.035, pos1.y0 + 0.00, pos1.width * 1.00, pos1.height * 1.0]
         ax1.set_position(pos2)
-        plt.legend(bbox_to_anchor=(1.25, 1.0))
+        plt.legend(bbox_to_anchor=(1.02, 1.0), loc='upper left', borderaxespad=0.)
 
         ax3 = plt.subplot(1, 2, 2, sharex=ax1)
         ax3.plot(pltmonth, wu, 'go-', label='$W-use$')
@@ -203,7 +203,7 @@ class SuewsPlotting(object):
         pos2 = [pos1.x0 - 0.00, pos1.y0 - 0.00, pos1.width * 1.00, pos1.height * 1.0]
         ax3.set_position(pos2)
         ax3.set_position(pos2)
-        plt.legend(bbox_to_anchor=(1.3, 1.0))
+        plt.legend(bbox_to_anchor=(1.02, 1.0), loc='upper left', borderaxespad=0.)
 
 
 

@@ -230,6 +230,7 @@ class DSMGenerator(object):
             gdal_os_dep = ''
 
         if self.dlg.canvasButton.isChecked():
+            print("here2")
             # Map Canvas
             extentCanvasCRS = self.iface.mapCanvas()
             can_wkt = extentCanvasCRS.mapSettings().destinationCrs().toWkt()
@@ -255,16 +256,25 @@ class DSMGenerator(object):
                 canminy = extentCanvas.yMinimum()
                 canmaxy = extentCanvas.yMaximum()
 
-                canxymin = transformExt.TransformPoint(canminx, canminy)
-                canxymax = transformExt.TransformPoint(canmaxx, canmaxy)
+                
 
                 gdalver = float(gdal.__version__[0])
                 if gdalver == 3.:
-                    extDiffminx = canxymin[1] - extentDEM.xMinimum() # If smaller than zero = warning #changed to gdal 3
-                    extDiffminy = canxymin[0] - extentDEM.yMinimum() # If smaller than zero = warning #changed to gdal 3
-                    extDiffmaxx = canxymax[1] - extentDEM.xMaximum() # If larger than zero = warning #changed to gdal 3
-                    extDiffmaxy = canxymax[0] - extentDEM.yMaximum() # If larger than zero = warning #changed to gdal 3
+                    minext = ogr.CreateGeometryFromWkt('POINT (' + str(canminx) + ' ' + str(canminy) + ')')
+                    minext.Transform(transformExt)
+                    maxext = ogr.CreateGeometryFromWkt('POINT (' + str(canmaxx) + ' ' + str(canmaxy) + ')')
+                    maxext.Transform(transformExt)
+                    lonminext = minext.GetY()
+                    lonmaxext = maxext.GetY()
+                    latminetx = minext.GetX()
+                    latmaxetx = maxext.GetX()
+                    extDiffminx = latminetx - extentDEM.xMinimum() # If smaller than zero = warning #changed to gdal 3
+                    extDiffminy = lonminext - extentDEM.yMinimum() # If smaller than zero = warning #changed to gdal 3
+                    extDiffmaxx = latmaxetx - extentDEM.xMaximum() # If larger than zero = warning #changed to gdal 3
+                    extDiffmaxy = latminetx - extentDEM.yMaximum() # If larger than zero = warning #changed to gdal 3
                 else:
+                    canxymin = transformExt.TransformPoint(canminx, canminy)
+                    canxymax = transformExt.TransformPoint(canmaxx, canmaxy)
                     extDiffminx = canxymin[0] - extentDEM.xMinimum() # If smaller than zero = warning #changed to gdal 2
                     extDiffminy = canxymin[1] - extentDEM.yMinimum() # If smaller than zero = warning #changed to gdal 2
                     extDiffmaxx = canxymax[0] - extentDEM.xMaximum() # If larger than zero = warning #changed to gdal 2
@@ -336,16 +346,25 @@ class DSMGenerator(object):
         outputshp = self.plugin_dir + '/temp/'
 
         if self.dlg.checkBoxOSM.isChecked():
-            dem_original = gdal.Open(filepath_dem)
-            dem_wkt = dem_original.GetProjection()
+            # dem_original = gdal.Open(filepath_dem)
+            # dem_wkt = dem_original.GetProjection()
+            # ras_crs = osr.SpatialReference()
+            # ras_crs.ImportFromWkt(dem_wkt)
+
+            # test with other method for CRS. Gives same result as above.
             ras_crs = osr.SpatialReference()
-            ras_crs.ImportFromWkt(dem_wkt)
+            dsm_ref = dem_layer.crs().toWkt()
+            ras_crs.ImportFromWkt(dsm_ref)
+
             rasEPSG = ras_crs.GetAttrValue("PROJCS|AUTHORITY", 1)
+            print(rasEPSG)
             if self.dlg.layerButton.isChecked():
+                print("here1")
                 old_crs = ras_crs
             elif self.dlg.canvasButton.isChecked():
                 canvasCRS = self.iface.mapCanvas()
-                outputWkt = canvasCRS.mapRenderer().destinationCrs().toWkt()
+                # outputWkt = canvasCRS.mapRenderer().destinationCrs().toWkt()
+                outputWkt = canvasCRS .mapSettings().destinationCrs().toWkt()
                 old_crs = osr.SpatialReference()
                 old_crs.ImportFromWkt(outputWkt)
 
@@ -370,33 +389,47 @@ class DSMGenerator(object):
             miny = float(self.yMin)
             maxx = float(self.xMax)
             maxy = float(self.yMax)
+        
             gdalver = float(gdal.__version__[0])
             if gdalver == 3.:
-                lonlatmin = transform.TransformPoint(miny, minx) #changed to gdal 3
-                lonlatmax = transform.TransformPoint(maxy, maxx) #changed to gdal 3
+                # New code Fredrik 20200625
+                print("here")
+                lonlatmin = ogr.CreateGeometryFromWkt('POINT (' + str(minx) + ' ' + str(miny) + ')')
+                lonlatmin.Transform(transform)
+                lonlatmax = ogr.CreateGeometryFromWkt('POINT (' + str(maxx) + ' ' + str(maxy) + ')')
+                lonlatmax.Transform(transform)
+                lonmin = lonlatmin.GetY()
+                lonmax = lonlatmax.GetY()
+                latmin = lonlatmin.GetX()
+                latmax = lonlatmax.GetX()
+                # lonlatmin = transform.TransformPoint(miny, minx) #changed to gdal 3
+                # lonlatmax = transform.TransformPoint(maxy, maxx) #changed to gdal 3
             else:
                 lonlatmin = transform.TransformPoint(minx, miny)
                 lonlatmax = transform.TransformPoint(maxx, maxy)
+                lonmin = lonlatmin.GetX()
+                lonmax = lonlatmax.GetX()
+                latmin = lonlatmax.GetY()
+                latmax = lonlatmax.GetY()
 
-            if ras_crs != old_crs:
-                rasTrans = osr.CoordinateTransformation(old_crs, ras_crs)
-                raslonlatmin = rasTrans.TransformPoint(float(self.xMin), float(self.yMin))
-                raslonlatmax = rasTrans.TransformPoint(float(self.xMax), float(self.yMax))
-
-                gdalver = float(gdal.__version__[0])
-                if gdalver == 3.:
-                    self.xMin = raslonlatmin[1] #changed to gdal 3
-                    self.yMin = raslonlatmin[0] #changed to gdal 3
-                    self.xMax = raslonlatmax[1] #changed to gdal 3
-                    self.yMax = raslonlatmax[0] #changed to gdal 3
-                else:
-                    self.xMin = raslonlatmin[0] #changed to gdal 2
-                    self.yMin = raslonlatmin[1] #changed to gdal 2
-                    self.xMax = raslonlatmax[0] #changed to gdal 2
-                    self.yMax = raslonlatmax[1] #changed to gdal 2
+            # if ras_crs != old_crs:
+            #     if gdalver == 3.:
+            #         self.xMin = raslonlatmin[1] #changed to gdal 3
+            #         self.yMin = raslonlatmin[0] #changed to gdal 3
+            #         self.xMax = raslonlatmax[1] #changed to gdal 3
+            #         self.yMax = raslonlatmax[0] #changed to gdal 3
+            #     else:
+            #         self.xMin = raslonlatmin[0] #changed to gdal 2
+            #         self.yMin = raslonlatmin[1] #changed to gdal 2
+            #         self.xMax = raslonlatmax[0] #changed to gdal 2
+            #         self.yMax = raslonlatmax[1] #changed to gdal 2
+            #     rasTrans = osr.CoordinateTransformation(old_crs, ras_crs)
+            #     lonlatmin = rasTrans.TransformPoint(float(self.xMin), float(self.yMin))
+            #     lonlatmax = rasTrans.TransformPoint(float(self.xMax), float(self.yMax))
 
             # Make data queries to overpass-api
-            urlStr = 'http://overpass-api.de/api/map?bbox=' + str(lonlatmin[0]) + ',' + str(lonlatmin[1]) + ',' + str(lonlatmax[0]) + ',' + str(lonlatmax[1])
+            urlStr = 'http://overpass-api.de/api/map?bbox=' + str(lonmin) + ',' + str(latmin) + ',' + str(lonmax) + ',' + str(latmax)
+            print(urlStr)
             with urllib.request.urlopen(urlStr) as response:
                 osmXml = response.read()
                 osmXml = osmXml.decode('UTF-8')
@@ -405,7 +438,8 @@ class DSMGenerator(object):
             osmFile.write(osmXml)
 
             if os.fstat(osmFile.fileno()).st_size < 1:
-                urlStr = 'http://api.openstreetmap.org/api/0.6/map?bbox=' + str(lonlatmin[0]) + ',' + str(lonlatmin[1]) + ',' + str(lonlatmax[0]) + ',' + str(lonlatmax[1])
+                urlStr = 'http://api.openstreetmap.org/api/0.6/map?bbox=' + str(lonmin) + ',' + str(latmin) + ',' + str(lonmax) + ',' + str(latmax)
+                print(urlStr)
                 with urllib.request.urlopen(urlStr) as response:
                     osmXml = response.read()
                     osmXml = osmXml.decode('UTF-8')

@@ -199,9 +199,10 @@ class Visual:
             import OpenGL.GL as gl
             from OpenGL.GLU import gluPerspective, gluLookAt, gluOrtho2D
         except Exception as e:
-            QMessageBox.critical(None, "SEBE Visual not functional on this OS",
-                             "This tool is currenly not operational on this OS. \n"
-                             "Use Windows instead.")
+            QMessageBox.critical(None, "OpenGL not installed. SEBE Visual not functional.",
+                             "We recommend you to use Windows instead since \n"
+                             "OpenGL and other related tools are included \n"
+                             "in the default installaion from qgis.org")
         
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started

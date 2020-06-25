@@ -443,31 +443,38 @@ class SuewsSimple(object):
 
         # Checking LC fractions = 1
         LCtest = float(pai_paved) + float(pai_build) + float(pai_evergreen) + float(pai_decid) + float(pai_grass) + float(pai_baresoil) + float(pai_water)
-        if not LCtest == 1.:
-            QMessageBox.critical(self.dlg, "Non-consistency Error", "Sum of Land cover fraction is not"
-                                                                                   " equal to 1 (" + str(LCtest) + ")")
+        if np.abs(LCtest - 1.) > 0.03:
+            QMessageBox.critical(self.dlg, "Non-consistency Error", "Sum of Land cover fraction is too far (3 %) from 1"
+                                                                                   " (" + str(LCtest) + ")")
             return
 
-        # def resultcheck(self, landcoverresult):
-        # total = 0.
-        # arr = landcoverresult["lc_frac_all"]
+        # adjust lc to 1 (work around)
+        arr = np.array([float(pai_paved), float(pai_build), float(pai_evergreen), float(pai_decid), float(pai_grass), float(pai_baresoil), float(pai_water)])
+        if LCtest != 1.0:
+            diff = LCtest - 1.0
+            print(diff)
+            maxnumber = max(arr)
+            index = 0
+            for x in range(0, len(arr)):
+                if maxnumber == arr[x]:
+                    arr[x] -= diff
+                    break
+                index = index + 1
 
-        # for x in range(0, len(arr[0])):
-        #     total += arr[0, x]
-
-        # if total != 1.0:
-        #     diff = total - 1.0
-
-        #     maxnumber = max(arr[0])
-
-        #     for x in range(0, len(arr[0])):
-        #         if maxnumber == arr[0, x]:
-        #             arr[0, x] -= diff
-        #             break
-
-        # landcoverresult["lc_frac_all"] = arr
-
-        # return landcoverresult
+            if index == 0:
+                pai_paved = arr[index]
+            if index == 1:
+                pai_build = arr[index]
+            if index == 2:
+                pai_evergreen = arr[index]
+            if index == 3:
+                pai_decid = arr[index]
+            if index == 4:
+                pai_grass = arr[index]
+            if index == 5:
+                pai_baresoil = arr[index]
+            if index == 6:
+                pai_water = arr[index]
 
         # Create new SiteSelect
         #f = open(self.model_dir + '/BaseFiles/SUEWS_SiteSelect.txt', 'r')
