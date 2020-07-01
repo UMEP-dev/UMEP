@@ -199,7 +199,7 @@ class Visual:
             import OpenGL.GL as gl
             from OpenGL.GLU import gluPerspective, gluLookAt, gluOrtho2D
         except Exception as e:
-            QMessageBox.critical(None, "OpenGL not installed. SEBE Visual not functional.",
+            QMessageBox.critical(None, "OpenGL and/or PyQt5 not installed. SEBE Visual not functional.",
                              "We recommend you to use Windows instead since \n"
                              "OpenGL and other related tools are included \n"
                              "in the default installaion from qgis.org")
@@ -271,9 +271,9 @@ class Visual:
         self.wall_file = None
         self.height_file = None
 
-        if self.iface is not None:
+        # if self.iface is not None:
             # delete open layers from QGIS:
-            self.remove_layers()
+            # self.remove_layers()
 
         paths = self.visDlg.textOutput.text()
         if ";" in paths:
@@ -336,8 +336,9 @@ class Visual:
             if self.iface is not None:
                 # Load Energyyearroof as layer to QGIS:
                 self.layer = QgsRasterLayer(self.base_path_str + self.height_file, "loaded DSM")
-                loadedlayer = self.iface.addRasterLayer(self.base_path_str + self.height_file)
-                loadedlayer.triggerRepaint()
+                QgsProject.instance().addMapLayer(self.layer )
+                #loadedlayer = self.iface.addRasterLayer(self.base_path_str + self.height_file)
+                #loadedlayer.triggerRepaint()
 
             self.visDlg.ButtonSelect.setEnabled(True)  # enables area selection
         else:
@@ -426,7 +427,7 @@ class Visual:
         self.point1 = point1
         self.point2 = point2
 
-        self.remove_layers(all_layers=False)
+        # self.remove_layers(all_layers=False)
         srs = self.canvas.mapSettings().destinationCrs()
         crs = str(srs.authid())
         uri = "Polygon?field=id:integer&index=yes&crs=" + crs
@@ -832,11 +833,11 @@ class Visual:
             self.polyLayer = None
         # delete full dsm layer from QGIS:
         if (self.layer is not None) and all_layers:
-            QgsProject.instance().removeAllMapLayers()
+            QgsProject.instance().removeMapLayer(self.layer)
             self.layer = None
         # delete selected dsm layer from QGIS:
         if self.dsmlayer is not None:
-            QgsProject.instance().removeMapLayer(self.dsmlayer)
+            QgsProject.instance().removeMapLayer(self.dsmlayer.id())
             self.dsmlayer = None
         self.canvas.refresh()
 

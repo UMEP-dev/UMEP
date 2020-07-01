@@ -293,8 +293,40 @@ class Worker(QtCore.QObject):
             np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'IMPGrid_isotropic.txt', arrmatsave,
                                 fmt=numformat2, delimiter=' ', header=header2, comments='')
 
-            if self.dlg.addResultToGrid.isChecked():
-                self.addattributes(self.vlayer, arrmatsave, header, pre)
+            if self.dlg.addResultToGrid.isChecked():                
+                # self.addattributes(self.vlayer, arrmatsave, header, pre)
+                matdata = arrmatsave
+                current_index_length = len(self.vlayer.dataProvider().attributeIndexes())
+                caps = self.vlayer.dataProvider().capabilities()
+
+                if caps & QgsVectorDataProvider.AddAttributes:
+                    line_split = header.split()
+                    for x in range(1, len(line_split)):
+
+                        self.vlayer.dataProvider().addAttributes([QgsField(pre + '_' + line_split[x], QVariant.Double)])
+                        self.vlayer.updateFields()
+                        self.vlayer.commitChanges()
+
+                    features=self.vlayer.getFeatures()
+                    self.vlayer_provider=self.vlayer.dataProvider()
+                    self.vlayer.startEditing()
+                    for f in features:
+                        id = f.id()
+                        idxx = f.attributes()[self.idx]
+                        pos = np.where(idxx == matdata[:,0])
+                        if pos[0].size > 0:
+                            for x in range(1, matdata.shape[1]):
+                                pos2 = current_index_length + x - 1
+                                val = float(matdata[pos[0], x])
+                                attr_dict = {current_index_length + x - 1: float(matdata[pos[0], x])}
+                                self.vlayer.dataProvider().changeAttributeValues({id: attr_dict})
+                                attr_dict.clear()
+
+                    self.vlayer.commitChanges()
+                    self.vlayer.updateFields()
+                    self.iface.mapCanvas().refresh()
+                else:
+                    QMessageBox.critical(None, "Error", "Vector Layer does not support adding attributes")
 
             # Nas om hela loopen utforts, kan anvandas for att tilldela ret-variabeln resultatet av arbetet som ska
             # ska skickas tillbaka till image_morph_param.py
@@ -326,6 +358,9 @@ class Worker(QtCore.QObject):
 
     def addattributes(self, vlayer, matdata, header, pre):
         current_index_length = len(vlayer.dataProvider().attributeIndexes())
+        print(matdata)
+        print("current_index_length: " + str(current_index_length))
+        print(vlayer.dataProvider().attributeIndexes())
         caps = vlayer.dataProvider().capabilities()
 
         if caps & QgsVectorDataProvider.AddAttributes:
@@ -333,20 +368,30 @@ class Worker(QtCore.QObject):
             for x in range(1, len(line_split)):
 
                 vlayer.dataProvider().addAttributes([QgsField(pre + '_' + line_split[x], QVariant.Double)])
-                vlayer.commitChanges()
                 vlayer.updateFields()
 
-            attr_dict = {}
+            print (vlayer.fields().names())
 
-            for y in range(0, matdata.shape[0]):
-                attr_dict.clear()
-                idx = int(matdata[y, 0])
+            vlayer_provider=layer.dataProvider()
+            vlayer.startEditing()
+            for f in features:
+                id = f.id()
+                pos = np.where(id == matdata[:,0])
                 for x in range(1, matdata.shape[1]):
-                    attr_dict[current_index_length + x - 1] = float(matdata[y, x])
-                vlayer.dataProvider().changeAttributeValues({idx: attr_dict})
+                    attr_value = {current_index_length + x - 1: float(matdata[pos, x])}
+                    vlayer.dataProvider().changeAttributeValues({id: attr_dict})
+            # attr_dict = {}            
+            # for y in range(0, matdata.shape[0]):
+            #     attr_dict.clear()
+            #     idx = int(matdata[y, 0])
+            #     for x in range(1, matdata.shape[1]):
+            #         attr_dict[current_index_length + x - 1] = float(matdata[y, x])
+            #     print({idx: attr_dict})
+            #     vlayer.dataProvider().changeAttributeValues({idx: attr_dict})
 
             vlayer.commitChanges()
             vlayer.updateFields()
+            # vlayer.commitChanges()
 
             # if self.iface.mapCanvas().isCachingEnabled():
             #     vlayer.setCacheImage(None)

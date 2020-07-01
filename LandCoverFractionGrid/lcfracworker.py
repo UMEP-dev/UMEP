@@ -181,7 +181,39 @@ class Worker(QtCore.QObject):
             self.textFileCheck(pre)
 
             if self.dlg.addResultToGrid.isChecked():
-                self.addattributes(self.vlayer, arrmatsave, header, pre)
+                # self.addattributes(self.vlayer, arrmatsave, header, pre)
+                matdata = arrmatsave
+                current_index_length = len(self.vlayer.dataProvider().attributeIndexes())
+                caps = self.vlayer.dataProvider().capabilities()
+
+                if caps & QgsVectorDataProvider.AddAttributes:
+                    line_split = header.split()
+                    for x in range(1, len(line_split)):
+
+                        self.vlayer.dataProvider().addAttributes([QgsField(pre + '_' + line_split[x], QVariant.Double)])
+                        self.vlayer.updateFields()
+                        self.vlayer.commitChanges()
+
+                    features=self.vlayer.getFeatures()
+                    self.vlayer_provider=self.vlayer.dataProvider()
+                    self.vlayer.startEditing()
+                    for f in features:
+                        id = f.id()
+                        idxx = f.attributes()[self.idx]
+                        pos = np.where(idxx == matdata[:,0])
+                        if pos[0].size > 0:
+                            for x in range(1, matdata.shape[1]):
+                                pos2 = current_index_length + x - 1
+                                val = float(matdata[pos[0], x])
+                                attr_dict = {current_index_length + x - 1: float(matdata[pos[0], x])}
+                                self.vlayer.dataProvider().changeAttributeValues({id: attr_dict})
+                                attr_dict.clear()
+
+                    self.vlayer.commitChanges()
+                    self.vlayer.updateFields()
+                    self.iface.mapCanvas().refresh()
+                else:
+                    QMessageBox.critical(None, "Error", "Vector Layer does not support adding attributes")
 
             if self.killed is False:
                 self.progress.emit()

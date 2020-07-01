@@ -28,6 +28,7 @@ repository=https://github.com/UMEP-dev/UMEP
 
 # Uncomment the following line and add your changelog:
 changelog=
+   3.14.2: Response to issue #167, #168 and #172.
    3.14.1: Fix plugin blocker for Mac. Response to issue #164.
    3.14  : LONG TERM RELEASE. Updated with SUEWS v2020a. Response to issues #158, #160 and #162.
    3.13.1: Response to issues #107, #116, #121 and #156. SEBE (Visualisation) now active again (experimental).

@@ -230,7 +230,6 @@ class DSMGenerator(object):
             gdal_os_dep = ''
 
         if self.dlg.canvasButton.isChecked():
-            print("here2")
             # Map Canvas
             extentCanvasCRS = self.iface.mapCanvas()
             can_wkt = extentCanvasCRS.mapSettings().destinationCrs().toWkt()
@@ -359,7 +358,6 @@ class DSMGenerator(object):
             rasEPSG = ras_crs.GetAttrValue("PROJCS|AUTHORITY", 1)
             print(rasEPSG)
             if self.dlg.layerButton.isChecked():
-                print("here1")
                 old_crs = ras_crs
             elif self.dlg.canvasButton.isChecked():
                 canvasCRS = self.iface.mapCanvas()
@@ -393,7 +391,6 @@ class DSMGenerator(object):
             gdalver = float(gdal.__version__[0])
             if gdalver == 3.:
                 # New code Fredrik 20200625
-                print("here")
                 lonlatmin = ogr.CreateGeometryFromWkt('POINT (' + str(minx) + ' ' + str(miny) + ')')
                 lonlatmin.Transform(transform)
                 lonlatmax = ogr.CreateGeometryFromWkt('POINT (' + str(maxx) + ' ' + str(maxy) + ')')

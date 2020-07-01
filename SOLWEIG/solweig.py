@@ -329,6 +329,7 @@ class SOLWEIG(object):
             nd = self.gdal_dsm.GetRasterBand(1).GetNoDataValue()
             self.dsm[self.dsm == nd] = 0.
             if self.dsm.min() < 0:
+                self.dsmcopy = self.dsm.copy
                 self.dsm = self.dsm + np.abs(self.dsm.min())
 
             old_cs = osr.SpatialReference()
@@ -731,10 +732,9 @@ class SOLWEIG(object):
                 buildings[buildings == 3] = 1
                 buildings[buildings == 2] = 0
             else:
-                buildings = self.dsm - self.dem
+                buildings = self.dsmcopy - self.dem
                 buildings[buildings < 2.] = 1.
                 buildings[buildings >= 2.] = 0.
-                #np.where(np.transpose(self.dsm - self.dem) < 2.)
 
             if self.dlg.checkBoxBuild.isChecked():
                 self.saveraster(self.gdal_dsm, self.folderPath[0] + '/buildings.tif', buildings)
