@@ -160,15 +160,13 @@ def footprintiterKAM(iterations,z_0_input,z_d_input,z_ag,sigv,Obukhov,ustar,dir,
         domain_y = domain_y / d_input
         fy = fx
         full = np.zeros([fx, fy])
-        print(phi.shape)
+        # full = np.zeros([1000, 1000])
         full[int((fx+1)/2):int((fx+1)/2+(domain_x)),int((fy/2+1)-domain_y):int((fy/2+1)+domain_y+1)] = phi
         full[np.isnan(full)]=0
-        print(full)
         ##Rotation for wind angle for absolute plot and correction for rotation algorithm
         rotang =180-wd_input
-        print(rotang)
-        rotatedphi = scnd.rotate(full, rotang, order=0, reshape=False, mode='nearest')
-
+        rotatedphi = scnd.rotate(full, rotang[0], order=0, reshape=False, mode='nearest')
+        
         totRotatedphi = totRotatedphi + rotatedphi
 
         #Calculate weighted morphometry and therefore weighted zo and zd
@@ -1050,14 +1048,14 @@ def CalcWeightedMorphVegV2(bld, veg, porosity, rotatedphi,wd_input,scale):
     #Frontal area index
     #rot_dsm = scnd.rotate(dsm, wd_input,order=0, reshape=False, mode='nearest')                #rotated buildings into wind direction
     #rot_dsm[rot_dsm<0]=0
-    rot_build = scnd.rotate(build, wd_input,order=0, reshape=False, mode='nearest')                #rotated buildings into wind direction
+    rot_build = scnd.rotate(build, wd_input[0],order=0, reshape=False, mode='nearest')                #rotated buildings into wind direction
     rot_build[rot_build<0]=0
-    rot_veg = scnd.rotate(veg, wd_input,order=0, reshape=False, mode='nearest')                #rotated veg into wind direction
+    rot_veg = scnd.rotate(veg, wd_input[0],order=0, reshape=False, mode='nearest')                #rotated veg into wind direction
     rot_veg[rot_veg<0]=0
     #rot_vegdsm = scnd.rotate(veg+dem, wd_input,order=0, reshape=False, mode='nearest')                #rotated veg dsm into wind direction
     #rot_vegdsm[rot_vegdsm<0]=0
     #rot_phi = scnd.rotate(rotatedphi, wd_input,order=0, reshape=False, mode='nearest')       #rotate footprint function into wind direction - not this is already 	northward so 	not rotated
-    rot_phi = scnd.rotate(rotatedphi, wd_input,order=0, reshape=False, mode='nearest')       #Dont rotate cos already rotated
+    rot_phi = scnd.rotate(rotatedphi, wd_input[0],order=0, reshape=False, mode='nearest')       #Dont rotate cos already rotated
     rot_phi[rot_phi<0]=0
     d = np.shape(build)
     #buildings
