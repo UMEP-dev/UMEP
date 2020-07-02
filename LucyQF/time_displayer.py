@@ -69,7 +69,7 @@ class time_displayer(QDialog, FORM_CLASS):
         :return: None
         '''
         id = self.lstAreas.currentItem().text()
-        result = self.model.fetchResultsForLocation(intOrString(id), dt(1900,0o1,0o1), dt(2200,0o1,0o1))
+        result = self.model.fetchResultsForLocation(intOrString(id), dt(1900,1,1), dt(2200,1,1))
         # Are there any valid results here?
         if len(result['Qf'].dropna()) == 0:
             QMessageBox.critical(None, 'No Data', 'This output area contains no data')
