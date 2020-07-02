@@ -159,9 +159,9 @@ class UMEP(object):
         self.PED_Action = QAction("Prepare Existing Data", self.iface.mainWindow())
         self.MD_Menu.addAction(self.PED_Action)
         self.PED_Action.triggered.connect(self.PED)
-        self.PFD_Action = QAction("Download data (WATCH)", self.iface.mainWindow())
-        self.MD_Menu.addAction(self.PFD_Action)
-        self.PFD_Action.triggered.connect(self.WA)
+        # self.PFD_Action = QAction("Download data (WATCH)", self.iface.mainWindow())
+        # self.MD_Menu.addAction(self.PFD_Action)
+        # self.PFD_Action.triggered.connect(self.WA)
         self.ERA_Action = QAction("Download data (ERA5)", self.iface.mainWindow())
         self.MD_Menu.addAction(self.ERA_Action)
         self.ERA_Action.triggered.connect(self.ERA)
@@ -304,7 +304,7 @@ class UMEP(object):
         self.About_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_umep.png"))
         self.Manual_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_umep.png"))
         self.PED_Action.setIcon(QIcon(self.plugin_dir + "/Icons/metdata.png"))
-        self.PFD_Action.setIcon(QIcon(self.plugin_dir + "/Icons/watch.png"))
+        # self.PFD_Action.setIcon(QIcon(self.plugin_dir + "/Icons/watch.png"))
         self.ERA_Action.setIcon(QIcon(self.plugin_dir + "/Icons/watch.png"))
         self.MRT_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_solweig.png"))
         self.SOLWEIGa_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_solweig.png"))
@@ -440,26 +440,21 @@ class UMEP(object):
     #     sg.run()
 
     def SEv(self):
-        if sys.platform == 'linux2' or sys.platform == 'linux':
-            QMessageBox.critical(None, "SEBE Visualisation plugin not functional on this OS",
-                             "This tool is currenly not operational on this OS. \n"
-                             "Use Windows or MacOS instead.")
-        else:
-            sg = Visual(self.iface)
-            sg.run()
+        sg = Visual(self.iface)
+        sg.run()
 
     def FP(self):
         sg = FootprintModel(self.iface)
         sg.run()
 
-    def WA(self):
-        QMessageBox.critical(None, "WATCH plugin not functional",
-                             "This tool is currenly not operational. \n"
-                             "See issue #96 in our code repository (https://github.com/UMEP-dev/UMEP/issues/96) for more info. \n"
-                             "Use ERA5 downloader instead.")
-        return
-        sg = WATCHData(self.iface)
-        sg.run()
+    # def WA(self):
+    #     QMessageBox.critical(None, "WATCH plugin not functional",
+    #                          "This tool is currenly not operational. \n"
+    #                          "See issue #96 in our code repository (https://github.com/UMEP-dev/UMEP/issues/96) for more info. \n"
+    #                          "Use ERA5 downloader instead.")
+    #     return
+    #     sg = WATCHData(self.iface)
+    #     sg.run()
 
     def ERA(self):
         sg = CopernicusData(self.iface)
@@ -494,8 +489,12 @@ class UMEP(object):
         sg.run()
 
     def UD(self):
-        sg = UMEP_Data_Download(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin deprecated",
+                             "This tool is no longer in use. \n"
+                             "\n"
+                             "Visit the FAQ section in the UMEP manual for information on how to download data directly within QGIS using Web Services.")
+        # sg = UMEP_Data_Download(self.iface)
+        # sg.run()
 
     def WC(self):
         sg = LCZ_test(self.iface)
