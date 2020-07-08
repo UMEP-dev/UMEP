@@ -11,7 +11,7 @@ name=UMEP
 qgisMinimumVersion=3.0
 description=Urban Multi-scale Environmental Predictor
 
-version=3.15
+version=3.15.1
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg
 email=fredrikl@gvc.gu.se
 
@@ -28,6 +28,7 @@ repository=https://github.com/UMEP-dev/UMEP
 
 # Uncomment the following line and add your changelog:
 changelog=
+   3.15.1: Response to part 1 in issue #164
    3.15  : LONG TERM RELEASE. Response to issue #167, #168, #172, #173 and #174. Removal of UMEP Downloader.
    3.14.1: Fix plugin blocker for Mac. Response to issue #164.
    3.14  : LONG TERM RELEASE. Updated with SUEWS v2020a. Response to issues #158, #160 and #162.
