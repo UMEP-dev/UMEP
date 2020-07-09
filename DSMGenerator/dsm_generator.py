@@ -40,6 +40,7 @@ import os.path
 import sys
 from osgeo.gdalconst import *
 import shutil
+from pathlib import Path
 
 class DSMGenerator(object):
     """QGIS Plugin Implementation."""

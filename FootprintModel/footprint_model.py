@@ -36,6 +36,7 @@ from osgeo import gdal
 import subprocess
 import sys
 import webbrowser
+from pathlib import Path
 
 
 class FootprintModel(object):
