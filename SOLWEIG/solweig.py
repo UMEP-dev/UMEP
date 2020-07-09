@@ -328,8 +328,8 @@ class SOLWEIG(object):
             # response to issue #85
             nd = self.gdal_dsm.GetRasterBand(1).GetNoDataValue()
             self.dsm[self.dsm == nd] = 0.
+            self.dsmcopy = np.copy(self.dsm)
             if self.dsm.min() < 0:
-                self.dsmcopy = self.dsm.copy
                 self.dsm = self.dsm + np.abs(self.dsm.min())
 
             old_cs = osr.SpatialReference()
