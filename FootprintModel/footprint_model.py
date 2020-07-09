@@ -288,10 +288,17 @@ class FootprintModel(object):
     def start_process(self):
 
         #Check OS and dep
+        # if sys.platform == 'darwin':
+        #     gdalwarp_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdalwarp'
+        # else:
+        #     gdalwarp_os_dep = ''
+        
         if sys.platform == 'darwin':
-            gdalwarp_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdalwarp'
+            # gdal_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/'
+            gdal_os_dep=Path(sys.executable).parent/'bin'
+            gdal_os_dep=gdal_os_dep.as_posix()+'/'
         else:
-            gdalwarp_os_dep = 'gdalwarp'
+            gdal_os_dep = '' 
 
         if self.dlg.checkBoxUseFile.isChecked():
             if self.data == 'None':
@@ -376,7 +383,7 @@ class FootprintModel(object):
 
             provider = dsm_build.dataProvider()
             filePath_dsm_build = str(provider.dataSourceUri())
-            gdalruntextdsm_build = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+            gdalruntextdsm_build = gdal_os_dep + 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
                                    ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
                                    filePath_dsm_build + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
 
@@ -413,10 +420,10 @@ class FootprintModel(object):
             provider = dem.dataProvider()
             filePath_dem = str(provider.dataSourceUri())
 
-            gdalruntextdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+            gdalruntextdsm = gdal_os_dep + 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
                                                ' ' + str(x + r ) + ' ' + str(y + r) + ' -of GTiff "' + \
                                                filePath_dsm + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
-            gdalruntextdem = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+            gdalruntextdem = gdal_os_dep + 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
                                    ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
                                    filePath_dem + '" "' + self.plugin_dir + '/data/clipdem.tif"'
 
@@ -474,7 +481,7 @@ class FootprintModel(object):
             # load raster
             provider = vegdsm.dataProvider()
             filePath_vegdsm = str(provider.dataSourceUri())
-            gdalruntextvegdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+            gdalruntextvegdsm = gdal_os_dep + 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
                                    ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
                                    filePath_vegdsm + '" "' + self.plugin_dir + '/data/clipvegdsm.tif"'
 

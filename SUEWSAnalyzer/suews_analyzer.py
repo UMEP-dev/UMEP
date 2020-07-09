@@ -852,7 +852,7 @@ class SUEWSAnalyzer(object):
         # Create the target raster layer
         cols = int((xmax - xmin)/resolution)
         # rows = int((ymax - ymin)/resolution) + 1
-        rows = int((ymax - ymin)/resolution)
+        rows = int((ymax - ymin)/resolution)  # issue 164
         trgt = gdal.GetDriverByName("GTiff").Create(dst, cols, rows, 1, gdal.GDT_Float32)
         trgt.SetGeoTransform((xmin, resolution, 0, ymax, 0, -resolution))
 

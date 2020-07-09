@@ -225,9 +225,11 @@ class DSMGenerator(object):
         start = datetime.datetime.now()
         #Check OS and dep
         if sys.platform == 'darwin':
-            gdal_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/'
+            # gdal_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/'
+            gdal_os_dep=Path(sys.executable).parent/'bin'
+            gdal_os_dep=gdal_os_dep.as_posix()+'/'
         else:
-            gdal_os_dep = ''
+            gdal_os_dep = ''       
 
         if self.dlg.canvasButton.isChecked():
             # Map Canvas
@@ -404,10 +406,12 @@ class DSMGenerator(object):
             else:
                 lonlatmin = transform.TransformPoint(minx, miny)
                 lonlatmax = transform.TransformPoint(maxx, maxy)
-                lonmin = lonlatmin.GetX()
-                lonmax = lonlatmax.GetX()
-                latmin = lonlatmax.GetY()
-                latmax = lonlatmax.GetY()
+                lonmin = lonlatmin[0]
+                lonmax = lonlatmax[0]
+                latmin = lonlatmin[1]
+                latmax = lonlatmax[1]
+                print(lonlatmin)
+                print(lonlatmax)
 
             # if ras_crs != old_crs:
             #     if gdalver == 3.:
