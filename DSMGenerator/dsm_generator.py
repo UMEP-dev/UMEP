@@ -225,12 +225,12 @@ class DSMGenerator(object):
         import datetime
         start = datetime.datetime.now()
         #Check OS and dep
-        if sys.platform == 'darwin':
-            # gdal_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/'
-            gdal_os_dep=Path(sys.executable).parent/'bin'
-            gdal_os_dep=gdal_os_dep.as_posix()+'/'
-        else:
-            gdal_os_dep = ''       
+##        if sys.platform == 'darwin':
+##            # gdal_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/'
+##            gdal_os_dep=Path(sys.executable).parent/'bin'
+##            gdal_os_dep=gdal_os_dep.as_posix()+'/'
+##        else:
+##            gdal_os_dep = ''       
 
         if self.dlg.canvasButton.isChecked():
             # Map Canvas
@@ -273,7 +273,7 @@ class DSMGenerator(object):
                     extDiffminx = latminetx - extentDEM.xMinimum() # If smaller than zero = warning #changed to gdal 3
                     extDiffminy = lonminext - extentDEM.yMinimum() # If smaller than zero = warning #changed to gdal 3
                     extDiffmaxx = latmaxetx - extentDEM.xMaximum() # If larger than zero = warning #changed to gdal 3
-                    extDiffmaxy = latminetx - extentDEM.yMaximum() # If larger than zero = warning #changed to gdal 3
+                    extDiffmaxy = lonmaxetx - extentDEM.yMaximum() # If larger than zero = warning #changed to gdal 3
                 else:
                     canxymin = transformExt.TransformPoint(canminx, canminy)
                     canxymax = transformExt.TransformPoint(canmaxx, canmaxy)
@@ -359,7 +359,7 @@ class DSMGenerator(object):
             ras_crs.ImportFromWkt(dsm_ref)
 
             rasEPSG = ras_crs.GetAttrValue("PROJCS|AUTHORITY", 1)
-            print(rasEPSG)
+            # print(rasEPSG)
             if self.dlg.layerButton.isChecked():
                 old_crs = ras_crs
             elif self.dlg.canvasButton.isChecked():
@@ -411,8 +411,8 @@ class DSMGenerator(object):
                 lonmax = lonlatmax[0]
                 latmin = lonlatmin[1]
                 latmax = lonlatmax[1]
-                print(lonlatmin)
-                print(lonlatmax)
+                # print(lonlatmin)
+                # print(lonlatmax)
 
             # if ras_crs != old_crs:
             #     if gdalver == 3.:
@@ -455,15 +455,28 @@ class DSMGenerator(object):
             osmFile.close()
 
             #Creating shapefile from OSM data
-            osmToShape = gdal_os_dep + 'ogr2ogr --config OSM_CONFIG_FILE "' + self.plugin_dir + '/osmconf.ini" -skipfailures -t_srs EPSG:' + str(
-                rasEPSG) + ' -overwrite -nlt POLYGON -f "ESRI Shapefile" "' + outputshp + '" "' + osmPath + '"'
+##            osmToShape = gdal_os_dep + 'ogr2ogr --config OSM_CONFIG_FILE "' + self.plugin_dir + '/osmconf.ini" -skipfailures -t_srs EPSG:' + str(
+##                rasEPSG) + ' -overwrite -nlt POLYGON -f "ESRI Shapefile" "' + outputshp + '" "' + osmPath + '"'
+##
+##            if sys.platform == 'win32':
+##                si = subprocess.STARTUPINFO()
+##                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+##                subprocess.call(osmToShape, startupinfo=si)
+##            else:
+##                os.system(osmToShape)
 
-            if sys.platform == 'win32':
-                si = subprocess.STARTUPINFO()
-                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                subprocess.call(osmToShape, startupinfo=si)
-            else:
-                os.system(osmToShape)
+            osmconf_dir = self.plugin_dir + '/osmconf.ini'
+
+            gdal.SetConfigOption("OSM_CONFIG_FILE", osmconf_dir)
+
+            osm_option = gdal.VectorTranslateOptions(options=[
+            '-skipfailures', 
+            '-t_srs', 'EPSG:' + str(rasEPSG),
+            '-overwrite',
+            '-nlt', 'MULTIPOLYGON',
+            '-f', 'ESRI Shapefile'])
+
+            gdal.VectorTranslate(outputshp, osmPath, options=osm_option)
 
             driver = ogr.GetDriverByName('ESRI Shapefile')
             driver.DeleteDataSource(outputshp + 'lines.shp')
@@ -555,17 +568,25 @@ class DSMGenerator(object):
         sortPoly = outputshp + 'sortPoly.shp'
 
         if self.dlg.checkBoxOSM.isChecked():
-            ascHeight = gdal_os_dep + 'ogr2ogr -sql "SELECT * FROM multipolygons ORDER BY height_asl ASC" "' + sortPoly + '" "' + str(osmPolygonPath) +'"'
+            sort_options = gdal.VectorTranslateOptions(options=[
+                '-sql', 'SELECT * FROM multipolygons ORDER BY height_asl ASC'])
+            gdal.VectorTranslate(str(sortPoly), str(osmPolygonPath), options=sort_options)
+##            ascHeight = gdal_os_dep + 'ogr2ogr -sql "SELECT * FROM multipolygons ORDER BY height_asl ASC" "' + sortPoly + '" "' + str(osmPolygonPath) +'"'
         else:
-            ascHeight = gdal_os_dep + 'ogr2ogr -select "height_asl" -sql "SELECT * FROM "' + str(polygon_ln) + '" ORDER BY height_asl ASC" -t_srs EPSG:' + str(
-                dem_epsg) + ' "' + str(sortPoly) + '" "' + str(polygon_layer.source()) + '"'
+            sort_options = gdal.VectorTranslateOptions(options=[
+                '-select', 'height_asl',
+                '-sql', 'SELECT * FROM "' + str(polygon_ln) + '" ORDER BY height_asl ASC',
+                '-t_srs', 'EPSG:' + str(dem_epsg)])
+            gdal.VectorTranslate(str(sortPoly), str(polygon_layer.source()), options=sort_options)
+##            ascHeight = gdal_os_dep + 'ogr2ogr -select "height_asl" -sql "SELECT * FROM "' + str(polygon_ln) + '" ORDER BY height_asl ASC" -t_srs EPSG:' + str(
+##                dem_epsg) + ' "' + str(sortPoly) + '" "' + str(polygon_layer.source()) + '"'
 
-        if sys.platform == 'win32':
-            si = subprocess.STARTUPINFO()
-            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            subprocess.call(ascHeight, startupinfo=si)
-        else:
-            os.system(ascHeight)
+##        if sys.platform == 'win32':
+##            si = subprocess.STARTUPINFO()
+##            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+##            subprocess.call(ascHeight, startupinfo=si)
+##        else:
+##            os.system(ascHeight)
 
         # Reads temp file with sorted polygons
         vlayer = QgsVectorLayer(sortPoly, 'sortPoly', 'ogr')
@@ -579,24 +600,42 @@ class DSMGenerator(object):
         pixel_size = self.dlg.spinBox.value()  # half picture size
 
         # Create the destination data source
-        
-        gdalrasterize = gdal_os_dep + 'gdal_rasterize -a ' + 'height_asl' + ' -te ' + str(self.xMin) + ' ' + str(self.yMin) + ' ' + str(self.xMax) + ' ' + str(self.yMax) +\
-                        ' -tr ' + str(pixel_size) + ' ' + str(pixel_size) + ' -l "' + str(sort_ln) + '" "' \
-                         + str(sort_layer.source()) + '" "' + self.plugin_dir + '/temp/clipdsm.tif"'
 
-        gdalclipdem = gdal_os_dep + 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(self.xMin) + ' ' + str(self.yMin) + ' ' + str(self.xMax) + ' ' + str(self.yMax) +\
-                      ' -tr ' + str(pixel_size) + ' ' + str(pixel_size) + \
-                      ' -of GTiff ' + '"' + filepath_dem + '" "' + self.plugin_dir + '/temp/clipdem.tif"'
+        rasterize_options = gdal.RasterizeOptions(options=[
+            '-a', 'height_asl',
+            '-te', str(self.xMin), str(self.yMin), str(self.xMax), str(self.yMax),
+            '-tr', str(pixel_size), str(pixel_size),
+            '-l', str(sort_ln)])
 
-        # Rasterize
-        if sys.platform == 'win32':
-            si = subprocess.STARTUPINFO()
-            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            subprocess.call(gdalrasterize, startupinfo=si)
-            subprocess.call(gdalclipdem, startupinfo=si)
-        else:
-            os.system(gdalrasterize)
-            os.system(gdalclipdem)
+        gdal.Rasterize(self.plugin_dir + '/temp/clipdsm.tif', str(sort_layer.source()), options=rasterize_options)
+
+        warp_options = gdal.WarpOptions(options=[
+            '-dstnodata', '-9999',
+            '-q',
+            '-overwrite',
+            '-te', str(self.xMin), str(self.yMin), str(self.xMax), str(self.yMax),
+            '-tr', str(pixel_size), str(pixel_size),
+            '-of', 'GTiff'])
+
+        gdal.Warp(self.plugin_dir + '/temp/clipdem.tif', filepath_dem, options=warp_options)
+
+##        gdalrasterize = gdal_os_dep + 'gdal_rasterize -a ' + 'height_asl' + ' -te ' + str(self.xMin) + ' ' + str(self.yMin) + ' ' + str(self.xMax) + ' ' + str(self.yMax) +\
+##                        ' -tr ' + str(pixel_size) + ' ' + str(pixel_size) + ' -l "' + str(sort_ln) + '" "' \
+##                         + str(sort_layer.source()) + '" "' + self.plugin_dir + '/temp/clipdsm.tif"'
+##
+##        gdalclipdem = gdal_os_dep + 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(self.xMin) + ' ' + str(self.yMin) + ' ' + str(self.xMax) + ' ' + str(self.yMax) +\
+##                      ' -tr ' + str(pixel_size) + ' ' + str(pixel_size) + \
+##                      ' -of GTiff ' + '"' + filepath_dem + '" "' + self.plugin_dir + '/temp/clipdem.tif"'
+##
+##        # Rasterize
+##        if sys.platform == 'win32':
+##            si = subprocess.STARTUPINFO()
+##            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+##            subprocess.call(gdalrasterize, startupinfo=si)
+##            subprocess.call(gdalclipdem, startupinfo=si)
+##        else:
+##            os.system(gdalrasterize)
+##            os.system(gdalclipdem)
 
         self.dlg.progressBar.setValue(3)
 
@@ -675,7 +714,7 @@ class DSMGenerator(object):
 
         self.dlg.progressBar.setValue(5)
 
-        print("finished run: %s\n\n" % (datetime.datetime.now() - start))
+        # print("finished run: %s\n\n" % (datetime.datetime.now() - start))
 
         #runTime = datetime.datetime.now() - start
 

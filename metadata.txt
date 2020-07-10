@@ -28,7 +28,8 @@ repository=https://github.com/UMEP-dev/UMEP
 
 # Uncomment the following line and add your changelog:
 changelog=
-   3.15.2: Fixed some Mac issues related to gdal
+   3.15.3: Fixed a minor isse in the solweig model
+   3.15.2: Fixed some Mac issues related to gdal. Fixed a minor isse in the solweig model
    3.15.1: Response to part 1 in issue #164
    3.15  : LONG TERM RELEASE. Response to issue #167, #168, #172, #173 and #174. Removal of UMEP Downloader.
    3.14.1: Fix plugin blocker for Mac. Response to issue #164.
