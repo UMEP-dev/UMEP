@@ -327,9 +327,9 @@ class DSMGenerator(object):
             QMessageBox.critical(None, "Error", "No valid building height layer is selected")
             return
         elif polygon_layer:
+            vlayer = QgsVectorLayer(polygon_layer.source(), "buildings", "ogr")
             fileInfo = QFileInfo(polygon_layer.source())
             polygon_ln = fileInfo.baseName()
-            vlayer = QgsVectorLayer(polygon_layer.source(), polygon_ln, "ogr")
 
             polygon_field = self.layerComboManagerPolygonField.currentField()
             idx = vlayer.fields().indexFromName(polygon_field)
@@ -431,7 +431,7 @@ class DSMGenerator(object):
 
             # Make data queries to overpass-api
             urlStr = 'http://overpass-api.de/api/map?bbox=' + str(lonmin) + ',' + str(latmin) + ',' + str(lonmax) + ',' + str(latmax)
-            #print(urlStr)
+            print(urlStr)
             with urllib.request.urlopen(urlStr) as response:
                 osmXml = response.read()
                 osmXml = osmXml.decode('UTF-8')
@@ -441,7 +441,7 @@ class DSMGenerator(object):
 
             if os.fstat(osmFile.fileno()).st_size < 1:
                 urlStr = 'http://api.openstreetmap.org/api/0.6/map?bbox=' + str(lonmin) + ',' + str(latmin) + ',' + str(lonmax) + ',' + str(latmax)
-                #print(urlStr)
+                print(urlStr)
                 with urllib.request.urlopen(urlStr) as response:
                     osmXml = response.read()
                     osmXml = osmXml.decode('UTF-8')
@@ -575,8 +575,8 @@ class DSMGenerator(object):
         else:
             sort_options = gdal.VectorTranslateOptions(options=[
                 '-select', 'height_asl',
-                '-sql', 'SELECT * FROM "' + str(polygon_ln) + '" ORDER BY height_asl ASC'])
-                #'-t_srs', 'EPSG:' + str(dem_epsg)])
+                '-sql', 'SELECT * FROM "' + str(polygon_ln) + '" ORDER BY height_asl ASC',
+                '-t_srs', 'EPSG:' + str(dem_epsg)])
             gdal.VectorTranslate(str(sortPoly), str(polygon_layer.source()), options=sort_options)
 ##            ascHeight = gdal_os_dep + 'ogr2ogr -select "height_asl" -sql "SELECT * FROM "' + str(polygon_ln) + '" ORDER BY height_asl ASC" -t_srs EPSG:' + str(
 ##                dem_epsg) + ' "' + str(sortPoly) + '" "' + str(polygon_layer.source()) + '"'

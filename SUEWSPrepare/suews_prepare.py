@@ -1042,8 +1042,8 @@ class SUEWSPrepare(object):
             return
 
         poly_field = self.layerComboManagerPolyField.currentField()
-        if poly_field is None:
-            QMessageBox.critical(None, "Error", "An attribute filed with unique fields must be selected")
+        if poly_field == '':
+            QMessageBox.critical(None, "Error", "An attribute field with unique fields must be selected")
             return
 
         vlayer = QgsVectorLayer(poly.source(), "polygon", "ogr")
@@ -1074,6 +1074,11 @@ class SUEWSPrepare(object):
             QMessageBox.critical(self.dlg, "Error", "Could not find the file containing meteorological data")
             return
 
+        pop_field = self.pop_density.currentField()
+        if pop_field == '':
+            QMessageBox.critical(None, "Error", "An attribute field including population desity (pp/ha) must be selected")
+            return
+        
         if self.leaf_cycle == 0:
             QMessageBox.critical(self.dlg, "Error", "No leaf cycle period has been selected")
             return

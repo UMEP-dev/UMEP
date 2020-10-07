@@ -283,7 +283,7 @@ class ImageMorphParam(object):
             return
 
         poly_field = self.layerComboManagerPolyField.currentField()
-        if poly_field is None:
+        if poly_field == '':
             QMessageBox.critical(self.dlg, "Error", "An attribute filed with unique fields must be selected")
             return
         vlayer = QgsVectorLayer(poly.source(), "polygon", "ogr")

@@ -572,7 +572,7 @@ class SOLWEIG(object):
                 svfsizey = svf.shape[1]
 
                 if not (svfsizex == sizex) & (svfsizey == sizey):  # &
-                    QMessageBox.critical(self.dlg, "Error in vegetation canopy DSM",
+                    QMessageBox.critical(self.dlg, "Error in svf rasters",
                                          "All grids must be of same extent and resolution")
                     return
 
@@ -791,9 +791,6 @@ class SOLWEIG(object):
                     QMessageBox.critical(self.dlg, "Error", "An attribute with unique values must be selected")
                     return
                 vlayer = QgsVectorLayer(poilyr.source(), "point", "ogr")
-                # prov = vlayer.dataProvider()
-                #fields = prov.fields()
-                # idx = vlayer.fieldNameIndex(poi_field)
                 idx = vlayer.fields().indexFromName(poi_field)
                 numfeat = vlayer.featureCount()
                 self.poiname = []
@@ -1114,7 +1111,7 @@ class SOLWEIG(object):
 
             QMessageBox.information(self.dlg,"SOLWEIG", "Model calculations successful!\r\n"
                             "Setting for this calculation is found in RunInfoSOLWEIG.txt located in "
-                                                               "the output folder specified.")
+                                                               "the specified output folder.")
 
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()

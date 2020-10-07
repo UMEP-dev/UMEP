@@ -211,7 +211,7 @@ class LandCoverFractionGrid(object):
             return
 
         poly_field = self.layerComboManagerPolyField.currentField()
-        if poly_field is None:
+        if poly_field == '':
             QMessageBox.critical(None, "Error", "An attribute with unique fields/records must be selected")
             return
 

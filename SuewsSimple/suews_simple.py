@@ -406,7 +406,7 @@ class SuewsSimple(object):
             return
         if np.abs(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - float(self.dlg.lineEdit_paiveg.text())) > 0.05:
             QMessageBox.critical(self.dlg, "Non-consistency Error", "A relatively large difference in "
-                "building fraction between the Vegetation DSM and the landcover grid was found: " + str(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - float(self.dlg.lineEdit_paiveg.text())))
+                "tree fraction between the Vegetation DSM and the landcover grid was found: " + str(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - float(self.dlg.lineEdit_paiveg.text())))
             return
 
         # Copy basefiles from sample_run
@@ -501,7 +501,8 @@ class SuewsSimple(object):
         newdata[28] = faiBuild
         newdata[29] = faiveg
         newdata[30] = faiveg
-        newdata[32] = popdens
+        newdata[35] = popdens
+        newdata[36] = popdens
 
         # write to newSiteSelect.txt
         f2 = open(self.model_dir + '/Input/SUEWS_SiteSelect.txt', 'w')

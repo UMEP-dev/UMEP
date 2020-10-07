@@ -36,7 +36,7 @@ def writeRunInfo(folderPath, filepath_dsm, gdal_dsm, usevegdem, filePath_cdsm, t
         prj = gdal_dsm.GetProjection()
         srs = osr.SpatialReference(wkt=prj)
         if srs.IsProjected:
-            file.write('Projected referece system: ' + srs.GetAttrValue('projcs'))
+            file.write('Projected reference system: ' + srs.GetAttrValue('projcs'))
         file.write('\n')
         file.write('Geographical coordinate system: ' + srs.GetAttrValue('geogcs'))
         file.write('\n')
@@ -73,6 +73,7 @@ def writeRunInfo(folderPath, filepath_dsm, gdal_dsm, usevegdem, filePath_cdsm, t
         file.write('\n')
         if demforbuild == 1:
             file.write('DEM used to identify buildings')
+            file.write('\n')
         else:
             file.write('Land cover used to identify buildings')
             file.write('\n')
