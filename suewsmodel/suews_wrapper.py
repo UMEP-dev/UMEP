@@ -33,12 +33,6 @@ def wrapper(pathtoplugin, year=None):
     # plp = suewsplottingpandas.SuewsPlottingPandas()
     pl = suewsplotting.SuewsPlotting()
 
-    # QMessageBox.information(
-    #     None,
-    #     "Model information",
-    #     "SuPy run will now start. QGIS might freeze during simulation.",
-    # )
-
     #####################################################################################
     # SuPy
 
@@ -122,7 +116,7 @@ def wrapper(pathtoplugin, year=None):
         gridcodemet = ''
         # while loop_out != '-9':
         lines = lin[index].split()
-        YYYY = int(lines[1])
+        YYYY = int(float(lines[1]))
         gridcode = lines[0]  # for plotting
         if multiplemetfiles == 0:  # one file
             if index == 2:
