@@ -258,6 +258,8 @@ class DSMGenerator(object):
                 canminy = extentCanvas.yMinimum()
                 canmaxy = extentCanvas.yMaximum()
 
+                
+
                 gdalver = float(gdal.__version__[0])
                 if gdalver == 3.:
                     minext = ogr.CreateGeometryFromWkt('POINT (' + str(canminx) + ' ' + str(canminy) + ')')
@@ -266,12 +268,12 @@ class DSMGenerator(object):
                     maxext.Transform(transformExt)
                     lonminext = minext.GetY()
                     lonmaxext = maxext.GetY()
-                    latminext = minext.GetX()
-                    latmaxext = maxext.GetX()
-                    extDiffminx = latminext - extentDEM.xMinimum() # If smaller than zero = warning #changed to gdal 3
+                    latminetx = minext.GetX()
+                    latmaxetx = maxext.GetX()
+                    extDiffminx = latminetx - extentDEM.xMinimum() # If smaller than zero = warning #changed to gdal 3
                     extDiffminy = lonminext - extentDEM.yMinimum() # If smaller than zero = warning #changed to gdal 3
-                    extDiffmaxx = latmaxext - extentDEM.xMaximum() # If larger than zero = warning #changed to gdal 3
-                    extDiffmaxy = lonmaxext - extentDEM.yMaximum() # If larger than zero = warning #changed to gdal 3
+                    extDiffmaxx = latmaxetx - extentDEM.xMaximum() # If larger than zero = warning #changed to gdal 3
+                    extDiffmaxy = lonmaxetx - extentDEM.yMaximum() # If larger than zero = warning #changed to gdal 3
                 else:
                     canxymin = transformExt.TransformPoint(canminx, canminy)
                     canxymax = transformExt.TransformPoint(canmaxx, canmaxy)

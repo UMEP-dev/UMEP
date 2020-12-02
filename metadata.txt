@@ -11,7 +11,7 @@ name=UMEP
 qgisMinimumVersion=3.0
 description=Urban Multi-scale Environmental Predictor
 
-version=3.15.4
+version=3.15.5
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg
 email=fredrikl@gvc.gu.se
 
@@ -28,6 +28,7 @@ repository=https://github.com/UMEP-dev/UMEP
 
 # Uncomment the following line and add your changelog:
 changelog=
+   3.15.5: Response to issues #194, #199 and #202
    3.15.4: Fixed an issue in SUEWSSimple regarding population numbers
    3.15.3: Fixed a minor isse in the solweig model
    3.15.2: Fixed some Mac issues related to gdal. Fixed a minor isse in the solweig model

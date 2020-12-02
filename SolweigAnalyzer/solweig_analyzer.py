@@ -303,12 +303,12 @@ class SolweigAnalyzer(object):
             return
 
         data1 = np.loadtxt(self.folderPath[0] + '/POI_' + self.varpoi1 + '.txt', skiprows=1)
-        varpos = [5, 6, 9, 7, 8, 10, 11, 16, 17, 22, 23, 24, 25, 26, 27, 28, 29]
+        varpos = [5, 6, 9, 7, 8, 10, 11, 16, 17, 22, 23, 24, 25, 26, 27, 28, 29, 33, 34]
         wm2 = '$W$'' ''$m ^{-2}$'
         degC = '$^{o}C$'
         deg = '$Degrees(^{o})$'
         frac = ''
-        varunit = [deg, deg, wm2, wm2, wm2, wm2, wm2, wm2, wm2, degC, degC, frac, frac, degC, wm2, frac, frac]
+        varunit = [deg, deg, wm2, wm2, wm2, wm2, wm2, wm2, wm2, degC, degC, frac, frac, degC, wm2, frac, frac, degC, degC]
 
         dates = []
         for i in range(0, data1.shape[0]):  # making date number
@@ -438,7 +438,8 @@ class SolweigAnalyzer(object):
         for file in self.l:
             if file.startswith(self.var + '_'):
                 if not file.endswith('_average.tif'):
-                    self.posAll.append(index)
+                    if not file.endswith('.xml'): # response to issue #196
+                        self.posAll.append(index)
                 if file.endswith('D.tif'):
                     self.posDay.append(index)
                 if file.endswith('N.tif'):
@@ -479,7 +480,7 @@ class SolweigAnalyzer(object):
         if self.dlg.checkboxMean.isChecked():
             index = 0
             # fix_print_with_import
-            print(self.posAll)
+            # print(self.posAll)
             for i in self.posAll:
                 gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
                 grid = gdal_dsm.ReadAsArray().astype(np.float)

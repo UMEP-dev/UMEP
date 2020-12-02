@@ -405,6 +405,7 @@ class ImageMorphParmsPoint(object):
             # Remove gdalwarp with gdal.Translate
             bigraster = gdal.Open(filePath_dsm_build)
             bbox = (x - r, y + r, x + r, y - r)
+            print(bbox)
             gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster, projWin=bbox)
             bigraster = None
 
