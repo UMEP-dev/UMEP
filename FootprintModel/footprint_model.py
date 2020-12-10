@@ -336,7 +336,8 @@ class FootprintModel(object):
             sigv = np.ones((1, 1)) * self.dlg.doubleSpinBox_wssd.value()
             Obukhov = np.ones((1, 1)) * self.dlg.doubleSpinBox_L.value()
             ustar = np.ones((1, 1)) * self.dlg.doubleSpinBox_ustar.value()
-            wdir = np.ones((1, 1)) * self.dlg.doubleSpinBox_wd.value()
+            # wdir = np.ones((1, 1)) * self.dlg.doubleSpinBox_wd.value()
+            wdir = [self.dlg.doubleSpinBox_wd.value()] # reponse to issue #203
             pbl = np.ones((1, 1)) * self.dlg.doubleSpinBox_bl.value()
             #por = np.ones((1, 1)) * 100.
             por = np.ones((1, 1)) * self.dlg.spinBoxPorosity.value()
@@ -569,13 +570,13 @@ class FootprintModel(object):
                 totRotatedphi,Wz_d_output,Wz_0_output,Wz_m_output,phi_maxdist,phi_totdist,Wfai,Wpai,WzH,WzMax,WzSdev,Wfaiveg,\
                         Wpaiveg,WzHveg,WzMaxveg,WzSdevveg,Wfaibuild,Wpaibuild,WzHbuild,WzMaxbuild,WzSdevbuild = \
                         fp.footprintiterKAM(iterations=it,z_0_input=z_0_input,z_d_input=z_d_input,z_ag=z_m_input,sigv=sigv,
-                        Obukhov=Obukhov,ustar=ustar,dir=wdir,porosity=por,bld=dsm,veg=vegdsm,rows=sizey,cols=sizex,res=res,dlg=self.dlg,
+                        Obukhov=Obukhov,ustar=ustar,wdir=wdir,porosity=por,bld=dsm,veg=vegdsm,rows=sizey,cols=sizex,res=res,dlg=self.dlg,
                         maxfetch=r,rm=Rm)
             elif fpm == "KLJ":
                 totRotatedphi,Wz_d_output,Wz_0_output,Wz_m_output,phi_maxdist,phi_totdist,Wfai,Wpai,WzH,WzMax,WzSdev,Wfaiveg,\
                         Wpaiveg,WzHveg,WzMaxveg,WzSdevveg,Wfaibuild,Wpaibuild,WzHbuild,WzMaxbuild,WzSdevbuild = \
                         fp.footprintiterKLJ(iterations=it,z_0_input=z_0_input,z_d_input=z_d_input,z_ag=z_m_input,sigv=sigv,
-                        Obukhov=Obukhov,ustar=ustar,dir=wdir,porosity=por,h=pbl,bld=dsm,veg=vegdsm,rows=sizey,cols=sizex,res=res,
+                        Obukhov=Obukhov,ustar=ustar,wdir=wdir,porosity=por,h=pbl,bld=dsm,veg=vegdsm,rows=sizey,cols=sizex,res=res,
                         dlg=self.dlg,maxfetch=r,rm=Rm)
 
             #If zd and z0 are lower than open country, set to open country
