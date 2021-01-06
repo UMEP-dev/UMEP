@@ -36,6 +36,7 @@ from osgeo import gdal
 import subprocess
 import sys
 import webbrowser
+from pathlib import Path
 
 
 class FootprintModel(object):
@@ -288,10 +289,17 @@ class FootprintModel(object):
     def start_process(self):
 
         #Check OS and dep
-        if sys.platform == 'darwin':
-            gdalwarp_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdalwarp'
-        else:
-            gdalwarp_os_dep = 'gdalwarp'
+        # if sys.platform == 'darwin':
+        #     gdalwarp_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdalwarp'
+        # else:
+        #     gdalwarp_os_dep = ''
+        
+##        if sys.platform == 'darwin':
+##            # gdal_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/'
+##            gdal_os_dep=Path(sys.executable).parent/'bin'
+##            gdal_os_dep=gdal_os_dep.as_posix()+'/'
+##        else:
+##            gdal_os_dep = ''
 
         if self.dlg.checkBoxUseFile.isChecked():
             if self.data == 'None':
@@ -328,7 +336,8 @@ class FootprintModel(object):
             sigv = np.ones((1, 1)) * self.dlg.doubleSpinBox_wssd.value()
             Obukhov = np.ones((1, 1)) * self.dlg.doubleSpinBox_L.value()
             ustar = np.ones((1, 1)) * self.dlg.doubleSpinBox_ustar.value()
-            wdir = np.ones((1, 1)) * self.dlg.doubleSpinBox_wd.value()
+            # wdir = np.ones((1, 1)) * self.dlg.doubleSpinBox_wd.value()
+            wdir = [self.dlg.doubleSpinBox_wd.value()] # reponse to issue #203
             pbl = np.ones((1, 1)) * self.dlg.doubleSpinBox_bl.value()
             #por = np.ones((1, 1)) * 100.
             por = np.ones((1, 1)) * self.dlg.spinBoxPorosity.value()
@@ -365,6 +374,13 @@ class FootprintModel(object):
         r = self.dlg.spinBoxFetch.value()
         # r = 1000
 
+        warp_options = gdal.WarpOptions(options=[
+                '-dstnodata', '-9999',
+                '-q',
+                '-overwrite',
+                '-te', str(x - r), str(y - r), str(x + r), str(y + r),
+                '-of', 'GTiff'])
+
         # coords = "{}, {}".format(x, y)
         # QMessageBox.critical(None, "Test", str(coords))
 
@@ -376,14 +392,16 @@ class FootprintModel(object):
 
             provider = dsm_build.dataProvider()
             filePath_dsm_build = str(provider.dataSourceUri())
-            gdalruntextdsm_build = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
-                                   filePath_dsm_build + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
+            #gdalruntextdsm_build = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+            #                       ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+            #                       filePath_dsm_build + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
 
-            if sys.platform == 'win32':
-                subprocess.call(gdalruntextdsm_build, startupinfo=si)
-            else:
-                os.system(gdalruntextdsm_build)
+            #if sys.platform == 'win32':
+            #    subprocess.call(gdalruntextdsm_build, startupinfo=si)
+            #else:
+            #    os.system(gdalruntextdsm_build)
+
+            gdal.Warp(self.plugin_dir + '/data/clipdsm.tif', filePath_dsm_build, options=warp_options)
 
             # Remove gdalwarp with gdal.Translate
             # bigraster = gdal.Open(filePath_dsm_build)
@@ -413,21 +431,24 @@ class FootprintModel(object):
             provider = dem.dataProvider()
             filePath_dem = str(provider.dataSourceUri())
 
-            gdalruntextdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-                                               ' ' + str(x + r ) + ' ' + str(y + r) + ' -of GTiff "' + \
-                                               filePath_dsm + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
-            gdalruntextdem = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
-                                   filePath_dem + '" "' + self.plugin_dir + '/data/clipdem.tif"'
+##            gdalruntextdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+##                                               ' ' + str(x + r ) + ' ' + str(y + r) + ' -of GTiff "' + \
+##                                               filePath_dsm + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
+##            gdalruntextdem = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+##                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+##                                   filePath_dem + '" "' + self.plugin_dir + '/data/clipdem.tif"'
+##
+##            if sys.platform == 'win32':
+##                si = subprocess.STARTUPINFO()
+##                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+##                subprocess.call(gdalruntextdsm, startupinfo=si)
+##                subprocess.call(gdalruntextdem, startupinfo=si)
+##            else:
+##                os.system(gdalruntextdsm)
+##                os.system(gdalruntextdem)
 
-            if sys.platform == 'win32':
-                si = subprocess.STARTUPINFO()
-                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                subprocess.call(gdalruntextdsm, startupinfo=si)
-                subprocess.call(gdalruntextdem, startupinfo=si)
-            else:
-                os.system(gdalruntextdsm)
-                os.system(gdalruntextdem)
+            gdal.Warp(self.plugin_dir + '/data/clipdsm.tif', filePath_dsm, options=warp_options)
+            gdal.Warp(self.plugin_dir + '/data/clipdem.tif', filePath_dem, options=warp_options)
 
             # Remove gdalwarp with gdal.Translate. Not working. Not same size of raster
             # bigraster_dsm = gdal.Open(filePath_dsm)
@@ -474,14 +495,16 @@ class FootprintModel(object):
             # load raster
             provider = vegdsm.dataProvider()
             filePath_vegdsm = str(provider.dataSourceUri())
-            gdalruntextvegdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
-                                   filePath_vegdsm + '" "' + self.plugin_dir + '/data/clipvegdsm.tif"'
+##            gdalruntextvegdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+##                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+##                                   filePath_vegdsm + '" "' + self.plugin_dir + '/data/clipvegdsm.tif"'
+##
+##            if sys.platform == 'win32':
+##                subprocess.call(gdalruntextvegdsm, startupinfo=si)
+##            else:
+##                os.system(gdalruntextvegdsm)
 
-            if sys.platform == 'win32':
-                subprocess.call(gdalruntextvegdsm, startupinfo=si)
-            else:
-                os.system(gdalruntextvegdsm)
+            gdal.Warp(self.plugin_dir + '/data/clipvegdsm.tif', filePath_vegdsm, options=warp_options)
 
             # Remove gdalwarp with gdal.Translate
             # bigraster_vegdsm = gdal.Open(filePath_vegdsm)
@@ -547,13 +570,13 @@ class FootprintModel(object):
                 totRotatedphi,Wz_d_output,Wz_0_output,Wz_m_output,phi_maxdist,phi_totdist,Wfai,Wpai,WzH,WzMax,WzSdev,Wfaiveg,\
                         Wpaiveg,WzHveg,WzMaxveg,WzSdevveg,Wfaibuild,Wpaibuild,WzHbuild,WzMaxbuild,WzSdevbuild = \
                         fp.footprintiterKAM(iterations=it,z_0_input=z_0_input,z_d_input=z_d_input,z_ag=z_m_input,sigv=sigv,
-                        Obukhov=Obukhov,ustar=ustar,dir=wdir,porosity=por,bld=dsm,veg=vegdsm,rows=sizey,cols=sizex,res=res,dlg=self.dlg,
+                        Obukhov=Obukhov,ustar=ustar,wdir=wdir,porosity=por,bld=dsm,veg=vegdsm,rows=sizey,cols=sizex,res=res,dlg=self.dlg,
                         maxfetch=r,rm=Rm)
             elif fpm == "KLJ":
                 totRotatedphi,Wz_d_output,Wz_0_output,Wz_m_output,phi_maxdist,phi_totdist,Wfai,Wpai,WzH,WzMax,WzSdev,Wfaiveg,\
                         Wpaiveg,WzHveg,WzMaxveg,WzSdevveg,Wfaibuild,Wpaibuild,WzHbuild,WzMaxbuild,WzSdevbuild = \
                         fp.footprintiterKLJ(iterations=it,z_0_input=z_0_input,z_d_input=z_d_input,z_ag=z_m_input,sigv=sigv,
-                        Obukhov=Obukhov,ustar=ustar,dir=wdir,porosity=por,h=pbl,bld=dsm,veg=vegdsm,rows=sizey,cols=sizex,res=res,
+                        Obukhov=Obukhov,ustar=ustar,wdir=wdir,porosity=por,h=pbl,bld=dsm,veg=vegdsm,rows=sizey,cols=sizex,res=res,
                         dlg=self.dlg,maxfetch=r,rm=Rm)
 
             #If zd and z0 are lower than open country, set to open country

@@ -326,7 +326,7 @@ class SkyViewFactorCalculator(object):
 
         # temporary fix for mac, ISSUE #15
         pf = sys.platform
-        if pf == 'darwin' or pf == 'linux2':
+        if pf == 'darwin' or pf == 'linux2' or pf == 'linux':  #Typo, issue #168
             if not os.path.exists(self.folderPath[0]):
                 os.makedirs(self.folderPath[0])
 
@@ -402,7 +402,7 @@ class SkyViewFactorCalculator(object):
 
         # temporary fix for mac, ISSUE #15
         pf = sys.platform
-        if pf == 'darwin' or pf == 'linux2':
+        if pf == 'darwin' or pf == 'linux2' or pf == 'linux':
             if not os.path.exists(self.folderPath[0]):
                 os.makedirs(self.folderPath[0])
 
@@ -540,7 +540,7 @@ class SkyViewFactorCalculator(object):
 
         # temporary fix for mac, ISSUE #15
         pf = sys.platform
-        if pf == 'darwin' or pf == 'linux2':
+        if pf == 'darwin' or pf == 'linux2' or pf == 'linux':
             if not os.path.exists(self.folderPath[0]):
                 os.makedirs(self.folderPath[0])
 

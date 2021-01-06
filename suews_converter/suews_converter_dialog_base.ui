@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>330</width>
-    <height>192</height>
+    <height>217</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -51,12 +51,17 @@
          <string>2018c</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>2019a</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
       <widget class="QComboBox" name="comboBoxNew">
        <property name="currentIndex">
-        <number>5</number>
+        <number>6</number>
        </property>
        <item>
         <property name="text">
@@ -86,6 +91,11 @@
        <item>
         <property name="text">
          <string>2019a</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2020a</string>
         </property>
        </item>
       </widget>

@@ -28,7 +28,7 @@ class TemporalProfileSampler(GenericAnnualSampler):
         dayCol = np.repeat(np.arange(0,7,1), binsPerDay)  # Label each row with the day of the week (same convention as datetime)
         # Each bin of profile data is demarcated by the end of the period.
         # But it's easier from a programming poV to use the start of each period.
-        secCol = np.tile(np.linspace(0, 24, binsPerDay, endpoint=False)*3600, 7)
+        secCol = np.tile(np.linspace(0, int(24.), int(binsPerDay), endpoint=False)*3600, 7)
         # Ensure data is float before going in
         df = pd.concat([pd.Series(np.array(dayCol).astype('int')), pd.Series(np.array(secCol).astype('int')), pd.Series(np.array(series.tolist()).astype('float'))], axis=1)
         df.columns = ['dayofweek', 'seconds', 'data']

@@ -46,13 +46,6 @@ class ImageMorphParmsPoint(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
-        """Constructor.
-
-        :param iface: An interface instance that will be passed to this class
-            which provides the hook by which you can manipulate the QGIS
-            application at run time.
-        :type iface: QgsInterface
-        """
         # Save reference to the QGIS interface
         self.iface = iface
         # initialize plugin directory
@@ -82,8 +75,6 @@ class ImageMorphParmsPoint(object):
         self.dlg.checkBoxOnlyBuilding.toggled.connect(self.text_enable)
 
         self.fileDialog = QFileDialog()
-        # self.fileDialog.setFileMode(4)
-        # self.fileDialog.setAcceptMode(1)
         self.fileDialog.setFileMode(QFileDialog.Directory)
         self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
 
@@ -95,9 +86,6 @@ class ImageMorphParmsPoint(object):
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&Image Morphometric Parameters Point')
-        # TODO: We are going to let the user set this up in a future iteration
-        # self.toolbar = self.iface.addToolBar(u'ImageMorphParmsPoint')
-        # self.toolbar.setObjectName(u'ImageMorphParmsPoint')
 
         # get reference to the canvas
         self.canvas = self.iface.mapCanvas()
@@ -113,19 +101,10 @@ class ImageMorphParmsPoint(object):
         self.pointTool = QgsMapToolEmitPoint(self.canvas)
         self.pointTool.canvasClicked.connect(self.create_point)
 
-        # self.layerComboManagerPoint = VectorLayerCombo(self.dlg.comboBox_Point)
-        # fieldgen = VectorLayerCombo(self.dlg.comboBox_Point, initLayer="", options={"geomType": QGis.Point})
-        # self.layerComboManagerPointField = FieldCombo(self.dlg.comboBox_Field, fieldgen, initField="")
         self.layerComboManagerPoint = QgsMapLayerComboBox(self.dlg.widgetPointLayer)
         self.layerComboManagerPoint.setCurrentIndex(-1)
         self.layerComboManagerPoint.setFilters(QgsMapLayerProxyModel.PointLayer)
         self.layerComboManagerPoint.setFixedWidth(175)
-        # self.layerComboManagerDSMbuildground = RasterLayerCombo(self.dlg.comboBox_DSMbuildground)
-        # RasterLayerCombo(self.dlg.comboBox_DSMbuildground, initLayer="")
-        # self.layerComboManagerDEM = RasterLayerCombo(self.dlg.comboBox_DEM)
-        # RasterLayerCombo(self.dlg.comboBox_DEM, initLayer="")
-        # self.layerComboManagerDSMbuild = RasterLayerCombo(self.dlg.comboBox_DSMbuild)
-        # RasterLayerCombo(self.dlg.comboBox_DSMbuild, initLayer="")
         self.layerComboManagerDSMbuildground = QgsMapLayerComboBox(self.dlg.widgetDSMbuildground)
         self.layerComboManagerDSMbuildground.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerDSMbuildground.setFixedWidth(175)
@@ -145,16 +124,6 @@ class ImageMorphParmsPoint(object):
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
-        """Get the translation for a string using Qt translation API.
-
-        We implement this ourselves since we do not inherit QObject.
-
-        :param message: String for translation.
-        :type message: str, QString
-
-        :returns: Translated version of message.
-        :rtype: QString
-        """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('ImageMorphParmsPoint', message)
 
@@ -436,6 +405,7 @@ class ImageMorphParmsPoint(object):
             # Remove gdalwarp with gdal.Translate
             bigraster = gdal.Open(filePath_dsm_build)
             bbox = (x - r, y + r, x + r, y - r)
+            print(bbox)
             gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster, projWin=bbox)
             bigraster = None
 
@@ -549,15 +519,21 @@ class ImageMorphParmsPoint(object):
         zSdevall = immorphresult["zH_sd_all"]
         # self.iface.messageBar().pushMessage("Model run finished", "zH=" + str(zHall) + "fai=" + str(faiall) + "pai=" + str(paiall) + "zMax=" + str(zMaxall) + "zSdev=" + str(zSdevall) , level=QgsMessageBar.INFO)
         zdall,z0all = rg.RoughnessCalc(Roughnessmethod,zHall,faiall,paiall,zMaxall,zSdevall)
+        
         # If zd and z0 are lower than open country, set to open country
         if zdall < 0.2:
             zdall = 0.2
         if z0all < 0.03:
             z0all = 0.03
+
+        # If pai is larger than 0 and fai is zero, set fai to 0.001. Issue # 164
+        if paiall > 0.:
+            if faiall == 0.:
+                faiall = 0.001
+
         header = ' pai  fai   zH    zHmax    zHstd zd z0'
         numformat = '%4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
-        arr2 = np.array([[immorphresult["pai_all"], immorphresult["fai_all"], immorphresult["zH_all"],
-                          immorphresult["zHmax_all"], immorphresult["zH_sd_all"],zdall,z0all]])
+        arr2 = np.array([[paiall, faiall, zHall,zMaxall, zSdevall,zdall,z0all]])
         np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'IMPPoint_isotropic.txt', arr2,
                    fmt=numformat, delimiter=' ', header=header, comments='')
 

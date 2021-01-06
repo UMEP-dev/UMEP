@@ -318,7 +318,8 @@ class Model(object):
                 cycle.index = list(range(0, len(cycle)))
                 for wdd in weekendDays[country]:
                     cycle[list(range(wdd*24, (1+wdd)*24))] = weekendTraffic.loc[country].values # Overwrite the weekend days with weekend values
-                trafficProfile[country].addWeeklyCycle(cityTimezone.localize(dt(2015,0o1,0o1)), cityTimezone.localize(dt(2015,12,31)), cycle) # 2015 is arbitrary; will work for all years.
+                trafficProfile[country].addWeeklyCycle(cityTimezone.localize(dt(2015,1,1)), cityTimezone.localize(dt(2015,12,31)), cycle) # 2015 is arbitrary; will work for all years.
+                # trafficProfile[country].addWeeklyCycle(cityTimezone.localize(dt(2015,0o1,0o1)), cityTimezone.localize(dt(2015,12,31)), cycle) # 2015 is arbitrary; will work for all years.
 
         # Building cycle: Same approach as for Traffic cycle
         if self.ds.diurnEnergy is not None:

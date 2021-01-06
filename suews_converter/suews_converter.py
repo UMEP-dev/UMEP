@@ -252,7 +252,7 @@ class SUEWSConverter:
             pass
 
     def help(self):
-        url = "https://umep-docs.readthedocs.io/en/latest/processor/Urban%20Energy%20Balance%20Urban%20Energy%20Balance%20(SUEWS.BLUEWS,%20advanced).html"
+        url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/SUEWSConverer.html'
         webbrowser.open_new_tab(url)
 
     def start_progress(self):
@@ -271,7 +271,7 @@ class SUEWSConverter:
                         + fromVer + " to " + toVer, level=Qgis.Success)
         except Exception as e:
             QMessageBox.critical(self.dlg, "An error occurred", str(e) + "\r\n\r\n"
-                                "Check: " + str(list(Path(tempfile.gettempdir()).glob('SuPy.log'))[0]) + "\r\n\r\n"
-                                "Please report any errors to https://bitbucket.org/fredrik_ucg/umep/issues")
+                                "Check: " + str(list(Path.cwd().glob('SuPy.log'))[0]) + "\r\n\r\n"
+                                "Please report any errors to https://github.com/UMEP-dev/UMEP/issues")
             return
 

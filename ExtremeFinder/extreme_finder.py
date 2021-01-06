@@ -276,8 +276,8 @@ class ExtremeFinder(object):
             self.dlg.textOutput_lat.setText(str(lat))
             self.dlg.textOutput_lon.setText(str(lon))
 
-        self.dlg.dateEditStart.setDate(start_date)
-        self.dlg.dateEditEnd.setDate(end_date)
+        self.dlg.dateEditStart.setDate(str(start_date))
+        self.dlg.dateEditEnd.setDate(str(end_date))
 
     def outfile(self):
         outputfile = self.fileDialog.getSaveFileName(

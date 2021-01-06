@@ -11,16 +11,16 @@ name=UMEP
 qgisMinimumVersion=3.0
 description=Urban Multi-scale Environmental Predictor
 
-version=3.12.3
+version=3.15.5
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg
 email=fredrikl@gvc.gu.se
 
 about=UMEP is an extensive plugin designed for urban climate in general and climate sensitive planning applications in particular. The plugin consist of a pre-processor, a processor and a post-processor. This plugin is a collaboration between University of Gothenburg, University of Helsinki and University of Reading.
 
-Many of tools in UMEP requires the scipy and pandas python libraries. See Section 2.2 in the UMEP manual (http://umep-docs.readthedocs.io).
+Many of the tools in UMEP requires the scipy and pandas python libraries. See Section 2.3 in the UMEP manual (http://umep-docs.readthedocs.io).
 
-tracker=https://bitbucket.org/fredrik_ucg/umep/issues
-repository=https://bitbucket.org/fredrik_ucg/umep
+tracker=https://github.com/UMEP-dev/UMEP/issues
+repository=https://github.com/UMEP-dev/UMEP
 
 # End of mandatory metadata
 
@@ -28,6 +28,16 @@ repository=https://bitbucket.org/fredrik_ucg/umep
 
 # Uncomment the following line and add your changelog:
 changelog=
+   3.15.5: Response to issues #194, #199 and #202
+   3.15.4: Fixed an issue in SUEWSSimple regarding population numbers
+   3.15.3: Fixed a minor isse in the solweig model
+   3.15.2: Fixed some Mac issues related to gdal. Fixed a minor isse in the solweig model
+   3.15.1: Response to part 1 in issue #164
+   3.15  : LONG TERM RELEASE. Response to issue #167, #168, #172, #173 and #174. Removal of UMEP Downloader.
+   3.14.1: Fix plugin blocker for Mac. Response to issue #164.
+   3.14  : LONG TERM RELEASE. Updated with SUEWS v2020a. Response to issues #158, #160 and #162.
+   3.13.1: Response to issues #107, #116, #121 and #156. SEBE (Visualisation) now active again (experimental).
+   3.13  : LONG TERM RELEASE. Migration of repository to Github (https://github.com/UMEP-dev/UMEP)
    3.12.3: Response to issue #155.
    3.12.2: Response to issues #135. Experimental test for auto installation of python libraries.
    3.12.1: Response to issues #131, #133, #134. DownloadData (ERA5) and ExtremeFinder updated.

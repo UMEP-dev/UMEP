@@ -578,9 +578,9 @@ class LQF(object):
             self.dlg.cmdLoadResults.setEnabled(False)
             config = {'startDates':startDates, 'endDates':endDates, 'makeNetCDF':makeNcdf}
             self.model.setConfig(config)
-
+            self.model.run()
             try:
-                self.model.run()
+                #self.model.run()
                 self.dlg.progressBar.setValue(100)
                 self.iface.messageBar().pushMessage("LQF", "Model run complete. Click 'visualise' to view output",
                                                 level=Qgis.Info)

@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>470</width>
-    <height>485</height>
+    <width>618</width>
+    <height>727</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,35 +20,7 @@
    <string/>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="4" column="1" colspan="2">
-    <widget class="QLabel" name="label_8">
-     <property name="text">
-      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Transmissivity of light&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;through vegetation (%):&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="2">
-    <widget class="QCheckBox" name="checkBoxUseVeg">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tick this box if you want to include vegetation (trees and bushes) when shadows are generated. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="text">
-      <string>Use vegetation DSMs</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="2" colspan="3">
+   <item row="0" column="3">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>Building and ground DSM:</string>
@@ -72,75 +44,13 @@ p, li { white-space: pre-wrap; }
      <layout class="QGridLayout" name="gridLayout_8"/>
     </widget>
    </item>
-   <item row="2" column="1" colspan="4">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>Vegetation Trunk zone DSM:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="0">
-    <widget class="QPushButton" name="pushButtonHelp">
-     <property name="text">
-      <string>Help</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="6">
-    <widget class="QSpinBox" name="spinBoxTrunkHeight">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="value">
-      <number>25</number>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="5">
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Percent of &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;canopy height:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="2" colspan="3">
+   <item row="1" column="3">
     <widget class="QLabel" name="label_2">
      <property name="text">
       <string>Vegetation Canopy DSM:</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="3" colspan="2">
-    <widget class="QSpinBox" name="spinBoxTrans">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="value">
-      <number>3</number>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="1" colspan="3">
-    <widget class="QCheckBox" name="checkBoxIntoCanvas">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string>Add result to project</string>
      </property>
     </widget>
    </item>
@@ -161,6 +71,16 @@ p, li { white-space: pre-wrap; }
      <layout class="QGridLayout" name="gridLayout_9"/>
     </widget>
    </item>
+   <item row="2" column="2" colspan="2">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Vegetation Trunk zone DSM:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
    <item row="2" column="5" colspan="2">
     <widget class="QWidget" name="widgetTDSM" native="true">
      <property name="enabled">
@@ -178,6 +98,19 @@ p, li { white-space: pre-wrap; }
      <layout class="QGridLayout" name="gridLayout_10"/>
     </widget>
    </item>
+   <item row="3" column="3">
+    <widget class="QCheckBox" name="checkBoxUseVeg">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tick this box if you want to include vegetation (trees and bushes) when shadows are generated. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string>Use vegetation DSMs</string>
+     </property>
+    </widget>
+   </item>
    <item row="3" column="5" colspan="2">
     <widget class="QCheckBox" name="checkBoxTrunkExist">
      <property name="enabled">
@@ -191,7 +124,124 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="5" column="0" colspan="7">
+   <item row="4" column="2" colspan="2">
+    <widget class="QLabel" name="label_8">
+     <property name="text">
+      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Transmissivity of light&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;through vegetation (%):&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="4">
+    <widget class="QSpinBox" name="spinBoxTrans">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="value">
+      <number>3</number>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="5">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Percent of &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;canopy height:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="6">
+    <widget class="QSpinBox" name="spinBoxTrunkHeight">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="value">
+      <number>25</number>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1" colspan="3">
+    <widget class="QCheckBox" name="checkBoxWallsh">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tick this box if you want to include vegetation (trees and bushes) when shadows are generated. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string>Include faqade shadow output</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="3">
+    <widget class="QLabel" name="label_10">
+     <property name="text">
+      <string>Wall height raster:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="5" colspan="2">
+    <widget class="QWidget" name="widgetWallHeight" native="true">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>175</width>
+       <height>30</height>
+      </size>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_11"/>
+    </widget>
+   </item>
+   <item row="7" column="3">
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string>Wall aspect raster:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="5" colspan="2">
+    <widget class="QWidget" name="widgetWallAspect" native="true">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>175</width>
+       <height>30</height>
+      </size>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_12"/>
+    </widget>
+   </item>
+   <item row="8" column="0" colspan="7">
     <widget class="QFrame" name="frame">
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -215,15 +265,15 @@ p, li { white-space: pre-wrap; }
         <property name="enabled">
          <bool>false</bool>
         </property>
+        <property name="displayFormat">
+         <string>HH:mm:ss</string>
+        </property>
         <property name="time">
          <time>
           <hour>0</hour>
           <minute>30</minute>
           <second>0</second>
          </time>
-        </property>
-        <property name="displayFormat">
-         <string>HH:mm:ss</string>
         </property>
        </widget>
       </item>
@@ -235,15 +285,15 @@ p, li { white-space: pre-wrap; }
         <property name="toolTip">
          <string>Local Standard Time</string>
         </property>
+        <property name="displayFormat">
+         <string>HH:mm:ss</string>
+        </property>
         <property name="time">
          <time>
           <hour>12</hour>
           <minute>0</minute>
           <second>0</second>
          </time>
-        </property>
-        <property name="displayFormat">
-         <string>HH:mm:ss</string>
         </property>
        </widget>
       </item>
@@ -356,24 +406,14 @@ p, li { white-space: pre-wrap; }
      </layout>
     </widget>
    </item>
-   <item row="7" column="0">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Output folder:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="6">
+   <item row="9" column="6">
     <widget class="QPushButton" name="pushButtonSave">
      <property name="text">
       <string>Select</string>
      </property>
     </widget>
    </item>
-   <item row="8" column="6">
+   <item row="10" column="6">
     <widget class="QPushButton" name="runButton">
      <property name="cursor">
       <cursorShape>ArrowCursor</cursorShape>
@@ -383,23 +423,50 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </item>
-   <item row="9" column="6">
+   <item row="11" column="6">
     <widget class="QPushButton" name="pushButton">
      <property name="text">
       <string>Close</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="2" colspan="4">
+   <item row="9" column="2" colspan="4">
     <widget class="QLineEdit" name="textOutput"/>
    </item>
-   <item row="8" column="0" colspan="6">
+   <item row="11" column="0">
+    <widget class="QPushButton" name="pushButtonHelp">
+     <property name="text">
+      <string>Help</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0" colspan="2">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Output folder:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0" colspan="6">
     <widget class="QProgressBar" name="progressBar">
      <property name="value">
       <number>0</number>
      </property>
      <property name="textVisible">
       <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="1" colspan="2">
+    <widget class="QCheckBox" name="checkBoxIntoCanvas">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string>Add result to project</string>
      </property>
     </widget>
    </item>
@@ -414,12 +481,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>134</x>
-     <y>122</y>
+     <x>298</x>
+     <y>141</y>
     </hint>
     <hint type="destinationlabel">
-     <x>417</x>
-     <y>122</y>
+     <x>573</x>
+     <y>141</y>
     </hint>
    </hints>
   </connection>
@@ -430,12 +497,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>87</x>
-     <y>122</y>
+     <x>251</x>
+     <y>141</y>
     </hint>
     <hint type="destinationlabel">
-     <x>476</x>
-     <y>151</y>
+     <x>553</x>
+     <y>175</y>
     </hint>
    </hints>
   </connection>
@@ -446,12 +513,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>417</x>
-     <y>122</y>
+     <x>573</x>
+     <y>141</y>
     </hint>
     <hint type="destinationlabel">
-     <x>476</x>
-     <y>151</y>
+     <x>553</x>
+     <y>175</y>
     </hint>
    </hints>
   </connection>
@@ -462,8 +529,8 @@ p, li { white-space: pre-wrap; }
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>467</x>
-     <y>476</y>
+     <x>605</x>
+     <y>720</y>
     </hint>
     <hint type="destinationlabel">
      <x>345</x>
@@ -478,12 +545,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>475</x>
-     <y>188</y>
+     <x>592</x>
+     <y>382</y>
     </hint>
     <hint type="destinationlabel">
-     <x>423</x>
-     <y>309</y>
+     <x>539</x>
+     <y>518</y>
     </hint>
    </hints>
   </connection>
@@ -494,12 +561,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>31</x>
-     <y>122</y>
+     <x>195</x>
+     <y>141</y>
     </hint>
     <hint type="destinationlabel">
-     <x>227</x>
-     <y>151</y>
+     <x>357</x>
+     <y>175</y>
     </hint>
    </hints>
   </connection>
@@ -510,12 +577,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>112</y>
+     <x>214</x>
+     <y>141</y>
     </hint>
     <hint type="destinationlabel">
-     <x>228</x>
-     <y>47</y>
+     <x>597</x>
+     <y>77</y>
     </hint>
    </hints>
   </connection>
@@ -526,12 +593,44 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>317</x>
-     <y>109</y>
+     <x>573</x>
+     <y>141</y>
     </hint>
     <hint type="destinationlabel">
-     <x>282</x>
-     <y>92</y>
+     <x>597</x>
+     <y>114</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxWallsh</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>widgetWallHeight</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>189</x>
+     <y>206</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>420</x>
+     <y>269</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxWallsh</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>widgetWallAspect</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>262</x>
+     <y>211</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>419</x>
+     <y>299</y>
     </hint>
    </hints>
   </connection>

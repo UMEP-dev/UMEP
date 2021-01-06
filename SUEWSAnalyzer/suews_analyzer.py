@@ -595,7 +595,9 @@ class SUEWSAnalyzer(object):
             #     subprocess.call(gdalraster, startupinfo=si)
             # else:
             #     os.system(gdalraster)
-
+            print(resx)
+            print(resy)
+            print(extent)
             crs = vlayer.crs().toWkt()
             self.rasterize(str(poly.source()), str(self.plugin_dir + '/tempgrid.tif'), str(poly_field), resx, crs, extent)
 
@@ -849,7 +851,8 @@ class SUEWSAnalyzer(object):
 
         # Create the target raster layer
         cols = int((xmax - xmin)/resolution)
-        rows = int((ymax - ymin)/resolution) + 1
+        # rows = int((ymax - ymin)/resolution) + 1
+        rows = int((ymax - ymin)/resolution)  # issue 164
         trgt = gdal.GetDriverByName("GTiff").Create(dst, cols, rows, 1, gdal.GDT_Float32)
         trgt.SetGeoTransform((xmin, resolution, 0, ymax, 0, -resolution))
 

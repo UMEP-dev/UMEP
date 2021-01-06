@@ -22,6 +22,7 @@
 """
 from __future__ import absolute_import
 from builtins import object
+import sys
 from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from qgis.PyQt.QtWidgets import QMenu, QAction, QMessageBox
 from qgis.PyQt.QtGui import QIcon
@@ -40,18 +41,24 @@ from .FootprintModel.footprint_model import FootprintModel
 from .LCZ_Converter.LCZ_converter import LCZ_test
 from .UMEPDownloader.umep_downloader import UMEP_Data_Download
 from .DSMGenerator.dsm_generator import DSMGenerator
-from .WATCHData.watch import WATCHData
+# from .WATCHData.watch import WATCHData
 from .GreaterQF.greater_qf import GreaterQF
 from .ExtremeFinder.extreme_finder import ExtremeFinder
 from .LucyQF.LQF import LQF
 from .SEBE.sebe import SEBE
+# from .SEBEpv.sebepv import SEBEpv      # MRevesz
 from .SuewsSimple.suews_simple import SuewsSimple
 from .SUEWSPrepare.suews_prepare import SUEWSPrepare
 from .suews_converter.suews_converter import SUEWSConverter
 from .SUEWS.suews import SUEWS
 from .SOLWEIG.solweig import SOLWEIG
 from .BenchMarking.benchmarking import BenchMarking
-from .SEBEVisual.sun import Sun  # TODO: Not able to run 2to3 converter :Plugin blocker
+# if sys.platform == 'linux2' or sys.platform == 'linux': #TODO test PyQt5 import instead
+#     QMessageBox.critical(None, "SEBE Visual not functional on this OS",
+#                              "This tool is currenly not operational on this OS. \n"
+#                              "Use Windows or MacOS instead.")
+# else:
+from .SEBEVisual.sun import Visual
 from .SolweigAnalyzer.solweig_analyzer import SolweigAnalyzer
 from .SUEWSAnalyzer.suews_analyzer import SUEWSAnalyzer
 from .copernicus_data.copernicus_data import CopernicusData
@@ -152,9 +159,9 @@ class UMEP(object):
         self.PED_Action = QAction("Prepare Existing Data", self.iface.mainWindow())
         self.MD_Menu.addAction(self.PED_Action)
         self.PED_Action.triggered.connect(self.PED)
-        self.PFD_Action = QAction("Download data (WATCH)", self.iface.mainWindow())
-        self.MD_Menu.addAction(self.PFD_Action)
-        self.PFD_Action.triggered.connect(self.WA)
+        # self.PFD_Action = QAction("Download data (WATCH)", self.iface.mainWindow())
+        # self.MD_Menu.addAction(self.PFD_Action)
+        # self.PFD_Action.triggered.connect(self.WA)
         self.ERA_Action = QAction("Download data (ERA5)", self.iface.mainWindow())
         self.MD_Menu.addAction(self.ERA_Action)
         self.ERA_Action.triggered.connect(self.ERA)
@@ -232,14 +239,11 @@ class UMEP(object):
         self.SUEWS_Action = QAction("Urban Energy Balance (SUEWS/BLUEWS, Advanced)", self.iface.mainWindow())
         self.UEB_Menu.addAction(self.SUEWS_Action)
         self.SUEWS_Action.triggered.connect(self.SUEWS_advanced)
-        # self.LUMPS_Action = QAction("Urban Energy Balance (LUMPS)", self.iface.mainWindow())
-        # self.UEB_Menu.addAction(self.LUMPS_Action)
-        # self.LUMPS_Action.setEnabled(False)
-        # self.CBL_Action = QAction("UEB + CBL (BLUEWS/BLUMPS)", self.iface.mainWindow())
-        # self.UEB_Menu.addAction(self.CBL_Action)
-        # self.CBL_Action.setEnabled(False)
 
         # Sub-menus to Solar radiation
+        # self.SEBEpv_Action = QAction("Photovoltaic Yield on Building Envelopes (SEBEpv)", self.iface.mainWindow())      # MRevesz
+        # self.SUN_Menu.addAction(self.SEBEpv_Action)      # MRevesz
+        # self.SEBEpv_Action.triggered.connect(self.SEpv)
         self.SEBE_Action = QAction("Solar Energy on Building Envelopes (SEBE)", self.iface.mainWindow())
         self.SUN_Menu.addAction(self.SEBE_Action)
         self.SEBE_Action.triggered.connect(self.SE)
@@ -300,7 +304,7 @@ class UMEP(object):
         self.About_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_umep.png"))
         self.Manual_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_umep.png"))
         self.PED_Action.setIcon(QIcon(self.plugin_dir + "/Icons/metdata.png"))
-        self.PFD_Action.setIcon(QIcon(self.plugin_dir + "/Icons/watch.png"))
+        # self.PFD_Action.setIcon(QIcon(self.plugin_dir + "/Icons/watch.png"))
         self.ERA_Action.setIcon(QIcon(self.plugin_dir + "/Icons/watch.png"))
         self.MRT_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_solweig.png"))
         self.SOLWEIGa_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_solweig.png"))
@@ -431,25 +435,26 @@ class UMEP(object):
         sg = SEBE(self.iface)
         sg.run()
 
+    # def SEpv(self):      # MRevesz
+    #     sg = SEBEpv(self.iface)
+    #     sg.run()
+
     def SEv(self):
-        QMessageBox.critical(self.dlg, "Plugin blocker",
-                             "This tool is not yet ported to QGIS3. Work still in progress.")
-        return
-        sg = Sun(self.iface)
+        sg = Visual(self.iface)
         sg.run()
 
     def FP(self):
         sg = FootprintModel(self.iface)
         sg.run()
 
-    def WA(self):
-        QMessageBox.critical(self.dlg, "Plugin not functional",
-                             "This tool is currenly not operational."
-                             "See issue #96 in our code repository (https://bitbucket.org/fredrik_ucg/umep/issues) for more info."
-                             " Use ERA5 downloader instead.")
-        return
-        sg = WATCHData(self.iface)
-        sg.run()
+    # def WA(self):
+    #     QMessageBox.critical(None, "WATCH plugin not functional",
+    #                          "This tool is currenly not operational. \n"
+    #                          "See issue #96 in our code repository (https://github.com/UMEP-dev/UMEP/issues/96) for more info. \n"
+    #                          "Use ERA5 downloader instead.")
+    #     return
+    #     sg = WATCHData(self.iface)
+    #     sg.run()
 
     def ERA(self):
         sg = CopernicusData(self.iface)
@@ -484,8 +489,12 @@ class UMEP(object):
         sg.run()
 
     def UD(self):
-        sg = UMEP_Data_Download(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin deprecated",
+                             "This tool is no longer in use. \n"
+                             "\n"
+                             "Visit the FAQ section in the UMEP manual for information on how to download data directly within QGIS using Web Services.")
+        # sg = UMEP_Data_Download(self.iface)
+        # sg.run()
 
     def WC(self):
         sg = LCZ_test(self.iface)

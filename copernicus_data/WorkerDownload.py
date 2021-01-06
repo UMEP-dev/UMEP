@@ -33,7 +33,7 @@ class Worker(QtCore.QObject):
     def run(self):
         try:
             # sp.util.gen_forcing_era5(self.lat, self.lon, self.start_date, self.end_date, dir_save=self.folderPath)
-            print(self.folderPath)
+            # print(self.folderPath)
 
             logger_sp = logging.getLogger('SuPy')
             logger_sp.disabled = True

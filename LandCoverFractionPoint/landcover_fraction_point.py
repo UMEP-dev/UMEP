@@ -434,7 +434,8 @@ class LandCoverFractionPoint(object):
         else:
             landcoverresult = landcover_v1(dsm, 1, self.degree, self.dlg, 1)
 
-        landcoverresult = self.resultcheck(landcoverresult)
+        # landcoverresultcheck = self.resultcheck(landcoverresult)
+        arrcheck = self.resultcheck(landcoverresult)
 
         # save to file
         pre = self.dlg.textOutput_prefix.text()
@@ -447,7 +448,9 @@ class LandCoverFractionPoint(object):
         header = 'Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
         numformat = '%5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
         arr2 = np.array(landcoverresult["lc_frac_all"])
-        np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'LCFPoint_isotropic.txt', arr2,
+        print(arrcheck)
+        print(arr2)
+        np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'LCFPoint_isotropic.txt', arrcheck,
                     fmt=numformat, delimiter=' ', header=header, comments='')
 
         dataset = None
@@ -458,7 +461,7 @@ class LandCoverFractionPoint(object):
 
     def resultcheck(self, landcoverresult):
         total = 0.
-        arr = landcoverresult["lc_frac_all"]
+        arr = np.array(landcoverresult["lc_frac_all"])
 
         for x in range(0, len(arr[0])):
             total += arr[0, x]
@@ -473,9 +476,10 @@ class LandCoverFractionPoint(object):
                     arr[0, x] -= diff
                     break
 
-        landcoverresult["lc_frac_all"] = arr
+        # landcoverresultcheck["lc_frac_all"] = arr
+        arrcheck = arr
 
-        return landcoverresult
+        return arrcheck
 
     def run(self):
         try:

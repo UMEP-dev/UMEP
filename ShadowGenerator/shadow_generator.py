@@ -108,6 +108,14 @@ class ShadowGenerator(object):
         self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerVEGDSM2.setFixedWidth(175)
         self.layerComboManagerVEGDSM2.setCurrentIndex(-1)
+        self.layerComboManagerWH = QgsMapLayerComboBox(self.dlg.widgetWallHeight)
+        self.layerComboManagerWH.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerWH.setFixedWidth(175)
+        self.layerComboManagerWH.setCurrentIndex(-1)
+        self.layerComboManagerWA = QgsMapLayerComboBox(self.dlg.widgetWallAspect)
+        self.layerComboManagerWA.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerWA.setFixedWidth(175)
+        self.layerComboManagerWA.setCurrentIndex(-1)
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -293,7 +301,7 @@ class ShadowGenerator(object):
         scale = 1 / geotransform[1]
         
         gdalver = float(gdal.__version__[0])
-        if gdalver == 3.:
+        if gdalver >= 3.:
             lon = lonlat[1] #changed to gdal 3
             lat = lonlat[0] #changed to gdal 3
         else:
@@ -309,7 +317,6 @@ class ShadowGenerator(object):
             usevegdem = 1
 
             vegdsm = self.layerComboManagerVEGDSM.currentLayer()
-
             if vegdsm is None:
                 QMessageBox.critical(None, "Error", "No valid vegetation DSM selected")
                 return
@@ -351,11 +358,46 @@ class ShadowGenerator(object):
             if not (vegsizex == sizex) & (vegsizey == sizey):  # &
                 QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
                 return
-
         else:
             vegdsm = 0
             vegdsm2 = 0
             usevegdem = 0
+
+        if self.dlg.checkBoxWallsh.isChecked():
+            wallsh = 1
+            # wall height layer
+            whlayer = self.layerComboManagerWH.currentLayer()
+            if whlayer is None:
+                    QMessageBox.critical(None, "Error", "No valid wall height raster layer is selected")
+                    return
+            provider = whlayer.dataProvider()
+            filepath_wh= str(provider.dataSourceUri())
+            self.gdal_wh = gdal.Open(filepath_wh)
+            wheight = self.gdal_wh.ReadAsArray().astype(np.float)
+            vhsizex = wheight.shape[0]
+            vhsizey = wheight.shape[1]
+            if not (vhsizex == sizex) & (vhsizey == sizey):  # &
+                QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+                return
+
+            # wall aspectlayer
+            walayer = self.layerComboManagerWA.currentLayer()
+            if walayer is None:
+                    QMessageBox.critical(None, "Error", "No valid wall aspect raster layer is selected")
+                    return
+            provider = walayer.dataProvider()
+            filepath_wa= str(provider.dataSourceUri())
+            self.gdal_wa = gdal.Open(filepath_wa)
+            waspect = self.gdal_wa.ReadAsArray().astype(np.float)
+            vasizex = waspect.shape[0]
+            vasizey = waspect.shape[1]
+            if not (vasizex == sizex) & (vasizey == sizey):
+                QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+                return
+        else:
+            wallsh = 0
+            wheight = 0
+            waspect = 0
 
         if self.folderPath is 'None':
             QMessageBox.critical(None, "Error", "No selected folder")
@@ -381,20 +423,21 @@ class ShadowGenerator(object):
             tv = [year, month, day, hour, minu, sec]
             intervalTime = self.dlg.intervalTimeEdit.time()
             self.timeInterval = intervalTime.minute() + (intervalTime.hour() * 60) + (intervalTime.second()/60)
-            shadowresult = dsh.dailyshading(dsm, vegdsm, vegdsm2, scale, lonlat, sizex, sizey, tv, UTC, usevegdem,
-                                       self.timeInterval, onetime, self.dlg, self.folderPath[0], gdal_dsm, trans, dst)
+            shadowresult = dsh.dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, usevegdem,
+                                       self.timeInterval, onetime, self.dlg, self.folderPath[0], gdal_dsm, trans, 
+                                       dst, wallsh, wheight, waspect)
 
             shfinal = shadowresult["shfinal"]
             time_vector = shadowresult["time_vector"]
 
             if onetime == 0:
                 timestr = time_vector.strftime("%Y%m%d")
-                savestr = '/shadow_fraction_on'
+                savestr = '/shadow_fraction_on_'
             else:
                 timestr = time_vector.strftime("%Y%m%d_%H%M")
                 savestr = '/Shadow_at_'
 
-        filename = self.folderPath[0] + savestr + timestr + '_LST.tif'
+        filename = self.folderPath[0] + savestr + timestr + '.tif'
 
         dsh.saveraster(gdal_dsm, filename, shfinal)
 

@@ -431,7 +431,7 @@ class MetdataProcessor(object):
             if self.dlg.checkBox_kdown.isChecked():
                 met_new[:, 14] = met_old[:, self.dlg.comboBox_kdown.currentIndex()]
                 if self.dlg.checkBoxQuality.isChecked():
-                    testwhere = np.where((met_new[:, 14] < 0.0) | (met_new[:, 14] > 1200.0))
+                    testwhere = np.where((met_new[:, 14] < 0.0) | (met_new[:, 14] > 2200.0))
                     if testwhere[0].__len__() > 0:
                         QMessageBox.critical(None, "Value error", "Kdown - beyond what is expected at line:"
                                                                   " \n" + str(testwhere[0] + 1))
@@ -483,7 +483,7 @@ class MetdataProcessor(object):
             if self.dlg.checkBox_pres.isChecked():
                 met_new[:, 12] = met_old[:, self.dlg.comboBox_pres.currentIndex()]
                 if self.dlg.checkBoxQuality.isChecked():
-                    testwhere = np.where((met_new[:, 12] < 70.0) | (met_new[:, 12] > 107.0))
+                    testwhere = np.where((met_new[:, 12] < 30.0) | (met_new[:, 12] > 107.0))
                     if testwhere[0].__len__() > 0:
                         QMessageBox.critical(None, "Value error", "Pressure - beyond what is expected at line:"
                                                                   " \n" + str(testwhere[0] + 1))
@@ -588,7 +588,7 @@ class MetdataProcessor(object):
             if self.dlg.checkBox_kdiff.isChecked():
                 met_new[:, 21] = met_old[:, self.dlg.comboBox_kdiff.currentIndex()]
                 if self.dlg.checkBoxQuality.isChecked():
-                    testwhere = np.where((met_new[:, 21] < 0.0) | (met_new[:, 21] > 600.0))
+                    testwhere = np.where((met_new[:, 21] < 0.0) | (met_new[:, 21] > 800.0))
                     if testwhere[0].__len__() > 0:
                         QMessageBox.critical(None, "Value error", "Diffuse shortwave radiation - beyond what is expected at line:"
                                                                   " \n" + str(testwhere[0] + 1))
@@ -601,7 +601,7 @@ class MetdataProcessor(object):
             if self.dlg.checkBox_kdir.isChecked():
                 met_new[:, 22] = met_old[:, self.dlg.comboBox_kdir.currentIndex()]
                 if self.dlg.checkBoxQuality.isChecked():
-                    testwhere = np.where((met_new[:, 22] < 0.0) | (met_new[:, 22] > 1200.0))
+                    testwhere = np.where((met_new[:, 22] < 0.0) | (met_new[:, 22] > 2400.0))
                     if testwhere[0].__len__() > 0:
                         QMessageBox.critical(None, "Value error", "Direct shortwave radiation - beyond what is expected at line:"
                                                                   " \n" + str(testwhere[0] + 1))
@@ -712,8 +712,9 @@ class MetdataProcessor(object):
         # #Save as text files
         # numformat = '%3d %2d %3d %2d %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f ' \
         #             '%6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f'
-        numformat = '%d %d %d %d %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f ' \
-                    '%.2f %.2f %.2f %.2f %.2f %.2f %.2f'
+        # changed sig. numbers in Ws issue #195
+        numformat = '%d %d %d %d %.2f %.2f %.2f %.2f %.2f %.5f %.2f %.2f %.2f %.2f %.2f %.2f %.2f ' \
+                    '%.2f %.2f %.2f %.2f %.2f %.2f %.2f'  
         np.savetxt(outputfile[0], met_new, fmt=numformat, header=header, comments='')
 
         self.dlg.progressBar.setValue(23)

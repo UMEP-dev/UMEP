@@ -328,6 +328,7 @@ class SOLWEIG(object):
             # response to issue #85
             nd = self.gdal_dsm.GetRasterBand(1).GetNoDataValue()
             self.dsm[self.dsm == nd] = 0.
+            self.dsmcopy = np.copy(self.dsm)
             if self.dsm.min() < 0:
                 self.dsm = self.dsm + np.abs(self.dsm.min())
 
@@ -571,7 +572,7 @@ class SOLWEIG(object):
                 svfsizey = svf.shape[1]
 
                 if not (svfsizex == sizex) & (svfsizey == sizey):  # &
-                    QMessageBox.critical(self.dlg, "Error in vegetation canopy DSM",
+                    QMessageBox.critical(self.dlg, "Error in svf rasters",
                                          "All grids must be of same extent and resolution")
                     return
 
@@ -731,10 +732,9 @@ class SOLWEIG(object):
                 buildings[buildings == 3] = 1
                 buildings[buildings == 2] = 0
             else:
-                buildings = self.dsm - self.dem
+                buildings = self.dsmcopy - self.dem
                 buildings[buildings < 2.] = 1.
                 buildings[buildings >= 2.] = 0.
-                #np.where(np.transpose(self.dsm - self.dem) < 2.)
 
             if self.dlg.checkBoxBuild.isChecked():
                 self.saveraster(self.gdal_dsm, self.folderPath[0] + '/buildings.tif', buildings)
@@ -791,9 +791,6 @@ class SOLWEIG(object):
                     QMessageBox.critical(self.dlg, "Error", "An attribute with unique values must be selected")
                     return
                 vlayer = QgsVectorLayer(poilyr.source(), "point", "ogr")
-                # prov = vlayer.dataProvider()
-                #fields = prov.fields()
-                # idx = vlayer.fieldNameIndex(poi_field)
                 idx = vlayer.fields().indexFromName(poi_field)
                 numfeat = vlayer.featureCount()
                 self.poiname = []
@@ -885,8 +882,11 @@ class SOLWEIG(object):
             # % Ts parameterisation maps
             if self.landcover == 1.:
                 if np.max(self.lcgrid) > 7 or np.min(self.lcgrid) < 1:
-                    QMessageBox.critical(self.dlg, "Error", "The land cover grid includes values not appropriate for UMEP-formatted land cover grid (should be integer between 1 and 7).")
+                    QMessageBox.warning(self.dlg, "Attention!", "The land cover grid includes integer values higher (or lower) than UMEP-formatted" 
+                        "land cover grid (should be integer between 1 and 7). If other LC-classes should be included they also need to be included in landcoverclasses_2016a.txt")
                     return
+                    # QMessageBox.critical(self.dlg, "Error", "The land cover grid includes values not appropriate for UMEP-formatted land cover grid (should be integer between 1 and 7).")
+                    # return
                 if np.where(self.lcgrid) == 3 or np.where(self.lcgrid) == 4:
                     QMessageBox.critical(self.dlg, "Error",
                                          "The land cover grid includes values (decidouos and/or conifer) not appropriate for SOLWEIG-formatted land cover grid (should not include 3 or 4).")
@@ -1111,7 +1111,7 @@ class SOLWEIG(object):
 
             QMessageBox.information(self.dlg,"SOLWEIG", "Model calculations successful!\r\n"
                             "Setting for this calculation is found in RunInfoSOLWEIG.txt located in "
-                                                               "the output folder specified.")
+                                                               "the specified output folder.")
 
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()

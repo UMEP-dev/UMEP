@@ -33,8 +33,7 @@ from ..Utilities import RoughnessCalcFunctionV2 as rg
 ##1 - Kormann and Mexiner (2001) model functions
 
 ##### {Running of KM model} ####
-def footprintiterKAM(iterations,z_0_input,z_d_input,z_ag,sigv,Obukhov,ustar,dir,porosity,bld,veg,rows,cols,res,dlg,maxfetch,rm):
-
+def footprintiterKAM(iterations,z_0_input,z_d_input,z_ag,sigv,Obukhov,ustar,wdir,porosity,bld,veg,rows,cols,res,dlg,maxfetch,rm):
     dlg.progressBar.setRange(0, iterations)
     dlg.progressBar.setValue(0)
     scale = 1. / res
@@ -77,9 +76,8 @@ def footprintiterKAM(iterations,z_0_input,z_d_input,z_ag,sigv,Obukhov,ustar,dir,
         sig_v_input = sigv[i]
         L = Obukhov[i]
         u_star = ustar[i]
-        wd_input=dir[i]
+        wd_input=wdir[i]
         por = porosity[i]
-
 
         ###Bounds of integration for equation 42 tp 46 defined on pg 218### {X1}
         z_1=3.0*z_0
@@ -160,14 +158,14 @@ def footprintiterKAM(iterations,z_0_input,z_d_input,z_ag,sigv,Obukhov,ustar,dir,
         domain_y = domain_y / d_input
         fy = fx
         full = np.zeros([fx, fy])
-        print(phi.shape)
+        # full = np.zeros([1000, 1000])
         full[int((fx+1)/2):int((fx+1)/2+(domain_x)),int((fy/2+1)-domain_y):int((fy/2+1)+domain_y+1)] = phi
         full[np.isnan(full)]=0
-
         ##Rotation for wind angle for absolute plot and correction for rotation algorithm
         rotang =180-wd_input
-        rotatedphi = scnd.rotate(full, rotang, order =0, reshape=False, mode='nearest')
-
+        # rotatedphi = scnd.rotate(full, rotang[0], order=0, reshape=False, mode='nearest')
+        rotatedphi = scnd.rotate(full, rotang, order=0, reshape=False, mode='nearest')
+        
         totRotatedphi = totRotatedphi + rotatedphi
 
         #Calculate weighted morphometry and therefore weighted zo and zd
@@ -244,7 +242,7 @@ def f_z_phi_c(z,z_m,L):
 
 ##2 - Klujn et al. (2015) model functions
 #### {Running of Klukn model} ####
-def footprintiterKLJ(iterations,z_0_input,z_d_input,z_ag,sigv,Obukhov,ustar,dir,porosity,h,bld,veg,rows,cols,res,dlg,maxfetch,rm):
+def footprintiterKLJ(iterations,z_0_input,z_d_input,z_ag,sigv,Obukhov,ustar,wdir,porosity,h,bld,veg,rows,cols,res,dlg,maxfetch,rm):
 
     dlg.progressBar.setRange(0, iterations)
     dlg.progressBar.setValue(0)
@@ -284,7 +282,7 @@ def footprintiterKLJ(iterations,z_0_input,z_d_input,z_ag,sigv,Obukhov,ustar,dir,
         sig_v = sigv[i]
         L = Obukhov[i]
         u_star = ustar[i]
-        wd_input=dir[i]
+        wd_input=wdir[i]
         por = porosity[i]
         hbl = h[i]
 
@@ -1049,6 +1047,7 @@ def CalcWeightedMorphVegV2(bld, veg, porosity, rotatedphi,wd_input,scale):
     #Frontal area index
     #rot_dsm = scnd.rotate(dsm, wd_input,order=0, reshape=False, mode='nearest')                #rotated buildings into wind direction
     #rot_dsm[rot_dsm<0]=0
+    ###TESTING### remove [0]
     rot_build = scnd.rotate(build, wd_input,order=0, reshape=False, mode='nearest')                #rotated buildings into wind direction
     rot_build[rot_build<0]=0
     rot_veg = scnd.rotate(veg, wd_input,order=0, reshape=False, mode='nearest')                #rotated veg into wind direction

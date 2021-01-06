@@ -7,15 +7,18 @@ from .supy_installer import setup_supy
 try: 
     import supy as sp
 except:
-    if QMessageBox.question(None, "Supy and related dependencies not installed on this system", "Do you want UMEP to automatically install? ", QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
+    if QMessageBox.question(None, "Supy and related dependencies not installed", 
+              "Do you want UMEP to automatically install? \r\n"
+              "QGIS will be non-responsive for a couple of minutes.", 
+               QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
         try:
             setup_supy(ver=None)
-            QMessageBox.information(None, "SuPy successfully installed",
-                                    "Restart QGIS before you continue.")
+            QMessageBox.information(None, "Packages successfully installed",
+                                    "We recommend that you restart QGIS before you continue.")
         except Exception as e:
             QMessageBox.information(None, "An error occurred",
-                                    "SuPy not installed. report any errors to https://bitbucket.org/fredrik_ucg/umep/issues")
+                                    "Packages not installed. report any errors to https://github.com/UMEP-dev/UMEP/issues")
     else:
         QMessageBox.information(None,
-                                "Information", "SuPy not installed. Some UMEP tool will not be functioning proparly.")
+                                "Information", "Packages not installed. Some UMEP tools will not be fully operational.")
 # setup_supy(ver='2020.1.23')

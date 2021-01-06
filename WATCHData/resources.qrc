@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/plugins/WATCHData" >
-        <file>icon.png</file>
-    </qresource>
-</RCC>
