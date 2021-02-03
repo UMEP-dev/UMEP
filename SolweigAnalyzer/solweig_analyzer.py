@@ -496,7 +496,7 @@ class SolweigAnalyzer(object):
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 gridall[self.build == 0] = -9999
 
-            self.saveraster(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_diurnal_mean.tif', gridall)
+            self.saverasternd(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_diurnal_mean.tif', gridall)
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
                 self.intoCanvas(self.folderPathSave[0] + '/' + self.var + '_diurnal_mean.tif')
@@ -519,7 +519,7 @@ class SolweigAnalyzer(object):
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 daymean[self.build == 0] = -9999
 
-            self.saveraster(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_daytime_mean.tif', daymean)
+            self.saverasternd(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_daytime_mean.tif', daymean)
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
                 self.intoCanvas(self.folderPathSave[0] + '/' + self.var + '_daytime_mean.tif')
@@ -542,7 +542,7 @@ class SolweigAnalyzer(object):
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 daymean[self.build == 0] = -9999
 
-            self.saveraster(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_nighttime_mean.tif', daymean)
+            self.saverasternd(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_nighttime_mean.tif', daymean)
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
                 self.intoCanvas(self.folderPathSave[0] + '/' + self.var + '_nighttime_mean.tif')
@@ -563,7 +563,7 @@ class SolweigAnalyzer(object):
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 gridall[self.build == 0] = -9999
 
-            self.saveraster(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_max.tif', gridall)
+            self.saverasternd(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_max.tif', gridall)
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
                 self.intoCanvas(self.folderPathSave[0] + '/' + self.var + '_max.tif')
@@ -584,7 +584,7 @@ class SolweigAnalyzer(object):
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 gridall[self.build == 0] = -9999
 
-            self.saveraster(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_min.tif', gridall)
+            self.saverasternd(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_min.tif', gridall)
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
                 self.intoCanvas(self.folderPathSave[0] + '/' + self.var + '_min.tif')
@@ -607,7 +607,7 @@ class SolweigAnalyzer(object):
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 daymean[self.build == 0] = -9999
 
-            self.saveraster(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_' +
+            self.saverasternd(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_' +
                             self.dlg.comboBoxSpecificMean.currentText() + '_mean.tif', daymean)
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
@@ -629,7 +629,7 @@ class SolweigAnalyzer(object):
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 daymean[self.build == 0] = -9999
 
-            self.saveraster(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_' + self.dlg.comboBoxSpecificMax.currentText() + '_max.tif', daymean)
+            self.saverasternd(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_' + self.dlg.comboBoxSpecificMax.currentText() + '_max.tif', daymean)
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
                 self.intoCanvas(self.folderPathSave[0] + '/' + self.var + '_' + self.dlg.comboBoxSpecificMax.currentText() + '_max.tif')
@@ -650,7 +650,7 @@ class SolweigAnalyzer(object):
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 daymean[self.build == 0] = -9999
 
-            self.saveraster(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_' +
+            self.saverasternd(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_' +
                             self.dlg.comboBoxSpecificMin.currentText() + '_min.tif', daymean)
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
@@ -676,8 +676,8 @@ class SolweigAnalyzer(object):
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 daymean[self.build == 0] = -9999
 
-            self.saveraster(gdal_dsm, self.folderPathSave[0] + '/PercentOfTime' + self.var + 'Above_' +
-                            str(self.dlg.doubleSpinBoxTmrtHighRisk.value()) + '.tif', daymean)
+            self.saverasternd(gdal_dsm, self.folderPathSave[0] + '/PercentOfTime' + self.var + 'Above_' +
+                            str(self.dlg.doubleSpinBoxTmrtHighRisk.value()) + '.tif', daymean) # response to issue #218
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
                 self.intoCanvas(self.folderPathSave[0] + '/PercentOfTime' + self.var + 'Above_' +
@@ -702,8 +702,8 @@ class SolweigAnalyzer(object):
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 daymean[self.build == 0] = -9999
 
-            self.saveraster(gdal_dsm, self.folderPathSave[0] + '/PercentOfTime' + self.var + 'Below_' +
-                            str(self.dlg.doubleSpinBoxTmrtLowRisk.value()) + '.tif', daymean)
+            self.saverasternd(gdal_dsm, self.folderPathSave[0] + '/PercentOfTime' + self.var + 'Below_' +
+                            str(self.dlg.doubleSpinBoxTmrtLowRisk.value()) + '.tif', daymean)  # response to issue #218
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
                 self.intoCanvas(self.folderPathSave[0] + '/PercentOfTime' + self.var + 'Below_' +
@@ -738,6 +738,23 @@ class SolweigAnalyzer(object):
         # flush data to disk, set the NoData value and calculate stats
         outBand.FlushCache()
         outBand.SetNoDataValue(-9999)
+
+        # georeference the image and set the projection
+        outDs.SetGeoTransform(gdal_data.GetGeoTransform())
+        outDs.SetProjection(gdal_data.GetProjection())
+
+    def saverasternd(self, gdal_data, filename, raster): # response to issue #218
+        rows = gdal_data.RasterYSize
+        cols = gdal_data.RasterXSize
+
+        outDs = gdal.GetDriverByName("GTiff").Create(filename, cols, rows, int(1), GDT_Float32)
+        outBand = outDs.GetRasterBand(1)
+
+        # write the data
+        outBand.WriteArray(raster, 0, 0)
+        # flush data to disk, set the NoData value and calculate stats
+        outBand.FlushCache()
+        # outBand.SetNoDataValue(-9999)
 
         # georeference the image and set the projection
         outDs.SetGeoTransform(gdal_data.GetGeoTransform())

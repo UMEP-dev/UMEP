@@ -42,7 +42,8 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
     if onetime == 1:
         itera = 1
     else:
-        itera = int(1440 / timeInterval)
+        itera = int(np.round(1440 / timeInterval))
+    print("itera: " + str(itera))
 
     alt = np.zeros(itera)
     azi = np.zeros(itera)
@@ -67,11 +68,12 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
         else:
             minu = tv[4]
             hour = tv[3]
-
+        print("minu:" + str(minu))
+        print("hour:" + str(hour))
         doy = day_of_year(year, month, day)
 
         ut_time = doy - 1. + ((hour - dst) / 24.0) + (minu / (60. * 24.0)) + (0. / (60. * 60. * 24.0))
-
+        print("ut_time:" + str(ut_time))
         if ut_time < 0:
             year = year - 1
             month = 12
@@ -80,7 +82,7 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
             ut_time = ut_time + doy - 1
 
         HHMMSS = dectime_to_timevec(ut_time)
-
+        print("HHMMSS:" + str(HHMMSS))
         time['year'] = year
         time['month'] = month
         time['day'] = day
@@ -92,7 +94,14 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
         alt[i] = 90. - sun['zenith']
         azi[i] = sun['azimuth']
 
-        time_vector = dt.datetime(year, month, day, HHMMSS[0], HHMMSS[1], HHMMSS[2])
+        if time['sec'] == 59: #issue 228
+            time['sec'] = 0
+            time['min'] = time['min'] + 1
+            if time['min'] == 60:
+                time['min'] = 0
+            time['hour'] = time['hour'] + 1
+
+        time_vector = dt.datetime(year, month, day, time['hour'], time['min'], time['sec'])
         timestr = time_vector.strftime("%Y%m%d_%H%M")
 
         if alt[i] > 0:
@@ -146,6 +155,8 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
                 saveraster(gdal_data, filenamewallshve, wallshve)
 
     shadowresult = {'shfinal': shfinal, 'time_vector': time_vector}
+
+    dlg.progressBar.setValue(0)
 
     return shadowresult
 
