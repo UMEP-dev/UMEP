@@ -43,7 +43,6 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
         itera = 1
     else:
         itera = int(np.round(1440 / timeInterval))
-    print("itera: " + str(itera))
 
     alt = np.zeros(itera)
     azi = np.zeros(itera)
@@ -68,12 +67,11 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
         else:
             minu = tv[4]
             hour = tv[3]
-        print("minu:" + str(minu))
-        print("hour:" + str(hour))
+        
         doy = day_of_year(year, month, day)
 
         ut_time = doy - 1. + ((hour - dst) / 24.0) + (minu / (60. * 24.0)) + (0. / (60. * 60. * 24.0))
-        print("ut_time:" + str(ut_time))
+        
         if ut_time < 0:
             year = year - 1
             month = 12
@@ -82,7 +80,7 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
             ut_time = ut_time + doy - 1
 
         HHMMSS = dectime_to_timevec(ut_time)
-        print("HHMMSS:" + str(HHMMSS))
+        
         time['year'] = year
         time['month'] = month
         time['day'] = day

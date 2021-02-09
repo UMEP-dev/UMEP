@@ -3,11 +3,8 @@ from builtins import range
 # -*- coding: utf-8 -*-
 from qgis.PyQt import QtCore
 from qgis.PyQt.QtCore import QVariant
-from qgis.PyQt.QtWidgets import QMessageBox  # QFileDialog, QAction, QIcon,
+from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.core import QgsFeature, QgsVectorFileWriter, QgsVectorDataProvider, QgsField, Qgis, QgsMessageLog
-# from qgis.gui import *
-# from qgis.core import QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsRasterLayer, QgsGeometry, QgsMessageLog
-# import traceback
 from ..Utilities.imageMorphometricParms_v1 import *
 from ..Utilities import RoughnessCalcFunctionV2 as rg
 from scipy import *
@@ -15,13 +12,11 @@ import numpy as np
 import linecache
 from osgeo import gdal, ogr
 import subprocess
-# import os
-# import PIL
-# from paramWorker import ParamWorker
-# from pydev import pydevd
 import sys
 import os
 import time
+from ..WallHeight import wallalgorithms as wa
+# from pydev import pydevd
 
 
 class Worker(QtCore.QObject):
@@ -63,7 +58,7 @@ class Worker(QtCore.QObject):
 
     def run(self):
         # index = 0
-        arrmat = np.empty((1, 8))
+        arrmat = np.empty((1, 9))
 
         # #Check OS and dep
         # if sys.platform == 'darwin':
@@ -78,8 +73,8 @@ class Worker(QtCore.QObject):
             pre = self.dlg.textOutput_prefix.text()
             header = ' Wd pai   fai   zH  zHmax   zHstd zd z0'
             numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
-            header2 = ' id  pai   fai   zH  zHmax   zHstd  zd  z0'
-            numformat2 = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
+            header2 = ' id  pai   fai   zH  zHmax   zHstd  zd  z0 wallarea'
+            numformat2 = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f %.1f'
 
             # temporary fix for mac, ISSUE #15
             pf = sys.platform
@@ -237,9 +232,6 @@ class Worker(QtCore.QObject):
                         cal = 1
 
                 if cal == 1:
-                    # arr = np.array([f.attributes()[self.idx], -99, -99, -99, -99, -99, -99, -99])
-                    # arrmat = np.vstack([arrmat, arr])
-                # else:
                     immorphresult = imagemorphparam_v2(dsm_array, dem_array, scale, self.imid, self.degree, self.dlg, imp_point)
 
                     zH = immorphresult["zH"]
@@ -250,10 +242,7 @@ class Worker(QtCore.QObject):
 
                     zd, z0 = rg.RoughnessCalcMany(self.rm, zH, fai, pai, zMax, zSdev)
 
-
                     # save to file
-                    # header = ' Wd pai   fai   zH  zHmax   zHstd zd z0'
-                    # numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
                     arr = np.concatenate((immorphresult["deg"], immorphresult["pai"], immorphresult["fai"],
                                         immorphresult["zH"], immorphresult["zHmax"], immorphresult["zH_sd"],zd,z0), axis=1)
                     np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'IMPGrid_anisotropic_' + str(f.attributes()[self.idx]) + '.txt', arr,
@@ -278,7 +267,10 @@ class Worker(QtCore.QObject):
                         if faiall == 0.:
                             faiall = 0.001
 
-                    arr2 = np.array([[f.attributes()[self.idx], paiall, faiall, zHall, zMaxall, zSdevall, zdall, z0all]])
+                    # adding wall area to isotrophic
+                    wallarea = np.sum(wa.findwalls(dsm_array, 2.))
+                    
+                    arr2 = np.array([[f.attributes()[self.idx], paiall, faiall, zHall, zMaxall, zSdevall, zdall, z0all, wallarea]])
 
                     arrmat = np.vstack([arrmat, arr2])
 
@@ -287,8 +279,6 @@ class Worker(QtCore.QObject):
                 dataset3 = None
                 self.progress.emit()
 
-            # header2 = ' id  pai   fai   zH  zHmax   zHstd  zd  z0'
-            # numformat2 = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
             arrmatsave = arrmat[1: arrmat.shape[0], :]
             np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'IMPGrid_isotropic.txt', arrmatsave,
                                 fmt=numformat2, delimiter=' ', header=header2, comments='')
@@ -356,49 +346,49 @@ class Worker(QtCore.QObject):
         line = linecache.getline(filename, lineno, f.f_globals)
         return 'EXCEPTION IN {}, \nLINE {} "{}" \nERROR MESSAGE: {}'.format(filename, lineno, line.strip(), exc_obj)
 
-    def addattributes(self, vlayer, matdata, header, pre):
-        current_index_length = len(vlayer.dataProvider().attributeIndexes())
-        print(matdata)
-        print("current_index_length: " + str(current_index_length))
-        print(vlayer.dataProvider().attributeIndexes())
-        caps = vlayer.dataProvider().capabilities()
+    # def addattributes(self, vlayer, matdata, header, pre):
+    #     current_index_length = len(vlayer.dataProvider().attributeIndexes())
+    #     print(matdata)
+    #     print("current_index_length: " + str(current_index_length))
+    #     print(vlayer.dataProvider().attributeIndexes())
+    #     caps = vlayer.dataProvider().capabilities()
 
-        if caps & QgsVectorDataProvider.AddAttributes:
-            line_split = header.split()
-            for x in range(1, len(line_split)):
+    #     if caps & QgsVectorDataProvider.AddAttributes:
+    #         line_split = header.split()
+    #         for x in range(1, len(line_split)):
 
-                vlayer.dataProvider().addAttributes([QgsField(pre + '_' + line_split[x], QVariant.Double)])
-                vlayer.updateFields()
+    #             vlayer.dataProvider().addAttributes([QgsField(pre + '_' + line_split[x], QVariant.Double)])
+    #             vlayer.updateFields()
 
-            print (vlayer.fields().names())
+    #         print (vlayer.fields().names())
 
-            vlayer_provider=layer.dataProvider()
-            vlayer.startEditing()
-            for f in features:
-                id = f.id()
-                pos = np.where(id == matdata[:,0])
-                for x in range(1, matdata.shape[1]):
-                    attr_value = {current_index_length + x - 1: float(matdata[pos, x])}
-                    vlayer.dataProvider().changeAttributeValues({id: attr_dict})
-            # attr_dict = {}            
-            # for y in range(0, matdata.shape[0]):
-            #     attr_dict.clear()
-            #     idx = int(matdata[y, 0])
-            #     for x in range(1, matdata.shape[1]):
-            #         attr_dict[current_index_length + x - 1] = float(matdata[y, x])
-            #     print({idx: attr_dict})
-            #     vlayer.dataProvider().changeAttributeValues({idx: attr_dict})
+    #         vlayer_provider=layer.dataProvider()
+    #         vlayer.startEditing()
+    #         for f in features:
+    #             id = f.id()
+    #             pos = np.where(id == matdata[:,0])
+    #             for x in range(1, matdata.shape[1]):
+    #                 attr_value = {current_index_length + x - 1: float(matdata[pos, x])}
+    #                 vlayer.dataProvider().changeAttributeValues({id: attr_dict})
+    #         # attr_dict = {}            
+    #         # for y in range(0, matdata.shape[0]):
+    #         #     attr_dict.clear()
+    #         #     idx = int(matdata[y, 0])
+    #         #     for x in range(1, matdata.shape[1]):
+    #         #         attr_dict[current_index_length + x - 1] = float(matdata[y, x])
+    #         #     print({idx: attr_dict})
+    #         #     vlayer.dataProvider().changeAttributeValues({idx: attr_dict})
 
-            vlayer.commitChanges()
-            vlayer.updateFields()
-            # vlayer.commitChanges()
+    #         vlayer.commitChanges()
+    #         vlayer.updateFields()
+    #         # vlayer.commitChanges()
 
-            # if self.iface.mapCanvas().isCachingEnabled():
-            #     vlayer.setCacheImage(None)
-            # else:
-            self.iface.mapCanvas().refresh()
-        else:
-            QMessageBox.critical(None, "Error", "Vector Layer does not support adding attributes")
+    #         # if self.iface.mapCanvas().isCachingEnabled():
+    #         #     vlayer.setCacheImage(None)
+    #         # else:
+    #         self.iface.mapCanvas().refresh()
+    #     else:
+    #         QMessageBox.critical(None, "Error", "Vector Layer does not support adding attributes")
 
 
 

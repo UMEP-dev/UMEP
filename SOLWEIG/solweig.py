@@ -42,6 +42,7 @@ from .solweigworker import Worker
 from . import WriteMetadataSOLWEIG
 from ..Utilities.SEBESOLWEIGCommonFiles import Solweig_v2015_metdata_noload as metload
 from .SOLWEIGpython.Tgmaps_v1 import Tgmaps_v1
+from shutil import copyfile
 
 
 class SOLWEIG(object):
@@ -312,8 +313,8 @@ class SOLWEIG(object):
                 return
 
             provider = dsmlayer.dataProvider()
-            filepath_dsm = str(provider.dataSourceUri())
-            self.gdal_dsm = gdal.Open(filepath_dsm)
+            self.filepath_dsm = str(provider.dataSourceUri())
+            self.gdal_dsm = gdal.Open(self.filepath_dsm)
             self.dsm = self.gdal_dsm.ReadAsArray().astype(np.float)
             sizex = self.dsm.shape[0]  # rows
             sizey = self.dsm.shape[1]  # cols
@@ -384,8 +385,8 @@ class SOLWEIG(object):
                 # load raster
                 gdal.AllRegister()
                 provider = self.vegdsm.dataProvider()
-                filePath_cdsm = str(provider.dataSourceUri())
-                dataSet = gdal.Open(filePath_cdsm)
+                self.filePath_cdsm = str(provider.dataSourceUri())
+                dataSet = gdal.Open(self.filePath_cdsm)
                 self.vegdsm = dataSet.ReadAsArray().astype(np.float)
 
                 vegsizex = self.vegdsm.shape[0]
@@ -435,8 +436,8 @@ class SOLWEIG(object):
                 self.vegdsm = np.zeros([rows, cols])
                 self.vegdsm2 = np.zeros([rows, cols])
                 self.usevegdem = 0
-                filePath_cdsm = None
-                filePath_tdsm = None
+                self.filePath_cdsm = None
+                self.filePath_tdsm = None
 
             # Land cover #
             if self.dlg.checkBoxLandCover.isChecked():
@@ -502,6 +503,12 @@ class SOLWEIG(object):
                 if not (demsizex == sizex) & (demsizey == sizey):
                     QMessageBox.critical(self.dlg, "Error in DEM", "All grids must be of same extent and resolution")
                     return
+
+                # response to issue #230
+                nd = dataSet.GetRasterBand(1).GetNoDataValue()
+                dem[dem == nd] = 0.
+                if dem.min() < 0:
+                    dem = dem + np.abs(dem.min())
 
                 alt = np.median(self.dem)
                 if alt > 0:
@@ -640,10 +647,10 @@ class SOLWEIG(object):
             if self.dlg.CheckBoxMetData.isChecked():
                 self.read_metdata()
                 metfileexist = 1
-                PathMet = self.folderPathMet[0]
+                self.PathMet = self.folderPathMet[0]
             else:
                 metfileexist = 0
-                PathMet = None
+                self.PathMet = None
                 self.metdata = np.zeros((1, 24)) - 999.
 
                 date = self.dlg.calendarWidget.selectedDate()
@@ -760,6 +767,16 @@ class SOLWEIG(object):
             P = self.metdata[:, 12]
             Ws = self.metdata[:, 9]
             # %Wd=met(:,13);
+
+            if self.dlg.checkBoxTreePlanter.isChecked():
+                treeplanter = 1
+                if metfileexist == 0:
+                    QMessageBox.critical(self.dlg, "Meteorological file missing",
+                                             'To generate data for the TreePlanter, a meteorological '
+                                             'input file must be used.')
+                    return
+            else:
+                treeplanter = 0
 
             # Check if diffuse and direct radiation exist
             if metfileexist == 1:
@@ -914,11 +931,29 @@ class SOLWEIG(object):
             timeaddN = 0.
             firstdaytime = 1.
 
-            WriteMetadataSOLWEIG.writeRunInfo(self.folderPath[0], filepath_dsm, self.gdal_dsm, self.usevegdem,
-                                              filePath_cdsm, trunkfile, filePath_tdsm, lat, lon, UTC, self.landcover,
-                                              filePath_lc, metfileexist, PathMet, self.metdata, self.plugin_dir,
+            WriteMetadataSOLWEIG.writeRunInfo(self.folderPath[0], self.filepath_dsm, self.gdal_dsm, self.usevegdem,
+                                              self.filePath_cdsm, trunkfile, filePath_tdsm, lat, lon, UTC, self.landcover,
+                                              filePath_lc, metfileexist, self.PathMet, self.metdata, self.plugin_dir,
                                               absK, absL, albedo_b, albedo_g, ewall, eground, onlyglobal, trunkratio,
-                                              self.trans, rows, cols, pos, elvis, cyl, demforbuild, ani)
+                                              self.trans, rows, cols, pos, elvis, cyl, demforbuild, ani, treeplanter)
+
+            # Save files for Tree Planter
+            if self.dlg.checkBoxTreePlanter.isChecked():
+                # Save DSM
+                copyfile(self.filepath_dsm, self.folderPath[0] + '/DSM.tif')
+
+                # Save met file
+                copyfile(self.PathMet, self.folderPath[0] + '/metfile.txt')
+
+                # Save CDSM
+                if self.usevegdem:
+                    copyfile(self.filePath_cdsm, self.folderPath[0] + '/CDSM.tif')
+
+                # Saving settings from SOLWEIG for SOLWEIG1D in TreePlanter
+                settingsHeader = 'UTC, posture, onlyglobal, landcover, anisotropic, cylinder, albedo_walls, albedo_ground, emissivity_walls, emissivity_ground, absK, absL, elevation'
+                settingsFmt = '%i', '%i', '%i', '%i', '%i', '%i', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f'
+                settingsData = np.array([[UTC, pos, onlyglobal, self.landcover, ani, cyl, albedo_b, albedo_g, ewall, eground, absK, absL, alt]])
+                np.savetxt(self.folderPath[0] + '/treeplantersettings.txt', settingsData, fmt=settingsFmt, header=settingsHeader, delimiter=' ')
 
             #  If metfile starts at night
             CI = 1.
@@ -943,79 +978,6 @@ class SOLWEIG(object):
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, self.dlg,
                         YYYY, DOY, hours, minu, self.gdal_dsm, self.folderPath, self.poisxy, self.poiname, Ws, mbody,
                         age, ht, activity, clo, sex, sensorheight, diffsh, ani)
-
-            # # Main calcualtions
-            # # Loop through time series
-            # tmrtplot = np.zeros((rows, cols))
-            # for i in np.arange(0, Ta.__len__()):
-            #     # Daily water body temperature
-            #     if self.landcover == 1:
-            #         if ((dectime[i] - np.floor(dectime[i]))) == 0 or (i == 0):
-            #             Twater = np.mean(Ta[jday[0] == np.floor(dectime[i])])
-            #
-            #     # Nocturnal cloudfraction from Offerle et al. 2003
-            #     if (dectime[i] - np.floor(dectime[i])) == 0:
-            #         alt = altitude[i:altitude.__len__()]
-            #         alt2 = np.where(alt > 1)
-            #         rise = alt2[1][0]
-            #         [_, CI, _, _, _] = clearnessindex_2013b(zen[0, i + rise + 1], jday[0, i + rise + 1],
-            #                                                 Ta[i + rise + 1],
-            #                                                 RH[i + rise + 1] / 100., radG[i + rise + 1], location,
-            #                                                 P[i + rise + 1])  # i+rise+1 to match matlab code. correct?
-            #         if (CI > 1) or (CI == np.inf):
-            #             CI = 1
-            #     # self.iface.messageBar().pushMessage("__len__", str(Ta.__len__()))
-            #     # self.iface.messageBar().pushMessage("len", str(len(Ta)))
-            #     # self.iface.messageBar().pushMessage("Test", str(Ta.__len__()))
-            #     Tmrt, Kdown, Kup, Ldown, Lup, Tg, ea, esky, I0, CI, shadow, firstdaytime, timestepdec, timeadd, \
-            #     Tgmap1, timeaddE, Tgmap1E, timeaddS, Tgmap1S, timeaddW, Tgmap1W, timeaddN, Tgmap1N \
-            #         = so.Solweig_2015a_calc(i, self.dsm, self.scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
-            #             svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
-            #             self.vegdsm, self.vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, altitude[0][i],
-            #             azimuth[0][i], zen[0][i], jday[0][i], self.usevegdem, onlyglobal, buildings, location,
-            #             psi[0][i], self.landcover, self.lcgrid, dectime[i], altmax[0][i], self.wallaspect,
-            #             self.wallheight, cyl, elvis, Ta[i], RH[i], radG[i], radD[i], radI[i], P[i], amaxvalue,
-            #             bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
-            #             TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
-            #             timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI)
-            #
-            #     tmrtplot = tmrtplot + Tmrt
-            #     # self.iface.messageBar().pushMessage("__len__", str(int(YYYY[0, i])))
-            #     if self.dlg.CheckBoxTmrt.isChecked():
-            #self.saveraster(self.gdal_dsm, self.folderPath[0] + '/buildings.tif', buildings)
-            #     if self.dlg.CheckBoxKup.isChecked():
-            #         self.saveraster(self.gdal_dsm, self.folderPath[0] + '/Kup_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
-            #                         + '_' + str(int(hours[i])) + str(int(minu[i])) + '.tif', Kup)
-            #     if self.dlg.CheckBoxKdown.isChecked():
-            #         self.saveraster(self.gdal_dsm, self.folderPath[0] + '/Kdown_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
-            #                         + '_' + str(int(hours[i])) + str(int(minu[i])) + '.tif', Kdown)
-            #     if self.dlg.CheckBoxLup.isChecked():
-            #         self.saveraster(self.gdal_dsm, self.folderPath[0] + '/Lup_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
-            #                         + '_' + str(int(hours[i])) + str(int(minu[i])) + '.tif', Lup)
-            #     if self.dlg.CheckBoxLdown.isChecked():
-            #         self.saveraster(self.gdal_dsm, self.folderPath[0] + '/Ldown_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
-            #                         + '_' + str(int(hours[i])) + str(int(minu[i])) + '.tif', Ldown)
-            #     if self.dlg.CheckBoxShadow.isChecked():
-            #         self.saveraster(self.gdal_dsm, self.folderPath[0] + '/Shadow_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
-            #                         + '_' + str(int(hours[i])) + str(int(minu[i])) + '.tif', shadow)
-            #
-            # if self.dlg.CheckBoxTmrt.isChecked():
-            #     tmrtplot = tmrtplot / Ta.__len__()
-            #     self.saveraster(self.gdal_dsm, self.folderPath[0] + '/Tmrt_average.tif', tmrtplot)
-            #
-            # # load result into canvas
-            # if self.dlg.checkBoxIntoCanvas.isChecked():
-            #     rlayer = self.iface.addRasterLayer(self.folderPath[0] + '/Tmrt_average.tif')
-            #
-            #     # Set opacity
-            #     # rlayer.renderer().setOpacity(0.5)
-            #
-            #     # Trigger a repaint
-            #     if hasattr(rlayer, "setCacheImage"):
-            #         rlayer.setCacheImage(None)
-            #     rlayer.triggerRepaint()
-            #
-            # self.iface.messageBar().pushMessage("SOLWEIG", "Model calculations successful.")
 
     def run(self):
         """This methods is needed for QGIS to start the plugin"""
@@ -1108,6 +1070,25 @@ class SOLWEIG(object):
                 if hasattr(rlayer, "setCacheImage"):
                     rlayer.setCacheImage(None)
                 rlayer.triggerRepaint()
+
+            # # Save files for Tree Planter
+            # if self.dlg.checkBoxTreePlanter.isChecked():
+            #     # Save DSM
+            #     copyfile(self.filepath_dsm, self.folderPath[0] + '/DSM.tif')
+
+            #     # Save met file
+            #     copyfile(self.PathMet, self.folderPath[0] + '/metfile.txt')
+
+            #     # Save CDSM
+            #     if self.usevegdem:
+            #         copyfile(self.filePath_cdsm, self.folderPath[0] + '/CDSM.tif')
+
+            #     # Saving settings from SOLWEIG for SOLWEIG1D in TreePlanter
+            #     settingsHeader = 'UTC, posture, onlyglobal, landcover, anisotropic, cylinder, albedo_walls, albedo_ground, emissivity_walls, emissivity_ground, absK, absL, elevation'
+            #     settingsFmt = '%i', '%i', '%i', '%i', '%i', '%i', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f'
+            #     settingsData = np.array([[utc, pos, onlyglobal, landcover, ani, cyl, albedo_b, albedo_g, ewall, eground, absK, absL, alt]])
+            #     np.savetxt(self.folderPath[0] + '/settings.txt', settingsData, fmt=settingsFmt, header=settingsHeader, delimiter=' ')
+
 
             QMessageBox.information(self.dlg,"SOLWEIG", "Model calculations successful!\r\n"
                             "Setting for this calculation is found in RunInfoSOLWEIG.txt located in "

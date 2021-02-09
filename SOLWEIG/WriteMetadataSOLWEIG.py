@@ -6,7 +6,8 @@ from osgeo import osr
 
 def writeRunInfo(folderPath, filepath_dsm, gdal_dsm, usevegdem, filePath_cdsm, trunkfile, filePath_tdsm, lat, lon, UTC,
                  landcover, filePath_lc, metfileexist, filePath_metfile, metdata, plugin_dir, absK, absL, albedo_b,
-                 albedo_g, ewall, eground, onlyglobal, trunkratio, trans, rows, cols, pos, elvis, cyl, demforbuild, ani):
+                 albedo_g, ewall, eground, onlyglobal, trunkratio, trans, rows, cols, pos, elvis, cyl, demforbuild, ani,
+                 treeplanter):
 
     # with open(folderPath + '/RunInfoSOLWEIG.txt', 'w') as file:           	#FO#
     #FO#
@@ -145,4 +146,6 @@ def writeRunInfo(folderPath, filepath_dsm, gdal_dsm, usevegdem, filePath_cdsm, t
         else:
             file.write('Isotropic sky')
         file.write('\n')
+        if treeplanter == 1:
+            file.write('Input data for the Treeplanter tool is generated')
         file.close()
