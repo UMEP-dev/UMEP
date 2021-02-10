@@ -506,9 +506,9 @@ class SOLWEIG(object):
 
                 # response to issue #230
                 nd = dataSet.GetRasterBand(1).GetNoDataValue()
-                dem[dem == nd] = 0.
-                if dem.min() < 0:
-                    dem = dem + np.abs(dem.min())
+                self.dem[self.dem == nd] = 0.
+                if self.dem.min() < 0:
+                    self.dem = self.dem + np.abs(self.dem.min())
 
                 alt = np.median(self.dem)
                 if alt > 0:
