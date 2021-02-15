@@ -407,12 +407,12 @@ class SOLWEIG(object):
                     # load raster
                     gdal.AllRegister()
                     provider = self.vegdsm2.dataProvider()
-                    filePath_tdsm = str(provider.dataSourceUri())
+                    self.filePath_tdsm = str(provider.dataSourceUri())
                     dataSet = gdal.Open(filePath_tdsm)
                     self.vegdsm2 = dataSet.ReadAsArray().astype(np.float)
                     trunkfile = 1
                 else:
-                    filePath_tdsm = None
+                    self.filePath_tdsm = None
                     trunkratio = self.dlg.spinBoxTrunkHeight.value() / 100.0
                     self.vegdsm2 = self.vegdsm * trunkratio
                     if self.dlg.checkBoxSaveTrunk.isChecked():
@@ -932,7 +932,7 @@ class SOLWEIG(object):
             firstdaytime = 1.
 
             WriteMetadataSOLWEIG.writeRunInfo(self.folderPath[0], self.filepath_dsm, self.gdal_dsm, self.usevegdem,
-                                              self.filePath_cdsm, trunkfile, filePath_tdsm, lat, lon, UTC, self.landcover,
+                                              self.filePath_cdsm, trunkfile, self.filePath_tdsm, lat, lon, UTC, self.landcover,
                                               filePath_lc, metfileexist, self.PathMet, self.metdata, self.plugin_dir,
                                               absK, absL, albedo_b, albedo_g, ewall, eground, onlyglobal, trunkratio,
                                               self.trans, rows, cols, pos, elvis, cyl, demforbuild, ani, treeplanter)

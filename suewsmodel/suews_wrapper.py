@@ -6,7 +6,7 @@ __author__ = 'xlinfr'
 # from qgis.PyQt.QtGui import QIcon, QColor
 
 
-def wrapper(pathtoplugin, year=None):
+def wrapper(pathtoplugin, iface, year=None):
 
     import supy as sp
     from pathlib import Path
@@ -20,6 +20,7 @@ def wrapper(pathtoplugin, year=None):
     import sys
     import stat
     from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
+    from qgis.core import Qgis
     sys.path.append(pathtoplugin)
 
     try:
@@ -51,27 +52,23 @@ def wrapper(pathtoplugin, year=None):
     df_output, df_state_final = sp.run_supy(df_forcing, df_state_init, check_input=True, serial_mode=True)
 
     # save user input and output as diagnostics
-    try:
-        import pandas as pd
+    # try:
+    #     import pandas as pd
 
-        p_dir_dump = Path(pathtoplugin) / "diagnostics"
-        if not p_dir_dump.exists():
-            p_dir_dump.mkdir(parents=True)
+    #     p_dir_dump = Path(pathtoplugin) / "diagnostics"
+    #     if not p_dir_dump.exists():
+    #         p_dir_dump.mkdir(parents=True)
 
-        str_now = pd.Timestamp.now().isoformat().split('.')[0]
-        ver_supy=sp.__version__
-        fn_dump = p_dir_dump/f"supy{ver_supy}_diag_{str_now}.h5"
-        df_forcing.to_hdf(fn_dump, key="df_forcing")
-        df_output.to_hdf(fn_dump, key="df_output")
-        df_state_final.to_hdf(fn_dump, key="df_state_final")
-        # tell user the location where `fn_dump` is saved
-        print(f"{fn_dump.resolve()} has been successfully created!")
-        QMessageBox.information(None, "Model information", f"{fn_dump.resolve()} has been successfully created!")
-    except:
-        # if we couldn't dump save the in/output;
-        # give user a notification?
-        QMessageBox.critical(None, "Model information", f"We cannot dumpsave diagnostic info.")
-
+    #     str_now = pd.Timestamp.now().isoformat().split('.')[0]
+    #     ver_supy=sp.__version__
+    #     fn_dump = p_dir_dump/f"supy{ver_supy}_diag_{str_now}.h5"
+    #     df_forcing.to_hdf(fn_dump, key="df_forcing")
+    #     df_output.to_hdf(fn_dump, key="df_output")
+    #     df_state_final.to_hdf(fn_dump, key="df_state_final")
+    #     # tell user the location where `fn_dump` is saved
+    #     iface.messageBar().pushMessage(f"{fn_dump.resolve()} has been successfully created!", level=Qgis.Success)
+    # except:
+    #     iface.messageBar().pushMessage(f"We cannot dumpsave diagnostic info.", level=Qgis.Warning)
 
     # resampling SuPy results for plotting
     df_output_suews = df_output.loc[grid, 'SUEWS']

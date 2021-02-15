@@ -311,7 +311,7 @@ class SUEWS(object):
                                                                "calcualtion. This will be fixed in future versions.")
                                                     
         try:
-            suews_wrapper.wrapper(self.model_dir)
+            suews_wrapper.wrapper(self.model_dir, self.iface)
 
             # Use spin up:
             if self.dlg.checkBoxSpinup.isChecked():
@@ -346,7 +346,7 @@ class SUEWS(object):
 
                 fs.close()
 
-                suews_wrapper.wrapper(self.model_dir)
+                suews_wrapper.wrapper(self.model_dir, self.iface)
 
         except Exception as e:
             QMessageBox.critical(self.dlg, "An error occurred", str(e) + "\r\n\r\n"
