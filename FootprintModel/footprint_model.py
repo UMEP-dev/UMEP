@@ -321,7 +321,7 @@ class FootprintModel(object):
             wdir = self.data[:, 10]
             pbl = self.data[:,11]
             por = self.data[:,12]
-            # QMessageBox.critical(None, "Test", str(it))
+            # QMessageBox.critical(None, "Test", str(self.data[:,11]))
             # return
         else:
             manylines = 0

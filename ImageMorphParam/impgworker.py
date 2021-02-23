@@ -71,10 +71,10 @@ class Worker(QtCore.QObject):
 
         try:
             pre = self.dlg.textOutput_prefix.text()
-            header = ' Wd pai   fai   zH  zHmax   zHstd zd z0'
+            header = 'Wd pai fai zH zHmax zHstd zd z0'
             numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
-            header2 = ' id  pai   fai   zH  zHmax   zHstd  zd  z0 wallarea'
-            numformat2 = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f %.1f'
+            header2 = 'id pai fai zH zHmax zHstd zd z0 wai'
+            numformat2 = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f %4.3f'
 
             # temporary fix for mac, ISSUE #15
             pf = sys.platform
@@ -267,11 +267,13 @@ class Worker(QtCore.QObject):
                         if faiall == 0.:
                             faiall = 0.001
 
-                    # adding wall area to isotrophic
+                    # adding wai area to isotrophic (wall area index)
                     wallarea = np.sum(wa.findwalls(dsm_array, 2.))
+                    gridArea = (abs(bbox[2]-bbox[0]))*(abs(bbox[1]-bbox[3]))
+                    wai = wallarea / gridArea
                     
-                    arr2 = np.array([[f.attributes()[self.idx], paiall, faiall, zHall, zMaxall, zSdevall, zdall, z0all, wallarea]])
-
+                    arr2 = np.array([[f.attributes()[self.idx], paiall, faiall, zHall, zMaxall, zSdevall, zdall, z0all, wai]])
+                    
                     arrmat = np.vstack([arrmat, arr2])
 
                 dataset = None

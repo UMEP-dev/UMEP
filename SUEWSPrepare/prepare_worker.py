@@ -29,8 +29,8 @@ class Worker(QtCore.QObject):
     def __init__(self, vlayer, nbr_header, poly_field, Metfile_path, start_DLS, end_DLS, LCF_from_file, LCFfile_path, LCF_paved,
                  LCF_buildings, LCF_evergreen, LCF_decidious, LCF_grass, LCF_baresoil, LCF_water, IMP_from_file, IMPfile_path,
                  IMP_heights_mean, IMP_z0, IMP_zd, IMP_fai, IMPveg_from_file, IMPvegfile_path, IMPveg_heights_mean_eve,
-                 IMPveg_heights_mean_dec, IMPveg_fai_eve, IMPveg_fai_dec, pop_density, widget_list, wall_area,
-                 land_use_from_file, land_use_file_path, lines_to_write, plugin_dir, output_file_list, map_units, header_sheet, wall_area_info, output_dir,
+                 IMPveg_heights_mean_dec, IMPveg_fai_eve, IMPveg_fai_dec, pop_density, widget_list, # wall_area,
+                 land_use_from_file, land_use_file_path, lines_to_write, plugin_dir, output_file_list, map_units, header_sheet, output_dir, #, wall_area_info (second last)
                  day_since_rain, leaf_cycle, soil_moisture, file_code, utc, checkBox_twovegfiles, IMPvegfile_path_dec, IMPvegfile_path_eve, pop_density_day, daypop):
 
         QtCore.QObject.__init__(self)
@@ -64,7 +64,7 @@ class Worker(QtCore.QObject):
         self.IMPveg_fai_dec = IMPveg_fai_dec
         self.pop_density = pop_density
         self.widget_list = widget_list
-        self.wall_area = wall_area
+        # self.wall_area = wall_area
         self.land_use_from_file = land_use_from_file
         self.land_use_file_path = land_use_file_path
         self.lines_to_write = lines_to_write
@@ -72,7 +72,7 @@ class Worker(QtCore.QObject):
         self.output_file_list = output_file_list
         self.map_units = map_units
         self.header_sheet = header_sheet
-        self.wall_area_info = wall_area_info
+        # self.wall_area_info = wall_area_info
         self.input_path = plugin_dir + '/Input/'
         # self.output_path = plugin_dir + '/Output/'
         self.output_path = plugin_dir[:-12] + 'suewsmodel/Input/'
@@ -175,10 +175,10 @@ class Worker(QtCore.QObject):
                 area = feature.geometry().area()
 
                 if self.map_units == 0:
-                    hectare = area * 0.0001
+                    hectare = area * 0.0001 # meter
 
                 elif self.map_units == 1:
-                    hectare = area / 107640.
+                    hectare = area / 107640. # square foot
 
                 else:
                     hectare = area
@@ -352,6 +352,7 @@ class Worker(QtCore.QObject):
                                 IMP_fai = split[2]
                                 IMP_max = split[4]
                                 IMP_sd = split[5]
+                                IMP_wai = split[8]
                                 found_IMP_line = True
                                 break
                         if not found_IMP_line:
@@ -359,12 +360,14 @@ class Worker(QtCore.QObject):
                             IMP_z0 = -999
                             IMP_zd = -999
                             IMP_fai = -999
+                            IMP_wai = -999
                             print_line = False
                 else:
                     IMP_heights_mean = feature.attribute(self.IMP_mean_height.getFieldName())
                     IMP_z0 = feature.attribute(self.IMP_z0.getFieldName())
                     IMP_zd = feature.attribute(self.IMP_zd.getFieldName())
                     IMP_fai = feature.attribute(self.IMP_fai.getFieldName())
+                    IMP_wai = feature.attribute(self.IMP_wai.getFieldName())
 
                 if self.IMPveg_from_file:
                     found_IMPveg_line = False
@@ -490,7 +493,6 @@ class Worker(QtCore.QObject):
                     pop_density_day = feature.attribute(self.pop_density_day.currentField())
                 else:
                     pop_density_day = pop_density_night
-                #TODO include warning if pop dens is empty field - include if statement?
                 code = "PopDensDay"
                 index = self.find_index(code)
                 new_line[index] = '%.3f' % pop_density_day
@@ -644,14 +646,14 @@ class Worker(QtCore.QObject):
                 index = self.find_index(code)
                 new_line[index] = str(WhitinGridWaterCode)
 
-                if self.wall_area_info:
-                    wall_area = feature.attribute(self.wall_area.getFieldName())
-                else:
-                    wall_area = -999
+                # if self.wall_area_info:
+                #     wall_area = feature.attribute(self.wall_area.getFieldName())
+                # else:
+                #     wall_area = -999
 
                 code = "AreaWall"
                 index = self.find_index(code)
-                new_line[index] = str(wall_area)
+                new_line[index] = str(float(IMP_wai) * hectare * 10000.) # currently wallarea. Will change to wai
 
                 Fr_ESTMClass_Paved1 = 0.
                 Fr_ESTMClass_Paved2 = 1.

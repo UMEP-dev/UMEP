@@ -252,7 +252,7 @@ class SUEWSConverter:
             pass
 
     def help(self):
-        url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/SUEWSConverer.html'
+        url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/SUEWS%20Converter.html'
         webbrowser.open_new_tab(url)
 
     def start_progress(self):
@@ -266,6 +266,7 @@ class SUEWSConverter:
         fromVer = self.dlg.comboBoxOld.currentText()
         toVer = self.dlg.comboBoxNew.currentText()
         try:
+            return
             convert_table(fromDir, toDir, fromVer, toVer)
             self.iface.messageBar().pushMessage("SUEWS Converter", "Data successfully converted between: "
                         + fromVer + " to " + toVer, level=Qgis.Success)

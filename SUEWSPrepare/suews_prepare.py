@@ -123,22 +123,22 @@ class SUEWSPrepare(object):
         self.LCF_from_file = True
         self.IMP_from_file = True
         self.IMPveg_from_file = True
-        self.wall_area_info = False
+        # self.wall_area_info = False
         self.land_use_from_file = False
 
-        # Copy basefiles from sample_run
+        # Copy basefiles from sample_run if not present
         self.supylib = sys.modules["supy"].__path__[0]
         if not (os.path.isdir(self.output_path + '/Input')):
             os.mkdir(self.output_path + '/Input')
-        basefiles = ['ESTMinput.nml', 'SUEWS_AnthropogenicEmission.txt', 'SUEWS_BiogenCO2.txt', 'SUEWS_Conductance.txt', 'SUEWS_ESTMCoefficients.txt', 'SUEWS_Irrigation.txt', 
-        'SUEWS_NonVeg.txt', 'SUEWS_OHMCoefficients.txt', 'SUEWS_Profiles.txt', 'SUEWS_Snow.txt', 'SUEWS_Soil.txt', 'SUEWS_Water.txt', 'SUEWS_Veg.txt', 'SUEWS_WithinGridWaterDist.txt']
-        for i in range(0, basefiles.__len__()):
-            if not (os.path.isfile(self.output_path + '/Input/' + basefiles[i])):
-                try:
-                    shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.output_path + '/Input/' + basefiles[i])
-                except:
-                    os.remove(self.output_path + '/Input/' + basefiles[i])
-                    shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.output_path + '/Input/' + basefiles[i])
+            basefiles = ['ESTMinput.nml', 'SUEWS_AnthropogenicEmission.txt', 'SUEWS_BiogenCO2.txt', 'SUEWS_Conductance.txt', 'SUEWS_ESTMCoefficients.txt', 'SUEWS_Irrigation.txt', 
+            'SUEWS_NonVeg.txt', 'SUEWS_OHMCoefficients.txt', 'SUEWS_Profiles.txt', 'SUEWS_Snow.txt', 'SUEWS_Soil.txt', 'SUEWS_Water.txt', 'SUEWS_Veg.txt', 'SUEWS_WithinGridWaterDist.txt']
+            for i in range(0, basefiles.__len__()):
+                if not (os.path.isfile(self.output_path + '/Input/' + basefiles[i])):
+                    try:
+                        shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.output_path + '/Input/' + basefiles[i])
+                    except:
+                        os.remove(self.output_path + '/Input/' + basefiles[i])
+                        shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.output_path + '/Input/' + basefiles[i])
 
         self.file_path = self.plugin_dir + '/Input/SUEWS_SiteLibrary.xls'
         self.init_path = self.plugin_dir + '/Input/SUEWS_init.xlsx'
@@ -288,7 +288,7 @@ class SUEWSPrepare(object):
             self.setup_tab(title, sheet)
 
     def setup_tab(self, title, sheet):
-        QgsMessageLog.logMessage("Setting up tab: " + str(title), level=Qgis.Critical)
+        QgsMessageLog.logMessage("Setting up tab: " + str(title), level=Qgis.Info)
         tab = TemplateTab()
         x = 0
         y = 0
@@ -363,7 +363,7 @@ class SUEWSPrepare(object):
         widget.IMP_checkBox.stateChanged.connect(lambda: self.hide_show_IMP(widget))
         widget.IMPveg_checkBox.stateChanged.connect(lambda: self.hide_show_IMPveg(widget))
         widget.LUF_checkBox.stateChanged.connect(lambda: self.LUF_file(widget))
-        widget.WallArea_checkBox.stateChanged.connect(lambda: self.enable_wall_area(widget))
+        # widget.WallArea_checkBox.stateChanged.connect(lambda: self.enable_wall_area(widget))
 
         widget.checkBox_day.stateChanged.connect(lambda: self.popdaystate(widget))
 
@@ -385,9 +385,9 @@ class SUEWSPrepare(object):
         self.layerComboManagerPolygrid.layerChanged.connect(self.pop_density_day.setLayer)
 
         # self.wall_area = FieldCombo(widget.comboBox_wallArea, self.fieldgen, initField="")
-        self.wall_area = QgsFieldComboBox(widget.widgetWallArea)
-        self.wall_area.setFilters(QgsFieldProxyModel.Numeric)
-        self.layerComboManagerPolygrid.layerChanged.connect(self.wall_area.setLayer)
+        # self.wall_area = QgsFieldComboBox(widget.widgetWallArea)
+        # self.wall_area.setFilters(QgsFieldProxyModel.Numeric)
+        # self.layerComboManagerPolygrid.layerChanged.connect(self.wall_area.setLayer)
 
         widget.pushButtonImportLCF.clicked.connect(lambda: self.set_LCFfile_path(widget))
         widget.pushButtonImportIMPVeg.clicked.connect(lambda: self.set_IMPvegfile_path(widget))
@@ -481,13 +481,13 @@ class SUEWSPrepare(object):
         else:
             self.daypop = 0
 
-    def enable_wall_area(self, widget):
-        if widget.WallArea_checkBox.isChecked():
-            self.wall_area_info = True
-            widget.widgetWallArea.setEnabled(1)
-        else:
-            self.wall_area_info = False
-            widget.widgetWallArea.setEnabled(0)
+    # def enable_wall_area(self, widget):
+    #     if widget.WallArea_checkBox.isChecked():
+    #         self.wall_area_info = True
+    #         widget.widgetWallArea.setEnabled(1)
+    #     else:
+    #         self.wall_area_info = False
+    #         widget.widgetWallArea.setEnabled(0)
 
     def setup_widget(self, widget, sheet, outputfile, title, code=None, default_combo=None):
         widget.tab_name.setText(title)
@@ -679,7 +679,7 @@ class SUEWSPrepare(object):
                                 if wrote_line is False:
                                     string_to_print = ''
                                     for element in str_list:
-                                        string_to_print += element + '\t'
+                                        string_to_print += element + ' ' #'\t' # to better work with current textfile
                                     # fix_print_with_import
                                     print(string_to_print)
                                     # fix_print_with_import
@@ -1135,23 +1135,23 @@ class SUEWSPrepare(object):
                          self.LCF_Paved, self.LCF_Buildings, self.LCF_Evergreen, self.LCF_Decidious, self.LCF_Grass, self.LCF_Baresoil,
                          self.LCF_Water, self.IMP_from_file, self.IMPfile_path, self.IMP_mean_height, self.IMP_z0, self.IMP_zd,
                          self.IMP_fai, self.IMPveg_from_file, self.IMPvegfile_path, self.IMPveg_mean_height_eve,
-                         self.IMPveg_mean_height_dec, self.IMPveg_fai_eve, self.IMPveg_fai_dec, self.pop_density, self.widget_list, self.wall_area,
+                         self.IMPveg_mean_height_dec, self.IMPveg_fai_eve, self.IMPveg_fai_dec, self.pop_density, self.widget_list,
                          self.land_use_from_file, self.land_use_file_path, lines_to_write, self.plugin_dir, self.output_file_list, map_units,
-                         self.header_sheet, self.wall_area_info, self.output_dir, self.day_since_rain, self.leaf_cycle, self.soil_moisture, self.file_code,
+                         self.header_sheet, self.output_dir, self.day_since_rain, self.leaf_cycle, self.soil_moisture, self.file_code,
                          self.utc, self.checkBox_twovegfiles, self.IMPvegfile_path_dec, self.IMPvegfile_path_eve, self.pop_density_day, self.daypop)
 
     def startWorker(self, vlayer, nbr_header, poly_field, Metfile_path, start_DLS, end_DLS, LCF_from_file, LCFfile_path, LCF_Paved,
                  LCF_buildings, LCF_evergreen, LCF_decidious, LCF_grass, LCF_baresoil, LCF_water, IMP_from_file, IMPfile_path,
                  IMP_heights_mean, IMP_z0, IMP_zd, IMP_fai, IMPveg_from_file, IMPvegfile_path, IMPveg_heights_mean_eve,
-                 IMPveg_heights_mean_dec, IMPveg_fai_eve, IMPveg_fai_dec, pop_density, widget_list, wall_area,
-                 land_use_from_file, land_use_file_path, lines_to_write, plugin_dir, output_file_list, map_units, header_sheet, wall_area_info, output_dir,
+                 IMPveg_heights_mean_dec, IMPveg_fai_eve, IMPveg_fai_dec, pop_density, widget_list,
+                 land_use_from_file, land_use_file_path, lines_to_write, plugin_dir, output_file_list, map_units, header_sheet, output_dir,
                  day_since_rain, leaf_cycle, soil_moisture, file_code, utc, checkBox_twovegfiles, IMPvegfile_path_dec, IMPvegfile_path_eve, pop_density_day, daypop):
 
         worker = Worker(vlayer, nbr_header, poly_field, Metfile_path, start_DLS, end_DLS, LCF_from_file, LCFfile_path, LCF_Paved,
                  LCF_buildings, LCF_evergreen, LCF_decidious, LCF_grass, LCF_baresoil, LCF_water, IMP_from_file, IMPfile_path,
                  IMP_heights_mean, IMP_z0, IMP_zd, IMP_fai, IMPveg_from_file, IMPvegfile_path, IMPveg_heights_mean_eve,
-                 IMPveg_heights_mean_dec, IMPveg_fai_eve, IMPveg_fai_dec, pop_density, widget_list, wall_area,
-                 land_use_from_file, land_use_file_path, lines_to_write, plugin_dir, output_file_list, map_units, header_sheet, wall_area_info, output_dir,
+                 IMPveg_heights_mean_dec, IMPveg_fai_eve, IMPveg_fai_dec, pop_density, widget_list,
+                 land_use_from_file, land_use_file_path, lines_to_write, plugin_dir, output_file_list, map_units, header_sheet, output_dir,
                  day_since_rain, leaf_cycle, soil_moisture, file_code, utc, checkBox_twovegfiles, IMPvegfile_path_dec, IMPvegfile_path_eve, pop_density_day, daypop)
 
         self.dlg.runButton.setText('Cancel')

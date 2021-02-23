@@ -595,9 +595,9 @@ class SUEWSAnalyzer(object):
             #     subprocess.call(gdalraster, startupinfo=si)
             # else:
             #     os.system(gdalraster)
-            print(resx)
-            print(resy)
-            print(extent)
+            # print(resx)
+            # print(resy)
+            # print(extent)
             crs = vlayer.crs().toWkt()
             self.rasterize(str(poly.source()), str(self.plugin_dir + '/tempgrid.tif'), str(poly_field), resx, crs, extent)
 

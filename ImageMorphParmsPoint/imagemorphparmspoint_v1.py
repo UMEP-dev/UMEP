@@ -34,6 +34,7 @@ from osgeo import gdal
 import subprocess
 import webbrowser
 from ..Utilities.imageMorphometricParms_v1 import *
+from ..WallHeight import wallalgorithms as wa
 # Initialize Qt resources from file resources.py
 # from . import resources_rc
 import sys
@@ -405,7 +406,6 @@ class ImageMorphParmsPoint(object):
             # Remove gdalwarp with gdal.Translate
             bigraster = gdal.Open(filePath_dsm_build)
             bbox = (x - r, y + r, x + r, y - r)
-            print(bbox)
             gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster, projWin=bbox)
             bigraster = None
 
@@ -497,15 +497,11 @@ class ImageMorphParmsPoint(object):
         zMax = immorphresult["zHmax"]
         zSdev = immorphresult["zH_sd"]
 
-        # self.iface.messageBar().pushMessage("fai", str(fai.shape[0]), level=QgsMessageBar.INFO)
-        zd,z0 = rg.RoughnessCalcMany(Roughnessmethod,zH,fai,pai,zMax,zSdev)
-        # self.iface.messageBar().pushMessage("Model run finished", "zH=" + str(zH) + "fai=" + str(fai) + "pai=" + str(pai) + "zMax=" + str(zMax) + "zSdev=" + str(zSdev) , level=QgsMessageBar.INFO)
-        # self.iface.messageBar().pushMessage("z0", str(z0), level=QgsMessageBar.INFO)
-        # self.iface.messageBar().pushMessage("zH", str(zH), level=QgsMessageBar.INFO)
+        zd,z0 = rg.RoughnessCalcMany(Roughnessmethod, zH, fai, pai, zMax, zSdev)
 
         # save to file
         pre = self.dlg.textOutput_prefix.text()
-        header = ' Wd pai   fai   zH  zHmax   zHstd zd z0'
+        header = 'Wd pai fai zH zHmax zHstd zd z0'
         numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
         arr = np.concatenate((immorphresult["deg"], immorphresult["pai"], immorphresult["fai"],
                             immorphresult["zH"], immorphresult["zHmax"], immorphresult["zH_sd"],zd,z0), axis=1)
@@ -517,8 +513,7 @@ class ImageMorphParmsPoint(object):
         paiall = immorphresult["pai_all"]
         zMaxall = immorphresult["zHmax_all"]
         zSdevall = immorphresult["zH_sd_all"]
-        # self.iface.messageBar().pushMessage("Model run finished", "zH=" + str(zHall) + "fai=" + str(faiall) + "pai=" + str(paiall) + "zMax=" + str(zMaxall) + "zSdev=" + str(zSdevall) , level=QgsMessageBar.INFO)
-        zdall,z0all = rg.RoughnessCalc(Roughnessmethod,zHall,faiall,paiall,zMaxall,zSdevall)
+        zdall,z0all = rg.RoughnessCalc(Roughnessmethod, zHall, faiall, paiall, zMaxall, zSdevall)
         
         # If zd and z0 are lower than open country, set to open country
         if zdall < 0.2:
@@ -531,9 +526,14 @@ class ImageMorphParmsPoint(object):
             if faiall == 0.:
                 faiall = 0.001
 
-        header = ' pai  fai   zH    zHmax    zHstd zd z0'
-        numformat = '%4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
-        arr2 = np.array([[paiall, faiall, zHall,zMaxall, zSdevall,zdall,z0all]])
+        # adding wai area to isotrophic (wall area index)
+        wallarea = np.sum(wa.findwalls(dsm, 2.))
+        gridArea = (abs(bbox[2]-bbox[0]))*(abs(bbox[1]-bbox[3]))
+        wai = wallarea / gridArea
+
+        header = 'pai fai zH zHmax zHstd zd z0 wai'
+        numformat = '%4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f %4.3f'
+        arr2 = np.array([[paiall, faiall, zHall, zMaxall, zSdevall, zdall, z0all, wai]])
         np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'IMPPoint_isotropic.txt', arr2,
                    fmt=numformat, delimiter=' ', header=header, comments='')
 
@@ -552,13 +552,6 @@ class ImageMorphParmsPoint(object):
                                                 'to be installed. Please consult the FAQ in the manual for further '
                                                 'information on how to install missing python packages.')
             return
-        # try:
-        #     import skimage
-        # except Exception as e:
-        #     QMessageBox.critical(None, 'Error', 'This plugin requires the scikit-image package '
-        #                                         'to be installed. Please consult the FAQ in the manual for further '
-        #                                         'information on how to install missing python packages.')
-        #     return
 
         self.dlg.show()
         self.dlg.exec_()
