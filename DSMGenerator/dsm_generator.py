@@ -32,9 +32,9 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.gui import QgsMapLayerComboBox, QgsFieldComboBox
 from qgis.core import QgsVectorLayer, QgsField, QgsExpression, QgsExpressionContext, QgsExpressionContextScope, QgsVectorFileWriter, QgsMapLayerProxyModel, QgsFieldProxyModel, QgsRasterLayer, QgsCoordinateTransform
 from qgis.analysis import QgsZonalStatistics
-import webbrowser, subprocess, urllib.request, urllib.parse, urllib.error, ogr, osr, string
+import webbrowser, subprocess, urllib.request, urllib.parse, urllib.error, string
 import numpy as np
-from osgeo import gdal, ogr
+from osgeo import gdal, ogr, osr
 from .dsm_generator_dialog import DSMGeneratorDialog
 import os.path
 import sys

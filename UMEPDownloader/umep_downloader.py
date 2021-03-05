@@ -36,9 +36,9 @@ from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsR
 # Import the code for the dialog
 from .umep_downloader_dialog import UMEP_Data_DownloadDialog
 import os.path
-from osgeo import gdal
+from osgeo import gdal, osr
 import shutil
-import osr
+# import osr
 import webbrowser
 try:
     # Assuming in UMEP folder strcuture, so get f90nml from Utilities
