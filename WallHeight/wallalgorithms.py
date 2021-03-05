@@ -5,8 +5,10 @@ __author__ = 'xlinfr'
 import numpy as np
 # import scipy.misc as sc
 import math
-import scipy.ndimage.interpolation as sc
-
+try:
+    import scipy.ndimage.interpolation as sc
+except:
+    pass
 
 def findwalls(a, walllimit):
     # This function identifies walls based on a DSM and a wall-height limit

@@ -17,7 +17,6 @@
 # import Image
 # from scipy import *
 import numpy as np
-import scipy.ndimage.interpolation as sc
 from qgis.core import *
 # import scipy.misc as sc
 # import matplotlib as plt
@@ -25,7 +24,10 @@ from qgis.core import *
 from qgis.core import QgsMessageLog
 import linecache
 import sys
-
+try:
+    import scipy.ndimage.interpolation as sc
+except Exception as e: 
+    QgsMessageLog.logMessage(str(e), level=Qgis.Critical)
 
 def imagemorphparam_v2(dsm, dem, scale, mid, dtheta, dlg, imp_point):
 

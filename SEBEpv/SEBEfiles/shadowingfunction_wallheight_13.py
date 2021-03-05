@@ -2,7 +2,14 @@
 from __future__ import division
 import numpy as np
 from math import radians
-from scipy.ndimage.filters import median_filter
+
+try:
+    from scipy.ndimage.filters import median_filter
+except Exception as e:
+    QMessageBox.warning(None, 'Error', 'Many tools in UMEP requires the scipy package '
+                                        'to be installed. Please consult the FAQ in the manual for further '
+                                        'information on how to install missing python packages.')
+
 
 
 def shadowingfunction_wallheight_13(a, azimuth, altitude, scale, walls, aspect):

@@ -21,10 +21,14 @@ import math as math
 # import scipy.misc as sc
 # from scipy.ndimage.interpolation import rotate as imrotate
 # from matplotlib.patches import Circle
-from scipy.optimize import fsolve
+
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 # import copy as copy
-import scipy.ndimage.interpolation as scnd
+try:
+    import scipy.ndimage.interpolation as scnd
+    from scipy.optimize import fsolve
+except:
+    pass
 from osgeo import gdal
 from osgeo.gdalconst import *
 from ..Utilities import RoughnessCalcFunctionV2 as rg

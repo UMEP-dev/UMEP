@@ -345,14 +345,6 @@ class ImageMorphParam(object):
                          self.plugin_dir, self.folderPath, self.dlg, imid, radius, degree, rm)
 
     def run(self):
-        try:
-            import scipy
-        except Exception as e:
-            QMessageBox.critical(None, 'Error', 'This plugin requires the scipy package '
-                                                'to be installed. Please consult the FAQ in the manual for further '
-                                                'information on how to install missing python packages.')
-            return
-
         self.dlg.show()
         self.dlg.exec_()
         gdal.UseExceptions()

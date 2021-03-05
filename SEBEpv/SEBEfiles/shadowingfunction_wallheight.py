@@ -2,7 +2,9 @@
 from __future__ import division
 import numpy as np
 from math import radians,pi
-from scipy.ndimage.filters import median_filter,gaussian_filter
+# from scipy.ndimage.filters import median_filter,gaussian_filter
+
+
 def shadowingfunction_wallheight(a, azimuth, altitude, scale, walls, aspect,
                                  vegdem=None, vegdem2=None, amaxvalue=0, bush=0,call_index=0):
     """

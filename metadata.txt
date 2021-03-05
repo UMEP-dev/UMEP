@@ -11,7 +11,7 @@ name=UMEP
 qgisMinimumVersion=3.0
 description=Urban Multi-scale Environmental Predictor
 
-version=3.16
+version=3.16.1
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg
 email=fredrikl@gvc.gu.se
 
@@ -29,6 +29,7 @@ repository=https://github.com/UMEP-dev/UMEP
 
 # Uncomment the following line and add your changelog:
 changelog=
+   3.16.1: Fixed import issues with scipy
    3.16  : LONG TERM RELEASE. Added WallAreaIndex in Morphometric Calculator
    3.15.7: Response to issue #230 and added functionality to save data for the Treeplanter
    3.15.6: Response to issues #218 and 228

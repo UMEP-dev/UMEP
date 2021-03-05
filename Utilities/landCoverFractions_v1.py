@@ -15,12 +15,12 @@
 # import scipy.ndimage.interpolation as sc
 # from scipy import misc as sc
 import numpy as np
-import scipy.ndimage.interpolation as sc
+try:
+    import scipy.ndimage.interpolation as sc
+except:
+    pass
 # import PIL
 # import matplotlib.pylab as plt
-
-
-
 
 def landcover_v1(lc_grid, mid, dtheta, dlg, imp_point):
 

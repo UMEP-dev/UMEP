@@ -4,7 +4,10 @@ from qgis.PyQt import QtCore
 import traceback
 import numpy as np
 # import scipy.misc as sc
-import scipy.ndimage.interpolation as sc
+try:
+    import scipy.ndimage.interpolation as sc
+except:
+    pass
 import math
 from .wallalgorithms import get_ders
 import linecache
