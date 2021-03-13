@@ -41,11 +41,13 @@ from .FootprintModel.footprint_model import FootprintModel
 from .LCZ_Converter.LCZ_converter import LCZ_test
 from .UMEPDownloader.umep_downloader import UMEP_Data_Download
 from .DSMGenerator.dsm_generator import DSMGenerator
+
 # from .WATCHData.watch import WATCHData
 from .GreaterQF.greater_qf import GreaterQF
 from .ExtremeFinder.extreme_finder import ExtremeFinder
 from .LucyQF.LQF import LQF
 from .SEBE.sebe import SEBE
+
 # from .SEBEpv.sebepv import SEBEpv      # MRevesz
 from .SuewsSimple.suews_simple import SuewsSimple
 from .SUEWSPrepare.suews_prepare import SUEWSPrepare
@@ -53,6 +55,7 @@ from .suews_converter.suews_converter import SUEWSConverter
 from .SUEWS.suews import SUEWS
 from .SOLWEIG.solweig import SOLWEIG
 from .BenchMarking.benchmarking import BenchMarking
+
 # if sys.platform == 'linux2' or sys.platform == 'linux': #TODO test PyQt5 import instead
 #     QMessageBox.critical(None, "SEBE Visual not functional on this OS",
 #                              "This tool is currenly not operational on this OS. \n"
@@ -89,17 +92,14 @@ class UMEP(object):
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
-        locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'UMEP_{}.qm'.format(locale))
+        locale = QSettings().value("locale/userLocale")[0:2]
+        locale_path = os.path.join(self.plugin_dir, "i18n", "UMEP_{}.qm".format(locale))
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
 
-            if qVersion() > '4.3.3':
+            if qVersion() > "4.3.3":
                 QCoreApplication.installTranslator(self.translator)
 
         # Create the dialog (after translation) and keep reference
@@ -107,10 +107,10 @@ class UMEP(object):
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&UMEP')
+        self.menu = self.tr(u"&UMEP")
         # TODO: We are going to let the user set this up in a future iteration
-        #self.toolbar = self.iface.addToolBar(u'UMEP')
-        #self.toolbar.setObjectName(u'UMEP')
+        # self.toolbar = self.iface.addToolBar(u'UMEP')
+        # self.toolbar.setObjectName(u'UMEP')
 
         # Main menu
         self.UMEP_Menu = QMenu("UMEP")
@@ -143,12 +143,15 @@ class UMEP(object):
         self.Pre_Menu.addAction(self.SUEWSConvert_Action)
         self.SUEWSConvert_Action.triggered.connect(self.SUEWS_Convert)
 
-
         # Sub-actions to Surface Morphology
-        self.IMCP_Action = QAction("Morphometric Calculator (Point)", self.iface.mainWindow())
+        self.IMCP_Action = QAction(
+            "Morphometric Calculator (Point)", self.iface.mainWindow()
+        )
         self.SM_Menu.addAction(self.IMCP_Action)
         self.IMCP_Action.triggered.connect(self.IMCP)
-        self.IMCG_Action = QAction("Morphometric Calculator (Grid)", self.iface.mainWindow())
+        self.IMCG_Action = QAction(
+            "Morphometric Calculator (Grid)", self.iface.mainWindow()
+        )
         self.SM_Menu.addAction(self.IMCG_Action)
         self.IMCG_Action.triggered.connect(self.IMCG)
         self.FP_Action = QAction("Source Area Model (Point)", self.iface.mainWindow())
@@ -192,13 +195,19 @@ class UMEP(object):
         self.WH_Action.triggered.connect(self.WH)
 
         # Sub-actions to Urban Land Cover
-        self.ULCUEBRC_Action = QAction("Land Cover Reclassifier", self.iface.mainWindow())
+        self.ULCUEBRC_Action = QAction(
+            "Land Cover Reclassifier", self.iface.mainWindow()
+        )
         self.ULC_Menu.addAction(self.ULCUEBRC_Action)
         self.ULCUEBRC_Action.triggered.connect(self.LCRC)
-        self.ULCUEBP_Action = QAction("Land Cover Fraction (Point)", self.iface.mainWindow())
+        self.ULCUEBP_Action = QAction(
+            "Land Cover Fraction (Point)", self.iface.mainWindow()
+        )
         self.ULC_Menu.addAction(self.ULCUEBP_Action)
         self.ULCUEBP_Action.triggered.connect(self.LCP)
-        self.ULCUEBG_Action = QAction("Land Cover Fraction (Grid)", self.iface.mainWindow())
+        self.ULCUEBG_Action = QAction(
+            "Land Cover Fraction (Grid)", self.iface.mainWindow()
+        )
         self.ULC_Menu.addAction(self.ULCUEBG_Action)
         self.ULCUEBG_Action.triggered.connect(self.LCG)
 
@@ -216,7 +225,9 @@ class UMEP(object):
         # self.PET_Action = QAction("Comfort Index (PET/UCTI)", self.iface.mainWindow())
         # self.OTC_Menu.addAction(self.PET_Action)
         # self.PET_Action.setEnabled(False)
-        self.MRT_Action = QAction("Mean Radiant Temperature (SOLWEIG)", self.iface.mainWindow())
+        self.MRT_Action = QAction(
+            "Mean Radiant Temperature (SOLWEIG)", self.iface.mainWindow()
+        )
         self.OTC_Menu.addAction(self.MRT_Action)
         self.MRT_Action.triggered.connect(self.SO)
         # self.PWS_Action = QAction("Pedestrian Wind Speed", self.iface.mainWindow())
@@ -227,16 +238,24 @@ class UMEP(object):
         self.EF_Action.triggered.connect(self.EF)
 
         # Sub-menus to Urban Energy Balance
-        self.QFL_Action = QAction("Antropogenic heat - GQf (Greater Qf)", self.iface.mainWindow())
+        self.QFL_Action = QAction(
+            "Antropogenic heat - GQf (Greater Qf)", self.iface.mainWindow()
+        )
         self.UEB_Menu.addAction(self.QFL_Action)
         self.QFL_Action.triggered.connect(self.GF)
-        self.QF_Action = QAction("Antropogenic heat - LQf (LUCY)", self.iface.mainWindow())
+        self.QF_Action = QAction(
+            "Antropogenic heat - LQf (LUCY)", self.iface.mainWindow()
+        )
         self.UEB_Menu.addAction(self.QF_Action)
         self.QF_Action.triggered.connect(self.LF)
-        self.SUEWSSIMPLE_Action = QAction("Urban Energy Balance (SUEWS, Simple)", self.iface.mainWindow())
+        self.SUEWSSIMPLE_Action = QAction(
+            "Urban Energy Balance (SUEWS, Simple)", self.iface.mainWindow()
+        )
         self.UEB_Menu.addAction(self.SUEWSSIMPLE_Action)
         self.SUEWSSIMPLE_Action.triggered.connect(self.SUEWS_simple)
-        self.SUEWS_Action = QAction("Urban Energy Balance (SUEWS/BLUEWS, Advanced)", self.iface.mainWindow())
+        self.SUEWS_Action = QAction(
+            "Urban Energy Balance (SUEWS/BLUEWS, Advanced)", self.iface.mainWindow()
+        )
         self.UEB_Menu.addAction(self.SUEWS_Action)
         self.SUEWS_Action.triggered.connect(self.SUEWS_advanced)
 
@@ -244,7 +263,9 @@ class UMEP(object):
         # self.SEBEpv_Action = QAction("Photovoltaic Yield on Building Envelopes (SEBEpv)", self.iface.mainWindow())      # MRevesz
         # self.SUN_Menu.addAction(self.SEBEpv_Action)      # MRevesz
         # self.SEBEpv_Action.triggered.connect(self.SEpv)
-        self.SEBE_Action = QAction("Solar Energy on Building Envelopes (SEBE)", self.iface.mainWindow())
+        self.SEBE_Action = QAction(
+            "Solar Energy on Building Envelopes (SEBE)", self.iface.mainWindow()
+        )
         self.SUN_Menu.addAction(self.SEBE_Action)
         self.SEBE_Action.triggered.connect(self.SE)
         self.DSP_Action = QAction("Daily Shadow Pattern", self.iface.mainWindow())
@@ -286,17 +307,29 @@ class UMEP(object):
         self.Manual_Action.triggered.connect(self.help)
 
         # Icons
-        self.SUEWSPrepare_Action.setIcon(QIcon(self.plugin_dir + "/Icons/SuewsLogo.png"))
-        self.SUEWSConvert_Action.setIcon(QIcon(self.plugin_dir + "/Icons/SuewsLogo.png"))
+        self.SUEWSPrepare_Action.setIcon(
+            QIcon(self.plugin_dir + "/Icons/SuewsLogo.png")
+        )
+        self.SUEWSConvert_Action.setIcon(
+            QIcon(self.plugin_dir + "/Icons/SuewsLogo.png")
+        )
         self.SUEWSSIMPLE_Action.setIcon(QIcon(self.plugin_dir + "/Icons/SuewsLogo.png"))
         self.SUEWS_Action.setIcon(QIcon(self.plugin_dir + "/Icons/SuewsLogo.png"))
         self.SVF_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_svf.png"))
         self.IMCG_Action.setIcon(QIcon(self.plugin_dir + "/Icons/ImageMorphIcon.png"))
-        self.IMCP_Action.setIcon(QIcon(self.plugin_dir + "/Icons/ImageMorphIconPoint.png"))
+        self.IMCP_Action.setIcon(
+            QIcon(self.plugin_dir + "/Icons/ImageMorphIconPoint.png")
+        )
         self.DSP_Action.setIcon(QIcon(self.plugin_dir + "/Icons/ShadowIcon.png"))
-        self.ULCUEBG_Action.setIcon(QIcon(self.plugin_dir + "/Icons/LandCoverFractionGridIcon.png"))
-        self.ULCUEBP_Action.setIcon(QIcon(self.plugin_dir + "/Icons/LandCoverFractionPointIcon.png"))
-        self.ULCUEBRC_Action.setIcon(QIcon(self.plugin_dir + "/Icons/LandCoverReclassifierIcon.png"))
+        self.ULCUEBG_Action.setIcon(
+            QIcon(self.plugin_dir + "/Icons/LandCoverFractionGridIcon.png")
+        )
+        self.ULCUEBP_Action.setIcon(
+            QIcon(self.plugin_dir + "/Icons/LandCoverFractionPointIcon.png")
+        )
+        self.ULCUEBRC_Action.setIcon(
+            QIcon(self.plugin_dir + "/Icons/LandCoverReclassifierIcon.png")
+        )
         self.WH_Action.setIcon(QIcon(self.plugin_dir + "/Icons/WallsIcon.png"))
         self.SEBE_Action.setIcon(QIcon(self.plugin_dir + "/Icons/sebeIcon.png"))
         self.SEBEv_Action.setIcon(QIcon(self.plugin_dir + "/Icons/sebeIcon.png"))
@@ -309,16 +342,24 @@ class UMEP(object):
         self.MRT_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_solweig.png"))
         self.SOLWEIGa_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_solweig.png"))
         self.SUEWSa_Action.setIcon(QIcon(self.plugin_dir + "/Icons/SuewsLogo.png"))
-        self.TreeGenerator_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_tree.png"))
-        self.DSMGenerator_Action.setIcon(QIcon(self.plugin_dir + "/Icons/DSMGeneratorIcon.png"))
+        self.TreeGenerator_Action.setIcon(
+            QIcon(self.plugin_dir + "/Icons/icon_tree.png")
+        )
+        self.DSMGenerator_Action.setIcon(
+            QIcon(self.plugin_dir + "/Icons/DSMGeneratorIcon.png")
+        )
         self.EF_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_extreme.png"))
         self.WC_Action.setIcon(QIcon(self.plugin_dir + "/Icons/LCZ_icon.png"))
-        self.SDD_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_spatialdownloader.png"))
+        self.SDD_Action.setIcon(
+            QIcon(self.plugin_dir + "/Icons/icon_spatialdownloader.png")
+        )
         self.QFL_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_GQF.png"))
         self.QF_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_LQF.png"))
         self.BSS_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_BSS.png"))
 
-        self.iface.mainWindow().menuBar().insertMenu(self.iface.firstRightStandardMenu().menuAction(), self.UMEP_Menu)
+        self.iface.mainWindow().menuBar().insertMenu(
+            self.iface.firstRightStandardMenu().menuAction(), self.UMEP_Menu
+        )
         self.dlgAbout = UMEPDialogAbout()
 
     # noinspection PyMethodMayBeStatic
@@ -334,7 +375,7 @@ class UMEP(object):
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('UMEP', message)
+        return QCoreApplication.translate("UMEP", message)
 
     def add_action(
         self,
@@ -346,7 +387,8 @@ class UMEP(object):
         add_to_toolbar=False,
         status_tip=None,
         whats_this=None,
-        parent=None):
+        parent=None,
+    ):
 
         """Add a toolbar icon to the toolbar.
         Not Used
@@ -355,24 +397,22 @@ class UMEP(object):
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/UMEP/icon.png'
+        icon_path = ":/plugins/UMEP/icon.png"
         self.add_action(
             icon_path,
-            text=self.tr(u'UMEP'),
+            text=self.tr(u"UMEP"),
             callback=self.run,
-            parent=self.iface.mainWindow())
+            parent=self.iface.mainWindow(),
+        )
 
         # Code to show the about dialog
         # QObject.connect(self.About_Action, SIGNAL("triggered()"), self.dlgAbout, SLOT("show()"))
         # QObject.signal.connect(self.dlgAbout)
 
-
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
-            self.iface.removePluginMenu(
-                self.tr(u'&UMEP'),
-                action)
+            self.iface.removePluginMenu(self.tr(u"&UMEP"), action)
             self.iface.removeToolBarIcon(action)
             self.iface.mainWindow().menuBar().removeAction(self.UMEP_Menu.menuAction())
 
@@ -386,7 +426,7 @@ class UMEP(object):
     def SH(self):
         sg = ShadowGenerator(self.iface)
         sg.run()
-        
+
     def IMCG(self):
         sg = ImageMorphParam(self.iface)
         sg.run()
@@ -489,10 +529,13 @@ class UMEP(object):
         sg.run()
 
     def UD(self):
-        QMessageBox.information(None, "Plugin deprecated",
-                             "This tool is no longer in use. \n"
-                             "\n"
-                             "Visit the FAQ section in the UMEP manual for information on how to download data directly within QGIS using Web Services.")
+        QMessageBox.information(
+            None,
+            "Plugin deprecated",
+            "This tool is no longer in use. \n"
+            "\n"
+            "Visit the FAQ section in the UMEP manual for information on how to download data directly within QGIS using Web Services.",
+        )
         # sg = UMEP_Data_Download(self.iface)
         # sg.run()
 
@@ -518,4 +561,10 @@ class UMEP(object):
         url = "https://umep-docs.readthedocs.io/en/latest/index.html"
         webbrowser.open_new_tab(url)
 
+    def show_versions():
+        from supy import __version__ as ver_supy
 
+        # TODO: add UMEP version info here
+        ver_umep = "3.14"
+        dict_str_ver = {"umep": ver_umep, "supy": ver_supy}
+        # what to return?
