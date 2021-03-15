@@ -561,7 +561,7 @@ class UMEP(object):
         url = "https://umep-docs.readthedocs.io/en/latest/index.html"
         webbrowser.open_new_tab(url)
 
-    def show_versions():
+    def show_versions(self):
         from supy import __version__ as ver_supy
 
         # TODO: add UMEP version info here
