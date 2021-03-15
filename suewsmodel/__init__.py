@@ -3,9 +3,12 @@
 
 from qgis.PyQt.QtWidgets import QMessageBox
 from .supy_installer import setup_supy
+from qgis.core import Qgis, QgsMessageLog
 # we can specify a version if needed
 try: 
     import supy as sp
+    from supy import __version__ as ver_supy
+    QgsMessageLog.logMessage("UMEP - SuPy Version installed: " + ver_supy, level=Qgis.Info)
 except:
     if QMessageBox.question(None, "Supy and related dependencies not installed", 
               "Do you want UMEP to automatically install? \r\n"
