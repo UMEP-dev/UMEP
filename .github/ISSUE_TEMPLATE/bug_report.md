@@ -17,18 +17,17 @@ Steps to reproduce the behavior:
 3. Scroll down to '....'
 4. See error
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+**Desktop (please complete the following information):**
+ - OS: [e.g. macOS]
+ - QGIS Version [e.g. 3.18]
+ - UMEP Version [e.g. 3.16.2]
+ - SuPy Version [e.g. 2021.1.23]
 
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. macOS]
- - QGIS Version [e.g. 3.16]
- - UMEP Version [e.g. 1.23]
- - SuPy Version [e.g. 2021.1.23]
-
+**Data**
+If applicable, add data files to help us reproduce your problem.
 
 **Additional context**
 Add any other context about the problem here.
