@@ -329,9 +329,12 @@ class SOLWEIG(object):
             # response to issue #85
             nd = self.gdal_dsm.GetRasterBand(1).GetNoDataValue()
             self.dsm[self.dsm == nd] = 0.
-            self.dsmcopy = np.copy(self.dsm)
+            # self.dsmcopy = np.copy(self.dsm)
             if self.dsm.min() < 0:
+                dsmraise = np.abs(self.dsm.min())
                 self.dsm = self.dsm + np.abs(self.dsm.min())
+            else:
+                dsmraise = 0
 
             old_cs = osr.SpatialReference()
             dsm_ref = dsmlayer.crs().toWkt()
@@ -508,7 +511,13 @@ class SOLWEIG(object):
                 nd = dataSet.GetRasterBand(1).GetNoDataValue()
                 self.dem[self.dem == nd] = 0.
                 if self.dem.min() < 0:
+                    demraise = np.abs(self.dem.min())
                     self.dem = self.dem + np.abs(self.dem.min())
+                else:
+                    demraise = 0
+
+                if (dsmraise != demraise) and (dsmraise - demraise > 0.5):
+                    self.iface.messageBar().pushMessage('WARNiNG! DEM and DSM was raised unequally (difference > 0.5 m). Check your input data!', level=Qgis.Critical, duration=3)()
 
                 alt = np.median(self.dem)
                 if alt > 0:
@@ -739,7 +748,7 @@ class SOLWEIG(object):
                 buildings[buildings == 3] = 1
                 buildings[buildings == 2] = 0
             else:
-                buildings = self.dsmcopy - self.dem
+                buildings = self.dsm - self.dem
                 buildings[buildings < 2.] = 1.
                 buildings[buildings >= 2.] = 0.
 
