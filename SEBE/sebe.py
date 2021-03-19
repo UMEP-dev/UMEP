@@ -420,6 +420,8 @@ class SEBE(object):
                 QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
                 return
 
+            wallmaxheight = self.gdal_wh.GetRasterBand(1).GetStatistics(True,True)[1] #issue #244
+
             # wall aspectlayer
             walayer = self.layerComboManagerWA.currentLayer()
             if walayer is None:
@@ -472,12 +474,12 @@ class SEBE(object):
 
             self.startWorker(self.dsm, self.scale, building_slope,building_aspect, voxelheight, sizey, sizex,
                             self.vegdsm, self.vegdsm2, self.wheight, self.waspect, albedo, psi, radmatI, radmatD,
-                             radmatR, self.usevegdem, calc_month, self.dlg)
+                             radmatR, self.usevegdem, calc_month, self.dlg, wallmaxheight)
 
-    def startWorker(self, dsm, scale, building_slope,building_aspect, voxelheight, sizey, sizex, vegdsm, vegdsm2, wheight,waspect, albedo, psi, radmatI, radmatD, radmatR, usevegdem, calc_month, dlg):
+    def startWorker(self, dsm, scale, building_slope,building_aspect, voxelheight, sizey, sizex, vegdsm, vegdsm2, wheight,waspect, albedo, psi, radmatI, radmatD, radmatR, usevegdem, calc_month, dlg, wallmaxheight):
 
         # create a new worker instance
-        worker = Worker(dsm, scale, building_slope,building_aspect, voxelheight, sizey, sizex, vegdsm, vegdsm2, wheight,waspect, albedo, psi, radmatI, radmatD, radmatR, usevegdem, calc_month, dlg)
+        worker = Worker(dsm, scale, building_slope,building_aspect, voxelheight, sizey, sizex, vegdsm, vegdsm2, wheight,waspect, albedo, psi, radmatI, radmatD, radmatR, usevegdem, calc_month, dlg, wallmaxheight)
 
         self.dlg.runButton.setText('Cancel')
         self.dlg.runButton.clicked.disconnect()
