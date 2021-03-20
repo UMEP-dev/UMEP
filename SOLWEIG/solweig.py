@@ -411,7 +411,7 @@ class SOLWEIG(object):
                     gdal.AllRegister()
                     provider = self.vegdsm2.dataProvider()
                     self.filePath_tdsm = str(provider.dataSourceUri())
-                    dataSet = gdal.Open(filePath_tdsm)
+                    dataSet = gdal.Open(self.filePath_tdsm)
                     self.vegdsm2 = dataSet.ReadAsArray().astype(np.float)
                     trunkfile = 1
                 else:
