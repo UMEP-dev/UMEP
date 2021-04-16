@@ -37,17 +37,33 @@ def wrapper(pathtoplugin, iface, year=None):
     #####################################################################################
     # SuPy
 
+    # Debugging with Pickle
+    # path_runcontrol = Path(pathtoplugin) / 'RunControl.nml'
+    # print(path_runcontrol)
+    # df_state_init = sp.init_supy(path_runcontrol)
+    # p_debug_save= path_runcontrol.parent
+    # # start dumping useful df's
+    # df_state_init.to_pickle(p_debug_save/'df_state_init.pkl')
+    # grid = df_state_init.index[0]
+    # df_forcing = sp.load_forcing_grid(path_runcontrol, grid)
+    # df_forcing.to_pickle(p_debug_save/'df_forcing.pkl')
+    # df_output, df_state_final = sp.run_supy(df_forcing, df_state_init)
+    # df_output.to_pickle(p_debug_save/'df_output.pkl')
+    # df_state_final.to_pickle(p_debug_save/'df_state_final.pkl')
+    # list_path_save = sp.save_supy(df_output, df_state_final, path_runcontrol=path_runcontrol)
+
     # SuPy initialisation
     path_runcontrol = Path(pathtoplugin) / 'RunControl.nml'
     df_state_init = sp.init_supy(path_runcontrol)
     grid = df_state_init.index[0]
     #year=2011
+    # print(year)
     if year:
         df_forcing = sp.load_forcing_grid(path_runcontrol, grid).loc[f'{year}'] # new (loc) from 2020a
     else:
         df_forcing = sp.load_forcing_grid(path_runcontrol, grid)
 
-
+    df_forcing = sp.load_forcing_grid(path_runcontrol, grid)
     # SuPy simulation
     df_output, df_state_final = sp.run_supy(df_forcing, df_state_init, check_input=True, serial_mode=True)
 
@@ -71,13 +87,11 @@ def wrapper(pathtoplugin, iface, year=None):
     #     iface.messageBar().pushMessage(f"We cannot dumpsave diagnostic info.", level=Qgis.Warning)
 
     # resampling SuPy results for plotting
-    df_output_suews = df_output.loc[grid, 'SUEWS']
-    df_output_suews_rsmp = df_output_suews.resample('1h').mean()
+    # df_output_suews = df_output.loc[grid, 'SUEWS']
+    # df_output_suews_rsmp = df_output_suews.resample('1h').mean()
 
     # use SuPy function to save results
-    list_path_save = sp.save_supy(df_output,
-                                  df_state_final,
-                                  path_runcontrol=path_runcontrol)
+    list_path_save = sp.save_supy(df_output, df_state_final, path_runcontrol=path_runcontrol)
     #####################################################################################
 
     # df_output_suews_rsmp.loc[:, ['QN', 'QS', 'QE', 'QH', 'QF']].plot()
@@ -103,7 +117,7 @@ def wrapper(pathtoplugin, iface, year=None):
     #     print(str_out, file=file_out)
 
 
-            # --- plot results --- #
+    # --- plot results --- #
     if nomatplot == 0:
         # read namelists; RunControl.nml and plot.nml
         nml = f90nml.read(pathtoplugin + '/RunControl.nml')
@@ -137,12 +151,12 @@ def wrapper(pathtoplugin, iface, year=None):
         # while loop_out != '-9':
         lines = lin[index].split()
         YYYY = int(float(lines[1]))
+
         gridcode = lines[0]  # for plotting
         if multiplemetfiles == 0:  # one file
             if index == 2:
                 # gridcodemet = ''
                 data_in = fileinputpath + filecode + '_' + str(YYYY) + gridcodemet + '_data_' + str(int(int(resolutionfilesin) / 60.)) + '.txt'  # No grid code in the name, nov 2015
-                # data_in = fileinputpath + filecode + '_' + str(YYYY) + gridcodemet + '_data.txt'  # No grid code in the name, nov 2015
                 met_old = np.genfromtxt(data_in, skip_header=1, missing_values='**********', filling_values=-9999) #  skip_footer=2,
                 # met_old = np.loadtxt(data_in, skiprows=1)
                 if met_old[1, 3] - met_old[0, 3] == 5:

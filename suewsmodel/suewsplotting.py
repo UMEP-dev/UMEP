@@ -59,6 +59,8 @@ class SuewsPlotting(object):
         # dates = dt.num2date(dectime)
         # dates = dataout[:, 4]
         # print(dates)
+        # print('och sen...')
+        # print(str(datain[:, 13]))
 
         plt.figure(1, figsize=(15, 7), facecolor='white')
         ax1 = plt.subplot(3, 1, 1)

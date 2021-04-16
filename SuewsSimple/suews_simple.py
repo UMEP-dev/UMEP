@@ -549,6 +549,15 @@ class SuewsSimple(object):
             os.remove(inmetfile)
             shutil.copy(inmetfile, runmetfile)
 
+        #response to issue #198
+        with open(runmetfile, 'r') as file: 
+            first_line = file.readline()
+            first_line = file.readline()
+            split = first_line.split()
+            if int(split[1]) == 1 and int(split[2]) == 0 and int(split[3]) == 0:
+                QMessageBox.critical(self.dlg, "Error in Meteorological file", "First line of meteorological data is not representing chosen year but year before.")
+                return
+
         nml['runcontrol']['fileCode'] = str(filecode)
         nml['runcontrol']['FileOutputPath'] = outfolder
         nml['runcontrol']['FileInputPath'] = self.model_dir + '/Input/'
@@ -587,9 +596,9 @@ class SuewsSimple(object):
                                                             "\r\n"
                                                             "Do you want to contiune?",
                                 QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
-            #suews_wrapper.wrapper(self.model_dir)
-            self.dlg.activateWindow()
             
+            self.dlg.activateWindow()
+            # suews_wrapper.wrapper(self.model_dir, self.iface, year=YYYY)
             try:
                 suews_wrapper.wrapper(self.model_dir, self.iface, year=YYYY)
                 self.iface.messageBar().pushMessage("Model run successful", "Model run finished", level=Qgis.Success)

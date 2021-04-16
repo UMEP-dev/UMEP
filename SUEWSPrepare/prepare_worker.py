@@ -842,6 +842,7 @@ class Worker(QtCore.QObject):
                 ofile.writelines(output_lines)
                 for input_file in self.output_file_list:
                     try:
+                        print("Copied: " + self.output_dir[0] + "/" + input_file)
                         copyfile(self.output_path + input_file, self.output_dir[0] + "/" + input_file)
                     except IOError as e:
                         QgsMessageLog.logMessage(
