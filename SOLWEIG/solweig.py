@@ -909,7 +909,7 @@ class SOLWEIG(object):
             if self.landcover == 1.:
                 if np.max(self.lcgrid) > 7 or np.min(self.lcgrid) < 1:
                     QMessageBox.warning(self.dlg, "Attention!", "The land cover grid includes integer values higher (or lower) than UMEP-formatted" 
-                        "land cover grid (should be integer between 1 and 7). If other LC-classes should be included they also need to be included in landcoverclasses_2016a.txt")
+                        " land cover grid (should be integer between 1 and 7). If other LC-classes should be included they also need to be included in landcoverclasses_2016a.txt")
                     return
                     # QMessageBox.critical(self.dlg, "Error", "The land cover grid includes values not appropriate for UMEP-formatted land cover grid (should be integer between 1 and 7).")
                     # return

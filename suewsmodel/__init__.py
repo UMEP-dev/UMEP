@@ -17,7 +17,8 @@ except:
         try:
             setup_supy(ver=None)
             QMessageBox.information(None, "Packages successfully installed",
-                                    "We recommend that you restart QGIS before you continue.")
+                                    "Currently, we have a version conflict that might produce a Python error after installation. "
+                                    "This will be resolved if you restart your QGIS session.")
         except Exception as e:
             QMessageBox.information(None, "An error occurred",
                                     "Packages not installed. report any errors to https://github.com/UMEP-dev/UMEP/issues")

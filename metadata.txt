@@ -11,7 +11,7 @@ name=UMEP
 qgisMinimumVersion=3.0
 description=Urban Multi-scale Environmental Predictor
 
-version=3.17.2
+version=3.17.3
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg
 email=fredrikl@gvc.gu.se
 
@@ -29,6 +29,7 @@ repository=https://github.com/UMEP-dev/UMEP
 
 # Uncomment the following line and add your changelog:
 changelog=
+   3.17.3: Response to #271
    3.17.2: Response to #198
    3.17.1: Response to #256
    3.17  : LONG TERM RELEASE. SOLWEIG v2021a. Response to #244, #254. Minor bug fixing
