@@ -47,6 +47,11 @@ def install_supy(ver=None):
     str_ver = f"=={ver}" if ver else ""
     try:
         path_pybin = locate_py()
+        #update pip to use new features
+        list_cmd0 = f"{str(path_pybin)} -m pip install pip -U --user".split()
+        str_info0 = subprocess.check_output(
+            list_cmd0, stderr=subprocess.STDOUT, encoding="UTF8"
+        )
 
         #add netCDF4 TODO: Should later be replaced with xarrays
         list_cmd0 = f"{str(path_pybin)} -m pip install netCDF4 -U --user".split()
@@ -55,7 +60,7 @@ def install_supy(ver=None):
         )
 
         # install supy and dependencies
-        list_cmd = f"{str(path_pybin)} -m pip install supy{str_ver} -U --user".split()
+        list_cmd = f"{str(path_pybin)} -m pip install supy{str_ver} -U --user --use-feature=2020-resolver".split()
         str_info = subprocess.check_output(
             list_cmd, stderr=subprocess.STDOUT, encoding="UTF8"
         )
