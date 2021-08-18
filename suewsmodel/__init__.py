@@ -11,13 +11,14 @@ try:
     QgsMessageLog.logMessage("UMEP - SuPy Version installed: " + ver_supy, level=Qgis.Info)
 except:
     if QMessageBox.question(None, "Supy and related dependencies not installed", 
-              "Do you want UMEP to automatically install? \r\n"
+              "Do you want UMEP to automatically install missing python modules? \r\n"
               "QGIS will be non-responsive for a couple of minutes.", 
                QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
+        # setup_supy(ver=None)
         try:
             setup_supy(ver=None)
             QMessageBox.information(None, "Packages successfully installed",
-                                    "Currently, we have a version conflict that might produce a Python error after installation. "
+                                    "Currently, we have a numpy version conflict that might produce a Python error after installation of UMEP. "
                                     "This will be resolved if you restart your QGIS session.")
         except Exception as e:
             QMessageBox.information(None, "An error occurred",

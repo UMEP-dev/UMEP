@@ -1,15 +1,15 @@
 import sys, subprocess, os
 from pathlib import Path
 import platform
-import qgis.utils
 from packaging import version
 
 
 
 # locate QGIS-python interpreter
 def locate_py():
-    # get QGIS version
-    str_ver_qgis = qgis.utils.Qgis.QGIS_VERSION.split('-')[0]
+
+    # get Python version
+    str_ver_qgis = sys.version.split(' ')[0]
     
     try:
         # non-Linux
@@ -24,7 +24,7 @@ def locate_py():
     # pre-defined paths for python executable
     dict_pybin = {
         "Darwin": path_py / "bin" / "python3",
-        "Windows": path_py / ("../../bin/pythonw.exe" if version.parse(str_ver_qgis) >= version.parse("3.20.1") else "pythonw.exe"),
+        "Windows": path_py / ("../../bin/pythonw.exe" if version.parse(str_ver_qgis) >= version.parse("3.9.1") else "pythonw.exe"),
         "Linux": path_py,
     }
 
