@@ -48,12 +48,11 @@ def shadowingfunction_wallheight_13(a, azimuth, altitude, scale, walls, aspect):
         """
 
     # conversion
-    degrees = np.pi/180
+    # degrees = np.pi/180
     azimuth = radians(azimuth)
     altitude = radians(altitude)
 
     # measure the size of the image
-
     sizex = np.shape(a)[0]
     sizey = np.shape(a)[1]
 
@@ -102,21 +101,22 @@ def shadowingfunction_wallheight_13(a, azimuth, altitude, scale, walls, aspect):
         absdx = np.abs(dx)
         absdy = np.abs(dy)
 
-        xc1 = ((dx+absdx)/2)
-        xc2 = (sizex+(dx-absdx)/2)
-        yc1 = ((dy+absdy)/2)
-        yc2 = (sizey+(dy-absdy)/2)
+        xc1 = int((dx+absdx)/2)
+        xc2 = int(sizex+(dx-absdx)/2)
+        yc1 = int((dy+absdy)/2)
+        yc2 = int(sizey+(dy-absdy)/2)
 
-        xp1 = -((dx-absdx)/2)
-        xp2 = (sizex-(dx+absdx)/2)
-        yp1 = -((dy-absdy)/2)
-        yp2 = (sizey-(dy+absdy)/2)
+        xp1 = int(-((dx-absdx)/2))
+        xp2 = int(sizex-(dx+absdx)/2)
+        yp1 = int(-((dy-absdy)/2))
+        yp2 = int(sizey-(dy+absdy)/2)
 
-        temp[int(xp1):int(xp2), int(yp1):int(yp2)] = a[int(xc1):int(xc2), int(yc1):int(yc2)] - dz
+        temp[xp1:xp2, yp1:yp2] = a[xc1:xc2, yc1:yc2] - dz
 
-        f = np.max([f, temp], axis=0)
+        # f = np.max([f, temp], axis=0)
+        f = np.fmax(f, temp)
 
-        index = index+1
+        index = index + 1
 
     # Removing walls in shadow due to selfshadowing
     azilow = azimuth-np.pi/2
@@ -139,78 +139,6 @@ def shadowingfunction_wallheight_13(a, azimuth, altitude, scale, walls, aspect):
     wallsh = np.copy(walls-wallsun)
 
     sh = np.logical_not(np.logical_not(sh)).astype(float)
-    sh = sh*-1 + 1
+    sh = sh * -1 + 1
 
-    # subplot(2,2,1),imagesc(facesh),axis image ,colorbar,title('facesh')#
-    # subplot(2,2,2),imagesc(wallsh,[0 20]),axis image, colorbar,title('Wallsh')#
-    # subplot(2,2,3),imagesc(sh), colorbar,axis image,title('Groundsh')#
-    # subplot(2,2,4),imagesc(wallsun,[0 20]),axis image, colorbar,title('Wallsun')#
-
-    ## old stuff
-    #     if index==0 #removing shadowed walls at first iteration
-    #         tempfirst(1:sizex,1:sizey)=0;
-    #         tempfirst(xp1:xp2,yp1:yp2)= a(xc1:xc2,yc1:yc2);
-    #         tempfirst=tempfirst-a;
-    #         tempfirst(tempfirst<2)=1;# 2 is smallest wall height. Should be variable
-    #         tempfirst(tempfirst>=2)=0;# walls in shadow at first movment (iteration)
-    #         tempwalls(1:sizex,1:sizey)=0;
-    #         tempwalls(xp1:xp2,yp1:yp2)= wallbol(xc1:xc2,yc1:yc2);
-    #         wallfirst=tempwalls.*wallbol;#wallpixels potentially shaded by adjacent wall pixels
-    #         wallfirstaspect=aspect.*wallfirst;
-    #         azinormal=azimuth-pi/2;
-    #         if azinormal<=0,azinormal=azinormal+2*pi;end
-    #         facesh=double(wallfirstaspect<azinormal|tempfirst<=0);
-    #         facesun=double((facesh+double(walls>0))==1);
-    #     end
-
-
-    # Removing walls in shadow due to selfshadowing (This only works on
-    # regular arrays)
-    #     if dy~=0 && firsty==0
-    #         if yp1>1
-    #             yp1f=2;yp2f=sizey;
-    #             yc1f=1;yc2f=sizey-1;
-    #         else
-    #             yp1f=1;yp2f=sizey-1;
-    #             yc1f=2;yc2f=sizey;
-    #         end
-    #         firsty=1;
-    #     end
-    #     if dx~=0 && firstx==0
-    #         if xp1>1
-    #             xp1f=2;xp2f=sizex;
-    #             xc1f=1;xc2f=sizex-1;
-    #         else
-    #             xp1f=1;xp2f=sizex-1;
-    #             xc1f=2;xc2f=sizex;
-    #         end
-    #         firstx=1;
-    #     end
-    #     if firsty==1 && firstx==1
-    #         facesh(xp1f:xp2f,yp1f:yp2f)= a(xc1f:xc2f,yc1f:yc2f);
-    #         facesh=facesh-a;
-    #         facesh(facesh<=0)=0;
-    #         facesh(facesh>0)=1;
-    #     end
-
-
-    #     if index<3 #removing shadowed walls 1
-    #         tempfirst(1:sizex,1:sizey)=0;
-    #         tempfirst(xp1:xp2,yp1:yp2)= a(xc1:xc2,yc1:yc2);
-    #         #removing walls in shadow
-    #         tempfirst=tempfirst-a;
-    #         tempfirst(tempfirst<2)=1;# 2 is smallest wall height. Should be variable
-    #         tempfirst(tempfirst>=2)=0;
-    #         if index==1 # removing shadowed walls 2
-    #             tempwalls(1:sizex,1:sizey)=0;
-    #             tempwalls(xp1:xp2,yp1:yp2)= wallbol(xc1:xc2,yc1:yc2);
-    #             #             wallfirst=((tempwalls+wallbol).*wallbol)==2;
-    #             wallfirst=tempwalls.*wallbol;
-    #             wallfirstaspect=aspect.*wallfirst;#.*wallbol
-    #             #             wallfirstaspect(wallfirstaspect==0)=NaN;
-    #             wallfirstsun=wallfirstaspect>(azimuth-pi/2);
-    #             #             wallfirstsun=(wallfirstaspect>=azimuth-pi/2 & wallfirstaspect<=azimuth+pi/2);###H�R�RJAG
-    #             wallfirstshade=wallfirst-wallfirstsun;
-    #         end
-    #     end
     return sh, wallsh, wallsun, facesh, facesun

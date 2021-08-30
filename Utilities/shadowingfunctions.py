@@ -2,7 +2,7 @@
 # Ready for python action!
 import numpy as np
 # import matplotlib.pylab as plt
-
+# from numba import jit
 
 def shadowingfunctionglobalradiation(a, azimuth, altitude, scale, dlg, forsvf):
 
@@ -79,7 +79,185 @@ def shadowingfunctionglobalradiation(a, azimuth, altitude, scale, dlg, forsvf):
 
     return sh
 
+# @jit(nopython=True)
 def shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue, bush, dlg, forsvf):
+
+    # plt.ion()
+    # fig = plt.figure(figsize=(24, 7))
+    # plt.axis('image')
+    # ax1 = plt.subplot(2, 3, 1)
+    # ax2 = plt.subplot(2, 3, 2)
+    # ax3 = plt.subplot(2, 3, 3)
+    # ax4 = plt.subplot(2, 3, 4)
+    # ax5 = plt.subplot(2, 3, 5)
+    # ax6 = plt.subplot(2, 3, 6)
+    # ax1.title.set_text('fabovea')
+    # ax2.title.set_text('gabovea')
+    # ax3.title.set_text('vegsh at ' + str(altitude))
+    # ax4.title.set_text('lastfabovea')
+    # ax5.title.set_text('lastgabovea')
+    # ax6.title.set_text('vegdem')
+
+    # This function casts shadows on buildings and vegetation units.
+    # New capability to deal with pergolas 20210827
+
+    # conversion
+    degrees = np.pi/180.
+    if azimuth == 0.0:
+        azimuth = 0.000000000001
+    azimuth = azimuth * degrees
+    altitude = altitude * degrees
+    
+    # measure the size of grid
+    sizex = a.shape[0]
+    sizey = a.shape[1]
+    
+    # progressbar for svf plugin
+    if forsvf == 0:
+        barstep = np.max([sizex, sizey])
+        dlg.progressBar.setRange(0, barstep)
+        dlg.progressBar.setValue(0)
+
+    # initialise parameters
+    dx = 0.
+    dy = 0.
+    dz = 0.
+    temp = np.zeros((sizex, sizey))
+    tempvegdem = np.zeros((sizex, sizey))
+    tempvegdem2 = np.zeros((sizex, sizey))
+    templastfabovea = np.zeros((sizex, sizey))
+    templastgabovea = np.zeros((sizex, sizey))
+    bushplant = bush > 1.
+    sh = np.zeros((sizex, sizey)) #shadows from buildings
+    vbshvegsh = np.zeros((sizex, sizey)) #vegetation blocking buildings
+    vegsh = np.add(np.zeros((sizex, sizey)), bushplant, dtype=float) #vegetation shadow
+    f = a
+
+    pibyfour = np.pi / 4.
+    threetimespibyfour = 3. * pibyfour
+    fivetimespibyfour = 5.* pibyfour
+    seventimespibyfour = 7. * pibyfour
+    sinazimuth = np.sin(azimuth)
+    cosazimuth = np.cos(azimuth)
+    tanazimuth = np.tan(azimuth)
+    signsinazimuth = np.sign(sinazimuth)
+    signcosazimuth = np.sign(cosazimuth)
+    dssin = np.abs((1./sinazimuth))
+    dscos = np.abs((1./cosazimuth))
+    tanaltitudebyscale = np.tan(altitude) / scale
+    # index = 1
+    index = 0
+
+    # new case with pergola (thin vertical layer of vegetation), August 2021
+    dzprev = 0
+
+    # main loop
+    while (amaxvalue >= dz and np.abs(dx) < sizex and np.abs(dy) < sizey):
+        if forsvf == 0:
+            dlg.progressBar.setValue(index)
+        if (pibyfour <= azimuth and azimuth < threetimespibyfour or fivetimespibyfour <= azimuth and azimuth < seventimespibyfour):
+            dy = signsinazimuth * index
+            dx = -1. * signcosazimuth * np.abs(np.round(index / tanazimuth))
+            ds = dssin
+        else:
+            dy = signsinazimuth * np.abs(np.round(index * tanazimuth))
+            dx = -1. * signcosazimuth * index
+            ds = dscos
+        # note: dx and dy represent absolute values while ds is an incremental value
+        dz = (ds * index) * tanaltitudebyscale
+        tempvegdem[0:sizex, 0:sizey] = 0.
+        tempvegdem2[0:sizex, 0:sizey] = 0.
+        temp[0:sizex, 0:sizey] = 0.
+        templastfabovea[0:sizex, 0:sizey] = 0.
+        templastgabovea[0:sizex, 0:sizey] = 0.
+        absdx = np.abs(dx)
+        absdy = np.abs(dy)
+        xc1 = int((dx+absdx)/2.)
+        xc2 = int(sizex+(dx-absdx)/2.)
+        yc1 = int((dy+absdy)/2.)
+        yc2 = int(sizey+(dy-absdy)/2.)
+        xp1 = int(-((dx-absdx)/2.))
+        xp2 = int(sizex-(dx+absdx)/2.)
+        yp1 = int(-((dy-absdy)/2.))
+        yp2 = int(sizey-(dy+absdy)/2.)
+
+        tempvegdem[xp1:xp2, yp1:yp2] = vegdem[xc1:xc2, yc1:yc2] - dz
+        tempvegdem2[xp1:xp2, yp1:yp2] = vegdem2[xc1:xc2, yc1:yc2] - dz
+        temp[xp1:xp2, yp1:yp2] = a[xc1:xc2, yc1:yc2]-dz
+
+        #Moving building shadow
+        f = np.fmax(f, temp)
+        sh[(f > a)] = 1.
+        sh[(f <= a)] = 0.
+        
+        #vegdem above DEM
+        fabovea = tempvegdem > a
+        
+        #vegdem2 above DEM
+        gabovea = tempvegdem2 > a
+        
+        #new pergola condition
+        templastfabovea[xp1:xp2, yp1:yp2] = vegdem[xc1:xc2, yc1:yc2]-dzprev
+        templastgabovea[xp1:xp2, yp1:yp2] = vegdem2[xc1:xc2, yc1:yc2]-dzprev
+        lastfabovea = templastfabovea > a
+        lastgabovea = templastgabovea > a
+        dzprev = dz
+        vegsh2 = np.add(np.add(np.add(fabovea, gabovea, dtype=float),lastfabovea, dtype=float),lastgabovea, dtype=float)
+        vegsh2[vegsh2 == 4] = 0.
+        vegsh2[vegsh2 == 1] = 0.
+        vegsh2[vegsh2 > 0] = 1.
+
+        vegsh = np.fmax(vegsh, vegsh2)
+
+        vegsh[(vegsh * sh > 0.)] = 0.
+
+        # removing shadows 'behind' buildings
+        vbshvegsh = vegsh + vbshvegsh
+
+        # im1 = ax1.imshow(fabovea)
+        # im2 = ax2.imshow(gabovea)
+        # im3 = ax3.imshow(vegsh)
+        # im4 = ax4.imshow(lastfabovea)
+        # im5 = ax5.imshow(lastgabovea)
+        # im6 = ax6.imshow(vegdem)
+        # plt.show()
+        # plt.pause(0.05)
+
+        index += 1.
+
+    sh = 1.-sh
+    vbshvegsh[(vbshvegsh > 0.)] = 1.
+    vbshvegsh = vbshvegsh-vegsh
+    vegsh = 1.-vegsh
+    vbshvegsh = 1.-vbshvegsh
+
+    # plt.close()
+    # plt.ion()
+    # fig = plt.figure(figsize=(24, 7))
+    # plt.axis('image')
+    # ax1 = plt.subplot(1, 3, 1)
+    # im1 = ax1.imshow(vegsh)
+    # plt.colorbar(im1)
+
+    # ax2 = plt.subplot(1, 3, 2)
+    # im2 = ax2.imshow(vegdem2)
+    # plt.colorbar(im2)
+    # plt.title('TDSM')
+
+    # ax3 = plt.subplot(1, 3, 3)
+    # im3 = ax3.imshow(vegdem)
+    # plt.colorbar(im3)
+    # plt.tight_layout()
+    # plt.title('CDSM')
+    # plt.show()
+    # plt.pause(0.05)
+
+    shadowresult = {'sh': sh, 'vegsh': vegsh, 'vbshvegsh': vbshvegsh}
+
+    return shadowresult
+
+
+def shadowingfunction_20_old(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue, bush, dlg, forsvf):
 
     #% This function casts shadows on buildings and vegetation units
     #% conversion
