@@ -9,8 +9,8 @@ def shadowingfunctionglobalradiation(a, azimuth, altitude, scale, dlg, forsvf):
     #%This m.file calculates shadows on a DEM
     #% conversion
     degrees = np.pi/180.
-    if azimuth == 0.0:
-        azimuth = 0.000000000001
+    # if azimuth == 0.0:
+        # azimuth = 0.000000000001
     azimuth = np.dot(azimuth, degrees)
     altitude = np.dot(altitude, degrees)
     #% measure the size of the image
@@ -103,8 +103,6 @@ def shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue
 
     # conversion
     degrees = np.pi/180.
-    if azimuth == 0.0:
-        azimuth = 0.000000000001
     azimuth = azimuth * degrees
     altitude = altitude * degrees
     
@@ -152,10 +150,10 @@ def shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue
     dzprev = 0
 
     # main loop
-    while (amaxvalue >= dz and np.abs(dx) < sizex and np.abs(dy) < sizey):
+    while (amaxvalue >= dz) and (np.abs(dx) < sizex) and (np.abs(dy) < sizey):
         if forsvf == 0:
             dlg.progressBar.setValue(index)
-        if (pibyfour <= azimuth and azimuth < threetimespibyfour or fivetimespibyfour <= azimuth and azimuth < seventimespibyfour):
+        if ((pibyfour <= azimuth) and (azimuth < threetimespibyfour) or (fivetimespibyfour <= azimuth) and (azimuth < seventimespibyfour)):
             dy = signsinazimuth * index
             dx = -1. * signcosazimuth * np.abs(np.round(index / tanazimuth))
             ds = dssin
@@ -185,16 +183,11 @@ def shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue
         tempvegdem2[xp1:xp2, yp1:yp2] = vegdem2[xc1:xc2, yc1:yc2] - dz
         temp[xp1:xp2, yp1:yp2] = a[xc1:xc2, yc1:yc2]-dz
 
-        #Moving building shadow
-        f = np.fmax(f, temp)
+        f = np.fmax(f, temp) #Moving building shadow
         sh[(f > a)] = 1.
         sh[(f <= a)] = 0.
-        
-        #vegdem above DEM
-        fabovea = tempvegdem > a
-        
-        #vegdem2 above DEM
-        gabovea = tempvegdem2 > a
+        fabovea = tempvegdem > a #vegdem above DEM
+        gabovea = tempvegdem2 > a #vegdem2 above DEM
         
         #new pergola condition
         templastfabovea[xp1:xp2, yp1:yp2] = vegdem[xc1:xc2, yc1:yc2]-dzprev
@@ -202,18 +195,14 @@ def shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue
         lastfabovea = templastfabovea > a
         lastgabovea = templastgabovea > a
         dzprev = dz
-        vegshtest = np.add(np.add(np.add(fabovea, gabovea, dtype=float),lastfabovea, dtype=float),lastgabovea, dtype=float)
         vegsh2 = np.add(np.add(np.add(fabovea, gabovea, dtype=float),lastfabovea, dtype=float),lastgabovea, dtype=float)
         vegsh2[vegsh2 == 4] = 0.
-        # vegsh2[vegsh2 == 1] = 0. # This one is the ultimate question
+        # vegsh2[vegsh2 == 1] = 0. # This one is the ultimate question...
         vegsh2[vegsh2 > 0] = 1.
 
         vegsh = np.fmax(vegsh, vegsh2)
-
         vegsh[(vegsh * sh > 0.)] = 0.
-
-        # removing shadows 'behind' buildings
-        vbshvegsh = vegsh + vbshvegsh
+        vbshvegsh = vegsh + vbshvegsh # removing shadows 'behind' buildings
 
         # im1 = ax1.imshow(fabovea)
         # im2 = ax2.imshow(gabovea)
