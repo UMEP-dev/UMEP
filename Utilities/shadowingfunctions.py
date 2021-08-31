@@ -202,9 +202,10 @@ def shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue
         lastfabovea = templastfabovea > a
         lastgabovea = templastgabovea > a
         dzprev = dz
+        vegshtest = np.add(np.add(np.add(fabovea, gabovea, dtype=float),lastfabovea, dtype=float),lastgabovea, dtype=float)
         vegsh2 = np.add(np.add(np.add(fabovea, gabovea, dtype=float),lastfabovea, dtype=float),lastgabovea, dtype=float)
         vegsh2[vegsh2 == 4] = 0.
-        vegsh2[vegsh2 == 1] = 0.
+        # vegsh2[vegsh2 == 1] = 0. # This one is the ultimate question
         vegsh2[vegsh2 > 0] = 1.
 
         vegsh = np.fmax(vegsh, vegsh2)
@@ -219,7 +220,13 @@ def shadowingfunction_20(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue
         # im3 = ax3.imshow(vegsh)
         # im4 = ax4.imshow(lastfabovea)
         # im5 = ax5.imshow(lastgabovea)
-        # im6 = ax6.imshow(vegdem)
+        # im6 = ax6.imshow(vegshtest)
+        # im1 = ax1.imshow(tempvegdem)
+        # im2 = ax2.imshow(tempvegdem2)
+        # im3 = ax3.imshow(vegsh)
+        # im4 = ax4.imshow(templastfabovea)
+        # im5 = ax5.imshow(templastgabovea)
+        # im6 = ax6.imshow(vegshtest)
         # plt.show()
         # plt.pause(0.05)
 

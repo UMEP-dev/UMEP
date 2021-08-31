@@ -151,7 +151,7 @@ def shadowingfunction_wallheight_23(a, vegdem, vegdem2, azimuth, altitude, scale
         dzprev = dz
         vegsh2 = np.add(np.add(np.add(fabovea, gabovea, dtype=float),lastfabovea, dtype=float),lastgabovea, dtype=float)
         vegsh2[vegsh2 == 4] = 0.
-        vegsh2[vegsh2 == 1] = 0.
+        # vegsh2[vegsh2 == 1] = 0. # This one is the ultimate question
         vegsh2[vegsh2 > 0] = 1.
 
         # vegsh2 = fabovea - gabovea
