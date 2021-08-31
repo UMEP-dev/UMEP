@@ -1,6 +1,6 @@
 from __future__ import division
 import numpy as np
-import matplotlib.pylab as plt
+# import matplotlib.pylab as plt
 def shadowingfunction_wallheight_23(a, vegdem, vegdem2, azimuth, altitude, scale, amaxvalue, bush, walls, aspect):
     """
     This function calculates shadows on a DSM and shadow height on building
@@ -39,24 +39,12 @@ def shadowingfunction_wallheight_23(a, vegdem, vegdem2, azimuth, altitude, scale
     :return:
     """
 
-    # if not walls.size:
-        # """ needs to be checked
-        # walls=ordfilt2(a,4,[0 1 0; 1 0 1; 0 1 0]);
-        # walls=walls-a;
-        # walls(walls<3)=0;
-        # sizex=size(a,1);%might be wrong
-        # sizey=size(a,2);
-        # dirwalls = filter1Goodwin_as_aspect_v3(walls,sizex,sizey,scale,a);
-        # aspect=dirwalls*pi/180;
-        # """
-
     # conversion
     degrees = np.pi/180.
     azimuth *= degrees
     altitude *= degrees
     
     # measure the size of the image
-
     sizex = np.shape(a)[0]
     sizey = np.shape(a)[1]
     
@@ -74,12 +62,11 @@ def shadowingfunction_wallheight_23(a, vegdem, vegdem2, azimuth, altitude, scale
     vbshvegsh = np.copy(sh) #vegetation blocking buildings
     vegsh = np.add(np.zeros((sizex, sizey)), bushplant, dtype=float) #vegetation shadow
     f = np.copy(a)
-    shvoveg = np.copy(vegdem)    # for vegetation shadowvolume
+    shvoveg = np.copy(vegdem) # for vegetation shadowvolume
     # g = np.copy(sh)
-
     wallbol = (walls > 0).astype(float)
-    wallbol[wallbol == 0] = np.nan
 
+    # other loop parameters
     pibyfour = np.pi/4
     threetimespibyfour = 3*pibyfour
     fivetimespibyfour = 5*pibyfour
@@ -208,7 +195,6 @@ def shadowingfunction_wallheight_23(a, vegdem, vegdem2, azimuth, altitude, scale
     wallsun[wallsun < 0] = 0
     wallsun[facesh == 1] = 0    # Removing walls in "self"-shadow
     wallsh = np.copy(walls-wallsun)
-    wallbol = (walls > 0).astype(float)
 
     wallshve = shvoveg * wallbol
     wallshve = wallshve - wallsh

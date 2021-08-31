@@ -62,10 +62,8 @@ def shadowingfunction_wallheight_13(a, azimuth, altitude, scale, walls, aspect):
     dy = 0
     dz = 0
     temp = np.zeros((sizex, sizey))
-    index = 1
     wallbol = (walls > 0).astype(float)
-    #wallbol[wallbol == 0] = np.nan
-    # np.savetxt("wallbol.txt",wallbol)
+    
     # other loop parameters
     amaxvalue = np.max(a)
     pibyfour = np.pi/4
@@ -81,21 +79,23 @@ def shadowingfunction_wallheight_13(a, azimuth, altitude, scale, walls, aspect):
     dscos = np.abs(1/cosazimuth)
     tanaltitudebyscale = np.tan(altitude)/scale
 
+    index = 1
+
     # main loop
     while (amaxvalue >= dz) and (np.abs(dx) < sizex) and (np.abs(dy) < sizey):
 
         if (pibyfour <= azimuth and azimuth < threetimespibyfour) or \
                 (fivetimespibyfour <= azimuth and azimuth < seventimespibyfour):
-            dy = signsinazimuth*index
-            dx = -1*signcosazimuth*np.abs(np.round(index/tanazimuth))
+            dy = signsinazimuth * index
+            dx = -1 * signcosazimuth * np.abs(np.round(index / tanazimuth))
             ds = dssin
         else:
-            dy = signsinazimuth*abs(round(index*tanazimuth))
-            dx = -1*signcosazimuth*index
+            dy = signsinazimuth * np.abs(np.round(index * tanazimuth))
+            dx = -1 * signcosazimuth * index
             ds = dscos
 
         # note: dx and dy represent absolute values while ds is an incremental value
-        dz = ds*index*tanaltitudebyscale
+        dz = ds * index * tanaltitudebyscale
         temp[0:sizex, 0:sizey] = 0
 
         absdx = np.abs(dx)
@@ -112,9 +112,7 @@ def shadowingfunction_wallheight_13(a, azimuth, altitude, scale, walls, aspect):
         yp2 = int(sizey-(dy+absdy)/2)
 
         temp[xp1:xp2, yp1:yp2] = a[xc1:xc2, yc1:yc2] - dz
-
-        # f = np.max([f, temp], axis=0)
-        f = np.fmax(f, temp)
+        f = np.fmax(f, temp) #Moving building shadow
 
         index = index + 1
 
