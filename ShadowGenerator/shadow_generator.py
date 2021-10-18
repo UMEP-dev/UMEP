@@ -252,7 +252,7 @@ class ShadowGenerator(object):
         dsmlayer = self.layerComboManagerDSM.currentLayer()
 
         if dsmlayer is None:
-            QMessageBox.critical(None, "Error", "No valid raster layer is selected")
+            QMessageBox.critical(None, "Error", "No valid ground and building DSM raster layer is selected")
             return
 
         provider = dsmlayer.dataProvider()

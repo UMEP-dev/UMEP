@@ -266,7 +266,6 @@ class SUEWSConverter:
         fromVer = self.dlg.comboBoxOld.currentText()
         toVer = self.dlg.comboBoxNew.currentText()
         try:
-            return
             convert_table(fromDir, toDir, fromVer, toVer)
             self.iface.messageBar().pushMessage("SUEWS Converter", "Data successfully converted between: "
                         + fromVer + " to " + toVer, level=Qgis.Success)

@@ -141,8 +141,8 @@ class SUEWSPrepare(object):
                         shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.output_path + '/Input/' + basefiles[i])
 
         self.file_path = self.plugin_dir + '/Input/SUEWS_SiteLibrary.xls'
-        self.init_path = self.plugin_dir + '/Input/SUEWS_init.xlsx'
-        self.header_file_path = self.plugin_dir + '/Input/SUEWS_SiteSelect.xlsx'
+        self.init_path = self.plugin_dir + '/Input/SUEWS_init.xls'
+        self.header_file_path = self.plugin_dir + '/Input/SUEWS_SiteSelect.xls'
         self.line_list = []
         self.widget_list = []
         self.data = xlrd.open_workbook(self.file_path)

@@ -1,6 +1,6 @@
 
 import numpy as np
-from ..Utilities import shadowingfunctions as shadow
+# from ..Utilities import shadowingfunctions as shadow
 #import shadowingfunctions as shadow
 from osgeo import gdal
 from osgeo.gdalconst import *

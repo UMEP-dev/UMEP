@@ -286,7 +286,6 @@ class MetdataProcessor(object):
                 dayspermonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
             met_new[i, 1] = sum(dayspermonth[0:int(mm[i] - 1)]) + dd[i]
 
-        test2 = np.where(met_new[:, 2] == 0)
         met_new[np.where(met_new[:, 2] == 0), 1] = met_new[np.where(met_new[:, 2] == 0), 1] + 1
         met_new[met_old.shape[0] - 1, 1] = 1
 
