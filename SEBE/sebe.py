@@ -253,7 +253,8 @@ class SEBE(object):
 
     def save_radmat(self):
         self.radmatfile = self.fileDialogFile.getSaveFileName(None, "Save File As:", None, "Text Files (*.txt)")
-        self.dlg.textOutputIrradience.setText(self.radmatfile)
+        print(self.radmatfile[0])
+        self.dlg.textOutputIrradience.setText(self.radmatfile[0])
 
     def progress_update(self):
         self.steps += 1
@@ -463,7 +464,7 @@ class SEBE(object):
                     # metout[:, 4] = radmatR[:, 2]
                     header = '%altitude azimuth radI radD'
                     numformat = '%6.2f %6.2f %6.2f %6.2f'
-                    np.savetxt(self.radmatfile, metout, fmt=numformat, header=header, comments='')
+                    np.savetxt(self.radmatfile[0], metout, fmt=numformat, header=header, comments='')
 
             building_slope, building_aspect = get_ders(self.dsm, self.scale)
             calc_month = False  # TODO: Month not implemented

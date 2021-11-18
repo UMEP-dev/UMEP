@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/uwg_reclassifier" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>

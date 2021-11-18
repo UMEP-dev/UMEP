@@ -41,6 +41,7 @@ from .FootprintModel.footprint_model import FootprintModel
 from .LCZ_Converter.LCZ_converter import LCZ_test
 from .UMEPDownloader.umep_downloader import UMEP_Data_Download
 from .DSMGenerator.dsm_generator import DSMGenerator
+from .UWGReClassifier.uwg_reclassifier import uwg_reclassifier
 # from .WATCHData.watch import WATCHData
 from .GreaterQF.greater_qf import GreaterQF
 from .ExtremeFinder.extreme_finder import ExtremeFinder
@@ -136,14 +137,11 @@ class UMEP(object):
         self.Pre_Menu.addMenu(self.ULC_Menu)
         self.SM_Menu = QMenu("Urban Morphology")
         self.Pre_Menu.addMenu(self.SM_Menu)
-        self.SUEWSPrepare_Action = QAction("SUEWS Prepare", self.iface.mainWindow())
-        self.Pre_Menu.addAction(self.SUEWSPrepare_Action)
-        self.SUEWSPrepare_Action.triggered.connect(self.SUEWS_Prepare)
-        self.SUEWSConvert_Action = QAction("SUEWS Converter", self.iface.mainWindow())
-        self.Pre_Menu.addAction(self.SUEWSConvert_Action)
-        self.SUEWSConvert_Action.triggered.connect(self.SUEWS_Convert)
-
-
+        self.PreUEB_Menu = QMenu("Urban Energy Balance (SUEWS)")
+        self.Pre_Menu.addMenu(self.PreUEB_Menu)
+        self.PreUHI_Menu = QMenu("Urban Heat Island (UWG)")
+        self.Pre_Menu.addMenu(self.PreUHI_Menu)
+        
         # Sub-actions to Surface Morphology
         self.IMCP_Action = QAction("Morphometric Calculator (Point)", self.iface.mainWindow())
         self.SM_Menu.addAction(self.IMCP_Action)
@@ -201,6 +199,19 @@ class UMEP(object):
         self.ULCUEBG_Action = QAction("Land Cover Fraction (Grid)", self.iface.mainWindow())
         self.ULC_Menu.addAction(self.ULCUEBG_Action)
         self.ULCUEBG_Action.triggered.connect(self.LCG)
+
+        # Sub-actions to Urban Energy Balance (SUEWS)
+        self.SUEWSPrepare_Action = QAction("SUEWS Prepare", self.iface.mainWindow())
+        self.PreUEB_Menu.addAction(self.SUEWSPrepare_Action)
+        self.SUEWSPrepare_Action.triggered.connect(self.SUEWS_Prepare)
+        self.SUEWSConvert_Action = QAction("SUEWS Converter", self.iface.mainWindow())
+        self.PreUEB_Menu.addAction(self.SUEWSConvert_Action)
+        self.SUEWSConvert_Action.triggered.connect(self.SUEWS_Convert)
+
+        # Sub-actions to Urban Heat Island (UWG)
+        self.UWGReclassifier_Action = QAction("UWG Reclassifier", self.iface.mainWindow())
+        self.PreUHI_Menu.addAction(self.UWGReclassifier_Action)
+        self.UWGReclassifier_Action.triggered.connect(self.UWGReclass)
 
         # Sub-menus to Processor
         self.OTC_Menu = QMenu("Outdoor Thermal Comfort")
@@ -509,6 +520,10 @@ class UMEP(object):
         sg = BenchMarking(self.iface)
         sg.run()
 
+    def UWGReclass(self):
+        sg = uwg_reclassifier(self.iface)
+        sg.run()
+    
     def run(self):
         # This function starts the plugin
         self.dlg.show()
