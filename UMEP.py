@@ -42,6 +42,7 @@ from .LCZ_Converter.LCZ_converter import LCZ_test
 from .UMEPDownloader.umep_downloader import UMEP_Data_Download
 from .DSMGenerator.dsm_generator import DSMGenerator
 from .UWGReClassifier.uwg_reclassifier import uwg_reclassifier
+from .uwg_prepare.uwg_prepare import UWGPrepare
 # from .WATCHData.watch import WATCHData
 from .GreaterQF.greater_qf import GreaterQF
 from .ExtremeFinder.extreme_finder import ExtremeFinder
@@ -212,6 +213,9 @@ class UMEP(object):
         self.UWGReclassifier_Action = QAction("UWG Reclassifier", self.iface.mainWindow())
         self.PreUHI_Menu.addAction(self.UWGReclassifier_Action)
         self.UWGReclassifier_Action.triggered.connect(self.UWGReclass)
+        self.UWGPrepare_Action = QAction("UWG Prepare", self.iface.mainWindow())
+        self.PreUHI_Menu.addAction(self.UWGPrepare_Action)
+        self.UWGPrepare_Action.triggered.connect(self.UWGPrepare)
 
         # Sub-menus to Processor
         self.OTC_Menu = QMenu("Outdoor Thermal Comfort")
@@ -522,6 +526,10 @@ class UMEP(object):
 
     def UWGReclass(self):
         sg = uwg_reclassifier(self.iface)
+        sg.run()
+
+    def UWGPrepare(self):
+        sg = UWGPrepare(self.iface)
         sg.run()
     
     def run(self):
