@@ -242,7 +242,7 @@ class UWGPrepare:
 
 
     def help(self):
-        url = "http://umep-docs.readthedocs.io/en/latest/pre-processor/SUEWS%20Prepare.html"
+        url = "http://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Heat%20Island%20UWG%20Prepare.html"
         webbrowser.open_new_tab(url)
 
 

@@ -10,7 +10,7 @@ def locate_py():
 
     # get Python version
     str_ver_qgis = sys.version.split(' ')[0]
-
+    
     try:
         # non-Linux
         path_py = os.environ["PYTHONHOME"]
@@ -113,61 +113,3 @@ def setup_supy(ver=None, debug=False):
     except Exception:
         # install supy
         install_supy(ver)
-
-# TODO: these are added temporarily to resolve the issue of installation of UWG; but should be included in a separate place.
-
-# install uwg
-def install_uwg(ver=None):
-    str_ver = f"=={ver}" if ver else ""
-    try:
-        path_pybin = locate_py()
-        #update pip to use new features
-        list_cmd0 = f"{str(path_pybin)} -m pip install pip -U --user".split()
-        str_info0 = subprocess.check_output(
-            list_cmd0, stderr=subprocess.STDOUT, encoding="UTF8"
-        )
-
-        # install uwg and dependencies
-        list_cmd = f"{str(path_pybin)} -m pip install uwg{str_ver} -U --user --use-feature=2020-resolver".split()
-        str_info = subprocess.check_output(
-            list_cmd, stderr=subprocess.STDOUT, encoding="UTF8"
-        )
-
-        str_info = str_info.split("\n")[-2].strip()
-
-        str_info = (
-            str_info
-            if 'Successfully installed uwg' in str_info
-            else f"uwg{str_ver} has already been installed!"
-        )
-        return str_info
-    except Exception:
-        raise RuntimeError(f"UMEP couldn't install uwg{str_ver}!") from Exception
-
-
-# uninstall uwg
-def uninstall_uwg():
-
-    try:
-        path_pybin = locate_py()
-        list_cmd = f"{str(path_pybin)} -m pip uninstall uwg -y".split()
-        list_info = subprocess.check_output(list_cmd, encoding="UTF8").split("\n")
-
-        str_info = list_info[-2].strip()
-        return str_info
-    except Exception:
-        raise RuntimeError(f"UMEP couldn't uninstall uwg!") from Exception
-
-# set up uwg
-def setup_uwg(ver=None, debug=False):
-    if debug:
-        uninstall_uwg()
-        install_uwg(ver)
-
-    try:
-        # check if uwg has been installed
-        import uwg
-
-    except Exception:
-        # install uwg
-        install_uwg(ver)

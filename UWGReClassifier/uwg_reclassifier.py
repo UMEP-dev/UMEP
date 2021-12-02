@@ -36,6 +36,7 @@ import pandas as pd
 import geopandas as gpd
 from pathlib import Path
 import copy
+import webbrowser
 
 
 class uwg_reclassifier(object):
@@ -317,6 +318,10 @@ class uwg_reclassifier(object):
     def savefile(self):
         self.outputfile = self.fileDialog.getSaveFileName(None, 'Save File As:', None, 'Shapefiles (*.shp)')
         self.dlg.textOutput.setText(self.outputfile[0])
+
+    def help(self):
+        url = "http://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Heat%20Island%20UWG%20Reclassifier.html"
+        webbrowser.open_new_tab(url)
 
     def reclassify_to_UWG(self):
         att_field =  self.dlg.comboBoxField.currentText()

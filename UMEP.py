@@ -224,8 +224,8 @@ class UMEP(object):
         self.Pro_Menu.addMenu(self.UEB_Menu)
         self.SUN_Menu = QMenu("Solar radiation")
         self.Pro_Menu.addMenu(self.SUN_Menu)
-        # self.NUHI_Action = QAction("Nocturnal Urban Heat Island", self.iface.mainWindow())
-        # self.Pro_Menu.addAction(self.NUHI_Action)
+        self.UHI_Menu = QMenu("Urban Heat Island")
+        self.Pro_Menu.addMenu(self.UHI_Menu)
 
         # Sub-menus to Outdoor Thermal Comfort
         # self.PET_Action = QAction("Comfort Index (PET/UCTI)", self.iface.mainWindow())
@@ -265,6 +265,11 @@ class UMEP(object):
         self.DSP_Action = QAction("Daily Shadow Pattern", self.iface.mainWindow())
         self.SUN_Menu.addAction(self.DSP_Action)
         self.DSP_Action.triggered.connect(self.SH)
+
+        # Sub-menus to Urban Heat Island
+        self.UWG_Action = QAction("Urban Weather Generator", self.iface.mainWindow())
+        self.UHI_Menu.addAction(self.UWG_Action)
+        self.UWG_Action.triggered.connect(self.UWG)
 
         # Sub-menus to Post-processing
         self.SUNpos_Menu = QMenu("Solar Radiation")
@@ -332,6 +337,9 @@ class UMEP(object):
         self.QFL_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_GQF.png"))
         self.QF_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_LQF.png"))
         self.BSS_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_BSS.png"))
+        self.UWGPrepare_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
+        self.UWGReclassifier_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
+        self.UWG_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
 
         self.iface.mainWindow().menuBar().insertMenu(self.iface.firstRightStandardMenu().menuAction(), self.UMEP_Menu)
         self.dlgAbout = UMEPDialogAbout()
@@ -470,6 +478,11 @@ class UMEP(object):
     #     return
     #     sg = WATCHData(self.iface)
     #     sg.run()
+
+    def UWG(self):
+        QMessageBox.information(None, "Urban Weather Generator",
+                             "The Urban Weather Generator can be accessed via UMEP for processing. Visit our online manual for more information.")
+        return
 
     def ERA(self):
         sg = CopernicusData(self.iface)
