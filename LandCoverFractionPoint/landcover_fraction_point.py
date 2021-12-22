@@ -448,8 +448,8 @@ class LandCoverFractionPoint(object):
         header = 'Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
         numformat = '%5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
         arr2 = np.array(landcoverresult["lc_frac_all"])
-        print(arrcheck)
-        print(arr2)
+        # print(arrcheck)
+        # print(arr2)
         np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'LCFPoint_isotropic.txt', arrcheck,
                     fmt=numformat, delimiter=' ', header=header, comments='')
 

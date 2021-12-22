@@ -43,8 +43,8 @@ from ..Utilities import f90nml
 import numpy as np
 from ..suewsmodel import suewsdataprocessing
 from ..suewsmodel import suewsplotting
-import sys
-import subprocess
+# import sys
+# import subprocess
 import datetime
 import shutil
 
@@ -410,14 +410,6 @@ class SUEWSAnalyzer(object):
             QMessageBox.critical(self.dlg, "Error", "No Year is selected")
             return
 
-        if self.dlg.comboBox_SpatialDOYMin.currentText() == 'Not Specified':
-            QMessageBox.critical(self.dlg, "Error", "No Minimum DOY is selected")
-            return
-
-        if self.dlg.comboBox_SpatialDOYMax.currentText() == 'Not Specified':
-            QMessageBox.critical(self.dlg, "Error", "No Maximum DOY is selected")
-            return
-
         poly = self.layerComboManagerPolygrid.currentLayer()
         if poly is None:
             QMessageBox.critical(self.dlg, "Error", "No valid Polygon layer is selected")
@@ -475,7 +467,7 @@ class SUEWSAnalyzer(object):
         idx = vlayer.fields().indexFromName(poly_field)
         typetest = fields.at(idx).type()
         if typetest == 10:
-            QMessageBox.critical(self.dlg, "ID field is sting type", "ID field must be either integer or float")
+            QMessageBox.critical(self.dlg, "ID field is string type", "ID field must be either integer or float")
             return
 
         # for i in range(0, self.idgrid.shape[0]): # loop over vector grid instead
@@ -545,16 +537,15 @@ class SUEWSAnalyzer(object):
 
         if self.dlg.addResultToGeotiff.isChecked():
             extent = vlayer.extent()
-            xmax = extent.xMaximum()
-            xmin = extent.xMinimum()
-            ymax = extent.yMaximum()
-            ymin = extent.yMinimum()
+            # xmax = extent.xMaximum()
+            # xmin = extent.xMinimum()
+            # ymax = extent.yMaximum()
+            # ymin = extent.yMinimum()
 
             if self.dlg.checkBoxIrregular.isChecked():
                 resx = self.dlg.doubleSpinBoxRes.value()
             else:
                 for f in vlayer.getFeatures():  # Taking first polygon. Could probably be done nicer
-                    # geom = f.geometry().asPolygon()
                     geom = f.geometry().asMultiPolygon()
                     break
                 resx = np.abs(geom[0][0][0][0] - geom[0][0][2][0])  # x
@@ -565,7 +556,7 @@ class SUEWSAnalyzer(object):
                     return
 
             # polyname = self.dlg.comboBox_Polygrid.currentText()
-            polyname = self.layerComboManagerPolygrid.currentText()
+            # polyname = self.layerComboManagerPolygrid.currentText()
             if self.dlg.textOutput.text() == 'Not Specified':
                 QMessageBox.critical(self.dlg, "Error", "No output filename for GeoTIFF is added")
                 return
@@ -578,28 +569,10 @@ class SUEWSAnalyzer(object):
                 except OSError:
                     os.remove(self.plugin_dir + '/tempgrid.tif')
 
-            # Check OS and dep
-            # if sys.platform == 'darwin':
-            #     gdalrast_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdal_rasterize'
-            # else:
-            #     gdalrast_os_dep = 'gdal_rasterize'
-
-            # gdalraster = gdalrast_os_dep + ' -a ' + str(poly_field) + ' -ot Float32 -of GTiff -te ' + str(xmin) + ' ' \
-            #              + str(ymin) + ' ' + str(xmax) + ' ' + str(ymax) + ' -tr ' + str(resx) + ' ' + str(resx) + \
-            #              ' -co COMPRESS=DEFLATE -co PREDICTOR=1 -co ZLEVEL=5 -l ' + polyname + ' "' + \
-            #              poly.source() + '" "' + self.plugin_dir + '/tempgrid.tif"'
-
-            # if sys.platform == 'win32':
-            #     si = subprocess.STARTUPINFO()
-            #     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            #     subprocess.call(gdalraster, startupinfo=si)
-            # else:
-            #     os.system(gdalraster)
-            # print(resx)
-            # print(resy)
-            # print(extent)
             crs = vlayer.crs().toWkt()
-            self.rasterize(str(poly.source()), str(self.plugin_dir + '/tempgrid.tif'), str(poly_field), resx, crs, extent)
+            path=vlayer.dataProvider().dataSourceUri()
+            polygonpath = path [:path.rfind('|')] # work around. Probably other solution exists
+            self.rasterize(str(polygonpath), str(self.plugin_dir + '/tempgrid.tif'), str(poly_field), resx, crs, extent)
 
             dataset = gdal.Open(self.plugin_dir + '/tempgrid.tif')
             idgrid_array = dataset.ReadAsArray().astype(np.float)
@@ -835,7 +808,7 @@ class SUEWSAnalyzer(object):
     def rasterize(self, src, dst, attribute, resolution, crs, extent, all_touch=False, na=-9999):
 
         # Open shapefile, retrieve the layer
-        print(src)
+        # print(src)
         src_data = ogr.Open(src)
         layer = src_data.GetLayer()
 

@@ -33,7 +33,8 @@ from .resources import *
 from .uwg_prepare_dialog import UWGPrepareDialog
 import os.path, os
 import webbrowser
-from .umep_uwg_export_component import create_uwgdict, get_uwg_file
+#from .umep_uwg_export_component import create_uwgdict, get_uwg_file
+from ..Utilities.umep_uwg_export_component import create_uwgdict, get_uwg_file
 
 
 class UWGPrepare:

@@ -269,7 +269,7 @@ class Worker(QtCore.QObject):
 
             # Including radiation from ground on walls as well as removing pixels high than walls
             # fix_print_with_import
-            print(np.copy(Energyyearwall).shape)
+            # print(np.copy(Energyyearwall).shape)
             wallmatrixbol = (Energyyearwall > 0).astype(float)
             Energyyearwall = (Energyyearwall + (np.sum(radmatR[:, 2]) * albedo)/2) * wallmatrixbol
 

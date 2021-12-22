@@ -1,0 +1,755 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>UWGAnalyserDialogBase</class>
+ <widget class="QDialog" name="UWGAnalyserDialogBase">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1033</width>
+    <height>660</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>UWG Analyser</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_5">
+   <item row="0" column="0" colspan="3">
+    <widget class="QFrame" name="frame_8">
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_14">
+        <property name="text">
+         <string>Model input folder</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Model output folder</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="textModelInFolder">
+        <property name="toolTip">
+         <string>A namelist (RunControl.nml) used for the model run should be specified. This can be located in the suewsmodel directory found as a sub-directory of the UMEP-plugin directory. Note that the namelist includes information on the last model run performed.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="textModelOutFolder">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>A namelist (RunControl.nml) used for the model run should be specified. This can be located in the suewsmodel directory found as a sub-directory of the UMEP-plugin directory. Note that the namelist includes information on the last model run performed.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_32">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Load model result and input data&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="pushButtonInFolder">
+        <property name="text">
+         <string>Load</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QPushButton" name="pushButtonOutFolder">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Load</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QPushButton" name="pushButtonHelp">
+     <property name="text">
+      <string>Help</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <spacer name="horizontalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>622</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="0" colspan="3">
+    <widget class="QFrame" name="frame_POI">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>Time period (DOY):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="3">
+       <widget class="QComboBox" name="comboBox_POIDOYMax">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>Specify the end time period to plot</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Not Specified</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="5" column="5">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="comboBox_POIField">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>Here, a list of all available modeled grids are listed. Specify one of the grid IDs. If no grid is available, then no data if found in the model output folder.</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Not Specified</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <spacer name="verticalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="5" column="1">
+       <widget class="QComboBox" name="comboBox_POIDOYMin">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>Specify the start time period to plot</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Not Specified</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>to:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="6">
+       <widget class="QPushButton" name="runButtonPlot">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>	Plot the data selected above</string>
+        </property>
+        <property name="text">
+         <string>Plot</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_29">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Plot single grid data&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_34">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Grid ID:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>comboBox_POIField</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+     <zorder>label_29</zorder>
+     <zorder>verticalSpacer_4</zorder>
+     <zorder>label_10</zorder>
+     <zorder>runButtonPlot</zorder>
+     <zorder>horizontalSpacer</zorder>
+     <zorder>comboBox_POIDOYMin</zorder>
+     <zorder>label_9</zorder>
+     <zorder>comboBox_POIDOYMax</zorder>
+     <zorder>label_34</zorder>
+     <zorder>comboBox_POIField</zorder>
+     <zorder>horizontalSpacer_3</zorder>
+    </widget>
+   </item>
+   <item row="4" column="2">
+    <widget class="QPushButton" name="pushButtonClose">
+     <property name="text">
+      <string>Close</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="3">
+    <widget class="QFrame" name="frame_Spatial">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="5" column="0" colspan="8">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Vector polygon grid used to specify areas for the UWG model:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="6">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Time period (DOY) to aggregate:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="9">
+       <widget class="QDoubleSpinBox" name="doubleSpinBoxRes">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>When a irregular grid is used, a pixel resolution in meters must be specified</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="decimals">
+         <number>0</number>
+        </property>
+        <property name="maximum">
+         <double>10000.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>10.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="14" column="9">
+       <widget class="QPushButton" name="runButtonSpatial">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="cursor">
+         <cursorShape>ArrowCursor</cursorShape>
+        </property>
+        <property name="toolTip">
+         <string>Starts the spatial processing/analysis</string>
+        </property>
+        <property name="text">
+         <string>Generate</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="3">
+       <widget class="QLabel" name="label_31">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Generate aggregated spatial grid&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="4" colspan="4">
+       <widget class="QCheckBox" name="checkBoxIrregular">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Tick this in if a grid is irregular i.e. not squared and aligned north to south</string>
+        </property>
+        <property name="text">
+         <string>Irreguar grid (not squared)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="8">
+       <widget class="QLabel" name="label_2">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Pixel resolution (m):</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="8">
+       <widget class="QWidget" name="widgetPolygrid" native="true">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_7"/>
+       </widget>
+      </item>
+      <item row="6" column="7">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>ID:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="8">
+       <widget class="QWidget" name="widgetField" native="true">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>125</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_15"/>
+       </widget>
+      </item>
+      <item row="2" column="0" rowspan="3" colspan="10">
+       <widget class="QFrame" name="frame">
+        <property name="toolTip">
+         <string>Specify statistical method</string>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="2" column="1">
+          <widget class="QRadioButton" name="radioButtonMax">
+           <property name="text">
+            <string>Maximum</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QRadioButton" name="radioButtonMed">
+           <property name="text">
+            <string>Median</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QRadioButton" name="radioButtonMean">
+           <property name="text">
+            <string>Average</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="13" column="9">
+       <widget class="QPushButton" name="pushButtonSave">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Select</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="8">
+       <widget class="QComboBox" name="comboBox_SpatialDOYMax">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>Specify the end time period to plot</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Not Specified</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="6">
+       <widget class="QComboBox" name="comboBox_SpatialDOYMin">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>Specify the start time period to plot</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Not Specified</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="13" column="5" colspan="4">
+       <widget class="QLineEdit" name="textOutput">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Name of the GeoTIFF to be saved</string>
+        </property>
+        <property name="text">
+         <string>Not Specified</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0" colspan="4">
+       <widget class="QCheckBox" name="addResultToGrid">
+        <property name="toolTip">
+         <string>Tick this box to add the results in the attribute table of the grid specified. PLoygon grid need to be reloaded for changes to appear in the atttribute table.</string>
+        </property>
+        <property name="text">
+         <string>Add result to polygon grid</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="7">
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>to:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="0" colspan="5">
+       <widget class="QLabel" name="label_4">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Output filename:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="4" colspan="3">
+       <widget class="QCheckBox" name="addResultToGeotiff">
+        <property name="toolTip">
+         <string>Tick this in to generate a raster grid from the analyze settings specified</string>
+        </property>
+        <property name="text">
+         <string>Save as GeoTIFF</string>
+        </property>
+       </widget>
+      </item>
+      <item row="14" column="0" colspan="4">
+       <widget class="QCheckBox" name="checkBoxIntoCanvas">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>All analysis specified above will be added to the map canvas if this box is ticked in</string>
+        </property>
+        <property name="text">
+         <string>Add GeoTIFF to map canvas</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="4">
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>pushButtonClose</sender>
+   <signal>clicked()</signal>
+   <receiver>UWGAnalyserDialogBase</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1021</x>
+     <y>648</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>405</x>
+     <y>305</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonOutFolder</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>runButtonPlot</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1008</x>
+     <y>102</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1008</x>
+     <y>251</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addResultToGeotiff</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>checkBoxIrregular</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>658</x>
+     <y>476</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>742</x>
+     <y>541</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxIrregular</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>label_2</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>742</x>
+     <y>541</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>924</x>
+     <y>545</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxIrregular</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>doubleSpinBoxRes</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>742</x>
+     <y>541</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1008</x>
+     <y>545</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonOutFolder</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>runButtonSpatial</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>982</x>
+     <y>97</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>979</x>
+     <y>591</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addResultToGeotiff</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>textOutput</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>508</x>
+     <y>468</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>571</x>
+     <y>572</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addResultToGeotiff</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>pushButtonSave</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>514</x>
+     <y>471</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>943</x>
+     <y>564</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addResultToGeotiff</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>checkBoxIntoCanvas</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>437</x>
+     <y>468</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>81</x>
+     <y>587</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

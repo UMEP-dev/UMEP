@@ -818,7 +818,7 @@ class SUEWSPrepare(object):
         values = sheet.row_values(row, 0)
         url = values[len(values)-3]
         # fix_print_with_import
-        print(url)
+        # print(url)
         if url == '':
             widget.Image.clear()
         else:

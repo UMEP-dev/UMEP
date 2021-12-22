@@ -207,9 +207,9 @@ def importdata_ascii(fileName, delimiter, headerRows):
 
     # Check wether rowheaders or colheaders should be used
     # fix_print_with_import
-    print("text data")
+    # print("text data")
     # fix_print_with_import
-    print(output['textdata'])
+    # print(output['textdata'])
     if headerRows == dataColumns and len(output['textdata']) == 1:    # getting the col size, assuming
                                                                                     # the dict is equivalent of struct in Matlab
         output['rowheaders'] = output['textdata']

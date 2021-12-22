@@ -566,7 +566,7 @@ class Visual:
 
     def worker_error(self, e, exception_string):
         strerror = "Worker thread raised an exception: " + str(e)
-        print(strerror)
+        # print(strerror)
         QgsMessageLog.logMessage(strerror.format(exception_string), level=2)
         # QgsMessageLog.logMessage(strerror.format(exception_string), level=QgsMessageLog.CRITICAL)
 

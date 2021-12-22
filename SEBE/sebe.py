@@ -253,7 +253,7 @@ class SEBE(object):
 
     def save_radmat(self):
         self.radmatfile = self.fileDialogFile.getSaveFileName(None, "Save File As:", None, "Text Files (*.txt)")
-        print(self.radmatfile[0])
+        # print(self.radmatfile[0])
         self.dlg.textOutputIrradience.setText(self.radmatfile[0])
 
     def progress_update(self):

@@ -43,6 +43,7 @@ from .UMEPDownloader.umep_downloader import UMEP_Data_Download
 from .DSMGenerator.dsm_generator import DSMGenerator
 from .UWGReClassifier.uwg_reclassifier import uwg_reclassifier
 from .uwg_prepare.uwg_prepare import UWGPrepare
+from .uwg_analyser.uwg_analyser import UWGAnalyser
 # from .WATCHData.watch import WATCHData
 from .GreaterQF.greater_qf import GreaterQF
 from .ExtremeFinder.extreme_finder import ExtremeFinder
@@ -278,6 +279,8 @@ class UMEP(object):
         self.Pos_Menu.addMenu(self.OTCpos_Menu)
         self.UEBpos_Menu = QMenu("Urban Energy Balance")
         self.Pos_Menu.addMenu(self.UEBpos_Menu)
+        self.UHIpos_Menu = QMenu("Urban Heat Island")
+        self.Pos_Menu.addMenu(self.UHIpos_Menu)
         self.BSS_Action = QAction("Benchmarking System", self.iface.mainWindow())
         self.Pos_Menu.addAction(self.BSS_Action)
         self.BSS_Action.triggered.connect(self.BSS)
@@ -296,6 +299,11 @@ class UMEP(object):
         self.SUEWSa_Action = QAction("SUEWS Analyzer", self.iface.mainWindow())
         self.UEBpos_Menu.addAction(self.SUEWSa_Action)
         self.SUEWSa_Action.triggered.connect(self.SUv)
+
+         # Sub-menus to Urban Heat Island, post processing
+        self.UWGa_Action = QAction("UWG Analyzer", self.iface.mainWindow())
+        self.UHIpos_Menu.addAction(self.UWGa_Action)
+        self.UWGa_Action.triggered.connect(self.UWGv)
 
         # Sub-menus to About
         self.About_Action = QAction("About", self.iface.mainWindow())
@@ -340,6 +348,7 @@ class UMEP(object):
         self.UWGPrepare_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
         self.UWGReclassifier_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
         self.UWG_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
+        self.UWGa_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
 
         self.iface.mainWindow().menuBar().insertMenu(self.iface.firstRightStandardMenu().menuAction(), self.UMEP_Menu)
         self.dlgAbout = UMEPDialogAbout()
@@ -464,6 +473,10 @@ class UMEP(object):
 
     def SEv(self):
         sg = Visual(self.iface)
+        sg.run()
+
+    def UWGv(self):
+        sg = UWGAnalyser(self.iface)
         sg.run()
 
     def FP(self):
