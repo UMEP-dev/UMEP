@@ -791,12 +791,12 @@ class SOLWEIG(object):
             if metfileexist == 1:
                 if onlyglobal == 0:
                     if np.min(radD) == -999:
-                        QMessageBox.critical(self.dlg, "Diffuse radiation include NoData values",
+                        QMessageBox.critical(self.dlg, "Diffuse radiation include NoData values (-999)",
                                              'Tick in the box "Estimate diffuse and direct shortwave..." or aqcuire '
                                              'observed values from external data sources.')
                         return
                     if np.min(radI) == -999:
-                        QMessageBox.critical(self.dlg, "Direct radiation include NoData values",
+                        QMessageBox.critical(self.dlg, "Direct radiation include NoData values (-999)",
                                              'Tick in the box "Estimate diffuse and direct shortwave..." or aqcuire '
                                              'observed values from external data sources.')
                         return
@@ -816,6 +816,13 @@ class SOLWEIG(object):
                 if poi_field is None:
                     QMessageBox.critical(self.dlg, "Error", "An attribute with unique values must be selected")
                     return
+
+                if metfileexist == 1:
+                    if np.min(Ws) == -999:
+                        QMessageBox.critical(self.dlg, "Wind speed include NoData values (-999)",
+                                             'Wind speed is required to calculate PET and UTCI at the POIs')
+                        return
+
                 vlayer = QgsVectorLayer(poilyr.source(), "point", "ogr")
                 idx = vlayer.fields().indexFromName(poi_field)
                 numfeat = vlayer.featureCount()
