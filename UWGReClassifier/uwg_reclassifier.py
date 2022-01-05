@@ -24,7 +24,7 @@
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
-from qgis.core import  QgsMapLayerProxyModel, QgsVectorLayer, QgsProject
+from qgis.core import  QgsMapLayerProxyModel, QgsVectorLayer, QgsProject, QgsVectorFileWriter, QgsField
 from qgis.PyQt.QtWidgets import QFileDialog, QAction, QMessageBox
 
 # Initialize Qt resources from file resources.py
@@ -33,7 +33,6 @@ from .resources import *
 from .uwg_reclassifier_dialog import uwg_reclassifierDialog
 import os.path
 import pandas as pd
-import geopandas as gpd
 from pathlib import Path
 import copy
 import webbrowser
@@ -247,19 +246,26 @@ class uwg_reclassifier(object):
                 att_list = list(vector_cbox.currentLayer().attributeAliases())
                 self.dlg.comboBoxField.clear()
                 self.dlg.comboBoxField.addItems(att_list)
+                self.dlg.comboBoxField.setCurrentIndex(0)
+
             except:
                 pass
 
     def attribute_changed(self):
+        
+        layer = self.dlg.comboBoxVector.currentLayer()
 
-        att_column = self.dlg.comboBoxField.currentText()
-        values =[]
         try:
-            for feature in self.dlg.comboBoxVector.currentLayer().getFeatures():
-                values.append(feature[att_column]) 
+            att_column = self.dlg.comboBoxField.currentText()
+            att_list =[]
 
-            unique_values = list(set(values))
-
+            for fieldName in layer.fields():
+                att_list.append(fieldName.name())
+            att_index = att_list.index(att_column)
+   
+            unique_values = list(layer.uniqueValues(att_index))
+            # unique_values = ([str(x) for x in unique_values])
+            print(unique_values)
             for i in range(0,21):
                 # Oc == Old Class
                 Oc = eval('self.dlg.lineEdit_' + str(i))
@@ -273,7 +279,7 @@ class uwg_reclassifier(object):
                 Pr = eval('self.dlg.comboBoxpPeriod_' + str(i))
                 Pr.setCurrentIndex(-1)
                 Pr.setDisabled(True)
-            
+                
             # Add Items to left side Comboboxes and enable right side comboboxes 
             for i in range(len(unique_values)):
                 Oc = eval('self.dlg.lineEdit_' + str(i))
@@ -324,15 +330,21 @@ class uwg_reclassifier(object):
         webbrowser.open_new_tab(url)
 
     def reclassify_to_UWG(self):
-        att_field =  self.dlg.comboBoxField.currentText()
+
+        att_column =  self.dlg.comboBoxField.currentText()
         vlayer = self.dlg.comboBoxVector.currentLayer()
 
-        # Read Vectorlayer Paths
-        gdf = gpd.read_file(str(vlayer.dataProvider().dataSourceUri()))
+        att_list = []
+        for fieldName in vlayer.fields():
+            att_list.append(fieldName.name())
+
+        att_index = att_list.index(att_column)
+        
+        unique_values = list(vlayer.uniqueValues(att_index))
+        
         dict_reclass = {}
         dict_period = {}
-
-        for i in range(len(set(gdf[att_field]))):
+        for i in range(len(unique_values)):
             if i >20:
                 break
             Oc = eval('self.dlg.lineEdit_' + str(i))
@@ -345,33 +357,49 @@ class uwg_reclassifier(object):
             dict_period[oldField] = Pr.currentText()
             Pr.clear()
 
-        # Backup not using GeoPandas Will require some fix that i havnt done 
+        # # Add new field # TODO perhaps make it able for user to select field name
+        # # fieldname = dlg.textEditFilename.text() or similar
+        vlayer.dataProvider().addAttributes([QgsField('UWGType',QVariant.String)])
+        vlayer.dataProvider().addAttributes([QgsField('UWGTime',QVariant.String)])
+        vlayer.updateFields()
 
-        # vlayer_provider=vlayer.dataProvider()
-        # vlayer.dataProvider().addAttributes([QgsField('UWG_Type',QVariant.String)])
-        # vlayer.updateFields()
+        typeIndex = vlayer.fields().indexFromName('UWGType') #The field needs to be created in advance
+        attrmapType = {} #dictionary of feature id: {field index: new value}
+        for f in vlayer.getFeatures():
+            if f[att_column] in dict_reclass:
+                attrmapType[f.id()] = {typeIndex:dict_reclass[f[att_column]]}
 
-        # print (vlayer.fields().names())
-        # layer = iface.activeLayer()
-        # newfieldindex = vlayer.fields().indexFromName('UWG_Type') #The field needs to be created in advance
-        # attrmap = {} #dictionary of feature id: {field index: new value}
-        # for f in vlayer.getFeatures():
-        #     if f[att_field] in dict_reclass:
-        #         attrmap[f.id()] = {newfieldindex:dict_reclass[f[att_field]]}
-                
-        # print(attrmap)
+        vlayer.dataProvider().changeAttributeValues(attrmapType)
+        vlayer.updateFields()
 
-        # vlayer.dataProvider().changeAttributeValues(attrmap)
-        
-        gdf['UWGType'] = gdf[att_field].map(dict_reclass)
-        gdf['UWGTime'] = gdf[att_field].map(dict_period)
-        
-        gdf.to_file(self.dlg.textOutput.text())
+        timeIndex = vlayer.fields().indexFromName('UWGTime') #The field needs to be created in advance
+        attrmapPeriod = {} #dictionary of feature id: {field index: new value}
+        for f in vlayer.getFeatures():
+            if f[att_column] in dict_period:
+                attrmapPeriod[f.id()] = {timeIndex:dict_period[f[att_column]]}
 
-        # vlayer = QgsVectorLayer(self.dlg.textOutput.text(), Path(self.outputfile[0]).name[:-4])
-        QMessageBox.information(None, 'Process Complete', 'Your reclassified shapefile has been added to your QGIS project. Proceed to UWG Preprare.')
-    
-        self.reset_plugin()
+        vlayer.dataProvider().changeAttributeValues(attrmapPeriod)
+        vlayer.updateFields()
+
+        # Write new Shapefile
+        QgsVectorFileWriter.writeAsVectorFormat(vlayer, self.dlg.textOutput.text(), "UTF-8", vlayer.crs(), "ESRI Shapefile")
+
+        # Remove created fields from original shapefile
+        att_list = []
+        for fieldName in vlayer.fields():
+            att_list.append(fieldName.name())
+
+        UWGType = att_list.index('UWGType')
+        UWGTime = att_list.index('UWGTime')
+        vlayer.dataProvider().deleteAttributes([UWGType, UWGTime])
+        vlayer.updateFields()
+
+        # Add newly created shapefile to Project
+        new_vlayer = QgsVectorLayer(self.outputfile[0], Path(self.outputfile[0]).name[:-4])
+        QgsProject.instance().addMapLayer(new_vlayer)
+
+        QMessageBox.information(None, 'Process Complete', 'Your reclassified shapefile has been added to project. Proceed to UWG Preprare')
+        self.dlg.textOutput.clear()
         
     def reset_plugin(self):
         self.dlg.comboBoxVector.setCurrentIndex(-1)
