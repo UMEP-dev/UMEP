@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>567</width>
+    <width>700</width>
     <height>706</height>
    </rect>
   </property>
@@ -90,7 +90,7 @@
      <item row="0" column="2">
       <widget class="QPushButton" name="pushButtonSave">
        <property name="text">
-        <string>Save as</string>
+        <string>Output Folder</string>
        </property>
       </widget>
      </item>
@@ -148,8 +148,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>522</width>
-        <height>654</height>
+        <width>667</width>
+        <height>561</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout">

@@ -199,29 +199,34 @@ class LCZ_test(object):
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
         del self.toolbar
+
     def bla(self):
         if self.dlg.radioButton_2.isChecked():
             self.dlg.pushButton_2.clicked.connect(self.updatetable)
         if self.dlg.radioButton.isChecked():
             self.dlg.pushButton_2.clicked.connect(self.updatetable2)
+
     def text_enable(self):
         if self.dlg.checkBox.isChecked():
             self.dlg.tableWidget.setEnabled(True)
         else:
             self.dlg.tableWidget.setEnabled(False)
+
     def color(self):
         lcz_grid = self.layerComboManagerLCgrid.currentLayer()
         if lcz_grid is None:
             QMessageBox.critical(None, "Error", "No valid raster layer is selected")
             return
-        lcz_grid.loadNamedStyle(self.plugin_dir + '/cmap_WUDAPT_2015.qml')
+        lcz_grid.loadNamedStyle(self.plugin_dir + '/cmap_WUDAPT_2015_new.qml')
         lcz_grid.triggerRepaint()
+
     def folder_path(self):
         self.fileDialog.open()
         result = self.fileDialog.exec_()
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.lineEdit_2.setText(self.folderPath[0])
+
     def LCZ_selection(self,enabled):
         if enabled:
             self.dlg.comboBox_27.clear()

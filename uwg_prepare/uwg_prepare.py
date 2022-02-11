@@ -317,6 +317,8 @@ class UWGPrepare:
         else:
             prefix = self.dlg.fileCodeLineEdit.text()
 
+        rurVegCover = self.dlg.rurVegCoverdoubleSpinBox.value()
+
         self.dlg.progressBar.setMaximum(vlayer.featureCount())
 
         # Intersect grids with building type polygons 
@@ -337,7 +339,6 @@ class UWGPrepare:
             vlayertype = QgsVectorLayer(urbantypelayer, "polygon", "ogr")
             type_field = parin['OVERLAY_FIELDS_PREFIX'] + 'uwgType'
             time_field = parin['OVERLAY_FIELDS_PREFIX'] + 'uwgTime'
-
 
         #Start loop of polygon grids
         ##land cover and morphology
@@ -361,14 +362,10 @@ class UWGPrepare:
                 for line in file:
                     split = line.split()
                     if feat_id == int(split[0]):
-                        # LCF_paved = split[1]
                         LCF_buildings = split[2]
                         LCF_evergreen = split[3]
                         LCF_decidious = split[4]
                         LCF_grass = split[5]
-                        # LCF_baresoil = split[6]
-                        # LCF_water = split[7]
-                        #found_LCF_line = True
                         break
             
             with open(self.IMPfile_path[0]) as file:
@@ -377,13 +374,7 @@ class UWGPrepare:
                     split = line.split()
                     if feat_id == int(split[0]):
                         IMP_heights_mean = split[3]
-                        # IMP_z0 = split[6]
-                        # IMP_zd = split[7]
-                        # IMP_fai = split[2]
-                        # IMP_max = split[4]
-                        # IMP_sd = split[5]
                         IMP_wai = split[8]
-                        # found_IMP_line = True
                         break
 
             # Populate dict from UMEP
@@ -416,12 +407,17 @@ class UWGPrepare:
                         timeDict[featureType.attribute(type_field)] = featureType.attribute(time_field)
                         totarea = totarea + area
                 for key in fracDict:
-                    fracDict[key] = fracDict[key] / totarea
+                    if totarea > 0:
+                        fracDict[key] = fracDict[key] / totarea
+                    else: 
+                        fracDict['MidRiseApartment'] = 1.0
                 
                 # Populate dict from type polygon layer
                 for i in range(0, len(uwgDict['bld'][0])):
                     uwgDict['bld'][1][i] = timeDict[types[i]] 
                     uwgDict['bld'][2][i] = fracDict[types[i]]
+
+            uwgDict['rurVegCover'] = rurVegCover # Fraction of the rural ground covered by vegetation
 
             ## generate input files for UWG
             _name = prefix + '_' + str(feat_id)

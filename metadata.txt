@@ -11,8 +11,8 @@ name=UMEP
 qgisMinimumVersion=3.0
 description=Urban Multi-scale Environmental Predictor
 
-version=3.19.1
-author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg
+version=3.19.2
+author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Natalie Theeuwes - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg
 email=fredrikl@gvc.gu.se
 
 about=
@@ -29,6 +29,7 @@ repository=https://github.com/UMEP-dev/UMEP
 
 # Uncomment the following line and add your changelog:
 changelog=
+   3.19.2: Adjustments on the UWG tools
    3.19.1: Removed import of geopandas which resulted in a plugin failure in QGIS 3.22
    3.19  : New version for the QGIS plugin repository. Added UWG Analyser. UHI plugins experimental.
    3.18.4: Removed metadata.txt in subfolders so Install from zip is now possilbe again

@@ -21,10 +21,11 @@
  *                                                                         *
  ***************************************************************************/
 """
+from tracemalloc import stop
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
-from qgis.core import  QgsMapLayerProxyModel, QgsVectorLayer, QgsProject, QgsVectorFileWriter, QgsField
+from qgis.core import  QgsMapLayerProxyModel, QgsVectorLayer, QgsProject, QgsVectorFileWriter, QgsField, QgsFieldProxyModel
 from qgis.PyQt.QtWidgets import QFileDialog, QAction, QMessageBox
 
 # Initialize Qt resources from file resources.py
@@ -204,6 +205,8 @@ class uwg_reclassifier(object):
         # self.dlg.comboBoxTypeInfo.setCurrentIndex(-1)
 
         self.dlg.comboBoxVector.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        # self.dlg.comboBoxVector.setFilters(QgsFieldProxyModel.String)
+
         self.dlg.comboBoxVector.setCurrentIndex(-1)
 
         self.dlg.comboBoxField.clear()
@@ -226,7 +229,7 @@ class uwg_reclassifier(object):
         self.dlg.pushButtonSave.clicked.connect(self.savefile)
         self.dlg.comboBoxVector.currentIndexChanged.connect(self.layer_changed)
         self.dlg.comboBoxField.currentIndexChanged.connect(self.attribute_changed)
-        # self.dlg.comboBoxTypeInfo.currentIndexChanged.connect(self.type_info)
+        self.dlg.helpButton.clicked.connect(self.help)
 
         # show the dialog
         self.dlg.show()
@@ -288,9 +291,9 @@ class uwg_reclassifier(object):
                 # Oc.setCurrentIndex(i)
                 Nc = eval('self.dlg.comboBoxNew_' + str(i))
                 Nc.setEnabled(True)
-                Nc.setCurrentIndex(-1)
+                Nc.setCurrentIndex(0)
                 Pr = eval('self.dlg.comboBoxpPeriod_' + str(i))
-                Pr.setCurrentIndex(-1)
+                Pr.setCurrentIndex(0)
                 Pr.setEnabled(True)
         except:
             pass
@@ -324,12 +327,19 @@ class uwg_reclassifier(object):
     def savefile(self):
         self.outputfile = self.fileDialog.getSaveFileName(None, 'Save File As:', None, 'Shapefiles (*.shp)')
         self.dlg.textOutput.setText(self.outputfile[0])
+    
+    def stopper(self):
+        a = 1
+        return
 
     def help(self):
         url = "http://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Heat%20Island%20UWG%20Reclassifier.html"
         webbrowser.open_new_tab(url)
 
     def reclassify_to_UWG(self):
+        if len(self.dlg.textOutput.text()) < 1:
+            QMessageBox.critical(self.dlg, "Error", "No Output Folder selected")
+            return
 
         att_column =  self.dlg.comboBoxField.currentText()
         vlayer = self.dlg.comboBoxVector.currentLayer()
@@ -349,13 +359,10 @@ class uwg_reclassifier(object):
                 break
             Oc = eval('self.dlg.lineEdit_' + str(i))
             oldField = Oc.text()
-            Oc.clear()
             Nc = eval('self.dlg.comboBoxNew_' + str(i))          
             dict_reclass[oldField] = str(Nc.currentText())
-            Nc.clear()
-            Pr = eval('self.dlg.comboBoxpPeriod_' + str(i))
+            Pr = eval('self.dlg.comboBoxpPeriod_' + str(i))      
             dict_period[oldField] = Pr.currentText()
-            Pr.clear()
 
         # # Add new field # TODO perhaps make it able for user to select field name
         # # fieldname = dlg.textEditFilename.text() or similar
@@ -382,6 +389,7 @@ class uwg_reclassifier(object):
         vlayer.updateFields()
 
         # Write new Shapefile
+
         QgsVectorFileWriter.writeAsVectorFormat(vlayer, self.dlg.textOutput.text(), "UTF-8", vlayer.crs(), "ESRI Shapefile")
 
         # Remove created fields from original shapefile
