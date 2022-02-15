@@ -534,7 +534,11 @@ class UWGAnalyser:
             crs = vlayer.crs().toWkt()
 
             path=vlayer.dataProvider().dataSourceUri()
-            polygonpath = path [:path.rfind('|')] # work around. Probably other solution exists
+            # polygonpath = path [:path.rfind('|')] # work around. Probably other solution exists
+            if path.rfind('|') > 0:
+                polygonpath = path [:path.rfind('|')] # work around. Probably other solution exists
+            else:
+                polygonpath = path
             print(str(poly_field))
 
             self.rasterize(polygonpath, str(self.plugin_dir + '/tempgrid.tif'), str(poly_field), resx, crs, extent)
