@@ -6,8 +6,8 @@ from qgis.core import QgsMessageLog
 def LCZ_fractions(lc_grid,dlg):
     LCZs = [1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,101.,102.,103.,104.,105.,106.,107.]
     lc_frac_all = np.zeros((1, 7))
-    veg_aero_all = np.zeros((1, 7))
-    bui_aero_all = np.zeros((1, 7))
+    veg_aero_all = np.zeros((1, 8)) # added one more column for wai
+    bui_aero_all = np.zeros((1, 8)) # added one more column for wai
     rows = dlg.tableWidget.rowCount()
     pavedf = np.zeros(len(LCZs))
     buildingsf = np.zeros(len(LCZs))
@@ -24,6 +24,7 @@ def LCZ_fractions(lc_grid,dlg):
     vzhm =  np.zeros(len(LCZs))
     blf =  np.zeros(len(LCZs))
     vlf =  np.zeros(len(LCZs))
+    wai =  np.zeros(len(LCZs)) # new wall area index column
     
     lczraster = np.round(lc_grid)
     countlcz = np.zeros(len(LCZs))
@@ -34,6 +35,8 @@ def LCZ_fractions(lc_grid,dlg):
     for l in range(len(LCZs)): 
         countlcz[l] = np.count_nonzero(lczraster[lczraster==LCZs[l]])
         lczfrac[l] = countlcz[l]/countall   #calculates fractions of each LCZ
+        
+        # land cover
         pavedx = float(dlg.tableWidget.item(0,l).text())
         buildingsx = float(dlg.tableWidget.item(1,l).text())
         grassx = float(dlg.tableWidget.item(2,l).text())
@@ -44,6 +47,8 @@ def LCZ_fractions(lc_grid,dlg):
         if not(((pavedx + buildingsx+ grassx + dtreesx + etreesx +bsoilx +waterx)>0.9999) and((pavedx + buildingsx+ grassx + dtreesx + etreesx +bsoilx +waterx)<1.00001)):
             QgsMessageLog.logMessage("Fractions in LCZ " + str(LCZs[l])+ " were " + str((pavedx + buildingsx+ grassx + dtreesx + etreesx +bsoilx +waterx)) + " and do not add up to 1.0", level=QgsMessageLog.CRITICAL)
             break
+        
+        # morphology
         bzh[l] = float(dlg.tableWidget.item(7,l).text())*lczfrac[l] 
         vzh[l] = float(dlg.tableWidget.item(8,l).text())*lczfrac[l]
         bzhd[l] = float(dlg.tableWidget.item(11,l).text())*lczfrac[l] 
@@ -52,7 +57,10 @@ def LCZ_fractions(lc_grid,dlg):
         vzhm[l] = float(dlg.tableWidget.item(14,l).text())*lczfrac[l]
         blf[l] = float(dlg.tableWidget.item(9,l).text())*lczfrac[l] 
         vlf[l] = float(dlg.tableWidget.item(10,l).text())*lczfrac[l]
-        
+        try:
+            wai[l] = ((2.0 * buildingsx * (1 - buildingsx) * float(dlg.tableWidget.item(15,l).text())) / buildingsx) * lczfrac[l] # wai according to Lindberg et al. 2015 eq. 7
+        except:
+            wai[l] = 0.0
         pavedf[l] = pavedx*lczfrac[l]
         grassf[l] = grassx*lczfrac[l]
         buildingsf[l] = buildingsx*lczfrac[l]
@@ -77,6 +85,7 @@ def LCZ_fractions(lc_grid,dlg):
     bui_aero_all[0,4] = bzhd.sum(axis=0)
     bui_aero_all[0,5] = -9999
     bui_aero_all[0,6] = -9999
+    bui_aero_all[0,7] = wai.sum(axis=0) # new column for wall area index
     
     veg_aero_all[0,0] = round(grassf.sum(axis=0)+dtreesf.sum(axis=0)+etreesf.sum(axis=0),3)
     veg_aero_all[0,1] = vlf.sum(axis=0)
@@ -84,7 +93,8 @@ def LCZ_fractions(lc_grid,dlg):
     veg_aero_all[0,3] = vzhm.sum(axis=0)
     veg_aero_all[0,4] = vzhd.sum(axis=0)
     veg_aero_all[0,5] = -9999
-    veg_aero_all[0,6] = -9999    
+    veg_aero_all[0,6] = -9999
+    veg_aero_all[0,7] = 0.0    
     
 #    # replace all nan's to -9999
 #    lc_frac_all = np.where(np.isnan(lc_frac_all),-9999,lc_frac_all)

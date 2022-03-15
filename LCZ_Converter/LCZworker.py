@@ -49,8 +49,8 @@ class Worker(QtCore.QObject):
 
         ret = 0
         arrmat1 = np.empty((1, 8))
-        arrmat2 = np.empty((1, 8))
-        arrmat3 = np.empty((1, 8))
+        arrmat2 = np.empty((1, 9)) # added one column for wai
+        arrmat3 = np.empty((1, 9)) # added one column for wai
         pre = str(self.dlg.lineEdit.text())
 
         try:
@@ -123,10 +123,10 @@ class Worker(QtCore.QObject):
                                      lczfractions["lc_frac_all"][0,5], lczfractions["lc_frac_all"][0,6]])
                     arr2 = np.array([f.attributes()[self.idx], lczfractions["bui_aero"][0,0], lczfractions["bui_aero"][0,1],
                                       lczfractions["bui_aero"][0,2], lczfractions["bui_aero"][0,3], lczfractions["bui_aero"][0,4],
-                                     lczfractions["bui_aero"][0,5], lczfractions["bui_aero"][0,6]])
+                                     lczfractions["bui_aero"][0,5], lczfractions["bui_aero"][0,6], lczfractions["bui_aero"][0,7]])
                     arr3 = np.array([f.attributes()[self.idx], lczfractions["veg_aero"][0,0], lczfractions["veg_aero"][0,1],
                                       lczfractions["veg_aero"][0,2], lczfractions["veg_aero"][0,3], lczfractions["veg_aero"][0,4],
-                                     lczfractions["veg_aero"][0,5], lczfractions["veg_aero"][0,6]])
+                                     lczfractions["veg_aero"][0,5], lczfractions["veg_aero"][0,6], lczfractions["veg_aero"][0,7]])
 
                     arrmat1 = np.vstack([arrmat1, arr1])
                     arrmat2 = np.vstack([arrmat2, arr2])
@@ -141,12 +141,12 @@ class Worker(QtCore.QObject):
             numformat = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
             arrmatsave1 = arrmat1[1: arrmat1.shape[0], :]
             np.savetxt(self.folderPath[0] + '/' +pre +'_'+'LCFGrid_isotropic.txt', arrmatsave1, fmt=numformat, delimiter=' ', header=header1, comments='')
-            header2 = ' ID  pai   fai   zH  zHmax   zHstd  zd  z0'
-            numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
+            header2 = ' ID  pai   fai   zH  zHmax   zHstd  zd  z0 wai'
+            numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
             arrmatsave2 = arrmat2[1: arrmat2.shape[0], :]
             np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'build_MPGrid_isotropic.txt', arrmatsave2,fmt=numformat, delimiter=' ', header=header2, comments='')
-            header3 = ' ID  pai   fai   zH  zHmax   zHstd  zd  z0'
-            numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
+            header3 = ' ID  pai   fai   zH  zHmax   zHstd  zd  z0 wai'
+            numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
             arrmatsave3 = arrmat3[1: arrmat3.shape[0], :]
             np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'veg_MPGrid_isotropic.txt', arrmatsave3,fmt=numformat, delimiter=' ', header=header3, comments='')
             

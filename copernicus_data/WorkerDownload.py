@@ -4,6 +4,7 @@ from qgis.PyQt import QtCore
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 import logging
 import sys
+from pathlib import Path
 
 try: 
     import supy as sp
@@ -38,7 +39,7 @@ class Worker(QtCore.QObject):
             logger_sp = logging.getLogger('SuPy')
             logger_sp.disabled = True
             
-            sp.util.gen_forcing_era5(self.lat, self.lon, self.start_date, self.end_date, dir_save=str(self.folderPath))
+            sp.util.gen_forcing_era5(self.lat, self.lon, self.start_date, self.end_date, dir_save=Path(self.folderPath))
             ret = 1
         except Exception:
             ret = 0

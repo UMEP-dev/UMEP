@@ -11,7 +11,7 @@ name=UMEP
 qgisMinimumVersion=3.0
 description=Urban Multi-scale Environmental Predictor
 
-version=3.19.2
+version=3.19.3
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Natalie Theeuwes - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg
 email=fredrikl@gvc.gu.se
 
@@ -29,32 +29,33 @@ repository=https://github.com/UMEP-dev/UMEP
 
 # Uncomment the following line and add your changelog:
 changelog=
-   3.19.2: Adjustments on the UWG tools
-   3.19.1: Removed import of geopandas which resulted in a plugin failure in QGIS 3.22
+   3.19.3: Response to #375 and #376.
+   3.19.2: Adjustments of the UWG tools.
+   3.19.1: Removed import of geopandas which resulted in a plugin failure in QGIS 3.22.
    3.19  : New version for the QGIS plugin repository. Added UWG Analyser. UHI plugins experimental.
-   3.18.4: Removed metadata.txt in subfolders so Install from zip is now possilbe again
-   3.18.3: Minor updates and clean up
-   3.18.2: Adding UWG Prepare and UWG Reclassifier for testing
-   3.18.1: Adjustment to shadowcastingalgorithm to include vegetation pergolas. Updates in SUEWSPrepare
-   3.18  : LONG TERM RELEASE. Response to #310. Plugin now compatible with Python 3.9
-   3.17.3: Response to #271
-   3.17.2: Response to #198
-   3.17.1: Response to #256
-   3.17  : LONG TERM RELEASE. SOLWEIG v2021a. Response to #244, #254. Minor bug fixing
-   3.16.1: Fixed import issues with scipy
-   3.16  : LONG TERM RELEASE. Added WallAreaIndex in Morphometric Calculator
-   3.15.7: Response to issue #230 and added functionality to save data for the Treeplanter
-   3.15.6: Response to issues #218 and 228
-   3.15.5: Response to issues #194, #199 and #202
-   3.15.4: Fixed an issue in SUEWSSimple regarding population numbers
-   3.15.3: Fixed a minor isse in the solweig model
-   3.15.2: Fixed some Mac issues related to gdal. Fixed a minor isse in the solweig model
-   3.15.1: Response to part 1 in issue #164
+   3.18.4: Removed metadata.txt in subfolders so Install from zip is now possilbe again.
+   3.18.3: Minor updates and clean up.
+   3.18.2: Adding UWG Prepare and UWG Reclassifier for testing.
+   3.18.1: Adjustment to shadowcastingalgorithm to include vegetation pergolas. Updates in SUEWSPrepare.
+   3.18  : LONG TERM RELEASE. Response to #310. Plugin now compatible with Python 3.9.
+   3.17.3: Response to #271.
+   3.17.2: Response to #198.
+   3.17.1: Response to #256.
+   3.17  : LONG TERM RELEASE. SOLWEIG v2021a. Response to #244, #254. Minor bug fixing.
+   3.16.1: Fixed import issues with scipy.
+   3.16  : LONG TERM RELEASE. Added WallAreaIndex in Morphometric Calculator.
+   3.15.7: Response to issue #230 and added functionality to save data for the Treeplanter.
+   3.15.6: Response to issues #218 and 228.
+   3.15.5: Response to issues #194, #199 and #202.
+   3.15.4: Fixed an issue in SUEWSSimple regarding population numbers.
+   3.15.3: Fixed a minor isse in the solweig model.
+   3.15.2: Fixed some Mac issues related to gdal. Fixed a minor isse in the solweig model.
+   3.15.1: Response to part 1 in issue #164.
    3.15  : LONG TERM RELEASE. Response to issue #167, #168, #172, #173 and #174. Removal of UMEP Downloader.
    3.14.1: Fix plugin blocker for Mac. Response to issue #164.
    3.14  : LONG TERM RELEASE. Updated with SUEWS v2020a. Response to issues #158, #160 and #162.
    3.13.1: Response to issues #107, #116, #121 and #156. SEBE (Visualisation) now active again (experimental).
-   3.13  : LONG TERM RELEASE. Migration of repository to Github (https://github.com/UMEP-dev/UMEP)
+   3.13  : LONG TERM RELEASE. Migration of repository to Github (https://github.com/UMEP-dev/UMEP).
    3.12.3: Response to issue #155.
    3.12.2: Response to issues #135. Experimental test for auto installation of python libraries.
    3.12.1: Response to issues #131, #133, #134. DownloadData (ERA5) and ExtremeFinder updated.
@@ -71,19 +72,19 @@ changelog=
    3.10.1: Response to issue #93.
    3.10  : LONG TERM RELEASE. GQf now operational. Response to issue #92.
    3.9.2 : Bugfix in DSMGEnerator. Response to issue #85 and #91. New SVFCalculator method. SOLWEIG v2019a. SUEWS v2018c.
-   3.9.1 : Bugfix in FootPrintModel plugin
-   3.9   : Response to Issue #75 and #77
+   3.9.1 : Bugfix in FootPrintModel plugin.
+   3.9   : Response to Issue #75 and #77.
    3.8   : LQf now operational (beta). Bugfix in SuewsSimple and SuewsAnalyzer.
    3.7.2 : Bug fix in LQF where UMEP didnt load due to spelling issue. General clean up.
    3.7.1 : General bug fixing after release of QGIS 3.4. Issue #71 resolved.
    3.7   : General bug fixing. Issue #68 resolved. Benchmarking and ExtremeFinder activated.
    3.6   : Implemetations same as 1.5.3. New version of SOLWEIG (v2018a). General bug fixing. Issue #65 and #55 resolved. WATCH and Spatial data Downloader activated. New SVF plugin
-   3.5.2 : Early adopter release. Adding missing imports of QCoreApplication
+   3.5.2 : Early adopter release. Adding missing imports of QCoreApplication.
    3.5.1 : Early adopter release. bugfix in SUEWSSimple. Changed to version number 3.x.
    1.5   : LONG TERM RELEASE. Early adopter release. Some parts of the plugin is not yet operational.
    1.4.2 : Response to issue #42 and #46. Initiation of migration to QGIS3.
-   1.4.1 : Bug fix in land cover fraction calculations
-   1.4   : Response to issue #36 and bugfix in LQf
+   1.4.1 : Bug fix in land cover fraction calculations.
+   1.4   : Response to issue #36 and bugfix in LQf.
    1.3   : Response on issue #35 and #37. General bug fixing.
    1.2   : LONG TERM RELEASE. Response on issue #26. Bugfix in SUEWS interfaces.
    1.1.1 : Bug fix in SUEWSPrepare.

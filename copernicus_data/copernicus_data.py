@@ -325,7 +325,8 @@ class CopernicusData:
                                     "Copernicus project (https://cds.climate.copernicus.eu/)."
                                     "\r\n"
                                     "\r\n"
-                                    "1 month of data takes about 6 minutes depending on traffic and your internet connection."
+                                    "1 month of data takes about 6 minutes depending on traffic and your internet connection. " 
+                                    "The traffic on the CDSAPI can be monitored from https://cds.climate.copernicus.eu/live/queue."
                                     "\r\n"
                                     "\r\n"
                                     "The QGIS session will be active while data is processed. If you like to monitor the download"
@@ -364,6 +365,8 @@ class CopernicusData:
             # self.dlg, "Data Download (ERA5)", "Data downlaoded and processed succesfully")
 
         # return
+
+        print(self.folderPath)
 
         self.startWorker(self.lat, self.lon, self.start_date, self.end_date, self.folderPath)
 

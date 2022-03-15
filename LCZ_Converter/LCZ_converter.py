@@ -312,54 +312,63 @@ class LCZ_test(object):
                 self.dlg.pushButton_2.clicked.connect(self.updatetable)
             if self.dlg.radioButton.isChecked():
                 self.dlg.pushButton_2.clicked.connect(self.updatetable2)        
+
     def pervious_select1(self):
         self.dlg.comboBox_9.clear()
         if (int(self.dlg.comboBox_3.currentText())<=10):
             self.dlg.comboBox_9.addItems(self.urbanchoices)
         if (int(self.dlg.comboBox_3.currentText())>100 and int(self.dlg.comboBox_3.currentText())<=103):
             self.dlg.comboBox_9.addItems(self.treechoices)
+
     def pervious_select2(self):
         self.dlg.comboBox_10.clear()
         if (int(self.dlg.comboBox_4.currentText())<=10):
             self.dlg.comboBox_10.addItems(self.urbanchoices)
         if (int(self.dlg.comboBox_4.currentText())>100 and int(self.dlg.comboBox_4.currentText())<=103):
             self.dlg.comboBox_10.addItems(self.treechoices)
+
     def pervious_select3(self):
         self.dlg.comboBox_11.clear()
         if (int(self.dlg.comboBox_5.currentText())<=10):
             self.dlg.comboBox_11.addItems(self.urbanchoices)
         if (int(self.dlg.comboBox_5.currentText())>100 and int(self.dlg.comboBox_5.currentText())<=103):
             self.dlg.comboBox_11.addItems(self.treechoices)
+
     def pervious_select4(self):
         self.dlg.comboBox_12.clear()
         if (int(self.dlg.comboBox_6.currentText())<=10):
             self.dlg.comboBox_12.addItems(self.urbanchoices)
         if (int(self.dlg.comboBox_6.currentText())>100 and int(self.dlg.comboBox_6.currentText())<=103):
             self.dlg.comboBox_12.addItems(self.treechoices)
+
     def pervious_select5(self):
         self.dlg.comboBox_13.clear()
         if (int(self.dlg.comboBox_7.currentText())<=10):
             self.dlg.comboBox_13.addItems(self.urbanchoices)
         if (int(self.dlg.comboBox_7.currentText())>100 and int(self.dlg.comboBox_7.currentText())<=103):
             self.dlg.comboBox_13.addItems(self.treechoices)
+
     def pervious_select6(self):
         self.dlg.comboBox_14.clear()
         if (int(self.dlg.comboBox_8.currentText())<=10):
             self.dlg.comboBox_14.addItems(self.urbanchoices)
         if (int(self.dlg.comboBox_8.currentText())>100 and int(self.dlg.comboBox_8.currentText())<=103):
             self.dlg.comboBox_14.addItems(self.treechoices)
+
     def pervious_select7(self):
         self.dlg.comboBox_17.clear()
         if (int(self.dlg.comboBox_15.currentText())<=10):
             self.dlg.comboBox_17.addItems(self.urbanchoices)
         if (int(self.dlg.comboBox_15.currentText())>100 and int(self.dlg.comboBox_15.currentText())<=103):
             self.dlg.comboBox_17.addItems(self.treechoices)
+
     def pervious_select8(self):
         self.dlg.comboBox_18.clear()
         if (int(self.dlg.comboBox_16.currentText())<=10):
             self.dlg.comboBox_18.addItems(self.urbanchoices)
         if (int(self.dlg.comboBox_16.currentText())>100 and int(self.dlg.comboBox_16.currentText())<=103):
             self.dlg.comboBox_18.addItems(self.treechoices)
+
     def updatetable(self):
         lczboxes = [self.dlg.comboBox_3,self.dlg.comboBox_4,self.dlg.comboBox_5,
                     self.dlg.comboBox_6,self.dlg.comboBox_7,self.dlg.comboBox_8,self.dlg.comboBox_15,self.dlg.comboBox_16]
@@ -479,6 +488,7 @@ class LCZ_test(object):
                     self.dlg.tableWidget.setItem(8,lcz-1, QTableWidgetItem(str(30.0)))
                     self.dlg.tableWidget.setItem(12,lcz-1, QTableWidgetItem(str(10)))
                     self.dlg.tableWidget.setItem(14,lcz-1, QTableWidgetItem(str(45.0)))
+
     def allclass(self,enabled):
         if enabled:
             self.dlg.comboBox_27.setEnabled(True)
@@ -541,6 +551,7 @@ class LCZ_test(object):
                 self.dlg.pushButton_2.clicked.connect(self.updatetable)
             if self.dlg.radioButton.isChecked():
                 self.dlg.pushButton_2.clicked.connect(self.updatetable2)
+                
     def updatetable2(self):
         for l in range(len(self.LCZs)): 
             if (l<10):
