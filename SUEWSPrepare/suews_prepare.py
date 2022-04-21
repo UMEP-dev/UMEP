@@ -1076,7 +1076,7 @@ class SUEWSPrepare(object):
 
         pop_field = self.pop_density.currentField()
         if pop_field == '':
-            QMessageBox.critical(None, "Error", "An attribute field including population desity (pp/ha) must be selected")
+            QMessageBox.critical(None, "Error", "An attribute field including population density (pp/ha) must be selected")
             return
         
         if self.leaf_cycle == 0:
@@ -1205,7 +1205,7 @@ class SUEWSPrepare(object):
         self.dlg.progressBar.setValue(self.steps)
 
     def help(self):
-        url = "http://umep-docs.readthedocs.io/en/latest/pre-processor/SUEWS%20Prepare.html"
+        url = "https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Energy%20Balance%20SUEWS%20Prepare.html"
         webbrowser.open_new_tab(url)
 
 

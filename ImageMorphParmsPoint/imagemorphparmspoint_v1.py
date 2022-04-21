@@ -311,9 +311,10 @@ class ImageMorphParmsPoint(object):
 
         # Assign feature the buffered geometry
         radius = self.dlg.spinBox.value()
-        # featurepoly.setGeometry(QgsGeometry.fromPointXY(QgsPoint(self.pointx, self.pointy)).buffer(radius, 1000, 1, 1, 1.0))
+        # featurepoly.setGeometry(
+        #     QgsGeometry.fromPointXY(QgsPointXY(self.pointx, self.pointy)).buffer(radius, 1000, 1, 1, 1.0))
         featurepoly.setGeometry(
-            QgsGeometry.fromPointXY(QgsPointXY(self.pointx, self.pointy)).buffer(radius, 1000, 1, 1, 1.0))
+            QgsGeometry.fromPointXY(QgsPointXY(self.pointx, self.pointy)).buffer(radius, 1000)) #fix issue #400
         featurepoly.setAttributes([fc])
         self.polyLayer.startEditing()
         self.polyLayer.addFeature(featurepoly)
