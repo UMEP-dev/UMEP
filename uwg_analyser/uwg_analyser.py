@@ -416,25 +416,32 @@ class UWGAnalyser:
         # Load rural data
         sitein = self.folderPathOut[0] + '/metdata_UMEP.txt'
         dataref = np.genfromtxt(sitein, skip_header=1)
+        # print(self.folderPathOut[0] + '/metdata_UMEP.txt')
 
         # for i in range(0, self.idgrid.shape[0]): # loop over vector grid instead
                 # for i in range(0, self.idgrid.shape[0]): # loop over vector grid instead
         # nGrids = vlayer.featureCount()
+
+        print(startD)
+        print(endD)
+
         for f in vlayer.getFeatures():
 
             gid = str(int(f.attributes()[idx]))
-
+            # print(self.folderPathOut[0] + '/' + self.prefix + '_' + gid + '_UMEP_UWG.txt')
             datawhole = np.genfromtxt(self.folderPathOut[0] + '/' + self.prefix + '_' + gid + '_UMEP_UWG.txt', skip_header=1)
-
+            # print(datawhole.shape)
             # cut UWG data
             start = np.min(np.where(datawhole[:, 1] == startD))
             if endD > np.max(datawhole[:, 1]):
                 ending = np.max(np.where(datawhole[:, 1] == endD - 1))
             else:
                 ending = np.min(np.where(datawhole[:, 1] == endD))
+            # print(start)
+            # print(ending)
             data1 = datawhole[start:int(ending + 12), :] # + 12 to include whole final night 
-
             data1 = data1[np.where(data1[:, 14] < 1.), :] # include only nighttime. 14 is position for global radiation
+            print(data1)
             data1 = data1[0][:]
 
             # cut ref data
@@ -457,6 +464,7 @@ class UWGAnalyser:
             vardatauwg = data1[:, 11] # 11 is temperature column
             vardataref = data2[:, 11] 
             vardata = vardatauwg - vardataref
+            # print(vardata)
 
             if self.dlg.radioButtonMean.isChecked():
                 statresult = np.nanmean(vardata)
@@ -539,7 +547,7 @@ class UWGAnalyser:
                 polygonpath = path [:path.rfind('|')] # work around. Probably other solution exists
             else:
                 polygonpath = path
-            print(str(poly_field))
+            # print(str(poly_field))
 
             self.rasterize(polygonpath, str(self.plugin_dir + '/tempgrid.tif'), str(poly_field), resx, crs, extent)
 
@@ -551,7 +559,7 @@ class UWGAnalyser:
             for i in range(0, statmat.shape[0]):
                 gridout[idgrid_array == statmat[i, 0]] = statmat[i, 1]
 
-            print(gridout)
+            # print(gridout)
 
             self.saveraster(dataset, filename, gridout)
 
