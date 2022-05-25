@@ -897,20 +897,39 @@ class SOLWEIG(object):
                                                             "Calculator to generate shadowmats.npz")
                     return
                 else:
-                    ani = 1
+                    anisotropic_sky = 1
                     data = np.load(self.folderPathPerez[0])
                     shmat = data['shadowmat']
                     vegshmat = data['vegshadowmat']
+                    vbshvegshmat = data['vbshmat']
                     if self.usevegdem == 1:
-                        diffsh = np.zeros((rows, cols, 145))
-                        for i in range(0, 145):
-                            diffsh[:, :, i] = shmat[:, :, i] - (1 - vegshmat[:, :, i]) * (1 - self.trans)
+                        diffsh = np.zeros((rows, cols, shmat.shape[2]))
+                        for i in range(0, shmat.shape[2]):
+                            diffsh[:, :, i] = shmat[:, :, i] - (1 - vegshmat[:, :, i]) * (1 - self.trans) # changes in psi not implemented yet
                     else:
                         diffsh = shmat
 
+                    # Estimate number of patches based on shadow matrices
+                    if shmat.shape[2] == 145:
+                        patch_option = 1 # patch_option = 1 # 145 patches
+                    elif shmat.shape[2] == 153:
+                        patch_option = 2 # patch_option = 2 # 153 patches
+                    elif shmat.shape[2] == 306:
+                        patch_option = 3 # patch_option = 3 # 306 patches
+                    elif shmat.shape[2] == 612:
+                        patch_option = 4 # patch_option = 4 # 612 patches
+
+                    # asvf to calculate sunlit and shaded patches
+                    asvf = np.arccos(np.sqrt(svf))
+
             else:
-                ani = 0
+                anisotropic_sky = 0
                 diffsh = None
+                shmat = None
+                vegshmat = None
+                vbshvegshmat = None
+                asvf = None
+                patch_option = 0
 
             # % Ts parameterisation maps
             if self.landcover == 1.:
@@ -951,7 +970,7 @@ class SOLWEIG(object):
                                               self.filePath_cdsm, trunkfile, self.filePath_tdsm, lat, lon, UTC, self.landcover,
                                               filePath_lc, metfileexist, self.PathMet, self.metdata, self.plugin_dir,
                                               absK, absL, albedo_b, albedo_g, ewall, eground, onlyglobal, trunkratio,
-                                              self.trans, rows, cols, pos, elvis, cyl, demforbuild, ani, treeplanter)
+                                              self.trans, rows, cols, pos, elvis, cyl, demforbuild, anisotropic_sky, treeplanter)
 
             # Save files for Tree Planter
             if self.dlg.checkBoxTreePlanter.isChecked():
@@ -993,7 +1012,7 @@ class SOLWEIG(object):
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, self.dlg,
                         YYYY, DOY, hours, minu, self.gdal_dsm, self.folderPath, self.poisxy, self.poiname, Ws, mbody,
-                        age, ht, activity, clo, sex, sensorheight, diffsh, ani)
+                        age, ht, activity, clo, sex, sensorheight, diffsh, shmat, vegshmat, vbshvegshmat, anisotropic_sky, asvf, patch_option)
 
     def run(self):
         """This methods is needed for QGIS to start the plugin"""
@@ -1031,7 +1050,7 @@ class SOLWEIG(object):
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, dlg,
                         YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname, Ws, mbody,
-                        age, ht, activity, clo, sex, sensorheight, diffsh, ani):
+                        age, ht, activity, clo, sex, sensorheight, diffsh, shmat, vegshmat, vbshvegshmat, anisotropic_sky, asvf, patch_option):
 
         # create a new worker instance
         worker = Worker(dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
@@ -1044,7 +1063,7 @@ class SOLWEIG(object):
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, dlg,
                         YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname, Ws, mbody,
-                        age, ht, activity, clo, sex, sensorheight, diffsh, ani)
+                        age, ht, activity, clo, sex, sensorheight, diffsh, shmat, vegshmat, vbshvegshmat, anisotropic_sky, asvf, patch_option)
 
         self.dlg.runButton.setText('Cancel')
         self.dlg.runButton.clicked.disconnect()

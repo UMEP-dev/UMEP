@@ -1,6 +1,7 @@
 from qgis.PyQt import QtCore
 import numpy as np
 from ..Utilities import shadowingfunctions as shadow
+from ..Utilities.SEBESOLWEIGCommonFiles.create_patches import create_patches
 # from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_13 import shadowingfunction_wallheight_13
 # from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_23 import shadowingfunction_wallheight_23
 
@@ -67,23 +68,22 @@ class Worker(QtCore.QObject):
             # % Bush separation
             bush = np.logical_not((self.vegdem2 * self.vegdem)) * self.vegdem
 
-            shmat = np.zeros((rows, cols, 145))
-            vegshmat = np.zeros((rows, cols, 145))
-            # vbshvegshmat = np.zeros((rows, cols, 145))
-            # wallshmat = np.zeros((rows, cols, 145))
-            # wallsunmat = np.zeros((rows, cols, 145))
-            # wallshvemat = np.zeros((rows, cols, 145))
-            # facesunmat = np.zeros((rows, cols, 145))
+            # patch_option = 1 # 145 patches
+            patch_option = 2 # 153 patches
+            # patch_option = 3 # 306 patches
+            # patch_option = 4 # 612 patches
+            
+            # Create patches based on patch_option
+            skyvaultalt, skyvaultazi, annulino, skyvaultaltint, aziinterval, skyvaultaziint, azistart = create_patches(patch_option)
 
-            index = int(0)
-            iangle = np.array([6, 18, 30, 42, 54, 66, 78, 90])
-            skyvaultaziint = np.array([12, 12, 15, 15, 20, 30, 60, 360])
-            aziinterval = np.array([30, 30, 24, 24, 18, 12, 6, 1])
-            azistart = np.array([0, 4, 2, 5, 8, 0, 10, 0])
-            annulino = np.array([0, 12, 24, 36, 48, 60, 72, 84, 90])
-            iazimuth = np.hstack(np.zeros((1, 145)))
-            # ialtitude = np.zeros((1, 145))
-            skyvaultaltint = np.array([6, 18, 30, 42, 54, 66, 78, 90])
+            skyvaultaziint = np.array([360/patches for patches in aziinterval])
+            iazimuth = np.hstack(np.zeros((1, np.sum(aziinterval)))) # Nils
+
+            shmat = np.zeros((rows, cols, np.sum(aziinterval)))
+            vegshmat = np.zeros((rows, cols, np.sum(aziinterval)))
+            vbshvegshmat = np.zeros((rows, cols, np.sum(aziinterval)))
+
+            index = 0
 
             for j in range(0, 8):
                 for k in range(0, int(360 / skyvaultaziint[j])):
@@ -100,33 +100,48 @@ class Worker(QtCore.QObject):
                 for j in np.arange(0, (aziinterval[int(i)])):
                     if self.killed is True:
                         break
-                    altitude = iangle[int(i)]
-                    azimuth = iazimuth[int(index)-1]
+                    altitude = skyvaultaltint[int(i)]
+                    # azimuth = iazimuth[int(index)-1]
+                    azimuth = iazimuth[int(index)]
 
                     # Casting shadow
                     if self.usevegdem == 1:
                         shadowresult = shadow.shadowingfunction_20(self.a, self.vegdem, self.vegdem2, azimuth, altitude,
-                                                                   self.scale, amaxvalue, bush, self.dlg, 1)
+                                                                self.scale, amaxvalue, bush, self.dlg, 1)
                         vegsh = shadowresult["vegsh"]
                         vbshvegsh = shadowresult["vbshvegsh"]
-                        # vegsh, sh, vbshvegsh, wallsh, wallsun, wallshve, _, facesun = shadowingfunction_wallheight_23(
-                        #     self.a, self.vegdem, self.vegdem2, azimuth, altitude, self.scale,amaxvalue, bush,
-                        #     self.wallheight, self.wallaspect * np.pi / 180.)
-                        # shadow = sh - (1 - vegsh) * (1 - psi)
-                        # wallshvemat[:, :, index] = wallshve
+                        sh = shadowresult["sh"]
                         vegshmat[:, :, index] = vegsh
-                        # vbshvegshmat[:, :, index] = vbshvegsh
-                    # else:
-                    #     sh, wallsh, wallsun, facesh, facesun = shadowingfunction_wallheight_13(self.a, azimuth,
-                    #                                     altitude, self.scale, self.wallheight,
-                    #                                     self.wallaspect * np.pi / 180.)
-                    sh = shadow.shadowingfunctionglobalradiation(self.a, azimuth, altitude, self.scale, self.dlg, 1)
-                        # shadow = sh
+                        vbshvegshmat[:, :, index] = vbshvegsh
+                    else:
+                        sh = shadow.shadowingfunctionglobalradiation(self.a, azimuth, altitude, self.scale, self.dlg, 1)
+
                     shmat[:, :, index] = sh
-                    # wallshmat[:, :, index] = wallsh
-                    # wallsunmat[:, :, index] = wallsun
-                    # facesunmat[:, :, index] = facesun
+
+                    # # Casting shadow
+                    # if self.usevegdem == 1:
+                    #     shadowresult = shadow.shadowingfunction_20(self.a, self.vegdem, self.vegdem2, azimuth, altitude,
+                    #                                                self.scale, amaxvalue, bush, self.dlg, 1)
+                    #     vegsh = shadowresult["vegsh"]
+                    #     vbshvegsh = shadowresult["vbshvegsh"]
+                    #     # vegsh, sh, vbshvegsh, wallsh, wallsun, wallshve, _, facesun = shadowingfunction_wallheight_23(
+                    #     #     self.a, self.vegdem, self.vegdem2, azimuth, altitude, self.scale,amaxvalue, bush,
+                    #     #     self.wallheight, self.wallaspect * np.pi / 180.)
+                    #     # shadow = sh - (1 - vegsh) * (1 - psi)
+                    #     # wallshvemat[:, :, index] = wallshve
+                    #     vegshmat[:, :, index] = vegsh
+                    #     # vbshvegshmat[:, :, index] = vbshvegsh
+                    # # else:
+                    # #     sh, wallsh, wallsun, facesh, facesun = shadowingfunction_wallheight_13(self.a, azimuth,
+                    # #                                     altitude, self.scale, self.wallheight,
+                    # #                                     self.wallaspect * np.pi / 180.)
                     # sh = shadow.shadowingfunctionglobalradiation(self.a, azimuth, altitude, self.scale, self.dlg, 1)
+                    #     # shadow = sh
+                    # shmat[:, :, index] = sh
+                    # # wallshmat[:, :, index] = wallsh
+                    # # wallsunmat[:, :, index] = wallsun
+                    # # facesunmat[:, :, index] = facesun
+                    # # sh = shadow.shadowingfunctionglobalradiation(self.a, azimuth, altitude, self.scale, self.dlg, 1)
 
                     # Calculate svfs
                     for k in np.arange(annulino[int(i)]+1, (annulino[int(i+1.)])+1):
@@ -201,7 +216,7 @@ class Worker(QtCore.QObject):
             svfresult = {'svf': svf, 'svfE': svfE, 'svfS': svfS, 'svfW': svfW, 'svfN': svfN,
                          'svfveg': svfveg, 'svfEveg': svfEveg, 'svfSveg': svfSveg, 'svfWveg': svfWveg,
                          'svfNveg': svfNveg, 'svfaveg': svfaveg, 'svfEaveg': svfEaveg, 'svfSaveg': svfSaveg,
-                         'svfWaveg': svfWaveg, 'svfNaveg': svfNaveg, 'shmat': shmat,'vegshmat': vegshmat}
+                         'svfWaveg': svfWaveg, 'svfNaveg': svfNaveg, 'shmat': shmat,'vegshmat': vegshmat, 'vbshvegshmat': vbshvegshmat}
                             # ,
                          # 'vbshvegshmat': vbshvegshmat, 'wallshmat': wallshmat, 'wallsunmat': wallsunmat,
                          # 'wallshvemat': wallshvemat, 'facesunmat': facesunmat}

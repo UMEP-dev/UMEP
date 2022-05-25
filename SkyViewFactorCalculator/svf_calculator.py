@@ -494,13 +494,13 @@ class SkyViewFactorCalculator(object):
             # Save shadow images for SOLWEIG 2019a
             shmat = ret["shmat"]
             vegshmat = ret["vegshmat"]
-            # vbshvegshmat = ret["vbshvegshmat"]
+            vbshvegshmat = ret["vbshvegshmat"]
             # wallshmat = ret["wallshmat"]
             # wallsunmat = ret["wallsunmat"]
             # wallshvemat = ret["wallshvemat"]
             # facesunmat = ret["facesunmat"]
 
-            np.savez_compressed(self.folderPath[0] + '/' + "shadowmats.npz", shadowmat=shmat, vegshadowmat=vegshmat) #,
+            np.savez_compressed(self.folderPath[0] + '/' + "shadowmats.npz", shadowmat=shmat, vegshadowmat=vegshmat, vbshmat=vbshvegshmat) #,
                                 # vbshvegshmat=vbshvegshmat, wallshmat=wallshmat, wallsunmat=wallsunmat,
                                 # facesunmat=facesunmat, wallshvemat=wallshvemat)
 

@@ -7,7 +7,8 @@ import numpy as np
 import linecache
 import sys
 # from qgis.core import QgsFeature, QgsVectorFileWriter, QgsVectorDataProvider, QgsField, Qgis, QgsMessageLog
-from .SOLWEIGpython import Solweig_2021a_calc as so
+# from .SOLWEIGpython import Solweig_2021a_calc as so
+from .SOLWEIGpython import Solweig_2022a_calc as so
 # from SOLWEIGpython.clearnessindex_2013b import clearnessindex_2013b
 from ..Utilities.SEBESOLWEIGCommonFiles.clearnessindex_2013b import clearnessindex_2013b
 from osgeo.gdalconst import *
@@ -34,7 +35,7 @@ class Worker(QtCore.QObject):
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, dlg,
                         YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname, Ws, mbody,
-                        age, ht, activity, clo, sex, sensorheight, diffsh, ani):
+                        age, ht, activity, clo, sex, sensorheight, diffsh, shmat, vegshmat, vbshvegshmat, anisotropic_sky, asvf, patch_option):
 
         QtCore.QObject.__init__(self)
         self.killed = False
@@ -135,8 +136,13 @@ class Worker(QtCore.QObject):
         self.clo = clo
         self.sex = sex
         self.sensorheight = sensorheight
-        self.ani = ani
+        self.anisotropic_sky = anisotropic_sky
         self.diffsh = diffsh
+        self.shmat = shmat
+        self.vegshmat = vegshmat
+        self.vbshvegshmat = vbshvegshmat
+        self.asvf = asvf
+        self.patch_option = patch_option
 
 
     def run(self):
@@ -237,8 +243,13 @@ class Worker(QtCore.QObject):
             clo = self.clo
             sex = self.sex
             sensorheight = self.sensorheight
-            ani = self.ani
+            anisotropic_sky = self.anisotropic_sky
             diffsh = self.diffsh
+            shmat = self.shmat
+            vegshmat = self.vegshmat
+            vbshvegshmat = self.vbshvegshmat
+            asvf = self.asvf
+            patch_option = self.patch_option
 
             tmrtplot = np.zeros((rows, cols))
             TgOut1 = np.zeros((rows, cols))
@@ -274,7 +285,9 @@ class Worker(QtCore.QObject):
 
                 Tmrt, Kdown, Kup, Ldown, Lup, Tg, ea, esky, I0, CI, shadow, firstdaytime, timestepdec, timeadd, \
                     Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, Keast, Ksouth, Kwest, Knorth, Least, \
-                    Lsouth, Lwest, Lnorth, KsideI, TgOut1, TgOut, radIout, radDout = so.Solweig_2021a_calc(
+                    Lsouth, Lwest, Lnorth, KsideI, TgOut1, TgOut, radIout, radDout, \
+                    Lside, Lsky_patch_characteristics, CI_Tg, CI_TgG, KsideD, \
+                        dRad, Kside = so.Solweig_2022a_calc(
                         i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
                         svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
                         vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, Fcyl, altitude[0][i],
@@ -283,7 +296,21 @@ class Worker(QtCore.QObject):
                         wallheight, cyl, elvis, Ta[i], RH[i], radG[i], radD[i], radI[i], P[i], amaxvalue,
                         bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timestepdec, 
-                        Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, TgOut1, diffsh, ani)
+                        Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, TgOut1,
+                        diffsh, shmat, vegshmat, vbshvegshmat, anisotropic_sky, asvf, patch_option)
+
+                # Tmrt, Kdown, Kup, Ldown, Lup, Tg, ea, esky, I0, CI, shadow, firstdaytime, timestepdec, timeadd, \
+                #    Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, Keast, Ksouth, Kwest, Knorth, Least, \
+                #    Lsouth, Lwest, Lnorth, KsideI, TgOut1, TgOut, radIout, radDout = so.Solweig_2021a_calc(
+                #         i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
+                #         svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
+                #         vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, Fcyl, altitude[0][i],
+                #         azimuth[0][i], zen[0][i], jday[0][i], usevegdem, onlyglobal, buildings, location,
+                #         psi[0][i], landcover, lcgrid, dectime[i], altmax[0][i], wallaspect,
+                #         wallheight, cyl, elvis, Ta[i], RH[i], radG[i], radD[i], radI[i], P[i], amaxvalue,
+                #         bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
+                #         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timestepdec, 
+                #         Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, TgOut1, diffsh, ani)
 
                 # Tmrt, Kdown, Kup, Ldown, Lup, Tg, ea, esky, I0, CI, shadow, firstdaytime, timestepdec, timeadd, \
                 # Tgmap1, timeaddE, Tgmap1E, timeaddS, Tgmap1S, timeaddW, Tgmap1W, timeaddN, Tgmap1N, \

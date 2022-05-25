@@ -24,7 +24,7 @@ def writeRunInfo(folderPath, filepath_dsm, gdal_dsm, usevegdem, filePath_cdsm, t
     #FO#
         file.write('This file provides run settings for the SOLWEIG run initiated at: ' + strftime("%a, %d %b %Y %H:%M:%S"))
         file.write('\n')
-        file.write('Version: ' + 'SOLWEIG v2021a')
+        file.write('Version: ' + 'SOLWEIG v2022a')
         file.write('\n')
         file.write('\n')
         file.write('SURFACE DATA')
@@ -142,7 +142,7 @@ def writeRunInfo(folderPath, filepath_dsm, gdal_dsm, usevegdem, filePath_cdsm, t
             file.write('Human considered as a standing cube')
         file.write('\n')
         if ani == 1:
-            file.write('Anisotropic sky (Perez et al. 1993)')
+            file.write('Anisotropic sky (Perez et al. 1993 and Martin & Berdahl, 1984)')
         else:
             file.write('Isotropic sky')
         file.write('\n')

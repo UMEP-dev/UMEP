@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1184</width>
+    <width>1172</width>
     <height>758</height>
    </rect>
   </property>
@@ -1406,19 +1406,6 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="17" column="0" colspan="4">
-       <widget class="QCheckBox" name="checkBoxPerez">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tick this in if you want treat the diffuse shortwave sky as anisotrophic.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string>Use anisotropic model for diffuse radiation (Perez et al. 1993)</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="6">
        <widget class="QWidget" name="widgetDSM" native="true">
         <property name="minimumSize">
@@ -1506,6 +1493,19 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
        </layout>
+      </item>
+      <item row="17" column="0" colspan="7">
+       <widget class="QCheckBox" name="checkBoxPerez">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tick this in if you want treat the diffuse shortwave sky as anisotrophic.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Use anisotropic model for diffuse shortwave (Perez et al. 1993) and longwave (Martin &amp; Berdahl, 1984) radiation</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

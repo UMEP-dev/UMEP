@@ -1,8 +1,8 @@
 from __future__ import division
 import numpy as np
+from ...Utilities.SEBESOLWEIGCommonFiles.create_patches import create_patches
 
-
-def Perez_v3(zen, azimuth, radD, radI, jday, patchchoice):
+def Perez_v3(zen, azimuth, radD, radI, jday, patchchoice, patch_option):
     """
     This function calculates distribution of luminance on the skyvault based on
     Perez luminince distribution model.
@@ -178,9 +178,9 @@ def Perez_v3(zen, azimuth, radD, radI, jday, patchchoice):
     # print 'c = ', m_c
     # print 'd = ', m_d
 
-    skyvaultalt = np.atleast_2d([])
-    skyvaultazi = np.atleast_2d([])
     if patchchoice == 2:
+        skyvaultalt = np.atleast_2d([])
+        skyvaultazi = np.atleast_2d([])
         # Creating skyvault at one degree intervals
         skyvaultalt = np.ones([90, 361])*90
         skyvaultazi = np.empty((90, 361))
@@ -190,15 +190,7 @@ def Perez_v3(zen, azimuth, radD, radI, jday, patchchoice):
             
     elif patchchoice == 1:
         # Creating skyvault of patches of constant radians (Tregeneza and Sharples, 1993)
-        skyvaultaltint = [6, 18, 30, 42, 54, 66, 78]
-        skyvaultaziint = [12, 12, 15, 15, 20, 30, 60]
-        for j in range(7):
-            for k in range(1, int(360/skyvaultaziint[j]) + 1):
-                skyvaultalt = np.append(skyvaultalt, skyvaultaltint[j])
-                skyvaultazi = np.append(skyvaultazi, k*skyvaultaziint[j])
-
-        skyvaultalt = np.append(skyvaultalt, 90)
-        skyvaultazi = np.append(skyvaultazi, 360)
+        skyvaultalt, skyvaultazi, _, _, _, _, _ = create_patches(patch_option)
 
     skyvaultzen = (90 - skyvaultalt) * deg2rad
     skyvaultalt = skyvaultalt * deg2rad
