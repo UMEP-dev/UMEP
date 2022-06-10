@@ -130,7 +130,8 @@ def Solweig_2022a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, s
             dRad = radD * svfbuveg
             patchchoice = 1
             zenDeg = zen*(180/np.pi)
-            lv, pc_, pb_ = Perez_v3(zenDeg, azimuth, radD, radI, jday, patchchoice, patch_option)   # Relative luminance
+            lv = None
+            # lv, pc_, pb_ = Perez_v3(zenDeg, azimuth, radD, radI, jday, patchchoice, patch_option)   # Relative luminance
 
         # Shadow  images
         if usevegdem == 1:
@@ -295,6 +296,7 @@ def Solweig_2022a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, s
         # Ldown = Ldown - 25 # Shown by Jonsson et al.(2006) and Duarte et al.(2006)
 
         Lside = np.zeros((rows, cols))
+        L_patches = None
  
         if CI < 0.95:  # non - clear conditions
             c = 1 - CI
