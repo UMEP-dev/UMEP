@@ -30,7 +30,7 @@ from qgis.core import *
 from qgis.gui import *
 import webbrowser
 import os
-from osgeo import gdal
+from osgeo import gdal, osr
 import numpy as np
 from . import makevegdems
 from osgeo.gdalconst import *
@@ -287,7 +287,7 @@ class TreeGenerator(object):
 
         sizey = build_array.shape[0]
         sizex = build_array.shape[1]
-
+        
         if self.dlg.checkBoxMergeCDSM.isChecked():  # vegetation cdsm
             cdsm = self.layerComboManagerCDSM.currentLayer()
             if cdsm is None:
@@ -319,6 +319,23 @@ class TreeGenerator(object):
         # nd = dataset.GetRasterBand(1).GetNoDataValue()
         # dem_array = np.zeros((sizex, sizey))
 
+        # Check units of raster data. Should be in meters or feet.
+        if build:
+            crs_temp = build.crs()
+            unit_temp = crs_temp.mapUnits()
+        else:
+            crs_temp = dsm.crs()
+            unit_temp = crs_temp.mapUnits()   
+
+        # print(QgsUnitTypes.toString(unit_temp))         
+        temp_crs = osr.SpatialReference()
+        temp_crs.ImportFromWkt(dataset.GetProjection())
+        temp_unit = temp_crs.GetAttrValue('UNIT')
+        possible_units = ['metre', 'US survey foot', 'meter', 'm', 'ft', 'feet', 'foot', 'ftUS', 'International foot'] # Possible units
+        if not temp_unit in possible_units:
+            QMessageBox.critical(self.dlg, 'Error!', 'Raster data is currently in ' + QgsUnitTypes.toString(unit_temp) + '. Meters or feet required. Please reproject.')
+            return
+
         # Get attributes
         vlayer = QgsVectorLayer(point.source(), "point", "ogr")
         # prov = vlayer.dataProvider()
@@ -337,6 +354,26 @@ class TreeGenerator(object):
         idx_trunk = vlayer.fields().indexFromName(trunk_field)
         idx_tot = vlayer.fields().indexFromName(tot_field)
         idx_dia = vlayer.fields().indexFromName(dia_field)
+
+        # Check CRS of raster and vector layers. Needs to be the same.
+        if self.dlg.checkBoxOnlyBuilding.isChecked():
+            if self.dlg.checkBoxMergeCDSM.isChecked():
+                if not ((build.crs().authid() == vlayer.crs().authid()) & (build.crs().authid() == cdsm.crs().authid())):
+                    QMessageBox.critical(self.dlg, "Error", "Check the coordinate systems of your input data. Have to match!")
+                    return
+            else:
+                if not (build.crs().authid() == vlayer.crs().authid()):
+                    QMessageBox.critical(self.dlg, "Error", "Check the coordinate systems of your input data. Have to match!")
+                    return
+        else:
+            if self.dlg.checkBoxMergeCDSM.isChecked():
+                if not ((dsm.crs().authid() == vlayer.crs().authid()) & (dsm.crs().authid() == cdsm.crs().authid())):
+                    QMessageBox.critical(self.dlg, "Error", "Check the coordinate systems of your input data. Have to match!")
+                    return
+            else:
+                if not (dsm.crs().authid() == vlayer.crs().authid()):
+                    QMessageBox.critical(self.dlg, "Error", "Check the coordinate systems of your input data. Have to match!")
+                    return
 
         if self.folderPath == 'None':
             QMessageBox.critical(self.dlg, "Error", "Select a valid output folder")
@@ -382,6 +419,11 @@ class TreeGenerator(object):
             # QMessageBox.information(None, "cola=", str(cola))
             # QMessageBox.information(None, "rowa=", str(rowa))
             # QMessageBox.information(None, "rows=", str(rows))
+            
+            # Check if there are trees with a tree canopy diameter smaller than the pixel resolution of the input raster data
+            if dia < geotransform[1]:
+                QMessageBox.critical(self.dlg, "Error", "You have tree canopy diameters that are smaller than the pixel resolution.")
+                return
 
             cdsm_array, tdsm_array = makevegdems.vegunitsgeneration(build_array, cdsm_array, tdsm_array, ttype, height,
                                                                     trunk, dia, rowa, cola, sizex, sizey, scale)
