@@ -11,7 +11,7 @@ name=UMEP
 qgisMinimumVersion=3.0
 description=Urban Multi-scale Environmental Predictor
 
-version=3.20.3
+version=3.20.4
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Natalie Theeuwes - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg
 email=fredrikl@gvc.gu.se
 
@@ -29,6 +29,7 @@ repository=https://github.com/UMEP-dev/UMEP
 
 # Uncomment the following line and add your changelog:
 changelog=
+   3.20.4: Response to #441 and #449. Minor bug fixes in SOLWEIG and SEBE Visualizer.
    3.20.3: Minor changes in Tree Generator. Response to #443.
    3.20.2: Response to #437. Minor bug fix in SOLWEIG.
    3.20.1: Response to #424. Minor bug fix in SOLWEIG.

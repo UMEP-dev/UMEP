@@ -108,35 +108,43 @@ class SOLWEIG(object):
         self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetDSM)
         self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerDSM.setFixedWidth(175)
+        self.layerComboManagerDSM.setFixedHeight(25)
         self.layerComboManagerDSM.setCurrentIndex(-1)
         self.layerComboManagerVEGDSM = QgsMapLayerComboBox(self.dlg.widgetCDSM)
         self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerVEGDSM.setFixedWidth(175)
+        self.layerComboManagerVEGDSM.setFixedHeight(25)
         self.layerComboManagerVEGDSM.setCurrentIndex(-1)
         self.layerComboManagerVEGDSM2 = QgsMapLayerComboBox(self.dlg.widgetTDSM)
         self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerVEGDSM2.setFixedWidth(175)
+        self.layerComboManagerVEGDSM2.setFixedHeight(25)
         self.layerComboManagerVEGDSM2.setCurrentIndex(-1)
         self.layerComboManagerDEM = QgsMapLayerComboBox(self.dlg.widgetDEM)
         self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerDEM.setFixedWidth(175)
+        self.layerComboManagerDEM.setFixedHeight(25)
         self.layerComboManagerDEM.setCurrentIndex(-1)
         self.layerComboManagerLC = QgsMapLayerComboBox(self.dlg.widgetLC)
         self.layerComboManagerLC.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerLC.setFixedWidth(175)
+        self.layerComboManagerLC.setFixedHeight(25)
         self.layerComboManagerLC.setCurrentIndex(-1)
         self.layerComboManagerWH = QgsMapLayerComboBox(self.dlg.widgetWH)
         self.layerComboManagerWH.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerWH.setFixedWidth(175)
+        self.layerComboManagerWH.setFixedHeight(25)
         self.layerComboManagerWH.setCurrentIndex(-1)
         self.layerComboManagerWA = QgsMapLayerComboBox(self.dlg.widgetWA)
         self.layerComboManagerWA.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.layerComboManagerWA.setFixedWidth(175)
+        self.layerComboManagerWA.setFixedHeight(25)
         self.layerComboManagerWA.setCurrentIndex(-1)
         self.layerComboManagerPOI = QgsMapLayerComboBox(self.dlg.widgetPointLayer)
         self.layerComboManagerPOI.setCurrentIndex(-1)
         self.layerComboManagerPOI.setFilters(QgsMapLayerProxyModel.PointLayer)
         self.layerComboManagerPOI.setFixedWidth(175)
+        self.layerComboManagerPOI.setFixedHeight(25)
         self.layerComboManagerPOIfield = QgsFieldComboBox(self.dlg.widgetPOIField)
         self.layerComboManagerPOIfield.setFilters(QgsFieldProxyModel.Numeric)
         self.layerComboManagerPOI.layerChanged.connect(self.layerComboManagerPOIfield.setLayer)
@@ -866,6 +874,23 @@ class SOLWEIG(object):
             second = np.round((height * 20.))
 
             if self.usevegdem == 1:
+                # Conifer or deciduous
+                if self.dlg.checkBoxConifer.isChecked():
+                    # If conifer, "leaves" all year
+                    leafon = np.ones((1, DOY.shape[0]))
+                else:
+                    # If deciduous, leaves part of year
+                    firstdayleaf = self.dlg.spinBoxFirstDay.value()
+                    lastdayleaf = self.dlg.spinBoxLastDay.value()
+                    leafon = np.zeros((1, DOY.shape[0]))
+                    if firstdayleaf > lastdayleaf:
+                        # Southern hemisphere?
+                        leaf_bool = ((DOY > firstdayleaf) | (DOY < lastdayleaf))
+                    else:
+                        # Northern hemisphere?
+                        leaf_bool = ((DOY > firstdayleaf) & (DOY < lastdayleaf))
+                    leafon[0, leaf_bool] = 1                
+                
                 # % Vegetation transmittivity of shortwave radiation
                 psi = leafon * self.trans
                 psi[leafon == 0] = 0.5
@@ -987,7 +1012,7 @@ class SOLWEIG(object):
                 # Saving settings from SOLWEIG for SOLWEIG1D in TreePlanter
                 settingsHeader = 'UTC, posture, onlyglobal, landcover, anisotropic, cylinder, albedo_walls, albedo_ground, emissivity_walls, emissivity_ground, absK, absL, elevation'
                 settingsFmt = '%i', '%i', '%i', '%i', '%i', '%i', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f'
-                settingsData = np.array([[UTC, pos, onlyglobal, self.landcover, ani, cyl, albedo_b, albedo_g, ewall, eground, absK, absL, alt]])
+                settingsData = np.array([[UTC, pos, onlyglobal, self.landcover, anisotropic_sky, cyl, albedo_b, albedo_g, ewall, eground, absK, absL, alt]])
                 np.savetxt(self.folderPath[0] + '/treeplantersettings.txt', settingsData, fmt=settingsFmt, header=settingsHeader, delimiter=' ')
 
             #  If metfile starts at night

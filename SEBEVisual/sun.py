@@ -505,17 +505,28 @@ class Visual:
         cellsize = (geotransform[1], geotransform[5])  # gridsize in x, y direction
 
         # clip dsm + roof/ground and save to temp_asc.tif + temp.tif:
-        gdalclipasc_build = (
-                'gdal_translate -a_nodata -9999 -projwin ' +
-                '{0} {1} {2} {3} -of GTiff {4}{5} {6}/data/temp_asc.tif'.format(
-                    minx, maxy, maxx, miny, self.base_path_str,  self.height_file, self.plugin_dir))
-        subprocess.call(gdalclipasc_build, startupinfo=si)
+        # gdalclipasc_build = (
+        #         'gdal_translate -a_nodata -9999 -projwin ' +
+        #         '{0} {1} {2} {3} -of GTiff {4}{5} {6}/data/temp_asc.tif'.format(
+        #             minx, maxy, maxx, miny, self.base_path_str,  self.height_file, self.plugin_dir))
+        # subprocess.call(gdalclipasc_build, startupinfo=si)
 
-        gdalclip_build = (
-                'gdal_translate -a_nodata -9999 -projwin ' +
-                '{0} {1} {2} {3} -of GTiff {4}{5} {6}/data/temp.tif'.format(
-                    minx, maxy, maxx, miny, self.base_path_str, self.roofground_file, self.plugin_dir))
-        subprocess.call(gdalclip_build, startupinfo=si)
+        translate_options = gdal.TranslateOptions(options=[
+                                                    '-a_nodata', '-9999',
+                                                    '-projWin', str(minx), str(maxy), str(maxx), str(miny),
+                                                    '-of', 'GTiff'])
+        
+        temp_path1 = self.base_path_str + self.height_file
+        temp_path2 = self.base_path_str + self.roofground_file
+
+        gdal.Translate(self.plugin_dir + '/data/temp_asc.tif', self.base_path_str + self.height_file, options=translate_options)
+        gdal.Translate(self.plugin_dir + '/data/temp.tif', self.base_path_str + self.roofground_file, options=translate_options)
+
+        # gdalclip_build = (
+        #         'gdal_translate -a_nodata -9999 -projwin ' +
+        #         '{0} {1} {2} {3} -of GTiff {4}{5} {6}/data/temp.tif'.format(
+        #             minx, maxy, maxx, miny, self.base_path_str, self.roofground_file, self.plugin_dir))
+        # subprocess.call(gdalclip_build, startupinfo=si)
 
         # load clipped dsm + roof/ground data:
         dataset = gdal.Open(self.plugin_dir + '/data/temp.tif')
