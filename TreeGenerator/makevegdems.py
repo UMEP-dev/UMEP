@@ -57,7 +57,7 @@ def vegunitsgeneration(buildings, vegdem, vegdem2, ttype, height, trunk, dia, ro
 
     if row1 < 1 or col1 < 1 or row1 + rowmax - 1 > vegdem.shape[0] or col1 + rowmax - 1 > vegdem.shape[1]:
         # cutting tree at dem edge
-        if (treetrunkunder.ndim > 1) or (trees.ndim > 1):
+        if ((treetrunkunder.ndim > 1) and (trees.ndim > 1)):
             trees = trees[int(rowcutmin):int(rowcutmax), int(colcutmin):int(colcutmax)]
             treetrunkunder = treetrunkunder[int(rowcutmin): int(rowcutmax), int(colcutmin): int(colcutmax)]
             vegdemtemp[int(rowmin):int(rowmin + trees.shape[0]), int(colmin):int(colmin + trees.shape[1])] = trees
