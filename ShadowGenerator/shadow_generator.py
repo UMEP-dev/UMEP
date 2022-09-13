@@ -399,7 +399,7 @@ class ShadowGenerator(object):
             wheight = 0
             waspect = 0
 
-        if self.folderPath is 'None':
+        if self.folderPath == 'None':
             QMessageBox.critical(None, "Error", "No selected folder")
             return
         else:

@@ -51,7 +51,7 @@ class Transport():
             raise ValueError('Start time must have a timezone attached')
 
         # Validate the state of the transport object
-        if self.transport.outputLayer is None:
+        if self.transport.outputLayer == None:
             raise Exception(
                 'Output shapefile must be set before adding any input vector layers')
 

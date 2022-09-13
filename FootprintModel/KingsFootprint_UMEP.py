@@ -741,7 +741,7 @@ def check_ffp_inputs(ustar, sigmav, h, ol, wind_dir, zm, z0, umean, rslayer, ver
         raise_ffp_exception(5, verbosity)
         return False
     if z0 is not None and umean is None and zm <= 12.5*z0:
-        if rslayer is 1:
+        if rslayer == 1:
             raise_ffp_exception(6, verbosity)
         else:
             raise_ffp_exception(20, verbosity)

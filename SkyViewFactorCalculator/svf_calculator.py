@@ -761,7 +761,7 @@ class SkyViewFactorCalculator(object):
             #         QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
             #         return
 
-            if self.folderPath is 'None':
+            if self.folderPath == 'None':
                 QMessageBox.critical(self.dlg, "Error", "No selected folder")
                 return
             else:

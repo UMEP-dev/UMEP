@@ -7,8 +7,10 @@ __author__ = 'xlinfr'
 
 
 def wrapper(pathtoplugin, iface, year=None):
-
-    import supy as sp
+    try:
+        import supy as sp
+    except:
+        pass
     from pathlib import Path
     import numpy as np
     from . import suewsdataprocessing

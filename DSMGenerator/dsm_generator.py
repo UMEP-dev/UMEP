@@ -312,7 +312,7 @@ class DSMGenerator(object):
         dem_layer_crs.ImportFromWkt(demRaster.GetProjection())
         dem_epsg = dem_layer_crs.GetAttrValue("PROJCS|AUTHORITY", 1)
         self.dem_layer_unit = dem_layer_crs.GetAttrValue("UNIT")
-        posUnits = ['metre', 'US survey foot', 'meter', 'm', 'ft', 'feet', 'foot', 'ftUS', 'International foot'] # Possible units
+        posUnits = ['metre', 'Metre', 'metres', 'Metres', 'meter', 'Meter', 'meters', 'Meters', 'm', 'ft', 'US survey foot', 'feet', 'Feet', 'foot', 'Foot', 'ftUS', 'International foot'] # Possible units
 
         if not self.dem_layer_unit in posUnits:
             QMessageBox.critical(None, "Error", "Raster projection is not in metre or foot. Please reproject.")
@@ -654,8 +654,8 @@ class DSMGenerator(object):
             vlayer.startEditing()
             for f in vlayer.getFeatures():
                 geom = f.geometry()
-                posUnitsMetre = ['metre', 'meter', 'm']  # Possible metre units
-                posUnitsFt = ['US survey foot', 'ft', 'feet', 'foot', 'ftUS', 'International foot'] # Possible foot units
+                posUnitsMetre = ['metre', 'Metre', 'metres', 'Metres', 'meter', 'Meter', 'meters', 'Meters', 'm']  # Possible metre units
+                posUnitsFt = ['ft', 'US survey foot', 'feet', 'Feet', 'foot', 'Foot', 'ftUS', 'International foot'] # Possible foot units
                 if self.dem_layer_unit in posUnitsMetre:
                     sqUnit = 1
                 elif self.dem_layer_unit in posUnitsFt:

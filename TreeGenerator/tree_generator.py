@@ -331,7 +331,7 @@ class TreeGenerator(object):
         temp_crs = osr.SpatialReference()
         temp_crs.ImportFromWkt(dataset.GetProjection())
         temp_unit = temp_crs.GetAttrValue('UNIT')
-        possible_units = ['metre', 'US survey foot', 'meter', 'm', 'ft', 'feet', 'foot', 'ftUS', 'International foot'] # Possible units
+        possible_units = ['metre', 'Metre', 'metres', 'Metres', 'meter', 'Meter', 'meters', 'Meters', 'm', 'ft', 'US survey foot', 'feet', 'Feet', 'foot', 'Foot', 'ftUS', 'International foot'] # Possible units
         if not temp_unit in possible_units:
             QMessageBox.critical(self.dlg, 'Error!', 'Raster data is currently in ' + QgsUnitTypes.toString(unit_temp) + '. Meters or feet required. Please reproject.')
             return

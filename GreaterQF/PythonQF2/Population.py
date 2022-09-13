@@ -149,20 +149,20 @@ class Population:
 def testIt():
     # Set up output polygons
     a = Population()
-    LLSOApolygons = 'C:\\Users\pn910202\Dropbox\Shapefilecombos\PopDens\PopDens_2014_LSOA.shp'
+    LLSOApolygons = 'C:\\Users\\pn910202\\Dropbox\\Shapefilecombos\\PopDens\\PopDens_2014_LSOA.shp'
     LLSOAproj = 27700
     a.setOutputShapefile(LLSOApolygons, LLSOAproj, id_field="LSOA11CD")
 
     # Raw residential population data in OAs
     resid = {}
-    resid['shapefile'] = 'C:\\Users\pn910202\Dropbox\Shapefilecombos\populations\popOA2014.shp'
+    resid['shapefile'] = 'C:\\Users\\pn910202\\Dropbox\\Shapefilecombos\\populations\\popOA2014.shp'
     resid['epsg'] = 27700
     resid['field_to_use'] = 'Pop'  # Can be found in QGIS > view attributes table
     resid['start_date'] = datetime.strptime('2014-01-01', '%Y-%m-%d')
 
     # Raw workplace population data in LSOAs
     wp = {}
-    wp['shapefile'] = 'C:\\Users\pn910202\Dropbox\Shapefilecombos\PopDens\PopDens_2014_LSOA.shp'
+    wp['shapefile'] = 'C:\\Users\\pn910202\\Dropbox\\Shapefilecombos\\PopDens\\PopDens_2014_LSOA.shp'
     wp['epsg'] = 27700
     wp['field_to_use'] = 'WorkPop'  # Can be found in QGIS > view attributes table
     wp['start_date'] = datetime.strptime('2014-01-01', '%Y-%m-%d')

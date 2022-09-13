@@ -81,7 +81,7 @@ class SEBEpv:
         # self.data_path ='<hardcoded directory for input>'
         # self.data_path = 'D:/.../03_Doktorat/02_Simulationen/19a_SEBEpv-BOKUvalidation_longterm/input-dsm/'
 
-        if self.data_path is None:
+        if self.data_path == None:
             self.inputDialog = QFileDialog(caption="Select folder with raster layers", directory="./")
             self.inputDialog.setFileMode(4)
             self.inputDialog.setAcceptMode(0)
