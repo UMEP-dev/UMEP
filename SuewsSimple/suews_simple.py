@@ -189,6 +189,7 @@ class SuewsSimple(object):
             return
 
         self.supylib = sys.modules["supy"].__path__[0]
+        print(self.supylib)
         # modelver = 'SUEWS_V2018c'
         # if not (os.path.isfile(self.model_dir + os.sep + modelver) or os.path.isfile(self.model_dir + os.sep + modelver + '.exe')):
         #     if QMessageBox.question(self.iface.mainWindow(), "OS specific binaries missing",
@@ -411,7 +412,8 @@ class SuewsSimple(object):
 
         # Copy basefiles from sample_run
         basefiles = ['ESTMinput.nml', 'SUEWS_AnthropogenicEmission.txt', 'SUEWS_BiogenCO2.txt', 'SUEWS_Conductance.txt', 'SUEWS_ESTMCoefficients.txt', 'SUEWS_Irrigation.txt', 
-        'SUEWS_NonVeg.txt', 'SUEWS_OHMCoefficients.txt', 'SUEWS_Profiles.txt', 'SUEWS_Snow.txt', 'SUEWS_Soil.txt', 'SUEWS_Water.txt', 'SUEWS_Veg.txt', 'SUEWS_WithinGridWaterDist.txt']
+        'SUEWS_NonVeg.txt', 'SUEWS_OHMCoefficients.txt', 'SUEWS_Profiles.txt', 'SUEWS_Snow.txt', 'SUEWS_Soil.txt', 'SUEWS_Water.txt', 'SUEWS_Veg.txt', 
+        'SUEWS_WithinGridWaterDist.txt', 'SUEWS_SPARTACUS.nml', 'GridLayoutKc.nml']
         for i in range(0, basefiles.__len__()):
             try:
                 shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.model_dir + '/Input/' + basefiles[i])
@@ -495,12 +497,12 @@ class SuewsSimple(object):
         newdata[17] = pai_grass
         newdata[18] = pai_baresoil
         newdata[19] = pai_water
-        newdata[23] = zHBuild
-        newdata[24] = zHveg
-        newdata[25] = zHveg
-        newdata[28] = faiBuild
-        newdata[29] = faiveg
-        newdata[30] = faiveg
+        newdata[27] = zHBuild #old 23
+        newdata[28] = zHveg
+        newdata[29] = zHveg
+        newdata[32] = faiBuild #old28
+        newdata[33] = faiveg
+        newdata[34] = faiveg
         newdata[35] = popdens
         newdata[36] = popdens
 
@@ -511,7 +513,8 @@ class SuewsSimple(object):
         for l in range(0, 1):
             for i in range(0, newdata.__len__()):
                 f2.write(str(newdata[i]))
-                f2.write('\t')
+                # f2.write('\t')
+                f2.write(' ')
             f2.write('\n')
         f2.write(lin[2 + 1])
         f2.write(lin[3 + 1])
