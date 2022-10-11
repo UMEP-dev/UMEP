@@ -360,6 +360,8 @@ class Worker(QtCore.QObject):
                             IMP_z0 = -999
                             IMP_zd = -999
                             IMP_fai = -999
+                            IMP_max = -999
+                            IMP_sd = -999
                             IMP_wai = -999
                             print_line = False
                 else:
@@ -383,8 +385,8 @@ class Worker(QtCore.QObject):
                                 IMPveg_fai_dec = split[2]
                                 IMPveg_max_eve = split[4]  #TODO not used yet
                                 IMPveg_sd_eve = split[5]  #TODO not used yet
-                                IMPveg_max_dec = split[4]
-                                IMPveg_sd_dec = split[5]
+                                IMPveg_max_dec = split[4] 
+                                IMPveg_sd_dec = split[5] 
                                 found_IMPveg_line = True
                                 break
                         if not found_IMPveg_line:
@@ -392,6 +394,8 @@ class Worker(QtCore.QObject):
                             IMPveg_heights_mean_dec = -999
                             IMPveg_fai_eve = -999
                             IMPveg_fai_dec = -999
+                            IMPveg_max_dec = -999 #response to issue #462
+                            IMPveg_sd_dec = -999 #response to issue #462
                             print_line = False
                 else:
                     IMPveg_heights_mean_eve = feature.attribute(self.IMPveg_mean_height_eve.getFieldName())

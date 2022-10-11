@@ -570,9 +570,10 @@ class SUEWSPrepare(object):
         poly = self.layerComboManagerPolygrid.currentLayer()
         if poly is None:
             QMessageBox.information(None, "Error", "No polygon grid added in main settings yet")
-            widget.checkBox.setCheckState(0)
-        else:
-            widget.checkBox.setCheckState(1)
+        # comment out as response to issue #461
+            # widget.checkBox.setCheckState(0)
+        # else: 
+            # widget.checkBox.setCheckState(1)
             # FieldCombo(widget.comboBox_uniquecodes, self.fieldgen, initField="")
 
     def edit_mode(self):
