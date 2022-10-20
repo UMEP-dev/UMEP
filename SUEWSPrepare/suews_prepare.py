@@ -130,8 +130,10 @@ class SUEWSPrepare(object):
         self.supylib = sys.modules["supy"].__path__[0]
         if not (os.path.isdir(self.output_path + '/Input')):
             os.mkdir(self.output_path + '/Input')
-            basefiles = ['ESTMinput.nml', 'SUEWS_AnthropogenicEmission.txt', 'SUEWS_BiogenCO2.txt', 'SUEWS_Conductance.txt', 'SUEWS_ESTMCoefficients.txt', 'SUEWS_Irrigation.txt', 
-            'SUEWS_NonVeg.txt', 'SUEWS_OHMCoefficients.txt', 'SUEWS_Profiles.txt', 'SUEWS_Snow.txt', 'SUEWS_Soil.txt', 'SUEWS_Water.txt', 'SUEWS_Veg.txt', 'SUEWS_WithinGridWaterDist.txt']
+            basefiles = ['ESTMinput.nml', 'SUEWS_AnthropogenicEmission.txt', 'SUEWS_BiogenCO2.txt', 'SUEWS_Conductance.txt', 
+            'SUEWS_ESTMCoefficients.txt', 'SUEWS_Irrigation.txt', 'SUEWS_NonVeg.txt', 'SUEWS_OHMCoefficients.txt', 
+            'SUEWS_Profiles.txt', 'SUEWS_Snow.txt', 'SUEWS_Soil.txt', 'SUEWS_Water.txt', 'SUEWS_Veg.txt', 
+            'SUEWS_WithinGridWaterDist.txt', 'SUEWS_SPARTACUS.nml', 'GridLayoutKc.nml'] # added Spartacus files (Issue #462)
             for i in range(0, basefiles.__len__()):
                 if not (os.path.isfile(self.output_path + '/Input/' + basefiles[i])):
                     try:
