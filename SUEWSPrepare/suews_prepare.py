@@ -135,6 +135,7 @@ class SUEWSPrepare(object):
             'SUEWS_Profiles.txt', 'SUEWS_Snow.txt', 'SUEWS_Soil.txt', 'SUEWS_Water.txt', 'SUEWS_Veg.txt', 
             'SUEWS_WithinGridWaterDist.txt', 'SUEWS_SPARTACUS.nml', 'GridLayoutKc.nml'] # added Spartacus files (Issue #462)
             for i in range(0, basefiles.__len__()):
+                print(basefiles[i])
                 if not (os.path.isfile(self.output_path + '/Input/' + basefiles[i])):
                     try:
                         shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.output_path + '/Input/' + basefiles[i])

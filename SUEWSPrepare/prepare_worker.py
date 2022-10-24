@@ -832,6 +832,11 @@ class Worker(QtCore.QObject):
             init_out = self.output_dir[0] + '/InitialConditions' + str(self.file_code) + '_' + str(year) + '.nml'
             self.write_to_init(self.input_path + 'InitialConditions.nml', init_out)
 
+            # Response to issue #462. Should change in future versions
+            copyfile(self.output_path + 'ESTMinput.nml', self.output_dir[0] + "/" + 'ESTMinput.nml')
+            copyfile(self.output_path + 'GridLayoutKc.nml', self.output_dir[0] + "/" + 'GridLayout' + str(self.file_code) + '.nml')
+            copyfile(self.output_path + 'SUEWS_SPARTACUS.nml', self.output_dir[0] + "/" + 'SUEWS_SPARTACUS.nml')
+
             output_lines = []
             output_file = self.output_dir[0] + "/SUEWS_SiteSelect.txt"
             with open(output_file, 'w+') as ofile:
