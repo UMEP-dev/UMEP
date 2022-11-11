@@ -14,7 +14,7 @@ except:
               "Do you want UMEP to automatically install missing python modules? \r\n"
               "QGIS will be non-responsive for a couple of minutes.", 
                QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
-        # setup_supy(ver=None)
+        setup_supy(ver=None)
         try:
             setup_supy(ver=None)
             QMessageBox.information(None, "Packages successfully installed", 
