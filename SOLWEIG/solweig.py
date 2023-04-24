@@ -1017,9 +1017,9 @@ class SOLWEIG(object):
                     copyfile(self.filePath_cdsm, self.folderPath[0] + '/CDSM.tif')
 
                 # Saving settings from SOLWEIG for SOLWEIG1D in TreePlanter
-                settingsHeader = 'UTC, posture, onlyglobal, landcover, anisotropic, cylinder, albedo_walls, albedo_ground, emissivity_walls, emissivity_ground, absK, absL, elevation'
-                settingsFmt = '%i', '%i', '%i', '%i', '%i', '%i', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f'
-                settingsData = np.array([[UTC, pos, onlyglobal, self.landcover, anisotropic_sky, cyl, albedo_b, albedo_g, ewall, eground, absK, absL, alt]])
+                settingsHeader = 'UTC, posture, onlyglobal, landcover, anisotropic, cylinder, albedo_walls, albedo_ground, emissivity_walls, emissivity_ground, absK, absL, elevation, patch_option'
+                settingsFmt = '%i', '%i', '%i', '%i', '%i', '%i', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%i'
+                settingsData = np.array([[UTC, pos, onlyglobal, self.landcover, anisotropic_sky, cyl, albedo_b, albedo_g, ewall, eground, absK, absL, alt, patch_option]])
                 np.savetxt(self.folderPath[0] + '/treeplantersettings.txt', settingsData, fmt=settingsFmt, header=settingsHeader, delimiter=' ')
 
             #  If metfile starts at night
