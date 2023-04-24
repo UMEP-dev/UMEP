@@ -22,25 +22,25 @@
 """
 from __future__ import absolute_import
 from builtins import object
-import sys
+#import sys
 from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from qgis.PyQt.QtWidgets import QMenu, QAction, QMessageBox
 from qgis.PyQt.QtGui import QIcon
 from .UMEP_dialog import UMEPDialog
 from .MetdataProcessor.metdata_processor import MetdataProcessor
-from .ShadowGenerator.shadow_generator import ShadowGenerator
-from .SkyViewFactorCalculator.svf_calculator import SkyViewFactorCalculator
-from .ImageMorphParam.image_morph_param import ImageMorphParam
+#from .ShadowGenerator.shadow_generator import ShadowGenerator
+#from .SkyViewFactorCalculator.svf_calculator import SkyViewFactorCalculator
+#from .ImageMorphParam.image_morph_param import ImageMorphParam
 from .ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
-from .LandCoverFractionGrid.landcoverfraction_grid import LandCoverFractionGrid
+#from .LandCoverFractionGrid.landcoverfraction_grid import LandCoverFractionGrid
 from .LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
 from .LandCoverReclassifier.land_cover_reclassifier import LandCoverReclassifier
-from .WallHeight.wall_height import WallHeight
-from .TreeGenerator.tree_generator import TreeGenerator
+#from .WallHeight.wall_height import WallHeight
+#from .TreeGenerator.tree_generator import TreeGenerator
 from .FootprintModel.footprint_model import FootprintModel
 from .LCZ_Converter.LCZ_converter import LCZ_test
-from .UMEPDownloader.umep_downloader import UMEP_Data_Download
-from .DSMGenerator.dsm_generator import DSMGenerator
+#from .UMEPDownloader.umep_downloader import UMEP_Data_Download
+#from .DSMGenerator.dsm_generator import DSMGenerator
 from .UWGReClassifier.uwg_reclassifier import uwg_reclassifier
 from .uwg_prepare.uwg_prepare import UWGPrepare
 from .uwg_analyser.uwg_analyser import UWGAnalyser
@@ -64,7 +64,7 @@ from .BenchMarking.benchmarking import BenchMarking
 from .SEBEVisual.sun import Visual
 from .SolweigAnalyzer.solweig_analyzer import SolweigAnalyzer
 from .SUEWSAnalyzer.suews_analyzer import SUEWSAnalyzer
-from .copernicus_data.copernicus_data import CopernicusData
+#from .copernicus_data.copernicus_data import CopernicusData
 from .UMEP_about import UMEPDialogAbout
 import os.path
 import webbrowser
@@ -111,9 +111,6 @@ class UMEP(object):
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&UMEP')
-        # TODO: We are going to let the user set this up in a future iteration
-        #self.toolbar = self.iface.addToolBar(u'UMEP')
-        #self.toolbar.setObjectName(u'UMEP')
 
         # Main menu
         self.UMEP_Menu = QMenu("UMEP")
@@ -416,28 +413,43 @@ class UMEP(object):
         sg.run()
 
     def SH(self):
-        sg = ShadowGenerator(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = ShadowGenerator(self.iface)
+        #sg.run()
         
     def IMCG(self):
-        sg = ImageMorphParam(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = ImageMorphParam(self.iface)
+        #sg.run()
 
     def IMCP(self):
-        sg = ImageMorphParmsPoint(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = ImageMorphParmsPoint(self.iface)
+        #sg.run()
 
     def SVF(self):
-        sg = SkyViewFactorCalculator(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = SkyViewFactorCalculator(self.iface)
+        #sg.run()
 
     def SUEWS_simple(self):
         sg = SuewsSimple(self.iface)
         sg.run()
 
     def SUEWS_advanced(self):
-        sg = SUEWS(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = SUEWS(self.iface)
+        #sg.run()
 
     def SUEWS_Prepare(self):
         sg = SUEWSPrepare(self.iface)
@@ -448,24 +460,36 @@ class UMEP(object):
         sg.run()
 
     def LCG(self):
-        sg = LandCoverFractionGrid(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = LandCoverFractionGrid(self.iface)
+        #sg.run()
 
     def LCP(self):
-        sg = LandCoverFractionPoint(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = LandCoverFractionPoint(self.iface)
+        #sg.run()
 
     def LCRC(self):
         sg = LandCoverReclassifier(self.iface)
         sg.run()
 
     def WH(self):
-        sg = WallHeight(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = WallHeight(self.iface)
+        #sg.run()
 
     def SE(self):
-        sg = SEBE(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = SEBE(self.iface)
+        #sg.run()
 
     # def SEpv(self):      # MRevesz
     #     sg = SEBEpv(self.iface)
@@ -494,12 +518,15 @@ class UMEP(object):
 
     def UWG(self):
         QMessageBox.information(None, "Urban Weather Generator",
-                             "The Urban Weather Generator can be accessed via UMEP for processing. Visit our online manual for more information.")
+                             "The Urban Weather Generator can be accessed via <b> UMEP for processing</b>. Visit our online manual for more information.")
         return
 
     def ERA(self):
-        sg = CopernicusData(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = CopernicusData(self.iface)
+        #sg.run()
 
     def GF(self):
         sg = GreaterQF(self.iface)
@@ -510,12 +537,18 @@ class UMEP(object):
         sg.run()
 
     def TG(self):
-        sg = TreeGenerator(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = TreeGenerator(self.iface)
+        #sg.run()
 
     def DSMG(self):
-        sg = DSMGenerator(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = DSMGenerator(self.iface)
+        #sg.run()
 
     def EF(self):
         sg = ExtremeFinder(self.iface)

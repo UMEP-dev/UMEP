@@ -411,10 +411,6 @@ class Worker(QtCore.QObject):
                 if self.dlg.CheckBoxShadow.isChecked():
                     self.saveraster(gdal_dsm, folderPath[0] + '/Shadow_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
                                     + '_' + XH + str(int(hours[i])) + XM + str(int(minu[i])) + w + '.tif', shadow)
-                # Save K diffuse if checkbox for TreePlanter (used in COMFA in Spatial TC)
-                if self.dlg.checkBoxTreePlanter.isChecked():
-                    self.saveraster(gdal_dsm, folderPath[0] + '/Kdiff_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
-                                    + '_' + XH + str(int(hours[i])) + XM + str(int(minu[i])) + w + '.tif', dRad)
 
             tmrtplot = tmrtplot / Ta.__len__()  # fix average Tmrt instead of sum, 20191022
             solweigresult = {'tmrtplot': tmrtplot, 'altitude': altitude}

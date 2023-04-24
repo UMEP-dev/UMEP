@@ -488,6 +488,13 @@ class SOLWEIG(object):
                                          "Land cover grid includes Decidiuous land cover class. "
                                          "Ground cover information (underneath canopy) is required.")
                     return
+                # fix issues when NoData is included in land cover data
+                ndlc = dataSet.GetRasterBand(1).GetNoDataValue()
+                if np.where(self.lcgrid == ndlc)[0] > 0:
+                    self.lcgrid[self.lcgrid == nd] = 1
+                    QMessageBox.warning(self.dlg, "Land Cover includes NoData", 
+                                        "Land cover data includes NoData values (converted to paved (1)). "
+                                        "Check your input data.")
             else:
                 filePath_lc = None
 
@@ -933,8 +940,6 @@ class SOLWEIG(object):
                             diffsh[:, :, i] = shmat[:, :, i] - (1 - vegshmat[:, :, i]) * (1 - self.trans) # changes in psi not implemented yet
                     else:
                         diffsh = shmat
-                        vegshmat += 1
-                        vbshvegshmat += 1
 
                     # Estimate number of patches based on shadow matrices
                     if shmat.shape[2] == 145:
@@ -1005,16 +1010,16 @@ class SOLWEIG(object):
                 copyfile(self.filepath_dsm, self.folderPath[0] + '/DSM.tif')
 
                 # Save met file
-                copyfile(self.PathMet, self.folderPath[0] + '/metforcing.txt')
+                copyfile(self.PathMet, self.folderPath[0] + '/metfile.txt')
 
                 # Save CDSM
                 if self.usevegdem:
                     copyfile(self.filePath_cdsm, self.folderPath[0] + '/CDSM.tif')
 
                 # Saving settings from SOLWEIG for SOLWEIG1D in TreePlanter
-                settingsHeader = 'UTC, posture, onlyglobal, landcover, anisotropic, cylinder, albedo_walls, albedo_ground, emissivity_walls, emissivity_ground, absK, absL, elevation, patch_option'
-                settingsFmt = '%i', '%i', '%i', '%i', '%i', '%i', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%i'
-                settingsData = np.array([[UTC, pos, onlyglobal, self.landcover, anisotropic_sky, cyl, albedo_b, albedo_g, ewall, eground, absK, absL, alt, patch_option]])
+                settingsHeader = 'UTC, posture, onlyglobal, landcover, anisotropic, cylinder, albedo_walls, albedo_ground, emissivity_walls, emissivity_ground, absK, absL, elevation'
+                settingsFmt = '%i', '%i', '%i', '%i', '%i', '%i', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f'
+                settingsData = np.array([[UTC, pos, onlyglobal, self.landcover, anisotropic_sky, cyl, albedo_b, albedo_g, ewall, eground, absK, absL, alt]])
                 np.savetxt(self.folderPath[0] + '/treeplantersettings.txt', settingsData, fmt=settingsFmt, header=settingsHeader, delimiter=' ')
 
             #  If metfile starts at night
