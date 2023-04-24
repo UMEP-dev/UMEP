@@ -1005,7 +1005,7 @@ class SOLWEIG(object):
                 copyfile(self.filepath_dsm, self.folderPath[0] + '/DSM.tif')
 
                 # Save met file
-                copyfile(self.PathMet, self.folderPath[0] + '/metfile.txt')
+                copyfile(self.PathMet, self.folderPath[0] + '/metforcing.txt')
 
                 # Save CDSM
                 if self.usevegdem:
