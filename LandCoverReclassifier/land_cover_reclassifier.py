@@ -247,7 +247,7 @@ class LandCoverReclassifier(object):
         filepath_lc_grid= str(provider.dataSourceUri())
         gdal_lc_grid = gdal.Open(filepath_lc_grid)
 
-        lc_grid = gdal_lc_grid.ReadAsArray().astype(np.float)
+        lc_grid = gdal_lc_grid.ReadAsArray().astype(float)
         sizex = lc_grid.shape[0]
         sizey = lc_grid.shape[1]
         lc_grid_rc = np.zeros((sizex, sizey))

@@ -323,7 +323,7 @@ class SOLWEIG(object):
             provider = dsmlayer.dataProvider()
             self.filepath_dsm = str(provider.dataSourceUri())
             self.gdal_dsm = gdal.Open(self.filepath_dsm)
-            self.dsm = self.gdal_dsm.ReadAsArray().astype(np.float)
+            self.dsm = self.gdal_dsm.ReadAsArray().astype(float)
             sizex = self.dsm.shape[0]  # rows
             sizey = self.dsm.shape[1]  # cols
             rows = self.dsm.shape[0]
@@ -398,7 +398,7 @@ class SOLWEIG(object):
                 provider = self.vegdsm.dataProvider()
                 self.filePath_cdsm = str(provider.dataSourceUri())
                 dataSet = gdal.Open(self.filePath_cdsm)
-                self.vegdsm = dataSet.ReadAsArray().astype(np.float)
+                self.vegdsm = dataSet.ReadAsArray().astype(float)
 
                 vegsizex = self.vegdsm.shape[0]
                 vegsizey = self.vegdsm.shape[1]
@@ -420,7 +420,7 @@ class SOLWEIG(object):
                     provider = self.vegdsm2.dataProvider()
                     self.filePath_tdsm = str(provider.dataSourceUri())
                     dataSet = gdal.Open(self.filePath_tdsm)
-                    self.vegdsm2 = dataSet.ReadAsArray().astype(np.float)
+                    self.vegdsm2 = dataSet.ReadAsArray().astype(float)
                     trunkfile = 1
                 else:
                     self.filePath_tdsm = None
@@ -466,7 +466,7 @@ class SOLWEIG(object):
                 provider = self.lcgrid.dataProvider()
                 filePath_lc = str(provider.dataSourceUri())
                 dataSet = gdal.Open(filePath_lc)
-                self.lcgrid = dataSet.ReadAsArray().astype(np.float)
+                self.lcgrid = dataSet.ReadAsArray().astype(float)
 
                 lcsizex = self.lcgrid.shape[0]
                 lcsizey = self.lcgrid.shape[1]
@@ -513,7 +513,7 @@ class SOLWEIG(object):
                 provider = self.dem.dataProvider()
                 filePathOld = str(provider.dataSourceUri())
                 dataSet = gdal.Open(filePathOld)
-                self.dem = dataSet.ReadAsArray().astype(np.float)
+                self.dem = dataSet.ReadAsArray().astype(float)
 
                 demsizex = self.dem.shape[0]
                 demsizey = self.dem.shape[1]
@@ -550,38 +550,38 @@ class SOLWEIG(object):
 
                 try:
                     dataSet = gdal.Open(self.plugin_dir + "/svf.tif")
-                    svf = dataSet.ReadAsArray().astype(np.float)
+                    svf = dataSet.ReadAsArray().astype(float)
                     dataSet = gdal.Open(self.plugin_dir + "/svfN.tif")
-                    svfN = dataSet.ReadAsArray().astype(np.float)
+                    svfN = dataSet.ReadAsArray().astype(float)
                     dataSet = gdal.Open(self.plugin_dir + "/svfS.tif")
-                    svfS = dataSet.ReadAsArray().astype(np.float)
+                    svfS = dataSet.ReadAsArray().astype(float)
                     dataSet = gdal.Open(self.plugin_dir + "/svfE.tif")
-                    svfE = dataSet.ReadAsArray().astype(np.float)
+                    svfE = dataSet.ReadAsArray().astype(float)
                     dataSet = gdal.Open(self.plugin_dir + "/svfW.tif")
-                    svfW = dataSet.ReadAsArray().astype(np.float)
+                    svfW = dataSet.ReadAsArray().astype(float)
 
                     if self.usevegdem == 1:
                         dataSet = gdal.Open(self.plugin_dir + "/svfveg.tif")
-                        svfveg = dataSet.ReadAsArray().astype(np.float)
+                        svfveg = dataSet.ReadAsArray().astype(float)
                         dataSet = gdal.Open(self.plugin_dir + "/svfNveg.tif")
-                        svfNveg = dataSet.ReadAsArray().astype(np.float)
+                        svfNveg = dataSet.ReadAsArray().astype(float)
                         dataSet = gdal.Open(self.plugin_dir + "/svfSveg.tif")
-                        svfSveg = dataSet.ReadAsArray().astype(np.float)
+                        svfSveg = dataSet.ReadAsArray().astype(float)
                         dataSet = gdal.Open(self.plugin_dir + "/svfEveg.tif")
-                        svfEveg = dataSet.ReadAsArray().astype(np.float)
+                        svfEveg = dataSet.ReadAsArray().astype(float)
                         dataSet = gdal.Open(self.plugin_dir + "/svfWveg.tif")
-                        svfWveg = dataSet.ReadAsArray().astype(np.float)
+                        svfWveg = dataSet.ReadAsArray().astype(float)
 
                         dataSet = gdal.Open(self.plugin_dir + "/svfaveg.tif")
-                        svfaveg = dataSet.ReadAsArray().astype(np.float)
+                        svfaveg = dataSet.ReadAsArray().astype(float)
                         dataSet = gdal.Open(self.plugin_dir + "/svfNaveg.tif")
-                        svfNaveg = dataSet.ReadAsArray().astype(np.float)
+                        svfNaveg = dataSet.ReadAsArray().astype(float)
                         dataSet = gdal.Open(self.plugin_dir + "/svfSaveg.tif")
-                        svfSaveg = dataSet.ReadAsArray().astype(np.float)
+                        svfSaveg = dataSet.ReadAsArray().astype(float)
                         dataSet = gdal.Open(self.plugin_dir + "/svfEaveg.tif")
-                        svfEaveg = dataSet.ReadAsArray().astype(np.float)
+                        svfEaveg = dataSet.ReadAsArray().astype(float)
                         dataSet = gdal.Open(self.plugin_dir + "/svfWaveg.tif")
-                        svfWaveg = dataSet.ReadAsArray().astype(np.float)
+                        svfWaveg = dataSet.ReadAsArray().astype(float)
                     else:
                         svfveg = np.ones((rows, cols))
                         svfNveg = np.ones((rows, cols))
@@ -623,7 +623,7 @@ class SOLWEIG(object):
             provider = self.wallheight.dataProvider()
             filePathOld = str(provider.dataSourceUri())
             dataSet = gdal.Open(filePathOld)
-            self.wallheight = dataSet.ReadAsArray().astype(np.float)
+            self.wallheight = dataSet.ReadAsArray().astype(float)
 
             wallheightsizex = self.wallheight.shape[0]
             wallheightsizey = self.wallheight.shape[1]
@@ -643,7 +643,7 @@ class SOLWEIG(object):
             provider = self.wallaspect.dataProvider()
             filePathOld = str(provider.dataSourceUri())
             dataSet = gdal.Open(filePathOld)
-            self.wallaspect = dataSet.ReadAsArray().astype(np.float)
+            self.wallaspect = dataSet.ReadAsArray().astype(float)
 
             wallaspectsizex = self.wallaspect.shape[0]
             wallaspectsizey = self.wallaspect.shape[1]

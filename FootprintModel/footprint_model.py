@@ -409,7 +409,7 @@ class FootprintModel(object):
             # gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster, projWin=bbox)
 
             dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
-            dsm = dataset.ReadAsArray().astype(np.float)
+            dsm = dataset.ReadAsArray().astype(float)
             sizex = dsm.shape[0]
             sizey = dsm.shape[1]
             dem = np.zeros((sizex, sizey))
@@ -464,9 +464,9 @@ class FootprintModel(object):
             # gdal.Translate(self.plugin_dir + '/data/clipdem.tif', bigraster_dem, projWin=bbox)
 
             dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
-            dsm = dataset.ReadAsArray().astype(np.float)
+            dsm = dataset.ReadAsArray().astype(float)
             dataset2 = gdal.Open(self.plugin_dir + '/data/clipdem.tif')
-            dem = dataset2.ReadAsArray().astype(np.float)
+            dem = dataset2.ReadAsArray().astype(float)
 
             sizex = dsm.shape[0]
             sizey = dsm.shape[1]
@@ -512,7 +512,7 @@ class FootprintModel(object):
             # gdal.Translate(self.plugin_dir + '/data/clipvegdsm.tif', bigraster_vegdsm, projWin=bbox)
 
             dataset = gdal.Open(self.plugin_dir + '/data/clipvegdsm.tif')
-            vegdsm = dataset.ReadAsArray().astype(np.float)
+            vegdsm = dataset.ReadAsArray().astype(float)
             vegsizex = vegdsm.shape[0]
             vegsizey = vegdsm.shape[1]
 

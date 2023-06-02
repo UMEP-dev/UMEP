@@ -215,7 +215,7 @@ class WallHeight(object):
             filepath_dsm = str(provider.dataSourceUri())
 
             self.gdal_dsm = gdal.Open(filepath_dsm)
-            self.dsm = self.gdal_dsm.ReadAsArray().astype(np.float)
+            self.dsm = self.gdal_dsm.ReadAsArray().astype(float)
             geotransform = self.gdal_dsm.GetGeoTransform()
             self.scale = 1 / geotransform[1]
 

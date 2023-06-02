@@ -11,7 +11,7 @@ name=UMEP
 qgisMinimumVersion=3.0
 description=Urban Multi-scale Environmental Predictor
 
-version=4.0.1
+version=4.0.2
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Natalie Theeuwes - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg - Oscar Bäcklin - Jeremy Bernard - Sandro Oswald
 email=fredrikl@gvc.gu.se
 
@@ -29,6 +29,7 @@ repository=https://github.com/UMEP-dev/UMEP
 
 # Uncomment the following line and add your changelog:
 changelog=
+   4.0.2 : Replaced np.float() with float()
    4.0.1 : SOLWEIG now saves necessary files for Spatial TC when ticking "Save file(s) for TreePlanter".
    4.0   : New plugins; URock and Spatial TC (Thermal Comfort). Many plugins moved over to UMEP for Processing.
    3.20.9: Fixed issue when installing supy

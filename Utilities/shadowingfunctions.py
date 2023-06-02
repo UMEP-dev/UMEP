@@ -338,7 +338,7 @@ def shadowingfunction_20_old(a, vegdem, vegdem2, azimuth, altitude, scale, amaxv
         gabovea = tempvegdem2 > a
         #%vegdem2 above DEM
         # vegsh2 = np.float(fabovea)-np.float(gabovea)
-        vegsh2 = np.subtract(fabovea, gabovea, dtype=np.float)
+        vegsh2 = np.subtract(fabovea, gabovea, dtype=float)
         # vegsh = np.maximum(vegsh, vegsh2) # bad performance in python3. Replaced with fmax
         vegsh = np.fmax(vegsh, vegsh2)
         vegsh[(vegsh*sh > 0.)] = 0.

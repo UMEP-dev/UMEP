@@ -530,10 +530,10 @@ class Visual:
 
         # load clipped dsm + roof/ground data:
         dataset = gdal.Open(self.plugin_dir + '/data/temp.tif')
-        self.energy_array = dataset.ReadAsArray().astype(np.float)
+        self.energy_array = dataset.ReadAsArray().astype(float)
 
         dataset = gdal.Open(self.plugin_dir + '/data/temp_asc.tif')
-        self.dsm_array = dataset.ReadAsArray().astype(np.float)
+        self.dsm_array = dataset.ReadAsArray().astype(float)
         np.place(self.dsm_array, self.dsm_array == -9999., np.nan)
 
         # get clipped-layer parameters (e.g. size):

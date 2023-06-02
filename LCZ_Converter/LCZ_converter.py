@@ -278,7 +278,7 @@ class LCZ_test(object):
             provider = lcz_grid.dataProvider()
             filepath_lc_grid= str(provider.dataSourceUri())
             gdal_lc_grid = gdal.Open(filepath_lc_grid)
-            lcz_grid = gdal_lc_grid.ReadAsArray().astype(np.float)
+            lcz_grid = gdal_lc_grid.ReadAsArray().astype(float)
             LCZs = [1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,101.,102.,103.]
             countlcz = np.zeros(len(LCZs))
             for l in range(len(LCZs)): 

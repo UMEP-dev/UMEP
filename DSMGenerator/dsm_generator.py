@@ -640,9 +640,9 @@ class DSMGenerator(object):
         # Adding DSM to DEM
         # Read DEM
         dem_raster = gdal.Open(self.plugin_dir + '/temp/clipdem.tif')
-        dem_array = np.array(dem_raster.ReadAsArray().astype(np.float))
+        dem_array = np.array(dem_raster.ReadAsArray().astype(float))
         dsm_raster = gdal.Open(self.plugin_dir + '/temp/clipdsm.tif')
-        dsm_array = np.array(dsm_raster.ReadAsArray().astype(np.float))
+        dsm_array = np.array(dsm_raster.ReadAsArray().astype(float))
 
         indx = dsm_array.shape
         for ix in range(0, int(indx[0])):

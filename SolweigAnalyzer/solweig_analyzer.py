@@ -416,7 +416,7 @@ class SolweigAnalyzer(object):
         index = 0
         for i in self.posAll:
             gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
-            grid = gdal_dsm.ReadAsArray().astype(np.float)
+            grid = gdal_dsm.ReadAsArray().astype(float)
             plt.imshow(grid, clim=(cmin, cmax))
             plt.title(self.l[i])
             if index == 0:
@@ -472,7 +472,7 @@ class SolweigAnalyzer(object):
                 provider = dsmlayer.dataProvider()
                 filepath_dsm = str(provider.dataSourceUri())
                 self.gdal_dsm = gdal.Open(filepath_dsm)
-                self.build = self.gdal_dsm.ReadAsArray().astype(np.float)
+                self.build = self.gdal_dsm.ReadAsArray().astype(float)
                 geotransform = self.gdal_dsm.GetGeoTransform()
                 self.scale = 1 / geotransform[1]
 
@@ -483,7 +483,7 @@ class SolweigAnalyzer(object):
             # print(self.posAll)
             for i in self.posAll:
                 gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
-                grid = gdal_dsm.ReadAsArray().astype(np.float)
+                grid = gdal_dsm.ReadAsArray().astype(float)
                 if index == 0:
                     sizex = grid.shape[0]
                     sizey = grid.shape[1]
@@ -506,7 +506,7 @@ class SolweigAnalyzer(object):
             index = 0
             for i in self.posDay:
                 gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
-                grid = gdal_dsm.ReadAsArray().astype(np.float)
+                grid = gdal_dsm.ReadAsArray().astype(float)
                 if index == 0:
                     sizex = grid.shape[0]
                     sizey = grid.shape[1]
@@ -529,7 +529,7 @@ class SolweigAnalyzer(object):
             index = 0
             for i in self.posNight:
                 gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
-                grid = gdal_dsm.ReadAsArray().astype(np.float)
+                grid = gdal_dsm.ReadAsArray().astype(float)
                 if index == 0:
                     sizex = grid.shape[0]
                     sizey = grid.shape[1]
@@ -552,7 +552,7 @@ class SolweigAnalyzer(object):
             index = 0
             for i in self.posAll:
                 gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
-                grid = gdal_dsm.ReadAsArray().astype(np.float)
+                grid = gdal_dsm.ReadAsArray().astype(float)
                 if index == 0:
                     sizex = grid.shape[0]
                     sizey = grid.shape[1]
@@ -573,7 +573,7 @@ class SolweigAnalyzer(object):
             index = 0
             for i in self.posAll:
                 gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
-                grid = gdal_dsm.ReadAsArray().astype(np.float)
+                grid = gdal_dsm.ReadAsArray().astype(float)
                 if index == 0:
                     sizex = grid.shape[0]
                     sizey = grid.shape[1]
@@ -594,7 +594,7 @@ class SolweigAnalyzer(object):
             index = 0
             for i in self.posSpecMean:
                 gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
-                grid = gdal_dsm.ReadAsArray().astype(np.float)
+                grid = gdal_dsm.ReadAsArray().astype(float)
                 if index == 0:
                     sizex = grid.shape[0]
                     sizey = grid.shape[1]
@@ -618,7 +618,7 @@ class SolweigAnalyzer(object):
             index = 0
             for i in self.posSpecMax:
                 gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
-                grid = gdal_dsm.ReadAsArray().astype(np.float)
+                grid = gdal_dsm.ReadAsArray().astype(float)
                 if index == 0:
                     sizex = grid.shape[0]
                     sizey = grid.shape[1]
@@ -639,7 +639,7 @@ class SolweigAnalyzer(object):
             index = 0
             for i in self.posSpecMin:
                 gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
-                grid = gdal_dsm.ReadAsArray().astype(np.float)
+                grid = gdal_dsm.ReadAsArray().astype(float)
                 if index == 0:
                     sizex = grid.shape[0]
                     sizey = grid.shape[1]
@@ -661,7 +661,7 @@ class SolweigAnalyzer(object):
             index = 0
             for i in self.posAll:
                 gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
-                grid = gdal_dsm.ReadAsArray().astype(np.float)
+                grid = gdal_dsm.ReadAsArray().astype(float)
                 if index == 0:
                     sizex = grid.shape[0]
                     sizey = grid.shape[1]
@@ -688,7 +688,7 @@ class SolweigAnalyzer(object):
             index = 0
             for i in self.posAll:
                 gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
-                grid = gdal_dsm.ReadAsArray().astype(np.float)
+                grid = gdal_dsm.ReadAsArray().astype(float)
                 if index == 0:
                     sizex = grid.shape[0]
                     sizey = grid.shape[1]

@@ -501,7 +501,7 @@ class Visual:
 
         # ground energy data for selected area:
         dataset = gdal.Open(self.plugin_dir + '/data/temp.tif')
-        self.energy_array = dataset.ReadAsArray().astype(np.float)
+        self.energy_array = dataset.ReadAsArray().astype(float)
 
         sizex = self.energy_array.shape[1]
         sizey = self.energy_array.shape[0]
@@ -524,7 +524,7 @@ class Visual:
         select_ulcorner = (select_geotransform[0], select_geotransform[3])   # x, y for upper left corner
         select_size = (sizex, sizey)   # size of selected array in x, y direction
 
-        self.dsm_array = dataset.ReadAsArray().astype(np.float)
+        self.dsm_array = dataset.ReadAsArray().astype(float)
         np.place(self.dsm_array, self.dsm_array == -9999., np.nan)
 
         # if self.iface is not None:

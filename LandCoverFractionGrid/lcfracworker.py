@@ -130,7 +130,7 @@ class Worker(QtCore.QObject):
 
                 time.sleep(0.05)
                 dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
-                lc_grid_array = dataset.ReadAsArray().astype(np.float)
+                lc_grid_array = dataset.ReadAsArray().astype(float)
                 nd = dataset.GetRasterBand(1).GetNoDataValue()
                 nodata_test = (lc_grid_array == nd)
                 if self.dlg.checkBoxNoData.isChecked():

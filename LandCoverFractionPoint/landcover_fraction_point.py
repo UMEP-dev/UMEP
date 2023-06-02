@@ -423,7 +423,7 @@ class LandCoverFractionPoint(object):
         bigraster = None
 
         dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
-        dsm = dataset.ReadAsArray().astype(np.float)
+        dsm = dataset.ReadAsArray().astype(float)
 
         self.degree = float(self.dlg.degreeBox.currentText())
         nd = dataset.GetRasterBand(1).GetNoDataValue()

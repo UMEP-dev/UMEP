@@ -579,7 +579,7 @@ class SUEWSAnalyzer(object):
             self.rasterize(str(polygonpath), str(self.plugin_dir + '/tempgrid.tif'), str(poly_field), resx, crs, extent)
 
             dataset = gdal.Open(self.plugin_dir + '/tempgrid.tif')
-            idgrid_array = dataset.ReadAsArray().astype(np.float)
+            idgrid_array = dataset.ReadAsArray().astype(float)
 
             gridout = np.zeros((idgrid_array.shape[0], idgrid_array.shape[1]))
 
