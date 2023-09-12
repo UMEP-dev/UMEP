@@ -490,7 +490,7 @@ class SOLWEIG(object):
                     return
                 # fix issues when NoData is included in land cover data
                 ndlc = dataSet.GetRasterBand(1).GetNoDataValue()
-                if np.where(self.lcgrid == ndlc)[0] > 0:
+                if np.where(self.lcgrid == ndlc)[0].shape[0] > 0: # fixed issue from Discussions #548
                     self.lcgrid[self.lcgrid == nd] = 1
                     QMessageBox.warning(self.dlg, "Land Cover includes NoData", 
                                         "Land cover data includes NoData values (converted to paved (1)). "
