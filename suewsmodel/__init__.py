@@ -2,6 +2,14 @@
 # __author__ = 'xlinfr'
 import traceback
 
+# The .egg packages shipped with QGIS sometimes appear before the user site dir
+# in sys.path. To make sure package versions we install with "--user" take precedence,
+# prepend the user site dir to sys.path before importing other packages.
+# This works around https://github.com/qgis/QGIS/issues/55258
+import site
+import sys
+sys.path.insert(0, site.getusersitepackages())
+
 from qgis.PyQt.QtWidgets import QMessageBox
 from .supy_installer import locate_py, setup_supy
 from qgis.core import Qgis, QgsMessageLog
