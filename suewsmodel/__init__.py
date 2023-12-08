@@ -19,7 +19,7 @@ try:
     from supy import __version__ as ver_supy
     QgsMessageLog.logMessage("UMEP - SuPy Version installed: " + ver_supy, level=Qgis.Info)
 except:
-    if QMessageBox.question(None, "UMEP for Processing Python dependencies not installed",
+    if QMessageBox.question(None, "UMEP dependencies not installed",
               "Do you automatically want install missing python modules? \r\n"
               "QGIS will be non-responsive for a couple of minutes.",
                QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
@@ -33,7 +33,7 @@ except:
             )
 
         try:
-            setup_umep_python(ver=None)
+            setup_supy(ver=None)
             QMessageBox.information(None, "Packages successfully installed",
                                     "To make all parts of the plugin work it is recommended to restart your QGIS-session.")
         except Exception as e:
