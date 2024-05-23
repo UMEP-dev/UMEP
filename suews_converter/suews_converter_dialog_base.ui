@@ -56,12 +56,22 @@
          <string>2019a</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>2020a</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2021a</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
       <widget class="QComboBox" name="comboBoxNew">
        <property name="currentIndex">
-        <number>6</number>
+        <number>0</number>
        </property>
        <item>
         <property name="text">
@@ -96,6 +106,16 @@
        <item>
         <property name="text">
          <string>2020a</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2021a</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2023a</string>
         </property>
        </item>
       </widget>

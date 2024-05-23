@@ -413,13 +413,19 @@ class SuewsSimple(object):
         # Copy basefiles from sample_run
         basefiles = ['ESTMinput.nml', 'SUEWS_AnthropogenicEmission.txt', 'SUEWS_BiogenCO2.txt', 'SUEWS_Conductance.txt', 'SUEWS_ESTMCoefficients.txt', 'SUEWS_Irrigation.txt', 
         'SUEWS_NonVeg.txt', 'SUEWS_OHMCoefficients.txt', 'SUEWS_Profiles.txt', 'SUEWS_Snow.txt', 'SUEWS_Soil.txt', 'SUEWS_Water.txt', 'SUEWS_Veg.txt', 
-        'SUEWS_WithinGridWaterDist.txt', 'SUEWS_SPARTACUS.nml', 'GridLayoutKc.nml']
+        'SUEWS_WithinGridWaterDist.txt', 'SUEWS_SPARTACUS.nml'] # Last moved down, 'GridLayoutKc.nml']
         for i in range(0, basefiles.__len__()):
             try:
                 shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.model_dir + '/Input/' + basefiles[i])
             except:
                 os.remove(self.model_dir + '/Input/' + basefiles[i])
                 shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.model_dir + '/Input/' + basefiles[i]) 
+
+        #Response to issue #617
+        try:
+            shutil.rmtree(self.model_dir + '/Output')
+        except:
+            pass
 
         # Getting values from GUI
         YYYY = self.dlg.lineEdit_YYYY.text()
@@ -442,6 +448,14 @@ class SuewsSimple(object):
         filecode = self.dlg.FileCode.text()
         utc = self.dlg.UTC.text()
         z = self.dlg.Height.text()
+
+        #Response to issue #618
+        gridlayoutfile = self.model_dir + '/Input/GridLayout' + str(filecode) + '.nml'
+        try:
+            shutil.copy(self.supylib + '/sample_run/Input/GridLayoutKc.nml', gridlayoutfile)
+        except:
+            os.remove(self.supylib + '/sample_run/Input/GridLayoutKc.nml')
+            shutil.copy(self.supylib + '/sample_run/Input/GridLayoutKc.nml', gridlayoutfile) 
 
         # Checking LC fractions = 1
         LCtest = float(pai_paved) + float(pai_build) + float(pai_evergreen) + float(pai_decid) + float(pai_grass) + float(pai_baresoil) + float(pai_water)

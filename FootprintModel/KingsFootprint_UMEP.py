@@ -634,7 +634,7 @@ def FFP_climatology(zm=None, z0=None, umean=None, h=None, ol=None, sigmav=None, 
 
             #===========================================================================
             # Add to footprint climatology raster
-            fclim_2d = fclim_2d + f_2d;
+            fclim_2d = fclim_2d + f_2d
 
     #===========================================================================
     # Continue if at least one valid footprint was calculated
@@ -649,12 +649,12 @@ def FFP_climatology(zm=None, z0=None, umean=None, h=None, ol=None, sigmav=None, 
 
         #===========================================================================
         # Normalize and smooth footprint climatology
-        fclim_2d = fclim_2d / n;
+        fclim_2d = fclim_2d / n
 
         if smooth_data is not None:
             skernel  = np.matrix('0.05 0.1 0.05; 0.1 0.4 0.1; 0.05 0.1 0.05')
-            fclim_2d = sg.convolve2d(fclim_2d,skernel,mode='same');
-            fclim_2d = sg.convolve2d(fclim_2d,skernel,mode='same');
+            fclim_2d = sg.convolve2d(fclim_2d,skernel,mode='same')
+            fclim_2d = sg.convolve2d(fclim_2d,skernel,mode='same')
 
         #===========================================================================
         # Derive footprint ellipsoid incorporating R% of the flux, if requested,

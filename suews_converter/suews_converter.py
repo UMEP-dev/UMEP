@@ -265,6 +265,7 @@ class SUEWSConverter:
         toDir = self.dlg.textOutput.text()
         fromVer = self.dlg.comboBoxOld.currentText()
         toVer = self.dlg.comboBoxNew.currentText()
+        print([fromDir + ',' + toDir + ',' + fromVer + ',' + toVer])
         try:
             convert_table(fromDir, toDir, fromVer, toVer)
             self.iface.messageBar().pushMessage("SUEWS Converter", "Data successfully converted between: "
