@@ -31,7 +31,7 @@ class VisWidget(QGLWidget):
         # data arrays, dimensions:
         self.energy_array = energy_array
         self.dsm_array = dsm_array
-        self.wall_array = np.array(wall_array)
+        self.wall_array = wall_array #np.array(wall_array)
         self.cellsizex = cellsizex
         self.cellsizey = -cellsizey   # *(-1) - in y direction index increases inverse to geo-coordinates
         self.sizex = self.energy_array.shape[1]

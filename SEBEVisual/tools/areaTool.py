@@ -104,13 +104,13 @@ class AreaTool(QgsMapToolEmitPoint):
                  self.areaRubberband3.reset()
                  self.areaRubberband4.reset()
             else: 
-                self.areaRubberband1 = QgsRubberBand(self.canvas, False)
+                self.areaRubberband1 = QgsRubberBand(self.canvas) #, False) Response to #620
                 self.areaRubberband1.setColor(QColor(Qt.red))
-                self.areaRubberband2 = QgsRubberBand(self.canvas, False)
+                self.areaRubberband2 = QgsRubberBand(self.canvas) #, False)
                 self.areaRubberband2.setColor(QColor(Qt.red))
-                self.areaRubberband3 = QgsRubberBand(self.canvas, False)
+                self.areaRubberband3 = QgsRubberBand(self.canvas) #, False)
                 self.areaRubberband3.setColor(QColor(Qt.red))
-                self.areaRubberband4 = QgsRubberBand(self.canvas, False)
+                self.areaRubberband4 = QgsRubberBand(self.canvas) #, False)
                 self.areaRubberband4.setColor(QColor(Qt.red))
             if self.areaEnd is None:
                 point1 = QgsPoint(point.x(), self.areaStart.y())
