@@ -100,7 +100,7 @@ def install_supy(ver=None):
         )
         return str_info
     except Exception:
-        raise RuntimeError(f"UMEP couldn't install supy{str_ver}!") from Exception
+        raise RuntimeError(f"UMEP couldn't install supy {str_ver}!") from Exception
 
 
 # uninstall supy
