@@ -15,7 +15,7 @@ except:
 import pytz
 from .DataManagement.TemporalProfileSampler import TemporalProfileSampler, is_holiday
 from .DataManagement.LookupLogger import LookupLogger
-from datetime import timedelta, datetime
+from datetime import datetime as dt
 class LUCYDiurnalProfile(object):
     def __init__(self, areaTimezone, weekendDays, use_uk_holidays, other_holidays = [], logger= LookupLogger()):
         ''' Instantiate
@@ -83,8 +83,8 @@ class LUCYDiurnalProfile(object):
         dateRanges = []
         for seasonStart in np.arange(1, dl.shape[1]):
             try:
-                sd = pd.datetime.strptime(dl[seasonStart][1], '%Y-%m-%d')
-                ed = pd.datetime.strptime(dl[seasonStart][2], '%Y-%m-%d')
+                sd = dt.strptime(dl[seasonStart][1], '%Y-%m-%d')
+                ed = dt.strptime(dl[seasonStart][2], '%Y-%m-%d')
             except Exception as e:
                 raise Exception('Rows 2 and 3 of ' + file + ' must be dates in the format YYYY-mm-dd')
 

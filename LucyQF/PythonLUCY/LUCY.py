@@ -243,10 +243,10 @@ class Model(object):
             raise ValueError('The "timezone" entry in the LQF parameters file must be a valid time zone string')
 
         for i in range(0,len(startDates),1):
-            bins = pd.date_range(pd.datetime.strptime(startDates[i].strftime('%Y-%m-%d %H:%M'), '%Y-%m-%d %H:%M') + timedelta(seconds=timeStepDuration),
-                                 pd.datetime.strptime(endDates[i].strftime('%Y-%m-%d %H:%M'), '%Y-%m-%d %H:%M'),
+            bins = pd.date_range(dt.strptime(startDates[i].strftime('%Y-%m-%d %H:%M'), '%Y-%m-%d %H:%M') + timedelta(seconds=timeStepDuration), # removed pd.datetime
+                                 dt.strptime(endDates[i].strftime('%Y-%m-%d %H:%M'), '%Y-%m-%d %H:%M'),
                                  tz='UTC',
-                                 freq='60Min')
+                                 freq='60Min') # removed pd.datetime
             if i == 0:
                 timeBins = bins
             else:
@@ -724,12 +724,13 @@ class Model(object):
 
         # Scan folder for files matching the expected pattern
         files = os.listdir(self.modelOutputPath)
-        tz = timezone('UTC')
+        tz = timezone('Europe/Stockholm') #('UTC')
         self.fileList={}
         for f in files:
             a = re.search(self.reg, f)
             if a is not None:
-                self.fileList[tz.localize(dt.strptime(f, self.dateStructure))] = os.path.join(self.modelOutputPath, f)
+                #self.fileList[tz.localize(dt.strptime(f, self.dateStructure))] = os.path.join(self.modelOutputPath, f)
+                self.fileList[dt.strptime(f, self.dateStructure)] = os.path.join(self.modelOutputPath, f) # remoced timezone in output as it is not there anymore
 
         self.fileList = pd.Series(self.fileList)
 

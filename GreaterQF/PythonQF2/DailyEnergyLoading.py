@@ -10,7 +10,7 @@ except:
 import pytz
 from .DataManagement.DailyLoading import DailyLoading
 from .DataManagement.LookupLogger import LookupLogger
-
+from datetime import datetime as dt
 
 class DailyEnergyLoading:
     '''
@@ -86,8 +86,8 @@ class DailyEnergyLoading:
 
         # Rest of rows 1 and 2 should be dates
         try:
-            sd = pd.datetime.strptime(dl[list(dl.keys())[1]][0], '%Y-%m-%d')
-            ed = pd.datetime.strptime(dl[list(dl.keys())[1]][1], '%Y-%m-%d')
+            sd = dt.strptime(dl[list(dl.keys())[1]][0], '%Y-%m-%d') #removed pd.datetime
+            ed = dt.strptime(dl[list(dl.keys())[1]][1], '%Y-%m-%d') #removed pd.datetime
         except Exception as e:
             raise Exception('The second and third rows of ' + file + ' must be dates in the format YYYY-mm-dd')
 

@@ -11,6 +11,7 @@ except:
 import pytz
 from .DataManagement.LookupLogger import LookupLogger
 from .DataManagement.TemporalProfileSampler import TemporalProfileSampler
+from datetime import datetime as dt
 
 class TransportProfiles:
     def __init__(self, city, use_uk_holidays, customHolidays = [], logger=LookupLogger()):
@@ -139,8 +140,8 @@ class TransportProfiles:
         # Step through the list of transport types, adding the profiles
         # Asssumes first time point is the start of monday
         try:
-            sd = pd.datetime.strptime(dl[dl.columns[1]][0], '%Y-%m-%d')
-            ed = pd.datetime.strptime(dl[dl.columns[1]][1], '%Y-%m-%d')
+            sd = dt.strptime(dl[dl.columns[1]][0], '%Y-%m-%d') #removed pd.datetime
+            ed = dt.strptime(dl[dl.columns[1]][1], '%Y-%m-%d') #removed pd.datetime
         except Exception as e:
             raise Exception('Second column of Rows 2 and 3 of ' + file + ' must be dates in the format YYYY-mm-dd')
 

@@ -33,7 +33,7 @@ class DailyFact:
 def testIt():
     import pandas as pd
     a = DailyFact(True)
-    date = pd.date_range(pd.datetime.strptime('2015-01-01 00:00', '%Y-%m-%d %H:%M'), tz='Europe/London', periods=5)[1]
+    date = pd.date_range(dt.strptime('2015-01-01 00:00', '%Y-%m-%d %H:%M'), tz='Europe/London', periods=5)[1] #removed pd.datetime
     print(a.getFact(dt.strptime('2015-01-01', '%Y-%m-%d')))
     print(a.getFact(dt.strptime('2015-01-02', '%Y-%m-%d')))
     print(a.getFact(dt.strptime('2015-01-03', '%Y-%m-%d')))

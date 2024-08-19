@@ -529,8 +529,19 @@ class UMEP(object):
         #sg.run()
 
     def GF(self):
-        sg = GreaterQF(self.iface)
-        sg.run()
+        if QMessageBox.question(None, "GQf currently not maintained",
+              "This tool might be malfunctioning based on what version of QGIS and UMEP used. \r\n"
+              "Do you want to continue?",
+               QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
+        
+           sg = GreaterQF(self.iface)
+           sg.run()
+        else:
+            QMessageBox.information(
+                None,
+                "Model not started",
+                "Please contact us if you are interested to contribute to the UMEP-project and update this model.",
+            )
 
     def SO(self):
         sg = SOLWEIG(self.iface)
@@ -575,9 +586,20 @@ class UMEP(object):
         sg.run()
 
     def LF(self):
-        sg = LQF(self.iface)
-        # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)  #used for debugging
-        sg.run()
+        if  QMessageBox.question(None, "LQf currently not maintained",
+              "This tool might be malfunctioning based on what version of QGIS and UMEP used. \r\n"
+              "Do you want to continue?",
+               QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
+        
+            sg = LQF(self.iface)
+            sg.run()
+           
+        else:
+            QMessageBox.information(
+                None,
+                "Model not started",
+                "Please contact us if you are interested to contribute to the UMEP-project and update this model.",
+            )
 
     def BSS(self):
         sg = BenchMarking(self.iface)
@@ -599,5 +621,8 @@ class UMEP(object):
     def help(self):
         url = "https://umep-docs.readthedocs.io/en/latest/index.html"
         webbrowser.open_new_tab(url)
+
+# pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)  #used for debugging
+
 
 

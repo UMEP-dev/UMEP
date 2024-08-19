@@ -30,7 +30,7 @@ def is_holiday(timeStepEnd, use_UK, extraHolidays):
      UK holidays generated automatically unless unexpected'''
 
     # if type(timeStepEnd) in [type(dt(2015, 1, 1)), pd.datetime(2015, 1, 1), pd.tslib.Timestamp]:
-    if type(timeStepEnd) in [type(dt(2015, 1, 1)), pd.datetime(2015, 1, 1), pd.Timestamp]:
+    if type(timeStepEnd) in [type(dt(2015, 1, 1)), dt(2015, 1, 1), pd.Timestamp]:
         reqDate = timeStepEnd.date()
         reqDate = timeStepEnd.date()
     elif type(timeStepEnd) is type(dtd(2015, 1, 1)):

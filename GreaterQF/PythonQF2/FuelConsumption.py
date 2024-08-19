@@ -4,6 +4,7 @@ except:
     pass
 import os
 from .string_func import   lower
+from datetime import datetime as dt
 class FuelConsumption():
     def __init__(self, filename):
         ''' Class to read in fuel consumption file with prescribed format in g/km,
@@ -25,7 +26,7 @@ class FuelConsumption():
             raise ValueError('Fuel consumption file ' + filename + ' does not exist')
 
         # Create multi-indexed data frame
-        def todate(x): return pd.datetime.strptime(x, '%Y-%m-%d')
+        def todate(x): return dt.strptime(x, '%Y-%m-%d')
         try:
             self.data = pd.read_csv(filename, header=1, delimiter=',', index_col=[0,1,2], parse_dates=True)
         except Exception:

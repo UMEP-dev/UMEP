@@ -155,7 +155,7 @@ def testIt():
                            'ecostatus':2}).to_frame()
     # fix_print_with_import
     print(attribs)
-    dr = pd.date_range(pd.datetime.strptime('2013-01-01 12:00', '%Y-%m-%d %H:%M'), pd.datetime.strptime('2013-01-30 12:00', '%Y-%m-%d %H:%M'), tz="UTC")
+    dr = pd.date_range(dt.strptime('2013-01-01 12:00', '%Y-%m-%d %H:%M'), dt.strptime('2013-01-30 12:00', '%Y-%m-%d %H:%M'), tz="UTC")
 
     te = DailyTemperature("Asia/Shanghai", use_uk_holidays=False, weekendDays= [], other_holidays=[])
     te.addTemperatureData('N:\QF_China\Beijing\dailyTemperature_2013_Beijing.csv')

@@ -10,7 +10,7 @@ except:
 import pytz
 from .DataManagement.LookupLogger import LookupLogger
 from .DataManagement.TemporalProfileSampler import TemporalProfileSampler
-
+from datetime import datetime as dt
 
 class HumanActivityProfiles:
     def __init__(self, city, use_uk_holidays, customHolidays = [], logger=LookupLogger()):
@@ -103,8 +103,8 @@ class HumanActivityProfiles:
         # Go through in sextouplets gathering up data for a template week
         for seasonStart in np.arange(1, dl.shape[1], 6):
             try:
-                sd = pd.datetime.strptime(dl[seasonStart][3], '%Y-%m-%d')
-                ed = pd.datetime.strptime(dl[seasonStart][4], '%Y-%m-%d')
+                sd = dt.strptime(dl[seasonStart][3], '%Y-%m-%d') #removed pd.datetime
+                ed = dt.strptime(dl[seasonStart][4], '%Y-%m-%d') #removed pd.datetime
             except Exception as e:
                 raise Exception('Rows 4 and 5 ' + file + ' must be dates in the format YYYY-mm-dd')
 

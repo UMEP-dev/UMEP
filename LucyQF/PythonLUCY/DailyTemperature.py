@@ -4,7 +4,7 @@ from builtins import str
 from builtins import map
 from builtins import object
 # Object that stores and retrieves temperature each day
-
+from datetime import datetime as dt
 import os
 # from string import lower
 import pytz
@@ -93,8 +93,8 @@ class DailyTemperature(object):
 
         # Rest of rows 1 and 2 should be dates
         try:
-            sd = pd.datetime.strptime(dl.t_celsius[0], '%Y-%m-%d')
-            ed = pd.datetime.strptime(dl.t_celsius[1], '%Y-%m-%d')
+            sd = dt.strptime(dl.t_celsius[0], '%Y-%m-%d') #removed pd.datetime
+            ed = dt.strptime(dl.t_celsius[1], '%Y-%m-%d') #removed pd.datetime
         except Exception as e:
             raise Exception('The second and third rows of ' + file +
                             ' must be dates in the format YYYY-mm-dd. Got:' + dl.t_celsius[0] + ' and ' + dl.t_celsius[1])
@@ -109,7 +109,7 @@ class DailyTemperature(object):
 
 def test():
     # Add and retrieve test data
-    dr = pd.date_range(pd.datetime.strptime('2015-01-01 00:00', '%Y-%m-%d %H:%M'), pd.datetime.strptime('2015-01-05 12:00', '%Y-%m-%d %H:%M'), tz="UTC", freq="H")
+    dr = pd.date_range(dt.strptime('2015-01-01 00:00', '%Y-%m-%d %H:%M'), dt.strptime('2015-01-05 12:00', '%Y-%m-%d %H:%M'), tz="UTC", freq="H")
 
     a = DailyTemperature("Asia/Shanghai", use_uk_holidays=False, weekendDays= [], other_holidays=[])
     a.addTemperatureData('N:\QF_China\Beijing\dailyTemperature_2013_Beijing.csv')

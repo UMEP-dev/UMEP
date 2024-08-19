@@ -192,7 +192,7 @@ class Transport():
         # TODO 2: Support a vehicle age profile (only a static profile is likely to be tractable)
         # TODO 1: Get this from the parameters file
         # For now, just assumes every vehicle was made in 2005 and looks up values from the fuel consumption object
-        vehDate = pd.datetime.strptime('2005-01-01', '%Y-%m-%d')
+        vehDate = dt.strptime('2005-01-01', '%Y-%m-%d') #removed pd.datetime
 
         # Come up with a read-across between transport road types and euroclass road types
         # Any roads not matching these are assumed to be very minor and are omitted

@@ -183,7 +183,7 @@ class time_displayer(QDialog, FORM_CLASS):
 
     def updateDisplay(self):
         ''' Add map(s) of all QF components to the canvas based on what's selected in self.lstTimes'''
-        timestamps = [pd.datetime.strptime(newItem.text(), '%Y-%m-%d %H:%M') for newItem in self.lstTimes.selectedItems()]
+        timestamps = [dt.strptime(newItem.text(), '%Y-%m-%d %H:%M') for newItem in self.lstTimes.selectedItems()] #removed pd.datetime
 
         for t in timestamps:
             outs = pd.read_csv(self.model.getFileList()[t], header=0, index_col=0)
