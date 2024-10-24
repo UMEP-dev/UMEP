@@ -356,7 +356,8 @@ class SuewsSimple(object):
         lin = f1.readlines()
         index = 2
         lines = lin[index].split()
-        self.dlg.lineEdit_YYYY.setText(str(int(float(lines[1]))))
+        #self.dlg.lineEdit_YYYY.setText(str(int(float(lines[1]))))
+        self.dlg.lineEdit_YYYY.setText(str(2012)) #response to issue #655 
         self.dlg.pai_paved.setText(lines[13])
         self.dlg.pai_build.setText(lines[14])
         self.dlg.pai_evergreen.setText(lines[15])
@@ -385,7 +386,7 @@ class SuewsSimple(object):
         self.dlg.UTC.setText('0')
 
         #self.dlg.textInputMetdata.setText(self.model_dir + '/BaseFiles/Kc_2012_data_60.txt')
-        self.dlg.textInputMetdata.setText(self.supylib + '/sample_run/Input/Kc_2011_data_60.txt')
+        self.dlg.textInputMetdata.setText(self.supylib + '/sample_run/Input/Kc_2012_data_60.txt') #response to issue #655 
         self.dlg.textOutput.setText(self.model_dir  + '/Output/')
         self.dlg.spinBoxSoilMoisture.setValue(100)
 
