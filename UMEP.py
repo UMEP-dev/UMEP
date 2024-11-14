@@ -44,6 +44,7 @@ from .LCZ_Converter.LCZ_converter import LCZ_test
 from .UWGReClassifier.uwg_reclassifier import uwg_reclassifier
 from .uwg_prepare.uwg_prepare import UWGPrepare
 from .uwg_analyser.uwg_analyser import UWGAnalyser
+from .target_analyser.target_analyser import TARGETAnalyser
 # from .WATCHData.watch import WATCHData
 from .GreaterQF.greater_qf import GreaterQF
 from .ExtremeFinder.extreme_finder import ExtremeFinder
@@ -65,6 +66,7 @@ from .SEBEVisual.sun import Visual
 from .SolweigAnalyzer.solweig_analyzer import SolweigAnalyzer
 from .SUEWSAnalyzer.suews_analyzer import SUEWSAnalyzer
 #from .copernicus_data.copernicus_data import CopernicusData
+from .suews_database_manager.suews_database_manager import suews_database_manager
 from .UMEP_about import UMEPDialogAbout
 import os.path
 import webbrowser
@@ -136,9 +138,9 @@ class UMEP(object):
         self.Pre_Menu.addMenu(self.ULC_Menu)
         self.SM_Menu = QMenu("Urban Morphology")
         self.Pre_Menu.addMenu(self.SM_Menu)
-        self.PreUEB_Menu = QMenu("Urban Energy Balance (SUEWS)")
+        self.PreUEB_Menu = QMenu("Urban Energy Balance")
         self.Pre_Menu.addMenu(self.PreUEB_Menu)
-        self.PreUHI_Menu = QMenu("Urban Heat Island (UWG)")
+        self.PreUHI_Menu = QMenu("Urban Heat Island")
         self.Pre_Menu.addMenu(self.PreUHI_Menu)
         
         # Sub-actions to Surface Morphology
@@ -200,6 +202,9 @@ class UMEP(object):
         self.ULCUEBG_Action.triggered.connect(self.LCG)
 
         # Sub-actions to Urban Energy Balance (SUEWS)
+        self.SUEWSDatabase_Action = QAction("SUEWS Database Manager", self.iface.mainWindow())
+        self.PreUEB_Menu.addAction(self.SUEWSDatabase_Action)
+        self.SUEWSDatabase_Action.triggered.connect(self.SUEWSDatabase)        
         self.SUEWSPrepare_Action = QAction("SUEWS Prepare", self.iface.mainWindow())
         self.PreUEB_Menu.addAction(self.SUEWSPrepare_Action)
         self.SUEWSPrepare_Action.triggered.connect(self.SUEWS_Prepare)
@@ -249,7 +254,7 @@ class UMEP(object):
         self.SUEWSSIMPLE_Action = QAction("Urban Energy Balance (SUEWS, Simple)", self.iface.mainWindow())
         self.UEB_Menu.addAction(self.SUEWSSIMPLE_Action)
         self.SUEWSSIMPLE_Action.triggered.connect(self.SUEWS_simple)
-        self.SUEWS_Action = QAction("Urban Energy Balance (SUEWS/BLUEWS, Advanced)", self.iface.mainWindow())
+        self.SUEWS_Action = QAction("Urban Energy Balance (SUEWS, Advanced)", self.iface.mainWindow())
         self.UEB_Menu.addAction(self.SUEWS_Action)
         self.SUEWS_Action.triggered.connect(self.SUEWS_advanced)
 
@@ -301,6 +306,9 @@ class UMEP(object):
         self.UWGa_Action = QAction("UWG Analyzer", self.iface.mainWindow())
         self.UHIpos_Menu.addAction(self.UWGa_Action)
         self.UWGa_Action.triggered.connect(self.UWGv)
+        self.TARGETa_Action = QAction("TARGET Analyzer", self.iface.mainWindow())
+        self.UHIpos_Menu.addAction(self.TARGETa_Action)
+        self.TARGETa_Action.triggered.connect(self.TARGETv)
 
         # Sub-menus to About
         self.About_Action = QAction("About", self.iface.mainWindow())
@@ -346,6 +354,8 @@ class UMEP(object):
         self.UWGReclassifier_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
         self.UWG_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
         self.UWGa_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
+        self.TARGETa_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
+        self.SUEWSDatabase_Action.setIcon(QIcon(self.plugin_dir + "/Icons/iconSUEWSDB.png"))
 
         self.iface.mainWindow().menuBar().insertMenu(self.iface.firstRightStandardMenu().menuAction(), self.UMEP_Menu)
         self.dlgAbout = UMEPDialogAbout()
@@ -503,6 +513,10 @@ class UMEP(object):
         sg = UWGAnalyser(self.iface)
         sg.run()
 
+    def TARGETv(self):
+        sg = TARGETAnalyser(self.iface)
+        sg.run()
+
     def FP(self):
         sg = FootprintModel(self.iface)
         sg.run()
@@ -610,8 +624,15 @@ class UMEP(object):
         sg.run()
 
     def UWGPrepare(self):
-        sg = UWGPrepare(self.iface)
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        # sg = UWGPrepare(self.iface)
+        # sg.run()
+
+    def SUEWSDatabase(self):
+        sg = suews_database_manager(self.iface)
         sg.run()
+    
     
     def run(self):
         # This function starts the plugin

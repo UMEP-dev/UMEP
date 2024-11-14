@@ -231,16 +231,22 @@ class SuewsSimple(object):
         self.dlg.exec_()
 
     def IMCP(self):
-        sg = ImageMorphParmsPoint(self.iface)
-        self.dlg.setEnabled(False)
-        sg.run()
-        self.dlg.setEnabled(True)
+        QMessageBox.information(None, "Plugin moved",
+            "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information."
+            " After variables are generated, fetch file to change settings in this panel.")
+        #sg = ImageMorphParmsPoint(self.iface)
+        #self.dlg.setEnabled(False)
+        #sg.run()
+        #self.dlg.setEnabled(True)
 
     def LCFP(self):
-        sg = LandCoverFractionPoint(self.iface)
-        self.dlg.setEnabled(False)
-        sg.run()
-        self.dlg.setEnabled(True)
+        QMessageBox.information(None, "Plugin moved",
+            "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information."
+            " After variables are generated, fetch file to change settings in this panel.")
+        # sg = LandCoverFractionPoint(self.iface)
+        # self.dlg.setEnabled(False)
+        # sg.run()
+        # self.dlg.setEnabled(True)
 
     def folder_path(self):
         self.fileDialogOut.open()

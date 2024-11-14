@@ -558,8 +558,8 @@ class MetdataProcessor(object):
 
             self.dlg.progressBar.setValue(13)
 
-            if self.dlg.checkBox_xcmd.isChecked():
-                met_new[:, 19] = met_old[:, self.dlg.comboBox_xcmd.currentIndex()]
+            if self.dlg.checkBox_xsmd.isChecked(): #response to #669
+                met_new[:, 19] = met_old[:, self.dlg.comboBox_xsmd.currentIndex()]
                 if self.dlg.checkBoxQuality.isChecked():
                     testwhere = np.where((met_new[:, 19] < 0.01) | (met_new[:, 19] > 0.5))
                     if testwhere[0].__len__() > 0:

@@ -11,8 +11,8 @@ name=UMEP
 qgisMinimumVersion=3.0
 description=Urban Multi-scale Environmental Predictor
 
-version=4.1.1
-author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Natalie Theeuwes - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg - Oscar Bäcklin - Jeremy Bernard - Sandro Oswald
+version=4.2.1
+author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Natalie Theeuwes - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg - Oscar Bäcklin - Jeremy Bernard - Sandro Oswald - Matthias Demuzere - Kerry Nice - Jixuan Chen
 email=fredrikl@gvc.gu.se
 
 about=
@@ -29,6 +29,8 @@ repository=https://github.com/UMEP-dev/UMEP
 
 # Uncomment the following line and add your changelog:
 changelog=
+   4.2.1 : Response to #668
+   4.2   : New tool, TARGET 
    4.1.1 : Update of LQf 
    4.1   : Started adding compability to Python 3.12
    4.0.6 : Respone to #620

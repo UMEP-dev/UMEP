@@ -71,6 +71,7 @@ class LandCoverReclassifier(object):
         self.dlg.runButton.clicked.connect(self.start_progress)
         self.dlg.pushButtonSave.clicked.connect(self.save_file_place)
         self.dlg.helpButton.clicked.connect(self.help)
+        self.dlg.checkBoxTarget.clicked.connect(self.add_target)
 
         self.fileDialog = QFileDialog()
         # self.fileDialog.setFileMode(0)
@@ -170,6 +171,24 @@ class LandCoverReclassifier(object):
             self.filePath = self.fileDialog.selectedFiles()
             self.filePath[0] = self.filePath[0] + '.tif'
             self.dlg.textOutput.setText(self.filePath[0])
+
+    def add_target(self):
+        t = self.dlg.checkBoxTarget.isChecked()
+        if t:
+            for i in range(1,14):
+                Le = eval('self.dlg.Box_' + str(i))
+                Le.addItem('Grass (irrigated)')
+                Le.addItem('Concrete')
+        else:
+            for i in range(1,14):
+                Le = eval('self.dlg.Box_' + str(i))
+                Le.removeItem(8)
+                Le.removeItem(8)
+            # self.dlg.Box_1.clear()
+            # self.dlg.Box_1.addItem('Not Specified')
+        # if not self.dlg.checkBoxTarget.isChecked:
+            # self.dlg.Box_1.clear()
+            
 
     def start_progress(self):
 
@@ -273,6 +292,7 @@ class LandCoverReclassifier(object):
 
     def run(self):
         self.dlg.show()
+        self.dlg.adjustSize()
         self.dlg.exec_()
 
     def help(self):

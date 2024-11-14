@@ -31,10 +31,10 @@ from qgis.gui import QgsMapLayerComboBox, QgsFieldComboBox
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
-from .uwg_analyser_dialog import UWGAnalyserDialog
+from .target_analyser_dialog import TARGETAnalyserDialog
 import os.path
 # from .umep_uwg_export_component import read_uwg_file
-from ..Utilities.umep_uwg_export_component import read_uwg_file
+# from ..Utilities.umep_uwg_export_component import read_uwg_file
 import datetime
 import numpy as np
 try:
@@ -48,9 +48,14 @@ import webbrowser
 import shutil
 from osgeo import gdal, ogr, osr
 from osgeo.gdalconst import *
+try:
+    #from target_py import Target
+    from target_py.ui.utils import read_config
+except:
+    pass
 
 
-class UWGAnalyser:
+class TARGETAnalyser:
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -70,7 +75,7 @@ class UWGAnalyser:
         locale_path = os.path.join(
             self.plugin_dir,
             'i18n',
-            'UWGAnalyser_{}.qm'.format(locale))
+            'TARGETAnalyser_{}.qm'.format(locale))
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
@@ -79,7 +84,7 @@ class UWGAnalyser:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&UWG Analyser')
+        self.menu = self.tr(u'&TARGET Analyser')
 
         # Check if plugin was started the first time in current QGIS session
         # Must be set in initGui() to survive plugin reloads
@@ -100,7 +105,7 @@ class UWGAnalyser:
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('UWGAnalyser', message)
+        return QCoreApplication.translate('TARGETAnalyser', message)
 
 
     def add_action(
@@ -158,7 +163,7 @@ class UWGAnalyser:
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr(u'&UWG Analyser'),
+                self.tr(u'&TARGET Analyser'),
                 action)
             self.iface.removeToolBarIcon(action)
 
@@ -166,7 +171,7 @@ class UWGAnalyser:
     def run(self):
         """Run method that performs all the real work"""
 
-        self.dlg = UWGAnalyserDialog()
+        self.dlg = TARGETAnalyserDialog()
 
         self.fileDialog = QFileDialog()
 
@@ -179,7 +184,7 @@ class UWGAnalyser:
         self.fileDialogOut.setOption(QFileDialog.ShowDirsOnly, True)
 
         self.dlg.pushButtonInFolder.clicked.connect(self.folder_path_inmodel)
-        self.dlg.pushButtonOutFolder.clicked.connect(self.folder_path_outmodel)
+        #self.dlg.pushButtonOutFolder.clicked.connect(self.folder_path_outmodel)
         self.dlg.runButtonPlot.clicked.connect(self.plotpoint)
         self.dlg.runButtonSpatial.clicked.connect(self.spatial)
         self.dlg.pushButtonSave.clicked.connect(self.geotiff_save)
@@ -229,51 +234,48 @@ class UWGAnalyser:
             self.folderPath = self.fileDialogIn.selectedFiles()
             self.dlg.textModelInFolder.setText(self.folderPath[0])
 
-            self.infileList = os.listdir(self.folderPath[0])
-            a = self.infileList[0].find("_")
-            self.prefix = self.infileList[0][0:a]
+            # self.infileList = os.listdir(self.folderPath[0])
+            # a = self.infileList[0].find("_")
+            # self.prefix = self.infileList[0][0:a]
 
-            uwgDict = read_uwg_file(self.folderPath[0], self.infileList[0][:-4])
-            mm = uwgDict['Month']
-            dd = uwgDict['Day']
-            nDays = uwgDict['nDay']
+            cfM = read_config(self.folderPath[0] + '/config.ini')
+            self.prefix = cfM['run_name']
+            startDate = datetime.datetime.strptime(cfM['date1'], "%Y,%m,%d,%H")
+            endDate = datetime.datetime.strptime(cfM['date2'], "%Y,%m,%d,%H")
+
+            #uwgDict = read_uwg_file(self.folderPath[0], self.infileList[0][:-4])
+            #mm = uwgDict['Month']
+            #dd = uwgDict['Day']
+            #nDays = uwgDict['nDay']
+            nDays = (endDate - startDate).days
+            print(int(nDays))
 
             # populate availabe grids in GUI
-            self.l = os.listdir(self.folderPath[0])
+            self.l = os.listdir(self.folderPath[0] + '/output')
             for file in self.l:
-                if file.startswith(self.prefix):
-                    self.timelist.append(int(file[len(self.prefix) + 1:-4]))
+                if file.endswith('_UMEP_TARGET.txt'):
+                    self.timelist.append(int(file[len(self.prefix) + 1:-16]))
                     
             l = sorted(list(set(self.timelist)))
             for i in l:
                 self.dlg.comboBox_POIField.addItem(str(i))
 
             # populate available days
-            startDate = datetime.date(int(1985), int(mm), int(dd))
+            #startDate = datetime.date(int(1985), int(mm), int(dd))
             for i in range(0, int(nDays)):
                 startDate.strftime('%d %b')
-                endDate = startDate + datetime.timedelta(days=int(i))
-                self.dlg.comboBox_POIDOYMin.addItem(endDate.strftime('%d %b'))
-                self.dlg.comboBox_POIDOYMax.addItem(endDate.strftime('%d %b'))
-                self.dlg.comboBox_SpatialDOYMin.addItem(endDate.strftime('%d %b'))
-                self.dlg.comboBox_SpatialDOYMax.addItem(endDate.strftime('%d %b'))
+                endDateT = startDate + datetime.timedelta(days=int(i))
+                self.dlg.comboBox_POIDOYMin.addItem(endDateT.strftime('%d %b'))
+                self.dlg.comboBox_POIDOYMax.addItem(endDateT.strftime('%d %b'))
+                self.dlg.comboBox_SpatialDOYMin.addItem(endDateT.strftime('%d %b'))
+                self.dlg.comboBox_SpatialDOYMax.addItem(endDateT.strftime('%d %b'))
 
-            self.dlg.pushButtonOutFolder.setEnabled(1)
-            self.dlg.textModelOutFolder.setEnabled(1)
-
-
-    def folder_path_outmodel(self):
-
-        self.fileDialogOut.open()
-        result = self.fileDialogOut.exec_()
-        if result == 1:
-            self.folderPathOut = self.fileDialogOut.selectedFiles()
-            self.dlg.textModelOutFolder.setText(self.folderPathOut[0])
-
-            self.dlg.pushButtonSave.setEnabled(1)
-            self.dlg.textOutput.setEnabled(1)
-            self.dlg.runButtonSpatial.setEnabled(1)
+            #self.dlg.pushButtonOutFolder.setEnabled(1)
+            #self.dlg.textModelOutFolder.setEnabled(1)
             self.dlg.runButtonPlot.setEnabled(1)
+            self.dlg.runButtonSpatial.setEnabled(1)
+            #self.dlg.textOutput.setEnabled(1)
+            #self.dlg.pushButtonSave.setEnabled(1)
 
 
     def plotpoint(self):
@@ -306,12 +308,12 @@ class UWGAnalyser:
             return
 
         # Load rural data
-        sitein = self.folderPathOut[0] + '/metdata_UMEP.txt'
+        sitein = self.folderPath[0] + '/output/' + self.prefix + '_metdata_UMEP.txt'
         dataref = np.genfromtxt(sitein, skip_header=1)
         self.yyyy = dataref[0,0]
         
-        # Load UWG data
-        datawhole = np.genfromtxt(self.folderPathOut[0] + '/' + self.prefix + '_' + self.varpoi1 + '_UMEP_UWG.txt', skip_header=1)
+        # Load TARGET data
+        datawhole = np.genfromtxt(self.folderPath[0] + '/output/' + self.prefix + '_' + self.varpoi1 + '_UMEP_TARGET.txt', skip_header=1)
 
         start = np.min(np.where(datawhole[:, 1] == startday))
         if endday > np.max(datawhole[:, 1]):
@@ -339,8 +341,8 @@ class UWGAnalyser:
         plt.title('General weather parameters and model output')
         
         ax3 = plt.subplot(2, 1, 2, sharex=ax1)
-        ax3.plot(dates, dataref1[:, 11], 'g', label='Rural')
-        ax3.plot(dates, data1[:, 11], 'r', label='Urbanised')
+        ax3.plot(dates, dataref1[:, 11], 'g', label='Forcing data')
+        ax3.plot(dates, data1[:, 11], 'r', label='Grid: ' + self.varpoi1)
         ax3.set_ylabel('Air Temperature ($^{o}C$)', color='b', fontsize=14)
         ax3.legend(loc=2)
         ax1.grid(True)
@@ -413,34 +415,21 @@ class UWGAnalyser:
             return
 
         # Load rural data
-        sitein = self.folderPathOut[0] + '/metdata_UMEP.txt'
+        sitein = self.folderPath[0] + '/output/' + self.prefix + '_metdata_UMEP.txt'
         dataref = np.genfromtxt(sitein, skip_header=1)
-        # print(self.folderPathOut[0] + '/metdata_UMEP.txt')
-
-        # for i in range(0, self.idgrid.shape[0]): # loop over vector grid instead
-                # for i in range(0, self.idgrid.shape[0]): # loop over vector grid instead
-        # nGrids = vlayer.featureCount()
-
-        print(startD)
-        print(endD)
 
         for f in vlayer.getFeatures():
 
             gid = str(int(f.attributes()[idx]))
-            # print(self.folderPathOut[0] + '/' + self.prefix + '_' + gid + '_UMEP_UWG.txt')
-            datawhole = np.genfromtxt(self.folderPathOut[0] + '/' + self.prefix + '_' + gid + '_UMEP_UWG.txt', skip_header=1)
-            # print(datawhole.shape)
-            # cut UWG data
+            datawhole = np.genfromtxt(self.folderPath[0] + '/output/' + self.prefix + '_' + gid + '_UMEP_TARGET.txt', skip_header=1)
+            # cut TARGET data 
             start = np.min(np.where(datawhole[:, 1] == startD))
             if endD > np.max(datawhole[:, 1]):
                 ending = np.max(np.where(datawhole[:, 1] == endD - 1))
             else:
                 ending = np.min(np.where(datawhole[:, 1] == endD))
-            # print(start)
-            # print(ending)
             data1 = datawhole[start:int(ending + 12), :] # + 12 to include whole final night 
             data1 = data1[np.where(data1[:, 14] < 1.), :] # include only nighttime. 14 is position for global radiation
-            print(data1)
             data1 = data1[0][:]
 
             # cut ref data
@@ -452,18 +441,10 @@ class UWGAnalyser:
 
             data2 = data2[np.where(data2[:, 14] < 1.), :] # include only nighttime. 14 is position for global radiation
             data2 = data2[0][:]
-            
-            # if dayTypeStr == '1':
-            #     data1 = data1[np.where(data1[:, altpos] < 90.), :]
-            #     data1 = data1[0][:]
-            # if dayTypeStr == '2':
-            #     data1 = data1[np.where(data1[:, altpos] > 90.), :]
-            #     data1 = data1[0][:]
 
             vardatauwg = data1[:, 11] # 11 is temperature column
             vardataref = data2[:, 11] 
             vardata = vardatauwg - vardataref
-            # print(vardata)
 
             if self.dlg.radioButtonMean.isChecked():
                 statresult = np.nanmean(vardata)
@@ -476,24 +457,6 @@ class UWGAnalyser:
             if self.dlg.radioButtonMed.isChecked():
                 statresult = np.nanmedian(vardata)
                 header = 'median'
-            # if self.dlg.radioButtonIQR.isChecked():
-            #     statresult = np.nanpercentile(vardata, 75) - np.percentile(vardata, 25)
-
-            # if statTypeStr == '0':
-            #     statresult = np.nanmean(vardata)
-            #     header = 'mean'
-            # if statTypeStr == '1':
-            #     statresult = np.nanmin(vardata)
-            #     header = 'max'
-            # if statTypeStr == '2':
-            #     statresult = np.nanpercentile(vardata, 50)
-            #     header = 'median'
-            # if statTypeStr == '3':
-            #     statresult = np.nanpercentile(vardata, 75)
-            #     header = '75precentile'
-            # if statTypeStr == '4':
-            #     statresult = np.nanpercentile(vardata, 95)
-            #     header = '95precentile'
 
             statvectemp = np.vstack((statvectemp, statresult))
             idvec = np.vstack((idvec, int(gid)))
@@ -507,10 +470,6 @@ class UWGAnalyser:
 
         if self.dlg.addResultToGeotiff.isChecked():
             extent = vlayer.extent()
-            # xmax = extent.xMaximum()
-            # xmin = extent.xMinimum()
-            # ymax = extent.yMaximum()
-            # ymin = extent.yMinimum()
         
             if self.dlg.checkBoxIrregular.isChecked():
                 resx = self.dlg.doubleSpinBoxRes.value()
@@ -541,12 +500,10 @@ class UWGAnalyser:
             crs = vlayer.crs().toWkt()
 
             path=vlayer.dataProvider().dataSourceUri()
-            # polygonpath = path [:path.rfind('|')] # work around. Probably other solution exists
             if path.rfind('|') > 0:
                 polygonpath = path [:path.rfind('|')] # work around. Probably other solution exists
             else:
                 polygonpath = path
-            # print(str(poly_field))
 
             self.rasterize(polygonpath, str(self.plugin_dir + '/tempgrid.tif'), str(poly_field), resx, crs, extent)
 
@@ -558,12 +515,9 @@ class UWGAnalyser:
             for i in range(0, statmat.shape[0]):
                 gridout[idgrid_array == statmat[i, 0]] = statmat[i, 1]
 
-            # print(gridout)
-
             self.saveraster(dataset, filename, gridout)
 
             # load result into canvas
-            
             if self.dlg.checkBoxIntoCanvas.isChecked():
                 rlayer = self.iface.addRasterLayer(filename)
 
@@ -588,7 +542,7 @@ class UWGAnalyser:
                     rlayer.setCacheImage(None)
                 rlayer.triggerRepaint()
 
-        QMessageBox.information(self.dlg, "UWG Analyser", "Process completed")
+        QMessageBox.information(self.dlg, "TARGET Analyser", "Process completed")
 
 
     def geotiff_save(self):
