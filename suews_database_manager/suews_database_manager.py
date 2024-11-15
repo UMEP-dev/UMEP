@@ -240,8 +240,7 @@ class suews_database_manager:
         #self.dlg.tabWidget.addTab(bulk_import, 'Bulk Import')
 
     def help(self):
-        url = 'https://github.com/gusbacos/UTDB'
-        # To readthedocs? 
+        url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Energy%20Balance%20SUEWS%20Database%20Manager.html'
         webbrowser.open_new_tab(url)
 
     def closePlugin(self):
