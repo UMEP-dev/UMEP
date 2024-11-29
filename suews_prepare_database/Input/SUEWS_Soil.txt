@@ -1,0 +1,64 @@
+1	2	3	4	5	6	7	8	9
+Code	SoilDepth	SoilStoreCap	SatHydraulicCond	SoilDensity	InfiltrationRate	OBS_SMDepth	OBS_SMCap  	OBS_SoilNotRocks
+50	233	100	5.00E-04	1.16	10	-999	-999	-999	!
+60	116	50	5.00E-04	1.16	10	-999	-999	-999	!
+70	349	150	5.00E-04	1.16	10	-999	-999	-999
+51	333	150	5.00E-02	-999	25	-999	-999	-999	!	sand
+52	300	150	1.00E-02	-999	15	-999	-999	-999	!	silt
+53	300	150	1.00E-03	-999	7.5	-999	-999	-999	!	loam
+54	250	150	5.00E-05	-999	2.5	-999	-999	-999	!	clay
+55	-999	-999	-999	-999	0.5	-999	-999	-999	!	sodic clayey soils
+56	-999	-999	-999	-999	-999	150	0.425	0.85	!	OBS
+551	350	150	5.00E-04	-999	-999	-999	-999	-999	!	Swindon (below Paved)	Ward et al. (2013)
+552	350	150	5.00E-04	-999	-999	-999	-999	-999	!	Swindon (below Built)	Ward et al. (2013)
+553	350	150	5.00E-04	-999	-999	-999	-999	-999	!	Swindon (below others)	Ward et al. (2013)
+661	350	150	5.00E-04	-999	-999	-999	-999	-999	!	London (below Paved)
+662	350	150	5.00E-04	-999	-999	-999	-999	-999	!	London (below Built)
+663	350	150	5.00E-04	-999	-999	-999	-999	-999	!	London (below others)
+-9
+-9
+
+
+
+
+
+!	1		Code	Code for soil type below each surface (except water)					"Links to SoilTypeCode in SUEWS_NonVeg, SUEWS_Veg"
+!	2		SoilDepth	Depth of sub-surface soil store			[mm]
+!	3		SoilStoreCap	Capacity of sub-surface soil store (must not exceed col 2)			[mm]
+!	4		SatHydraulicCond	Hydraulic conductivity for saturated soil			[mm s-1]
+!	5		SoilDensity	Soil density			[kg m-3]
+!	6		InfiltrationRate	Infiltration rate			[mm h-1]
+!	7		OBS_SMDepth	Depth of soil moisture measurements			[mm]		"Use only if SM is observed, not modelled"
+!	8		OBS_SMCap	Maxiumum observed soil moisture			[m3 m-3 or kg kg-1]		"Use only if SM is observed, not modelled"
+!	9		OBS_SoilNotRocks	Fraction of soil without rocks					"Use only if SM is observed, not modelled"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

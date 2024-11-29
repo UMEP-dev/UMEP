@@ -69,8 +69,9 @@ class WallWorker(QtCore.QObject):
             errorstring = self.print_exception()
             self.error.emit(errorstring)
         finally:
+            # print(wall_array)
             self.finished.emit(ret)
-
+            
     def kill(self):
         self.killed = True
 

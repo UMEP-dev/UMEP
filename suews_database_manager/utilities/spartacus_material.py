@@ -4,8 +4,7 @@ from .database_functions import create_code, save_to_db, ref_changed
 
 def setup_SS_material_creator(self, dlg, db_dict, db_path):
 
-    def start_material_creator(dlg):
-
+    def fill_cbox():
         dlg.comboBoxBase.clear()
         dlg.comboBoxBase.addItems(sorted(db_dict['Spartacus Material']['nameOrigin'])) 
         dlg.comboBoxBase.setCurrentIndex(-1)
@@ -21,28 +20,6 @@ def setup_SS_material_creator(self, dlg, db_dict, db_path):
         dlg.textEditEmissivity.clear()
         dlg.textEditThermalC.clear()
         dlg.textEditSpecificH.clear()
-
-    def generate_material():
-
-        dict_reclass = {
-            'ID' : create_code('Spartacus Material'), 
-            'Name' : str(dlg.textEditName.value()),
-            'Color' : str(dlg.textEditColor.value()),
-            'Origin': str(dlg.textEditOrig.value()),
-            'Albedo': float((dlg.textEditAlbedo.value())),
-            'Emissivity' : float((dlg.textEditEmissivity.value())),
-            'Thermal Conductivity': float((dlg.textEditThermalC.value())),
-            'Specific Heat': float((dlg.textEditSpecificH.value())),
-            'Ref' : (db_dict['References'][db_dict['References']['authorYear'] ==  dlg.comboBoxRef.currentText()].index.item() )
-        }
-
-        new_edit = DataFrame([dict_reclass]).set_index('ID')
-        db_dict['Spartacus Material'] = concat([db_dict['Spartacus Material'], new_edit])
-
-        save_to_db(db_path, db_dict)
-
-        QMessageBox.information(None, 'Succesful', 'New edit added to your local database')
-        start_material_creator(dlg) # Clear tab
 
     def base_changed():
         
@@ -64,10 +41,31 @@ def setup_SS_material_creator(self, dlg, db_dict, db_path):
                 dlg.comboBoxRef.setCurrentIndex(-1)
                 print(ref_id)
 
+    def generate_material():
 
+        dict_reclass = {
+            'ID' : create_code('Spartacus Material'), 
+            'Name' : str(dlg.textEditName.value()),
+            'Color' : str(dlg.textEditColor.value()),
+            'Origin': str(dlg.textEditOrig.value()),
+            'Albedo': float((dlg.textEditAlbedo.value())),
+            'Emissivity' : float((dlg.textEditEmissivity.value())),
+            'Thermal Conductivity': float((dlg.textEditThermalC.value())),
+            'Specific Heat': float((dlg.textEditSpecificH.value())),
+            'Ref' : (db_dict['References'][db_dict['References']['authorYear'] ==  dlg.comboBoxRef.currentText()].index.item() )
+        }
+
+
+        new_edit = DataFrame([dict_reclass]).set_index('ID')
+        db_dict['Spartacus Material'] = concat([db_dict['Spartacus Material'], new_edit])
+
+        save_to_db(db_path, db_dict)
+
+        QMessageBox.information(None, 'Succesful', 'New edit added to your local database')
+        fill_cbox() # Clear tab
     def tab_update():
         if self.dlg.tabWidget.currentIndex() == 9:
-            start_material_creator(dlg)
+            fill_cbox()
 
     def to_ref_edit():
         self.dlg.tabWidget.setCurrentIndex(10)

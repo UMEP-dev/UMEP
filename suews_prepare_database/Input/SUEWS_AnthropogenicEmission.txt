@@ -1,0 +1,5 @@
+1	2	3	4	5	6	7	8	9	10	11	12	13	14	15	16	17	18	19	20	21	22	23	24	25	26	27	28	29	30	31	32	33	34	35	36	37	38	39	40	41
+Code	BaseT_HC	QF_A_WD	QF_B_WD	QF_C_WD	QF_A_WE	QF_B_WE	QF_C_WE	AHMin_WD	AHMin_WE	AHSlope_Heating_WD	AHSlope_Heating_WE	AHSlope_Cooling_WD	AHSlope_Cooling_WE	TCritic_Heating_WD	TCritic_Heating_WE	TCritic_Cooling_WD	TCritic_Cooling_WE	EnergyUseProfWD	EnergyUseProfWE	ActivityProfWD	ActivityProfWE	TraffProfWD	TraffProfWE	PopProfWD	PopProfWE	MinQFMetab	MaxQFMetab	MinFCMetab	MaxFCMetab	FrPDDwe	FrFossilFuel_Heat	FrFossilFuel_NonHeat	EF_umolCO2perJ	EnEF_v_Jkm	FcEF_v_kgkmWD	FcEF_v_kgkmWE	CO2PointSource	TrafficUnits	!	
+53661.0	18.2	0.3081	0.0099	0.0102	0.3081	0.0099	0.0102	15.0	15.0	2.7	2.7	2.7	2.7	7.0	7.0	7.0	7.0	60492.0	60492.0	6032.0	6033.0	60493.0	60493.0	6032.0	6033.0	75.0	175.0	120.0	280.0	1.0	0.7	0.7	1.159	3970000.0	0.2069	0.2069	0.0	1.0	!	sample run, London
+-9.0																																								
+-9.0																																								

@@ -1,0 +1,22 @@
+&Spartacus_Settings
+use_sw_direct_albedo = false
+n_vegetation_region_urban = 1
+n_stream_sw_urban = 4
+n_stream_lw_urban = 4
+/
+&Spartacus_Constant_Parameters
+sw_dn_direct_frac = 0.45
+air_ext_sw = 0.0
+air_ssa_sw = 0.95
+veg_ssa_sw = 0.46
+air_ext_lw = 0.0
+air_ssa_lw = 0.0
+veg_ssa_lw = 0.06
+veg_fsd_const = 0.75
+veg_contact_fraction_const = 0.
+ground_albedo_dir_mult_fact = 1.
+/
+&radsurf_driver
+/
+&radsurf
+/

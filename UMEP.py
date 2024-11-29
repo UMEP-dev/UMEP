@@ -31,9 +31,9 @@ from .MetdataProcessor.metdata_processor import MetdataProcessor
 #from .ShadowGenerator.shadow_generator import ShadowGenerator
 #from .SkyViewFactorCalculator.svf_calculator import SkyViewFactorCalculator
 #from .ImageMorphParam.image_morph_param import ImageMorphParam
-from .ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
+#from .ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
 #from .LandCoverFractionGrid.landcoverfraction_grid import LandCoverFractionGrid
-from .LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
+#from .LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
 from .LandCoverReclassifier.land_cover_reclassifier import LandCoverReclassifier
 #from .WallHeight.wall_height import WallHeight
 #from .TreeGenerator.tree_generator import TreeGenerator
@@ -42,19 +42,18 @@ from .LCZ_Converter.LCZ_converter import LCZ_test
 #from .UMEPDownloader.umep_downloader import UMEP_Data_Download
 #from .DSMGenerator.dsm_generator import DSMGenerator
 from .UWGReClassifier.uwg_reclassifier import uwg_reclassifier
-from .uwg_prepare.uwg_prepare import UWGPrepare
+#from .uwg_prepare.uwg_prepare import UWGPrepare
 from .uwg_analyser.uwg_analyser import UWGAnalyser
 from .target_analyser.target_analyser import TARGETAnalyser
-# from .WATCHData.watch import WATCHData
 from .GreaterQF.greater_qf import GreaterQF
 from .ExtremeFinder.extreme_finder import ExtremeFinder
 from .LucyQF.LQF import LQF
-from .SEBE.sebe import SEBE
+#from .SEBE.sebe import SEBE
 # from .SEBEpv.sebepv import SEBEpv      # MRevesz
 from .SuewsSimple.suews_simple import SuewsSimple
 from .SUEWSPrepare.suews_prepare import SUEWSPrepare
 from .suews_converter.suews_converter import SUEWSConverter
-from .SUEWS.suews import SUEWS
+#from .SUEWS.suews import SUEWS
 from .SOLWEIG.solweig import SOLWEIG
 from .BenchMarking.benchmarking import BenchMarking
 # if sys.platform == 'linux2' or sys.platform == 'linux': #TODO test PyQt5 import instead
@@ -67,6 +66,7 @@ from .SolweigAnalyzer.solweig_analyzer import SolweigAnalyzer
 from .SUEWSAnalyzer.suews_analyzer import SUEWSAnalyzer
 #from .copernicus_data.copernicus_data import CopernicusData
 from .suews_database_manager.suews_database_manager import suews_database_manager
+from .suews_prepare_database.suews_prepare_database import SUEWSPrepareDatabase
 from .UMEP_about import UMEPDialogAbout
 import os.path
 import webbrowser
@@ -158,9 +158,6 @@ class UMEP(object):
         self.PED_Action = QAction("Prepare Existing Data", self.iface.mainWindow())
         self.MD_Menu.addAction(self.PED_Action)
         self.PED_Action.triggered.connect(self.PED)
-        # self.PFD_Action = QAction("Download data (WATCH)", self.iface.mainWindow())
-        # self.MD_Menu.addAction(self.PFD_Action)
-        # self.PFD_Action.triggered.connect(self.WA)
         self.ERA_Action = QAction("Download data (ERA5)", self.iface.mainWindow())
         self.MD_Menu.addAction(self.ERA_Action)
         self.ERA_Action.triggered.connect(self.ERA)
@@ -183,9 +180,6 @@ class UMEP(object):
         self.SVF_Action = QAction("Sky View Factor", self.iface.mainWindow())
         self.UG_Menu.addAction(self.SVF_Action)
         self.SVF_Action.triggered.connect(self.SVF)
-        # self.HW_Action = QAction("Height/Width Ratio", self.iface.mainWindow())
-        # self.UG_Menu.addAction(self.HW_Action)
-        # self.HW_Action.setEnabled(False)
         self.WH_Action = QAction("Wall Height and Aspect", self.iface.mainWindow())
         self.UG_Menu.addAction(self.WH_Action)
         self.WH_Action.triggered.connect(self.WH)
@@ -204,7 +198,10 @@ class UMEP(object):
         # Sub-actions to Urban Energy Balance (SUEWS)
         self.SUEWSDatabase_Action = QAction("SUEWS Database Manager", self.iface.mainWindow())
         self.PreUEB_Menu.addAction(self.SUEWSDatabase_Action)
-        self.SUEWSDatabase_Action.triggered.connect(self.SUEWSDatabase)        
+        self.SUEWSDatabase_Action.triggered.connect(self.SUEWSDatabase)     
+        self.SUEWSPDatabasePrepare_Action = QAction("SUEWS Database Prepare", self.iface.mainWindow())
+        self.PreUEB_Menu.addAction(self.SUEWSPDatabasePrepare_Action)
+        self.SUEWSPDatabasePrepare_Action.triggered.connect(self.SUEWSPDatabasePrepare)  
         self.SUEWSPrepare_Action = QAction("SUEWS Prepare", self.iface.mainWindow())
         self.PreUEB_Menu.addAction(self.SUEWSPrepare_Action)
         self.SUEWSPrepare_Action.triggered.connect(self.SUEWS_Prepare)
@@ -356,6 +353,7 @@ class UMEP(object):
         self.UWGa_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
         self.TARGETa_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
         self.SUEWSDatabase_Action.setIcon(QIcon(self.plugin_dir + "/Icons/iconSUEWSDB.png"))
+        self.SUEWSPDatabasePrepare_Action.setIcon(QIcon(self.plugin_dir + "/Icons/iconSUEWSDB.png"))
 
         self.iface.mainWindow().menuBar().insertMenu(self.iface.firstRightStandardMenu().menuAction(), self.UMEP_Menu)
         self.dlgAbout = UMEPDialogAbout()
@@ -632,8 +630,11 @@ class UMEP(object):
     def SUEWSDatabase(self):
         sg = suews_database_manager(self.iface)
         sg.run()
-    
-    
+
+    def SUEWSPDatabasePrepare(self):
+        sg = SUEWSPrepareDatabase(self.iface)
+        sg.run()
+
     def run(self):
         # This function starts the plugin
         self.dlg.show()

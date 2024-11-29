@@ -62,10 +62,10 @@ def setup_landcover_creator(self, dlg, db_dict, db_path):
         if surface:
             handle_surface_selection(surface)
 
-        print_table(0)
-
         dlg.comboBoxProfileType.blockSignals(False)
         dlg.comboBoxBase.blockSignals(False)
+
+        print_table(0)
 
     def handle_surface_selection(surface):
 

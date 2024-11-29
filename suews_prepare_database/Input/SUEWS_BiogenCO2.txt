@@ -1,0 +1,10 @@
+1     2       3       4       5           6          7        8        9        
+Code  alpha   beta    theta   alpha_enh   beta_enh   resp_a   resp_b   min_respi 
+11    0.044   43.35   -999     -999        -999       1.08     0.064   0.6       ! London/Swindon , plant canopies, Ruimy et al. (1995)
+12    0.0593  35      -999     -999        -999       1.08     0.064   0.6       ! Hardwood forest, Schmid et al. (2000)
+13    0.0205  16.3    -999     -999        -999       1.08     0.064   0.6       ! Temperate grassland, Flanagan et al. (2002)
+21    0.031   17.793  0.723    -999        -999       3.229    0.0329  0.6       ! Helsinki
+31    0.005   8.747   0.96     0.016       33.454     2.43     0       0.6       ! Helsinki
+32    0.004   8.747   0.96     0.016       33.353     2.43     0       0.6       ! Helsinki test
+-9 
+-9

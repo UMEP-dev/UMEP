@@ -241,6 +241,7 @@ class suews_database_manager:
 
     def help(self):
         url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Energy%20Balance%20SUEWS%20Database%20Manager.html'
+        # To readthedocs? 
         webbrowser.open_new_tab(url)
 
     def closePlugin(self):

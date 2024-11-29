@@ -1,0 +1,7 @@
+1      2           3           4            5            6            7              8            9            10           11              12              13                  14                  15                  16                  17             18             19         20         21         22
+Code   AlbedoMin   AlbedoMax   Emissivity   StorageMin   StorageMax   WetThreshold   StateLimit   WaterDepth   DrainageEq   DrainageCoef1   DrainageCoef2   OHMCode_SummerWet   OHMCode_SummerDry   OHMCode_WinterWet   OHMCode_WinterDry   OHMThresh_SW   OHMThresh_WD   ESTMCode   AnOHM_Cp   AnOHM_Kk   AnOHM_Ch
+1000   0.08        0.08        0.95         0.5          0.5          0.5            2000         0            0            0               0               60                  60                  60                  60                  10             0.9            60         10000      1.2        4
+551    0.1         0.1         0.95         0.5          0.5          0.5            1000         0            -999         -999            -999            60                  60                  60                  60                  10             0.9            60         10000      1.2        4
+661    0.1         0.1         0.95         0.5          0.5          0.5            30000        0            -999         -999            -999            601                 601                 602                 602                 10             0.9            60         10000      1.2        4
+-9
+-9

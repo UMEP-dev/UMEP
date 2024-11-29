@@ -1,0 +1,21 @@
+&initialconditions
+    leavesoutinitially = -999
+    gdd_1_0 = 0
+    gdd_2_0 = -450
+    laiinitialevetr = 4
+    laiinitialdectr = 1
+    laiinitialgrass = 1.6
+    albevetr0 = 0.1
+    albdectr0 = 0.12
+    albgrass0 = 0.18
+    decidcap0 = 0.3
+    porosity0 = 0.2
+    soilstorepavedstate = 150
+    soilstorebldgsstate = 150
+    soilstoreevetrstate = 150
+    soilstoredectrstate = 150
+    soilstoregrassstate = 150
+    soilstorebsoilstate = 150
+    snowinitially = 0
+/
+

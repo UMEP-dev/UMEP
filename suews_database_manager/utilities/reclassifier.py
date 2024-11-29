@@ -24,43 +24,45 @@ def setup_reclassifier(self, dlg, db_dict):
             Nc.setDisabled(True)
             vars()[f'dlg.comboBoxNew{i}'] = Nc
 
-        
-
     def field_changed():
 
         layer = self.layerComboManagerPoint.currentLayer()
-        
-        att_list = []
-        for fieldName in layer.fields():
-            att_list.append(fieldName.name())
+
+        if not layer:
+            return
+
+        att_list = [field.name() for field in layer.fields()]
         att_column = dlg.comboBoxField.currentText()
-        if att_column != '':
+
+        if not att_column:
+            return
+
+        try:
             att_index = att_list.index(att_column)
+        except ValueError:
+            return
+
+        unique_values = list(layer.uniqueValues(att_index))
+        len_uv = len(unique_values)
+
+        # Ensure always String 
+        unique_values = [str(x) for x in unique_values]
+
+        for i in range(1, 23):
+            # Oc == Old Class
+            Oc = getattr(dlg, f'comboBoxClass{i}')
+            Oc.clear()
+            Oc.setDisabled(True)
+            vars()[f'dlg.comboBoxClass{i}'] = Oc
             
-            unique_values = list(layer.uniqueValues(att_index))
-            len_uv = len(unique_values)
+            # Nc == New Class
+            Nc = getattr(dlg, f'comboBoxNew{i}')
+            Nc.setCurrentIndex(-1)
+            Nc.setDisabled(True)
+            vars()[f'dlg.comboBoxNew{i}'] = Nc
 
-            # Ensure always String 
-            unique_values = ([str(x) for x in unique_values])
-
-            for i in range(1, 23):
-                # Oc == Old Class
-                Oc = getattr(dlg, f'comboBoxClass{i}')
-                Oc.clear()
-                Oc.setDisabled(True)
-                vars()[f'dlg.comboBoxClass{i}'] = Oc
-                
-                # Nc == New Class
-                Nc = getattr(dlg, f'comboBoxNew{i}')
-                Nc.setCurrentIndex(-1)
-                Nc.setDisabled(True)
-                vars()[f'dlg.comboBoxNew{i}'] = Nc
-
-
-        for i in range(len_uv):
+        for i in range(min(len_uv, 22)):
             idx = i + 1
-            if idx > 22:
-                break
             
             # Oc == Old Class
             Oc = getattr(dlg, f'comboBoxClass{idx}')
@@ -72,7 +74,6 @@ def setup_reclassifier(self, dlg, db_dict):
             Nc = getattr(dlg, f'comboBoxNew{idx}')
             Nc.setEnabled(True)
             vars()[f'dlg.comboBoxNew{idx}'] = Nc
-
 
     def layer_changed():
 

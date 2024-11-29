@@ -1,0 +1,40 @@
+1	2	3	4	5	6	7	8	9	10
+Code	ToPaved	ToBldgs	ToEveTr	ToDecTr	ToGrass	ToBSoil	ToWater	ToRunoff	ToSoilStore	!
+10	0	0	0	0	0	0	0	1	0	!	Paved	Example
+20	0.06	0	0.01	0.01	0.01	0.01	0	0.9	0	!	Buildings	Example
+30	0	0	0	0	0	0	0	0	1	!	Evergreen	Example
+40	0	0	0	0	0	0	0	0	1	!	Decid	Example
+50	0	0	0	0	0	0	0	0	1	!	Grass	Example
+60	0	0	0	0	0	0	0	0	1	!	UnmanBare	Example
+70	0	0	0	0	0	0	0	0	0	!	Water	Example
+21	0.03	0	0.01	0.01	0.01	0.01	0	0.93	0	!	Buildings	Example
+
+551	0	0	0	0	0.02	0	0	0.98	0	!	Paved	Swindon
+552	0.08	0	0	0	0.02	0	0	0.9	0	!	Bldgs	Swindon
+553	0	0	0	0	0	0	0	0	1	!	EveTr	Swindon
+554	0	0	0	0	0	0	0	0	1	!	DecTr	Swindon
+555	0	0	0	0	0	0	0	0	1	!	Grass	Swindon
+556	0	0	0	0	0	0	0	0	1	!	Bsoil	Swindon
+557	0	0	0	0	0	0	0	0	0	!	Water	Swindon	(not present)
+
+661	0	0	0	0	0.02	0	0	0.98	0	!	Paved	London
+662	0.1	0	0	0	0	0	0	0.9	0	!	Bldgs	London
+663	0.1	0	0	0	0	0	0	0	0.9	!	EveTr	London	(not present)
+664	0.1	0	0	0	0	0	0	0	0.9	!	DecTr	London
+665	0	0	0	0	0	0	0	0	1	!	Grass	London
+666	0	0	0	0	0	0	0	0	1	!	Bsoil	London	(not present)
+667	0	0	0	0	0	0	0	0	0	!	Water	London
+-9
+-9
+
+
+!	1	Code	Code for within grid water distribution					"Links to WithinGridPavedCode, WithinGridBuiltCode, etc fo each surface type in SUEWS_SiteSelect"
+!	2	ToPaved	Fraction of water flowing from this surface to Paved surface					"N.B. Water cannot flow from a surface to the same surface, so diagonal elements must be zero"
+!	3	ToBuilt	Fraction of water flowing from this surface to Built surface					"N.B. Water cannot flow from a surface to the same surface, so diagonal elements must be zero"
+!	4	ToEveTr	Fraction of water flowing from this surface to EveTr surface					"N.B. Water cannot flow from a surface to the same surface, so diagonal elements must be zero"
+!	5	ToDecTr	Fraction of water flowing from this surface to DecTr surface					"N.B. Water cannot flow from a surface to the same surface, so diagonal elements must be zero"
+!	6	ToGrass	Fraction of water flowing from this surface to Grass surface					"N.B. Water cannot flow from a surface to the same surface, so diagonal elements must be zero"
+!	7	ToBSoil	Fraction of water flowing from this surface to BSoil surface					"N.B. Water cannot flow from a surface to the same surface, so diagonal elements must be zero"
+!	8	ToRunoff	Fraction of water from this surface that becomes runoff
+!	9	ToSoilStore	Fraction of water from this surface entering the soil store
+!		Columns 2-10 must sum to 1

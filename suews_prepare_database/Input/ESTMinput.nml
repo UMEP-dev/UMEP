@@ -1,0 +1,9 @@
+&ESTMinput
+TsurfChoice= 0
+evolveTibld= 0      ! !!!!!FO!!!!! 0 originally
+ibldCHmod  = 0
+LBC_soil   = 13.00             !!FO!! 4, 8 or 17 degC - could be set as the annual mean air temperature (12.8 degC for London)
+THEAT_ON   = 18.
+THEAT_OFF  = 22.
+THEAT_FIX  = 19.
+/
