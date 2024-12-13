@@ -270,6 +270,9 @@ class UMEP(object):
         self.UWG_Action = QAction("Urban Weather Generator", self.iface.mainWindow())
         self.UHI_Menu.addAction(self.UWG_Action)
         self.UWG_Action.triggered.connect(self.UWG)
+        self.TARGET_Action = QAction("TARGET", self.iface.mainWindow())
+        self.UHI_Menu.addAction(self.TARGET_Action)
+        self.TARGET_Action.triggered.connect(self.TARGET)
 
         # Sub-menus to Post-processing
         self.SUNpos_Menu = QMenu("Solar Radiation")
@@ -350,6 +353,7 @@ class UMEP(object):
         self.UWGPrepare_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
         self.UWGReclassifier_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
         self.UWG_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
+        self.TARGET_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
         self.UWGa_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
         self.TARGETa_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
         self.SUEWSDatabase_Action.setIcon(QIcon(self.plugin_dir + "/Icons/iconSUEWSDB.png"))
@@ -531,6 +535,11 @@ class UMEP(object):
     def UWG(self):
         QMessageBox.information(None, "Urban Weather Generator",
                              "The Urban Weather Generator can be accessed via <b> UMEP for processing</b>. Visit our online manual for more information.")
+        return
+    
+    def TARGET(self):
+        QMessageBox.information(None, "TARGET",
+                             "The TARGET model can be accessed via <b> UMEP for processing</b>. Visit our online manual for more information.")
         return
 
     def ERA(self):
