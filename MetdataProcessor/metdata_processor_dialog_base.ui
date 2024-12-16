@@ -131,7 +131,7 @@ p, li { white-space: pre-wrap; }
         <item>
          <widget class="QLabel" name="label_4">
           <property name="text">
-           <string>Number of header lines:</string>
+           <string>Line number including header information</string>
           </property>
          </widget>
         </item>

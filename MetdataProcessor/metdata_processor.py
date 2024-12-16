@@ -214,7 +214,8 @@ class MetdataProcessor(object):
                     delim = ':'
 
                 f = open(self.folderPath[0])
-                header = f.readline().split(delim)
+                #header = f.readline().split(delim)
+                header = f.readlines()[int(headernum - 1)].split(delim)
 
                 for i in range(0, header.__len__()):
                     self.dlg.comboBox_yyyy.addItem(header[i])

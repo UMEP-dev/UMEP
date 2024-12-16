@@ -123,7 +123,7 @@ class SUEWSPrepareDatabase(object):
         self.day_since_rain = 0
         self.leaf_cycle = 1
         self.soil_moisture = 100
-        self.utc = 0
+        self.utc = 1
         self.file_code = ''
         self.steps = 0
         # self.region = None
