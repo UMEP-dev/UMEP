@@ -67,7 +67,12 @@ def wrapper(pathtoplugin, iface, year=None):
 
     df_forcing = sp.load_forcing_grid(path_runcontrol, grid)
     # SuPy simulation
-    df_output, df_state_final = sp.run_supy(df_forcing, df_state_init, check_input=True, serial_mode=True)
+    df_output, df_state_final = sp.run_supy(df_forcing,
+                                        df_state_init,
+                                        check_input=True,
+                                        serial_mode=True,
+                                        chunk_day=160
+                                        )
 
     # save user input and output as diagnostics
     # try:
