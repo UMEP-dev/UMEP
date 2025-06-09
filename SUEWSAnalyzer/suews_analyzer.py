@@ -40,6 +40,7 @@ import webbrowser
 from osgeo import gdal, ogr, osr
 from osgeo.gdalconst import *
 from ..Utilities import f90nml
+from ..Utilities.misc import get_resolution_from_umep_forcing
 import numpy as np
 from ..suewsmodel import suewsdataprocessing
 from ..suewsmodel import suewsplotting
@@ -47,6 +48,7 @@ from ..suewsmodel import suewsplotting
 # import subprocess
 import datetime
 import shutil
+import yaml
 
 try:
     import matplotlib.pylab as plt
@@ -105,8 +107,8 @@ class SUEWSAnalyzer(object):
         self.dlg.comboBox_SpatialYYYY.activated.connect(self.changeYearSP)
 
         self.fileDialog = QFileDialog()
-        self.fileDialognml = QFileDialog()
-        self.fileDialognml.setNameFilter("(RunControl.nml)")
+        self.fileDialogyaml = QFileDialog()
+        self.fileDialogyaml.setNameFilter("(.yaml)")
 
         # Declare instance attributes
         self.actions = []
@@ -217,33 +219,37 @@ class SUEWSAnalyzer(object):
 
         self.clearentries()
 
-        self.fileDialognml.open()
-        result = self.fileDialognml.exec_()
+        
+
+        self.fileDialogyaml.open()
+        result = self.fileDialogyaml.exec_()
         if result == 1:
-            self.nmlPath = self.fileDialognml.selectedFiles()
-            self.dlg.textModelFolder.setText(self.nmlPath[0])
-            nml = f90nml.read(self.nmlPath[0])
+            self.yamlPath = self.fileDialogyaml.selectedFiles()
+            self.dlg.textModelFolder.setText(self.yamlPath[0])
+            with open(self.yamlPath[0], 'r') as f:
+                yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
 
-            self.fileinputpath = nml['runcontrol']['fileinputpath']
-            if self.fileinputpath.startswith("."):
-                nmlfolder = self.nmlPath[0][:-15]
-                self.fileinputpath = nmlfolder + self.fileinputpath[1:]
+            # self.fileinputpath = nml['runcontrol']['fileinputpath']
+            # if self.fileinputpath.startswith("."):
+            #     yamlfolder = self.yamlPath[0][:-15]
+            #     self.fileinputpath = yamlfolder + self.fileinputpath[1:]
 
-            self.fileoutputpath = nml['runcontrol']['fileoutputpath']
+            self.fileoutputpath = yaml_dict['model']['control']['output_file']
             if self.fileoutputpath.startswith("."):
-                nmlfolder = self.nmlPath[0][:-15]
-                self.fileoutputpath = nmlfolder + self.fileoutputpath[1:]
+                yamlfolder = self.yamlPath[0][:-15]
+                self.fileoutputpath = yamlfolder + self.fileoutputpath[1:]
 
-            resolutionFilesOut = nml['runcontrol']['resolutionfilesout']
+
+            resolutionFilesOut = get_resolution_from_umep_forcing(yaml_dict['model']['control']['forcing_file']['value'])
             self.resout = int(float(resolutionFilesOut) / 60)
-            self.fileCode = nml['runcontrol']['filecode']
-            self.multiplemetfiles = nml['runcontrol']['multiplemetfiles']
-            resolutionFilesIn = nml['runcontrol']['resolutionFilesIn']
+            # self.fileCode = nml['runcontrol']['filecode']
+            # self.multiplemetfiles = nml['runcontrol']['multiplemetfiles']
+            resolutionFilesIn = resolutionFilesOut
             self.resin = int(resolutionFilesIn / 60)
 
-            tstep = nml['runcontrol']['tstep']
+            tstep = yaml_dict['model']['control']['tstep']
             self.tstep = int(float(tstep) / 60)
-            writeoutoption = nml['runcontrol']['writeoutoption']
+            # writeoutoption = nml['runcontrol']['writeoutoption']
 
             mm = 0 #This doesn't work when hourly file starts with e.g.15
             while mm < 60:

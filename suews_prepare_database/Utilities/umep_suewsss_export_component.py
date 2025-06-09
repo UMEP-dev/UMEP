@@ -166,8 +166,10 @@ def writeGridLayout(ssVect, fileCode, featID, outputFolder, gridlayoutIn):
 
     #TODO here we need to adjust post if vertical layers are not 3
 
-    write_GridLayout_file(ssDict, outputFolder + '/', 'GridLayout' +  fileCode + str(featID))
 
+    write_GridLayout_file(ssDict, outputFolder + '/', 'GridLayout' +  fileCode + str(featID))
+    
+    return ssDict
 
 def write_GridLayout_file(ss_object, refdir, fname):
     ss_file_path = os.path.join(refdir,fname+".nml")

@@ -19,6 +19,7 @@ def setup_reclassifier(self, dlg, db_dict):
         typology_list = list(db_dict['Types']['nameOrigin'])
         for i in range(1, 23):
             Nc = getattr(dlg, f'comboBoxNew{i}')
+            Nc.clear()
             Nc.addItems(typology_list)
             Nc.setCurrentIndex(-1)
             Nc.setDisabled(True)
@@ -188,7 +189,7 @@ def setup_reclassifier(self, dlg, db_dict):
         
         # Reclassify new fields using reclassify dictionaries created above
         for feature in vlayer.getFeatures():
-            old_value = feature[att_column] 
+            old_value = str(feature[att_column]) 
             new_value1 = dict_reclass.get(old_value, None)
             new_value2 = dict_reclassID.get(old_value, None)
             
@@ -211,7 +212,11 @@ def setup_reclassifier(self, dlg, db_dict):
     self.layerComboManagerPoint.setCurrentIndex(-1)
     self.layerComboManagerPoint.setFilters(QgsMapLayerProxyModel.PolygonLayer)
 
-    fill_cbox()
+    def tab_update():
+        if self.dlg.tabWidget.currentIndex() == 0:
+            fill_cbox()
+
+    self.dlg.tabWidget.currentChanged.connect(tab_update)
 
     dlg.comboBoxVector.currentIndexChanged.connect(layer_changed)
     dlg.comboBoxField.currentIndexChanged.connect(field_changed)

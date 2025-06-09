@@ -3,6 +3,7 @@ __author__ = 'xlinfr'
 import numpy as np
 from osgeo import gdal
 from osgeo.gdalconst import *
+from pandas import read_csv, to_datetime
 
 
 # Slope and aspect used in SEBE and Wall aspect
@@ -42,3 +43,17 @@ def saveraster(gdal_data, filename, raster):
     # georeference the image and set the projection
     outDs.SetGeoTransform(gdal_data.GetGeoTransform())
     outDs.SetProjection(gdal_data.GetProjection())
+
+
+def get_resolution_from_umep_forcing(met_path):
+
+    forcing = read_csv(met_path, delim_whitespace = True)
+    forcing['Datetime'] = to_datetime(forcing[['iy', 'id', 'it', 'imin']].astype(str).agg('-'.join, axis=1), format='%Y-%j-%H-%M')
+    # # Set the datetime column as the index
+    forcing.set_index('Datetime', inplace=True)
+
+    time1 = list(forcing.iloc[[1]].index)
+    time2 = list(forcing.iloc[[2]].index)
+    inputresolution = int((time1[0]-time2[0]).total_seconds())
+
+    return inputresolution

@@ -50,8 +50,7 @@ def setup_typology_creator(self, dlg, db_dict, db_path):
             QMessageBox.warning(None, 'Error in Origin','Enter a Origin for new type')
         # Final - When all is Checked 
         else:
-            QMessageBox.information(None, 'Check Complete', 'Your type is compatible with the SUEWS-Database!\nPress Generate New Type to add to your local Database')
-            dlg.pushButtonGen.setEnabled(True)
+            generate_type()
 
     def changed(): 
 
@@ -273,8 +272,7 @@ def setup_typology_creator(self, dlg, db_dict, db_path):
     dlg.editTypeButton.clicked.connect(to_type_edit)
     dlg.comboBoxTableSelect.currentIndexChanged.connect(changed)
     # dlg.comboBoxSurface.currentIndexChanged.connect(surface_info_changed)
-    dlg.pushButtonCheck.clicked.connect(check_type)
-    dlg.pushButtonGen.clicked.connect(generate_type)
+    dlg.pushButtonGen.clicked.connect(check_type)
     # dlg.pushButtonEditElement.clicked.connect(to_element_edit)
     dlg.comboBoxTableSelect.currentIndexChanged.connect(typology_info)
     
