@@ -1300,7 +1300,7 @@ class SUEWSPrepareDatabase(object):
 
             # figure out the time res of input file
             if ind == 1:
-                met_old = np.genfromtxt(settings_dict['Metfile_path'][0], skip_header=1, skip_footer=2)
+                met_old = np.genfromtxt(settings_dict['Metfile_path'][0], skip_header=1) #footer no longer exist..., skip_footer=2)
                 id = met_old[:, 1]
                 it = met_old[:, 2]
                 imin = met_old[:, 3]
@@ -1742,9 +1742,10 @@ class SUEWSPrepareDatabase(object):
             
             # QMessageBox.critical(None, "Run complete but with Spartacus Vertical morphology errors", error_string)
         else:
-            iface.messageBar().pushMessage("Process completed", "Input files for SUEWS generated", level=Qgis.Success)
+            # iface.messageBar().pushMessage("Process completed", "Input files for SUEWS generated", level=Qgis.Success)
+            QMessageBox.information(None, 'Process Complete', "Input files for SUEWS generated")
 
-        self.dlg.progressBar.setValue(index)
+        self.dlg.progressBar.setValue(0)
 
     def write_to_init(self, initfilein, initfileout):
         LeafCycle = self.leaf_cycle
