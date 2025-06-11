@@ -1186,7 +1186,7 @@ class SUEWSPrepareDatabase(object):
 
 
         # ################################################################################################################################
-        #                                               Writing SiteSelect.txt       
+        #                                               Writing SiteSelect.txt  (now, yaml)     
         # ################################################################################################################################
 
         ind = 1
@@ -1255,12 +1255,12 @@ class SUEWSPrepareDatabase(object):
                     'diagnose': 0
                 },
                 'physics': {
-                    'netradiationmethod': {'value': 1},
+                    'netradiationmethod': {'value': 3}, #changed from 1 FL
                     'emissionsmethod': {'value' : db_dict['AnthropogenicEmission'].loc[parameter_dict['AnthropogenicCode'],'Model']},
-                    'storageheatmethod': {'value': 3},
+                    'storageheatmethod': {'value': 1}, #Changed from 3 FL
                     'ohmincqf': {'value': 1},
-                    'roughlenmommethod': {'value': 3},
-                    'roughlenheatmethod': {'value': 3},
+                    'roughlenmommethod': {'value': 1}, # Values based on Kent et al. 2017
+                    'roughlenheatmethod': {'value': 2},
                     'stabilitymethod': {'value': 3},
                     'smdmethod': {'value': 0},
                     'waterusemethod': {'value': 0},
@@ -1341,11 +1341,11 @@ class SUEWSPrepareDatabase(object):
             IrrFr_Water = 0
             IrrFr_BSoil = 0
 
-            TrafficRate_WD = 0.0135 ## Already in dict
-            TrafficRate_WE = 0.0095 ## Already in dict
+            # TrafficRate_WD = 0.0135 ## Already in dict
+            # TrafficRate_WE = 0.0095 ## Already in dict
 
-            QF0_BEU_WD = 0.88 ## Already in dict
-            QF0_BEU_WE = 0.88 ## Already in dict
+            # QF0_BEU_WD = 0.88 ## Already in dict
+            # QF0_BEU_WE = 0.88 ## Already in dict
            
             if settings_dict['IMP_from_file']:
                 IMP_heights_mean = IMP_dict[feat_id]['zH']

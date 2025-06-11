@@ -314,6 +314,7 @@ def ss_calc_gridlayout(build_array, wall_array, typoList, typo_array, gridlayout
                         # aggregate specific heat capacity
                         cp_agg = sum(cp * rho * dz * weight for cp, rho, dz, weight in zip(filtered_cp_wall, filtered_rho_wall, filtered_dz_wall, normalized_weights)) / (dz_agg * rho_agg)
 
+                        # VOlumentrcu
                         C_agg = cp_agg * rho_agg
 
                         dz_list.append(round(dz_agg,4))
@@ -381,7 +382,7 @@ def ss_calc_gridlayout(build_array, wall_array, typoList, typo_array, gridlayout
                     'emis': {
                         'value' : spartacus_sel[f'emissivity_{surface}'],
                     },
-                    'thermal_layers': horizontal_aggregation(code, surface[0], db_dict),
+                    'thermal_layers': horizontal_aggregation(code, surface[0], db_dict, no_rho=True),
                     'statelimit': {'value' :5},
                     'soilstorecap': {'value' : 5},
                     'wetthresh': {'value' : 5},

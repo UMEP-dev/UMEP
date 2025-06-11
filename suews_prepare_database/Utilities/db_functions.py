@@ -280,7 +280,7 @@ def decide_country_or_region(col, country_sel, reg):
         var = country_sel[col].item()    
     return var
 
-def horizontal_aggregation(surface_code, roofwall, db_dict, no_rho = True):
+def horizontal_aggregation(surface_code, roofwall, db_dict, no_rho = False):
 
     surface = db_dict['Spartacus Surface'].loc[surface_code]
     insulation = surface[f'{roofwall}Insulation']
@@ -427,8 +427,8 @@ def horizontal_aggregation(surface_code, roofwall, db_dict, no_rho = True):
                 agg_surface.loc[layer,'cp'] = nan
 
         # -----------------------------------------------------------------------------------
-    no_rho = False
     if no_rho == True:
+        agg_surface['cp'] = agg_surface['cp'] * agg_surface['rho']
         agg_surface = agg_surface.drop(columns = ['rho'])
         agg_surface = agg_surface.round(3).loc[:,['dz','k','cp']].to_dict()
 
@@ -1803,7 +1803,7 @@ def blend_SUEWS_NonVeg(grid_dict, db_dict, parameter_dict, zenodo, surface):
 
     # Populate temp_nonveg_dict with typology data and fractions
     for typology in typology_list:
-        locator = db_dict['Types'].loc[typology,'Buildings']
+        locator = db_dict['Types'].loc[typology, surface]
         temp_nonveg_dict[typology] = fill_SUEWS_NonVeg_typologies(db_dict, parameter_dict, locator, zenodo, surface)
         fractions.append(grid_dict[typology]['SAreaFrac'])
         temp_nonveg_dict[typology]['Code']['value'] = typology
