@@ -97,8 +97,8 @@ class SuewsPlotting(object):
         plt.legend(bbox_to_anchor=(1.02, 1.0), loc='upper left', borderaxespad=0.)
 
         if writeoption > 38:
-            lai = dataout[:, 56]
-            smd = dataout[:, 27]
+            lai = dataout[:, 57]
+            smd = dataout[:, 28] #28?
         else:
             lai = dataout[:, 29]
             smd = dataout[:, 24]

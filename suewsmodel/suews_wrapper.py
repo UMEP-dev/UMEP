@@ -167,13 +167,13 @@ def wrapper(pathtoplugin, plotornot, filecode):
             # if index == 2:
                 # gridcodemet = ''
             data_in = yaml_dict['model']['control']['forcing_file']['value'] #fileinputpath + filecode + '_' + str(YYYY) + gridcodemet + '_data_' + str(int(int(resolutionfilesin) / 60.)) + '.txt'  # No grid code in the name, nov 2015
-            met_old = np.genfromtxt(data_in, skip_header=1, missing_values='**********', filling_values=-9999) #  skip_footer=2,
-            # met_old = np.loadtxt(data_in, skiprows=1)
-            if met_old[1, 3] - met_old[0, 3] == 5:
-                met_new = met_old
-            else:
-                met_new = su.tofivemin_v1(met_old)
-        # fs.close()
+
+            met_forcing = np.genfromtxt(data_in, skip_header=1, missing_values='**********', filling_values=-9999) #  skip_footer=2,
+
+            # if met_old[1, 3] - met_old[0, 3] == 5:
+            #     met_new = met_old
+            # else:
+            #     met_new = su.tofivemin_v1(met_old)
 
         # gridcode = yaml_dict['site'][0]['gridiv']
         # YYYY = df_forcing.index[0].year
@@ -187,13 +187,9 @@ def wrapper(pathtoplugin, plotornot, filecode):
 
             # if chooseyearbasic:
             #     YYYY = chooseyearbasic
-            print('6')
             suews_plottime = np.loadtxt(suews_out, skiprows=1)
-            print('7')
-            suews_plottimeold = su.from5mintoanytime(met_new, SumCol_plot, LastCol_plot, TimeCol_plot, int(timeaggregation/60))
-            print('8')
-            pl.plotbasic(suews_plottime, suews_plottimeold)
-            print('9')
+            # suews_plottimeold = su.from5mintoanytime(met_new, SumCol_plot, LastCol_plot, TimeCol_plot, int(timeaggregation/60))
+            pl.plotbasic(suews_plottime, met_forcing)
         if plotmonthlystat == 1:
             # if choosegridstat:
             #     gridcode = choosegridstat
@@ -202,10 +198,10 @@ def wrapper(pathtoplugin, plotornot, filecode):
             #     YYYY = chooseyearstat
 
             suews_plottime = np.loadtxt(suews_out, skiprows=1)
-            suews_plottimeold = su.from5mintoanytime(met_new, SumCol_plot, LastCol_plot, TimeCol_plot,
-                                                     int(timeaggregation / 60.))
+            # suews_plottimeold = su.from5mintoanytime(met_new, SumCol_plot, LastCol_plot, TimeCol_plot,
+                                                    #  int(timeaggregation / 60.))
 
-            pl.plotmonthlystatistics(suews_plottime, suews_plottimeold)
+            pl.plotmonthlystatistics(suews_plottime, met_forcing)
 
         if plotmonthlystat == 1:
             plt.show()

@@ -49,6 +49,7 @@ from ..suewsmodel import suewsplotting
 import datetime
 import shutil
 import yaml
+import pandas as pd
 
 try:
     import matplotlib.pylab as plt
@@ -108,7 +109,7 @@ class SUEWSAnalyzer(object):
 
         self.fileDialog = QFileDialog()
         self.fileDialogyaml = QFileDialog()
-        self.fileDialogyaml.setNameFilter("(.yaml)")
+        self.fileDialogyaml.setNameFilter("(*.yml)")
 
         # Declare instance attributes
         self.actions = []
@@ -216,10 +217,8 @@ class SUEWSAnalyzer(object):
         self.dlg.textOutput.setText('Not Specified')
 
     def get_runcontrol(self):
-
+        # now using yml-files instead
         self.clearentries()
-
-        
 
         self.fileDialogyaml.open()
         result = self.fileDialogyaml.exec_()
@@ -235,10 +234,10 @@ class SUEWSAnalyzer(object):
             #     self.fileinputpath = yamlfolder + self.fileinputpath[1:]
 
             self.fileoutputpath = yaml_dict['model']['control']['output_file']
+            
             if self.fileoutputpath.startswith("."):
                 yamlfolder = self.yamlPath[0][:-15]
                 self.fileoutputpath = yamlfolder + self.fileoutputpath[1:]
-
 
             resolutionFilesOut = get_resolution_from_umep_forcing(yaml_dict['model']['control']['forcing_file']['value'])
             self.resout = int(float(resolutionFilesOut) / 60)
@@ -246,19 +245,37 @@ class SUEWSAnalyzer(object):
             # self.multiplemetfiles = nml['runcontrol']['multiplemetfiles']
             resolutionFilesIn = resolutionFilesOut
             self.resin = int(resolutionFilesIn / 60)
-
-            tstep = yaml_dict['model']['control']['tstep']
-            self.tstep = int(float(tstep) / 60)
+            
+            #tstep = yaml_dict['model']['control']['tstep']
+            #self.tstep = int(float(tstep) / 60)
             # writeoutoption = nml['runcontrol']['writeoutoption']
-
+            
             mm = 0 #This doesn't work when hourly file starts with e.g.15
             while mm < 60:
                 self.dlg.comboBox_mm.addItem(str(mm))
                 mm += self.resout
 
-            sitein = self.fileinputpath + 'SUEWS_SiteSelect.txt'
-            f = open(sitein)
-            lin = f.readlines()
+            # New structure for 2025.6.2.dev0
+            firstyear = data.index.year.unique()[0]
+
+            outfile = str(yaml_dict['site'][0]['gridiv']) + '_' + str(firstyear) + '_SUEWS_60.txt'
+            data = pd.read_csv(self.fileoutputpath + outfile, delim_whitespace= True)
+            data['Datetime'] = pd.to_datetime(data[['Year', 'DOY', 'Hour', 'Min']].astype(str).agg('-'.join, axis=1), format='%Y-%j-%H-%M')
+            # # Set the datetime column as the index
+            data.set_index('Datetime', inplace=True)
+
+            # populating year combobox
+            for i in data.index.year.unique():
+                if data.loc[str(i)].shape[0] > 1:
+                    self.dlg.comboBox_POIYYYY.addItem(str(i))
+                    self.dlg.comboBox_SpatialYYYY.addItem(str(i))
+
+            # populating POIfield
+            #"HÄRÄRJAG"
+
+            # sitein = self.fileinputpath + 'SUEWS_SiteSelect.txt'
+            # f = open(sitein)
+            # lin = f.readlines()
             self.YYYY = -99
             self.gridcodemetID = -99
             index = 2
@@ -270,7 +287,7 @@ class SUEWSAnalyzer(object):
                     self.YYYY = int(lines[1])
                     self.dlg.comboBox_POIYYYY.addItem(str(self.YYYY))
                     self.dlg.comboBox_SpatialYYYY.addItem(str(self.YYYY))
-
+                print('here4')
                 if not np.any(int(lines[0]) == gridcodemetmat):
                     self.gridcodemetID = int(lines[0])
                     self.dlg.comboBox_POIField.addItem(str(self.gridcodemetID))

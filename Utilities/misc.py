@@ -54,6 +54,6 @@ def get_resolution_from_umep_forcing(met_path):
 
     time1 = list(forcing.iloc[[1]].index)
     time2 = list(forcing.iloc[[2]].index)
-    inputresolution = int((time1[0]-time2[0]).total_seconds())
+    inputresolution = int((time2[0]-time1[0]).total_seconds())
 
     return inputresolution
