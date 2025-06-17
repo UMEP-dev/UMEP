@@ -25,10 +25,12 @@ from __future__ import absolute_import
 from builtins import str
 from builtins import range
 from builtins import object
-from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QVariant, QCoreApplication
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QVariant, QCoreApplication, Qt
+
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt import QtGui
+
 from qgis.core import *
 from qgis.gui import *
 # Initialize Qt resources from file resources.py
@@ -44,6 +46,7 @@ from ..Utilities.misc import get_resolution_from_umep_forcing
 import numpy as np
 from ..suewsmodel import suewsdataprocessing
 from ..suewsmodel import suewsplotting
+from .params_dict import params_dict
 # import sys
 # import subprocess
 import datetime
@@ -96,7 +99,8 @@ class SUEWSAnalyzer(object):
         self.layerComboManagerPolyfield = QgsFieldComboBox(self.dlg.widgetField)
         self.layerComboManagerPolyfield.setFilters(QgsFieldProxyModel.Numeric)
         self.layerComboManagerPolygrid.layerChanged.connect(self.layerComboManagerPolyfield.setLayer)
-
+        
+        self.dlg.comboBox_POIVariable.currentIndexChanged.connect(self.variable_changed)
         self.dlg.pushButtonHelp.clicked.connect(self.help)
         self.dlg.pushButtonRunControl.clicked.connect(self.get_runcontrol)
         self.dlg.pushButtonSave.clicked.connect(self.geotiff_save)
@@ -239,13 +243,33 @@ class SUEWSAnalyzer(object):
                 yamlfolder = self.yamlPath[0][:-15]
                 self.fileoutputpath = yamlfolder + self.fileoutputpath[1:]
 
+            grid_list = [] 
+            for n in range(len(yaml_dict['site'])):
+                grid_list.append(yaml_dict['site'][n]['gridiv'])
+
+            grid_list = list(map(str, grid_list))
+
+            self.dlg.comboBox_POIField.addItems(grid_list)
+            self.dlg.comboBox_POIField_2.addItems(grid_list)
+
             resolutionFilesOut = get_resolution_from_umep_forcing(yaml_dict['model']['control']['forcing_file']['value'])
             self.resout = int(float(resolutionFilesOut) / 60)
             # self.fileCode = nml['runcontrol']['filecode']
             # self.multiplemetfiles = nml['runcontrol']['multiplemetfiles']
             resolutionFilesIn = resolutionFilesOut
             self.resin = int(resolutionFilesIn / 60)
-            
+
+            self.met_data = pd.read_csv(yaml_dict['model']['control']['forcing_file']['value'], delim_whitespace= True)
+            self.met_data['Datetime'] = pd.to_datetime(self.met_data[['iy', 'id', 'it', 'imin']].astype(str).agg('-'.join, axis=1), format='%Y-%j-%H-%M')
+            self.met_data.set_index('Datetime', inplace=True)
+
+            years = list(self.met_data.index.year.unique())
+            years = list(map(str, years))
+            firstyear = years[0]
+
+            self.dlg.comboBox_POIYYYY.addItems(years)
+            self.dlg.comboBox_SpatialYYYY.addItems(years)
+
             #tstep = yaml_dict['model']['control']['tstep']
             #self.tstep = int(float(tstep) / 60)
             # writeoutoption = nml['runcontrol']['writeoutoption']
@@ -256,19 +280,16 @@ class SUEWSAnalyzer(object):
                 mm += self.resout
 
             # New structure for 2025.6.2.dev0
-            firstyear = data.index.year.unique()[0]
 
             outfile = str(yaml_dict['site'][0]['gridiv']) + '_' + str(firstyear) + '_SUEWS_60.txt'
-            data = pd.read_csv(self.fileoutputpath + outfile, delim_whitespace= True)
-            data['Datetime'] = pd.to_datetime(data[['Year', 'DOY', 'Hour', 'Min']].astype(str).agg('-'.join, axis=1), format='%Y-%j-%H-%M')
+            
             # # Set the datetime column as the index
-            data.set_index('Datetime', inplace=True)
 
-            # populating year combobox
-            for i in data.index.year.unique():
-                if data.loc[str(i)].shape[0] > 1:
-                    self.dlg.comboBox_POIYYYY.addItem(str(i))
-                    self.dlg.comboBox_SpatialYYYY.addItem(str(i))
+            # # populating year combobox
+            # for i in data.index.year.unique():
+            #     if data.loc[str(i)].shape[0] > 1:
+            #         self.dlg.comboBox_POIYYYY.addItem(str(i))
+            #         self.dlg.comboBox_SpatialYYYY.addItem(str(i))
 
             # populating POIfield
             #"HÄRÄRJAG"
@@ -281,47 +302,60 @@ class SUEWSAnalyzer(object):
             index = 2
             loop_out = ''
             gridcodemetmat = [0]
-            while loop_out != '-9':
-                lines = lin[index].split()
-                if not int(lines[1]) == self.YYYY:
-                    self.YYYY = int(lines[1])
-                    self.dlg.comboBox_POIYYYY.addItem(str(self.YYYY))
-                    self.dlg.comboBox_SpatialYYYY.addItem(str(self.YYYY))
-                print('here4')
-                if not np.any(int(lines[0]) == gridcodemetmat):
-                    self.gridcodemetID = int(lines[0])
-                    self.dlg.comboBox_POIField.addItem(str(self.gridcodemetID))
-                    self.dlg.comboBox_POIField_2.addItem(str(self.gridcodemetID))
-                    gridtemp = [self.gridcodemetID]
-                    gridcodemetmat = np.vstack((gridcodemetmat, gridtemp))
 
-                if index == 2:
-                    if self.multiplemetfiles == 0:
-                        self.gridcodemet = ''
-                    else:
-                        self.gridcodemet = lines[0]
-                    data_in = self.fileinputpath + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_data_' + str(self.resin) + '.txt'
-                    self.met_data = np.genfromtxt(data_in, skip_header=1, missing_values='**********', filling_values=-9999)  # , skip_footer=2
+            # asdf
+            # while loop_out != '-9':
+            #     lines = lin[index].split()
+            #     if not int(lines[1]) == self.YYYY:
+            #         self.YYYY = int(lines[1])
+            #         self.dlg.comboBox_POIYYYY.addItem(str(self.YYYY))
+            #         self.dlg.comboBox_SpatialYYYY.addItem(str(self.YYYY))
+            #     print('here4')
+            #     if not np.any(int(lines[0]) == gridcodemetmat):
+            #         self.gridcodemetID = int(lines[0])
+            #         self.dlg.comboBox_POIField.addItem(str(self.gridcodemetID))
+            #         self.dlg.comboBox_POIField_2.addItem(str(self.gridcodemetID))
+            #         gridtemp = [self.gridcodemetID]
+            #         gridcodemetmat = np.vstack((gridcodemetmat, gridtemp))
 
-                lines = lin[index + 1].split()
-                loop_out = lines[0]
-                index += 1
+            #     if index == 2:
+            #         if self.multiplemetfiles == 0:
+            #             self.gridcodemet = ''
+            #         else:
+            #             self.gridcodemet = lines[0]
+            #         data_in = self.fileinputpath + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_data_' + str(self.resin) + '.txt'
+            #         self.met_data = np.genfromtxt(data_in, skip_header=1, missing_values='**********', filling_values=-9999)  # , skip_footer=2
 
-            f.close()
-            self.idgrid = gridcodemetmat[1:, :]
+            #     lines = lin[index + 1].split()
+            #     loop_out = lines[0]
+            #     index += 1
 
-            dataunit = self.plugin_dir + '/SUEWS_OutputFormatOption' + str(int(writeoutoption)) + '.txt'  # File moved to plugin directory
-            f = open(dataunit)
-            lin = f.readlines()
-            self.lineunit = lin[3].split(";")
-            self.linevar = lin[1].split(";")
-            self.linevarlong = lin[2].split(";")
-            f.close()
+            # f.close()
+            # self.idgrid = gridcodemetmat[1:, :]
 
-            for i in range(0, self.linevarlong.__len__()):
-                self.dlg.comboBox_POIVariable.addItem(self.linevarlong[i])
-                self.dlg.comboBox_POIVariable_2.addItem(self.linevarlong[i])
-                self.dlg.comboBox_SpatialVariable.addItem(self.linevarlong[i])
+            # dataunit = self.plugin_dir + '/SUEWS_OutputFormatOption' + str(int(writeoutoption)) + '.txt'  # File moved to plugin directory
+            # f = open(dataunit)
+            # lin = f.readlines()
+            # self.lineunit = lin[3].split(";")
+            # self.linevar = lin[1].split(";")
+            # self.linevarlong = lin[2].split(";")
+            # f.close()
+            
+            for item in list(sorted(list(params_dict.keys()))):
+                for cbox in [self.dlg.comboBox_POIVariable, self.dlg.comboBox_POIVariable_2,self.dlg.comboBox_SpatialVariable]:
+                    cbox.addItem(item)
+                    index = cbox.findText(item)
+                    cbox.setItemData(index, params_dict[item]['description'], Qt.ToolTipRole)
+
+
+            self.dlg.comboBox_POIVariable.addItems(sorted(list(params_dict.keys())))
+            self.dlg.comboBox_POIVariable_2.addItems(sorted(list(params_dict.keys())))
+            self.dlg.comboBox_SpatialVariable.addItems(sorted(list(params_dict.keys())))
+
+            # for i in range(0, self.linevarlong.__len__()):
+            #     self.dlg.comboBox_POIVariable.addItem(self.linevarlong[i])
+            #     self.dlg.comboBox_POIVariable_2.addItem(self.linevarlong[i])
+            #     self.dlg.comboBox_SpatialVariable.addItem(self.linevarlong[i])
 
             self.dlg.runButtonPlot.setEnabled(1)
             self.dlg.runButtonSpatial.setEnabled(1)
@@ -339,28 +373,41 @@ class SUEWSAnalyzer(object):
 
         self.YYYY = self.dlg.comboBox_POIYYYY.currentText()
 
-        if self.multiplemetfiles == 0:
-            self.gridcodemet = ''
+        # if self.multiplemetfiles == 0:
+        #     self.gridcodemet = ''
+        # else: 
+        self.gridcodemet = self.dlg.comboBox_POIField.currentText()
+
+        if self.YYYY == 'Not Specified':
+
+            doy_list = self.met_data.index.strftime('%Y-%m-%d').unique().tolist()
+
+            self.dlg.comboBox_POIDOYMin.addItems(doy_list)
+            self.dlg.comboBox_POIDOYMax.addItems(doy_list)
+
+        # data_in = self.fileinputpath + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_data_' + str(
+        #     self.resin) + '.txt'
+        # self.met_data = np.genfromtxt(data_in, skip_header=1, missing_values='**********', filling_values=-9999)
         else:
-            self.gridcodemet = self.dlg.comboBox_POIField.currentText()
+            doy_list = self.met_data.loc[self.YYYY].index.strftime('%Y-%m-%d').unique().tolist()
 
-        if not self.dlg.comboBox_POIYYYY.currentText() == 'Not Specified':
-            # print self.dlg.comboBox_POIField.currentText()
-            # print self.dlg.comboBox_POIField.currentIndex()
-            data_in = self.fileinputpath + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_data_' + str(
-                self.resin) + '.txt'
-            self.met_data = np.genfromtxt(data_in, skip_header=1, missing_values='**********', filling_values=-9999)
+            self.dlg.comboBox_POIDOYMin.addItems(doy_list)
+            self.dlg.comboBox_POIDOYMax.addItems(doy_list)
 
-            if np.min(self.met_data[:, 0]) - np.max(self.met_data[:, 0]) < 0:
-                minis = np.min(self.met_data[:-1, 1])
-                maxis = np.max(self.met_data[:, 1])
-            else:
-                minis = np.min(self.met_data[:, 1])
-                maxis = np.max(self.met_data[:, 1])
+            # data_in = self.fileinputpath + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_data_' + str(
+            #     self.resin) + '.txt'
+            # self.met_data = np.genfromtxt(data_in, skip_header=1, missing_values='**********', filling_values=-9999)
 
-            for i in range(int(minis), int(maxis) + 2):
-                    self.dlg.comboBox_POIDOYMin.addItem(str(i))
-                    self.dlg.comboBox_POIDOYMax.addItem(str(i))
+            # if np.min(self.met_data[:, 0]) - np.max(self.met_data[:, 0]) < 0:
+            #     minis = np.min(self.met_data[:-1, 1])
+            #     maxis = np.max(self.met_data[:, 1])
+            # else:
+            #     minis = np.min(self.met_data[:, 1])
+            #     maxis = np.max(self.met_data[:, 1])
+
+            # for i in range(int(minis), int(maxis) + 2):
+            #         self.dlg.comboBox_POIDOYMin.addItem(str(i))
+            #         self.dlg.comboBox_POIDOYMax.addItem(str(i))
 
     def changeYearSP(self):
         self.dlg.comboBox_SpatialDOYMin.clear()
@@ -370,20 +417,33 @@ class SUEWSAnalyzer(object):
 
         self.YYYY = self.dlg.comboBox_SpatialYYYY.currentText()
 
-        data_in = self.fileinputpath + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_data_' + str(
-            self.resin) + '.txt'
-        self.met_data = np.genfromtxt(data_in, skip_header=1, missing_values='**********', filling_values=-9999)
+        if self.YYYY == 'Not Specified':
 
-        if np.min(self.met_data[:, 0]) - np.max(self.met_data[:, 0]) < 0:
-            minis = np.min(self.met_data[:-1, 1])
-            maxis = np.max(self.met_data[:, 1])
+            doy_list = self.met_data.index.strftime('%Y-%m-%d').unique().tolist()
+
+            self.dlg.comboBox_SpatialDOYMin.addItems(doy_list)
+            self.dlg.comboBox_SpatialDOYMax.addItems(doy_list)
+
+
+        # data_in = self.fileinputpath + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_data_' + str(
+        #     self.resin) + '.txt'
+        # self.met_data = np.genfromtxt(data_in, skip_header=1, missing_values='**********', filling_values=-9999)
         else:
-            minis = np.min(self.met_data[:, 1])
-            maxis = np.max(self.met_data[:, 1])
+            doy_list = self.met_data.loc[self.YYYY].index.strftime('%Y-%m-%d').unique().tolist()
 
-        for i in range(int(minis), int(maxis) + 2):
-            self.dlg.comboBox_SpatialDOYMin.addItem(str(i))
-            self.dlg.comboBox_SpatialDOYMax.addItem(str(i))
+            self.dlg.comboBox_SpatialDOYMin.addItems(doy_list)
+            self.dlg.comboBox_SpatialDOYMax.addItems(doy_list)
+
+        # if np.min(self.met_data[:, 0]) - np.max(self.met_data[:, 0]) < 0:
+        #     minis = np.min(self.met_data[:-1, 1])
+        #     maxis = np.max(self.met_data[:, 1])
+        # else:
+        #     minis = np.min(self.met_data[:, 1])
+        #     maxis = np.max(self.met_data[:, 1])
+
+        # for i in range(int(minis), int(maxis) + 2):
+        #     self.dlg.comboBox_SpatialDOYMin.addItem(str(i))
+        #     self.dlg.comboBox_SpatialDOYMax.addItem(str(i))
 
     def geotiff_save(self):
         self.outputfile = self.fileDialog.getSaveFileName(None, "Save File As:", None, "GeoTIFF (*.tif)")
@@ -681,9 +741,9 @@ class SUEWSAnalyzer(object):
             QMessageBox.critical(self.dlg, "Error", "No Grid ID is selected")
             return
 
-        if self.dlg.comboBox_POIYYYY.currentText() == 'Not Specified':
-            QMessageBox.critical(self.dlg, "Error", "No Year is selected")
-            return
+        # if self.dlg.comboBox_POIYYYY.currentText() == 'Not Specified':
+        #     QMessageBox.critical(self.dlg, "Error", "No Year is selected")
+        #     return
 
         if not self.dlg.checkboxPlotBasic.isChecked():
 
@@ -691,13 +751,13 @@ class SUEWSAnalyzer(object):
                 QMessageBox.critical(self.dlg, "Error", "No Minimum DOY is selected")
                 return
             else:
-                startday = int(self.dlg.comboBox_POIDOYMin.currentText())
+                startday = self.dlg.comboBox_POIDOYMin.currentText()
 
             if self.dlg.comboBox_POIDOYMax.currentText() == 'Not Specified':
                 QMessageBox.critical(self.dlg, "Error", "No Maximum DOY is selected")
                 return
             else:
-                endday = int(self.dlg.comboBox_POIDOYMax.currentText())
+                endday = self.dlg.comboBox_POIDOYMax.currentText()
 
             if startday > endday:
                 QMessageBox.critical(self.dlg, "Error", "Start day happens after end day")
@@ -706,28 +766,37 @@ class SUEWSAnalyzer(object):
             if startday == endday:
                 QMessageBox.critical(self.dlg, "Error", "End day must be higher than start day")
                 return
+            
+            datawhole = pd.read_csv(self.fileoutputpath + '/' + self.varpoi1 + '_' +
+                                      str(self.YYYY) + '_SUEWS_' + str(self.resout) + '.txt', delim_whitespace = True)
+            
+            datawhole['Datetime'] = pd.to_datetime(datawhole[['Year', 'DOY', 'Hour', 'Min']].astype(str).agg('-'.join, axis=1), format='%Y-%j-%H-%M')
+            datawhole.set_index('Datetime', inplace=True)
+            # datawhole = np.genfromtxt(self.fileoutputpath + '/' + self.fileCode + self.varpoi1 + '_' +
+            #                           str(self.YYYY) + '_SUEWS_' + str(self.resout) + '.txt', skip_header=1,
+            #                           missing_values='**********', filling_values=-9999)
 
-            datawhole = np.genfromtxt(self.fileoutputpath + '/' + self.fileCode + self.varpoi1 + '_' +
-                                      str(self.YYYY) + '_SUEWS_' + str(self.resout) + '.txt', skip_header=1,
-                                      missing_values='**********', filling_values=-9999)
+            
+            data1 = datawhole.loc[startday:endday]
 
-            start = np.min(np.where(datawhole[:, 1] == startday))
-            if endday > np.max(datawhole[:, 1]):
-                ending = np.max(np.where(datawhole[:, 1] == endday - 1))
-            else:
-                ending = np.min(np.where(datawhole[:, 1] == endday))
-            data1 = datawhole[start:ending, :]
+            # start = np.min(np.where(datawhole[:, 1] == startday))
+            # if endday > np.max(datawhole[:, 1]):
+            #     ending = np.max(np.where(datawhole[:, 1] == endday - 1))
+            # else:
+            #     ending = np.min(np.where(datawhole[:, 1] == endday))
+            # data1 = datawhole[start:ending, :]
 
             if self.dlg.comboBox_POIVariable.currentText() == 'Not Specified':
                 QMessageBox.critical(self.dlg, "Error", "No plot variable is selected")
                 return
 
-            dates = []
-            for i in range(0, data1.shape[0]):  # making date number
-                dates.append(
-                    dt.datetime.datetime(int(data1[i, 0]), 1, 1) + datetime.timedelta(days=data1[i, 1] - 1,
-                                                                                        hours=data1[i, 2],
-                                                                                        minutes=data1[i, 3]))
+            # dates = data1.index.strftime('%d-%H-%min').unique().tolist()
+            # dates = []
+            # for i in range(0, data1.shape[0]):  # making date number
+            #     dates.append(
+            #         dt.datetime.datetime(int(data1[i, 0]), 1, 1) + datetime.timedelta(days=data1[i, 1] - 1,
+            #                                                                             hours=data1[i, 2],
+            #                                                                             minutes=data1[i, 3]))
 
             # datenum_yy = np.zeros(data1.shape[0])
             # for i in range(0, data1.shape[0]):  # making date number
@@ -738,7 +807,7 @@ class SUEWSAnalyzer(object):
 
             if not self.dlg.checkboxPOIAnother.isChecked():
                 # One variable
-                self.id = self.dlg.comboBox_POIVariable.currentIndex() - 1
+                # self.id = self.dlg.comboBox_POIVariable.currentIndex() - 1
 
                 if self.dlg.comboBox_POIVariable.currentText() == 'Not Specified':
                     QMessageBox.critical(self.dlg, "Error", "No plotting variable is selected")
@@ -747,63 +816,88 @@ class SUEWSAnalyzer(object):
                 plt.figure(1, figsize=(15, 7), facecolor='white')
                 plt.title(self.dlg.comboBox_POIVariable.currentText())
                 ax1 = plt.subplot(1, 1, 1)
-                ax1.plot(dates, data1[:, self.id], 'r', label='$' + self.dlg.comboBox_POIVariable.currentText() + '$')
-                self.get_unit()
-                ax1.set_ylabel(self.unit, fontsize=14)
+                data1.loc[:,self.dlg.comboBox_POIVariable.currentText()].plot(color = 'r', label='$' + self.dlg.comboBox_POIVariable.currentText() + '$', ax = ax1)
+                # ax1.plot(dates, data1[:, self.id], 'r', label='$' + self.dlg.comboBox_POIVariable.currentText() + '$')
+
+                ax1.set_ylabel(params_dict[self.dlg.comboBox_POIVariable.currentText()]['unit'], fontsize=14)
                 ax1.set_xlabel('Time', fontsize=14)
                 # plt.setp(plt.gca().xaxis.get_majorticklabels(), 'rotation', 45)
                 ax1.grid(True)
             else:
                 # Two variables
-                id1 = self.dlg.comboBox_POIVariable.currentIndex() - 1
-                self.id = id1
-                self.get_unit()
-                varunit1 = self.unit
-                id2 = self.dlg.comboBox_POIVariable_2.currentIndex() - 1
-                self.id = id2
-                self.get_unit()
-                varunit2 = self.unit
+                varunit1 = params_dict[self.dlg.comboBox_POIVariable.currentText()]['unit']
+                varunit2 = params_dict[self.dlg.comboBox_POIVariable_2.currentText()]['unit']
+                id1 = self.dlg.comboBox_POIVariable.currentText() 
+                # self.id = id1
+                # self.get_unit()
+                # varunit1 = self.unit
+                id2 = self.dlg.comboBox_POIVariable_2.currentText() 
+                # self.id = id2
+                # self.get_unit()
+                # varunit2 = self.unit
+
                 if self.dlg.comboBox_POIVariable_2.currentText() == 'Not Specified' or self.dlg.comboBox_POIVariable.currentText() == 'Not Specified':
                     QMessageBox.critical(self.dlg, "Error", "No plotting variable is selected")
                     return
+                
                 # self.varpoi1 = self.dlg.comboBox_POIField.currentText()
                 self.varpoi2 = self.dlg.comboBox_POIField_2.currentText()
                 # data2whole = np.loadtxt(
                 #     self.fileoutputpath + '/' + self.fileCode + self.varpoi2 + '_' + str(self.YYYY) + '_' + str(
                 #         self.resout) + '.txt', skiprows=1)
-                data2whole = np.genfromtxt(
-                    self.fileoutputpath + '/' + self.fileCode + self.varpoi2 + '_' + str(self.YYYY) + '_SUEWS_' + str(
-                        self.resout) + '.txt', skip_header=1, missing_values='**********', filling_values=-9999)
-                data2 = data2whole[start:ending, :]
+
+                datawhole2 = pd.read_csv(self.fileoutputpath + '/' + self.varpoi2 + '_' +
+                                      str(self.YYYY) + '_SUEWS_' + str(self.resout) + '.txt', delim_whitespace = True)
+            
+                datawhole2['Datetime'] = pd.to_datetime(datawhole2[['Year', 'DOY', 'Hour', 'Min']].astype(str).agg('-'.join, axis=1), format='%Y-%j-%H-%M')
+                datawhole2.set_index('Datetime', inplace=True)
+
+                data2 = datawhole2.loc[startday: endday]
 
                 if self.dlg.checkboxScatterbox.isChecked():
-                    plt.figure(1, figsize=(11, 11), facecolor='white')
+                    plt.figure(1, figsize=(8, 8), facecolor='white')
                     plt.title(
                         self.dlg.comboBox_POIVariable.currentText() + '(' + self.varpoi1 + ') vs ' + self.dlg.comboBox_POIVariable_2.currentText() + '(' + self.varpoi2 + ')')
                     ax1 = plt.subplot(1, 1, 1)
-                    ax1.plot(data1[:, id1], data2[:, id2], "k.")
+                    ax1.plot(data1.loc[:, id1], data2.loc[:, id2], "k.")
                     ax1.set_ylabel(self.dlg.comboBox_POIVariable.currentText() + ' (' + varunit1 + ')', fontsize=14)
                     ax1.set_xlabel(self.dlg.comboBox_POIVariable_2.currentText() + ' (' + varunit2 + ')', fontsize=14)
                 else:
+
                     plt.figure(1, figsize=(15, 7), facecolor='white')
                     plt.title(
                         self.dlg.comboBox_POIVariable.currentText() + '(' + self.varpoi1 + ') and ' + self.dlg.comboBox_POIVariable_2.currentText() + '(' + self.varpoi2 + ')')
                     ax1 = plt.subplot(1, 1, 1)
-                    if not varunit1 == varunit2:
+
+                    if varunit1 != varunit2:
                         ax2 = ax1.twinx()
-                        ax1.plot(dates, data1[:, id1], 'r',
-                                 label='$' + self.dlg.comboBox_POIVariable.currentText() + ' (' + self.varpoi1 + ')$')
+                        data1.loc[:,self.dlg.comboBox_POIVariable.currentText()].plot(
+                            color = 'r', 
+                            label='$' + self.dlg.comboBox_POIVariable.currentText() + ' (' + self.varpoi1 + ')$', 
+                            ax = ax1)
                         ax1.legend(loc=1)
-                        ax2.plot(dates, data2[:, id2], 'b',
-                                 label='$' + self.dlg.comboBox_POIVariable_2.currentText() + ' (' + self.varpoi2 + ')$')
+                        data1.loc[:,self.dlg.comboBox_POIVariable_2.currentText()].plot(
+                            color = 'b', 
+                            label='$' + self.dlg.comboBox_POIVariable_2.currentText() + ' (' + self.varpoi2 + ')$', 
+                            ax = ax2)
+                        # ax2.plot(dates, data2[:, id2], 'b',
+                        #          label='$' + self.dlg.comboBox_POIVariable_2.currentText() + ' (' + self.varpoi2 + ')$')
                         ax2.legend(loc=2)
                         ax1.set_ylabel(varunit1, color='r', fontsize=14)
                         ax2.set_ylabel(varunit2, color='b', fontsize=14)
                     else:
-                        ax1.plot(dates, data1[:, id1], 'r',
-                                 label='$' + self.dlg.comboBox_POIVariable.currentText() + ' (' + self.varpoi1 + ')$')
-                        ax1.plot(dates, data2[:, id2], 'b',
-                                 label='$' + self.dlg.comboBox_POIVariable_2.currentText() + ' (' + self.varpoi2 + ')$')
+                        data1.loc[:,self.dlg.comboBox_POIVariable.currentText()].plot(
+                            color = 'r', 
+                            label='$' + self.dlg.comboBox_POIVariable.currentText() + ' (' + self.varpoi1 + ')$', 
+                            ax = ax1)
+                        data1.loc[:,self.dlg.comboBox_POIVariable_2.currentText()].plot(
+                            color = 'b', 
+                            label='$' + self.dlg.comboBox_POIVariable_2.currentText() + ' (' + self.varpoi2 + ')$', 
+                            ax = ax1)
+                        # ax1.plot(dates, data1[:, id1], 'r',
+                        #          label='$' + self.dlg.comboBox_POIVariable.currentText() + ' (' + self.varpoi1 + ')$')
+                        # ax1.plot(dates, data2[:, id2], 'b',
+                        #          label='$' + self.dlg.comboBox_POIVariable_2.currentText() + ' (' + self.varpoi2 + ')$')
                         ax1.legend(loc=2)
                         ax1.set_ylabel(varunit1, fontsize=14)
 
@@ -877,3 +971,13 @@ class SUEWSAnalyzer(object):
         # Close target an source rasters
         del trgt
         del src_data 
+
+    def variable_changed(self):
+        variable = self.dlg.comboBox_POIVariable.currentText()
+        try:
+            description = params_dict[variable]['description']
+            self.dlg.comboBox_POIVariable.setToolTip(description)
+        except:
+            pass
+        
+    
