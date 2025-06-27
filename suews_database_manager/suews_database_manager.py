@@ -275,6 +275,7 @@ class suews_database_manager:
 
         self.dlg.helpButton.clicked.connect(self.help)
         self.dlg.pushButtonClose.clicked.connect(self.closePlugin)
+        #self.dlg.closeEvent.clicked.connect(self.closePlugin) #TODO, fix later
 
         # show the dialog
         self.dlg.show()

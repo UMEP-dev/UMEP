@@ -421,7 +421,7 @@ class Worker(QtCore.QObject):
                 LCF_tr = LCF_de + LCF_ev # temporary fix while ev and de is not separated, issue 155
                 if (LCF_de  == 0 and LCF_ev == 0 and LCF_bu == 0):
                     zH = 0
-                    zMAx = 0
+                    zMax = 0
                 else:
                     zH = (float(IMP_heights_mean) * LCF_bu + float(IMPveg_heights_mean_eve) * LCF_ev + float(IMPveg_heights_mean_dec) * LCF_de) / (LCF_bu + LCF_ev + LCF_de)                    
                     zMax = max(float(IMPveg_max_dec),float(IMP_max))

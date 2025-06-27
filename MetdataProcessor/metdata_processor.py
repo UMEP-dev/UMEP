@@ -148,6 +148,10 @@ class MetdataProcessor(object):
 
     def import_file(self):
         if self.dlg.checkBoxEPW.isChecked():
+            if self.dlg.checkBoxKeepYear.isChecked():
+                self.yyKeep = 1
+            else:
+                self.yyKeep = 0
             result = self.fileDialog.exec_()
             self.dlg.pushButtonExport.setEnabled(True)
             self.folderPath = self.fileDialog.selectedFiles()
@@ -210,7 +214,8 @@ class MetdataProcessor(object):
                     delim = ':'
 
                 f = open(self.folderPath[0])
-                header = f.readline().split(delim)
+                #header = f.readline().split(delim)
+                header = f.readlines()[int(headernum - 1)].split(delim)
 
                 for i in range(0, header.__len__()):
                     self.dlg.comboBox_yyyy.addItem(header[i])
@@ -256,8 +261,11 @@ class MetdataProcessor(object):
         met_new = np.zeros((met_old.shape[0], 24)) - 999
 
         # yyyy
-        met_new[:, 0] = 1985
-        met_new[met_old.shape[0] - 1, 0] = 1986
+        if self.yyKeep == 0:
+            met_new[:, 0] = 1985
+            met_new[met_old.shape[0] - 1, 0] = 1986
+        else:
+            met_new[:, 0] = met_old[:, 0]
 
         # hour
         met_new[:, 2] = met_old[:, 3]

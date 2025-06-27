@@ -127,7 +127,7 @@ class SUEWSPrepareDatabase(object):
         self.day_since_rain = 0
         self.leaf_cycle = 1
         self.soil_moisture = 100
-        self.utc = 0
+        self.utc = 1
         self.file_code = ''
         self.steps = 0
         # self.region = None
@@ -1273,8 +1273,6 @@ class SUEWSPrepareDatabase(object):
                 np.savetxt(data_out, df_out.to_numpy(), fmt='%3d %2d %3d %2d %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f '
                             '%6.2f %6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.2f',
                             delimiter=' ', header=header, comments='')
-
-
         else:
             QMessageBox.critical(None, "Error",
                                     "Could not find the file containing meteorological data")
@@ -1865,9 +1863,10 @@ class SUEWSPrepareDatabase(object):
             
             # QMessageBox.critical(None, "Run complete but with Spartacus Vertical morphology errors", error_string)
         else:
-            iface.messageBar().pushMessage("Process completed", "Input files for SUEWS generated", level=Qgis.Success)
+            # iface.messageBar().pushMessage("Process completed", "Input files for SUEWS generated", level=Qgis.Success)
+            QMessageBox.information(None, 'Process Complete', "Input files for SUEWS generated")
 
-        self.dlg.progressBar.setValue(index)
+        self.dlg.progressBar.setValue(0)
 
     def write_to_init(self, initfilein, initfileout):
         LeafCycle = self.leaf_cycle

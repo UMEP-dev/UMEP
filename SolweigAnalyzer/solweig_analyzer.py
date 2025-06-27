@@ -110,6 +110,8 @@ class SolweigAnalyzer(object):
         self.lupPresent = 0
         self.shadowPresent = 0
         self.POIPresent = 0
+        self.petPresent = 0
+        self.utciPresent = 0
         self.posAll = []
         self.posDay = []
         self.posNight = []
@@ -218,6 +220,10 @@ class SolweigAnalyzer(object):
                     self.POIPresent = 1
                     self.dlg.comboBox_POI.addItem(file[4:-4])
                     self.dlg.comboBox_POI_2.addItem(file[4:-4])
+                if file.startswith("PET_"):
+                    self.petPresent = 1
+                if file.startswith("UTCI_"):
+                    self.utciPresent = 1    
                 index += 1
 
             l = sorted(list(set(self.timelist)))
@@ -237,9 +243,13 @@ class SolweigAnalyzer(object):
                 self.dlg.comboBoxSpatialVariables.addItem('Lup')
             if self.shadowPresent == 1:
                 self.dlg.comboBoxSpatialVariables.addItem('Shadow')
+            if self.petPresent == 1:
+                self.dlg.comboBoxSpatialVariables.addItem('PET')
+            if self.utciPresent == 1:
+                self.dlg.comboBoxSpatialVariables.addItem('UTCI')
 
             if self.tmrtPresent == 1 or self.kdownPresent == 1 or self.kupPresent == 1 or self.ldownPresent == 1 or \
-                            self.lupPresent == 1 or self.shadowPresent == 1:
+                            self.lupPresent == 1 or self.shadowPresent == 1 or self.petPresent == 1 or self.utciPresent == 1:
                 self.dlg.pushButtonSave.setEnabled(1)
                 self.dlg.runButtonMovie.setEnabled(1)
             if self.POIPresent == 1:
@@ -278,6 +288,12 @@ class SolweigAnalyzer(object):
         if self.dlg.comboBoxSpatialVariables.currentText() == 'Shadow':
             self.dlg.spinBoxMovieMin.setValue(0)
             self.dlg.spinBoxMovieMax.setValue(1)
+        if self.dlg.comboBoxSpatialVariables.currentText() == 'PET':
+            self.dlg.spinBoxMovieMin.setValue(-10)
+            self.dlg.spinBoxMovieMax.setValue(50)
+        if self.dlg.comboBoxSpatialVariables.currentText() == 'UTCI':
+            self.dlg.spinBoxMovieMin.setValue(-10)
+            self.dlg.spinBoxMovieMax.setValue(50)
 
     def folder_path_save(self):
         # self.fileDialog.setFileMode(4)
