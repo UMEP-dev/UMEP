@@ -8,7 +8,7 @@ __author__ = 'Fredrik Lindberg'
 
 import numpy as np
 import datetime
-
+import pandas as pd
 
 def leap_year(yy):
     if (yy % 4) == 0:
@@ -483,5 +483,55 @@ class SuewsDataProcessing(object):
             numformat = '%3d %3d %6.5f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f'
             np.savetxt(outputdata, met_new, fmt=numformat, delimiter=delim, header=header, comments='')
 
+
+def resample_dataframe( df, expected_time_resolution_min, how='mean', missing_val=-999, interpolate_method='linear'):
+    """
+    Resample a time series DataFrame to a new temporal resolution.
+
+    Parameters:
+    - df: pandas DataFrame with a datetime index
+    - expected_time_resolution_min: int, desired frequency in minutes
+    - how: aggregation method for downsampling ('mean', 'sum', etc.)
+    - missing_val: value used to represent missing data (default: -999)
+    - interpolate_method: method to use when upsampling (e.g., 'linear', 'ffill', 'bfill')
+
+    Returns:
+    - Resampled and interpolated DataFrame
+    """
+
+    if not isinstance(df.index, pd.DatetimeIndex):
+        raise ValueError("DataFrame index must be a DatetimeIndex.")
+
+    # Clean missing values
+    df_cleaned = df.replace(missing_val, np.nan)
+
+    # Determine current resolution
+    current_resolution_min = int((df_cleaned.index[1] - df_cleaned.index[0]).total_seconds() / 60)
+
+    freq_str = f'{expected_time_resolution_min}T'
+
+    if expected_time_resolution_min > current_resolution_min:
+        # ⬇️ Downsampling (e.g., 5-min to hourly)
+        df_resampled = df_cleaned.resample(freq_str).agg(how)
+    else:
+        # ⬆️ Upsampling (e.g., hourly to 5-min) + Interpolation
+        df_resampled = df_cleaned.resample(freq_str).asfreq()
+        df_resampled = df_resampled.interpolate(method=interpolate_method, limit_direction='both')
+
+    return df_resampled
+
+def SUEWS_txt_to_df( suews_output_path):
+    df_output_suews = pd.read_csv(suews_output_path, delim_whitespace = True)
+    df_output_suews['Datetime'] = pd.to_datetime(df_output_suews[['Year', 'DOY', 'Hour', 'Min']].astype(str).agg('-'.join, axis=1), format='%Y-%j-%H-%M')
+    df_output_suews.set_index('Datetime', inplace=True)
+
+    return df_output_suews
+
+def SUEWS_met_txt_to_df(suews_met_path):
+    df_met_forcing = pd.read_csv(suews_met_path, delim_whitespace = True)
+    df_met_forcing['Datetime'] = pd.to_datetime(df_met_forcing[['iy', 'id', 'it', 'imin']].astype(str).agg('-'.join, axis=1), format='%Y-%j-%H-%M')
+    df_met_forcing.set_index('Datetime', inplace=True)
+    
+    return df_met_forcing
 
 

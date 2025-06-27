@@ -361,7 +361,7 @@ class SuewsSimple(object):
         with open(self.supylib + '/sample_run/sample_config.yml', 'r') as f:
             yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
 
-        land_cover = yaml_dict['site'][0]['properties']['land_cover']
+        land_cover = yaml_dict['sites'][0]['properties']['land_cover']
 
         self.dlg.lineEdit_YYYY.setText(str(2012)) #response to issue #655 
         self.dlg.pai_paved.setText(str(land_cover['paved']['sfr']['value']))
@@ -377,10 +377,10 @@ class SuewsSimple(object):
         self.dlg.lineEdit_zHveg.setText(str((land_cover['evetr']['evetreeh']['value'] + land_cover['dectr']['dectreeh']['value']) / 2))
         self.dlg.lineEdit_faiveg.setText(str((land_cover['evetr']['faievetree']['value'] + land_cover['dectr']['faidectree']['value']) / 2))
         self.dlg.lineEdit_paiveg.setText(str((land_cover['evetr']['sfr']['value'] + land_cover['dectr']['sfr']['value'])))
-        self.dlg.Latitude.setText(str(yaml_dict['site'][0]['properties']['lat']['value']))
-        self.dlg.Longitude.setText(str(yaml_dict['site'][0]['properties']['lng']['value']))
-        self.dlg.PopDensNight.setText(str(yaml_dict['site'][0]['properties']['anthropogenic_emissions']['heat']['popdensnighttime']))
-        self.dlg.Height.setText(str(yaml_dict['site'][0]['properties']['z']['value']))
+        self.dlg.Latitude.setText(str(yaml_dict['sites'][0]['properties']['lat']['value']))
+        self.dlg.Longitude.setText(str(yaml_dict['sites'][0]['properties']['lng']['value']))
+        self.dlg.PopDensNight.setText(str(yaml_dict['sites'][0]['properties']['anthropogenic_emissions']['heat']['popdensnighttime']))
+        self.dlg.Height.setText(str(yaml_dict['sites'][0]['properties']['z']['value']))
         self.dlg.comboBoxLeafCycle.setCurrentIndex(1)
 
         #nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
@@ -509,7 +509,7 @@ class SuewsSimple(object):
         with open(self.supylib + '/sample_run/sample_config.yml', 'r') as f:
             yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
 
-        land_cover = yaml_dict['site'][0]['properties']['land_cover']
+        land_cover = yaml_dict['sites'][0]['properties']['land_cover']
 
         self.dlg.lineEdit_YYYY.setText(str(2012)) #response to issue #655 
         self.dlg.pai_paved.setText(str(land_cover['paved']['sfr']['value']))
@@ -525,33 +525,33 @@ class SuewsSimple(object):
         self.dlg.lineEdit_zHveg.setText(str((land_cover['evetr']['evetreeh']['value'] + land_cover['dectr']['dectreeh']['value']) / 2))
         self.dlg.lineEdit_faiveg.setText(str((land_cover['evetr']['faievetree']['value'] + land_cover['dectr']['faidectree']['value']) / 2))
         self.dlg.lineEdit_paiveg.setText(str((land_cover['evetr']['sfr']['value'] + land_cover['dectr']['sfr']['value'])))
-        self.dlg.Latitude.setText(str(yaml_dict['site'][0]['properties']['lat']['value']))
-        self.dlg.Longitude.setText(str(yaml_dict['site'][0]['properties']['lng']['value']))
-        self.dlg.PopDensNight.setText(str(yaml_dict['site'][0]['properties']['anthropogenic_emissions']['heat']['popdensnighttime']))
-        self.dlg.Height.setText(str(yaml_dict['site'][0]['properties']['z']['value']))
+        self.dlg.Latitude.setText(str(yaml_dict['sites'][0]['properties']['lat']['value']))
+        self.dlg.Longitude.setText(str(yaml_dict['sites'][0]['properties']['lng']['value']))
+        self.dlg.PopDensNight.setText(str(yaml_dict['sites'][0]['properties']['anthropogenic_emissions']['heat']['popdensnighttime']))
+        self.dlg.Height.setText(str(yaml_dict['sites'][0]['properties']['z']['value']))
         self.dlg.comboBoxLeafCycle.setCurrentIndex(1)
 
         # newdata[1] = YYYY
-        yaml_dict['site'][0]['properties']['lat']['value'] = float(lat)
-        yaml_dict['site'][0]['properties']['lng']['value'] = float(lon)
-        yaml_dict['site'][0]['properties']['timezone']['value'] = int(utc)
-        yaml_dict['site'][0]['properties']['z']['value'] = float(z)
-        yaml_dict['site'][0]['properties']['land_cover']['paved']['sfr']['value'] = float(pai_paved)
-        yaml_dict['site'][0]['properties']['land_cover']['bldgs']['sfr']['value'] = float(pai_build)
-        yaml_dict['site'][0]['properties']['land_cover']['evetr']['sfr']['value'] = float(pai_evergreen)
-        yaml_dict['site'][0]['properties']['land_cover']['dectr']['sfr']['value'] = float(pai_decid)
-        yaml_dict['site'][0]['properties']['land_cover']['grass']['sfr']['value'] = float(pai_grass)
-        yaml_dict['site'][0]['properties']['land_cover']['bsoil']['sfr']['value'] = float(pai_baresoil)
-        yaml_dict['site'][0]['properties']['land_cover']['water']['sfr']['value'] = float(pai_water)
-        yaml_dict['site'][0]['properties']['land_cover']['bldgs']['bldgh']['value'] = float(zHBuild) #old 23
-        yaml_dict['site'][0]['properties']['land_cover']['evetr']['evetreeh']['value'] = float(zHveg)
-        yaml_dict['site'][0]['properties']['land_cover']['dectr']['dectreeh']['value'] = float(zHveg)
-        yaml_dict['site'][0]['properties']['land_cover']['bldgs']['faibldg']['value'] = float(faiBuild) #old28
-        yaml_dict['site'][0]['properties']['land_cover']['evetr']['faievetree']['value'] = float(faiveg)
-        yaml_dict['site'][0]['properties']['land_cover']['dectr']['faidectree']['value'] = float(faiveg)
-        yaml_dict['site'][0]['properties']['anthropogenic_emissions']['heat']['popdensnighttime'] = float(popdens)
-        yaml_dict['site'][0]['properties']['anthropogenic_emissions']['heat']['popdensdaytime']['working_day'] = float(popdens)
-        yaml_dict['site'][0]['properties']['anthropogenic_emissions']['heat']['popdensdaytime']['holiday'] = float(popdens)
+        yaml_dict['sites'][0]['properties']['lat']['value'] = float(lat)
+        yaml_dict['sites'][0]['properties']['lng']['value'] = float(lon)
+        yaml_dict['sites'][0]['properties']['timezone']['value'] = int(utc)
+        yaml_dict['sites'][0]['properties']['z']['value'] = float(z)
+        yaml_dict['sites'][0]['properties']['land_cover']['paved']['sfr']['value'] = float(pai_paved)
+        yaml_dict['sites'][0]['properties']['land_cover']['bldgs']['sfr']['value'] = float(pai_build)
+        yaml_dict['sites'][0]['properties']['land_cover']['evetr']['sfr']['value'] = float(pai_evergreen)
+        yaml_dict['sites'][0]['properties']['land_cover']['dectr']['sfr']['value'] = float(pai_decid)
+        yaml_dict['sites'][0]['properties']['land_cover']['grass']['sfr']['value'] = float(pai_grass)
+        yaml_dict['sites'][0]['properties']['land_cover']['bsoil']['sfr']['value'] = float(pai_baresoil)
+        yaml_dict['sites'][0]['properties']['land_cover']['water']['sfr']['value'] = float(pai_water)
+        yaml_dict['sites'][0]['properties']['land_cover']['bldgs']['bldgh']['value'] = float(zHBuild) #old 23
+        yaml_dict['sites'][0]['properties']['land_cover']['evetr']['evetreeh']['value'] = float(zHveg)
+        yaml_dict['sites'][0]['properties']['land_cover']['dectr']['dectreeh']['value'] = float(zHveg)
+        yaml_dict['sites'][0]['properties']['land_cover']['bldgs']['faibldg']['value'] = float(faiBuild) #old28
+        yaml_dict['sites'][0]['properties']['land_cover']['evetr']['faievetree']['value'] = float(faiveg)
+        yaml_dict['sites'][0]['properties']['land_cover']['dectr']['faidectree']['value'] = float(faiveg)
+        yaml_dict['sites'][0]['properties']['anthropogenic_emissions']['heat']['popdensnighttime'] = float(popdens)
+        yaml_dict['sites'][0]['properties']['anthropogenic_emissions']['heat']['popdensdaytime']['working_day'] = float(popdens)
+        yaml_dict['sites'][0]['properties']['anthropogenic_emissions']['heat']['popdensdaytime']['holiday'] = float(popdens)
 
         if (faiBuild == -999.0 or faiveg == -999.0):
             yaml_dict['model']['physics']['roughlenmommethod'] = 3
@@ -619,22 +619,22 @@ class SuewsSimple(object):
         initial_states = leaf_cycle_dict[LeafCycle]
 
         surf = 'evetr'
-        yaml_dict['site'][0]['initial_states'][surf]['alb_id']['value'] = initial_states['albEveTr0']
-        yaml_dict['site'][0]['initial_states'][surf]['lai_id']['value'] = initial_states['laiinitialevetr']
-        yaml_dict['site'][0]['initial_states'][surf]['gdd_id']['value'] = initial_states['gdd_1_0']
-        yaml_dict['site'][0]['initial_states'][surf]['sdd_id']['value'] = initial_states['gdd_2_0']
+        yaml_dict['sites'][0]['initial_states'][surf]['alb_id']['value'] = initial_states['albEveTr0']
+        yaml_dict['sites'][0]['initial_states'][surf]['lai_id']['value'] = initial_states['laiinitialevetr']
+        yaml_dict['sites'][0]['initial_states'][surf]['gdd_id']['value'] = initial_states['gdd_1_0']
+        yaml_dict['sites'][0]['initial_states'][surf]['sdd_id']['value'] = initial_states['gdd_2_0']
         surf = 'dectr' 
-        yaml_dict['site'][0]['initial_states'][surf]['alb_id']['value'] = initial_states['albDecTr0']
-        yaml_dict['site'][0]['initial_states'][surf]['lai_id']['value'] = initial_states['laiinitialdectr']
-        yaml_dict['site'][0]['initial_states'][surf]['gdd_id']['value'] = initial_states['gdd_1_0']
-        yaml_dict['site'][0]['initial_states'][surf]['sdd_id']['value'] = initial_states['gdd_2_0']
-        yaml_dict['site'][0]['initial_states'][surf]['porosity_id']['value'] = initial_states['porosity0']
-        yaml_dict['site'][0]['initial_states'][surf]['decidcap_id']['value'] = initial_states['decidCap0']
+        yaml_dict['sites'][0]['initial_states'][surf]['alb_id']['value'] = initial_states['albDecTr0']
+        yaml_dict['sites'][0]['initial_states'][surf]['lai_id']['value'] = initial_states['laiinitialdectr']
+        yaml_dict['sites'][0]['initial_states'][surf]['gdd_id']['value'] = initial_states['gdd_1_0']
+        yaml_dict['sites'][0]['initial_states'][surf]['sdd_id']['value'] = initial_states['gdd_2_0']
+        yaml_dict['sites'][0]['initial_states'][surf]['porosity_id']['value'] = initial_states['porosity0']
+        yaml_dict['sites'][0]['initial_states'][surf]['decidcap_id']['value'] = initial_states['decidCap0']
         surf = 'grass'
-        yaml_dict['site'][0]['initial_states'][surf]['alb_id']['value'] = initial_states['albGrass0']
-        yaml_dict['site'][0]['initial_states'][surf]['lai_id']['value'] = initial_states['laiinitialgrass']
-        yaml_dict['site'][0]['initial_states'][surf]['gdd_id']['value'] = initial_states['gdd_1_0']
-        yaml_dict['site'][0]['initial_states'][surf]['sdd_id']['value'] = initial_states['gdd_2_0']
+        yaml_dict['sites'][0]['initial_states'][surf]['alb_id']['value'] = initial_states['albGrass0']
+        yaml_dict['sites'][0]['initial_states'][surf]['lai_id']['value'] = initial_states['laiinitialgrass']
+        yaml_dict['sites'][0]['initial_states'][surf]['gdd_id']['value'] = initial_states['gdd_1_0']
+        yaml_dict['sites'][0]['initial_states'][surf]['sdd_id']['value'] = initial_states['gdd_2_0']
 
 
         # nml['runcontrol']['fileCode'] = str(filecode)
@@ -652,7 +652,7 @@ class SuewsSimple(object):
 
         # TODO Set moisture       
         # for surf in ['paved', 'bldgs', 'evetr', 'dectr', 'grass','bsoil','water']:
-        #      yaml_dict['site'][0]['initial_states'][surf][f'']
+        #      yaml_dict['sites'][0]['initial_states'][surf][f'']
 
         
 

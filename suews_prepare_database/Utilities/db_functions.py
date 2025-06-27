@@ -428,9 +428,9 @@ def horizontal_aggregation(surface_code, roofwall, db_dict, no_rho = False):
 
         # -----------------------------------------------------------------------------------
     if no_rho == True:
-        agg_surface['cp'] = agg_surface['cp'] * agg_surface['rho']
-        agg_surface = agg_surface.drop(columns = ['rho'])
-        agg_surface = agg_surface.round(3).loc[:,['dz','k','cp']].to_dict()
+        agg_surface['rho_cp'] = agg_surface['cp'] * agg_surface['rho']
+        agg_surface = agg_surface.drop(columns = ['rho', 'cp'])
+        agg_surface = agg_surface.round(3).loc[:,['dz','k','rho_cp']].to_dict()
 
     else:
         agg_surface = agg_surface.round(3).loc[:,['dz','k','cp','rho']].to_dict()

@@ -349,7 +349,7 @@ def ss_calc_gridlayout(build_array, wall_array, typoList, typo_array, gridlayout
                     'thermal_layers':{
                         'dz': {'value': dz_list},
                         'k': {'value': k_list},
-                        'cp': {'value': C_list},
+                        'rho_cp': {'value': C_list},
                         # 'rho': rho_list
                         },
                     'statelimit': {'value' :5},

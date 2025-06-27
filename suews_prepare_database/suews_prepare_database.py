@@ -1216,25 +1216,64 @@ class SUEWSPrepareDatabase(object):
 
             # figure out the time res of input file
             if ind == 1:
-                met_old = np.genfromtxt(settings_dict['Metfile_path'][0], skip_header=1, skip_footer=2)
-                met_id = met_old[:, 1]
-                it = met_old[:, 2]
-                imin = met_old[:, 3]
-                dectime0 = met_id[0] + it[0] / 24 + imin[0] / (60 * 24)
-                dectime1 = met_id[1] + it[1] / 24 + imin[1] / (60 * 24)
-                res = int(np.round((dectime1 - dectime0) * (60 * 24)))
-                ind = 999
+                # met_old = np.genfromtxt(settings_dict['Metfile_path'][0], skip_header=1, skip_footer=2)
+                # met_id = met_old[:, 1]
+                # it = met_old[:, 2]
+                # imin = met_old[:, 3]
+                # dectime0 = met_id[0] + it[0] / 24 + imin[0] / (60 * 24)
+                # dectime1 = met_id[1] + it[1] / 24 + imin[1] / (60 * 24)
+                # res = int(np.round((dectime1 - dectime0) * (60 * 24)))
+                # ind = 999
 
-                YYYY = int32(np.min(met_old[:, 0]))
-                
-                # --- save met-file --- #
-                data_out = self.output_dir[0] + "/" + self.file_code + '_' + str(YYYY) + '_data_' + str(res) + '.txt'
-                header = '%iy id it imin Q* QH QE Qs Qf Wind RH Td press rain Kdn snow ldown fcld wuh xsmd lai_hr ' \
-                         'Kdiff Kdir Wd'
-                numformat = '%3d %2d %3d %2d %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.4f %6.2f %6.2f ' \
-                            '%6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.2f'
+                # YYYY = int32(np.min(met_old[:, 0]))
 
-                np.savetxt(data_out, met_old, fmt=numformat, delimiter=' ', header=header, comments='')
+                # start_date = ''
+                # end_date = ''
+                # # --- save met-file --- #
+                # data_out = self.output_dir[0] + "/" + self.file_code + '_' + str(YYYY) + '_data_' + str(res) + '.txt'
+                # header = '%iy id it imin Q* QH QE Qs Qf Wind RH Td press rain Kdn snow ldown fcld wuh xsmd lai_hr ' \
+                #          'Kdiff Kdir Wd'
+                # numformat = '%3d %2d %3d %2d %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.4f %6.2f %6.2f ' \
+                #             '%6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.2f'
+
+                # np.savetxt(data_out, met_old, fmt=numformat, delimiter=' ', header=header, comments='')
+
+                # Define the column names (you can adjust this to match the actual file)
+                column_names = [
+                    'iy', 'id', 'it', 'imin', 'qn', 'qh', 'qe', 'qs', 'qf', 'U', 'RH', 'Td', 'press', 'rain',
+                    'kdown', 'snow', 'ldown', 'fcld', 'wuh', 'xsmd', 'lai', 'kdiff', 'kdir', 'wdir'
+                ]
+
+                df = pd.read_csv(settings_dict['Metfile_path'][0], delim_whitespace=True, skiprows=1, names=column_names)
+
+                # 2. Construct datetime index from columns: iy (year), id (DOY), it (hour), imin (minute)
+                df['datetime'] = pd.to_datetime(df['iy'], format='%Y') + pd.to_timedelta(df['id'] - 1, unit='D') + \
+                                pd.to_timedelta(df['it'], unit='h') + pd.to_timedelta(df['imin'], unit='m')
+                df.set_index('datetime', inplace=True)
+
+                # 3. Compute time resolution in minutes
+                dectime0 = df['iy'].iloc[0] + df['it'].iloc[0] / 24 + df['imin'].iloc[0] / (60 * 24)
+                dectime1 = df['iy'].iloc[1] + df['it'].iloc[1] / 24 + df['imin'].iloc[1] / (60 * 24)
+                res = int(round((dectime1 - dectime0) * 60 * 24))
+
+                # Get start and end date
+                start_date = df.index[0].strftime('%Y-%m-%d')
+                end_date = df.index[-1].strftime('%Y-%m-%d')
+
+                # 4. Define output path
+                YYYY = int(df['iy'].min())
+                data_out = f'{self.output_dir[0]}/{self.file_code}_{YYYY}_data_{res}.txt'
+
+                # 5. Save the file using .to_csv (formatted like np.savetxt)
+                df_out = df[column_names]  # Preserve original order
+                header = 'iy id it imin Q* QH QE Qs Qf Wind RH Td press rain Kdn snow ldown fcld wuh xsmd lai_hr ' \
+                        'Kdiff Kdir Wd'
+
+                # Save with formatting
+                np.savetxt(data_out, df_out.to_numpy(), fmt='%3d %2d %3d %2d %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f '
+                            '%6.2f %6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.2f',
+                            delimiter=' ', header=header, comments='')
+
 
         else:
             QMessageBox.critical(None, "Error",
@@ -1252,26 +1291,29 @@ class SUEWSPrepareDatabase(object):
                     'tstep': 300,
                     'forcing_file': {'value': data_out},
                     'output_file':  'output.txt',
-                    'diagnose': 0
+                    'diagnose': 0,
+                    'start_time': start_date,
+                    'end_time': end_date
                 },
                 'physics': {
                     'netradiationmethod': {'value': 3}, #changed from 1 FL
                     'emissionsmethod': {'value' : db_dict['AnthropogenicEmission'].loc[parameter_dict['AnthropogenicCode'],'Model']},
                     'storageheatmethod': {'value': 1}, #Changed from 3 FL
-                    'ohmincqf': {'value': 1},
+                    'ohmincqf': {'value': 0},
                     'roughlenmommethod': {'value': 1}, # Values based on Kent et al. 2017
                     'roughlenheatmethod': {'value': 2},
                     'stabilitymethod': {'value': 3},
                     'smdmethod': {'value': 0},
                     'waterusemethod': {'value': 0},
-                    'diagmethod': {'value': 2},
+                    'diagmethod': {'value': 0},
                     'faimethod': {'value': 0},
                     'localclimatemethod': {'value': 0},
                     'snowuse': {'value': 0},
                     'stebbsmethod': {'value': 0},
+                    'gsmodel': {'value': cond_dict['gsModel']},
                 },
             },
-            'site' : []
+            'sites' : []
         }
         
         # Loop Start for each Grid
@@ -1306,7 +1348,7 @@ class SUEWSPrepareDatabase(object):
             area = feature.geometry().area()
 
             if settings_dict['map_units'] == 0:
-                hectare = area * 0.0001 # meter
+                hectare = area # meter
 
             elif settings_dict['map_units'] == 1:
                 hectare = area / 107640. # square foot
@@ -1605,7 +1647,7 @@ class SUEWSPrepareDatabase(object):
                     'g_t': {'value': cond_dict['G5']},
                     'g_sm': {'value': cond_dict['G6']},
                     'kmax': {'value': cond_dict['Kmax']},
-                    'gsmodel': {'value': cond_dict['gsModel']},
+                    # 'gsmodel': {'value': cond_dict['gsModel']}, # Moved to physics 20250626
                     's1': {'value': cond_dict['S1']},
                     's2': {'value': cond_dict['S2']},
                     'tl': {'value': cond_dict['TL']},
@@ -1638,7 +1680,7 @@ class SUEWSPrepareDatabase(object):
                 'h_std':
                     {'value': IMP_sd},
                 'lambda_c' : 
-                    {'value' : round(float((gridlayoutOut[feat_id]['wallAreaGrid']) / ((hectare* 10000) * LCF_buildings)) + 1, 4)}
+                    {'value' : round(float((gridlayoutOut[feat_id]['wallAreaGrid']) / (hectare * LCF_buildings)) + 1, 4)}
             }
 
             initial_states = {
@@ -1799,7 +1841,7 @@ class SUEWSPrepareDatabase(object):
             
             grid = check_fraction_consistency(grid)
             
-            ss_dict['site'].append(grid)
+            ss_dict['sites'].append(grid)
             
         # Convert values in the nested dictionary
         ss_dict_native = convert_numpy_types(ss_dict)

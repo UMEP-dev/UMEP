@@ -20,6 +20,7 @@ def wrapper(pathtoplugin, plotornot, filecode):
     from ..Utilities import f90nml
     import os
     import sys
+    import pandas as pd
     import stat
     from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
     from qgis.core import Qgis
@@ -40,21 +41,18 @@ def wrapper(pathtoplugin, plotornot, filecode):
 
     #####################################################################################
     # SuPy initialisation
-    path_runcontrol = Path(pathtoplugin + f'/Input/{filecode}_suews_simple.yml')
+    yaml_path = Path(pathtoplugin + f'/Input/{filecode}_suews_simple.yml')
 
-    with open(path_runcontrol, 'r') as f:
-            yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
+    with open(yaml_path, 'r') as f:
+        yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
 
-    config = sp.data_model.init_config_from_yaml(path_runcontrol)
+    config = sp.data_model.init_config_from_yaml(yaml_path)
     df_state_init = config.to_df_state()
-        
-    met_path = str(config.model.control.forcing_file)
-        
-    df_forcing = sp._load.load_SUEWS_Forcing_met_df_yaml(met_path)
+                
+    df_forcing = sp.load_forcing_grid(yaml_path, 1, df_state_init=df_state_init)
        
     df_output, df_state_final = sp.run_supy(df_forcing,
-                                            df_state_init,
-                                            )
+                                            df_state_init)
         # resampling SuPy results for plotting
         # df_output_suews = df_output.loc[grid, 'SUEWS']
         # df_output_suews_rsmp = df_output_suews.resample('1h').mean()
@@ -63,16 +61,16 @@ def wrapper(pathtoplugin, plotornot, filecode):
     sp.save_supy(
         df_output,
         df_state_final,
-        path_dir_save = yaml_dict['model']['control']['output_file'] )
+        path_dir_save = yaml_dict['model']['control']['output_file'])
 
     # #year=2011
     # # print(year)
     # if year:
-    #     df_forcing = sp.load_forcing_grid(path_runcontrol, grid).loc[f'{year}'] # new (loc) from 2020a
+    #     df_forcing = sp.load_forcing_grid(yaml_path, grid).loc[f'{year}'] # new (loc) from 2020a
     # else:
-    #     df_forcing = sp.load_forcing_grid(path_runcontrol, grid)
+    #     df_forcing = sp.load_forcing_grid(yaml_path, grid)
 
-    # df_forcing = sp.load_forcing_grid(path_runcontrol, grid)
+    # df_forcing = sp.load_forcing_grid(yaml_path, grid)
     # # SuPy simulation
     # df_output, df_state_final = sp.run_supy(df_forcing, df_state_init, check_input=True, serial_mode=True)
 
@@ -100,14 +98,14 @@ def wrapper(pathtoplugin, plotornot, filecode):
     # df_output_suews_rsmp = df_output_suews.resample('1h').mean()
 
     # use SuPy function to save results
-    # list_path_save = sp.save_supy(df_output, df_state_final, path_runcontrol=path_runcontrol)
+    # list_path_save = sp.save_supy(df_output, df_state_final, yaml_path=yaml_path)
     #####################################################################################
 
     # df_output_suews_rsmp.loc[:, ['QN', 'QS', 'QE', 'QH', 'QF']].plot()
     # plt.show()
 
     # # read namelist, Runcontrol.nml
-    # nml = f90nml.read(path_runcontrol)
+    # nml = f90nml.read(yaml_path)
     # fileinputpath = nml['runcontrol']['fileinputpath']
     # fileoutputpath = nml['runcontrol']['fileoutputpath']
     # filecode = nml['runcontrol']['filecode']
@@ -145,9 +143,9 @@ def wrapper(pathtoplugin, plotornot, filecode):
         plotmonthlystat = plotnml['plot']['plotmonthlystat']
         choosegridstat = plotnml['plot']['choosegridstat']
         chooseyearstat = plotnml['plot']['chooseyearstat']
-        TimeCol_plot = np.array([1, 2, 3, 4]) - 1
-        SumCol_plot = np.array([14]) - 1
-        LastCol_plot = np.array([16]) - 1
+        # TimeCol_plot = np.array([1, 2, 3, 4]) - 1
+        # SumCol_plot = np.array([14]) - 1
+        # LastCol_plot = np.array([16]) - 1
 
         # Open SiteSelect to get year and gridnames
         # sitein = fileinputpath + 'SUEWS_SiteSelect.txt'
@@ -166,42 +164,26 @@ def wrapper(pathtoplugin, plotornot, filecode):
         if multiplemetfiles == 0:  # one file
             # if index == 2:
                 # gridcodemet = ''
-            data_in = yaml_dict['model']['control']['forcing_file']['value'] #fileinputpath + filecode + '_' + str(YYYY) + gridcodemet + '_data_' + str(int(int(resolutionfilesin) / 60.)) + '.txt'  # No grid code in the name, nov 2015
+            met_data_file = yaml_dict['model']['control']['forcing_file']['value'] #fileinputpath + filecode + '_' + str(YYYY) + gridcodemet + '_data_' + str(int(int(resolutionfilesin) / 60.)) + '.txt'  # No grid code in the name, nov 2015
 
-            met_forcing = np.genfromtxt(data_in, skip_header=1, missing_values='**********', filling_values=-9999) #  skip_footer=2,
-
-            # if met_old[1, 3] - met_old[0, 3] == 5:
-            #     met_new = met_old
-            # else:
-            #     met_new = su.tofivemin_v1(met_old)
+            # met_forcing = np.genfromtxt(data_in, skip_header=1, missing_values='**********', filling_values=-9999) #  skip_footer=2,
 
         # gridcode = yaml_dict['site'][0]['gridiv']
         # YYYY = df_forcing.index[0].year
-        suews_out = fileoutputpath + str(gridcode) + '_' + str(YYYY) + '_SUEWS_' + str(
-            int(resolutionfilesin / 60)) + '.txt'
+        suews_out = fileoutputpath + str(gridcode) + '_' + str(YYYY) + '_SUEWS_' + str(60) + '.txt'
         # met_new = df_forcing.copy()
+        
+        df_output_suews = su.SUEWS_txt_to_df(suews_out)
+        df_met_forcing = su.SUEWS_met_txt_to_df(met_data_file)
+       
 
         if plotbasic == 1:
-            # if choosegridbasic:
-            #     gridcode = choosegridbasic
-
-            # if chooseyearbasic:
-            #     YYYY = chooseyearbasic
-            suews_plottime = np.loadtxt(suews_out, skiprows=1)
-            # suews_plottimeold = su.from5mintoanytime(met_new, SumCol_plot, LastCol_plot, TimeCol_plot, int(timeaggregation/60))
-            pl.plotbasic(suews_plottime, met_forcing)
+         
+            pl.plotbasic(df_output_suews, df_met_forcing)
+            
         if plotmonthlystat == 1:
-            # if choosegridstat:
-            #     gridcode = choosegridstat
-
-            # if chooseyearstat:
-            #     YYYY = chooseyearstat
-
-            suews_plottime = np.loadtxt(suews_out, skiprows=1)
-            # suews_plottimeold = su.from5mintoanytime(met_new, SumCol_plot, LastCol_plot, TimeCol_plot,
-                                                    #  int(timeaggregation / 60.))
-
-            pl.plotmonthlystatistics(suews_plottime, met_forcing)
+         
+            pl.plotmonthlystatistics(df_output_suews, df_met_forcing)
 
         if plotmonthlystat == 1:
             plt.show()

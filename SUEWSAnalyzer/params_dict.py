@@ -1,9 +1,4 @@
 params_dict = {
-    'Year': {'description': 'Year', 'unit': 'YYYY', 'format': 'i0004', 'type': 'T'}, 
-    'DOY': {'description': 'Day of Year', 'unit': 'DOY', 'format': 'i0004', 'type': 'T'}, 
-    'Hour': {'description': 'Hour', 'unit': 'HH', 'format': 'i0004', 'type': 'T'}, 
-    'Min': {'description': 'Minute', 'unit': 'MM', 'format': 'i0004', 'type': 'T'}, 
-    'Dectime': {'description': 'Decimal time', 'unit': '-', 'format': 'f08.4', 'type': 'T'}, 
     'Kdown': {'description': 'Incoming shortwave radiation', 'unit': 'W m-2', 'format': 'f10.4', 'type': 'A'}, 
     'Kup': {'description': 'Outgoing shortwave radiation', 'unit': 'W m-2', 'format': 'f10.4', 'type': 'A'}, 
     'Ldown': {'description': 'Incoming longwave radiation', 'unit': 'W m-2', 'format': 'f10.4', 'type': 'A'}, 
@@ -87,4 +82,24 @@ params_dict = {
     'U10': {'description': 'Wind speed at 10 m', 'unit': 'm s-1', 'format': 'f09.4', 'type': 'A'}, 
     'RH2': {'description': 'Relative humidity at 2 m', 'unit': '%', 'format': 'f09.4', 'type': 'A'}
 }
-    
+
+unit_dict = {
+    'W m-2': r'$W$ $m^{-2}$',
+    'mm': r'$mm$',
+    'degC': r'$^{o}C$',
+    'deg': r'$Degrees(^{o})$',
+    '-': r'$-$',
+    'm2 m-2': r'$m^{2}$ $m^{-2}$',
+    'm': r'$m$',
+    'm s-1': r'$m$ $s^{-1}$',
+    'umol m-2 s-1': r'$umol^{2}$ $m^{-2}$ $s^{-1}$',
+    'YYYY': r'$Year$',
+    'DOY': r'$Day\ of\ Year$',
+    'HH': r'$Hour$',
+    'day': r'$Decimal\ Time$',
+    '%': r'$\,\%$',
+    '1': r'$1$',
+    'degree': r'$^\circ$',
+    'g kg-1': r'$g$ $kg^{-1}$',
+    's m-1': r'$s$ $m^{-1}$',
+}
