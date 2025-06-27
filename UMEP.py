@@ -216,6 +216,9 @@ class UMEP(object):
         self.UWGPrepare_Action = QAction("UWG Prepare", self.iface.mainWindow())
         self.PreUHI_Menu.addAction(self.UWGPrepare_Action)
         self.UWGPrepare_Action.triggered.connect(self.UWGPrepare)
+        self.TARGETPrepare_Action = QAction("TARGET Prepare", self.iface.mainWindow())
+        self.PreUHI_Menu.addAction(self.TARGETPrepare_Action)
+        self.TARGETPrepare_Action.triggered.connect(self.TARGETPrepare)
 
         # Sub-menus to Processor
         self.OTC_Menu = QMenu("Outdoor Thermal Comfort")
@@ -351,6 +354,7 @@ class UMEP(object):
         self.QF_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_LQF.png"))
         self.BSS_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_BSS.png"))
         self.UWGPrepare_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
+        self.TARGETPrepare_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
         self.UWGReclassifier_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
         self.UWG_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
         self.TARGET_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
@@ -633,6 +637,12 @@ class UMEP(object):
     def UWGPrepare(self):
         QMessageBox.information(None, "Plugin moved",
                         "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        # sg = UWGPrepare(self.iface)
+        # sg.run()
+
+    def TARGETPrepare(self):
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool can be found in <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
         # sg = UWGPrepare(self.iface)
         # sg.run()
 

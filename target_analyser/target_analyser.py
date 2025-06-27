@@ -464,6 +464,7 @@ class TARGETAnalyser:
         statvector = statvectemp[1:, :]
         # fix_print_with_import
         statmat = np.hstack((idvec[1:, :], statvector))
+        statmat[statmat < -500] = -9999 #Response to #107 in Processing
 
         if self.dlg.addResultToGrid.isChecked():
             self.addattributes(vlayer, statmat, header)

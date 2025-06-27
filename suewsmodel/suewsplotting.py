@@ -98,6 +98,7 @@ class SuewsPlotting(object):
         ax4.set_ylabel('$mm$', color='b', fontsize=14)
         ax4.set_position(pos2)
         ax4.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left', borderaxespad=0.)
+        
     def plotmonthlystatistics(self, df_output_suews, datain):
         
         # Create Month column
