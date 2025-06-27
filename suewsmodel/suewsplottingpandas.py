@@ -4,6 +4,7 @@ __author__ = 'Fredrik Lindberg'
 
 # This module will be used to plot output result from Suews
 import numpy as np
+import pandas as pd
 try:
     import matplotlib.pylab as plt
     import matplotlib.dates as dt
@@ -68,7 +69,11 @@ class SuewsPlottingPandas(object):
         for ax, var in zip(axes, list_var_forcing):
             ax.set_ylabel(dict_var_label[var])
 
-    def plotbasic(self, df_output_suews, grid):
+    def plotbasic(self, suews_ouput_path, grid):
+
+        df_output_suews = pd.read_csv(suews_ouput_path, delim_whitespace = True)
+        df_output_suews['Datetime'] = pd.to_datetime(df_output_suews[['Year', 'DOY', 'Hour', 'Min']].astype(str).agg('-'.join, axis=1), format='%Y-%j-%H-%M')
+        df_output_suews.set_index('Datetime', inplace=True)
 
         # a dict for better display variable names
         dict_var_disp = {
@@ -97,7 +102,11 @@ class SuewsPlottingPandas(object):
         ax_output.set_ylabel('Flux ($ \mathrm{W \ m^{-2}}$)')
         ax_output.legend()
 
-    def plotmonthly(self, df_output_suews, grid):
+    def plotmonthly(self, suews_ouput_path, grid):
+        
+        df_output_suews = pd.read_csv(suews_ouput_path, delim_whitespace = True)
+        df_output_suews['Datetime'] = pd.to_datetime(df_output_suews[['Year', 'DOY', 'Hour', 'Min']].astype(str).agg('-'.join, axis=1), format='%Y-%j-%H-%M')
+        df_output_suews.set_index('Datetime', inplace=True)
 
         dict_var_disp = {
             'QN': '$Q^*$',

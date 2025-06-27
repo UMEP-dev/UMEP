@@ -15,6 +15,9 @@ def setup_SUEWS_SS_creator(self, dlg, db_dict, db_path):
         dlg.textEditName.clear()
         dlg.textEditOrig.clear()
 
+        dlg.radioButtonR6.setChecked(True)
+        dlg.radioButtonW6.setChecked(True)
+
         surf_table = db_dict['Spartacus Surface']
         surf_list = list(surf_table['nameOrigin'])
         dlg.comboBoxBase.clear()
@@ -24,8 +27,7 @@ def setup_SUEWS_SS_creator(self, dlg, db_dict, db_path):
         dlg.comboBoxRef.addItems(sorted(db_dict['References']['authorYear'])) 
         dlg.comboBoxRef.setCurrentIndex(-1)
     
-        mat_list = list(db_dict['Spartacus Material']['nameOrigin'])
-        mat_list.sort()
+        mat_list = list(sorted(db_dict['Spartacus Material']['nameOrigin'], key=str.casefold))
         mat_list.insert(0,'None')
 
         for roofwall in ['r', 'w']:
@@ -37,6 +39,9 @@ def setup_SUEWS_SS_creator(self, dlg, db_dict, db_path):
 
                 lineEdit = getattr(dlg, f'lineEdit_{roofwall}{str(layer)}', None)
                 lineEdit.setText('')
+
+                mat_boxes = getattr(dlg, f'lineEdit_{roofwall}m_{layer}', None)
+                mat_boxes.clear
         
     def print_table(dlg, idx, rw):
         try:
@@ -44,32 +49,69 @@ def setup_SUEWS_SS_creator(self, dlg, db_dict, db_path):
             Tb = getattr(dlg, 'textBrowser_' + rw + str(idx))       # Textbrowser 
             mat_cbox = getattr(dlg, 'comboBox_' + rw + str(idx))    # Material combobox
             material = mat_cbox.currentText()                   # Selected material
+            mat_boxes = getattr(dlg, f'lineEdit_{rw}m_{str(idx)}', None)
 
             if material != 'None':
                 
                 mat_table = db_dict['Spartacus Material']                   # Set correct table from db
                 material_sel = mat_table[mat_table['nameOrigin'] == material]   # Slice correct material from table
 
-                Tb.setText(                                             # Write texts of the selected material in the textbrowser
-                    'Albedo: ' + str(material_sel['Albedo'].item()) + '\n' + 
-                    'Emissivity: ' + str(material_sel['Emissivity'].item()) + '\n' +
-                    'Thermal Conductivity: ' + str(material_sel['Thermal Conductivity'].item()) + '\n' +
-                    'Specific Heat Capacity: ' + str(material_sel['Specific Heat'].item()) + '\n' 
-                )
+                if idx == 1:
+                    Tb.setText(                                             # Write texts of the selected material in the textbrowser
+                        'Albedo: ' + str(material_sel['Albedo'].item()) + '\n' + 
+                        'Emissivity: ' + str(material_sel['Emissivity'].item()) + '\n' +
+                        'Thermal Conductivity: ' + str(material_sel['Thermal Conductivity'].item()) + '\n' +
+                        'Specific Heat Capacity: ' + str(material_sel['Specific Heat'].item()) + '\n' +
+                        'Density:  ' + str(material_sel['Density'].item()) + '\n'
+                    )
+                else:
+                        Tb.setText(                                             # Write texts of the selected material in the textbrowser
+                            'Thermal Conductivity: ' + str(material_sel['Thermal Conductivity'].item()) + '\n' +
+                            'Specific Heat Capacity: ' + str(material_sel['Specific Heat'].item()) + '\n' + 
+                            'Density:  ' + str(material_sel['Density'].item()) + '\n'
+                        )
+
+                mat_boxes.setText(material_sel['Material Type'].item())
+                print(material_sel['Material Type'].item())
                 # activate frames of following layer.
-                if idx <6:
+                if idx <5:
                     frame_plus = getattr(dlg,f'frame_{rw}{str(idx+1)}')
                     frame_plus.setEnabled(True)    
             else:
                 # if material set to None, just clean the text Browser
                 Tb.setText('')
-                if idx <6:
+                if idx <5:
                     frame_plus = getattr(dlg,f'frame_{rw}{str(idx+1)}')
                     frame_plus.setEnabled(False) 
         except:
-            pass
+                pass
 
+    def show_insulation_message(dlg, layer):
+        msg_box = QMessageBox(dlg)
+        msg_box.setIcon(QMessageBox.Information)
+        msg_box.setWindowTitle('Insulation information')
+        msg_box.setText(f'No insulation layer has been set for {layer}.\nIf this is intentional, press OK, otherwise press Cancel and select a location for the insulation layer.')
+        msg_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        msg_box.setDefaultButton(QMessageBox.Ok)
+        
+        result = msg_box.exec_()
+        
+        return result == QMessageBox.Ok
+    
     def new_edit():
+
+        wall_insulation = int(dlg.buttonGroupWall.checkedButton().objectName()[-1])
+        roof_insulation = int(dlg.buttonGroupRoof.checkedButton().objectName()[-1])
+
+        if wall_insulation == 6 and roof_insulation == 6: 
+            if not show_insulation_message(dlg, 'Roof or Wall'):
+                return
+        elif wall_insulation == 6:
+            if not show_insulation_message(dlg, 'Wall'):
+                return
+        elif roof_insulation == 6:
+            if not show_insulation_message(dlg, 'Roof'):
+                return
 
         spartacus_dict = {}
         # Roof ##########################
@@ -95,8 +137,12 @@ def setup_SUEWS_SS_creator(self, dlg, db_dict, db_path):
         
         spartacus_dict['ID'] = create_code('Spartacus Surface')
         spartacus_dict['Name'] = str(dlg.textEditName.value())
+        spartacus_dict['Surface'] = 'Buildings'
         spartacus_dict['Origin'] = str(dlg.textEditOrig.value())
-        spartacus_dict['Ref'] = db_dict['References'][db_dict['References']['authorYear'] ==  dlg.comboBoxRef.currentText()].index.item() 
+        spartacus_dict['Ref'] = db_dict['References'][db_dict['References']['authorYear'] ==  dlg.comboBoxRef.currentText()].index.item()    
+ 
+        spartacus_dict['rInsulation'] = roof_insulation
+        spartacus_dict['wInsulation'] = wall_insulation
 
         # Roof 
         if r1_mat != 'None':
@@ -146,21 +192,10 @@ def setup_SUEWS_SS_creator(self, dlg, db_dict, db_path):
                     pass   
             else:
                 pass 
-
-        # for i in [1,2,3,4,5]:
-        #     r_insulation = eval('dlg.radioButton_r' + str(i))
-        #     w_insulation = eval('dlg.radioButton_w' + str(i))
-        #     if r_insulation.isChecked() == True:
-        #         spartacus_dict['rInsulation'] = i
-            
-        #     if w_insulation.isChecked() == True:
-        #         spartacus_dict['wInsulation'] = i
-        
-        # print(spartacus_dict)
-                
+     
         new_edit = DataFrame([spartacus_dict]).set_index('ID')
         db_dict['Spartacus Surface'] = concat([db_dict['Spartacus Surface'], new_edit])
-        save_to_db(db_path, db_dict)
+        db_dict = save_to_db(db_path, db_dict)
 
         QMessageBox.information(None, 'Succesful', f'New edit {spartacus_dict['Name']}, {spartacus_dict['Origin']} added to your local database')
         fill_cboxes()
@@ -178,7 +213,15 @@ def setup_SUEWS_SS_creator(self, dlg, db_dict, db_path):
             mat_list = list(db_dict['Spartacus Material']['nameOrigin'])
             mat_list.sort()
             mat_list.insert(0,'None')
-            
+
+
+            # Set insulation layer
+            insulation_roof = spartacus_sel['rInsulation']
+            insulation_wall = spartacus_sel['wInsulation']
+
+            getattr(dlg, f'radioButtonR{str(int(insulation_roof.item()))}').setChecked(True)
+            getattr(dlg, f'radioButtonW{str(int(insulation_wall.item()))}').setChecked(True)
+
             for roofwall in ['r', 'w']:
                 for layer in range(1,6): #6 #TODO Change 4->6 if we want all 5 layers
                     cbox = getattr(dlg, f'comboBox_{roofwall}{str(layer)}', None)
@@ -190,9 +233,12 @@ def setup_SUEWS_SS_creator(self, dlg, db_dict, db_path):
                         material = mat_table.loc[mat_idx, 'nameOrigin']
                         mat_table.loc[mat_idx, 'nameOrigin']
                         cbox_index = mat_list.index(material)
-                        cbox.setCurrentIndex(cbox_index)
+                        cbox.setCurrentIndex(cbox.findText(material))
+
+                        
                         thickness = spartacus_sel.loc[:,(roofwall + str(layer) + 'Thickness')].item()
-                        lineEdit.setText(str(thickness))                   
+                        lineEdit.setText(str(thickness))
+                                           
                     else:
                         cbox.setCurrentIndex(cbox.findText('None'))
                         lineEdit.clear()

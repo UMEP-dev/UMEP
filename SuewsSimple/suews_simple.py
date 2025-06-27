@@ -35,15 +35,15 @@ from .suews_simple_dialog import SuewsSimpleDialog
 from ..suewsmodel import suews_wrapper
 from ..ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
 from ..LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
+from ..suews_prepare_database.Utilities.db_functions import leaf_cycle_dict
 from ..Utilities import f90nml
+from ..Utilities.misc import get_resolution_from_umep_forcing
 import numpy as np
 import shutil
 import os.path
 import webbrowser
 import sys
-import urllib
-import zipfile
-import tempfile
+import yaml
 from pathlib import Path
 # from .suewssimpleworker import Worker
 # from ..suewsmodel import suewstask
@@ -90,8 +90,8 @@ class SuewsSimple(object):
         self.dlg.runButton.clicked.connect(self.start_progress)
         self.dlg.pushButtonSave.clicked.connect(self.folder_path)
         self.dlg.pushButtonImport.clicked.connect(self.met_file)
-        self.dlg.pushButtonImportInitial.clicked.connect(self.import_initial)
-        self.dlg.pushButtonExportInitial.clicked.connect(self.export_initial)
+        # self.dlg.pushButtonImportInitial.clicked.connect(self.import_initial)
+        # self.dlg.pushButtonExportInitial.clicked.connect(self.export_initial)
 
         self.fileDialog = QFileDialog()
         self.fileDialog.setNameFilter("(*Point_isotropic.txt)")
@@ -336,58 +336,57 @@ class SuewsSimple(object):
                     self.iface.messageBar().pushMessage("Non-consistency warning", "A relatively large difference in "
                     "vegetation fraction between the canopy DSM and the landcover grid was found: " + str(float(self.dlg.lineEdit_paiveg.text()) - data[2] - data[3]), level=Qgis.Warning)
 
-    def import_initial(self):
-        self.fileDialogInit.open()
-        result = self.fileDialogInit.exec_()
-        if result == 1:
-            self.folderPathInit = self.fileDialogInit.selectedFiles()
-            nml = f90nml.read(self.folderPathInit[0])
-            # dayssincerain = nml['initialconditions']['dayssincerain']
-            # dailymeantemperature = nml['initialconditions']['temp_c0']
-            # self.dlg.DaysSinceRain.setText(str(dayssincerain))
-            # self.dlg.DailyMeanT.setText(str(dailymeantemperature))
-            self.dlg.comboBoxLeafCycle.setCurrentIndex(1)
+    # def import_initial(self):
+    #     self.fileDialogInit.open()
+    #     result = self.fileDialogInit.exec_()
+    #     if result == 1:
+    #         self.folderPathInit = self.fileDialogInit.selectedFiles()
+    #         nml = f90nml.read(self.folderPathInit[0])
+    #         # dayssincerain = nml['initialconditions']['dayssincerain']
+    #         # dailymeantemperature = nml['initialconditions']['temp_c0']
+    #         # self.dlg.DaysSinceRain.setText(str(dayssincerain))
+    #         # self.dlg.DailyMeanT.setText(str(dailymeantemperature))
+    #         self.dlg.comboBoxLeafCycle.setCurrentIndex(1)
 
-    def export_initial(self):
-        outputfile = self.fileDialog.getSaveFileName(None, "Save As:", None, "Namelist (*.nml)")
-        # self.fileDialogInit.open()
-        # result = self.fileDialogInit.exec_()
-        if outputfile:
-            self.folderPathInit = outputfile
-            self.write_to_init(self.model_dir + '/BaseFiles/InitialConditionsKc_2012.nml', self.folderPathInit)
+    # def export_initial(self):
+    #     outputfile = self.fileDialog.getSaveFileName(None, "Save As:", None, "Namelist (*.nml)")
+    #     # self.fileDialogInit.open()
+    #     # result = self.fileDialogInit.exec_()
+    #     if outputfile:
+    #         self.folderPathInit = outputfile
+    #         self.write_to_init(self.model_dir + '/BaseFiles/InitialConditionsKc_2012.nml', self.folderPathInit)
 
     def set_default_settings(self):
-        f1 = open(self.supylib + '/sample_run/Input/SUEWS_SiteSelect.txt')
-        #f1 = open(self.model_dir + '/BaseFiles/SUEWS_SiteSelect.txt')
-        lin = f1.readlines()
-        index = 2
-        lines = lin[index].split()
-        #self.dlg.lineEdit_YYYY.setText(str(int(float(lines[1]))))
+
+        with open(self.supylib + '/sample_run/sample_config.yml', 'r') as f:
+            yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
+
+        land_cover = yaml_dict['sites'][0]['properties']['land_cover']
+
         self.dlg.lineEdit_YYYY.setText(str(2012)) #response to issue #655 
-        self.dlg.pai_paved.setText(lines[13])
-        self.dlg.pai_build.setText(lines[14])
-        self.dlg.pai_evergreen.setText(lines[15])
-        self.dlg.pai_decid.setText(lines[16])
-        self.dlg.pai_grass.setText(lines[17])
-        self.dlg.pai_baresoil.setText(lines[18])
-        self.dlg.pai_water.setText(lines[19])
-        self.dlg.lineEdit_zHBuild.setText(lines[27]) #2020a: +4 cols from 20
-        self.dlg.lineEdit_faiBuild.setText(lines[32])
-        self.dlg.lineEdit_paiBuild.setText(lines[14])
-        self.dlg.lineEdit_zHveg.setText(str((float(lines[28]) + float(lines[29])) / 2))
-        self.dlg.lineEdit_faiveg.setText(str((float(lines[33]) + float(lines[34])) / 2))
-        self.dlg.lineEdit_paiveg.setText(str(float(lines[15]) + float(lines[16])))
-        self.dlg.Latitude.setText(lines[4])
-        self.dlg.Longitude.setText(lines[5])
-        self.dlg.PopDensNight.setText(lines[36])
-        self.dlg.Height.setText(lines[9])
-        f1.close()
+        self.dlg.pai_paved.setText(str(land_cover['paved']['sfr']['value']))
+        self.dlg.pai_build.setText(str(land_cover['bldgs']['sfr']['value']))
+        self.dlg.pai_evergreen.setText(str(land_cover['evetr']['sfr']['value']))
+        self.dlg.pai_decid.setText(str(land_cover['dectr']['sfr']['value']))
+        self.dlg.pai_grass.setText(str(land_cover['grass']['sfr']['value']))
+        self.dlg.pai_baresoil.setText(str(land_cover['bsoil']['sfr']['value']))
+        self.dlg.pai_water.setText(str(land_cover['water']['sfr']['value']))
+        self.dlg.lineEdit_zHBuild.setText(str(land_cover['bldgs']['bldgh']['value'])) #2020a: +4 cols from 20
+        self.dlg.lineEdit_faiBuild.setText(str(land_cover['bldgs']['faibldg']['value']))
+        self.dlg.lineEdit_paiBuild.setText(str(land_cover['bldgs']['sfr']['value']))
+        self.dlg.lineEdit_zHveg.setText(str((land_cover['evetr']['evetreeh']['value'] + land_cover['dectr']['dectreeh']['value']) / 2))
+        self.dlg.lineEdit_faiveg.setText(str((land_cover['evetr']['faievetree']['value'] + land_cover['dectr']['faidectree']['value']) / 2))
+        self.dlg.lineEdit_paiveg.setText(str((land_cover['evetr']['sfr']['value'] + land_cover['dectr']['sfr']['value'])))
+        self.dlg.Latitude.setText(str(yaml_dict['sites'][0]['properties']['lat']['value']))
+        self.dlg.Longitude.setText(str(yaml_dict['sites'][0]['properties']['lng']['value']))
+        self.dlg.PopDensNight.setText(str(yaml_dict['sites'][0]['properties']['anthropogenic_emissions']['heat']['popdensnighttime']))
+        self.dlg.Height.setText(str(yaml_dict['sites'][0]['properties']['z']['value']))
         self.dlg.comboBoxLeafCycle.setCurrentIndex(1)
 
         #nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
-        nml = f90nml.read(self.supylib + '/sample_run/RunControl.nml')
-
-        self.dlg.FileCode.setText(str(nml['runcontrol']['FileCode']))
+        # nml = f90nml.read(self.supylib + '/sample_run/RunControl.nml')
+    
+        # self.dlg.FileCode.setText(str(yaml['runcontrol']['FileCode']))
 
         self.dlg.UTC.setText('0')
 
@@ -417,16 +416,16 @@ class SuewsSimple(object):
                 "tree fraction between the Vegetation DSM and the landcover grid was found: " + str(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - float(self.dlg.lineEdit_paiveg.text())))
             return
 
-        # Copy basefiles from sample_run
-        basefiles = ['ESTMinput.nml', 'SUEWS_AnthropogenicEmission.txt', 'SUEWS_BiogenCO2.txt', 'SUEWS_Conductance.txt', 'SUEWS_ESTMCoefficients.txt', 'SUEWS_Irrigation.txt', 
-        'SUEWS_NonVeg.txt', 'SUEWS_OHMCoefficients.txt', 'SUEWS_Profiles.txt', 'SUEWS_Snow.txt', 'SUEWS_Soil.txt', 'SUEWS_Water.txt', 'SUEWS_Veg.txt', 
-        'SUEWS_WithinGridWaterDist.txt', 'SUEWS_SPARTACUS.nml'] # Last moved down, 'GridLayoutKc.nml']
-        for i in range(0, basefiles.__len__()):
-            try:
-                shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.model_dir + '/Input/' + basefiles[i])
-            except:
-                os.remove(self.model_dir + '/Input/' + basefiles[i])
-                shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.model_dir + '/Input/' + basefiles[i]) 
+        # # Copy basefiles from sample_run
+        # basefiles = ['ESTMinput.nml', 'SUEWS_AnthropogenicEmission.txt', 'SUEWS_BiogenCO2.txt', 'SUEWS_Conductance.txt', 'SUEWS_ESTMCoefficients.txt', 'SUEWS_Irrigation.txt', 
+        # 'SUEWS_NonVeg.txt', 'SUEWS_OHMCoefficients.txt', 'SUEWS_Profiles.txt', 'SUEWS_Snow.txt', 'SUEWS_Soil.txt', 'SUEWS_Water.txt', 'SUEWS_Veg.txt', 
+        # 'SUEWS_WithinGridWaterDist.txt', 'SUEWS_SPARTACUS.nml'] # Last moved down, 'GridLayoutKc.nml']
+        # for i in range(0, basefiles.__len__()):
+        #     try:
+        #         shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.model_dir + '/Input/' + basefiles[i])
+        #     except:
+        #         os.remove(self.model_dir + '/Input/' + basefiles[i])
+        #         shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.model_dir + '/Input/' + basefiles[i]) 
 
         #Response to issue #617
         try:
@@ -456,13 +455,13 @@ class SuewsSimple(object):
         utc = self.dlg.UTC.text()
         z = self.dlg.Height.text()
 
-        #Response to issue #618
-        gridlayoutfile = self.model_dir + '/Input/GridLayout' + str(filecode) + '.nml'
-        try:
-            shutil.copy(self.supylib + '/sample_run/Input/GridLayoutKc.nml', gridlayoutfile)
-        except:
-            os.remove(self.supylib + '/sample_run/Input/GridLayoutKc.nml')
-            shutil.copy(self.supylib + '/sample_run/Input/GridLayoutKc.nml', gridlayoutfile) 
+        # #Response to issue #618
+        # gridlayoutfile = self.model_dir + '/Input/GridLayout' + str(filecode) + '.nml'
+        # try:
+        #     shutil.copy(self.supylib + '/sample_run/Input/GridLayoutKc.nml', gridlayoutfile)
+        # except:
+        #     os.remove(self.supylib + '/sample_run/Input/GridLayoutKc.nml')
+        #     shutil.copy(self.supylib + '/sample_run/Input/GridLayoutKc.nml', gridlayoutfile) 
 
         # Checking LC fractions = 1
         LCtest = float(pai_paved) + float(pai_build) + float(pai_evergreen) + float(pai_decid) + float(pai_grass) + float(pai_baresoil) + float(pai_water)
@@ -501,46 +500,76 @@ class SuewsSimple(object):
 
         # Create new SiteSelect
         #f = open(self.model_dir + '/BaseFiles/SUEWS_SiteSelect.txt', 'r')
-        f = open(self.supylib + '/sample_run/Input/SUEWS_SiteSelect.txt', 'r')
-        lin = f.readlines()
-        index = 2
-        lines = np.array(lin[index].split())
-        newdata = lines
-        newdata[1] = YYYY
-        newdata[4] = lat
-        newdata[5] = lon
-        newdata[6] = int(utc)
-        newdata[9] = float(z)
-        newdata[13] = pai_paved
-        newdata[14] = pai_build
-        newdata[15] = pai_evergreen
-        newdata[16] = pai_decid
-        newdata[17] = pai_grass
-        newdata[18] = pai_baresoil
-        newdata[19] = pai_water
-        newdata[27] = zHBuild #old 23
-        newdata[28] = zHveg
-        newdata[29] = zHveg
-        newdata[32] = faiBuild #old28
-        newdata[33] = faiveg
-        newdata[34] = faiveg
-        newdata[35] = popdens
-        newdata[36] = popdens
+        # f = open(self.supylib + '/sample_run/Input/SUEWS_SiteSelect.txt', 'r')
+        # lin = f.readlines()
+        # index = 2
+        # lines = np.array(lin[index].split())
+        # newdata = lines
 
-        # write to newSiteSelect.txt
-        f2 = open(self.model_dir + '/Input/SUEWS_SiteSelect.txt', 'w')
-        f2.write(lin[0])
-        f2.write(lin[1])
-        for l in range(0, 1):
-            for i in range(0, newdata.__len__()):
-                f2.write(str(newdata[i]))
-                # f2.write('\t')
-                f2.write(' ')
-            f2.write('\n')
-        f2.write(lin[2 + 1])
-        f2.write(lin[3 + 1])
-        f.close()
-        f2.close()
+        with open(self.supylib + '/sample_run/sample_config.yml', 'r') as f:
+            yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
+
+        land_cover = yaml_dict['sites'][0]['properties']['land_cover']
+
+        self.dlg.lineEdit_YYYY.setText(str(2012)) #response to issue #655 
+        self.dlg.pai_paved.setText(str(land_cover['paved']['sfr']['value']))
+        self.dlg.pai_build.setText(str(land_cover['bldgs']['sfr']['value']))
+        self.dlg.pai_evergreen.setText(str(land_cover['evetr']['sfr']['value']))
+        self.dlg.pai_decid.setText(str(land_cover['dectr']['sfr']['value']))
+        self.dlg.pai_grass.setText(str(land_cover['grass']['sfr']['value']))
+        self.dlg.pai_baresoil.setText(str(land_cover['bsoil']['sfr']['value']))
+        self.dlg.pai_water.setText(str(land_cover['water']['sfr']['value']))
+        self.dlg.lineEdit_zHBuild.setText(str(land_cover['bldgs']['bldgh']['value'])) #2020a: +4 cols from 20
+        self.dlg.lineEdit_faiBuild.setText(str(land_cover['bldgs']['faibldg']['value']))
+        self.dlg.lineEdit_paiBuild.setText(str(land_cover['bldgs']['sfr']['value']))
+        self.dlg.lineEdit_zHveg.setText(str((land_cover['evetr']['evetreeh']['value'] + land_cover['dectr']['dectreeh']['value']) / 2))
+        self.dlg.lineEdit_faiveg.setText(str((land_cover['evetr']['faievetree']['value'] + land_cover['dectr']['faidectree']['value']) / 2))
+        self.dlg.lineEdit_paiveg.setText(str((land_cover['evetr']['sfr']['value'] + land_cover['dectr']['sfr']['value'])))
+        self.dlg.Latitude.setText(str(yaml_dict['sites'][0]['properties']['lat']['value']))
+        self.dlg.Longitude.setText(str(yaml_dict['sites'][0]['properties']['lng']['value']))
+        self.dlg.PopDensNight.setText(str(yaml_dict['sites'][0]['properties']['anthropogenic_emissions']['heat']['popdensnighttime']))
+        self.dlg.Height.setText(str(yaml_dict['sites'][0]['properties']['z']['value']))
+        self.dlg.comboBoxLeafCycle.setCurrentIndex(1)
+
+        # newdata[1] = YYYY
+        yaml_dict['sites'][0]['properties']['lat']['value'] = float(lat)
+        yaml_dict['sites'][0]['properties']['lng']['value'] = float(lon)
+        yaml_dict['sites'][0]['properties']['timezone']['value'] = int(utc)
+        yaml_dict['sites'][0]['properties']['z']['value'] = float(z)
+        yaml_dict['sites'][0]['properties']['land_cover']['paved']['sfr']['value'] = float(pai_paved)
+        yaml_dict['sites'][0]['properties']['land_cover']['bldgs']['sfr']['value'] = float(pai_build)
+        yaml_dict['sites'][0]['properties']['land_cover']['evetr']['sfr']['value'] = float(pai_evergreen)
+        yaml_dict['sites'][0]['properties']['land_cover']['dectr']['sfr']['value'] = float(pai_decid)
+        yaml_dict['sites'][0]['properties']['land_cover']['grass']['sfr']['value'] = float(pai_grass)
+        yaml_dict['sites'][0]['properties']['land_cover']['bsoil']['sfr']['value'] = float(pai_baresoil)
+        yaml_dict['sites'][0]['properties']['land_cover']['water']['sfr']['value'] = float(pai_water)
+        yaml_dict['sites'][0]['properties']['land_cover']['bldgs']['bldgh']['value'] = float(zHBuild) #old 23
+        yaml_dict['sites'][0]['properties']['land_cover']['evetr']['evetreeh']['value'] = float(zHveg)
+        yaml_dict['sites'][0]['properties']['land_cover']['dectr']['dectreeh']['value'] = float(zHveg)
+        yaml_dict['sites'][0]['properties']['land_cover']['bldgs']['faibldg']['value'] = float(faiBuild) #old28
+        yaml_dict['sites'][0]['properties']['land_cover']['evetr']['faievetree']['value'] = float(faiveg)
+        yaml_dict['sites'][0]['properties']['land_cover']['dectr']['faidectree']['value'] = float(faiveg)
+        yaml_dict['sites'][0]['properties']['anthropogenic_emissions']['heat']['popdensnighttime'] = float(popdens)
+        yaml_dict['sites'][0]['properties']['anthropogenic_emissions']['heat']['popdensdaytime']['working_day'] = float(popdens)
+        yaml_dict['sites'][0]['properties']['anthropogenic_emissions']['heat']['popdensdaytime']['holiday'] = float(popdens)
+
+        if (faiBuild == -999.0 or faiveg == -999.0):
+            yaml_dict['model']['physics']['roughlenmommethod'] = 3
+
+        # # write to newSiteSelect.txt
+        # f2 = open(self.model_dir + '/Input/SUEWS_SiteSelect.txt', 'w')
+        # f2.write(lin[0])
+        # f2.write(lin[1])
+        # for l in range(0, 1):
+        #     for i in range(0, newdata.__len__()):
+        #         f2.write(str(newdata[i]))
+        #         # f2.write('\t')
+        #         f2.write(' ')
+        #     f2.write('\n')
+        # f2.write(lin[2 + 1])
+        # f2.write(lin[3 + 1])
+        # f.close()
+        # f2.close()
 
         # Plots or not
         if self.dlg.checkBoxPlots.isChecked():
@@ -551,27 +580,28 @@ class SuewsSimple(object):
         #     plotforcing = 1
         # else:
         #     plotforcing = 0
+
         plotnml = f90nml.read(self.model_dir + '/plot.nml')
         plotnml['plot']['plotbasic'] = plot
         plotnml['plot']['plotmonthlystat'] = plot
         # plotnml['plot']['plotforcing'] = plotforcing
         plotnml.write(self.model_dir + '/plot.nml', force=True)
 
-        # Create new RunControl
         inmetfile = self.dlg.textInputMetdata.text()
         outfolder = self.dlg.textOutput.text()
-        #nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
-        nml = f90nml.read(self.supylib + '/sample_run/RunControl.nml')
-        if (faiBuild == -999.0 or faiveg == -999.0):
-            nml['runcontrol']['RoughLenMomMethod'] = 3
 
-        resolutionfilesin = nml['runcontrol']['resolutionfilesin']
-        runmetfile = self.model_dir + '/Input/' + str(filecode) + '_' + self.dlg.lineEdit_YYYY.text() + '_data_' + str(int(int(resolutionfilesin) / 60.)) + '.txt'
+        resolutionfilesin =  get_resolution_from_umep_forcing(inmetfile)
+
+        print(1)
+        runmetfile = self.model_dir + '/Input/' + str(filecode) + '_' + self.dlg.lineEdit_YYYY.text() + '_data_' + str(int(resolutionfilesin / 60)) + '.txt'
+        
         try:
             shutil.copy(inmetfile, runmetfile)
         except:
             os.remove(inmetfile)
             shutil.copy(inmetfile, runmetfile)
+
+        yaml_dict['model']['control']['forcing_file']['value'] = runmetfile
 
         #response to issue #198
         with open(runmetfile, 'r') as file: 
@@ -582,16 +612,54 @@ class SuewsSimple(object):
                 QMessageBox.critical(self.dlg, "Error in Meteorological file", "First line of meteorological data is not representing chosen year but year before.")
                 return
 
-        nml['runcontrol']['fileCode'] = str(filecode)
-        nml['runcontrol']['FileOutputPath'] = outfolder
-        nml['runcontrol']['FileInputPath'] = self.model_dir + '/Input/'
-        nml['runcontrol']['SnowUse'] = 0
-        nml.write(self.model_dir + '/RunControl.nml', force=True)
+        LeafCycle = self.dlg.comboBoxLeafCycle.currentIndex()
+        SoilMoisture = self.dlg.spinBoxSoilMoisture.value()
+        moist = int(SoilMoisture * 1.5)
+
+        initial_states = leaf_cycle_dict[LeafCycle]
+
+        surf = 'evetr'
+        yaml_dict['sites'][0]['initial_states'][surf]['alb_id']['value'] = initial_states['albEveTr0']
+        yaml_dict['sites'][0]['initial_states'][surf]['lai_id']['value'] = initial_states['laiinitialevetr']
+        yaml_dict['sites'][0]['initial_states'][surf]['gdd_id']['value'] = initial_states['gdd_1_0']
+        yaml_dict['sites'][0]['initial_states'][surf]['sdd_id']['value'] = initial_states['gdd_2_0']
+        surf = 'dectr' 
+        yaml_dict['sites'][0]['initial_states'][surf]['alb_id']['value'] = initial_states['albDecTr0']
+        yaml_dict['sites'][0]['initial_states'][surf]['lai_id']['value'] = initial_states['laiinitialdectr']
+        yaml_dict['sites'][0]['initial_states'][surf]['gdd_id']['value'] = initial_states['gdd_1_0']
+        yaml_dict['sites'][0]['initial_states'][surf]['sdd_id']['value'] = initial_states['gdd_2_0']
+        yaml_dict['sites'][0]['initial_states'][surf]['porosity_id']['value'] = initial_states['porosity0']
+        yaml_dict['sites'][0]['initial_states'][surf]['decidcap_id']['value'] = initial_states['decidCap0']
+        surf = 'grass'
+        yaml_dict['sites'][0]['initial_states'][surf]['alb_id']['value'] = initial_states['albGrass0']
+        yaml_dict['sites'][0]['initial_states'][surf]['lai_id']['value'] = initial_states['laiinitialgrass']
+        yaml_dict['sites'][0]['initial_states'][surf]['gdd_id']['value'] = initial_states['gdd_1_0']
+        yaml_dict['sites'][0]['initial_states'][surf]['sdd_id']['value'] = initial_states['gdd_2_0']
+
+
+        # nml['runcontrol']['fileCode'] = str(filecode)
+        yaml_dict['model']['control']['output_file'] = outfolder
+        # nml['runcontrol']['FileInputPath'] = self.model_dir + '/Input/'
+
+        # This doesnt do anything as no switch in SUEWS-simple allows for snow-use
+        # yaml_dict['model']['physics']['snowuse']['value'] = 0
+
+        with open(self.model_dir + f'/Input/{filecode}_suews_simple.yml', 'w') as file:
+            yaml.dump(yaml_dict, file, sort_keys = False)
+        # nml.write(self.model_dir + '/RunControl.nml', force=True)
+
+        print(2)
+
+        # TODO Set moisture       
+        # for surf in ['paved', 'bldgs', 'evetr', 'dectr', 'grass','bsoil','water']:
+        #      yaml_dict['sites'][0]['initial_states'][surf][f'']
+
+        
 
         #initfilein = self.model_dir + '/BaseFiles/InitialConditionsKc_2012.nml'
-        initfilein = self.supylib + '/sample_run/Input/InitialConditionsKc_2011.nml'
-        initfileout = self.model_dir + '/Input/InitialConditions' + str(filecode) + '_' + str(YYYY) + '.nml'
-        self.write_to_init(initfilein, initfileout)
+        # initfilein = self.supylib + '/sample_run/Input/InitialConditionsKc_2011.nml'
+        # initfileout = self.model_dir + '/Input/InitialConditions' + str(filecode) + '_' + str(YYYY) + '.nml'
+        # self.write_to_init(initfilein, initfileout)
 
         # self.dlg.progressBar.setMinimum(0)
         # self.dlg.progressBar.setMaximum(0)
@@ -623,131 +691,133 @@ class SuewsSimple(object):
             
             self.dlg.activateWindow()
             # suews_wrapper.wrapper(self.model_dir, self.iface, year=YYYY)
-            try:
-                suews_wrapper.wrapper(self.model_dir, self.iface, year=YYYY)
-                self.iface.messageBar().pushMessage("Model run successful", "Model run finished", level=Qgis.Success)
-            except Exception as e:
-                QMessageBox.critical(self.dlg, "An error occurred", str(e) + "\r\n\r\n"
-                                "Check also: " + str(list(Path.cwd().glob('SuPy.log'))[0]) + "\r\n\r\n"
-                                "Please report any errors to https://github.com/UMEP-dev/UMEP/issues")
-                return
+            suews_wrapper.wrapper(self.model_dir, plot, filecode)
+
+            # try:
+            #     suews_wrapper.wrapper(self.model_dir, plot, filecode)
+            #     self.iface.messageBar().pushMessage("Model run successful", "Model run finished", level=Qgis.Success)
+            # except Exception as e:
+            #     QMessageBox.critical(self.dlg, "An error occurred", str(e) + "\r\n\r\n"
+            #                     "Check also: " + str(list(Path.cwd().glob('SuPy.log'))[0]) + "\r\n\r\n"
+            #                     "Please report any errors to https://github.com/UMEP-dev/UMEP/issues")
+                # return
 
         else:
             QMessageBox.critical(self.iface.mainWindow(), "Model termination", "Model calculation cancelled")
             return
 
-        shutil.copy(self.model_dir + '/RunControl.nml', outfolder + '/RunControl.nml')
+        # shutil.copy(self.model_dir + '/RunControl.nml', outfolder + '/RunControl.nml')
 
-    def write_to_init(self, initfilein, initfileout):
-        LeafCycle = self.dlg.comboBoxLeafCycle.currentIndex()
-        SoilMoisture = self.dlg.spinBoxSoilMoisture.value()
-        moist = int(SoilMoisture * 1.5)
+    # def write_to_init(self, initfilein, initfileout):
+    #     LeafCycle = self.dlg.comboBoxLeafCycle.currentIndex()
+    #     SoilMoisture = self.dlg.spinBoxSoilMoisture.value()
+    #     moist = int(SoilMoisture * 1.5)
 
-        nml = f90nml.read(initfilein)
+    #     nml = f90nml.read(initfilein)
 
-        nml['initialconditions']['soilstorepavedstate'] = moist
-        nml['initialconditions']['soilstorebldgsstate'] = moist
-        nml['initialconditions']['soilstoreevetrstate'] = moist
-        nml['initialconditions']['soilstoredectrstate'] = moist
-        nml['initialconditions']['soilstoregrassstate'] = moist
-        nml['initialconditions']['soilstorebsoilstate'] = moist
+    #     nml['initialconditions']['soilstorepavedstate'] = moist
+    #     nml['initialconditions']['soilstorebldgsstate'] = moist
+    #     nml['initialconditions']['soilstoreevetrstate'] = moist
+    #     nml['initialconditions']['soilstoredectrstate'] = moist
+    #     nml['initialconditions']['soilstoregrassstate'] = moist
+    #     nml['initialconditions']['soilstorebsoilstate'] = moist
 
-        if not (LeafCycle == 1 or LeafCycle == 5):
-            self.iface.messageBar().pushMessage("Warning", "A transition period between Winter and Summer has been "
-                                                           "choosen. Preferably start the model run during Winter or "
-                                                           "Summer.", level=Qgis.Warning)
+    #     if not (LeafCycle == 1 or LeafCycle == 5):
+    #         self.iface.messageBar().pushMessage("Warning", "A transition period between Winter and Summer has been "
+    #                                                        "choosen. Preferably start the model run during Winter or "
+    #                                                        "Summer.", level=Qgis.Warning)
 
-        # Based on London data
-        if LeafCycle == 1:  # Winter
-            nml['initialconditions']['gdd_1_0'] = 0
-            nml['initialconditions']['gdd_2_0'] = -450
-            nml['initialconditions']['laiinitialevetr'] = 4
-            nml['initialconditions']['laiinitialdectr'] = 1
-            nml['initialconditions']['laiinitialgrass'] = 1.6
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.3
-            nml['initialconditions']['porosity0'] = 0.2
-        elif LeafCycle == 2:
-            nml['initialconditions']['gdd_1_0'] = 50
-            nml['initialconditions']['gdd_2_0'] = -400
-            nml['initialconditions']['laiinitialevetr'] = 4.2
-            nml['initialconditions']['laiinitialdectr'] = 2.0
-            nml['initialconditions']['laiinitialgrass'] = 2.6
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.4
-            nml['initialconditions']['porosity0'] = 0.3
-        elif LeafCycle == 3:
-            nml['initialconditions']['gdd_1_0'] = 150
-            nml['initialconditions']['gdd_2_0'] = -300
-            nml['initialconditions']['laiinitialevetr'] = 4.6
-            nml['initialconditions']['laiinitialdectr'] = 3.0
-            nml['initialconditions']['laiinitialgrass'] = 3.6
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.6
-            nml['initialconditions']['porosity0'] = 0.5
-        elif LeafCycle == 4:
-            nml['initialconditions']['gdd_1_0'] = 225
-            nml['initialconditions']['gdd_2_0'] = -150
-            nml['initialconditions']['laiinitialevetr'] = 4.9
-            nml['initialconditions']['laiinitialdectr'] = 4.5
-            nml['initialconditions']['laiinitialgrass'] = 4.6
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.8
-            nml['initialconditions']['porosity0'] = 0.6
-        elif LeafCycle == 5:  # Summer
-            nml['initialconditions']['gdd_1_0'] = 300
-            nml['initialconditions']['gdd_2_0'] = 0
-            nml['initialconditions']['laiinitialevetr'] = 5.1
-            nml['initialconditions']['laiinitialdectr'] = 5.5
-            nml['initialconditions']['laiinitialgrass'] = 5.9
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.8
-            nml['initialconditions']['porosity0'] = 0.6
-        elif LeafCycle == 6:
-            nml['initialconditions']['gdd_1_0'] = 225
-            nml['initialconditions']['gdd_2_0'] = -150
-            nml['initialconditions']['laiinitialevetr'] = 4.9
-            nml['initialconditions']['laiinitialdectr'] = 4, 5
-            nml['initialconditions']['laiinitialgrass'] = 4.6
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.8
-            nml['initialconditions']['porosity0'] = 0.5
-        elif LeafCycle == 7:
-            nml['initialconditions']['gdd_1_0'] = 150
-            nml['initialconditions']['gdd_2_0'] = -300
-            nml['initialconditions']['laiinitialevetr'] = 4.6
-            nml['initialconditions']['laiinitialdectr'] = 3.0
-            nml['initialconditions']['laiinitialgrass'] = 3.6
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.5
-            nml['initialconditions']['porosity0'] = 0.4
-        elif LeafCycle == 8:  # Late Autumn
-            nml['initialconditions']['gdd_1_0'] = 50
-            nml['initialconditions']['gdd_2_0'] = -400
-            nml['initialconditions']['laiinitialevetr'] = 4.2
-            nml['initialconditions']['laiinitialdectr'] = 2.0
-            nml['initialconditions']['laiinitialgrass'] = 2.6
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.4
-            nml['initialconditions']['porosity0'] = 0.2
+    #     # Based on London data
+    #     if LeafCycle == 1:  # Winter
+    #         nml['initialconditions']['gdd_1_0'] = 0
+    #         nml['initialconditions']['gdd_2_0'] = -450
+    #         nml['initialconditions']['laiinitialevetr'] = 4
+    #         nml['initialconditions']['laiinitialdectr'] = 1
+    #         nml['initialconditions']['laiinitialgrass'] = 1.6
+    #         nml['initialconditions']['albEveTr0'] = 0.10
+    #         nml['initialconditions']['albDecTr0'] = 0.12
+    #         nml['initialconditions']['albGrass0'] = 0.18
+    #         nml['initialconditions']['decidCap0'] = 0.3
+    #         nml['initialconditions']['porosity0'] = 0.2
+    #     elif LeafCycle == 2:
+    #         nml['initialconditions']['gdd_1_0'] = 50
+    #         nml['initialconditions']['gdd_2_0'] = -400
+    #         nml['initialconditions']['laiinitialevetr'] = 4.2
+    #         nml['initialconditions']['laiinitialdectr'] = 2.0
+    #         nml['initialconditions']['laiinitialgrass'] = 2.6
+    #         nml['initialconditions']['albEveTr0'] = 0.10
+    #         nml['initialconditions']['albDecTr0'] = 0.12
+    #         nml['initialconditions']['albGrass0'] = 0.18
+    #         nml['initialconditions']['decidCap0'] = 0.4
+    #         nml['initialconditions']['porosity0'] = 0.3
+    #     elif LeafCycle == 3:
+    #         nml['initialconditions']['gdd_1_0'] = 150
+    #         nml['initialconditions']['gdd_2_0'] = -300
+    #         nml['initialconditions']['laiinitialevetr'] = 4.6
+    #         nml['initialconditions']['laiinitialdectr'] = 3.0
+    #         nml['initialconditions']['laiinitialgrass'] = 3.6
+    #         nml['initialconditions']['albEveTr0'] = 0.10
+    #         nml['initialconditions']['albDecTr0'] = 0.12
+    #         nml['initialconditions']['albGrass0'] = 0.18
+    #         nml['initialconditions']['decidCap0'] = 0.6
+    #         nml['initialconditions']['porosity0'] = 0.5
+    #     elif LeafCycle == 4:
+    #         nml['initialconditions']['gdd_1_0'] = 225
+    #         nml['initialconditions']['gdd_2_0'] = -150
+    #         nml['initialconditions']['laiinitialevetr'] = 4.9
+    #         nml['initialconditions']['laiinitialdectr'] = 4.5
+    #         nml['initialconditions']['laiinitialgrass'] = 4.6
+    #         nml['initialconditions']['albEveTr0'] = 0.10
+    #         nml['initialconditions']['albDecTr0'] = 0.12
+    #         nml['initialconditions']['albGrass0'] = 0.18
+    #         nml['initialconditions']['decidCap0'] = 0.8
+    #         nml['initialconditions']['porosity0'] = 0.6
+    #     elif LeafCycle == 5:  # Summer
+    #         nml['initialconditions']['gdd_1_0'] = 300
+    #         nml['initialconditions']['gdd_2_0'] = 0
+    #         nml['initialconditions']['laiinitialevetr'] = 5.1
+    #         nml['initialconditions']['laiinitialdectr'] = 5.5
+    #         nml['initialconditions']['laiinitialgrass'] = 5.9
+    #         nml['initialconditions']['albEveTr0'] = 0.10
+    #         nml['initialconditions']['albDecTr0'] = 0.12
+    #         nml['initialconditions']['albGrass0'] = 0.18
+    #         nml['initialconditions']['decidCap0'] = 0.8
+    #         nml['initialconditions']['porosity0'] = 0.6
+    #     elif LeafCycle == 6:
+    #         nml['initialconditions']['gdd_1_0'] = 225
+    #         nml['initialconditions']['gdd_2_0'] = -150
+    #         nml['initialconditions']['laiinitialevetr'] = 4.9
+    #         nml['initialconditions']['laiinitialdectr'] = 4, 5
+    #         nml['initialconditions']['laiinitialgrass'] = 4.6
+    #         nml['initialconditions']['albEveTr0'] = 0.10
+    #         nml['initialconditions']['albDecTr0'] = 0.12
+    #         nml['initialconditions']['albGrass0'] = 0.18
+    #         nml['initialconditions']['decidCap0'] = 0.8
+    #         nml['initialconditions']['porosity0'] = 0.5
+    #     elif LeafCycle == 7:
+    #         nml['initialconditions']['gdd_1_0'] = 150
+    #         nml['initialconditions']['gdd_2_0'] = -300
+    #         nml['initialconditions']['laiinitialevetr'] = 4.6
+    #         nml['initialconditions']['laiinitialdectr'] = 3.0
+    #         nml['initialconditions']['laiinitialgrass'] = 3.6
+    #         nml['initialconditions']['albEveTr0'] = 0.10
+    #         nml['initialconditions']['albDecTr0'] = 0.12
+    #         nml['initialconditions']['albGrass0'] = 0.18
+    #         nml['initialconditions']['decidCap0'] = 0.5
+    #         nml['initialconditions']['porosity0'] = 0.4
+    #     elif LeafCycle == 8:  # Late Autumn
+    #         nml['initialconditions']['gdd_1_0'] = 50
+    #         nml['initialconditions']['gdd_2_0'] = -400
+    #         nml['initialconditions']['laiinitialevetr'] = 4.2
+    #         nml['initialconditions']['laiinitialdectr'] = 2.0
+    #         nml['initialconditions']['laiinitialgrass'] = 2.6
+    #         nml['initialconditions']['albEveTr0'] = 0.10
+    #         nml['initialconditions']['albDecTr0'] = 0.12
+    #         nml['initialconditions']['albGrass0'] = 0.18
+    #         nml['initialconditions']['decidCap0'] = 0.4
+    #         nml['initialconditions']['porosity0'] = 0.2
 
-        nml.write(initfileout, force=True)
+    #     nml.write(initfileout, force=True)
 
     def help(self):
         url = 'http://umep-docs.readthedocs.io/en/latest/processor/Urban%20Energy%20Balance%20Urban%20Energy%20' \

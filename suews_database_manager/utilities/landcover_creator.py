@@ -265,79 +265,79 @@ def setup_landcover_creator(self, dlg, db_dict, db_path):
 
         if dlg.comboBoxSurface.currentIndex() != -1:
             
-            try:
-                surface = dlg.comboBoxSurface.currentText()
-                # Get the name of the text browser
-                Tb_name = getattr(dlg, f'textBrowser_{idx}', None)
-                table_var = Tb_name.toPlainText()
-                dlg.textBrowserTableLable.setText(table_var)
 
-                # Determine if to use OHM or not
-                table = db_dict['OHM'] if table_var.startswith('OHM') else db_dict.get(table_var)
+            surface = dlg.comboBoxSurface.currentText()
+            # Get the name of the text browser
+            Tb_name = getattr(dlg, f'textBrowser_{idx}', None)
+            table_var = Tb_name.toPlainText()
+            dlg.textBrowserTableLable.setText(table_var)
 
-                # Filter the table based on the selected surface
-                if surface in ['Grass', 'Evergreen Tree', 'Deciduous Tree']:
-                    table_surf = table[(table['Surface'] == surface) | (table['Surface'] == 'All vegetation') | (table['Surface'] == 'cropland')]
-                elif surface in ['Buildings', 'Paved', 'Bare Soil']:
-                    table_surf = table[(table['Surface'] == surface) | (table['Surface'] == 'All nonveg')]
-                elif surface == 'Water':
-                    table_surf = table[table['Surface'] == surface]
+            # Determine if to use OHM or not
+            table = db_dict['OHM'] if table_var.startswith('OHM') else db_dict.get(table_var)
 
-                # Prepare to display the table, remove columns that not is to show
-                col_list = list(table)
-                remove_cols = ['ID', 'Surface', 'Period', 'Ref', 'typeOrigin', 'nameOrigin']
-                col_list = [col for col in col_list if col not in remove_cols]
+            # Filter the table based on the selected surface
+            if surface in ['Grass', 'Evergreen Tree', 'Deciduous Tree']:
+                table_surf = table[(table['Surface'] == surface) | (table['Surface'] == 'All vegetation') | (table['Surface'] == 'cropland')]
+            elif surface in ['Buildings', 'Paved', 'Bare Soil']:
+                table_surf = table[(table['Surface'] == surface) | (table['Surface'] == 'All nonveg')]
+            elif surface == 'Water':
+                table_surf = table[table['Surface'] == surface]
 
-                if table_var == 'Spartacus Surface':
-                    Tb = getattr(dlg, 'textBrowserEl', None)
-                    Tb.clear()
+            # Prepare to display the table, remove columns that not is to show
+            col_list = list(table)
+            remove_cols = ['ID', 'Surface', 'Period', 'Ref', 'typeOrigin', 'nameOrigin']
+            col_list = [col for col in col_list if col not in remove_cols]
 
-                    table_spar = table.copy()
-                    ref_show = db_dict['References']['authorYear'].to_dict()
-                    table_spar['Reference'] = table_spar['Ref'].map(ref_show).fillna('')  # Map references
-                    mat_show = db_dict['Spartacus Material']['Name'].to_dict()
+            if table_var == 'Spartacus Surface':
+                Tb = getattr(dlg, 'textBrowserEl', None)
+                Tb.clear()
 
-                    col_order = list(table.columns)
+                table_spar = table.copy()
+                ref_show = db_dict['References']['authorYear'].to_dict()
+                table_spar['Reference'] = table_spar['Ref'].map(ref_show).fillna('')  # Map references
+                mat_show = db_dict['Spartacus Material']['Name'].to_dict()
 
-                    for i in range(1, 6):
-                        # Use the correct column names with spaces
-                        table_spar[f'r{i}Material2'] = table_spar[f'r{i}Material'].map(mat_show)  # Map materials
-                        table_spar[f'w{i}Material2'] = table_spar[f'w{i}Material'].map(mat_show)  # Map materials
-                        table_spar[f'r{i}Material'] = table_spar[f'r{i}Material2']
-                        table_spar[f'w{i}Material'] = table_spar[f'w{i}Material2']
+                col_order = list(table.columns)
 
-                    table_spar = table_spar.loc[:,col_order]
+                for i in range(1, 6):
+                    # Use the correct column names with spaces
+                    table_spar[f'r{i}Material2'] = table_spar[f'r{i}Material'].map(mat_show)  # Map materials
+                    table_spar[f'w{i}Material2'] = table_spar[f'w{i}Material'].map(mat_show)  # Map materials
+                    table_spar[f'r{i}Material'] = table_spar[f'r{i}Material2']
+                    table_spar[f'w{i}Material'] = table_spar[f'w{i}Material2']
 
-                    Tb.setText(str(table_spar.reset_index().drop(columns=['ID', 'Ref', 'nameOrigin', 'Surface']).to_html(index=True)))
-                    Tb.setLineWrapMode(0)
+                table_spar = table_spar.loc[:,col_order]
 
-                elif table_var in ['Leaf Area Index', 'Leaf Growth Power']:
+                Tb.setText(str(table_spar.reset_index().drop(columns=['ID', 'Ref', 'nameOrigin', 'Surface']).to_html(index=True)))
+                Tb.setLineWrapMode(0)
 
-                    LAIEq = dlg.comboBoxProfileType.currentText()
-                    LAI = db_dict[table_var][
-                        (db_dict[table_var]['Surface'] == surface) & 
-                        (db_dict[table_var]['LAIEq'] == int(LAIEq))
-                    ]
+            elif table_var in ['Leaf Area Index', 'Leaf Growth Power']:
 
-                    table = LAI.drop(columns=['Surface', 'nameOrigin']).reset_index()
-                    
-                    Tb = getattr(dlg, 'textBrowserEl', None)
-                    Tb.clear()
-                    ref_show = db_dict['References']['authorYear'].to_dict()
-                    table['Reference'] = table['Ref'].map(ref_show).fillna('')  # Map references
-                    Tb.setText(str(table.drop(columns=['Ref', 'ID']).to_html(index=True)))
-                    Tb.setLineWrapMode(0)
+                LAIEq = dlg.comboBoxProfileType.currentText()
+                LAI = db_dict[table_var][
+                    (db_dict[table_var]['Surface'] == surface) & 
+                    (db_dict[table_var]['LAIEq'] == int(LAIEq))
+                ]
+
+                table = LAI.drop(columns=['Surface', 'nameOrigin']).reset_index()
                 
-                else:
-                    Tb = getattr(dlg, 'textBrowserEl', None)
-                    Tb.clear()
-                    ref_show = db_dict['References']['authorYear'].to_dict()
-                    table_surf['Reference'] = table_surf['Ref'].map(ref_show).fillna('')  # Map references
-                    Tb.setText(str(table_surf.reset_index().drop(columns=['Ref', 'ID', 'Surface']).to_html(index=True)))
-                    Tb.setLineWrapMode(0)
+                Tb = getattr(dlg, 'textBrowserEl', None)
+                Tb.clear()
+                ref_show = db_dict['References']['authorYear'].to_dict()
+                table['Reference'] = table['Ref'].map(ref_show).fillna('')  # Map references
+                Tb.setText(str(table.drop(columns=['Ref', 'ID']).to_html(index=True)))
+                Tb.setLineWrapMode(0)
+            
+            else:
+                Tb = getattr(dlg, 'textBrowserEl', None)
+                Tb.clear()
+                ref_show = db_dict['References']['authorYear'].to_dict()
+                table_surf['Reference'] = table_surf['Ref'].map(ref_show).fillna('')  # Map references
+                Tb.setText(str(table_surf.reset_index().drop(columns=['Ref', 'ID', 'Surface']).to_html(index=True)))
+                Tb.setLineWrapMode(0)
 
-            except:
-                pass #TODO Fix better solution to avoid error when changing surfaces
+            # except:
+            #     pass #TODO Fix better solution to avoid error when changing surfaces
     
     def check_typology(): # 
         # TODO Add more checkerse
@@ -431,7 +431,6 @@ def setup_landcover_creator(self, dlg, db_dict, db_path):
     self.dlg.tabWidget.currentChanged.connect(tab_update)
 
     dlg.comboBox_0.activated.connect(lambda: print_table(0))
-    dlg.comboBox_1.activated.connect(lambda: print_table(1))
     dlg.comboBox_1.activated.connect(lambda: print_table(1))
     dlg.comboBox_2.activated.connect(lambda: print_table(2))
     dlg.comboBox_3.activated.connect(lambda: print_table(3))

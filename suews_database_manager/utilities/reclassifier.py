@@ -189,7 +189,7 @@ def setup_reclassifier(self, dlg, db_dict):
         
         # Reclassify new fields using reclassify dictionaries created above
         for feature in vlayer.getFeatures():
-            old_value = feature[att_column] 
+            old_value = str(feature[att_column]) 
             new_value1 = dict_reclass.get(old_value, None)
             new_value2 = dict_reclassID.get(old_value, None)
             

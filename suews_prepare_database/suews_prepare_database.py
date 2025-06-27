@@ -34,7 +34,8 @@ from qgis.core import (QgsMapLayerProxyModel,
                        QgsVectorLayer, 
                        QgsFeature, 
                        QgsProject,
-                       QgsVectorFileWriter,)
+                       QgsVectorFileWriter,
+                       QgsFeatureRequest)
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -50,15 +51,18 @@ import copy
 import numpy as np
 import pandas as pd
 import os
+import yaml
+
 from osgeo import gdal, osr
 from .Utilities import f90nml
 from .Utilities import RoughnessCalcFunction as rg
 from .Utilities.misc import saveraster
 # from .Utilities import wallalgorithms as wa
 from .Utilities.db_functions import * 
+from .Utilities.def_config_suews import *
 
 from .Utilities.ssParms import getVertheights, ss_calc_gridlayout
-from .Utilities.umep_suewsss_export_component import writeGridLayout, create_GridLayout_dict, write_GridLayout_file
+from .Utilities.umep_suewsss_export_component import writeGridLayout
 from shutil import copyfile, rmtree
 
 # from .prepare_workertypo import Worker
@@ -559,7 +563,6 @@ class SUEWSPrepareDatabase(object):
         year = None
         year2 = None
 
-        print(self.Metfile_path)
         if self.Metfile_path is None:
             QMessageBox.critical(self.dlg, "Error", "Meteorological data file has not been provided")
             return
@@ -687,11 +690,6 @@ class SUEWSPrepareDatabase(object):
         # typologyFieldName = self.dlg.layerComboManagerPolygridTypofield.currentText()
         typologyFieldName = 'TypolID'
 
-        # Region check This is removed. Taken from Country instead. FL
-        #if self.dlg.comboBoxRegion.currentIndex() == -1:
-        #    QMessageBox.critical(self.dlg, "Error", "No region has been selected")
-        #    return
-        
         # Spartacus check
         if self.spartacus == 1:
             if self.heightMethod == 0:
@@ -716,23 +714,24 @@ class SUEWSPrepareDatabase(object):
                         QMessageBox.critical(self.dlg, "Error", "One or more inputs in Fixed height [option 1] is not increasing.")
                         return
 
+        settings_dict = {
+            
+            'vlayer':vlayer, 'poly_field':poly_field, 'Metfile_path': self.Metfile_path, 'start_DLS': self.start_DLS, 
+            'end_DLS': self.end_DLS, 'LCF_from_file' :self.LCF_from_file, 'LCFfile_path' : self.LCFfile_path, 'plugin_dir': self.plugin_dir, 'map_units': map_units, 
+            'output_dir': self.output_dir, 'file_code' :self.file_code, 'utc':self.utc,
+            'IMP_from_file' : self.IMP_from_file, 'IMPfile_path': self.IMPfile_path, 'IMP_z0' : self.IMP_z0, 'IMP_zd' : self.IMP_zd, 
+            'IMP_fai': self.IMP_fai, 'IMPveg_from_file': self.IMPveg_from_file, 'IMPvegfile_path': self.IMPvegfile_path, 
+            'IMPveg_fai_eve': self.IMPveg_fai_eve, 'IMPveg_fai_dec' : self.IMPveg_fai_dec, 'pop_density' : self.pop_density, 
+             'checkBox_twovegfiles' : self.checkBox_twovegfiles, 'IMPvegfile_path_dec':  self.IMPvegfile_path_dec, 
+            # Typology
+            'IMPvegfile_path_eve' : self.IMPvegfile_path_eve, 'pop_density_day': self.pop_density_day, 'daypop' :self.daypop,
+            'polyTypolayer' : polyTypolayer, 'typologyFieldName': typologyFieldName, 'dsmlayer': dsmlayer, 'demlayer' :demlayer, 
+            'region_str' : self.region_str, 'country_str' : self.country_str, 'checkBoxTypologies' :self.typologies,                          
+            # Spartacus 
+            'heightMethod' : self.heightMethod,  'vertheights' : self.vertheights, 'nlayers' : self.nlayers, 
+            'skew' : self.skew, 'ss_dir': self.ss_dir, 'spartacus': self.spartacus, 
+            }
 
-        settings_dict = {'vlayer':vlayer, 'poly_field':poly_field, 'Metfile_path': self.Metfile_path, 'start_DLS': self.start_DLS, 
-                        'end_DLS': self.end_DLS, 'LCF_from_file' :self.LCF_from_file, 'LCFfile_path' : self.LCFfile_path,
-                        'IMP_from_file' : self.IMP_from_file, 'IMPfile_path': self.IMPfile_path, 'IMP_z0' : self.IMP_z0, 'IMP_zd' : self.IMP_zd, 
-                        'IMP_fai': self.IMP_fai, 'IMPveg_from_file': self.IMPveg_from_file, 'IMPvegfile_path': self.IMPvegfile_path, 
-                        'IMPveg_fai_eve': self.IMPveg_fai_eve, 'IMPveg_fai_dec' : self.IMPveg_fai_dec, 'pop_density' : self.pop_density, 
-                        'plugin_dir': self.plugin_dir, 'map_units': map_units, 'output_dir': self.output_dir, 'file_code' :self.file_code,
-                        'utc':self.utc, 'checkBox_twovegfiles' : self.checkBox_twovegfiles, 'IMPvegfile_path_dec':  self.IMPvegfile_path_dec, 
-                        # Typology
-                        'IMPvegfile_path_eve' : self.IMPvegfile_path_eve, 'pop_density_day': self.pop_density_day, 'daypop' :self.daypop,
-                        'polyTypolayer' : polyTypolayer, 'typologyFieldName': typologyFieldName, 'dsmlayer': dsmlayer, 'demlayer' :demlayer, 
-                        'region_str' : self.region_str, 'country_str' : self.country_str, 'checkBoxTypologies' :self.typologies,                          
-                        # Spartacus 
-                        'heightMethod' : self.heightMethod,  'vertheights' : self.vertheights, 'nlayers' : self.nlayers, 
-                        'skew' : self.skew, 'ss_dir': self.ss_dir, 'spartacus': self.spartacus, 
-                        }
-        
         # Add to settings_dict selected profiles and surfaces
         for cbox, var in zip(
             [self.dlg.comboBoxPaved, self.dlg.comboBoxBuilding,self.dlg.comboBoxBareSoil, self.dlg.comboBoxEvrTree, self.dlg.comboBoxDecTree, 
@@ -781,11 +780,9 @@ class SUEWSPrepareDatabase(object):
         plugin_dir = settings_dict['plugin_dir']
         output_dir = settings_dict ['output_dir']
 
-
         save_txt_folder = output_dir[0]+ '/'
         temp_folder = plugin_dir + '/tempdata'
         walls_raster_out = temp_folder + '/walls.tif'
-        # walls_raster_out = 'c:/temp' + '/walls.tif' #To speed things up when testing
 
         build_raster_out = temp_folder + '/buildings.tif'
         typo_raster_out = temp_folder + '/typoraster.tif'
@@ -798,15 +795,13 @@ class SUEWSPrepareDatabase(object):
 
         os.mkdir(temp_folder)
 
-        ss_dict = {}            # SiteSelect Dict. This is the final dict where all parameters for each grid are found. 
-        veg_dict = {}           # dict for populating and sorting Veg parameter
-        nonVeg_dict = {}        # dict for populating and sorting NonVeg parameter
-        country_conv_dict = {}  # Dict for getting selected Country parameters
-        parameter_dict = {}     # Unknown TODO Describe
-        spartacus_error_dict = {} # Used to collect potential Spartacus error and present for user
-
-        # Read DB
-        #db_path = plugin_dir + '/Input/database.xlsx'  # TODO When in UMEP Toolbox, set this path to db in database manager, and instead send from plugin instead of read again
+        ss_dict = {}                 # SiteSelect Dict. This is the final dict where all parameters for each grid are found. 
+        veg_dict = {}                # dict for populating and sorting Veg parameter
+        nonVeg_dict = {}             # dict for populating and sorting NonVeg parameter
+        country_conv_dict = {}       # Dict for getting selected Country parameters
+        parameter_dict = {}          # Unknown TODO Describe
+        spartacus_error_dict = {}    # Used to collect potential Spartacus error and present for user
+       # Read DB
         db_dict = read_DB(self.db_path)
     
         # change stringnames to codes. bit annoying, but more effective.. 20241127
@@ -838,9 +833,7 @@ class SUEWSPrepareDatabase(object):
                         break
                     except:
                         pass
-                    
-
-
+        
         # Vectorize country_conv_dict creation
         country_conv_dict = (db_dict['Country']['Country'] + ', ' + db_dict['Country']['City']).to_dict()
         country_conv_dict_inv = {v: k for k, v in country_conv_dict.items()}
@@ -862,36 +855,6 @@ class SUEWSPrepareDatabase(object):
 
         if settings_dict['IMPveg_from_file']:
             IMPveg_dict = read_morph_txt(settings_dict['IMPvegfile_path'][0])
-
-        #parameter_dict['Traffic_multiplyer'] 
-
-        # if typo
-        # 	if spart
-        # 		aggregra
-        # 		calc height
-        # 	else
-        # 		copy gridlayout
-        #       calc total vulmetric frac
-        # else
-        # 	if spart
-        # 		hämta från databas
-        # 		calc frac with height
-        # 	else
-        #       copy gridlayout
-        # 		copy regional     
-            
-
-        #Ny
-        # if not typo
-        #   make default typo
-        # calc total vulmetric frac???
-        # copy regional???
-        # make output from typo
-        # if spart
-        #   aggregate
-        #   create updated gridlayout
-        # else
-        #   copy gridlayout    
 
         
         geodata_output = {} # Dict for storing the output of the QGIS geodata processes
@@ -940,9 +903,9 @@ class SUEWSPrepareDatabase(object):
         build_arrW  = build_arr.copy()
         build_arr[np.where(build_arr < 0.5)] = np.nan
         saveraster(gdal.Open(filePath_dsm), build_raster_out, build_arr)
-        dsm_arr = None
-        dem_arr = None
-        pixelSize = dsm.GetGeoTransform()[1]    
+        # dsm_arr = None
+        # dem_arr = None
+        pixelSize = dsm.GetGeoTransform()[1]
 
         # Grid classified shp-file containing SUEWS typologies
         parin = { 'INPUT' : settings_dict['vlayer'],
@@ -959,10 +922,12 @@ class SUEWSPrepareDatabase(object):
             'FIELD':['ID',settings_dict['typologyFieldName']],
             'SEPARATE_DISJOINT':False,
             'OUTPUT': temp_folder + '/urbantypelayer_diss.shp'}
-        geodata_output['gridded_shp_diss'] =processing.run("native:dissolve", parin)
+        geodata_output['gridded_shp_diss'] = processing.run("native:dissolve", parin)
 
-
+        ####################################################################################
         ################# Start calculating volumetric fractions ###########################
+        ####################################################################################
+
         # This dictionary retrieve the Code for selected typologies. The Reclassifier uses String values, but later on we need codes in Int
 
         if settings_dict['spartacus'] == 1:
@@ -985,6 +950,7 @@ class SUEWSPrepareDatabase(object):
             maxy = geoTransform[3]
             maxx = minx + geoTransform[1] * dsm.RasterXSize
             miny = maxy + geoTransform[5] * dsm.RasterYSize
+
             projwin = str(minx) + ',' + str(maxx) + ',' + str(miny) +',' + str(maxy) + ' [EPSG:' + str(rasEPSG) + ']'
             parin = {
                 'INPUT':settings_dict['polyTypolayer'].source(),
@@ -1007,7 +973,7 @@ class SUEWSPrepareDatabase(object):
             'INPUT_RASTER':build_raster_out,
             'RASTER_BAND':1,
             'COLUMN_PREFIX':'z_',
-            'STATISTICS':[2], # mean
+            'STATISTICS':[2,4], # 2 mean, 4 = stdev
             'OUTPUT':'TEMPORARY_OUTPUT'}
 
         # output_name = 'build_count' # or perhaps something like this? + str(int(min_height)) + '_' + str(int(max_height)). now, it overwrites
@@ -1022,12 +988,12 @@ class SUEWSPrepareDatabase(object):
             'STATISTICS':[0], # Count
             'OUTPUT': 'TEMPORARY_OUTPUT'}
 
-        geodata_output['mean_build_height_pixel_count'] = processing.run("native:zonalstatisticsfb", parin) 
+        geodata_output['mean_build_height_pixel_count'] = processing.run("native:zonalstatisticsfb", parin)
 
-        cols = [f.name() for f in geodata_output['mean_build_height_pixel_count']['OUTPUT'].fields()] 
+        cols = [f.name() for f in geodata_output['mean_build_height_pixel_count']['OUTPUT'].fields()]
         datagen = ([f[col] for col in cols] for f in geodata_output['mean_build_height_pixel_count']['OUTPUT'].getFeatures())
 
-        df_build_frac = pd.DataFrame.from_records(data=datagen, columns=cols)    
+        df_build_frac = pd.DataFrame.from_records(data=datagen, columns=cols)
         df_build_frac = df_build_frac.set_index('ID')  # Set ID as index in df to be able to slice in df 
 
         df_build_frac['pixel_count'] = df_build_frac['pixel_count'] * pixelSize         
@@ -1038,11 +1004,6 @@ class SUEWSPrepareDatabase(object):
         grid_dict = {}       # Dict that holds information on general typologies, uvalues, albedos and emmissivites and fractions
         gridlayoutOut = {}   # Dict that holds information on fractions of, albedos, emmissivitiees and uvalues for GridLaytout.nml
         dir_poly = plugin_dir + '/tempdata/poly_temp.shp' # move later
-
-        grid_dict = {}       # Dict that holds information on general typologies, uvalues, albedos and emmissivites and fractions
-        gridlayoutOut = {}   # Dict that holds information on fractions of, albedos, emmissivitiees and uvalues for GridLaytout.nml
-        dir_poly = plugin_dir + '/tempdata/poly_temp.shp' # move later
-
 
         if settings_dict['checkBoxTypologies'] == 0:
             QgsProject.instance().removeMapLayer(settings_dict['polyTypolayer'].source())
@@ -1081,30 +1042,29 @@ class SUEWSPrepareDatabase(object):
                 grid_dict[id][typology]['emissivity_roof'] = locator['emissivity_roof']
                 grid_dict[id][typology]['emissivity_wall'] = locator['emissivity_wall']
             
-                
             ## Spartacus ##
             if settings_dict['spartacus'] == 1:
                 #vertical info from IMP calc
-                ssVect = np.loadtxt(settings_dict['ss_dir'] + '/' + pre + '_IMPGrid_SS_' + str(id) + '.txt', skiprows = 1) 
+                ssVect  = pd.read_csv(settings_dict['ss_dir'] + '/' + pre + '_IMPGrid_SS_' + str(id) + '.txt', sep='\s+')
 
                 # Some error check before calculation of gridlayout
                 error_output = {}
                 vertHeightsIn = settings_dict['vertheights']
                 if settings_dict['heightMethod'] == 1: # static levels (taken from interface). Last value > max height
-                    if ssVect[:,0].max() <= max(vertHeightsIn):
-                        error_output = {id : f'zMax ({str(ssVect[:,0].max())}) is lower than max fixed height  {str(max(vertHeightsIn))}.'}
+                    if ssVect['z'].max() <= max(vertHeightsIn):
+                        error_output = {id : f'zMax ({str(ssVect['z'].max())}) is lower than max fixed height  {str(max(vertHeightsIn))}.'}
                         print('error in ID: ', str(id), f'. zMax is lower than max fixed height {str(max(vertHeightsIn))}.')
-                        QMessageBox.critical(None, "Error in Vertical Morphology Spartcus (opt 1)", 'error in ID: ' + str(id) + '. zMax (' + str(ssVect[:,0].max()) + 
+                        QMessageBox.critical(None, "Error in Vertical Morphology Spartcus (opt 1)", 'error in ID: ' + str(id) + '. zMax (' + str(ssVect['z'].max()) + 
                                      ') lower than max fixed height ' + str(max(vertHeightsIn)) + '. Use other method or reduce fixed layer height.')
                         self.dlg.progressBar.setValue(index)
                         return
 
                 elif settings_dict['heightMethod'] == 2: # always nlayers layer based on percentiles
                     nlayerOut = settings_dict['nlayers']
-                    if ssVect[:,0].max() <= nlayerOut:
-                        error_output = {id : f'zMax ({str(ssVect[:,0].max())}) is to low to use {str(nlayerOut)} vertical layers.'}
+                    if ssVect['z'].max() <= nlayerOut:
+                        error_output = {id : f'zMax ({str(ssVect['z'].max())}) is to low to use {str(nlayerOut)} vertical layers.'}
                         print('error in ID: ', str(id), f'. zMax is to low to use {str(nlayerOut)} vertical layers.')
-                        QMessageBox.critical(None, "Error in Vertical Morphology Spartcus (opt 2)", 'error in ID: ' + str(id) + '. zMax (' + str(ssVect[:,0].max()) + 
+                        QMessageBox.critical(None, "Error in Vertical Morphology Spartcus (opt 2)", 'error in ID: ' + str(id) + '. zMax (' + str(ssVect['z'].max()) + 
                                      ') is to low when using ' + str(nlayerOut) + ' vertical layers. Use other method or reduce number of vertical layers.')
                         self.dlg.progressBar.setValue(index)
                         return
@@ -1117,7 +1077,7 @@ class SUEWSPrepareDatabase(object):
                     settings_dict['nlayers'], 
                     settings_dict['skew'], 
                     id)
-
+                
                 # Add errors (if any) to spartacus error dict used later for
                 if error_output:        
                     spartacus_error_dict = spartacus_error_dict | error_output
@@ -1145,7 +1105,7 @@ class SUEWSPrepareDatabase(object):
                 build_array = dataset.ReadAsArray().astype(float)
                 bigraster = None
                 dataset = None
-
+                
                 bigraster = gdal.Open(walls_raster_out)
                 clip_spec = gdal.WarpOptions(format="GTiff", cutlineDSName=dir_poly, cropToCutline=True)
                 gdal.Warp(temp_folder + '/clipwall.tif', bigraster, options=clip_spec)
@@ -1162,18 +1122,26 @@ class SUEWSPrepareDatabase(object):
                 bigraster = None
                 dataset = None
 
-                # Calulate fractions and set wall and roof layers based on dominating typology 
-                typoList = np.unique(typo_array) #identify tyopologies in grid
-                gridlayoutOut = ss_calc_gridlayout(
-                    heightIntervals, build_array, wall_array, typoList, 
-                    typo_array, grid_dict, gridlayoutOut, id, nlayer, db_dict)
+                # clip dem
+                clip_spec = gdal.WarpOptions(format="GTiff", cutlineDSName=dir_poly, cropToCutline=True)
+                gdal.Warp(temp_folder + '/clipdem.tif', dem, options=clip_spec)
+                dataset = gdal.Open(temp_folder + '/clipdem.tif')
+                dem_clip_array = dataset.ReadAsArray().astype(float)
+                dataset = None
 
-                # Write GridLayoutXXX.nml ##
-                writeGridLayout(ssVect, settings_dict['file_code'], id, save_txt_folder, gridlayoutOut)
+                # clip dsm
+                clip_spec = gdal.WarpOptions(format="GTiff", cutlineDSName=dir_poly, cropToCutline=True)
+                gdal.Warp(temp_folder + '/clipdsm.tif', dsm, options=clip_spec)
+                dataset = gdal.Open(temp_folder + '/clipdsm.tif')
+                dsm_clip_array = dataset.ReadAsArray().astype(float)        
+                dataset = None
 
-            else: #no spartacus. Just copy and save GridLayout-file so that SUEWS-model can run
-                copyfile(plugin_dir + '/Input/' + 'GridLayout.nml', save_txt_folder + "/" + 'GridLayout' +  
-                    settings_dict['file_code'] + str(id) + '.nml')
+                buildings_count = count_buildings(dsm_clip_array, dem_clip_array) 
+     
+                gridlayoutOut[id]['wallAreaGrid'] = wall_array.sum() * pixelSize
+                gridlayoutOut[id]['buildings_count'] = buildings_count
+
+                typoList = np.unique(typo_array) 
 
             # Make a list to count if thera are more than one typology in grid. Test in the if statement below
             typology_list = list(grid_dict[id].keys())
@@ -1181,96 +1149,44 @@ class SUEWSPrepareDatabase(object):
             # Check if aggregation is needed
             # Now we blend typologies and aggregate for new codes
             if len(typology_list) > 1:
-                nonVeg_dict[id]['Paved']    = blend_SUEWS_NonVeg(grid_dict[id], db_dict, parameter_dict, 'Paved') 
-                nonVeg_dict[id]['Buildings']= blend_SUEWS_NonVeg(grid_dict[id], db_dict, parameter_dict, 'Buildings') 
-           
+                nonVeg_dict[id]['Paved']     = blend_SUEWS_NonVeg(grid_dict[id], db_dict, parameter_dict, zenodo, 'Paved') 
+                nonVeg_dict[id]['Buildings'] = blend_SUEWS_NonVeg(grid_dict[id], db_dict, parameter_dict, zenodo, 'Buildings') 
+
             # if only one typology exists, no need to aggregate/combine/blend
             else:
-                nonVeg_dict[id]['Paved'] = fill_SUEWS_NonVeg_typologies(parameter_dict['Paved'], db_dict, parameter_dict)
-                nonVeg_dict[id]['Buildings'] = fill_SUEWS_NonVeg_typologies(parameter_dict['Buildings'], db_dict, parameter_dict)
-                
-            nonVeg_dict[id]['Bare Soil'] = fill_SUEWS_NonVeg_typologies(parameter_dict['Bare Soil'], db_dict, parameter_dict)
+                if settings_dict['checkBoxTypologies'] == 0:
 
+                    nonVeg_dict[id]['Paved'] = fill_SUEWS_NonVeg_typologies(db_dict, parameter_dict, settings_dict['Paved'], zenodo, 'Paved')
+                    nonVeg_dict[id]['Buildings'] = fill_SUEWS_NonVeg_typologies( db_dict, parameter_dict, settings_dict['Buildings'], zenodo, 'Buildings')
+                else:
+                    nonVeg_dict[id]['Paved'] = fill_SUEWS_NonVeg_typologies(db_dict, parameter_dict, settings_dict['Paved'], zenodo, 'Paved')
+                    nonVeg_dict[id]['Buildings'] = fill_SUEWS_NonVeg_typologies( db_dict, parameter_dict, settings_dict['Buildings'], zenodo, 'Buildings')
+                
+            nonVeg_dict[id]['Bare Soil'] = fill_SUEWS_NonVeg_typologies(db_dict, parameter_dict, settings_dict['Bare Soil'], zenodo, 'Bare Soil')
+            gridlayoutOut[id]['vertical_layers'] = {}
+            gridlayoutOut[id]['vertical_layers'] = ss_calc_gridlayout(build_array, wall_array, typoList, typo_array,  gridlayoutOut, id, db_dict, zenodo, settings_dict['ss_dir'], pre, grid_dict[id]),
+        
         # write to SUEWS_NonVeg
-        save_NonVeg_types(nonVeg_dict, save_txt_folder, db_dict)
            
         # Write SUEWS.txt files SUEWS_veg, SUEWS_AnthropogenicEmission, SUEWS_Water and SUEWS_Conductance
-        veg_dict = fill_SUEWS_Veg(db_dict, settings_dict, parameter_dict['SoilTypeCode'])
+        veg_dict = fill_SUEWS_Veg(db_dict, settings_dict, parameter_dict,  zenodo)
     
         # Save Profiles
-        fill_SUEWS_profiles(settings_dict, save_txt_folder, db_dict['Profiles']) 
+        profiles_dict = profiles_to_dict(settings_dict, db_dict['Profiles'], db_dict['References'])
 
         # set correct values and write txt.files based on the parameters found at country/regional level 
-        AnEm_dict = fill_SUEWS_AnthropogenicEmission(settings_dict, db_dict['AnthropogenicEmission']) 
-        snow_dict = fill_SUEWS_Snow(parameter_dict['SnowCode'], db_dict)
-        water_dict = fill_SUEWS_Water(parameter_dict['Water'], db_dict, parameter_dict)
+        snow_dict = fill_SUEWS_Snow(parameter_dict['SnowCode'], db_dict, zenodo)
+        water_dict = fill_SUEWS_Water(parameter_dict['Water'], db_dict, parameter_dict, zenodo)
 
         cond_dict = db_dict['Conductance'].loc[parameter_dict['Conductance']].to_dict()
         cond_dict['Code'] = parameter_dict['Conductance']
 
-        save_SUEWS_txt(pd.DataFrame.from_dict(veg_dict, orient='index').set_index('Code'), 'SUEWS_Veg.txt', save_txt_folder, db_dict)
-        save_SUEWS_txt(pd.DataFrame.from_dict(AnEm_dict, orient = 'index').T.set_index('Code'), 'SUEWS_AnthropogenicEmission.txt', save_txt_folder, db_dict)
-        save_SUEWS_txt(pd.DataFrame.from_dict(water_dict, orient = 'index').set_index('Code'), 'SUEWS_Water.txt', save_txt_folder, db_dict)
-        save_SUEWS_txt(pd.DataFrame.from_dict(cond_dict, orient = 'index').T.set_index('Code'), 'SUEWS_Conductance.txt', save_txt_folder, db_dict)
-    
-        save_SUEWS_txt(db_dict['Irrigation'].loc[[parameter_dict['IrrigationCode']]].rename_axis('Code'), 'SUEWS_Irrigation.txt', save_txt_folder, db_dict)
-        save_SUEWS_txt(db_dict['Soil'].loc[[parameter_dict['SoilTypeCode']]].rename_axis('Code'), 'SUEWS_Soil.txt', save_txt_folder, db_dict)
+                
+        leaf_cycle = self.leaf_cycle
 
-        # write SUEWS_Snow
-        save_snow(snow_dict, save_txt_folder, db_dict)
-
-        OHM_list = []
-        BIOCO2_list = []
-        
-        # Iterate through all parameter dicts to ensure that all used, OHM and Biogen codes are written into the SUEWS.txt files
-        for dict_sel, dict_name in zip([nonVeg_dict, veg_dict, snow_dict, water_dict ],['NonVeg', 'Veg', 'Snow', 'Water']):
-            
-            for feat_id in list(dict_sel.keys()):
-
-                if dict_name == 'Snow' or dict_name == 'Water':
-                    try:
-                        OHM_list.append(dict_sel[feat_id]['OHMCode_SummerWet'])
-                        OHM_list.append(dict_sel[feat_id]['OHMCode_SummerDry'])
-                        OHM_list.append(dict_sel[feat_id]['OHMCode_WinterWet'])
-                        OHM_list.append(dict_sel[feat_id]['OHMCode_WinterDry'])
-                    except:
-                        OHM_list.append(dict_sel['OHMCode_SummerWet'])
-                        OHM_list.append(dict_sel['OHMCode_SummerDry'])
-                        OHM_list.append(dict_sel['OHMCode_WinterWet'])
-                        OHM_list.append(dict_sel['OHMCode_WinterDry'])
-                else: 
-                    if dict_name == 'NonVeg':
-                        surface_list = ['Paved', 'Buildings','Bare Soil']
-                        for surf in surface_list:
-                            # ESTM_list.append(dict_sel[feat_id][surf]['ESTMCode'])
-                            try:
-                                OHM_list.append(dict_sel[feat_id][surf]['OHMCode_SummerWet'])
-                                OHM_list.append(dict_sel[feat_id][surf]['OHMCode_SummerDry'])
-                                OHM_list.append(dict_sel[feat_id][surf]['OHMCode_WinterWet'])
-                                OHM_list.append(dict_sel[feat_id][surf]['OHMCode_WinterDry'])
-                            except:
-                                pass
-
-                    elif dict_name == 'Veg':
-                        surface_list = 'Grass', 'Evergreen Tree','Deciduous Tree'
-                        for surf in surface_list:
-                        # ESTM_list.append(dict_sel[feat_id][surf]['ESTMCode'])
-                            OHM_list.append(dict_sel[surf]['OHMCode_SummerWet'])
-                            OHM_list.append(dict_sel[surf]['OHMCode_SummerDry'])
-                            OHM_list.append(dict_sel[surf]['OHMCode_WinterWet'])
-                            OHM_list.append(dict_sel[surf]['OHMCode_WinterDry'])
-                            BIOCO2_list.append(dict_sel[feat_id]['BiogenCO2Code'])
-
-        # Remove duplicates
-        OHM_list = list(set(OHM_list))
-        BIOCO2_list = list(set(BIOCO2_list))
-        
-        # save SUEWS_ESTMCoefficients.txt, SUEWS_OHMCoefficients.txt and SUEWS_BiogenCO2.txt
-        presave(db_dict['OHM'], 'OHMCoefficients', OHM_list, save_txt_folder, db_dict)
-        presave(db_dict['Biogen CO2'], 'BiogenCO2', BIOCO2_list, save_txt_folder, db_dict)
 
         # ################################################################################################################################
-        #                                               Writing SiteSelect.txt       
+        #                                               Writing SiteSelect.txt  (now, yaml)     
         # ################################################################################################################################
 
         ind = 1
@@ -1300,56 +1216,110 @@ class SUEWSPrepareDatabase(object):
 
             # figure out the time res of input file
             if ind == 1:
-                met_old = np.genfromtxt(settings_dict['Metfile_path'][0], skip_header=1) #footer no longer exist..., skip_footer=2)
-                id = met_old[:, 1]
-                it = met_old[:, 2]
-                imin = met_old[:, 3]
-                dectime0 = id[0] + it[0] / 24 + imin[0] / (60 * 24)
-                dectime1 = id[1] + it[1] / 24 + imin[1] / (60 * 24)
-                res = int(np.round((dectime1 - dectime0) * (60 * 24)))
-                ind = 999
+                # met_old = np.genfromtxt(settings_dict['Metfile_path'][0], skip_header=1, skip_footer=2)
+                # met_id = met_old[:, 1]
+                # it = met_old[:, 2]
+                # imin = met_old[:, 3]
+                # dectime0 = met_id[0] + it[0] / 24 + imin[0] / (60 * 24)
+                # dectime1 = met_id[1] + it[1] / 24 + imin[1] / (60 * 24)
+                # res = int(np.round((dectime1 - dectime0) * (60 * 24)))
+                # ind = 999
 
-                YYYY = int32(np.min(met_old[:, 0]))
-                
-                # --- save met-file --- #
-                data_out = self.output_dir[0] + "/" + self.file_code + '_' + str(YYYY) + '_data_' + str(res) + '.txt'
-                header = '%iy id it imin Q* QH QE Qs Qf Wind RH Td press rain Kdn snow ldown fcld wuh xsmd lai_hr ' \
-                         'Kdiff Kdir Wd'
-                numformat = '%3d %2d %3d %2d %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.4f %6.2f %6.2f ' \
-                            '%6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.2f'
+                # YYYY = int32(np.min(met_old[:, 0]))
 
-                np.savetxt(data_out, met_old, fmt=numformat, delimiter=' ', header=header, comments='')
+                # start_date = ''
+                # end_date = ''
+                # # --- save met-file --- #
+                # data_out = self.output_dir[0] + "/" + self.file_code + '_' + str(YYYY) + '_data_' + str(res) + '.txt'
+                # header = '%iy id it imin Q* QH QE Qs Qf Wind RH Td press rain Kdn snow ldown fcld wuh xsmd lai_hr ' \
+                #          'Kdiff Kdir Wd'
+                # numformat = '%3d %2d %3d %2d %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.4f %6.2f %6.2f ' \
+                #             '%6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.2f'
 
+                # np.savetxt(data_out, met_old, fmt=numformat, delimiter=' ', header=header, comments='')
+
+                # Define the column names (you can adjust this to match the actual file)
+                column_names = [
+                    'iy', 'id', 'it', 'imin', 'qn', 'qh', 'qe', 'qs', 'qf', 'U', 'RH', 'Td', 'press', 'rain',
+                    'kdown', 'snow', 'ldown', 'fcld', 'wuh', 'xsmd', 'lai', 'kdiff', 'kdir', 'wdir'
+                ]
+
+                df = pd.read_csv(settings_dict['Metfile_path'][0], delim_whitespace=True, skiprows=1, names=column_names)
+
+                # 2. Construct datetime index from columns: iy (year), id (DOY), it (hour), imin (minute)
+                df['datetime'] = pd.to_datetime(df['iy'], format='%Y') + pd.to_timedelta(df['id'] - 1, unit='D') + \
+                                pd.to_timedelta(df['it'], unit='h') + pd.to_timedelta(df['imin'], unit='m')
+                df.set_index('datetime', inplace=True)
+
+                # 3. Compute time resolution in minutes
+                dectime0 = df['iy'].iloc[0] + df['it'].iloc[0] / 24 + df['imin'].iloc[0] / (60 * 24)
+                dectime1 = df['iy'].iloc[1] + df['it'].iloc[1] / 24 + df['imin'].iloc[1] / (60 * 24)
+                res = int(round((dectime1 - dectime0) * 60 * 24))
+
+                # Get start and end date
+                start_date = df.index[0].strftime('%Y-%m-%d')
+                end_date = df.index[-1].strftime('%Y-%m-%d')
+
+                # 4. Define output path
+                YYYY = int(df['iy'].min())
+                data_out = f'{self.output_dir[0]}/{self.file_code}_{YYYY}_data_{res}.txt'
+
+                # 5. Save the file using .to_csv (formatted like np.savetxt)
+                df_out = df[column_names]  # Preserve original order
+                header = 'iy id it imin Q* QH QE Qs Qf Wind RH Td press rain Kdn snow ldown fcld wuh xsmd lai_hr ' \
+                        'Kdiff Kdir Wd'
+
+                # Save with formatting
+                np.savetxt(data_out, df_out.to_numpy(), fmt='%3d %2d %3d %2d %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f '
+                            '%6.2f %6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.2f',
+                            delimiter=' ', header=header, comments='')
         else:
             QMessageBox.critical(None, "Error",
                                     "Could not find the file containing meteorological data")
             return
 
+        # ss_dict, siteselect_dict. Populate dict that will go to yaml
+        # this section is for all grids. 
+        ss_dict = {
+            'name': 'sample_config',
+            'description': 'this is a sample config for testing purposes ONLY - values are not realistic',
 
+            'model': {
+                'control': {
+                    'tstep': 300,
+                    'forcing_file': {'value': data_out},
+                    'output_file':  'output.txt',
+                    'diagnose': 0,
+                    'start_time': start_date,
+                    'end_time': end_date
+                },
+                'physics': {
+                    'netradiationmethod': {'value': 3}, #changed from 1 FL
+                    'emissionsmethod': {'value' : db_dict['AnthropogenicEmission'].loc[parameter_dict['AnthropogenicCode'],'Model']},
+                    'storageheatmethod': {'value': 1}, #Changed from 3 FL
+                    'ohmincqf': {'value': 0},
+                    'roughlenmommethod': {'value': 1}, # Values based on Kent et al. 2017
+                    'roughlenheatmethod': {'value': 2},
+                    'stabilitymethod': {'value': 3},
+                    'smdmethod': {'value': 0},
+                    'waterusemethod': {'value': 0},
+                    'diagmethod': {'value': 0},
+                    'faimethod': {'value': 0},
+                    'localclimatemethod': {'value': 0},
+                    'snowuse': {'value': 0},
+                    'stebbsmethod': {'value': 0},
+                    'gsmodel': {'value': cond_dict['gsModel']},
+                },
+            },
+            'sites' : []
+        }
+        
         # Loop Start for each Grid
         for feature in settings_dict['vlayer'].getFeatures():
-            # 
-            # NOT SURE WHAT THIS IS BELOW??
-            #  
-            # if self.killed is True:
-            #     break
-            # new_line = [None] * (len(self.nbr_header) - 3)
-            # print_line = True
-            # feat_id = int(feature.attribute(self.poly_field))
-            # code = "Grid"
-            # index = self.find_index(code)
-            # new_line[index] = str(feat_id)
-            # print('Processing ID: ' + str(feat_id))
-            # # if killed is True:
-            # #     break
-            # # new_line = [None] * (len(nbr_header) - 3)
-            # print_line = True
-            
+
             feat_id = int(feature.attribute(settings_dict['poly_field']))
     
             print('Processing ID: ' + str(feat_id) + ' for grid specific parameters')
-            
-            ss_dict[feat_id] = {}  # Set new key for grid in ss_dicts        
 
             old_cs = osr.SpatialReference()
             vlayer_ref = settings_dict['vlayer'].crs().toWkt()
@@ -1376,7 +1346,7 @@ class SUEWSPrepareDatabase(object):
             area = feature.geometry().area()
 
             if settings_dict['map_units'] == 0:
-                hectare = area * 0.0001 # meter
+                hectare = area # meter
 
             elif settings_dict['map_units'] == 1:
                 hectare = area / 107640. # square foot
@@ -1387,7 +1357,7 @@ class SUEWSPrepareDatabase(object):
             gdalver = float(gdal.__version__[0])
             lonlat = transform.TransformPoint(centroid.x(), centroid.y())
             
-            altitude = 0    # TODO Is this not set?
+            altitude = 1    # TODO Is this not set?
             day = 1         # 
             hour = 0        #
             minute = 0      # 
@@ -1401,14 +1371,7 @@ class SUEWSPrepareDatabase(object):
                 LCF_baresoil  = LCF_dict[feat_id]['Baresoil']
                 LCF_water     = LCF_dict[feat_id]['Water']
             
-            # else:
-            #     LCF_paved = feature.attribute(LCF_paved.getFieldName())
-            #     LCF_buildings = feature.attribute(LCF_buildings.getFieldName())
-            #     LCF_evergreen = feature.attribute(LCF_evergreen.getFieldName())
-            #     LCF_decidious = feature.attribute(LCF_decidious.getFieldName())
-            #     LCF_grass = feature.attribute(LCF_grass.getFieldName())
-            #     LCF_baresoil = feature.attribute(LCF_baresoil.getFieldName())
-            #     LCF_water = feature.attribute(LCF_water.getFieldName())    
+
             # 
             irrFr_EveTr = 0
             irrFr_DecTr = 0
@@ -1418,11 +1381,11 @@ class SUEWSPrepareDatabase(object):
             IrrFr_Water = 0
             IrrFr_BSoil = 0
 
-            TrafficRate_WD = 0.0135 ## Already in dict
-            TrafficRate_WE = 0.0095 ## Already in dict
+            # TrafficRate_WD = 0.0135 ## Already in dict
+            # TrafficRate_WE = 0.0095 ## Already in dict
 
-            QF0_BEU_WD = 0.88 ## Already in dict
-            QF0_BEU_WE = 0.88 ## Already in dict
+            # QF0_BEU_WD = 0.88 ## Already in dict
+            # QF0_BEU_WE = 0.88 ## Already in dict
            
             if settings_dict['IMP_from_file']:
                 IMP_heights_mean = IMP_dict[feat_id]['zH']
@@ -1432,12 +1395,6 @@ class SUEWSPrepareDatabase(object):
                 IMP_max = IMP_dict[feat_id]['zHmax']
                 IMP_sd = IMP_dict[feat_id]['zHstd']
                 IMP_wai = IMP_dict[feat_id]['wai']
-            # else:
-            #     IMP_heights_mean = feature.attribute(IMP_mean_height.getFieldName())
-            #     IMP_z0 = feature.attribute(IMP_z0.getFieldName())
-            #     IMP_zd = feature.attribute(IMP_zd.getFieldName())
-            #     IMP_fai = feature.attribute(IMP_fai.getFieldName())
-            #     IMP_wai = feature.attribute(IMP_wai.getFieldName())
 
             if settings_dict['IMPveg_from_file']:
                 IMPveg_heights_mean_eve = IMPveg_dict[feat_id]['zH']
@@ -1448,11 +1405,6 @@ class SUEWSPrepareDatabase(object):
                 IMPveg_sd_eve = IMPveg_dict[feat_id]['zHmax']  #TODO not used yet
                 IMPveg_max_dec = IMPveg_dict[feat_id]['zHstd']
                 IMPveg_sd_dec = IMPveg_dict[feat_id]['zHstd']
-            # else:
-            #     IMPveg_heights_mean_eve = feature.attribute(IMPveg_mean_height_eve.getFieldName())
-            #     IMPveg_heights_mean_dec = feature.attribute(IMPveg_mean_height_dec.getFieldName())
-            #     IMPveg_fai_eve = feature.attribute(IMPveg_fai_eve.getFieldName())
-            #     IMPveg_fai_dec = feature.attribute(IMPveg_fai_dec.getFieldName())
 
             # New calcualtion of rouhgness params v2017 (Kent et al. 2017b)
             # Evergreen not yet included in the calculations
@@ -1526,211 +1478,380 @@ class SUEWSPrepareDatabase(object):
             LUMPS_MaxRes = 10
             NARP_Trans = 1
 
-            flow_change = 0
+            # flow_change = 0
             RunoffToWater = 0.1
             PipeCap = 100
-            GridConn1of8 = 0
-            Fraction1of8 = 0
-            GridConn2of8 = 0
-            Fraction2of8 = 0
-            GridConn3of8 = 0
-            Fraction3of8 = 0
-            GridConn4of8 = 0
-            Fraction4of8 = 0
-            GridConn5of8 = 0
-            Fraction5of8 = 0
-            GridConn6of8 = 0
-            Fraction6of8 = 0
-            GridConn7of8 = 0
-            Fraction7of8 = 0
-            GridConn8of8 = 0
-            Fraction8of8 = 0
-
-            # WithinGrid not solved yet.
-            WhitinGridPav = 661
-            WhitinGridBldg = 662
-            WhitinGridEve = 663
-            WhitinGridDec = 664
-            WhitinGridGrass = 665
-            WhitinGridUnmanBsoil = 666
-            WhitinGridWaterCode = 667
-
-            # TODO Remove, for now, just keep to make SUEWS work
-            Fr_ESTMClass_Paved1 = 0.  ## Already in dict
-            Fr_ESTMClass_Paved2 = 1.  ## Already in dict
-            Fr_ESTMClass_Paved3 = 0.  ## Already in dict
-            Code_ESTMClass_Paved1 = 99999  ## Already in dict
-            Code_ESTMClass_Paved2 = 807  ## Already in dict
-            Code_ESTMClass_Paved3 = 99999  ## Already in dict
-            Fr_ESTMClass_Bldgs1 = 1.0  ## Already in dict
-            Fr_ESTMClass_Bldgs2 = 0.  ## Already in dict
-            Fr_ESTMClass_Bldgs3 = 0.  ## Already in dict
-            Fr_ESTMClass_Bldgs4 = 0.  ## Already in dict
-            Fr_ESTMClass_Bldgs5 = 0.  ## Already in dict
-            Code_ESTMClass_Bldgs1 = 801  ## Already in dict
-            Code_ESTMClass_Bldgs2 = 99999  ## Already in dict
-            Code_ESTMClass_Bldgs3 = 99999 ## Already in dict
-            Code_ESTMClass_Bldgs4 = 99999 ## Already in dict
-            Code_ESTMClass_Bldgs5 = 99999 ## Already in dict
-
-            ss_dict[feat_id] ={
-                # 
-                "Year" : year,
-                "StartDLS": settings_dict['start_DLS'],
-                "EndDLS" : settings_dict['end_DLS'],
-                # 'lat' : "set in code"
-                # 'lon' : set in code
-                "Timezone" : settings_dict['utc'],
-                "SurfaceArea" : hectare,
-                'Alt' :  altitude,
-                'id' : day,
-                'ih': hour,
-                "imin" : minute,
-                # Fractions
-                "Fr_Paved" : LCF_paved,
-                "Fr_Bldgs" : LCF_buildings,
-                "Fr_EveTr" : LCF_evergreen,
-                "Fr_DecTr" : LCF_decidious,
-                "Fr_Grass" : LCF_grass,
-                "Fr_Bsoil" : LCF_baresoil,
-                "Fr_Water" : LCF_water,
-                # Irrigation Fraction
-                "IrrFr_Paved" : IrrFr_Paved,
-                "IrrFr_Bldgs" : IrrFr_Bldgs,
-                "IrrFr_EveTr" : irrFr_EveTr,
-                "IrrFr_DecTr" : irrFr_DecTr,
-                "IrrFr_Grass" : irrFr_Grass,
-                "IrrFr_BSoil" : IrrFr_BSoil,
-                "IrrFr_Water" : IrrFr_Water,
-                # Anthropoghenic Emis
-                "QF0_BEU_WD" : QF0_BEU_WD,
-                "QF0_BEU_WE" : QF0_BEU_WE,
-                # Morphological params
-                "H_Bldgs" : IMP_heights_mean,
-                "H_EveTr" : IMPveg_heights_mean_eve,
-                "H_DecTr" : IMPveg_heights_mean_dec,
-                "z0" : '%.3f' % IMP_z0,
-                "zd" : '%.3f' % IMP_zd,
-                "z"  : '%.3f' % z,
-                "FAI_Bldgs" : IMP_fai,
-                "FAI_EveTr" : IMPveg_fai_eve,
-                "FAI_DecTr" : IMPveg_fai_dec,
-                "AreaWall" : (float(IMP_wai) * hectare * 10000.),
-                "CondCode" : parameter_dict['Conductance'],
-                "SnowCode" : snow_dict['Code'],
-                'TrafficRate_WD' : TrafficRate_WD, # TODO now HARDCODED
-                'TrafficRate_WE' : TrafficRate_WE, # TODO now HARDCODED
-                'SnowClearingProfWD' : settings_dict['SnowClearingProfWD'], 
-                'SnowClearingProfWE' : settings_dict['SnowClearingProfWE'], 
-                'AnthropogenicCode':  settings_dict['AnthropogenicCode'], 
-                'IrrigationCode':  parameter_dict['IrrigationCode'], 
-                'WaterUseProfManuWD': settings_dict['WaterUseProfManuWD'], 
-                'WaterUseProfManuWE': settings_dict['WaterUseProfManuWE'], 
-                'WaterUseProfAutoWD': settings_dict['WaterUseProfAutoWD'], 
-                'WaterUseProfAutoWE' : settings_dict['WaterUseProfAutoWE'], 
-                # Population
-                "PopDensDay" : '%.3f' % pop_density_day,
-                "PopDensNight" : '%.3f' % pop_density_night,
-                # Lumps Narp
-                "LUMPS_DrRate" : LUMPS_drate,
-                "LUMPS_Cover"  : LUMPS_Cover,
-                "LUMPS_MaxRes" : LUMPS_MaxRes,
-                "NARP_Trans" : NARP_Trans,
-                # Water Flow 
-                "FlowChange" : flow_change,
-                "RunoffToWater" : RunoffToWater,
-                "PipeCapacity" : PipeCap,
-                "GridConnection1of8" : GridConn1of8,
-                "GridConnection2of8" : GridConn2of8,
-                "GridConnection3of8" : GridConn3of8,
-                "GridConnection4of8" : GridConn4of8,
-                "GridConnection5of8" : GridConn5of8,
-                "GridConnection6of8" : GridConn6of8,
-                "GridConnection7of8" : GridConn7of8,
-                "GridConnection8of8" : GridConn8of8,
-                "Fraction1of8" : Fraction1of8,
-                "Fraction2of8" : Fraction2of8,
-                "Fraction3of8" : Fraction3of8,
-                "Fraction4of8" : Fraction4of8,
-                "Fraction5of8" : Fraction5of8,
-                "Fraction6of8" : Fraction6of8,
-                "Fraction7of8" : Fraction7of8,
-                "Fraction8of8" : Fraction8of8,
-                "WithinGridPavedCode" : WhitinGridPav,
-                "WithinGridBldgsCode" : WhitinGridBldg,
-                "WithinGridEveTrCode" : WhitinGridEve,
-                "WithinGridDecTrCode" : WhitinGridDec,
-                "WithinGridGrassCode" : WhitinGridGrass,
-                "WithinGridUnmanBSoilCode" : WhitinGridUnmanBsoil,
-                "WithinGridWaterCode" : WhitinGridWaterCode,
-
-                # ESTM OLD
-                "Fr_ESTMClass_Bldgs1": Fr_ESTMClass_Bldgs1,
-                "Fr_ESTMClass_Bldgs2": Fr_ESTMClass_Bldgs2,
-                "Fr_ESTMClass_Bldgs3": Fr_ESTMClass_Bldgs3,
-                "Fr_ESTMClass_Bldgs4": Fr_ESTMClass_Bldgs4,
-                "Fr_ESTMClass_Bldgs5": Fr_ESTMClass_Bldgs5,
-                "Fr_ESTMClass_Paved1": Fr_ESTMClass_Paved1,
-                "Fr_ESTMClass_Paved2": Fr_ESTMClass_Paved2,
-                "Fr_ESTMClass_Paved3": Fr_ESTMClass_Paved3,
-                "Code_ESTMClass_Bldgs1": Code_ESTMClass_Bldgs1,
-                "Code_ESTMClass_Bldgs2": Code_ESTMClass_Bldgs2,
-                "Code_ESTMClass_Bldgs3": Code_ESTMClass_Bldgs3,
-                "Code_ESTMClass_Bldgs4": Code_ESTMClass_Bldgs4,
-                "Code_ESTMClass_Bldgs5": Code_ESTMClass_Bldgs5,
-                "Code_ESTMClass_Paved1": Code_ESTMClass_Paved1,
-                "Code_ESTMClass_Paved2": Code_ESTMClass_Paved2,
-                "Code_ESTMClass_Paved3": Code_ESTMClass_Paved3,  
-            }
-               # Set Surface codes for each Grid in SiteSelect 
-            try:
-                ss_dict[feat_id]['Code_Paved'] = nonVeg_dict[feat_id]['Paved']['Code']
-                ss_dict[feat_id]['Code_Bldgs'] = nonVeg_dict[feat_id]['Buildings']['Code']
-                ss_dict[feat_id]['Code_Bsoil'] = nonVeg_dict[feat_id]['Bare Soil']['Code']
             
-                # if grid doesnt contain any typology, set to standard for region/country
-                # nonVeg_dict will not have information for grids without typloogy and raise error. Thus, Except statement
-            except:
-                ss_dict[feat_id]['Code_Paved'] = settings_dict['Paved']
-                ss_dict[feat_id]['Code_Bldgs'] = settings_dict['Buildings']
-                ss_dict[feat_id]['Code_Bsoil'] = settings_dict['Bare Soil']
+            # name-description + site/landcover
+            TrafficRate_WD = 0.0135 ## Already in dict
+            TrafficRate_WE = 0.0095 ## Already in dict
+            AnEm = fill_AnEm_yaml(db_dict, parameter_dict['AnthropogenicCode'], profiles_dict, parameter_dict, settings_dict['start_DLS'], settings_dict['end_DLS'], TrafficRate_WD, TrafficRate_WE, pop_density_night, pop_density_day, zenodo)
 
-            ss_dict[feat_id]['Code_EveTr'] = veg_dict['Evergreen Tree']['Code']
-            ss_dict[feat_id]['Code_DecTr'] = veg_dict['Deciduous Tree']['Code']
-            ss_dict[feat_id]['Code_Grass'] = veg_dict['Grass']['Code']
-            ss_dict[feat_id]['Code_Water'] = water_dict['Water']['Code']
+            # Lägg till grids i listan inom en loop
+            properties = {
+                'lat': {'value': round(float(lonlat[0]),3)},
+                'lng': {'value': round(float(lonlat[1]),3)}, 
+                'alt': {'value': altitude},
+                'timezone': {'value': settings_dict['utc']},
+                'surfacearea': {'value': round(hectare ,2)},
+                'z': {'value': float('%.3f' % z)},
+                'z0m_in': {'value': float('%.3f' % IMP_z0)},
+                'zdm_in': {'value': float('%.3f' % IMP_zd)},
+                'pipecapacity': {'value': PipeCap},
+                'runofftowater': {'value': RunoffToWater},
+                'narp_trans_site': {'value': NARP_Trans},
+                
+                'lumps': {
+                    'raincover': {'value': LUMPS_Cover},
+                    'rainmaxres': {'value': LUMPS_MaxRes},
+                    'drainrt': {'value': LUMPS_drate},
+                    'veg_type': {'value': 1}  # TODO WHAT?
+                    },
 
-            code = "lat"
-            if gdalver == 3.:
-                ss_dict[feat_id][code] =  '%.6f' % lonlat[0] #changed to gdal 3
-            else:
-                ss_dict[feat_id][code] =  '%.6f' % lonlat[1] #changed to gdal 3
+                'spartacus': { # At the moment, these variables are just standard. we dont know from where they come
+                        'air_ext_lw': {'value': 0.0},
+                        'air_ext_sw': {'value': 0.0},
+                        'air_ssa_lw': {'value': 0.5},
+                        'air_ssa_sw': {'value': 0.5},
+                        'ground_albedo_dir_mult_fact': {'value': 1.0},
+                        'n_stream_lw_urban': {'value': 2},
+                        'n_stream_sw_urban': {'value': 2},
+                        'n_vegetation_region_urban': {'value': 1},
+                        'sw_dn_direct_frac': {'value': 0.5},
+                        'use_sw_direct_albedo': {'value': 1.0},
+                        'veg_contact_fraction_const': {'value': 0.5},
+                        'veg_fsd_const': {'value': 0.5},
+                        'veg_ssa_lw': {'value': 0.5},
+                        'veg_ssa_sw': {'value': 0.5}
+                    },
 
-            code = "lng"
-            if gdalver == 3.:
-                ss_dict[feat_id][code] =  '%.6f' % lonlat[1] #changed to gdal 3
-            else:
-                ss_dict[feat_id][code] =  '%.6f' % lonlat[0] #changed to gdal 3
+                # TODO AS OF NOW, THIS IS JUST LEFT AS IT IS SINCE WE DONT KNOW ANYTHING ABOUT THESE PARAMETERS
+                'stebbs': {
+                    'WallInternalConvectionCoefficient': {'value': 0.0},
+                    'InternalMassConvectionCoefficient': {'value': 0.0},
+                    'FloorInternalConvectionCoefficient': {'value': 0.0},
+                    'WindowInternalConvectionCoefficient': {'value': 0.0},
+                    'WallExternalConvectionCoefficient': {'value': 0.0},
+                    'WindowExternalConvectionCoefficient': {'value': 0.0},
+                    'GroundDepth': {'value': 0.0},
+                    'ExternalGroundConductivity': {'value': 0.0},
+                    'IndoorAirDensity': {'value': 0.0},
+                    'IndoorAirCp': {'value': 0.0},
+                    'WallBuildingViewFactor': {'value': 0.0},
+                    'WallGroundViewFactor': {'value': 0.0},
+                    'WallSkyViewFactor': {'value': 0.0},
+                    'MetabolicRate': {'value': 0.0},
+                    'LatentSensibleRatio': {'value': 0.0},
+                    'ApplianceRating': {'value': 0.0},
+                    'TotalNumberofAppliances': {'value': 0},
+                    'ApplianceUsageFactor': {'value': 0.0},
+                    'HeatingSystemEfficiency': {'value': 0.0},
+                    'MaxCoolingPower': {'value': 0.0},
+                    'CoolingSystemCOP': {'value': 0.0},
+                    'VentilationRate': {'value': 0.0},
+                    'IndoorAirStartTemperature': {'value': 0.0},
+                    'IndoorMassStartTemperature': {'value': 0.0},
+                    'WallIndoorSurfaceTemperature': {'value': 0.0},
+                    'WallOutdoorSurfaceTemperature': {'value': 0.0},
+                    'WindowIndoorSurfaceTemperature': {'value': 0.0},
+                    'WindowOutdoorSurfaceTemperature': {'value': 0.0},
+                    'GroundFloorIndoorSurfaceTemperature': {'value': 0.0},
+                    'GroundFloorOutdoorSurfaceTemperature': {'value': 0.0},
+                    'WaterTankTemperature': {'value': 0.0},
+                    'InternalWallWaterTankTemperature': {'value': 0.0},
+                    'ExternalWallWaterTankTemperature': {'value': 0.0},
+                    'WaterTankWallThickness': {'value': 0.0},
+                    'MainsWaterTemperature': {'value': 0.0},
+                    'WaterTankSurfaceArea': {'value': 0.0},
+                    'HotWaterHeatingSetpointTemperature': {'value': 0.0},
+                    'HotWaterTankWallEmissivity': {'value': 0.0},
+                    'DomesticHotWaterTemperatureInUseInBuilding': {'value': 0.0},
+                    'InternalWallDHWVesselTemperature': {'value': 0.0},
+                    'ExternalWallDHWVesselTemperature': {'value': 0.0},
+                    'DHWVesselWallThickness': {'value': 0.0},
+                    'DHWWaterVolume': {'value': 0.0},
+                    'DHWSurfaceArea': {'value': 0.0},
+                    'DHWVesselEmissivity': {'value': 0.0},
+                    'HotWaterFlowRate': {'value': 0.0},
+                    'DHWDrainFlowRate': {'value': 0.0},
+                    'DHWSpecificHeatCapacity': {'value': 0.0},
+                    'HotWaterTankSpecificHeatCapacity': {'value': 0.0},
+                    'DHWVesselSpecificHeatCapacity': {'value': 0.0},
+                    'DHWDensity': {'value': 0.0},
+                    'HotWaterTankWallDensity': {'value': 0.0},
+                    'DHWVesselDensity': {'value': 0.0},
+                    'HotWaterTankBuildingWallViewFactor': {'value': 0.0},
+                    'HotWaterTankInternalMassViewFactor': {'value': 0.0},
+                    'HotWaterTankWallConductivity': {'value': 0.0},
+                    'HotWaterTankInternalWallConvectionCoefficient': {'value': 0.0},
+                    'HotWaterTankExternalWallConvectionCoefficient': {'value': 0.0},
+                    'DHWVesselWallConductivity': {'value': 0.0},
+                    'DHWVesselInternalWallConvectionCoefficient': {'value': 0.0},
+                    'DHWVesselExternalWallConvectionCoefficient': {'value': 0.0},
+                    'DHWVesselWallEmissivity': {'value': 0.0},
+                    'HotWaterHeatingEfficiency': {'value': 0.0},
+                    'MinimumVolumeOfDHWinUse': {'value': 0.0}
+                },
 
+                'building_archetype': {
+                    'BuildingType': 'SampleType',
+                    'BuildingName': 'SampleBuilding',
+                    'BuildingCount': {'value': 1},
+                    'Occupants': {'value': 1},
+                    'stebbs_Height': {'value': 10.0},
+                    'FootprintArea': {'value': 64.0},
+                    'WallExternalArea': {'value': 80.0},
+                    'RatioInternalVolume': {'value': 0.0},
+                    'WWR': {'value': 0.2},
+                    'WallThickness': {'value': 20.0},
+                    'WallEffectiveConductivity': {'value': 60.0},
+                    'WallDensity': {'value': 1600.0},
+                    'WallCp': {'value': 850.0},
+                    'Wallx1': {'value': 1.0},
+                    'WallExternalEmissivity': {'value': 0.9},
+                    'WallInternalEmissivity': {'value': 0.9},
+                    'WallTransmissivity': {'value': 0.0},
+                    'WallAbsorbtivity': {'value': 0.8},
+                    'WallReflectivity': {'value': 0.2},
+                    'FloorThickness': {'value': 0.2},
+                    'GroundFloorEffectiveConductivity': {'value': 0.15},
+                    'GroundFloorDensity': {'value': 500.0},
+                    'GroundFloorCp': {'value': 1500.0},
+                    'WindowThickness': {'value': 0.015},
+                    'WindowEffectiveConductivity': {'value': 1.0},
+                    'WindowDensity': {'value': 2500.0},
+                    'WindowCp': {'value': 840.0},
+                    'WindowExternalEmissivity': {'value': 0.9},
+                    'WindowInternalEmissivity': {'value': 0.9},
+                    'WindowTransmissivity': {'value': 0.9},
+                    'WindowAbsorbtivity': {'value': 0.01},
+                    'WindowReflectivity': {'value': 0.09},
+                    'InternalMassDensity': {'value': 0.0},
+                    'InternalMassCp': {'value': 0.0},
+                    'InternalMassEmissivity': {'value': 0.0},
+                    'MaxHeatingPower': {'value': 0.0},
+                    'WaterTankWaterVolume': {'value': 0.0},
+                    'MaximumHotWaterHeatingPower': {'value': 0.0},
+                    'HeatingSetpointTemperature': {'value': 15.0},
+                    'CoolingSetpointTemperature': {'value': 25.0}
+                    },
 
-        ss_txt_p = plugin_dir +'/Input/SUEWS_SiteSelect.txt' 
-        save_SiteSelect(ss_dict, save_txt_folder, ss_txt_p)
+                # Conductance
+                'conductance': {
+                    'g_max': {'value': cond_dict['G1']},
+                    'g_k': {'value': cond_dict['G2']},
+                    'g_q_base': {'value': cond_dict['G3']},
+                    'g_q_shape': {'value': cond_dict['G4']},
+                    'g_t': {'value': cond_dict['G5']},
+                    'g_sm': {'value': cond_dict['G6']},
+                    'kmax': {'value': cond_dict['Kmax']},
+                    # 'gsmodel': {'value': cond_dict['gsModel']}, # Moved to physics 20250626
+                    's1': {'value': cond_dict['S1']},
+                    's2': {'value': cond_dict['S2']},
+                    'tl': {'value': cond_dict['TL']},
+                    'th': {'value': cond_dict['TH']},
+                    'ref': {
+                        'desc': db_dict['Conductance'].loc[cond_dict['Code'], 'nameOrigin'],
+                        'ID': str(cond_dict['Code']),
+                        'DOI':  zenodo,
+                         }
+                    },
 
-        init_out = output_dir[0] + '/InitialConditions' + str(settings_dict['file_code']) + '_' + str(year) + '.nml'
-        self.write_to_init(plugin_dir + '/Input/' + 'InitialConditions.nml', init_out)
+                'irrigation': fill_irrigation_yaml(db_dict['Irrigation'].loc[parameter_dict['IrrigationCode']] , profiles_dict, zenodo),
+                
+                'anthropogenic_emissions' : AnEm,
+                
+                'snow' : snow_dict, #,fill_snow_yaml(db_dict['Snow'], snow_dict, profiles_dict, nonVeg_dict[feat_id], zenodo),
 
-        # Response to issue #462. Should change in future versions
-        copyfile(plugin_dir + '/Input/' + 'ESTMinput.nml', output_dir[0] + "/" + 'ESTMinput.nml')
+                'land_cover': {
+                    'paved': fill_nonveg_yaml(nonVeg_dict[feat_id], db_dict, 'Paved', LCF_paved, IrrFr_Paved, 0, 0, zenodo), # Paved has no mean height or FAI
+                    'bldgs': fill_nonveg_yaml(nonVeg_dict[feat_id], db_dict, 'Buildings', LCF_buildings, IrrFr_Bldgs, IMP_fai, IMP_heights_mean, zenodo),
+                    'evetr': fill_veg_yaml(veg_dict, db_dict, 'Evergreen Tree', LCF_evergreen, irrFr_EveTr, IMPveg_fai_eve, IMPveg_heights_mean_eve, parameter_dict['IrrigationCode'], zenodo),
+                    'dectr': fill_veg_yaml(veg_dict, db_dict, 'Deciduous Tree', LCF_decidious, irrFr_DecTr, IMPveg_fai_dec, IMPveg_heights_mean_dec,parameter_dict['IrrigationCode'], zenodo),
+                    'grass': fill_veg_yaml(veg_dict, db_dict, 'Grass', LCF_grass, irrFr_Grass, 0, 0, parameter_dict['IrrigationCode'], zenodo), # grass has no mean height or FAI
+                    'bsoil': fill_bare_soil_yaml(nonVeg_dict[feat_id]['Bare Soil'], db_dict, LCF_baresoil, IrrFr_BSoil, zenodo) ,
+                    'water': fill_water_yaml(water_dict, db_dict, LCF_water, IrrFr_Water, zenodo),
+                },  
+                'vertical_layers' : gridlayoutOut[feat_id]['vertical_layers'][0],
+                'n_buildings':{
+                    'value': gridlayoutOut[feat_id]['buildings_count']}, # buildings_count_dict[feat_id]
+                'h_std':
+                    {'value': IMP_sd},
+                'lambda_c' : 
+                    {'value' : round(float((gridlayoutOut[feat_id]['wallAreaGrid']) / (hectare * LCF_buildings)) + 1, 4)}
+            }
 
-        # This file (GridLayout[file_code].nml) must exist to initiate supy
-        copyfile(plugin_dir + '/Input/' + 'GridLayout.nml', save_txt_folder + "/" + 'GridLayout' + settings_dict['file_code'] + '.nml')
+            initial_states = {
+                'snowalb': {'value': 0.3},
 
-        copyfile(plugin_dir + '/Input/' + 'SUEWS_SPARTACUS.nml', output_dir[0] + "/" + 'SUEWS_SPARTACUS.nml')
-        # TODO Fix withinGridWaterDist
-        copyfile(plugin_dir + '/Input/' + 'SUEWS_WithinGridWaterDist.txt', output_dir[0] + "/" + 'SUEWS_WithinGridWaterDist.txt')
-        copyfile(plugin_dir + '/Input/' + 'SUEWS_ESTMCoefficients.txt', output_dir[0] + "/" + 'SUEWS_ESTMCoefficients.txt')
+                'paved': {
+                'state': {'value': 0.0},
+                'soilstore': {'value': 10},
+                'snowfrac': {'value': 0.0},
+                'snowpack': {'value': 0.0},
+                'icefrac': {'value': 0.0},
+                'snowwater': {'value': 0.0},
+                'snowdens': {'value': 0.0},
+                'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
+                'tsfc': {'value': 15.0},
+                'tin': {'value': 20.0}
+                },
+
+                'bldgs': {
+                'state': {'value': 0.0},
+                'soilstore': {'value': 10},
+                'snowfrac': {'value': 0.0},
+                'snowpack': {'value': 0.0},
+                'icefrac': {'value': 0.0},
+                'snowwater': {'value': 0.0},
+                'snowdens': {'value': 0.0},
+                'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
+                'tsfc': {'value': 15.0},
+                'tin': {'value': 20.0}
+                },
+
+                'evetr': {
+                'state': {'value': 0.0},
+                'soilstore': {'value': 10},
+                'snowfrac': {'value': 0.0},
+                'snowpack': {'value': 0.0},
+                'icefrac': {'value': 0.0},
+                'snowwater': {'value': 0.0},
+                'snowdens': {'value': 0.0},
+                'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
+                'tsfc': {'value': 15.0},
+                'tin': {'value': 20.0},
+                'alb_id': {'value': leaf_cycle_dict[leaf_cycle]['albEveTr0']},
+                'lai_id': {'value': leaf_cycle_dict[leaf_cycle]['laiinitialevetr']},
+                'gdd_id': {'value': leaf_cycle_dict[leaf_cycle]['gdd_1_0']},
+                'sdd_id': {'value': leaf_cycle_dict[leaf_cycle]['gdd_2_0']},
+                'wu': {
+                    'wu_total': {'value': 0.0},
+                    'wu_auto': {'value': 0.0},
+                    'wu_manual': {'value': 0.0}
+                }
+                },
+
+                'dectr': {
+                'state': {'value': 0.0},
+                'soilstore': {'value': 10},
+                'snowfrac': {'value': 0.0},
+                'snowpack': {'value': 0.0},
+                'icefrac': {'value': 0.0},
+                'snowwater': {'value': 0.0},
+                'snowdens': {'value': 0.0},
+                'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
+                'tsfc': {'value': 15.0},
+                'tin': {'value': 20.0},
+                'alb_id': {'value': leaf_cycle_dict[leaf_cycle]['albDecTr0']},
+                'lai_id': {'value': leaf_cycle_dict[leaf_cycle]['laiinitialdectr']},
+                'gdd_id': {'value': leaf_cycle_dict[leaf_cycle]['gdd_1_0']},
+                'sdd_id': {'value': leaf_cycle_dict[leaf_cycle]['gdd_2_0']},
+                'wu': {
+                    'wu_total': {'value': 0.0},
+                    'wu_auto': {'value': 0.0},
+                    'wu_manual': {'value': 0.0}
+                },
+                'porosity_id': {'value': leaf_cycle_dict[leaf_cycle]['porosity0']},
+                'decidcap_id': {'value': leaf_cycle_dict[leaf_cycle]['decidCap0']}
+                },
+
+                'grass': {
+                'state': {'value': 0.0},
+                'soilstore': {'value': 10},
+                'snowfrac': {'value': 0.0},
+                'snowpack': {'value': 0.0},
+                'icefrac': {'value': 0.0},
+                'snowwater': {'value': 0.0},
+                'snowdens': {'value': 0.0},
+                'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
+                'tsfc': {'value': 15.0},
+                'tin': {'value': 20.0},
+                'alb_id': {'value': leaf_cycle_dict[leaf_cycle]['albGrass0']},
+                'lai_id': {'value': leaf_cycle_dict[leaf_cycle]['laiinitialgrass']},
+                'gdd_id': {'value': leaf_cycle_dict[leaf_cycle]['gdd_1_0']},
+                'sdd_id': {'value': leaf_cycle_dict[leaf_cycle]['gdd_2_0']},
+                'wu': {
+                    'wu_total': {'value': 0.0},
+                    'wu_auto': {'value': 0.0},
+                    'wu_manual': {'value': 0.0}
+                },
+                },
+
+                'bsoil': {
+                'state': {'value': 0.0},
+                'soilstore': {'value': 10},
+                'snowfrac': {'value': 0.0},
+                'snowpack': {'value': 0.0},
+                'icefrac': {'value': 0.0},
+                'snowwater': {'value': 0.0},
+                'snowdens': {'value': 0.0},
+                'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
+                'tsfc': {'value': 15.0},
+                'tin': {'value': 20.0}
+                },
+
+                'water': {
+                'state': {'value': 20000.0},
+                'soilstore': {'value': 10},
+                'snowfrac': {'value': 0.0},
+                'snowpack': {'value': 0.0},
+                'icefrac': {'value': 0.0},
+                'snowwater': {'value': 0.0},
+                'snowdens': {'value': 0.0},
+                'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
+                'tsfc': {'value': 15.0},
+                'tin': {'value': 20.0}
+                },
+
+                'roofs': [{
+                    'state': {'value': 0.0},
+                    'soilstore': {'value': 10},
+                    'snowfrac': {'value': 0.0},
+                    'snowpack': {'value': 0.0},
+                    'icefrac': {'value': 0.0},
+                    'snowwater': {'value': 0.0},
+                    'snowdens': {'value': 0.0},
+                    'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
+                    'tsfc': {'value': 15.0},
+                    'tin': {'value': 20.0}
+                    }] * gridlayoutOut[feat_id]['nlayer'],
+                'walls': [{
+                    'state': {'value': 0.0},
+                    'soilstore': {'value': 10},
+                    'snowfrac': {'value': 0.0},
+                    'snowpack': {'value': 0.0},
+                    'icefrac': {'value': 0.0},
+                    'snowwater': {'value': 0.0},
+                    'snowdens': {'value': 0.0},
+                    'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
+                    'tsfc': {'value': 15.0},
+                    'tin': {'value': 20.0}
+                    }] * gridlayoutOut[feat_id]['nlayer']
+            }
         
-        # If Spartacus dict is not empty, give user a warning. 
+            grid = {
+                'name':  f'grid no: {str(feat_id)}',
+                'gridiv':  feat_id,
+                'properties': copy.deepcopy(properties),
+                'initial_states' : copy.deepcopy(initial_states)
+            }
+            
+            grid = check_fraction_consistency(grid)
+            
+            ss_dict['sites'].append(grid)
+            
+        # Convert values in the nested dictionary
+        ss_dict_native = convert_numpy_types(ss_dict)
+
+        # Spara dictionary till en .yml-fil
+        
+        with open(save_txt_folder + settings_dict['file_code'] + '.yml', 'w') as file:
+            yaml.dump(ss_dict_native, file, sort_keys = False)
+
+        # SUEWSConfig(**ss_dict_native)
+
+        # # If Spartacus dict is not empty, give user a warning. 
         if  spartacus_error_dict:
             error_string = ''
             for keys in list(spartacus_error_dict.keys()):
