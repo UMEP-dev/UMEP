@@ -20,7 +20,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>SOLWEIG</string>
+   <string>SOLWEIG: v2022a (SOLWEIG v2025a available in UMEP for Processing)</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_12">
    <item row="0" column="2" colspan="2">

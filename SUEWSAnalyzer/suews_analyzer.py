@@ -285,7 +285,6 @@ class SUEWSAnalyzer(object):
             self.YYYY = -99
             self.gridcodemetID = -99
 
-            
             for item in list(sorted(list(params_dict.keys()))):
                 for cbox in [self.dlg.comboBox_POIVariable, self.dlg.comboBox_POIVariable_2,self.dlg.comboBox_SpatialVariable]:
                     item_desc = item + f' ({params_dict[item]['description']})'
@@ -326,7 +325,6 @@ class SUEWSAnalyzer(object):
             self.dlg.comboBox_POIDOYMax.addItems(doy_list)
 
 
-
     def changeYearSP(self):
         self.dlg.comboBox_SpatialDOYMin.clear()
         self.dlg.comboBox_SpatialDOYMax.clear()
@@ -349,10 +347,10 @@ class SUEWSAnalyzer(object):
             self.dlg.comboBox_SpatialDOYMax.addItems(doy_list)
 
 
-
     def geotiff_save(self):
         self.outputfile = self.fileDialog.getSaveFileName(None, "Save File As:", None, "GeoTIFF (*.tif)")
         self.dlg.textOutput.setText(self.outputfile[0])
+
 
     def get_unit(self):
         uni = self.lineunit[self.id]
@@ -384,6 +382,7 @@ class SUEWSAnalyzer(object):
             self.unit = '$Minute$'
         elif uni == 'day':
             self.unit = '$Decimal Time$'
+
 
     def spatial(self):
         # self.iface.messageBar().pushMessage("SUEWS Analyzer", "Generating statistics grid", duration=5)
@@ -500,10 +499,6 @@ class SUEWSAnalyzer(object):
 
         if self.dlg.addResultToGeotiff.isChecked():
             extent = vlayer.extent()
-            # xmax = extent.xMaximum()
-            # xmin = extent.xMinimum()
-            # ymax = extent.yMaximum()
-            # ymin = extent.yMinimum()
 
             if self.dlg.checkBoxIrregular.isChecked():
                 resx = self.dlg.doubleSpinBoxRes.value()
@@ -518,8 +513,6 @@ class SUEWSAnalyzer(object):
                     QMessageBox.critical(self.dlg, "Error", "Polygons not squared in current CRS")
                     return
 
-            # polyname = self.dlg.comboBox_Polygrid.currentText()
-            # polyname = self.layerComboManagerPolygrid.currentText()
             if self.dlg.textOutput.text() == 'Not Specified':
                 QMessageBox.critical(self.dlg, "Error", "No output filename for GeoTIFF is added")
                 return
@@ -651,7 +644,6 @@ class SUEWSAnalyzer(object):
                 QMessageBox.critical(self.dlg, "Error", "No plot variable is selected")
                 return
 
-
             if not self.dlg.checkboxPOIAnother.isChecked():
                 # One variable
 
@@ -734,19 +726,9 @@ class SUEWSAnalyzer(object):
             plt.show()
         else:
             
-            TimeCol_plot = np.array([1, 2, 3, 4]) - 1
-            SumCol_plot = np.array([14]) - 1
-            LastCol_plot = np.array([16]) - 1
             timeaggregation = int(self.resout)
 
-            # met_new = su.tofivemin_v1(np.array(self.met_data))
-            # suews_plottimeold = su.from5mintoanytime(met_new, SumCol_plot, LastCol_plot, TimeCol_plot, timeaggregation)
-
             df_met_data = resample_dataframe(self.met_data, timeaggregation, interpolate_method='linear')
-
-            # dataplotbasic = np.genfromtxt(self.fileoutputpath + '/'  + self.varpoi1 + '_' + str(self.YYYY) + '_SUEWS_' +
-            #               str(self.resout) + '.txt', skip_header=1, missing_values='**********', filling_values=-9999)
-            # dataplotbasic = np.loadtxt(self.fileoutputpath + '/' + self.fileCode + self.gridcodemet + '_' + str(self.YYYY) + '_' + str(self.resout) + '.txt', skiprows=1)
             df_dataplotbasic = SUEWS_txt_to_df(self.fileoutputpath + '/'  + self.varpoi1 + '_' + str(self.YYYY) + '_SUEWS_' + str(self.resout) + '.txt')
                                                   
             pl.plotbasic(df_dataplotbasic, df_met_data)
@@ -759,15 +741,10 @@ class SUEWSAnalyzer(object):
     def rasterize(self, src, dst, attribute, resolution, crs, extent, all_touch=False, na=-9999):
 
         # Open shapefile, retrieve the layer
-        # print(src)
         src_data = ogr.Open(src)
         layer = src_data.GetLayer()
 
         # Use transform to derive coordinates and dimensions
-        # xmin = extent[0]
-        # ymin = extent[1]
-        # xmax = extent[2]
-        # ymax = extent[3]
         xmax = extent.xMaximum()
         xmin = extent.xMinimum()
         ymax = extent.yMaximum()
@@ -775,7 +752,6 @@ class SUEWSAnalyzer(object):
 
         # Create the target raster layer
         cols = int((xmax - xmin)/resolution)
-        # rows = int((ymax - ymin)/resolution) + 1
         rows = int((ymax - ymin)/resolution)  # issue 164
         trgt = gdal.GetDriverByName("GTiff").Create(dst, cols, rows, 1, gdal.GDT_Float32)
         trgt.SetGeoTransform((xmin, resolution, 0, ymax, 0, -resolution))

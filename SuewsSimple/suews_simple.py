@@ -189,44 +189,7 @@ class SuewsSimple(object):
             return
 
         self.supylib = sys.modules["supy"].__path__[0]
-        print(self.supylib)
-        # modelver = 'SUEWS_V2018c'
-        # if not (os.path.isfile(self.model_dir + os.sep + modelver) or os.path.isfile(self.model_dir + os.sep + modelver + '.exe')):
-        #     if QMessageBox.question(self.iface.mainWindow(), "OS specific binaries missing",
-        #                          "Before you start to use this plugin for the very first time, the OS specific suews\r\n"
-        #                          "program (1Mb) must be be download from the UMEP repository and stored\r\n"
-        #                          "in your plugin directory: "
-        #                          "(" + self.model_dir + ").\r\n"
-        #                                                 "\r\n"
-        #                          "Join the email-list for updates and other information:\r\n"
-        #                          "http://www.lists.rdg.ac.uk/mailman/listinfo/met-umep.\r\n"
-        #                                                 "\r\n"
-        #                          "UMEP on the web:\r\n"
-        #                          "http://www.urban-climate.net/umep/\r\n"
-        #                                                 "\r\n"
-        #                                                 "\r\n"
-        #                          "Do you want to contiune with the download?", QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
-        #         if sys.platform == 'win32':
-        #             urllib.request.urlretrieve('https://zenodo.org/record/2574410/files/SUEWS_2018c_win64.zip?download=1', self.model_dir + os.sep + 'temp.zip')
-        #             zipped = zipfile.ZipFile(self.model_dir + os.sep + 'temp.zip')
-        #             zipped.extract(modelver + '.exe', self.model_dir)
-        #             # urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695894_suews_v2018a.exe', self.model_dir + os.sep + 'SUEWS_V2018a.exe')
-        #         if sys.platform == 'linux2':
-        #             urllib.request.urlretrieve('https://zenodo.org/record/2574410/files/SUEWS_2018c_Linux.zip?download=1', self.model_dir + os.sep + 'temp.zip')
-        #             zipped = zipfile.ZipFile(self.model_dir + os.sep + 'temp.zip')
-        #             zipped.extract(modelver, self.model_dir)
-        #             # urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695887_suews_v2018a', self.model_dir + os.sep + 'SUEWS_V2018a')
-        #         if sys.platform == 'darwin':
-        #             urllib.request.urlretrieve('https://zenodo.org/record/2574410/files/SUEWS_2018c_macOS.zip?download=1', self.model_dir + os.sep + 'temp.zip')
-        #             zipped = zipfile.ZipFile(self.model_dir + os.sep + 'temp.zip')
-        #             zipped.extract(modelver, self.model_dir)
-        #             # urllib.request.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695886_suews_v2018a', self.model_dir + os.sep + 'SUEWS_V2018a')
-        #         zipped.close()
-        #         os.remove(self.model_dir + os.sep + 'temp.zip')
-        #     else:
-        #         QMessageBox.critical(self.iface.mainWindow(), "Binaries not downloaded", "This plugin will not be able to start before binaries are downloaded")
-        #         return
-
+      
         self.dlg.show()
         self.dlg.exec_()
 
@@ -234,19 +197,11 @@ class SuewsSimple(object):
         QMessageBox.information(None, "Plugin moved",
             "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information."
             " After variables are generated, fetch file to change settings in this panel.")
-        #sg = ImageMorphParmsPoint(self.iface)
-        #self.dlg.setEnabled(False)
-        #sg.run()
-        #self.dlg.setEnabled(True)
 
     def LCFP(self):
         QMessageBox.information(None, "Plugin moved",
             "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information."
             " After variables are generated, fetch file to change settings in this panel.")
-        # sg = LandCoverFractionPoint(self.iface)
-        # self.dlg.setEnabled(False)
-        # sg.run()
-        # self.dlg.setEnabled(True)
 
     def folder_path(self):
         self.fileDialogOut.open()
@@ -383,14 +338,8 @@ class SuewsSimple(object):
         self.dlg.Height.setText(str(yaml_dict['sites'][0]['properties']['z']['value']))
         self.dlg.comboBoxLeafCycle.setCurrentIndex(1)
 
-        #nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
-        # nml = f90nml.read(self.supylib + '/sample_run/RunControl.nml')
-    
-        # self.dlg.FileCode.setText(str(yaml['runcontrol']['FileCode']))
-
         self.dlg.UTC.setText('0')
 
-        #self.dlg.textInputMetdata.setText(self.model_dir + '/BaseFiles/Kc_2012_data_60.txt')
         self.dlg.textInputMetdata.setText(self.supylib + '/sample_run/Input/Kc_2012_data_60.txt') #response to issue #655 
         self.dlg.textOutput.setText(self.model_dir  + '/Output/')
         self.dlg.spinBoxSoilMoisture.setValue(100)
@@ -405,7 +354,6 @@ class SuewsSimple(object):
             pass
             self.iface.messageBar().pushMessage("Unable to import Matplotlib module. Plots will not be produced",
                                                 "Visit UMEP webpage for installation instructions.", level=Qgis.Warning)
-
         # Checking consistency between fractions
         if np.abs(float(self.dlg.pai_build.text()) - float(self.dlg.lineEdit_paiBuild.text())) > 0.05:
             QMessageBox.critical(self.dlg, "Non-consistency Error", "A relatively large difference in "
@@ -415,17 +363,6 @@ class SuewsSimple(object):
             QMessageBox.critical(self.dlg, "Non-consistency Error", "A relatively large difference in "
                 "tree fraction between the Vegetation DSM and the landcover grid was found: " + str(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - float(self.dlg.lineEdit_paiveg.text())))
             return
-
-        # # Copy basefiles from sample_run
-        # basefiles = ['ESTMinput.nml', 'SUEWS_AnthropogenicEmission.txt', 'SUEWS_BiogenCO2.txt', 'SUEWS_Conductance.txt', 'SUEWS_ESTMCoefficients.txt', 'SUEWS_Irrigation.txt', 
-        # 'SUEWS_NonVeg.txt', 'SUEWS_OHMCoefficients.txt', 'SUEWS_Profiles.txt', 'SUEWS_Snow.txt', 'SUEWS_Soil.txt', 'SUEWS_Water.txt', 'SUEWS_Veg.txt', 
-        # 'SUEWS_WithinGridWaterDist.txt', 'SUEWS_SPARTACUS.nml'] # Last moved down, 'GridLayoutKc.nml']
-        # for i in range(0, basefiles.__len__()):
-        #     try:
-        #         shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.model_dir + '/Input/' + basefiles[i])
-        #     except:
-        #         os.remove(self.model_dir + '/Input/' + basefiles[i])
-        #         shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.model_dir + '/Input/' + basefiles[i]) 
 
         #Response to issue #617
         try:
@@ -454,14 +391,6 @@ class SuewsSimple(object):
         filecode = self.dlg.FileCode.text()
         utc = self.dlg.UTC.text()
         z = self.dlg.Height.text()
-
-        # #Response to issue #618
-        # gridlayoutfile = self.model_dir + '/Input/GridLayout' + str(filecode) + '.nml'
-        # try:
-        #     shutil.copy(self.supylib + '/sample_run/Input/GridLayoutKc.nml', gridlayoutfile)
-        # except:
-        #     os.remove(self.supylib + '/sample_run/Input/GridLayoutKc.nml')
-        #     shutil.copy(self.supylib + '/sample_run/Input/GridLayoutKc.nml', gridlayoutfile) 
 
         # Checking LC fractions = 1
         LCtest = float(pai_paved) + float(pai_build) + float(pai_evergreen) + float(pai_decid) + float(pai_grass) + float(pai_baresoil) + float(pai_water)
@@ -497,14 +426,6 @@ class SuewsSimple(object):
                 pai_baresoil = arr[index]
             if index == 6:
                 pai_water = arr[index]
-
-        # Create new SiteSelect
-        #f = open(self.model_dir + '/BaseFiles/SUEWS_SiteSelect.txt', 'r')
-        # f = open(self.supylib + '/sample_run/Input/SUEWS_SiteSelect.txt', 'r')
-        # lin = f.readlines()
-        # index = 2
-        # lines = np.array(lin[index].split())
-        # newdata = lines
 
         with open(self.supylib + '/sample_run/sample_config.yml', 'r') as f:
             yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
@@ -556,30 +477,11 @@ class SuewsSimple(object):
         if (faiBuild == -999.0 or faiveg == -999.0):
             yaml_dict['model']['physics']['roughlenmommethod'] = 3
 
-        # # write to newSiteSelect.txt
-        # f2 = open(self.model_dir + '/Input/SUEWS_SiteSelect.txt', 'w')
-        # f2.write(lin[0])
-        # f2.write(lin[1])
-        # for l in range(0, 1):
-        #     for i in range(0, newdata.__len__()):
-        #         f2.write(str(newdata[i]))
-        #         # f2.write('\t')
-        #         f2.write(' ')
-        #     f2.write('\n')
-        # f2.write(lin[2 + 1])
-        # f2.write(lin[3 + 1])
-        # f.close()
-        # f2.close()
-
         # Plots or not
         if self.dlg.checkBoxPlots.isChecked():
             plot = 1
         else:
             plot = 0
-        # if self.dlg.checkBoxPlotForcing.isChecked():
-        #     plotforcing = 1
-        # else:
-        #     plotforcing = 0
 
         plotnml = f90nml.read(self.model_dir + '/plot.nml')
         plotnml['plot']['plotbasic'] = plot
@@ -592,7 +494,6 @@ class SuewsSimple(object):
 
         resolutionfilesin =  get_resolution_from_umep_forcing(inmetfile)
 
-        print(1)
         runmetfile = self.model_dir + '/Input/' + str(filecode) + '_' + self.dlg.lineEdit_YYYY.text() + '_data_' + str(int(resolutionfilesin / 60)) + '.txt'
         
         try:
@@ -636,36 +537,19 @@ class SuewsSimple(object):
         yaml_dict['sites'][0]['initial_states'][surf]['gdd_id']['value'] = initial_states['gdd_1_0']
         yaml_dict['sites'][0]['initial_states'][surf]['sdd_id']['value'] = initial_states['gdd_2_0']
 
-
-        # nml['runcontrol']['fileCode'] = str(filecode)
         yaml_dict['model']['control']['output_file'] = outfolder
-        # nml['runcontrol']['FileInputPath'] = self.model_dir + '/Input/'
-
+        
         # This doesnt do anything as no switch in SUEWS-simple allows for snow-use
         # yaml_dict['model']['physics']['snowuse']['value'] = 0
 
         with open(self.model_dir + f'/Input/{filecode}_suews_simple.yml', 'w') as file:
             yaml.dump(yaml_dict, file, sort_keys = False)
-        # nml.write(self.model_dir + '/RunControl.nml', force=True)
-
-        print(2)
-
+       
         # TODO Set moisture       
         # for surf in ['paved', 'bldgs', 'evetr', 'dectr', 'grass','bsoil','water']:
         #      yaml_dict['sites'][0]['initial_states'][surf][f'']
 
-        
-
-        #initfilein = self.model_dir + '/BaseFiles/InitialConditionsKc_2012.nml'
-        # initfilein = self.supylib + '/sample_run/Input/InitialConditionsKc_2011.nml'
-        # initfileout = self.model_dir + '/Input/InitialConditions' + str(filecode) + '_' + str(YYYY) + '.nml'
-        # self.write_to_init(initfilein, initfileout)
-
-        # self.dlg.progressBar.setMinimum(0)
-        # self.dlg.progressBar.setMaximum(0)
-        # self.dlg.progressBar.setValue(0)
-
-        # TODO: Put suews in a worker or a QgsTask. Task is working but no correct message when model is finished.
+                # TODO: Put suews in a worker or a QgsTask. Task is working but no correct message when model is finished.
         # self.startWorker(self.iface, self.model_dir, self.dlg)
 
         # print('testTask')
@@ -691,23 +575,28 @@ class SuewsSimple(object):
             
             self.dlg.activateWindow()
             # suews_wrapper.wrapper(self.model_dir, self.iface, year=YYYY)
-            suews_wrapper.wrapper(self.model_dir, plot, filecode)
+            # suews_wrapper.wrapper(self.model_dir, plot, filecode)
 
-            # try:
-            #     suews_wrapper.wrapper(self.model_dir, plot, filecode)
-            #     self.iface.messageBar().pushMessage("Model run successful", "Model run finished", level=Qgis.Success)
-            # except Exception as e:
-            #     QMessageBox.critical(self.dlg, "An error occurred", str(e) + "\r\n\r\n"
-            #                     "Check also: " + str(list(Path.cwd().glob('SuPy.log'))[0]) + "\r\n\r\n"
-            #                     "Please report any errors to https://github.com/UMEP-dev/UMEP/issues")
-                # return
+            try:
+                suews_wrapper.wrapper(self.model_dir, plot, filecode)
+                self.iface.messageBar().pushMessage("Model run successful", "Model run finished", level=Qgis.Success)
+            except Exception as e:
+                QMessageBox.critical(self.dlg, "An error occurred", str(e) + "\r\n\r\n"
+                                "Check also: " + str(list(Path.cwd().glob('SuPy.log'))[0]) + "\r\n\r\n"
+                                "Please report any errors to https://github.com/UMEP-dev/UMEP/issues")
+                return
 
         else:
             QMessageBox.critical(self.iface.mainWindow(), "Model termination", "Model calculation cancelled")
             return
 
-        # shutil.copy(self.model_dir + '/RunControl.nml', outfolder + '/RunControl.nml')
+        
+    def help(self):
+        url = 'http://umep-docs.readthedocs.io/en/latest/processor/Urban%20Energy%20Balance%20Urban%20Energy%20' \
+              'Balance%20(SUEWS,%20simple).html'
+        webbrowser.open_new_tab(url)
 
+        
     # def write_to_init(self, initfilein, initfileout):
     #     LeafCycle = self.dlg.comboBoxLeafCycle.currentIndex()
     #     SoilMoisture = self.dlg.spinBoxSoilMoisture.value()
@@ -819,93 +708,4 @@ class SuewsSimple(object):
 
     #     nml.write(initfileout, force=True)
 
-    def help(self):
-        url = 'http://umep-docs.readthedocs.io/en/latest/processor/Urban%20Energy%20Balance%20Urban%20Energy%20' \
-              'Balance%20(SUEWS,%20simple).html'
-        webbrowser.open_new_tab(url)
 
-
-    # def write_site_select(self, numoflines, newdata, f):
-    #     # f = open(self.model_dir + '/BaseFiles/SUEWS_SiteSelect.txt', 'r')
-    #     lin = f.readlines()
-    #     print(lin)
-    #     f2 = open(self.model_dir + '/Input/SUEWS_SiteSelect.txt', 'w')
-    #
-    #     # write to file
-    #     f2.write(lin[0])
-    #     f2.write(lin[1])
-    #     for l in range(0, numoflines):
-    #         for i in range(0, newdata.__len__()):
-    #             f2.write(str(newdata[i]))
-    #             f2.write('\t')
-    #         f2.write('\n')
-    #     f2.write(lin[2 + numoflines])
-    #     f2.write(lin[3 + numoflines])
-    #     # f.close()
-    #     f2.close()
-
-    # def startWorker(self, iface, model_dir, dlg):
-    #
-    #     worker = Worker(iface, model_dir, dlg)
-    #
-    #     self.dlg.runButton.setText('Cancel')
-    #     self.dlg.runButton.clicked.disconnect()
-    #     self.dlg.runButton.clicked.connect(worker.kill)
-    #     self.dlg.closeButton.setEnabled(False)
-    #
-    #     thread = QThread(self.dlg)
-    #     worker.moveToThread(thread)
-    #     worker.finished.connect(self.workerFinished)
-    #     worker.error.connect(self.workerError)
-    #     # worker.progress.connect(self.progress_update)
-    #     thread.started.connect(worker.run)
-    #     thread.start()
-    #     self.thread = thread
-    #     self.worker = worker
-    #
-    # def workerFinished(self, ret):
-    #     try:
-    #         self.worker.deleteLater()
-    #     except RuntimeError:
-    #          pass
-    #     self.thread.quit()
-    #     self.thread.wait()
-    #     self.thread.deleteLater()
-    #
-    #     self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.plugin_dir + " for "
-    #                         "additional information about the run", level=Qgis.Info)
-    #
-    #     if ret is not None:
-    #         self.suewsout = ret
-    #         self.dlg.runButton.setText('Run')
-    #         self.dlg.runButton.clicked.disconnect()
-    #         self.dlg.runButton.clicked.connect(self.start_progress)
-    #         self.dlg.closeButton.setEnabled(True)
-    #         # self.dlg.progressBar.setValue(0)
-    #         QMessageBox.information(None, "Suews Simple",
-    #                                 "Process finished! Check General Messages (speech bubble, lower left) "
-    #                                 "to obtain information of the process.")
-    #         self.test = 1
-    #
-    #         # if self.dlg.checkBoxPlots.isChecked():
-    #         #     spp.plotbasic(self.suewsout, self.test)
-    #
-    #     else:
-    #         self.test = 0
-    #         self.dlg.runButton.setText('Run')
-    #         self.dlg.runButton.clicked.disconnect()
-    #         self.dlg.runButton.clicked.connect(self.start_progress)
-    #         self.dlg.closeButton.setEnabled(True)
-    #         # self.dlg.progressBar.setValue(0)
-    #         QMessageBox.information(self.iface.mainWindow(), "Suews Simple", "Operations cancelled, process unsuccessful!")
-    #
-    #     self.ret = ret
-    #
-    # def workerError(self, errorstring):  #exception_string
-    #     QgsMessageLog.logMessage(errorstring, level=Qgis.Critical)
-    #     # strerror = "Worker thread raised an exception: " + str(e)
-    #     # QgsMessageLog.logMessage(strerror.format(exception_string), level=Qgis.Critical)
-    #
-    #     # f = open(self.model_dir + '/problems.txt')
-    #     # lines = f.readlines()
-    #     # QMessageBox.critical(self.iface.mainWindow(), "Model run unsuccessful", str(lines))

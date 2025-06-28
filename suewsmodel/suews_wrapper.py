@@ -77,8 +77,8 @@ def wrapper(pathtoplugin, plotornot, filecode):
 
         suews_out = fileoutputpath + str(gridcode) + '_' + str(YYYY) + '_SUEWS_' + str(60) + '.txt'
         
-        df_output_suews = su.SUEWS_txt_to_df(suews_out)
-        df_met_forcing = su.SUEWS_met_txt_to_df(met_data_file)
+        df_output_suews = suewsdataprocessing.SUEWS_txt_to_df(suews_out)
+        df_met_forcing = suewsdataprocessing.SUEWS_met_txt_to_df(met_data_file)
        
         if plotbasic == 1:
             pl.plotbasic(df_output_suews, df_met_forcing)
