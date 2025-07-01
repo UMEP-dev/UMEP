@@ -229,10 +229,10 @@ def ss_calc_gridlayout(build_array, wall_array, typoList, typo_array, gridlayout
                     tW = wallhh[np.where(typo_array == tt)]
                     dictTypofrac[hh][tt]['wallSum'] = tW.sum()
                     totWallAreaTypo += tW.sum()
-
         
         # Calculate fractions
         typ_frac_heights_dict = calculate_fractions(dictTypofrac, gridlayoutOut[id]['height']) 
+
 
         typology_ss_dict = {}
         for typology in list(grid_dict.keys()):#typoList[1:]:
@@ -268,7 +268,7 @@ def ss_calc_gridlayout(build_array, wall_array, typoList, typo_array, gridlayout
         # Aggregation based on the provided steps
         for surface in ['roof','wall']:
             ss_list = []
-            for vlayer in [1]:
+            for vlayer in range(gridlayoutOut[id]['nlayer']):
                 dz_list = []
                 rho_list = []
                 cp_list = []
@@ -282,7 +282,9 @@ def ss_calc_gridlayout(build_array, wall_array, typoList, typo_array, gridlayout
                     k_wall = [typology_ss_dict[typology][surface]['thermal_layers']['value']['k']['value'][hlayer] for typology in typology_ss_dict]
                     alb_wall = [typology_ss_dict[typology][surface]['albedo'] for typology in typology_ss_dict]
                     emis_wall =[typology_ss_dict[typology][surface]['emissivity'] for typology in typology_ss_dict]
-
+                    
+                    weights = [typ_frac_heights_dict[vlayer][typology][f'{surface}Fraction'] for typology in typology_ss_dict]
+                    
                     # Aggregate thickness on weighted average
 
                     # Filter out the nan values and corresponding weights
@@ -360,7 +362,7 @@ def ss_calc_gridlayout(build_array, wall_array, typoList, typo_array, gridlayout
                     }
                 ss_list.append(layer)
             vertical_layers[surface+'s'] = ss_list
-    
+            
     # TODO Add reference texts
 
     else:

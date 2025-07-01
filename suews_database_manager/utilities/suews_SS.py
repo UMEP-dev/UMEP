@@ -72,7 +72,6 @@ def setup_SUEWS_SS_creator(self, dlg, db_dict, db_path):
                         )
 
                 mat_boxes.setText(material_sel['Material Type'].item())
-                print(material_sel['Material Type'].item())
                 # activate frames of following layer.
                 if idx <5:
                     frame_plus = getattr(dlg,f'frame_{rw}{str(idx+1)}')
@@ -114,9 +113,8 @@ def setup_SUEWS_SS_creator(self, dlg, db_dict, db_path):
                 return
 
         spartacus_dict = {}
-        # Roof ##########################
 
-        # roof and wall comboboxes
+        # roof (r) and wall (w) comboboxes
         r1_mat = dlg.comboBox_r1.currentText()
         r2_mat = dlg.comboBox_r2.currentText()
         r3_mat = dlg.comboBox_r3.currentText()
@@ -195,7 +193,7 @@ def setup_SUEWS_SS_creator(self, dlg, db_dict, db_path):
      
         new_edit = DataFrame([spartacus_dict]).set_index('ID')
         db_dict['Spartacus Surface'] = concat([db_dict['Spartacus Surface'], new_edit])
-        db_dict = save_to_db(db_path, db_dict)
+        save_to_db(db_path, db_dict)
 
         QMessageBox.information(None, 'Succesful', f'New edit {spartacus_dict['Name']}, {spartacus_dict['Origin']} added to your local database')
         fill_cboxes()
@@ -213,7 +211,6 @@ def setup_SUEWS_SS_creator(self, dlg, db_dict, db_path):
             mat_list = list(db_dict['Spartacus Material']['nameOrigin'])
             mat_list.sort()
             mat_list.insert(0,'None')
-
 
             # Set insulation layer
             insulation_roof = spartacus_sel['rInsulation']
@@ -234,8 +231,7 @@ def setup_SUEWS_SS_creator(self, dlg, db_dict, db_path):
                         mat_table.loc[mat_idx, 'nameOrigin']
                         cbox_index = mat_list.index(material)
                         cbox.setCurrentIndex(cbox.findText(material))
-
-                        
+             
                         thickness = spartacus_sel.loc[:,(roofwall + str(layer) + 'Thickness')].item()
                         lineEdit.setText(str(thickness))
                                            
@@ -250,15 +246,6 @@ def setup_SUEWS_SS_creator(self, dlg, db_dict, db_path):
             except:
                 dlg.comboBoxRef.setCurrentIndex(-1) 
 
-
-            # wInsulation = spartacus_sel['wInsulation'].item()
-            # w_insulation = eval('dlg.radioButton_w' + str(wInsulation))
-            # w_insulation.setChecked(True)s
-
-            # rInsulation = spartacus_sel['rInsulation'].item()
-            # r_insulation = eval('dlg.radioButton_r' + str(rInsulation))
-            # r_insulation.setChecked(True)
-
         else:
             pass
 
@@ -267,7 +254,6 @@ def setup_SUEWS_SS_creator(self, dlg, db_dict, db_path):
             fill_cboxes()
 
     dlg.comboBoxRef.currentIndexChanged.connect(lambda: ref_changed(dlg, db_dict))    
-    dlg.pushButtonGen.clicked.connect(new_edit)
     dlg.comboBoxBase.currentIndexChanged.connect(base_surface_changed)
     dlg.comboBox_r1.currentIndexChanged.connect(lambda: print_table(dlg,1,'r'))
     dlg.comboBox_r2.currentIndexChanged.connect(lambda: print_table(dlg,2,'r'))
@@ -279,9 +265,5 @@ def setup_SUEWS_SS_creator(self, dlg, db_dict, db_path):
     dlg.comboBox_w3.currentIndexChanged.connect(lambda: print_table(dlg,3,'w'))
     dlg.comboBox_w4.currentIndexChanged.connect(lambda: print_table(dlg,4,'w'))
     dlg.comboBox_w5.currentIndexChanged.connect(lambda: print_table(dlg,5,'w'))
-    # self.dlg.tabWidget.tabBarClicked.connect(fill_cboxes)
+    dlg.pushButtonGen.clicked.connect(new_edit)
     self.dlg.tabWidget.currentChanged.connect(tab_update)
-    
-    # dlg.comboBoxSurface.currentIndexChanged.connect(surface_changed)
-    # dlg.comboBoxBaseESTM.currentIndexChanged.connect(base_ETSM_changed)
-    # dlg.pushButtonToRefManager.clicked.connect(self.to_ref)

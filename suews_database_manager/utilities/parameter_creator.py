@@ -19,6 +19,8 @@ def setup_parameter_creator(self, dlg, db_dict, db_path):
         dlg.comboBoxRef.setCurrentIndex(-1)
         dlg.comboBoxBase.clear()
 
+        dlg.comboBoxSurface.setCurrentIndex(-1)
+
         dlg.comboBoxTableSelect.clear()
         dlg.comboBoxTableSelect.addItems(sorted(param_info_dict.keys()))
         dlg.comboBoxTableSelect.setCurrentIndex(-1)
