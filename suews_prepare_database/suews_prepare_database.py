@@ -54,12 +54,12 @@ import os
 import yaml
 
 from osgeo import gdal, osr
-from .Utilities import f90nml
+#from .Utilities import f90nml
 from .Utilities import RoughnessCalcFunction as rg
 from .Utilities.misc import saveraster
 # from .Utilities import wallalgorithms as wa
 from .Utilities.db_functions import * 
-from .Utilities.def_config_suews import *
+#from .Utilities.def_config_suews import *
 
 from .Utilities.ssParms import getVertheights, ss_calc_gridlayout
 from .Utilities.umep_suewsss_export_component import writeGridLayout
@@ -1868,114 +1868,114 @@ class SUEWSPrepareDatabase(object):
 
         self.dlg.progressBar.setValue(0)
 
-    def write_to_init(self, initfilein, initfileout):
-        LeafCycle = self.leaf_cycle
-        SoilMoisture = self.soil_moisture
-        moist = int(SoilMoisture * 1.5)
-        snowinitially = 0
+    # def write_to_init(self, initfilein, initfileout):
+    #     LeafCycle = self.leaf_cycle
+    #     SoilMoisture = self.soil_moisture
+    #     moist = int(SoilMoisture * 1.5)
+    #     snowinitially = 0
 
-        nml = f90nml.read(initfilein)
+    #     nml = f90nml.read(initfilein)
 
-        nml['initialconditions']['soilstorepavedstate'] = moist
-        nml['initialconditions']['soilstorebldgsstate'] = moist
-        nml['initialconditions']['soilstoreevetrstate'] = moist
-        nml['initialconditions']['soilstoredectrstate'] = moist
-        nml['initialconditions']['soilstoregrassstate'] = moist
-        nml['initialconditions']['soilstorebsoilstate'] = moist
+    #     nml['initialconditions']['soilstorepavedstate'] = moist
+    #     nml['initialconditions']['soilstorebldgsstate'] = moist
+    #     nml['initialconditions']['soilstoreevetrstate'] = moist
+    #     nml['initialconditions']['soilstoredectrstate'] = moist
+    #     nml['initialconditions']['soilstoregrassstate'] = moist
+    #     nml['initialconditions']['soilstorebsoilstate'] = moist
 
-        # Based on London data
-        if LeafCycle == 1:  # Winter
-            nml['initialconditions']['gdd_1_0'] = 0
-            nml['initialconditions']['gdd_2_0'] = -450
-            nml['initialconditions']['laiinitialevetr'] = 4
-            nml['initialconditions']['laiinitialdectr'] = 1
-            nml['initialconditions']['laiinitialgrass'] = 1.6
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.3
-            nml['initialconditions']['porosity0'] = 0.2
-        elif LeafCycle == 2:
-            nml['initialconditions']['gdd_1_0'] = 50
-            nml['initialconditions']['gdd_2_0'] = -400
-            nml['initialconditions']['laiinitialevetr'] = 4.2
-            nml['initialconditions']['laiinitialdectr'] = 2.0
-            nml['initialconditions']['laiinitialgrass'] = 2.6
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.4
-            nml['initialconditions']['porosity0'] = 0.3
-        elif LeafCycle == 3:
-            nml['initialconditions']['gdd_1_0'] = 150
-            nml['initialconditions']['gdd_2_0'] = -300
-            nml['initialconditions']['laiinitialevetr'] = 4.6
-            nml['initialconditions']['laiinitialdectr'] = 3.0
-            nml['initialconditions']['laiinitialgrass'] = 3.6
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.6
-            nml['initialconditions']['porosity0'] = 0.5
-        elif LeafCycle == 4:
-            nml['initialconditions']['gdd_1_0'] = 225
-            nml['initialconditions']['gdd_2_0'] = -150
-            nml['initialconditions']['laiinitialevetr'] = 4.9
-            nml['initialconditions']['laiinitialdectr'] = 4.5
-            nml['initialconditions']['laiinitialgrass'] = 4.6
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.8
-            nml['initialconditions']['porosity0'] = 0.6
-        elif LeafCycle == 5:  # Summer
-            nml['initialconditions']['gdd_1_0'] = 300
-            nml['initialconditions']['gdd_2_0'] = 0
-            nml['initialconditions']['laiinitialevetr'] = 5.1
-            nml['initialconditions']['laiinitialdectr'] = 5.5
-            nml['initialconditions']['laiinitialgrass'] = 5.9
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.8
-            nml['initialconditions']['porosity0'] = 0.6
-        elif LeafCycle == 6:
-            nml['initialconditions']['gdd_1_0'] = 225
-            nml['initialconditions']['gdd_2_0'] = -150
-            nml['initialconditions']['laiinitialevetr'] = 4.9
-            nml['initialconditions']['laiinitialdectr'] = 4, 5
-            nml['initialconditions']['laiinitialgrass'] = 4.6
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.8
-            nml['initialconditions']['porosity0'] = 0.5
-        elif LeafCycle == 7:
-            nml['initialconditions']['gdd_1_0'] = 150
-            nml['initialconditions']['gdd_2_0'] = -300
-            nml['initialconditions']['laiinitialevetr'] = 4.6
-            nml['initialconditions']['laiinitialdectr'] = 3.0
-            nml['initialconditions']['laiinitialgrass'] = 3.6
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.5
-            nml['initialconditions']['porosity0'] = 0.4
-        elif LeafCycle == 8:  # Late Autumn
-            nml['initialconditions']['gdd_1_0'] = 50
-            nml['initialconditions']['gdd_2_0'] = -400
-            nml['initialconditions']['laiinitialevetr'] = 4.2
-            nml['initialconditions']['laiinitialdectr'] = 2.0
-            nml['initialconditions']['laiinitialgrass'] = 2.6
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.4
-            nml['initialconditions']['porosity0'] = 0.2
+    #     # Based on London data
+    #     if LeafCycle == 1:  # Winter
+    #         nml['initialconditions']['gdd_1_0'] = 0
+    #         nml['initialconditions']['gdd_2_0'] = -450
+    #         nml['initialconditions']['laiinitialevetr'] = 4
+    #         nml['initialconditions']['laiinitialdectr'] = 1
+    #         nml['initialconditions']['laiinitialgrass'] = 1.6
+    #         nml['initialconditions']['albEveTr0'] = 0.10
+    #         nml['initialconditions']['albDecTr0'] = 0.12
+    #         nml['initialconditions']['albGrass0'] = 0.18
+    #         nml['initialconditions']['decidCap0'] = 0.3
+    #         nml['initialconditions']['porosity0'] = 0.2
+    #     elif LeafCycle == 2:
+    #         nml['initialconditions']['gdd_1_0'] = 50
+    #         nml['initialconditions']['gdd_2_0'] = -400
+    #         nml['initialconditions']['laiinitialevetr'] = 4.2
+    #         nml['initialconditions']['laiinitialdectr'] = 2.0
+    #         nml['initialconditions']['laiinitialgrass'] = 2.6
+    #         nml['initialconditions']['albEveTr0'] = 0.10
+    #         nml['initialconditions']['albDecTr0'] = 0.12
+    #         nml['initialconditions']['albGrass0'] = 0.18
+    #         nml['initialconditions']['decidCap0'] = 0.4
+    #         nml['initialconditions']['porosity0'] = 0.3
+    #     elif LeafCycle == 3:
+    #         nml['initialconditions']['gdd_1_0'] = 150
+    #         nml['initialconditions']['gdd_2_0'] = -300
+    #         nml['initialconditions']['laiinitialevetr'] = 4.6
+    #         nml['initialconditions']['laiinitialdectr'] = 3.0
+    #         nml['initialconditions']['laiinitialgrass'] = 3.6
+    #         nml['initialconditions']['albEveTr0'] = 0.10
+    #         nml['initialconditions']['albDecTr0'] = 0.12
+    #         nml['initialconditions']['albGrass0'] = 0.18
+    #         nml['initialconditions']['decidCap0'] = 0.6
+    #         nml['initialconditions']['porosity0'] = 0.5
+    #     elif LeafCycle == 4:
+    #         nml['initialconditions']['gdd_1_0'] = 225
+    #         nml['initialconditions']['gdd_2_0'] = -150
+    #         nml['initialconditions']['laiinitialevetr'] = 4.9
+    #         nml['initialconditions']['laiinitialdectr'] = 4.5
+    #         nml['initialconditions']['laiinitialgrass'] = 4.6
+    #         nml['initialconditions']['albEveTr0'] = 0.10
+    #         nml['initialconditions']['albDecTr0'] = 0.12
+    #         nml['initialconditions']['albGrass0'] = 0.18
+    #         nml['initialconditions']['decidCap0'] = 0.8
+    #         nml['initialconditions']['porosity0'] = 0.6
+    #     elif LeafCycle == 5:  # Summer
+    #         nml['initialconditions']['gdd_1_0'] = 300
+    #         nml['initialconditions']['gdd_2_0'] = 0
+    #         nml['initialconditions']['laiinitialevetr'] = 5.1
+    #         nml['initialconditions']['laiinitialdectr'] = 5.5
+    #         nml['initialconditions']['laiinitialgrass'] = 5.9
+    #         nml['initialconditions']['albEveTr0'] = 0.10
+    #         nml['initialconditions']['albDecTr0'] = 0.12
+    #         nml['initialconditions']['albGrass0'] = 0.18
+    #         nml['initialconditions']['decidCap0'] = 0.8
+    #         nml['initialconditions']['porosity0'] = 0.6
+    #     elif LeafCycle == 6:
+    #         nml['initialconditions']['gdd_1_0'] = 225
+    #         nml['initialconditions']['gdd_2_0'] = -150
+    #         nml['initialconditions']['laiinitialevetr'] = 4.9
+    #         nml['initialconditions']['laiinitialdectr'] = 4, 5
+    #         nml['initialconditions']['laiinitialgrass'] = 4.6
+    #         nml['initialconditions']['albEveTr0'] = 0.10
+    #         nml['initialconditions']['albDecTr0'] = 0.12
+    #         nml['initialconditions']['albGrass0'] = 0.18
+    #         nml['initialconditions']['decidCap0'] = 0.8
+    #         nml['initialconditions']['porosity0'] = 0.5
+    #     elif LeafCycle == 7:
+    #         nml['initialconditions']['gdd_1_0'] = 150
+    #         nml['initialconditions']['gdd_2_0'] = -300
+    #         nml['initialconditions']['laiinitialevetr'] = 4.6
+    #         nml['initialconditions']['laiinitialdectr'] = 3.0
+    #         nml['initialconditions']['laiinitialgrass'] = 3.6
+    #         nml['initialconditions']['albEveTr0'] = 0.10
+    #         nml['initialconditions']['albDecTr0'] = 0.12
+    #         nml['initialconditions']['albGrass0'] = 0.18
+    #         nml['initialconditions']['decidCap0'] = 0.5
+    #         nml['initialconditions']['porosity0'] = 0.4
+    #     elif LeafCycle == 8:  # Late Autumn
+    #         nml['initialconditions']['gdd_1_0'] = 50
+    #         nml['initialconditions']['gdd_2_0'] = -400
+    #         nml['initialconditions']['laiinitialevetr'] = 4.2
+    #         nml['initialconditions']['laiinitialdectr'] = 2.0
+    #         nml['initialconditions']['laiinitialgrass'] = 2.6
+    #         nml['initialconditions']['albEveTr0'] = 0.10
+    #         nml['initialconditions']['albDecTr0'] = 0.12
+    #         nml['initialconditions']['albGrass0'] = 0.18
+    #         nml['initialconditions']['decidCap0'] = 0.4
+    #         nml['initialconditions']['porosity0'] = 0.2
 
-        nml['initialconditions']['snowinitially'] = snowinitially
+    #     nml['initialconditions']['snowinitially'] = snowinitially
 
-        nml.write(initfileout, force=True)
+    #     nml.write(initfileout, force=True)
 
 
     def progress_update(self):
