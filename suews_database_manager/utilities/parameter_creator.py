@@ -114,14 +114,17 @@ def setup_parameter_creator(self, dlg, db_dict, db_path):
 
 
     def base_parameter_changed():
-
+        surface_sel = dlg.comboBoxSurface.currentText()
         dlg.comboBoxRef.setCurrentIndex(-1)
         base_str = dlg.comboBoxBase.currentText()
         if base_str != '': 
             table_name = dlg.comboBoxTableSelect.currentText()
-            
-            base_parameter = db_dict[table_name].loc[db_dict[table_name]['nameOrigin'] == base_str]
-                        
+
+            if table_name in ('Conductance','Soil'):
+                base_parameter = db_dict[table_name].loc[db_dict[table_name]['nameOrigin'] == base_str]                       
+            else:
+                base_parameter = db_dict[table_name][db_dict[table_name]['Surface'] == surface_sel].loc[db_dict[table_name]['nameOrigin'] == base_str]                        
+    
             params = list(param_info_dict[table_name]['param'].keys())
 
             try:
