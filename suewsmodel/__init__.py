@@ -18,6 +18,7 @@ try:
     import supy as sp
     from supy import __version__ as ver_supy
     QgsMessageLog.logMessage("UMEP - SuPy Version installed: " + ver_supy, level=Qgis.Info)
+    import pydantic
 except:
     if QMessageBox.question(None, "UMEP dependencies not installed",
               "Do you automatically want install missing python modules? \r\n"
