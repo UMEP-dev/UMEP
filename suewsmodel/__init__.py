@@ -34,7 +34,7 @@ except:
             )
 
         try:
-            setup_supy(ver='2025.6.2.dev0')
+            setup_supy(ver='2025.7.9.dev0')
             QMessageBox.information(None, "Packages successfully installed",
                                     "To make all parts of the plugin work it is recommended to restart your QGIS-session.")
         except Exception as e:

@@ -31,22 +31,18 @@ def wrapper(pathtoplugin, plotornot, filecode):
     # SuPy initialisation
     yaml_path = Path(pathtoplugin + f'/Input/{filecode}_suews_simple.yml')
 
-    with open(yaml_path, 'r') as f:
-        yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
-
     config = sp.data_model.init_config_from_yaml(yaml_path)
     df_state_init = config.to_df_state()
                 
     df_forcing = sp.load_forcing_grid(yaml_path, 1, df_state_init=df_state_init)
        
-    df_output, df_state_final = sp.run_supy(df_forcing,
-                                            df_state_init)
+    df_output, df_state_final = sp.run_supy(df_forcing, df_state_init)
 
     # use SuPy function to save results
-    sp.save_supy(
-        df_output,
-        df_state_final,
-        path_dir_save = yaml_dict['model']['control']['output_file'])
+    with open(yaml_path, 'r') as f:
+        yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
+
+    sp.save_supy(df_output, df_state_final, path_dir_save = yaml_dict['model']['control']['output_file'])
 
     # --- plot results --- #
     if plotornot == 1:

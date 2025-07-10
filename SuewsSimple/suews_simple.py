@@ -562,7 +562,7 @@ class SuewsSimple(object):
         # longtask = SuewsTask('SUEWS model', self.model_dir)
         # QgsApplication.taskManager().addTask(longtask)
         # print('testafter')
-        # suews_wrapper.wrapper(self.model_dir, self.iface, year=YYYY)
+        #suews_wrapper.wrapper(self.model_dir, self.iface, year=YYYY)
         if QMessageBox.question(self.iface.mainWindow(), "Model information", "Model run will now start. "
                                                             "QGIS might freeze during calculation."
                                                             "\r\n"
@@ -575,7 +575,7 @@ class SuewsSimple(object):
             
             self.dlg.activateWindow()
             # suews_wrapper.wrapper(self.model_dir, self.iface, year=YYYY)
-            # suews_wrapper.wrapper(self.model_dir, plot, filecode)
+            #suews_wrapper.wrapper(self.model_dir, plot, filecode)
 
             try:
                 suews_wrapper.wrapper(self.model_dir, plot, filecode)
