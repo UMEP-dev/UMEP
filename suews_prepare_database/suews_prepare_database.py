@@ -52,6 +52,7 @@ import numpy as np
 import pandas as pd
 import os
 import yaml
+import sys
 
 from osgeo import gdal, osr
 #from .Utilities import f90nml
@@ -203,8 +204,8 @@ class SUEWSPrepareDatabase(object):
 
     def run(self):
 
-        settings_dict = {}
-
+        self.supylib = sys.modules["supy"].__path__[0] #TODO Fix so that this path works! 
+        
         # Declare instance attributes
         self.dlg = SUEWSPrepareDatabaseDialog()
         self.actions = []
@@ -348,7 +349,6 @@ class SUEWSPrepareDatabase(object):
         self.dlg.spinBoxLayers.valueChanged.connect(lambda: self.layersSS_changed(self.dlg.spinBoxLayers.value()))
         self.dlg.SS_checkBox_skew.stateChanged.connect(lambda: self.SS_skew())
         
-
         # New for traffic linedata
         self.dlg.layerComboManagerTraffic.setCurrentIndex(-1)
         self.dlg.layerComboManagerTraffic.setFilters(QgsMapLayerProxyModel.LineLayer)
@@ -795,6 +795,8 @@ class SUEWSPrepareDatabase(object):
 
         os.mkdir(temp_folder)
 
+
+
         ss_dict = {}                 # SiteSelect Dict. This is the final dict where all parameters for each grid are found. 
         veg_dict = {}                # dict for populating and sorting Veg parameter
         nonVeg_dict = {}             # dict for populating and sorting NonVeg parameter
@@ -1052,8 +1054,8 @@ class SUEWSPrepareDatabase(object):
                 vertHeightsIn = settings_dict['vertheights']
                 if settings_dict['heightMethod'] == 1: # static levels (taken from interface). Last value > max height
                     if ssVect['z'].max() <= max(vertHeightsIn):
-                        error_output = {id : f'zMax ({str(ssVect['z'].max())}) is lower than max fixed height  {str(max(vertHeightsIn))}.'}
-                        print('error in ID: ', str(id), f'. zMax is lower than max fixed height {str(max(vertHeightsIn))}.')
+                        error_output = {id : f"zMax ({str(ssVect['z'].max())}) is lower than max fixed height  {str(max(vertHeightsIn))}."} #issue 773
+                        print('error in ID: ', str(id), f". zMax is lower than max fixed height {str(max(vertHeightsIn))}.")
                         QMessageBox.critical(None, "Error in Vertical Morphology Spartcus (opt 1)", 'error in ID: ' + str(id) + '. zMax (' + str(ssVect['z'].max()) + 
                                      ') lower than max fixed height ' + str(max(vertHeightsIn)) + '. Use other method or reduce fixed layer height.')
                         self.dlg.progressBar.setValue(index)
@@ -1062,8 +1064,8 @@ class SUEWSPrepareDatabase(object):
                 elif settings_dict['heightMethod'] == 2: # always nlayers layer based on percentiles
                     nlayerOut = settings_dict['nlayers']
                     if ssVect['z'].max() <= nlayerOut:
-                        error_output = {id : f'zMax ({str(ssVect['z'].max())}) is to low to use {str(nlayerOut)} vertical layers.'}
-                        print('error in ID: ', str(id), f'. zMax is to low to use {str(nlayerOut)} vertical layers.')
+                        error_output = {id : f"zMax ({str(ssVect['z'].max())}) is to low to use {str(nlayerOut)} vertical layers."} #issue 773
+                        print('error in ID: ', str(id), f". zMax is to low to use {str(nlayerOut)} vertical layers.")
                         QMessageBox.critical(None, "Error in Vertical Morphology Spartcus (opt 2)", 'error in ID: ' + str(id) + '. zMax (' + str(ssVect['z'].max()) + 
                                      ') is to low when using ' + str(nlayerOut) + ' vertical layers. Use other method or reduce number of vertical layers.')
                         self.dlg.progressBar.setValue(index)
@@ -1141,7 +1143,39 @@ class SUEWSPrepareDatabase(object):
                 gridlayoutOut[id]['wallAreaGrid'] = wall_array.sum() * pixelSize
                 gridlayoutOut[id]['buildings_count'] = buildings_count
 
-                typoList = np.unique(typo_array) 
+                typoList = np.unique(typo_array)
+
+            else:
+
+                #Access grid geometry
+                prov = settings_dict['vlayer'].dataProvider()
+                fields = prov.fields()
+                attributes = f.attributes()
+                geometry = f.geometry()
+                feature = QgsFeature()
+                feature.setAttributes(attributes)
+                feature.setGeometry(geometry)
+                writer = QgsVectorFileWriter(dir_poly, "CP1250", fields, prov.wkbType(), prov.crs(), "ESRI shapefile")
+                writer.addFeature(feature)
+                del writer
+
+                # clip dem
+                clip_spec = gdal.WarpOptions(format="GTiff", cutlineDSName=dir_poly, cropToCutline=True)
+                gdal.Warp(temp_folder + '/clipdem.tif', dem, options=clip_spec)
+                dataset = gdal.Open(temp_folder + '/clipdem.tif')
+                dem_clip_array = dataset.ReadAsArray().astype(float)
+                dataset = None
+
+                # clip dsm
+                clip_spec = gdal.WarpOptions(format="GTiff", cutlineDSName=dir_poly, cropToCutline=True)
+                gdal.Warp(temp_folder + '/clipdsm.tif', dsm, options=clip_spec)
+                dataset = gdal.Open(temp_folder + '/clipdsm.tif')
+                dsm_clip_array = dataset.ReadAsArray().astype(float)        
+                dataset = None
+
+                buildings_count = count_buildings(dsm_clip_array, dem_clip_array) 
+                gridlayoutOut[id]['buildings_count'] = buildings_count
+
 
             # Make a list to count if thera are more than one typology in grid. Test in the if statement below
             typology_list = list(grid_dict[id].keys())
@@ -1164,8 +1198,10 @@ class SUEWSPrepareDatabase(object):
                 
             nonVeg_dict[id]['Bare Soil'] = fill_SUEWS_NonVeg_typologies(db_dict, parameter_dict, settings_dict['Bare Soil'], zenodo, 'Bare Soil')
             gridlayoutOut[id]['vertical_layers'] = {}
-            gridlayoutOut[id]['vertical_layers'] = ss_calc_gridlayout(build_array, wall_array, typoList, typo_array,  gridlayoutOut, id, db_dict, zenodo, settings_dict['ss_dir'], pre, grid_dict[id]),
-        
+            
+            if settings_dict['spartacus'] == 1:
+                gridlayoutOut[id]['vertical_layers'] = ss_calc_gridlayout(build_array, wall_array, typoList, typo_array,  gridlayoutOut, id, db_dict, zenodo, settings_dict['ss_dir'], pre, grid_dict[id]),
+
         # write to SUEWS_NonVeg
            
         # Write SUEWS.txt files SUEWS_veg, SUEWS_AnthropogenicEmission, SUEWS_Water and SUEWS_Conductance
@@ -1189,135 +1225,171 @@ class SUEWSPrepareDatabase(object):
         #                                               Writing SiteSelect.txt  (now, yaml)     
         # ################################################################################################################################
 
-        ind = 1
-        year = None     # Not sure what this is, but it works
-        year2 = None    # Not surre what this is, but it works
+        # ind = 1
+        # year = None     # Not sure what this is, but it works
+        # year2 = None    # Not surre what this is, but it works
 
         if settings_dict['Metfile_path'] is None:
             QMessageBox.critical(None, "Error", "Meteorological data file has not been provided,"
                                         " please check the main tab")
             return
         
-        elif os.path.isfile(settings_dict['Metfile_path'][0]):
-            with open(settings_dict['Metfile_path'][0]) as file:
-                next(file)
-                for line in file:
-                    split = line.split()
-                    if year == split[0]:
-                        break
-                    else:
-                        if year2 == split[0]:
-                            year = split[0]
-                            break
-                        elif year is None:
-                            year = split[0]
-                        else:
-                            year2 = split[0]
-
-            # figure out the time res of input file
-            if ind == 1:
-                # met_old = np.genfromtxt(settings_dict['Metfile_path'][0], skip_header=1, skip_footer=2)
-                # met_id = met_old[:, 1]
-                # it = met_old[:, 2]
-                # imin = met_old[:, 3]
-                # dectime0 = met_id[0] + it[0] / 24 + imin[0] / (60 * 24)
-                # dectime1 = met_id[1] + it[1] / 24 + imin[1] / (60 * 24)
-                # res = int(np.round((dectime1 - dectime0) * (60 * 24)))
-                # ind = 999
-
-                # YYYY = int32(np.min(met_old[:, 0]))
-
-                # start_date = ''
-                # end_date = ''
-                # # --- save met-file --- #
-                # data_out = self.output_dir[0] + "/" + self.file_code + '_' + str(YYYY) + '_data_' + str(res) + '.txt'
-                # header = '%iy id it imin Q* QH QE Qs Qf Wind RH Td press rain Kdn snow ldown fcld wuh xsmd lai_hr ' \
-                #          'Kdiff Kdir Wd'
-                # numformat = '%3d %2d %3d %2d %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.4f %6.2f %6.2f ' \
-                #             '%6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.2f'
-
-                # np.savetxt(data_out, met_old, fmt=numformat, delimiter=' ', header=header, comments='')
-
-                # Define the column names (you can adjust this to match the actual file)
-                column_names = [
-                    'iy', 'id', 'it', 'imin', 'qn', 'qh', 'qe', 'qs', 'qf', 'U', 'RH', 'Td', 'press', 'rain',
-                    'kdown', 'snow', 'ldown', 'fcld', 'wuh', 'xsmd', 'lai', 'kdiff', 'kdir', 'wdir'
-                ]
-
-                df = pd.read_csv(settings_dict['Metfile_path'][0], delim_whitespace=True, skiprows=1, names=column_names)
-
-                # 2. Construct datetime index from columns: iy (year), id (DOY), it (hour), imin (minute)
-                df['datetime'] = pd.to_datetime(df['iy'], format='%Y') + pd.to_timedelta(df['id'] - 1, unit='D') + \
-                                pd.to_timedelta(df['it'], unit='h') + pd.to_timedelta(df['imin'], unit='m')
-                df.set_index('datetime', inplace=True)
-
-                # 3. Compute time resolution in minutes
-                dectime0 = df['iy'].iloc[0] + df['it'].iloc[0] / 24 + df['imin'].iloc[0] / (60 * 24)
-                dectime1 = df['iy'].iloc[1] + df['it'].iloc[1] / 24 + df['imin'].iloc[1] / (60 * 24)
-                res = int(round((dectime1 - dectime0) * 60 * 24))
-
-                # Get start and end date
-                start_date = df.index[0].strftime('%Y-%m-%d')
-                end_date = df.index[-1].strftime('%Y-%m-%d')
-
-                # 4. Define output path
-                YYYY = int(df['iy'].min())
-                data_out = f'{self.output_dir[0]}/{self.file_code}_{YYYY}_data_{res}.txt'
-
-                # 5. Save the file using .to_csv (formatted like np.savetxt)
-                df_out = df[column_names]  # Preserve original order
-                header = 'iy id it imin Q* QH QE Qs Qf Wind RH Td press rain Kdn snow ldown fcld wuh xsmd lai_hr ' \
-                        'Kdiff Kdir Wd'
-
-                # Save with formatting
-                np.savetxt(data_out, df_out.to_numpy(), fmt='%3d %2d %3d %2d %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f '
-                            '%6.2f %6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.2f',
-                            delimiter=' ', header=header, comments='')
         else:
-            QMessageBox.critical(None, "Error",
-                                    "Could not find the file containing meteorological data")
-            return
+        # elif os.path.isfile(settings_dict['Metfile_path'][0]):
+        #     with open(settings_dict['Metfile_path'][0]) as file:
+        #         next(file)
+        #         for line in file:
+        #             split = line.split()
+        #             if year == split[0]:
+        #                 break
+        #             else:
+        #                 if year2 == split[0]:
+        #                     year = split[0]
+        #                     break
+        #                 elif year is None:
+        #                     year = split[0]
+        #                 else:
+        #                     year2 = split[0]
+
+        # figure out the time res of input file
+        # if ind == 1:
+            # met_old = np.genfromtxt(settings_dict['Metfile_path'][0], skip_header=1, skip_footer=2)
+            # met_id = met_old[:, 1]
+            # it = met_old[:, 2]
+            # imin = met_old[:, 3]
+            # dectime0 = met_id[0] + it[0] / 24 + imin[0] / (60 * 24)
+            # dectime1 = met_id[1] + it[1] / 24 + imin[1] / (60 * 24)
+            # res = int(np.round((dectime1 - dectime0) * (60 * 24)))
+            # ind = 999
+
+            # YYYY = int32(np.min(met_old[:, 0]))
+
+            # start_date = ''
+            # end_date = ''
+            # # --- save met-file --- #
+            # data_out = self.output_dir[0] + "/" + self.file_code + '_' + str(YYYY) + '_data_' + str(res) + '.txt'
+            # header = '%iy id it imin Q* QH QE Qs Qf Wind RH Td press rain Kdn snow ldown fcld wuh xsmd lai_hr ' \
+            #          'Kdiff Kdir Wd'
+            # numformat = '%3d %2d %3d %2d %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.4f %6.2f %6.2f ' \
+            #             '%6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.2f'
+
+            # np.savetxt(data_out, met_old, fmt=numformat, delimiter=' ', header=header, comments='')
+
+            # Define the column names (you can adjust this to match the actual file)
+            column_names = [
+                'iy', 'id', 'it', 'imin', 'qn', 'qh', 'qe', 'qs', 'qf', 'U', 'RH', 'Td', 'press', 'rain',
+                'kdown', 'snow', 'ldown', 'fcld', 'wuh', 'xsmd', 'lai', 'kdiff', 'kdir', 'wdir'
+            ]
+
+            df = pd.read_csv(settings_dict['Metfile_path'][0], delim_whitespace=True, skiprows=1, names=column_names)
+
+            # 2. Construct datetime index from columns: iy (year), id (DOY), it (hour), imin (minute)
+            df['datetime'] = pd.to_datetime(df['iy'], format='%Y') + pd.to_timedelta(df['id'] - 1, unit='D') + \
+                            pd.to_timedelta(df['it'], unit='h') + pd.to_timedelta(df['imin'], unit='m')
+            df.set_index('datetime', inplace=True)
+
+            # 3. Compute time resolution in minutes
+            dectime0 = df['iy'].iloc[0] + df['it'].iloc[0] / 24 + df['imin'].iloc[0] / (60 * 24)
+            dectime1 = df['iy'].iloc[1] + df['it'].iloc[1] / 24 + df['imin'].iloc[1] / (60 * 24)
+            res = int(round((dectime1 - dectime0) * 60 * 24))
+
+            # Get start and end date
+            start_date = df.index[0].strftime('%Y-%m-%d')
+            end_date = df.index[-1].strftime('%Y-%m-%d')
+
+            # 4. Define output path
+            YYYY = int(df['iy'].min())
+            data_out = f'{self.output_dir[0]}/{self.file_code}_{YYYY}_data_{res}.txt'
+
+            # 5. Save the file using .to_csv (formatted like np.savetxt)
+            df_out = df[column_names]  # Preserve original order
+            header = 'iy id it imin Q* QH QE Qs Qf Wind RH Td press rain Kdn snow ldown fcld wuh xsmd lai_hr ' \
+                    'Kdiff Kdir Wd'
+
+            # Save with formatting
+            np.savetxt(data_out, df_out.to_numpy(), fmt='%3d %2d %3d %2d %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f '
+                        '%6.2f %6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.2f',
+                        delimiter=' ', header=header, comments='')
+        # else:
+        #     QMessageBox.critical(None, "Error",
+        #                             "Could not find the file containing meteorological data")
+        #     return
+
+        with open(plugin_dir + '/Utilities/sample_config.yml', 'r')  as f: # TODO FIX so that yaml is fetched from supy-lib instead of file from Utilities dir! open(self.supylib + '/sample_run/sample_config.yml', 'r')
+            yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
 
         # ss_dict, siteselect_dict. Populate dict that will go to yaml
-        # this section is for all grids. 
-        ss_dict = {
-            'name': 'sample_config',
-            'description': 'this is a sample config for testing purposes ONLY - values are not realistic',
+        # this section is for all grids.
 
-            'model': {
-                'control': {
-                    'tstep': 300,
-                    'forcing_file': {'value': data_out},
-                    'output_file':  'output.txt',
-                    'diagnose': 0,
-                    'start_time': start_date,
-                    'end_time': end_date
-                },
-                'physics': {
-                    'netradiationmethod': {'value': 3}, #changed from 1 FL
-                    'emissionsmethod': {'value' : db_dict['AnthropogenicEmission'].loc[parameter_dict['AnthropogenicCode'],'Model']},
-                    'storageheatmethod': {'value': 1}, #Changed from 3 FL
-                    'ohmincqf': {'value': 0},
-                    'roughlenmommethod': {'value': 1}, # Values based on Kent et al. 2017
-                    'roughlenheatmethod': {'value': 2},
-                    'stabilitymethod': {'value': 3},
-                    'smdmethod': {'value': 0},
-                    'waterusemethod': {'value': 0},
-                    'diagmethod': {'value': 0},
-                    'faimethod': {'value': 0},
-                    'localclimatemethod': {'value': 0},
-                    'snowuse': {'value': 0},
-                    'stebbsmethod': {'value': 0},
-                    'gsmodel': {'value': cond_dict['gsModel']},
-                },
-            },
-            'sites' : []
-        }
+        # ['model']['control']
+        # yaml_dict['model']['control']['tstep'] = 300  # not set
+        # yaml_dict['model']['control']['output_file'] = output.txt # not set 
+        # yaml_dict['model']['control']['diagnose'] = 0     # not set
+        yaml_dict['model']['control']['forcing_file']['value'] = data_out
+        yaml_dict['model']['control']['forcing_file']['value'] = data_out
+        yaml_dict['model']['control']['start_time'] = start_date
+        yaml_dict['model']['control']['end_time'] = end_date
         
+        # yaml_dict['model']['physics']
+        # TODO Perhaps comment out lines that only contains default values here
+        yaml_dict['model']['physics']['netradiationmethod']['value'] = 1 #changed from 1 FL
+        yaml_dict['model']['physics']['emissionsmethod']['value'] = db_dict['AnthropogenicEmission'].loc[parameter_dict['AnthropogenicCode'],'Model']
+        yaml_dict['model']['physics']['storageheatmethod']['value'] = 1 #Changed from 3 FL
+        yaml_dict['model']['physics']['ohmincqf']['value'] = 0
+        yaml_dict['model']['physics']['roughlenmommethod']['value'] = 1 # Values based on Kent et al. 2017
+        yaml_dict['model']['physics']['roughlenheatmethod']['value'] = 2
+        yaml_dict['model']['physics']['stabilitymethod']['value'] = 3
+        yaml_dict['model']['physics']['smdmethod']['value'] = 0
+        yaml_dict['model']['physics']['waterusemethod']['value'] = 0
+        # yaml_dict['model']['physics']['rslmethod']['value'] = 2
+        # yaml_dict['model']['physics']['rsllevel']['value'] = 1
+        # yaml_dict['model']['physics']['faimethod']['value'] = 0
+        # yaml_dict['model']['physics']['localclimatemethod']['value'] = 0
+        yaml_dict['model']['physics']['snowuse']['value'] = 0
+        # yaml_dict['model']['physics']['stebbsmethod']['value'] = 0
+        yaml_dict['model']['physics']['gsmodel']['value'] = cond_dict['gsModel']
+
+
+        # ss_dict = {
+        #     'name': 'sample_config',
+        #     'description': 'this is a sample config for testing purposes ONLY - values are not realistic',
+
+        #         'physics': {
+        #             'netradiationmethod': {'value': 3}, #changed from 1 FL
+        #             'emissionsmethod': {'value' : db_dict['AnthropogenicEmission'].loc[parameter_dict['AnthropogenicCode'],'Model']},
+        #             'storageheatmethod': {'value': 1}, #Changed from 3 FL
+        #             'ohmincqf': {'value': 0},
+        #             'roughlenmommethod': {'value': 1}, # Values based on Kent et al. 2017
+        #             'roughlenheatmethod': {'value': 2},
+        #             'stabilitymethod': {'value': 3},
+        #             'smdmethod': {'value': 0},
+        #             'waterusemethod': {'value': 0},
+        #             'diagmethod': {'value': 0},
+        #             'faimethod': {'value': 0},
+        #             'localclimatemethod': {'value': 0},
+        #             'snowuse': {'value': 0},
+        #             'stebbsmethod': {'value': 0},
+        #             'gsmodel': {'value': cond_dict['gsModel']},
+        #         },
+        #     },
+        #     'sites' : []
+        # }
+        
+        # Crete a default template of sites to poulate in loop
+        base_grid_dict = yaml_dict['sites'][0].copy()
+
+        # Delete sample entry of sites to populate later on
+        del yaml_dict['sites'][0]
+
         # Loop Start for each Grid
         for feature in settings_dict['vlayer'].getFeatures():
-
+            
+            # temp_grid is the yaml_dict key that is used for each grid
+            temp_grid = base_grid_dict.copy()
             feat_id = int(feature.attribute(settings_dict['poly_field']))
+            
+            temp_grid['name'] = f'grid no: {str(feat_id)}'
+            temp_grid['gridiv'] = feat_id
     
             print('Processing ID: ' + str(feat_id) + ' for grid specific parameters')
 
@@ -1344,6 +1416,9 @@ class SUEWSPrepareDatabase(object):
 
             centroid = feature.geometry().centroid().asPoint()
             area = feature.geometry().area()
+
+            # TODO Check so that this is m2 not hectare and change to more proper naming
+            settings_dict['map_units'] = 0 # OB 200825 hardcoded to set m2 
 
             if settings_dict['map_units'] == 0:
                 hectare = area # meter
@@ -1472,172 +1547,171 @@ class SUEWSPrepareDatabase(object):
             else:
                 pop_density_day = pop_density_night
 
-            # TODO Not sure on these settings
-            LUMPS_drate = 0.25
-            LUMPS_Cover = 1
-            LUMPS_MaxRes = 10
-            NARP_Trans = 1
-
-            # flow_change = 0
-            RunoffToWater = 0.1
-            PipeCap = 100
-            
+            # # TODO Not sure on these settings OB 200825 i suggest go with default values for these
+            # LUMPS_drate = 0.25
+            # LUMPS_Cover = 1
+            # LUMPS_MaxRes = 10
+            # NARP_Trans = 1
+        
             # name-description + site/landcover
             TrafficRate_WD = 0.0135 ## Already in dict
             TrafficRate_WE = 0.0095 ## Already in dict
             AnEm = fill_AnEm_yaml(db_dict, parameter_dict['AnthropogenicCode'], profiles_dict, parameter_dict, settings_dict['start_DLS'], settings_dict['end_DLS'], TrafficRate_WD, TrafficRate_WE, pop_density_night, pop_density_day, zenodo)
 
             # Lägg till grids i listan inom en loop
-            properties = {
-                'lat': {'value': round(float(lonlat[0]),3)},
-                'lng': {'value': round(float(lonlat[1]),3)}, 
-                'alt': {'value': altitude},
-                'timezone': {'value': settings_dict['utc']},
-                'surfacearea': {'value': round(hectare ,2)},
-                'z': {'value': float('%.3f' % z)},
-                'z0m_in': {'value': float('%.3f' % IMP_z0)},
-                'zdm_in': {'value': float('%.3f' % IMP_zd)},
-                'pipecapacity': {'value': PipeCap},
-                'runofftowater': {'value': RunoffToWater},
-                'narp_trans_site': {'value': NARP_Trans},
-                
-                'lumps': {
-                    'raincover': {'value': LUMPS_Cover},
-                    'rainmaxres': {'value': LUMPS_MaxRes},
-                    'drainrt': {'value': LUMPS_drate},
-                    'veg_type': {'value': 1}  # TODO WHAT?
-                    },
+            temp_grid['properties']['lat']['value'] =  round(float(lonlat[0]),3)
+            temp_grid['properties']['lng']['value'] = round(float(lonlat[1]),3)
+            temp_grid['properties']['alt']['value'] = altitude
 
-                'spartacus': { # At the moment, these variables are just standard. we dont know from where they come
-                        'air_ext_lw': {'value': 0.0},
-                        'air_ext_sw': {'value': 0.0},
-                        'air_ssa_lw': {'value': 0.5},
-                        'air_ssa_sw': {'value': 0.5},
-                        'ground_albedo_dir_mult_fact': {'value': 1.0},
-                        'n_stream_lw_urban': {'value': 2},
-                        'n_stream_sw_urban': {'value': 2},
-                        'n_vegetation_region_urban': {'value': 1},
-                        'sw_dn_direct_frac': {'value': 0.5},
-                        'use_sw_direct_albedo': {'value': 1.0},
-                        'veg_contact_fraction_const': {'value': 0.5},
-                        'veg_fsd_const': {'value': 0.5},
-                        'veg_ssa_lw': {'value': 0.5},
-                        'veg_ssa_sw': {'value': 0.5}
-                    },
+            temp_grid['properties']['timezone']['value'] = settings_dict['utc']
+            temp_grid['properties']['surfacearea']['value'] = round(hectare ,2)
+            temp_grid['properties']['z']['value'] = float('%.3f' % z)
+            temp_grid['properties']['z0m_in']['value'] = float('%.3f' % IMP_z0)
+            temp_grid['properties']['zdm_in']['value'] = float('%.3f' % IMP_zd)
+            temp_grid['properties']['zdm_in']['value'] = float('%.3f' % IMP_z0)
+            temp_grid['properties']['z0m_in']['value'] = float('%.3f' % IMP_z0)
 
-                # TODO AS OF NOW, THIS IS JUST LEFT AS IT IS SINCE WE DONT KNOW ANYTHING ABOUT THESE PARAMETERS
-                'stebbs': {
-                    'WallInternalConvectionCoefficient': {'value': 0.0},
-                    'InternalMassConvectionCoefficient': {'value': 0.0},
-                    'FloorInternalConvectionCoefficient': {'value': 0.0},
-                    'WindowInternalConvectionCoefficient': {'value': 0.0},
-                    'WallExternalConvectionCoefficient': {'value': 0.0},
-                    'WindowExternalConvectionCoefficient': {'value': 0.0},
-                    'GroundDepth': {'value': 0.0},
-                    'ExternalGroundConductivity': {'value': 0.0},
-                    'IndoorAirDensity': {'value': 0.0},
-                    'IndoorAirCp': {'value': 0.0},
-                    'WallBuildingViewFactor': {'value': 0.0},
-                    'WallGroundViewFactor': {'value': 0.0},
-                    'WallSkyViewFactor': {'value': 0.0},
-                    'MetabolicRate': {'value': 0.0},
-                    'LatentSensibleRatio': {'value': 0.0},
-                    'ApplianceRating': {'value': 0.0},
-                    'TotalNumberofAppliances': {'value': 0},
-                    'ApplianceUsageFactor': {'value': 0.0},
-                    'HeatingSystemEfficiency': {'value': 0.0},
-                    'MaxCoolingPower': {'value': 0.0},
-                    'CoolingSystemCOP': {'value': 0.0},
-                    'VentilationRate': {'value': 0.0},
-                    'IndoorAirStartTemperature': {'value': 0.0},
-                    'IndoorMassStartTemperature': {'value': 0.0},
-                    'WallIndoorSurfaceTemperature': {'value': 0.0},
-                    'WallOutdoorSurfaceTemperature': {'value': 0.0},
-                    'WindowIndoorSurfaceTemperature': {'value': 0.0},
-                    'WindowOutdoorSurfaceTemperature': {'value': 0.0},
-                    'GroundFloorIndoorSurfaceTemperature': {'value': 0.0},
-                    'GroundFloorOutdoorSurfaceTemperature': {'value': 0.0},
-                    'WaterTankTemperature': {'value': 0.0},
-                    'InternalWallWaterTankTemperature': {'value': 0.0},
-                    'ExternalWallWaterTankTemperature': {'value': 0.0},
-                    'WaterTankWallThickness': {'value': 0.0},
-                    'MainsWaterTemperature': {'value': 0.0},
-                    'WaterTankSurfaceArea': {'value': 0.0},
-                    'HotWaterHeatingSetpointTemperature': {'value': 0.0},
-                    'HotWaterTankWallEmissivity': {'value': 0.0},
-                    'DomesticHotWaterTemperatureInUseInBuilding': {'value': 0.0},
-                    'InternalWallDHWVesselTemperature': {'value': 0.0},
-                    'ExternalWallDHWVesselTemperature': {'value': 0.0},
-                    'DHWVesselWallThickness': {'value': 0.0},
-                    'DHWWaterVolume': {'value': 0.0},
-                    'DHWSurfaceArea': {'value': 0.0},
-                    'DHWVesselEmissivity': {'value': 0.0},
-                    'HotWaterFlowRate': {'value': 0.0},
-                    'DHWDrainFlowRate': {'value': 0.0},
-                    'DHWSpecificHeatCapacity': {'value': 0.0},
-                    'HotWaterTankSpecificHeatCapacity': {'value': 0.0},
-                    'DHWVesselSpecificHeatCapacity': {'value': 0.0},
-                    'DHWDensity': {'value': 0.0},
-                    'HotWaterTankWallDensity': {'value': 0.0},
-                    'DHWVesselDensity': {'value': 0.0},
-                    'HotWaterTankBuildingWallViewFactor': {'value': 0.0},
-                    'HotWaterTankInternalMassViewFactor': {'value': 0.0},
-                    'HotWaterTankWallConductivity': {'value': 0.0},
-                    'HotWaterTankInternalWallConvectionCoefficient': {'value': 0.0},
-                    'HotWaterTankExternalWallConvectionCoefficient': {'value': 0.0},
-                    'DHWVesselWallConductivity': {'value': 0.0},
-                    'DHWVesselInternalWallConvectionCoefficient': {'value': 0.0},
-                    'DHWVesselExternalWallConvectionCoefficient': {'value': 0.0},
-                    'DHWVesselWallEmissivity': {'value': 0.0},
-                    'HotWaterHeatingEfficiency': {'value': 0.0},
-                    'MinimumVolumeOfDHWinUse': {'value': 0.0}
-                },
+            # TODO Thesa are set according to default yaml
+            # temp_grid['properties']['pipecapacity']['value'] = PipeCap
+            # temp_grid['properties']['runofftowater']['value'] = RunoffToWater
+            # temp_grid['properties']['narp_trans_site']['value'] = NARP_Trans
+            # temp_grid['properties']['lumps'] = {
+            #         'raincover': {'value': LUMPS_Cover},
+            #         'rainmaxres': {'value': LUMPS_MaxRes},
+            #         'drainrt': {'value': LUMPS_drate},
+            #         'veg_type': {'value': 1}  # TODO WHAT?
+            #         }
 
-                'building_archetype': {
-                    'BuildingType': 'SampleType',
-                    'BuildingName': 'SampleBuilding',
-                    'BuildingCount': {'value': 1},
-                    'Occupants': {'value': 1},
-                    'stebbs_Height': {'value': 10.0},
-                    'FootprintArea': {'value': 64.0},
-                    'WallExternalArea': {'value': 80.0},
-                    'RatioInternalVolume': {'value': 0.0},
-                    'WWR': {'value': 0.2},
-                    'WallThickness': {'value': 20.0},
-                    'WallEffectiveConductivity': {'value': 60.0},
-                    'WallDensity': {'value': 1600.0},
-                    'WallCp': {'value': 850.0},
-                    'Wallx1': {'value': 1.0},
-                    'WallExternalEmissivity': {'value': 0.9},
-                    'WallInternalEmissivity': {'value': 0.9},
-                    'WallTransmissivity': {'value': 0.0},
-                    'WallAbsorbtivity': {'value': 0.8},
-                    'WallReflectivity': {'value': 0.2},
-                    'FloorThickness': {'value': 0.2},
-                    'GroundFloorEffectiveConductivity': {'value': 0.15},
-                    'GroundFloorDensity': {'value': 500.0},
-                    'GroundFloorCp': {'value': 1500.0},
-                    'WindowThickness': {'value': 0.015},
-                    'WindowEffectiveConductivity': {'value': 1.0},
-                    'WindowDensity': {'value': 2500.0},
-                    'WindowCp': {'value': 840.0},
-                    'WindowExternalEmissivity': {'value': 0.9},
-                    'WindowInternalEmissivity': {'value': 0.9},
-                    'WindowTransmissivity': {'value': 0.9},
-                    'WindowAbsorbtivity': {'value': 0.01},
-                    'WindowReflectivity': {'value': 0.09},
-                    'InternalMassDensity': {'value': 0.0},
-                    'InternalMassCp': {'value': 0.0},
-                    'InternalMassEmissivity': {'value': 0.0},
-                    'MaxHeatingPower': {'value': 0.0},
-                    'WaterTankWaterVolume': {'value': 0.0},
-                    'MaximumHotWaterHeatingPower': {'value': 0.0},
-                    'HeatingSetpointTemperature': {'value': 15.0},
-                    'CoolingSetpointTemperature': {'value': 25.0}
-                    },
+            # temp_grid['properties']['spartacus'] = { # At the moment, these variables are just standard. we dont know from where they come
+            #             'air_ext_lw': {'value': 0.0},
+            #             'air_ext_sw': {'value': 0.0},
+            #             'air_ssa_lw': {'value': 0.5},
+            #             'air_ssa_sw': {'value': 0.5},
+            #             'ground_albedo_dir_mult_fact': {'value': 1.0},
+            #             'n_stream_lw_urban': {'value': 2},
+            #             'n_stream_sw_urban': {'value': 2},
+            #             'n_vegetation_region_urban': {'value': 1},
+            #             'sw_dn_direct_frac': {'value': 0.5},
+            #             'use_sw_direct_albedo': {'value': 1.0},
+            #             'veg_contact_fraction_const': {'value': 0.5},
+            #             'veg_fsd_const': {'value': 0.5},
+            #             'veg_ssa_lw': {'value': 0.5},
+            #             'veg_ssa_sw': {'value': 0.5}
+            #         },
 
-                # Conductance
-                'conductance': {
+            # TODO We dont do anyhting with STEBBS at the moment
+            # temp_grid['properties']['stebbs'] = {
+            #         'WallInternalConvectionCoefficient': {'value': 0.0},
+            #         'InternalMassConvectionCoefficient': {'value': 0.0},
+            #         'FloorInternalConvectionCoefficient': {'value': 0.0},
+            #         'WindowInternalConvectionCoefficient': {'value': 0.0},
+            #         'WallExternalConvectionCoefficient': {'value': 0.0},
+            #         'WindowExternalConvectionCoefficient': {'value': 0.0},
+            #         'GroundDepth': {'value': 0.0},
+            #         'ExternalGroundConductivity': {'value': 0.0},
+            #         'IndoorAirDensity': {'value': 0.0},
+            #         'IndoorAirCp': {'value': 0.0},
+            #         'WallBuildingViewFactor': {'value': 0.0},
+            #         'WallGroundViewFactor': {'value': 0.0},
+            #         'WallSkyViewFactor': {'value': 0.0},
+            #         'MetabolicRate': {'value': 0.0},
+            #         'LatentSensibleRatio': {'value': 0.0},
+            #         'ApplianceRating': {'value': 0.0},
+            #         'TotalNumberofAppliances': {'value': 0},
+            #         'ApplianceUsageFactor': {'value': 0.0},
+            #         'HeatingSystemEfficiency': {'value': 0.0},
+            #         'MaxCoolingPower': {'value': 0.0},
+            #         'CoolingSystemCOP': {'value': 0.0},
+            #         'VentilationRate': {'value': 0.0},
+            #         'IndoorAirStartTemperature': {'value': 0.0},
+            #         'IndoorMassStartTemperature': {'value': 0.0},
+            #         'WallIndoorSurfaceTemperature': {'value': 0.0},
+            #         'WallOutdoorSurfaceTemperature': {'value': 0.0},
+            #         'WindowIndoorSurfaceTemperature': {'value': 0.0},
+            #         'WindowOutdoorSurfaceTemperature': {'value': 0.0},
+            #         'GroundFloorIndoorSurfaceTemperature': {'value': 0.0},
+            #         'GroundFloorOutdoorSurfaceTemperature': {'value': 0.0},
+            #         'WaterTankTemperature': {'value': 0.0},
+            #         'InternalWallWaterTankTemperature': {'value': 0.0},
+            #         'ExternalWallWaterTankTemperature': {'value': 0.0},
+            #         'WaterTankWallThickness': {'value': 0.0},
+            #         'MainsWaterTemperature': {'value': 0.0},
+            #         'WaterTankSurfaceArea': {'value': 0.0},
+            #         'HotWaterHeatingSetpointTemperature': {'value': 0.0},
+            #         'HotWaterTankWallEmissivity': {'value': 0.0},
+            #         'DomesticHotWaterTemperatureInUseInBuilding': {'value': 0.0},
+            #         'InternalWallDHWVesselTemperature': {'value': 0.0},
+            #         'ExternalWallDHWVesselTemperature': {'value': 0.0},
+            #         'DHWVesselWallThickness': {'value': 0.0},
+            #         'DHWWaterVolume': {'value': 0.0},
+            #         'DHWSurfaceArea': {'value': 0.0},
+            #         'DHWVesselEmissivity': {'value': 0.0},
+            #         'HotWaterFlowRate': {'value': 0.0},
+            #         'DHWDrainFlowRate': {'value': 0.0},
+            #         'DHWSpecificHeatCapacity': {'value': 0.0},
+            #         'HotWaterTankSpecificHeatCapacity': {'value': 0.0},
+            #         'DHWVesselSpecificHeatCapacity': {'value': 0.0},
+            #         'DHWDensity': {'value': 0.0},
+            #         'HotWaterTankWallDensity': {'value': 0.0},
+            #         'DHWVesselDensity': {'value': 0.0},
+            #         'HotWaterTankBuildingWallViewFactor': {'value': 0.0},
+            #         'HotWaterTankInternalMassViewFactor': {'value': 0.0},
+            #         'HotWaterTankWallConductivity': {'value': 0.0},
+            #         'HotWaterTankInternalWallConvectionCoefficient': {'value': 0.0},
+            #         'HotWaterTankExternalWallConvectionCoefficient': {'value': 0.0},
+            #         'DHWVesselWallConductivity': {'value': 0.0},
+            #         'DHWVesselInternalWallConvectionCoefficient': {'value': 0.0},
+            #         'DHWVesselExternalWallConvectionCoefficient': {'value': 0.0},
+            #         'DHWVesselWallEmissivity': {'value': 0.0},
+            #         'HotWaterHeatingEfficiency': {'value': 0.0},
+            #         'MinimumVolumeOfDHWinUse': {'value': 0.0}
+            #     },
+
+            #     'building_archetype': {
+            #         'BuildingType': 'SampleType',
+            #         'BuildingName': 'SampleBuilding',
+            #         'BuildingCount': {'value': 1},
+            #         'Occupants': {'value': 1},
+            #         'stebbs_Height': {'value': 10.0},
+            #         'FootprintArea': {'value': 64.0},
+            #         'WallExternalArea': {'value': 80.0},
+            #         'RatioInternalVolume': {'value': 0.0},
+            #         'WWR': {'value': 0.2},
+            #         'WallThickness': {'value': 20.0},
+            #         'WallEffectiveConductivity': {'value': 60.0},
+            #         'WallDensity': {'value': 1600.0},
+            #         'WallCp': {'value': 850.0},
+            #         'Wallx1': {'value': 1.0},
+            #         'WallExternalEmissivity': {'value': 0.9},
+            #         'WallInternalEmissivity': {'value': 0.9},
+            #         'WallTransmissivity': {'value': 0.0},
+            #         'WallAbsorbtivity': {'value': 0.8},
+            #         'WallReflectivity': {'value': 0.2},
+            #         'FloorThickness': {'value': 0.2},
+            #         'GroundFloorEffectiveConductivity': {'value': 0.15},
+            #         'GroundFloorDensity': {'value': 500.0},
+            #         'GroundFloorCp': {'value': 1500.0},
+            #         'WindowThickness': {'value': 0.015},
+            #         'WindowEffectiveConductivity': {'value': 1.0},
+            #         'WindowDensity': {'value': 2500.0},
+            #         'WindowCp': {'value': 840.0},
+            #         'WindowExternalEmissivity': {'value': 0.9},
+            #         'WindowInternalEmissivity': {'value': 0.9},
+            #         'WindowTransmissivity': {'value': 0.9},
+            #         'WindowAbsorbtivity': {'value': 0.01},
+            #         'WindowReflectivity': {'value': 0.09},
+            #         'InternalMassDensity': {'value': 0.0},
+            #         'InternalMassCp': {'value': 0.0},
+            #         'InternalMassEmissivity': {'value': 0.0},
+            #         'MaxHeatingPower': {'value': 0.0},
+            #         'WaterTankWaterVolume': {'value': 0.0},
+            #         'MaximumHotWaterHeatingPower': {'value': 0.0},
+            #         'HeatingSetpointTemperature': {'value': 15.0},
+            #         'CoolingSetpointTemperature': {'value': 25.0}
+            #         },
+
+                # Conductance # TODO Create function in db_functions to fill this too
+            temp_grid['properties']['conductance'] = {
                     'g_max': {'value': cond_dict['G1']},
                     'g_k': {'value': cond_dict['G2']},
                     'g_q_base': {'value': cond_dict['G3']},
@@ -1653,201 +1727,213 @@ class SUEWSPrepareDatabase(object):
                     'ref': {
                         'desc': db_dict['Conductance'].loc[cond_dict['Code'], 'nameOrigin'],
                         'ID': str(cond_dict['Code']),
-                        'DOI':  zenodo,
+                        'DOI':  zenodo
                          }
-                    },
+                    }
 
-                'irrigation': fill_irrigation_yaml(db_dict['Irrigation'].loc[parameter_dict['IrrigationCode']] , profiles_dict, zenodo),
-                
-                'anthropogenic_emissions' : AnEm,
-                
-                'snow' : snow_dict, #,fill_snow_yaml(db_dict['Snow'], snow_dict, profiles_dict, nonVeg_dict[feat_id], zenodo),
-
-                'land_cover': {
-                    'paved': fill_nonveg_yaml(nonVeg_dict[feat_id], db_dict, 'Paved', LCF_paved, IrrFr_Paved, 0, 0, zenodo), # Paved has no mean height or FAI
-                    'bldgs': fill_nonveg_yaml(nonVeg_dict[feat_id], db_dict, 'Buildings', LCF_buildings, IrrFr_Bldgs, IMP_fai, IMP_heights_mean, zenodo),
-                    'evetr': fill_veg_yaml(veg_dict, db_dict, 'Evergreen Tree', LCF_evergreen, irrFr_EveTr, IMPveg_fai_eve, IMPveg_heights_mean_eve, parameter_dict['IrrigationCode'], zenodo),
-                    'dectr': fill_veg_yaml(veg_dict, db_dict, 'Deciduous Tree', LCF_decidious, irrFr_DecTr, IMPveg_fai_dec, IMPveg_heights_mean_dec,parameter_dict['IrrigationCode'], zenodo),
-                    'grass': fill_veg_yaml(veg_dict, db_dict, 'Grass', LCF_grass, irrFr_Grass, 0, 0, parameter_dict['IrrigationCode'], zenodo), # grass has no mean height or FAI
-                    'bsoil': fill_bare_soil_yaml(nonVeg_dict[feat_id]['Bare Soil'], db_dict, LCF_baresoil, IrrFr_BSoil, zenodo) ,
-                    'water': fill_water_yaml(water_dict, db_dict, LCF_water, IrrFr_Water, zenodo),
-                },  
-                'vertical_layers' : gridlayoutOut[feat_id]['vertical_layers'][0],
-                'n_buildings':{
-                    'value': gridlayoutOut[feat_id]['buildings_count']}, # buildings_count_dict[feat_id]
-                'h_std':
-                    {'value': IMP_sd},
-                'lambda_c' : 
-                    {'value' : round(float((gridlayoutOut[feat_id]['wallAreaGrid']) / (hectare * LCF_buildings)) + 1, 4)}
-            }
-
-            initial_states = {
-                'snowalb': {'value': 0.3},
-
-                'paved': {
-                'state': {'value': 0.0},
-                'soilstore': {'value': 10},
-                'snowfrac': {'value': 0.0},
-                'snowpack': {'value': 0.0},
-                'icefrac': {'value': 0.0},
-                'snowwater': {'value': 0.0},
-                'snowdens': {'value': 0.0},
-                'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
-                'tsfc': {'value': 15.0},
-                'tin': {'value': 20.0}
-                },
-
-                'bldgs': {
-                'state': {'value': 0.0},
-                'soilstore': {'value': 10},
-                'snowfrac': {'value': 0.0},
-                'snowpack': {'value': 0.0},
-                'icefrac': {'value': 0.0},
-                'snowwater': {'value': 0.0},
-                'snowdens': {'value': 0.0},
-                'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
-                'tsfc': {'value': 15.0},
-                'tin': {'value': 20.0}
-                },
-
-                'evetr': {
-                'state': {'value': 0.0},
-                'soilstore': {'value': 10},
-                'snowfrac': {'value': 0.0},
-                'snowpack': {'value': 0.0},
-                'icefrac': {'value': 0.0},
-                'snowwater': {'value': 0.0},
-                'snowdens': {'value': 0.0},
-                'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
-                'tsfc': {'value': 15.0},
-                'tin': {'value': 20.0},
-                'alb_id': {'value': leaf_cycle_dict[leaf_cycle]['albEveTr0']},
-                'lai_id': {'value': leaf_cycle_dict[leaf_cycle]['laiinitialevetr']},
-                'gdd_id': {'value': leaf_cycle_dict[leaf_cycle]['gdd_1_0']},
-                'sdd_id': {'value': leaf_cycle_dict[leaf_cycle]['gdd_2_0']},
-                'wu': {
-                    'wu_total': {'value': 0.0},
-                    'wu_auto': {'value': 0.0},
-                    'wu_manual': {'value': 0.0}
-                }
-                },
-
-                'dectr': {
-                'state': {'value': 0.0},
-                'soilstore': {'value': 10},
-                'snowfrac': {'value': 0.0},
-                'snowpack': {'value': 0.0},
-                'icefrac': {'value': 0.0},
-                'snowwater': {'value': 0.0},
-                'snowdens': {'value': 0.0},
-                'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
-                'tsfc': {'value': 15.0},
-                'tin': {'value': 20.0},
-                'alb_id': {'value': leaf_cycle_dict[leaf_cycle]['albDecTr0']},
-                'lai_id': {'value': leaf_cycle_dict[leaf_cycle]['laiinitialdectr']},
-                'gdd_id': {'value': leaf_cycle_dict[leaf_cycle]['gdd_1_0']},
-                'sdd_id': {'value': leaf_cycle_dict[leaf_cycle]['gdd_2_0']},
-                'wu': {
-                    'wu_total': {'value': 0.0},
-                    'wu_auto': {'value': 0.0},
-                    'wu_manual': {'value': 0.0}
-                },
-                'porosity_id': {'value': leaf_cycle_dict[leaf_cycle]['porosity0']},
-                'decidcap_id': {'value': leaf_cycle_dict[leaf_cycle]['decidCap0']}
-                },
-
-                'grass': {
-                'state': {'value': 0.0},
-                'soilstore': {'value': 10},
-                'snowfrac': {'value': 0.0},
-                'snowpack': {'value': 0.0},
-                'icefrac': {'value': 0.0},
-                'snowwater': {'value': 0.0},
-                'snowdens': {'value': 0.0},
-                'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
-                'tsfc': {'value': 15.0},
-                'tin': {'value': 20.0},
-                'alb_id': {'value': leaf_cycle_dict[leaf_cycle]['albGrass0']},
-                'lai_id': {'value': leaf_cycle_dict[leaf_cycle]['laiinitialgrass']},
-                'gdd_id': {'value': leaf_cycle_dict[leaf_cycle]['gdd_1_0']},
-                'sdd_id': {'value': leaf_cycle_dict[leaf_cycle]['gdd_2_0']},
-                'wu': {
-                    'wu_total': {'value': 0.0},
-                    'wu_auto': {'value': 0.0},
-                    'wu_manual': {'value': 0.0}
-                },
-                },
-
-                'bsoil': {
-                'state': {'value': 0.0},
-                'soilstore': {'value': 10},
-                'snowfrac': {'value': 0.0},
-                'snowpack': {'value': 0.0},
-                'icefrac': {'value': 0.0},
-                'snowwater': {'value': 0.0},
-                'snowdens': {'value': 0.0},
-                'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
-                'tsfc': {'value': 15.0},
-                'tin': {'value': 20.0}
-                },
-
-                'water': {
-                'state': {'value': 20000.0},
-                'soilstore': {'value': 10},
-                'snowfrac': {'value': 0.0},
-                'snowpack': {'value': 0.0},
-                'icefrac': {'value': 0.0},
-                'snowwater': {'value': 0.0},
-                'snowdens': {'value': 0.0},
-                'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
-                'tsfc': {'value': 15.0},
-                'tin': {'value': 20.0}
-                },
-
-                'roofs': [{
-                    'state': {'value': 0.0},
-                    'soilstore': {'value': 10},
-                    'snowfrac': {'value': 0.0},
-                    'snowpack': {'value': 0.0},
-                    'icefrac': {'value': 0.0},
-                    'snowwater': {'value': 0.0},
-                    'snowdens': {'value': 0.0},
-                    'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
-                    'tsfc': {'value': 15.0},
-                    'tin': {'value': 20.0}
-                    }] * gridlayoutOut[feat_id]['nlayer'],
-                'walls': [{
-                    'state': {'value': 0.0},
-                    'soilstore': {'value': 10},
-                    'snowfrac': {'value': 0.0},
-                    'snowpack': {'value': 0.0},
-                    'icefrac': {'value': 0.0},
-                    'snowwater': {'value': 0.0},
-                    'snowdens': {'value': 0.0},
-                    'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
-                    'tsfc': {'value': 15.0},
-                    'tin': {'value': 20.0}
-                    }] * gridlayoutOut[feat_id]['nlayer']
-            }
-        
-            grid = {
-                'name':  f'grid no: {str(feat_id)}',
-                'gridiv':  feat_id,
-                'properties': copy.deepcopy(properties),
-                'initial_states' : copy.deepcopy(initial_states)
-            }
+            temp_grid['properties']['irrigation'] = fill_irrigation_yaml(db_dict['Irrigation'].loc[parameter_dict['IrrigationCode']] , profiles_dict, zenodo)
             
-            grid = check_fraction_consistency(grid)
+            temp_grid['properties']['anthropogenic_emissions'] = AnEm
+                
+            temp_grid['properties']['snow'] = fill_snow_yaml(db_dict['Snow'], snow_dict, profiles_dict, zenodo)
+
+            temp_land_cover = {
+                'paved' : fill_nonveg_yaml(nonVeg_dict[feat_id], 'Paved', db_dict, LCF_paved, IrrFr_Paved, 0, 0, zenodo, temp_grid['properties']['land_cover']['paved']), # Paved has no mean height or FAI
+                'bldgs' : fill_nonveg_yaml(nonVeg_dict[feat_id], 'Buildings', db_dict, LCF_buildings, IrrFr_Bldgs, IMP_fai, IMP_heights_mean, zenodo,temp_grid['properties']['land_cover']['bldgs']),
+                'evetr' : fill_veg_yaml(veg_dict, db_dict, 'Evergreen Tree', LCF_evergreen, irrFr_EveTr, IMPveg_fai_eve, IMPveg_heights_mean_eve, parameter_dict['IrrigationCode'], zenodo, temp_grid['properties']['land_cover']['evetr']),
+                'dectr' : fill_veg_yaml(veg_dict, db_dict, 'Deciduous Tree', LCF_decidious, irrFr_DecTr, IMPveg_fai_dec, IMPveg_heights_mean_dec,parameter_dict['IrrigationCode'], zenodo, temp_grid['properties']['land_cover']['dectr']),
+                'grass' : fill_veg_yaml(veg_dict, db_dict, 'Grass', LCF_grass, irrFr_Grass, 0, 0, parameter_dict['IrrigationCode'], zenodo, temp_grid['properties']['land_cover']['grass']), # grass has no mean height or FAI
+                'bsoil' : fill_bare_soil_yaml(nonVeg_dict[feat_id]['Bare Soil'], db_dict, LCF_baresoil, IrrFr_BSoil, zenodo, temp_grid['properties']['land_cover']['bsoil']) ,
+                'water' : fill_water_yaml(water_dict, db_dict, LCF_water, IrrFr_Water, zenodo,temp_grid['properties']['land_cover']['water'])
+            }
+
+            temp_grid['properties']['land_cover'] = temp_land_cover
             
-            ss_dict['sites'].append(grid)
+            if settings_dict['spartacus'] == 1:  
+                temp_grid['properties']['vertical_layers'] = gridlayoutOut[feat_id]['vertical_layers'][0]
+                temp_grid['properties']['lambda_c']['value'] = round(float((gridlayoutOut[feat_id]['wallAreaGrid']) / (hectare * LCF_buildings)) + 1, 4)
+            
+            temp_grid['properties']['n_buildings']['value'] = gridlayoutOut[feat_id]['buildings_count'] # buildings_count_dict[feat_id]
+            temp_grid['properties']['h_std']['value'] = IMP_sd
+
+            # TODO we dont set any initial states except for seasonal cycles and for roof/wall
+            # evetree
+            temp_grid['initial_states']['evetr']['alb_id'] = {'value': leaf_cycle_dict[leaf_cycle]['albEveTr0']}
+            temp_grid['initial_states']['evetr']['lai_id'] = {'value': leaf_cycle_dict[leaf_cycle]['laiinitialevetr']}
+            temp_grid['initial_states']['evetr']['gdd_id'] = {'value': leaf_cycle_dict[leaf_cycle]['gdd_1_0']}
+            temp_grid['initial_states']['evetr']['sdd_id'] = {'value': leaf_cycle_dict[leaf_cycle]['gdd_2_0']}                
+            # dectr
+            temp_grid['initial_states']['dectr']['alb_id'] = {'value': leaf_cycle_dict[leaf_cycle]['albDecTr0']}
+            temp_grid['initial_states']['dectr']['lai_id'] = {'value': leaf_cycle_dict[leaf_cycle]['laiinitialdectr']}
+            temp_grid['initial_states']['dectr']['gdd_id'] = {'value': leaf_cycle_dict[leaf_cycle]['gdd_1_0']}
+            temp_grid['initial_states']['dectr']['sdd_id'] = {'value': leaf_cycle_dict[leaf_cycle]['gdd_2_0']}                
+            temp_grid['initial_states']['dectr']['porosity_id'] = {'value': leaf_cycle_dict[leaf_cycle]['porosity0']}
+            temp_grid['initial_states']['dectr']['decidcap_id'] = {'value': leaf_cycle_dict[leaf_cycle]['decidCap0']}
+            # grass
+            temp_grid['initial_states']['grass']['alb_id'] = {'value': leaf_cycle_dict[leaf_cycle]['albGrass0']}
+            temp_grid['initial_states']['grass']['lai_id'] = {'value': leaf_cycle_dict[leaf_cycle]['laiinitialgrass']}
+            temp_grid['initial_states']['grass']['gdd_id'] = {'value': leaf_cycle_dict[leaf_cycle]['gdd_1_0']}
+            temp_grid['initial_states']['grass']['sdd_id'] = {'value': leaf_cycle_dict[leaf_cycle]['gdd_2_0']}        
+
+            # initial_states = {
+            #     'snowalb': {'value': 0.3},
+
+            #     'paved': {
+            #     'state': {'value': 0.0},
+            #     'soilstore': {'value': 10},
+            #     'snowfrac': {'value': 0.0},
+            #     'snowpack': {'value': 0.0},
+            #     'icefrac': {'value': 0.0},
+            #     'snowwater': {'value': 0.0},
+            #     'snowdens': {'value': 0.0},
+            #     'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
+            #     'tsfc': {'value': 15.0},
+            #     'tin': {'value': 20.0}
+            #     },
+
+            #     'bldgs': {
+            #     'state': {'value': 0.0},
+            #     'soilstore': {'value': 10},
+            #     'snowfrac': {'value': 0.0},
+            #     'snowpack': {'value': 0.0},
+            #     'icefrac': {'value': 0.0},
+            #     'snowwater': {'value': 0.0},
+            #     'snowdens': {'value': 0.0},
+            #     'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
+            #     'tsfc': {'value': 15.0},
+            #     'tin': {'value': 20.0}
+            #     },
+
+            #     'evetr': {
+            #     'state': {'value': 0.0},
+            #     'soilstore': {'value': 10},
+            #     'snowfrac': {'value': 0.0},
+            #     'snowpack': {'value': 0.0},
+            #     'icefrac': {'value': 0.0},
+            #     'snowwater': {'value': 0.0},
+            #     'snowdens': {'value': 0.0},
+            #     'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
+            #     'tsfc': {'value': 15.0},
+            #     'tin': {'value': 20.0},
+            #     'alb_id': {'value': leaf_cycle_dict[leaf_cycle]['albEveTr0']},
+            #     'lai_id': {'value': leaf_cycle_dict[leaf_cycle]['laiinitialevetr']},
+            #     'gdd_id': {'value': leaf_cycle_dict[leaf_cycle]['gdd_1_0']},
+            #     'sdd_id': {'value': leaf_cycle_dict[leaf_cycle]['gdd_2_0']},
+            #     'wu': {
+            #         'wu_total': {'value': 0.0},
+            #         'wu_auto': {'value': 0.0},
+            #         'wu_manual': {'value': 0.0}
+            #     }
+            #     },
+
+            #     'dectr': {
+            #     'state': {'value': 0.0},
+            #     'soilstore': {'value': 10},
+            #     'snowfrac': {'value': 0.0},
+            #     'snowpack': {'value': 0.0},
+            #     'icefrac': {'value': 0.0},
+            #     'snowwater': {'value': 0.0},
+            #     'snowdens': {'value': 0.0},
+            #     'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
+            #     'tsfc': {'value': 15.0},
+            #     'tin': {'value': 20.0},
+            #     'alb_id': {'value': leaf_cycle_dict[leaf_cycle]['albDecTr0']},
+            #     'lai_id': {'value': leaf_cycle_dict[leaf_cycle]['laiinitialdectr']},
+            #     'gdd_id': {'value': leaf_cycle_dict[leaf_cycle]['gdd_1_0']},
+            #     'sdd_id': {'value': leaf_cycle_dict[leaf_cycle]['gdd_2_0']},
+            #     'wu': {
+            #         'wu_total': {'value': 0.0},
+            #         'wu_auto': {'value': 0.0},
+            #         'wu_manual': {'value': 0.0}
+            #     },
+            #     'porosity_id': {'value': leaf_cycle_dict[leaf_cycle]['porosity0']},
+            #     'decidcap_id': {'value': leaf_cycle_dict[leaf_cycle]['decidCap0']}
+            #     },
+
+            #     'grass': {
+            #     'state': {'value': 0.0},
+            #     'soilstore': {'value': 10},
+            #     'snowfrac': {'value': 0.0},
+            #     'snowpack': {'value': 0.0},
+            #     'icefrac': {'value': 0.0},
+            #     'snowwater': {'value': 0.0},
+            #     'snowdens': {'value': 0.0},
+            #     'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
+            #     'tsfc': {'value': 15.0},
+            #     'tin': {'value': 20.0},
+            #     'alb_id': {'value': leaf_cycle_dict[leaf_cycle]['albGrass0']},
+            #     'lai_id': {'value': leaf_cycle_dict[leaf_cycle]['laiinitialgrass']},
+            #     'gdd_id': {'value': leaf_cycle_dict[leaf_cycle]['gdd_1_0']},
+            #     'sdd_id': {'value': leaf_cycle_dict[leaf_cycle]['gdd_2_0']},
+            #     'wu': {
+            #         'wu_total': {'value': 0.0},
+            #         'wu_auto': {'value': 0.0},
+            #         'wu_manual': {'value': 0.0}
+            #     },
+            #     },
+
+            #     'bsoil': {
+            #     'state': {'value': 0.0},
+            #     'soilstore': {'value': 10},
+            #     'snowfrac': {'value': 0.0},
+            #     'snowpack': {'value': 0.0},
+            #     'icefrac': {'value': 0.0},
+            #     'snowwater': {'value': 0.0},
+            #     'snowdens': {'value': 0.0},
+            #     'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
+            #     'tsfc': {'value': 15.0},
+            #     'tin': {'value': 20.0}
+            #     },
+
+            #     'water': {
+            #     'state': {'value': 20000.0},
+            #     'soilstore': {'value': 10},
+            #     'snowfrac': {'value': 0.0},
+            #     'snowpack': {'value': 0.0},
+            #     'icefrac': {'value': 0.0},
+            #     'snowwater': {'value': 0.0},
+            #     'snowdens': {'value': 0.0},
+            #     'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
+            #     'tsfc': {'value': 15.0},
+            #     'tin': {'value': 20.0}
+            #     },
+
+            #     'roofs': [{
+            #         'state': {'value': 0.0},
+            #         'soilstore': {'value': 10},
+            #         'snowfrac': {'value': 0.0},
+            #         'snowpack': {'value': 0.0},
+            #         'icefrac': {'value': 0.0},
+            #         'snowwater': {'value': 0.0},
+            #         'snowdens': {'value': 0.0},
+            #         'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
+            #         'tsfc': {'value': 15.0},
+            #         'tin': {'value': 20.0}
+            #         }] * gridlayoutOut[feat_id]['nlayer'],
+            #     'walls': [{
+            #         'state': {'value': 0.0},
+            #         'soilstore': {'value': 10},
+            #         'snowfrac': {'value': 0.0},
+            #         'snowpack': {'value': 0.0},
+            #         'icefrac': {'value': 0.0},
+            #         'snowwater': {'value': 0.0},
+            #         'snowdens': {'value': 0.0},
+            #         'temperature': {'value': [15.0, 15.0, 15.0, 15.0, 15.0]},
+            #         'tsfc': {'value': 15.0},
+            #         'tin': {'value': 20.0}
+            #         }] * gridlayoutOut[feat_id]['nlayer']
+            # }
+            
+            temp_grid = check_fraction_consistency(temp_grid)
+            
+            yaml_dict['sites'].append(temp_grid)
             
         # Convert values in the nested dictionary
-        ss_dict_native = convert_numpy_types(ss_dict)
+        yaml_dict_native = convert_numpy_types(yaml_dict)
 
-        # Spara dictionary till en .yml-fil
-        
+        # Save dictionary to .yml
         with open(save_txt_folder + settings_dict['file_code'] + '.yml', 'w') as file:
-            yaml.dump(ss_dict_native, file, sort_keys = False)
+            yaml.dump(yaml_dict_native, file, sort_keys = False)
 
         # SUEWSConfig(**ss_dict_native)
 
@@ -1860,10 +1946,7 @@ class SUEWSPrepareDatabase(object):
             error_string = error_string + '\n\nCheck Python console to find this information again'
 
             iface.messageBar().pushMessage("Process completed with warnings from Spartacus", error_string, level=Qgis.Warning)
-            
-            # QMessageBox.critical(None, "Run complete but with Spartacus Vertical morphology errors", error_string)
         else:
-            # iface.messageBar().pushMessage("Process completed", "Input files for SUEWS generated", level=Qgis.Success)
             QMessageBox.information(None, 'Process Complete', "Input files for SUEWS generated")
 
         self.dlg.progressBar.setValue(0)

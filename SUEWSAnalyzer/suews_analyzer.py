@@ -287,7 +287,7 @@ class SUEWSAnalyzer(object):
 
             for item in list(sorted(list(params_dict.keys()))):
                 for cbox in [self.dlg.comboBox_POIVariable, self.dlg.comboBox_POIVariable_2,self.dlg.comboBox_SpatialVariable]:
-                    item_desc = item + f' ({params_dict[item]['description']})'
+                    item_desc = item + f" ({params_dict[item]['description']})" #773
                     cbox.addItem(item_desc)
 
             self.dlg.runButtonPlot.setEnabled(1)

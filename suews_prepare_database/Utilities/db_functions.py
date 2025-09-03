@@ -524,7 +524,9 @@ def findwalls(arr_dsm, walllimit):
 
 def profiles_to_dict(settings_dict, prof, ref):
     
-    profiles_list = ['TraffProfWE','TraffProfWD', 'EnergyUseProfWD','EnergyUseProfWE','ActivityProfWD','ActivityProfWE','PopProfWD','PopProfWE', 'SnowClearingProfWD', 'SnowClearingProfWE','WaterUseProfManuWD','WaterUseProfManuWE','WaterUseProfAutoWD','WaterUseProfAutoWE']        
+    profiles_list = ['TraffProfWE','TraffProfWD', 'EnergyUseProfWD','EnergyUseProfWE','ActivityProfWD',
+                     'ActivityProfWE','PopProfWD','PopProfWE', 'SnowClearingProfWD', 'SnowClearingProfWE',
+                     'WaterUseProfManuWD','WaterUseProfManuWE','WaterUseProfAutoWD','WaterUseProfAutoWE']        
     profile_dict = {}
     for profile in profiles_list:
         locator = settings_dict[profile]
@@ -721,20 +723,18 @@ def fill_BiogenCO2_yaml(indict, db_dict, zenodo):
 
     return biogen_dict
 
-def fill_snow_yaml(snow, indict, profiles_dict, nonVeg_dict, zenodo):
-
-    snow_code = indict['Code']
+def fill_snow_yaml(snow, indict, profiles_dict, zenodo):
 
     snow_dict = {
-        'crwmax': {'value': indict['CRWMax']},
-        'crwmin': {'value': indict['CRWMin']},
-        'narp_emis_snow': { 'value': indict['Emissivity'],},
-        'preciplimit': {'value': indict['PrecipLimSnow']},
-        'preciplimitalb': {'value': indict['PrecipLimAlb']},
-        'snowalbmin': {'value' : indict['AlbedoMin']}, 
-        'snowalbmax': {'value' : indict['AlbedoMax']},
-        'snowdensmin': {'value' : indict['SnowDensMin']},
-        'snowdensmax': {'value' : indict['SnowDensMax']},
+        'crwmax': {'value': indict['CRWMax']['value']},
+        'crwmin': {'value': indict['CRWMin']['value']},
+        'narp_emis_snow': { 'value': indict['Emissivity']['value']},
+        'preciplimit': {'value': indict['PrecipLimSnow']['value']},
+        'preciplimitalb': {'value': indict['PrecipLimAlb']['value']},
+        'snowalbmin': {'value' : indict['AlbedoMin']['value']}, 
+        'snowalbmax': {'value' : indict['AlbedoMax']['value']},
+        'snowdensmin': {'value' : indict['SnowDensMin']['value']},
+        'snowdensmax': {'value' : indict['SnowDensMax']['value']},
         
         'snowlimbldg': {
             'value': 100,
@@ -752,17 +752,13 @@ def fill_snow_yaml(snow, indict, profiles_dict, nonVeg_dict, zenodo):
             'working_day': profiles_dict['SnowClearingProfWD'],
             'holiday': profiles_dict['SnowClearingProfWE'],
         },
-        'tau_a': {'value' : indict['tau_a']},
-        'tau_f': {'value' : indict['tau_f']},
-        'tau_r': {'value' : indict['tau_r']},
-        'tempmeltfact': {'value' : indict['TempMeltFactor']},         
-        'radmeltfact': {'value' : indict['RadMeltFactor']},      
+        'tau_a': {'value' : indict['tau_a']['value']},
+        'tau_f': {'value' : indict['tau_f']['value']},
+        'tau_r': {'value' : indict['tau_r']['value']},
+        'tempmeltfact': {'value' : indict['TempMeltFactor']['value']},         
+        'radmeltfact': {'value' : indict['RadMeltFactor']['value']},      
         
-        'ref': {
-            'desc': snow.loc[snow_code, 'nameOrigin'],
-            'ID': str(snow_code),
-            'DOI': zenodo
-        }
+        'ref' : indict['ref']
     }
 
     return snow_dict
@@ -807,7 +803,7 @@ def fill_soil_yaml(db_dict, indict, surface, zenodo):
     }
     return soil_dict
 
-def fill_bare_soil_yaml(indict, db_dict, LCF_baresoil, irrFr, zenodo):
+def fill_bare_soil_yaml(indict, db_dict, LCF_baresoil, irrFr, zenodo, temp_bsoil):
     '''
      OB 20241216
     Function to fill bare_soil params in yaml file
@@ -815,97 +811,48 @@ def fill_bare_soil_yaml(indict, db_dict, LCF_baresoil, irrFr, zenodo):
     db_dict = db_dict 
     '''
 
-    bare_soil_dict = {
-        'sfr': {'value' : round(LCF_baresoil,3)},
-        'emis': indict['Emissivity'],
-        'alb' : indict['AlbedoMax'],
-        'irrfrac': {'value': irrFr},
-        'chanohm': {'value' : 0.0},
-        'cpanohm': {'value' : 1200.0},
-        'kkanohm': {'value' : 0.4},
+    temp_bsoil['sfr']['value'] = round(LCF_baresoil,3)
+    temp_bsoil['emis'] = indict['Emissivity']
+    temp_bsoil['alb'] = indict['AlbedoMax']
+    temp_bsoil['irrfrac']['value'] = irrFr
 
-         # OHM
-        'ohm_threshsw': {
-            'value': 10., # TODO This param is static at the moment. Needs to be set somehow.,
-            'ref' : {
-                'desc' : 'Example values from Ward, H. C.; Kotthaus, S.; Järvi, L.; Grimmond, C. S. B.(2016)',
-                'DOI' : db_dict['References'].loc[90240002, 'DOI']
-            }
-        },
+    temp_bsoil['ohm_coef'] = indict['ohm_coef']
 
-        'ohm_threshwd': {
-            'value':0.9, # TODO This param is static at the moment. Needs to be set somehow.,
-            'ref' : {
-                'desc' : 'Example values from Ward, H. C.; Kotthaus, S.; Järvi, L.; Grimmond, C. S. B.(2016)',
-                'DOI' : db_dict['References'].loc[90240002, 'DOI']
-            }
-        },
-
-        'ohm_coef': indict['ohm_coef'],
-
-        'soildepth':{
-            'value' : db_dict['Soil'].loc[indict['SoilTypeCode']['value'],'SoilDepth'],
-            'ref' : {
-                'desc' : db_dict['Soil'].loc[indict['SoilTypeCode']['value'],'nameOrigin'],
-                'ID' :  str(indict['SoilTypeCode']['value']),
-                'DOI': zenodo
-            } 
-        },
-        'statelimit': {
-            'value' : -999,
-            'ref': {
-                'desc' : 'No ref. Currently only used for the water surface',
-            }
-        },
-        'snowpacklimit': {
-            'value' : 190,
-            'ref' : {
-                'desc' : 'Example Values from Järvi et al., (2014)',
-                'DOI' : 'https://suews.readthedocs.io/en/latest/input_files/SUEWS_SiteInfo/Input_Options.html#cmdoption-arg-SnowLimPatch : SnowLimPatch'  #TODO At the moment Hardcoded needs to be set somehow
-                }
-        },
-        'storedrainprm': {
+    temp_bsoil['soildepth'] = {
+        'value' : db_dict['Soil'].loc[indict['SoilTypeCode']['value'],'SoilDepth'],
+        'ref' : {
+            'desc' : db_dict['Soil'].loc[indict['SoilTypeCode']['value'],'nameOrigin'],
+            'ID' :  str(indict['SoilTypeCode']['value']),
+            'DOI': zenodo} 
+        }
+        
+    temp_bsoil['storedrainprm'] = {
             'store_min': indict['StorageMin'],
             'store_max': indict['StorageMax'],
             'store_cap': indict['StorageMax'], #TODO THIS IS probably wrong this is current storage according to manual
             'drain_eq':  indict['DrainageEq'],
             'drain_coef_1': indict['DrainageCoef1'],
             'drain_coef_2': indict['DrainageCoef2'],
-        },
+        }
     
-        'waterdist': {      # TODO Neds to be set somehow
-            'to_paved': {'value' : 0.0},
-            'to_bldgs': {'value' : 0.0},
-            'to_dectr': {'value' : 0.0},
-            'to_evetr': {'value' : 0.0},
-            'to_grass': {'value' : 0.0},
-            'to_bsoil': {'value' : 0.0},
-            'to_water': {'value' : 0.0},
-            'to_soilstore': {'value' : 1},
-            'to_runoff' : {'value' : 0}
-        },
+        # 'waterdist': {      # TODO Neds to be set somehow
+        #     'to_paved': {'value' : 0.0},
+        #     'to_bldgs': {'value' : 0.0},
+        #     'to_dectr': {'value' : 0.0},
+        #     'to_evetr': {'value' : 0.0},
+        #     'to_grass': {'value' : 0.0},
+        #     'to_bsoil': {'value' : 0.0},
+        #     'to_water': {'value' : 0.0},
+        #     'to_soilstore': {'value' : 1},
+        #     'to_runoff' : {'value' : 0}
+        # },
 
-        'snowpacklimit': {
-            'value' : 190,
-            'ref' : {
-                'desc' : 'Example Values from Järvi et al., (2014)',
-                'DOI' : 'https://suews.readthedocs.io/en/latest/input_files/SUEWS_SiteInfo/Input_Options.html#cmdoption-arg-SnowLimPatch : SnowLimPatch'  #TODO At the moment Hardcoded needs to be set somehow
-                }
-            },
-            
-        'thermal_layers': {
-            'dz': {'value': [0.1, 0.2, 0.3, 0.4, 0.5]},
-            'k': {'value': [1.0, 1.0, 1.0, 1.0, 1.0]},
-            'cp': {'value': [1000, 1000, 1000, 1000, 1000]}
-        },
+    temp_bsoil = temp_bsoil | fill_soil_yaml(db_dict, indict, 'NonVeg', zenodo)
+    temp_bsoil['ref'] = indict['ref']    
 
-    }
-    bare_soil_dict = bare_soil_dict | fill_soil_yaml(db_dict, indict, 'NonVeg', zenodo)
-    bare_soil_dict['ref'] = indict['ref']    
+    return temp_bsoil
 
-    return bare_soil_dict
-
-def fill_water_yaml(indict, db_dict, LCF_water, IrrFr_Water, zenodo):
+def fill_water_yaml(indict, db_dict, LCF_water, IrrFr_Water, zenodo, temp_water):
     '''
     OB 20241216
     Function to fill water_surface params in yaml file
@@ -913,153 +860,83 @@ def fill_water_yaml(indict, db_dict, LCF_water, IrrFr_Water, zenodo):
     db_dict = db_dict 
     '''
 
-    water_dict = {
-        'sfr': {'value' : round(LCF_water,3)},
-        'emis': indict['Emissivity'],
-        'alb' : indict['AlbedoMax'],
-        'chanohm': {'value' : 0.0},
-        'cpanohm': {'value' : 1200.0},
-        'kkanohm': {'value' : 0.4},
+    temp_water['sfr']['value'] = round(LCF_water,3)
+    temp_water['emis'] = indict['Emissivity']
+    temp_water['alb'] = indict['AlbedoMax']
 
-        'ohm_threshsw': {
-            'value': 10., # TODO This param is static at the moment. Needs to be set somehow.,
-            'ref' : {
-                'desc' : 'Example values from Ward, H. C.; Kotthaus, S.; Järvi, L.; Grimmond, C. S. B.(2016)',
-                'DOI' : db_dict['References'].loc[90240002, 'DOI']
-            }
-        },
-
-        'ohm_threshwd': {
-            'value':0.9, # TODO This param is static at the moment. Needs to be set somehow.,
-            'ref' : {
-                'desc' : 'Example values from Ward, H. C.; Kotthaus, S.; Järvi, L.; Grimmond, C. S. B.(2016)',
-                'DOI' : db_dict['References'].loc[90240002, 'DOI']
-            }
-        },
-
-        'ohm_coef': indict['ohm_coef'],
+    temp_water['ohm_coef'] = indict['ohm_coef']
         
-        'statelimit': indict['StateLimit'],
+    temp_water['statelimit'] = indict['StateLimit']
 
-        'storedrainprm': {
+    temp_water['storedrainprm'] = {
             'store_min': indict['StorageMin'],
             'store_max': indict['StorageMax'],
             'store_cap': indict['StorageMax'], #TODO THIS IS probably wrong this is current storage according to manual
             'drain_eq':  indict['DrainageEq'],
             'drain_coef_1': indict['DrainageCoef1'],
             'drain_coef_2': indict['DrainageCoef2'],
-        },
+        }
         
-        'snowpacklimit': {
-            'value' : 190,
-            'ref' : {
-                'desc' : 'Example Values from Järvi et al., (2014)',
-                'DOI' : 'https://suews.readthedocs.io/en/latest/input_files/SUEWS_SiteInfo/Input_Options.html#cmdoption-arg-SnowLimPatch : SnowLimPatch'  #TODO At the moment Hardcoded needs to be set somehow
-                }
-            },
-        'thermal_layers': {
-            'dz': {'value': [0.1, 0.2, 0.3, 0.4, 0.5]},
-            'k': {'value': [1.0, 1.0, 1.0, 1.0, 1.0]},
-            'cp': {'value': [1000, 1000, 1000, 1000, 1000]}
-        },
-        'irrfrac': {'value' : IrrFr_Water},
-        'flowchange': {
-            'value' : 0.0,
-            'ref': {
-                'desc' : 'No Reference, no example values.  Currently not fully tested'
-            }
-        },
-    }
+    temp_water['irrfrac']['value'] = IrrFr_Water
     
-    water_dict = water_dict | fill_soil_yaml(db_dict, indict, 'Water', zenodo)
+    temp_water = temp_water | fill_soil_yaml(db_dict, indict, 'Water', zenodo)
 
-    water_dict['ref'] = indict['ref'] 
+    temp_water['ref'] = indict['ref'] 
     
-    return water_dict
+    return temp_water
 
-def fill_veg_yaml(veg_dict, db_dict, surface, LCF, irrFr, IMPveg_fai, IMPveg_heights_mean, irr_code, zenodo): 
-    veg_yaml_dict =  {
-        'sfr': {'value': round(LCF,3)},
-        'emis': veg_dict[surface]['Emissivity'],
-        'alb_min': veg_dict[surface]['AlbedoMin'],
-        'alb_max': veg_dict[surface]['AlbedoMax'],
+def fill_veg_yaml(veg_dict, db_dict, surface, LCF, irrFr, IMPveg_fai, IMPveg_heights_mean, irr_code, zenodo, temp_veg): 
+    temp_veg['sfr']['value'] = round(LCF,3)
+    temp_veg['emis'] = veg_dict[surface]['Emissivity']
+    temp_veg['alb_min'] = veg_dict[surface]['AlbedoMin']
+    temp_veg['alb_max'] = veg_dict[surface]['AlbedoMax']
+        # # OHM
+        # 'ohm_threshsw': {
+        #     'value': 10., # TODO This param is static at the moment. Needs to be set somehow.,
+        #     'ref' : {
+        #         'desc' : 'Example values from Ward, H. C.; Kotthaus, S.; Järvi, L.; Grimmond, C. S. B.(2016)',
+        #         'DOI' : db_dict['References'].loc[90240002, 'DOI']
+        #     }
+        # },
 
-        # AnOHM
-        'chanohm': {'value' : 0.0},
-        'cpanohm': {'value' : 1200.0},
-        'kkanohm': {'value' : 0.4},
+        # 'ohm_threshwd': {
+        #     'value':0.9, # TODO This param is static at the moment. Needs to be set somehow.,
+        #     'ref' : {
+        #         'desc' : 'Example values from Ward, H. C.; Kotthaus, S.; Järvi, L.; Grimmond, C. S. B.(2016)',
+        #         'DOI' : db_dict['References'].loc[90240002, 'DOI']
+        #     }
+        # },
 
-        # OHM
-        'ohm_threshsw': {
-            'value': 10., # TODO This param is static at the moment. Needs to be set somehow.,
-            'ref' : {
-                'desc' : 'Example values from Ward, H. C.; Kotthaus, S.; Järvi, L.; Grimmond, C. S. B.(2016)',
-                'DOI' : db_dict['References'].loc[90240002, 'DOI']
-            }
-        },
-
-        'ohm_threshwd': {
-            'value':0.9, # TODO This param is static at the moment. Needs to be set somehow.,
-            'ref' : {
-                'desc' : 'Example values from Ward, H. C.; Kotthaus, S.; Järvi, L.; Grimmond, C. S. B.(2016)',
-                'DOI' : db_dict['References'].loc[90240002, 'DOI']
-            }
-        },
-
-        'ohm_coef': veg_dict[surface]['ohm_coef'],
+    temp_veg['ohm_coef'] = veg_dict[surface]['ohm_coef']
 
         #  LAI
-        'lai': fill_lai_yaml(veg_dict[surface], db_dict, zenodo),
-
-        'statelimit': {
-            'value' : -999,
-            'ref': {
-                'desc' : 'No ref. Currently only used for the water surface',
-            }
-        },
+    temp_veg['lai'] = fill_lai_yaml(veg_dict[surface], db_dict, zenodo)
 
         # Storage and drainage
-        'storedrainprm': {
+    temp_veg['storedrainprm'] = {
             'store_min': veg_dict[surface]['StorageMin'],
             'store_max': veg_dict[surface]['StorageMax'],
             'store_cap': veg_dict[surface]['StorageMax'], #TODO THIS IS probably wrong this is current storage according to manual
             'drain_eq':  veg_dict[surface]['DrainageEq'],
             'drain_coef_1': veg_dict[surface]['DrainageCoef1'],
             'drain_coef_2': veg_dict[surface]['DrainageCoef2'],
-        },
+        }
         
-        # Snow Packlimit
-        'snowpacklimit': {
-            'value' :  190,
-            'ref' : {
-                'desc' : 'Example Values from Järvi et al., (2014)',
-                'DOI' : 'https://suews.readthedocs.io/en/latest/input_files/SUEWS_SiteInfo/Input_Options.html#cmdoption-arg-SnowLimPatch : SnowLimPatch'  #TODO At the moment Hardcoded needs to be set somehow
-            }
-        },
+        # # Snow Packlimit
+        # 'snowpacklimit': {
+        #     'value' :  190,
+        #     'ref' : {
+        #         'desc' : 'Example Values from Järvi et al., (2014)',
+        #         'DOI' : 'https://suews.readthedocs.io/en/latest/input_files/SUEWS_SiteInfo/Input_Options.html#cmdoption-arg-SnowLimPatch : SnowLimPatch'  #TODO At the moment Hardcoded needs to be set somehow
+        #     }
+        # },
         
-        'thermal_layers': {
-            'dz': {'value': [0.1, 0.2, 0.3, 0.4, 0.5]},
-            'k': {'value': [1.0, 1.0, 1.0, 1.0, 1.0]},
-            'cp': {'value': [1000, 1000, 1000, 1000, 1000]}
-        },
-        'irrfrac': {'value' : irrFr},
-    }
+    temp_veg['irrfrac']['value'] =  irrFr
 
     if surface == 'Evergreen Tree':
-        veg_yaml_dict['waterdist'] = { # TODO Neds to be set somehow
-            'to_paved': {'value' : 0.1},
-            'to_bldgs': {'value' : 0.0},
-            'to_dectr': {'value' : 0.0},
-            'to_evetr': {'value' : 0.0},
-            'to_grass': {'value' : 0.0},
-            'to_bsoil': {'value' : 0.0},
-            'to_water': {'value' : 0.0},
-            'to_soilstore': {'value' : 0.9},
-            'to_runoff' : {'value' : 0}
-        }
-        veg_yaml_dict['faievetree'] = {'value': IMPveg_fai}
-        veg_yaml_dict['evetreeh'] = {'value': IMPveg_heights_mean}
-        veg_yaml_dict['ie_a'] = {
+        temp_veg['faievetree'] = {'value': IMPveg_fai}
+        temp_veg['evetreeh'] = {'value': IMPveg_heights_mean}
+        temp_veg['ie_a'] = {
             'value' : db_dict['Irrigation'].loc[irr_code, 'Ie_a1'],
             'ref' : {
                 'desc' : db_dict['Irrigation'].loc[irr_code, 'nameOrigin'], 
@@ -1067,7 +944,7 @@ def fill_veg_yaml(veg_dict, db_dict, surface, LCF, irrFr, IMPveg_fai, IMPveg_hei
                 'DOI': zenodo
                 } 
             }
-        veg_yaml_dict['ie_m'] =  {
+        temp_veg['ie_m'] =  {
             'value' : db_dict['Irrigation'].loc[irr_code, 'Ie_m1'],
             'ref' : {
                 'desc' : db_dict['Irrigation'].loc[irr_code, 'nameOrigin'], 
@@ -1077,20 +954,20 @@ def fill_veg_yaml(veg_dict, db_dict, surface, LCF, irrFr, IMPveg_fai, IMPveg_hei
             }
         
     elif surface == 'Deciduous Tree':
-        veg_yaml_dict['waterdist'] = { # TODO Neds to be set somehow
-            'to_paved': {'value' : 0.1},
-            'to_bldgs': {'value' : 0.0},
-            'to_dectr': {'value' : 0.0},
-            'to_evetr': {'value' : 0.0},
-            'to_grass': {'value' : 0.0},
-            'to_bsoil': {'value' : 0.0},
-            'to_water': {'value' : 0.0},
-            'to_soilstore': {'value' : 0.9},
-            'to_runoff' : {'value' : 0}
-        }
-        veg_yaml_dict['faidectree'] = {'value' : IMPveg_fai}
-        veg_yaml_dict['dectreeh'] = {'value' : IMPveg_heights_mean}
-        veg_yaml_dict['ie_a'] = {
+        # veg_yaml_dict['waterdist'] = { # TODO Neds to be set somehow
+        #     'to_paved': {'value' : 0.1},
+        #     'to_bldgs': {'value' : 0.0},
+        #     'to_dectr': {'value' : 0.0},
+        #     'to_evetr': {'value' : 0.0},
+        #     'to_grass': {'value' : 0.0},
+        #     'to_bsoil': {'value' : 0.0},
+        #     'to_water': {'value' : 0.0},
+        #     'to_soilstore': {'value' : 0.9},
+        #     'to_runoff' : {'value' : 0}
+        # }
+        temp_veg['faidectree']['value'] = IMPveg_fai
+        temp_veg['dectreeh']['value'] = IMPveg_heights_mean
+        temp_veg['ie_a'] = {
             'value' : db_dict['Irrigation'].loc[irr_code, 'Ie_a2'],
             'ref' : {
                 'desc' : db_dict['Irrigation'].loc[irr_code, 'nameOrigin'], 
@@ -1098,7 +975,7 @@ def fill_veg_yaml(veg_dict, db_dict, surface, LCF, irrFr, IMPveg_fai, IMPveg_hei
                 'DOI': zenodo
                 }
             }
-        veg_yaml_dict['ie_m'] =  {
+        temp_veg['ie_m'] =  {
             'value' : db_dict['Irrigation'].loc[irr_code, 'Ie_m2'],
             'ref' : {
                 'desc' : db_dict['Irrigation'].loc[irr_code, 'nameOrigin'], 
@@ -1109,20 +986,18 @@ def fill_veg_yaml(veg_dict, db_dict, surface, LCF, irrFr, IMPveg_fai, IMPveg_hei
 
         # porosity_code = veg_dict[surface]['Code']['value']
 
-        veg_yaml_dict['pormin_dec'] = {
+        temp_veg['pormin_dec'] = {
             'value': veg_dict[surface]['PorosityMin']['value'],
             'ref' : veg_dict[surface]['PorosityMin']['ref']
         } 
-        veg_yaml_dict['pormax_dec'] = {
+        temp_veg['pormax_dec'] = {
             'value': veg_dict[surface]['PorosityMax']['value'],
             'ref' : veg_dict[surface]['PorosityMax']['ref']
         }
 
-        veg_yaml_dict['capmax_dec'] = {'value' : 1.0}
-        veg_yaml_dict['capmin_dec'] = {'value' : 1.0}
-
+ 
     elif surface == 'Grass':
-        veg_yaml_dict['ie_a'] = {
+        temp_veg['ie_a'] = {
             'value' : db_dict['Irrigation'].loc[irr_code, 'Ie_a3'],
             'ref' : {
                 'desc' : db_dict['Irrigation'].loc[irr_code, 'nameOrigin'], 
@@ -1130,7 +1005,7 @@ def fill_veg_yaml(veg_dict, db_dict, surface, LCF, irrFr, IMPveg_fai, IMPveg_hei
                 'DOI': zenodo
                 } 
             }
-        veg_yaml_dict['ie_m'] =  {
+        temp_veg['ie_m'] =  {
             'value' : db_dict['Irrigation'].loc[irr_code, 'Ie_m3'],
             'ref' : {
                 'desc' : db_dict['Irrigation'].loc[irr_code, 'nameOrigin'], 
@@ -1138,116 +1013,105 @@ def fill_veg_yaml(veg_dict, db_dict, surface, LCF, irrFr, IMPveg_fai, IMPveg_hei
                 'DOI': zenodo
                 } 
             }
-        veg_yaml_dict['waterdist'] = { # TODO Neds to be set somehow
-            'to_paved': {'value' : 0.0},
-            'to_bldgs': {'value' : 0.0},
-            'to_dectr': {'value' : 0.0},
-            'to_evetr': {'value' : 0.0},
-            'to_grass': {'value' : 0.0},
-            'to_bsoil': {'value' : 0.0},
-            'to_water': {'value' : 0.0},
-            'to_soilstore': {'value' : 1},
-            'to_runoff' : {'value' : 0.0}
-        }
+        # temp_veg['waterdist'] = { # TODO Neds to be set somehow
+        #     'to_paved': {'value' : 0.0},
+        #     'to_bldgs': {'value' : 0.0},
+        #     'to_dectr': {'value' : 0.0},
+        #     'to_evetr': {'value' : 0.0},
+        #     'to_grass': {'value' : 0.0},
+        #     'to_bsoil': {'value' : 0.0},
+        #     'to_water': {'value' : 0.0},
+        #     'to_soilstore': {'value' : 1},
+        #     'to_runoff' : {'value' : 0.0}
+        # }
     # Add on BiogenCO2 & Soil params
-    veg_yaml_dict = veg_yaml_dict | fill_BiogenCO2_yaml(veg_dict[surface], db_dict, zenodo) 
-    veg_yaml_dict = veg_yaml_dict | fill_soil_yaml(db_dict, veg_dict[surface], 'Veg', zenodo)
+    temp_veg = temp_veg | fill_BiogenCO2_yaml(veg_dict[surface], db_dict, zenodo) 
+    temp_veg = temp_veg | fill_soil_yaml(db_dict, veg_dict[surface], 'Veg', zenodo)
 
-    veg_yaml_dict['ref'] = veg_dict[surface]['ref']
+    temp_veg['ref'] = veg_dict[surface]['ref']
 
-    return veg_yaml_dict
+    return temp_veg
 
-def fill_nonveg_yaml(nonveg_dict, db_dict, surface, LCF, irrFr, IMP_fai, IMP_heights_mean, zenodo):
+def fill_nonveg_yaml(nonveg_dict,surface, db_dict, LCF, irrFr, IMP_fai, IMP_heights_mean, zenodo, temp_nonveg):
     
-    nonveg_yaml_dict = {
-        'sfr': {'value' : round(LCF,3)},
-        'emis': nonveg_dict[surface]['Emissivity'],
-        'alb': nonveg_dict[surface]['AlbedoMax'],
-        'irrfrac': {'value': irrFr},
-        'chanohm': {'value' : 0.0},
-        'cpanohm': {'value' : 1200.0},
-        'kkanohm': {'value' : 0.4},
-        'ohm_threshsw': {
-            'value': 10., # TODO This param is static at the moment. Needs to be set somehow.,
-            'ref' : {
-                'desc' : 'Example values from Ward, H. C.; Kotthaus, S.; Järvi, L.; Grimmond, C. S. B.(2016)',
-                'DOI' : db_dict['References'].loc[90240002, 'DOI']
-            }
-        },
+    temp_nonveg['sfr']['value'] = round(LCF,3)
+    temp_nonveg['emis'] = nonveg_dict[surface]['Emissivity']
+    temp_nonveg['alb'] = nonveg_dict[surface]['AlbedoMax']
+    temp_nonveg['irrfrac']['value'] = irrFr
+        # 'ohm_threshsw': {
+        #     'value': 10., # TODO This param is static at the moment. Needs to be set somehow.,
+        #     'ref' : {
+        #         'desc' : 'Example values from Ward, H. C.; Kotthaus, S.; Järvi, L.; Grimmond, C. S. B.(2016)',
+        #         'DOI' : db_dict['References'].loc[90240002, 'DOI']
+        #     }
+        # },
 
-        'ohm_threshwd': {
-            'value':0.9, # TODO This param is static at the moment. Needs to be set somehow.,
-            'ref' : {
-                'desc' : 'Example values from Ward, H. C.; Kotthaus, S.; Järvi, L.; Grimmond, C. S. B.(2016)',
-                'DOI' : db_dict['References'].loc[90240002, 'DOI']
-            }
-        },
+        # 'ohm_threshwd': {
+        #     'value':0.9, # TODO This param is static at the moment. Needs to be set somehow.,
+        #     'ref' : {
+        #         'desc' : 'Example values from Ward, H. C.; Kotthaus, S.; Järvi, L.; Grimmond, C. S. B.(2016)',
+        #         'DOI' : db_dict['References'].loc[90240002, 'DOI']
+        #     }
+        # },
 
-        'ohm_coef': nonveg_dict[surface]['ohm_coef'],
+    temp_nonveg['ohm_coef'] = nonveg_dict[surface]['ohm_coef']
 
-        'statelimit': {
-            'value' : -999,
-            'ref': {
-                'desc' : 'No ref. Currently only used for the water surface',
-            }
-        },
-
-        'storedrainprm': {
+    temp_nonveg['storedrainprm'] = {
             'store_min': nonveg_dict[surface]['StorageMin'],
             'store_max': nonveg_dict[surface]['StorageMax'],
             'store_cap': nonveg_dict[surface]['StorageMax'], #TODO THIS IS probably wrong this is current storage according to manual
             'drain_eq':  nonveg_dict[surface]['DrainageEq'],
             'drain_coef_1': nonveg_dict[surface]['DrainageCoef1'],
             'drain_coef_2': nonveg_dict[surface]['DrainageCoef2'],
-        },
+        }
 
-        'snowpacklimit': {
-            'value' : 190,
-            'ref' : {
-                'desc' : 'Example Values from Järvi et al., (2014)',
-                'DOI' : 'https://suews.readthedocs.io/en/latest/input_files/SUEWS_SiteInfo/Input_Options.html#cmdoption-arg-SnowLimPatch : SnowLimPatch'  #TODO At the moment Hardcoded needs to be set somehow
-                }
-           },
+    #     'snowpacklimit': {
+    #         'value' : 190,
+    #         'ref' : {
+    #             'desc' : 'Example Values from Järvi et al., (2014)',
+    #             'DOI' : 'https://suews.readthedocs.io/en/latest/input_files/SUEWS_SiteInfo/Input_Options.html#cmdoption-arg-SnowLimPatch : SnowLimPatch'  #TODO At the moment Hardcoded needs to be set somehow
+    #             }
+    #        },
 
-        'thermal_layers': {
-            'dz': {'value': [0.1, 0.2, 0.3, 0.4, 0.5]},
-            'k': {'value': [1.0, 1.0, 1.0, 1.0, 1.0]},
-            'cp': {'value': [1000, 1000, 1000, 1000, 1000]}
-        },
-    }   
+    #     'thermal_layers': {
+    #         'dz': {'value': [0.1, 0.2, 0.3, 0.4, 0.5]},
+    #         'k': {'value': [1.0, 1.0, 1.0, 1.0, 1.0]},
+    #         'cp': {'value': [1000, 1000, 1000, 1000, 1000]}
+    #     },
+    # }   
 
     if surface == 'Buildings':
-        nonveg_yaml_dict['faibldg'] = {'value' : IMP_fai}
-        nonveg_yaml_dict['bldgh'] = {'value' : IMP_heights_mean}
-        nonveg_yaml_dict['waterdist'] = { # TODO Neds to be set somehow
-            'to_paved': {'value' : 0.1},
-            'to_bldgs': {'value' : 0.0},
-            'to_dectr': {'value' : 0.0},
-            'to_evetr': {'value' : 0.0},
-            'to_grass': {'value' : 0.0},
-            'to_bsoil': {'value' : 0.0},
-            'to_water': {'value' : 0.0},
-            'to_soilstore': {'value' : 0.0},
-            'to_runoff' : {'value' : 0.9}
-        }
-    else:
-        nonveg_yaml_dict['waterdist'] = { # TODO Neds to be set somehow
-            'to_paved': {'value' : 0.},
-            'to_bldgs': {'value' : 0.},
-            'to_dectr': {'value' : 0.},
-            'to_evetr': {'value' : 0.},
-            'to_grass': {'value' : 0.02},
-            'to_bsoil': {'value' : 0.},
-            'to_water': {'value' : 0.},
-            'to_soilstore': {'value' : 0.},
-            'to_runoff' : {'value' : 0.98}
-        }
+        temp_nonveg['faibldg']['value'] =IMP_fai
+        temp_nonveg['bldgh']['value'] = IMP_heights_mean
+        # temp_nonveg['waterdist'] = { # TODO Neds to be set somehow
+        #     'to_paved': {'value' : 0.1},
+        #     'to_bldgs': {'value' : 0.0},
+        #     'to_dectr': {'value' : 0.0},
+        #     'to_evetr': {'value' : 0.0},
+        #     'to_grass': {'value' : 0.0},
+        #     'to_bsoil': {'value' : 0.0},
+        #     'to_water': {'value' : 0.0},
+        #     'to_soilstore': {'value' : 0.0},
+        #     'to_runoff' : {'value' : 0.9}
+        # }
+    # else:
+        # temp_nonveg['waterdist'] = { # TODO Neds to be set somehow
+        #     'to_paved': {'value' : 0.},
+        #     'to_bldgs': {'value' : 0.},
+        #     'to_dectr': {'value' : 0.},
+        #     'to_evetr': {'value' : 0.},
+        #     'to_grass': {'value' : 0.02},
+        #     'to_bsoil': {'value' : 0.},
+        #     'to_water': {'value' : 0.},
+        #     'to_soilstore': {'value' : 0.},
+        #     'to_runoff' : {'value' : 0.98}
+        # }
 
-    nonveg_yaml_dict = nonveg_yaml_dict | fill_soil_yaml(db_dict, nonveg_dict[surface], 'NonVeg', zenodo)
+    temp_nonveg = temp_nonveg | fill_soil_yaml(db_dict, nonveg_dict[surface], 'NonVeg', zenodo)
     
-    nonveg_yaml_dict['ref'] = nonveg_dict[surface]['ref']
+    temp_nonveg['ref'] = nonveg_dict[surface]['ref']
 
-    return nonveg_yaml_dict
+    return temp_nonveg
 
 def fill_AnEm_yaml(db_dict, anem_code, profiles_dict, parameter_dict, start_DLS, end_DLS, TrafficRate_WD, TrafficRate_WE, pop_density_night, pop_density_day, zenodo): 
     AnEm_sel = db_dict['AnthropogenicEmission'].loc[anem_code]
@@ -1397,163 +1261,163 @@ def fill_irrigation_yaml(sel_irrigation, profiles_dict, zenodo):
 
     return irrigation
 
-def fill_vertical_layers_yaml(ss_dict, db_dict, nonveg_dict, zenodo):
+# def fill_vertical_layers_yaml(ss_dict, db_dict, nonveg_dict, zenodo):
 
-    a=1
+#     a=1
 
-    # spartacus_material = db_dict['Spartacus Material']
-    # spartacus_surface = db_dict['Spartacus Surface']
+#     # spartacus_material = db_dict['Spartacus Material']
+#     # spartacus_surface = db_dict['Spartacus Surface']
 
-    # vertical_layers = {
-    #     'nlayer': {'value': ss_dict['nlayer']},
-    #     'height': {'value': ss_dict['height']},
-    #     'veg_frac': {'value': ss_dict['veg_frac']},
-    #     'veg_scale': {'value': ss_dict['veg_scale']},
-    #     'building_frac': {'value': ss_dict['building_frac']},
-    #     'building_scale': {'value': ss_dict['building_scale']},
-    #     'roofs' : {},
-    #     'walls' : {}
-    #     }
+#     # vertical_layers = {
+#     #     'nlayer': {'value': ss_dict['nlayer']},
+#     #     'height': {'value': ss_dict['height']},
+#     #     'veg_frac': {'value': ss_dict['veg_frac']},
+#     #     'veg_scale': {'value': ss_dict['veg_scale']},
+#     #     'building_frac': {'value': ss_dict['building_frac']},
+#     #     'building_scale': {'value': ss_dict['building_scale']},
+#     #     'roofs' : {},
+#     #     'walls' : {}
+#     #     }
 
-    # vertical_layers = {
-    # 'nlayer': {'value': 1},
-    #     'height': {'value': [0.0, 10.0]},
-    #     'veg_frac': {'value': [0.0]},
-    #     'veg_scale': {'value': [1.0]},
-    #     'building_frac': {'value': [0.4]},
-    #     'building_scale': {'value': [1.0]},
-    #     'roofs': [
-    #         {
-    #             'alb': {'value': 0.1},
-    #             'emis': {'value': 0.95},
-    #             'thermal_layers': {
-    #                 'dz': {'value': [0.1, 0.2, 0.3, 0.4, 0.5]},
-    #                 'k': {'value': [1.0, 1.0, 1.0, 1.0, 1.0]},
-    #                 'cp': {'value': [1000, 1000, 1000, 1000, 1000]}
-    #             },
-    #             'statelimit': {'value': 10.0},
-    #             'soilstorecap': {'value': 150.0},
-    #             'wetthresh': {'value': 0.5},
-    #             'roof_albedo_dir_mult_fact':{'value':  0.1},
-    #             'wall_specular_frac':{'value':  0.1}
-    #         }  
-    #     ],
-    #     'walls': [
-    #         {
-    #             'alb': {'value': 0.1},
-    #             'emis': {'value': 0.95},
-    #             'thermal_layers': {
-    #                 'dz': {'value': [0.1, 0.2, 0.3, 0.4, 0.5]},
-    #                 'k': {'value': [1.0, 1.0, 1.0, 1.0, 1.0]},
-    #                 'cp': {'value': [1000, 1000, 1000, 1000, 1000]}
-    #             },
-    #             'statelimit': {'value': 10.0},
-    #             'soilstorecap': {'value': 150.0},
-    #             'wetthresh': {'value': 0.5},
-    #             'roof_albedo_dir_mult_fact':{'value':  0.1},
-    #             'wall_specular_frac':{'value':  0.1}
-    #         } 
-    #     ]
-    # },
+#     # vertical_layers = {
+#     # 'nlayer': {'value': 1},
+#     #     'height': {'value': [0.0, 10.0]},
+#     #     'veg_frac': {'value': [0.0]},
+#     #     'veg_scale': {'value': [1.0]},
+#     #     'building_frac': {'value': [0.4]},
+#     #     'building_scale': {'value': [1.0]},
+#     #     'roofs': [
+#     #         {
+#     #             'alb': {'value': 0.1},
+#     #             'emis': {'value': 0.95},
+#     #             'thermal_layers': {
+#     #                 'dz': {'value': [0.1, 0.2, 0.3, 0.4, 0.5]},
+#     #                 'k': {'value': [1.0, 1.0, 1.0, 1.0, 1.0]},
+#     #                 'cp': {'value': [1000, 1000, 1000, 1000, 1000]}
+#     #             },
+#     #             'statelimit': {'value': 10.0},
+#     #             'soilstorecap': {'value': 150.0},
+#     #             'wetthresh': {'value': 0.5},
+#     #             'roof_albedo_dir_mult_fact':{'value':  0.1},
+#     #             'wall_specular_frac':{'value':  0.1}
+#     #         }  
+#     #     ],
+#     #     'walls': [
+#     #         {
+#     #             'alb': {'value': 0.1},
+#     #             'emis': {'value': 0.95},
+#     #             'thermal_layers': {
+#     #                 'dz': {'value': [0.1, 0.2, 0.3, 0.4, 0.5]},
+#     #                 'k': {'value': [1.0, 1.0, 1.0, 1.0, 1.0]},
+#     #                 'cp': {'value': [1000, 1000, 1000, 1000, 1000]}
+#     #             },
+#     #             'statelimit': {'value': 10.0},
+#     #             'soilstorecap': {'value': 150.0},
+#     #             'wetthresh': {'value': 0.5},
+#     #             'roof_albedo_dir_mult_fact':{'value':  0.1},
+#     #             'wall_specular_frac':{'value':  0.1}
+#     #         } 
+#     #     ]
+#     # },
 
-    # for surface in ['roof', 'wall']:
+#     # for surface in ['roof', 'wall']:
         
-    #     ss_list = []
-    #     for vlayer in range(1, ss_dict['nlayer']+ 1):
+#     #     ss_list = []
+#     #     for vlayer in range(1, ss_dict['nlayer']+ 1):
 
-    #         layer = {
-    #                 'alb': {
-    #                     'value' : ss_dict[f'alb_{surface}'][0]
-    #                 },
-    #                 'emis': {
-    #                     'value' : ss_dict[f'emis_{surface}'][0]
-    #                 },
-    #                 'thermal_layers': {
-    #                     'dz': {'value' : ss_dict[f'dz_{surface}({vlayer},:)']},
-    #                     'k': {'value' : ss_dict[f'k_{surface}({vlayer},:)']},
-    #                     'cp': {'value' : ss_dict[f'cp_{surface}({vlayer},:)']}
-    #                 },
-    #                 'statelimit': {'value' : ss_dict[f'statelimit_{surface}'][0]},
-    #                 'soilstorecap': {'value' : ss_dict[f'statelimit_{surface}'][0]},
-    #                 'wetthresh': {'value' : ss_dict[f'statelimit_{surface}'][0]},
-    #                 'roof_albedo_dir_mult_fact': {'value' : ss_dict['roof_albedo_dir_mult_fact'][0]},
-    #                 'wall_specular_frac': {'value' : ss_dict['wall_specular_frac'][0]}
-    #             }
+#     #         layer = {
+#     #                 'alb': {
+#     #                     'value' : ss_dict[f'alb_{surface}'][0]
+#     #                 },
+#     #                 'emis': {
+#     #                     'value' : ss_dict[f'emis_{surface}'][0]
+#     #                 },
+#     #                 'thermal_layers': {
+#     #                     'dz': {'value' : ss_dict[f'dz_{surface}({vlayer},:)']},
+#     #                     'k': {'value' : ss_dict[f'k_{surface}({vlayer},:)']},
+#     #                     'cp': {'value' : ss_dict[f'cp_{surface}({vlayer},:)']}
+#     #                 },
+#     #                 'statelimit': {'value' : ss_dict[f'statelimit_{surface}'][0]},
+#     #                 'soilstorecap': {'value' : ss_dict[f'statelimit_{surface}'][0]},
+#     #                 'wetthresh': {'value' : ss_dict[f'statelimit_{surface}'][0]},
+#     #                 'roof_albedo_dir_mult_fact': {'value' : ss_dict['roof_albedo_dir_mult_fact'][0]},
+#     #                 'wall_specular_frac': {'value' : ss_dict['wall_specular_frac'][0]}
+#     #             }
 
-    #         try:
-    #             spartacus_code = nonveg_dict['Code']['value']['Spartacus Surface']
-    #             layer['alb']['ref'] = {
-    #                 'desc': spartacus_material.loc[spartacus_surface.loc[spartacus_code, f'{surface[0]}1Material'], 'nameOrigin'],
-    #                 'ID' : str(spartacus_surface.loc[spartacus_code, f'{surface[0]}1Material']),
-    #                 'DOI': zenodo
-    #                 }
+#     #         try:
+#     #             spartacus_code = nonveg_dict['Code']['value']['Spartacus Surface']
+#     #             layer['alb']['ref'] = {
+#     #                 'desc': spartacus_material.loc[spartacus_surface.loc[spartacus_code, f'{surface[0]}1Material'], 'nameOrigin'],
+#     #                 'ID' : str(spartacus_surface.loc[spartacus_code, f'{surface[0]}1Material']),
+#     #                 'DOI': zenodo
+#     #                 }
                 
-    #             layer['emis']['ref'] = {
-    #                 'desc': spartacus_material.loc[spartacus_surface.loc[spartacus_code, f'{surface[0]}1Material'], 'nameOrigin'],
-    #                 'ID' : str(spartacus_surface.loc[spartacus_code, f'{surface[0]}1Material']),
-    #                 'DOI': zenodo
-    #             }
+#     #             layer['emis']['ref'] = {
+#     #                 'desc': spartacus_material.loc[spartacus_surface.loc[spartacus_code, f'{surface[0]}1Material'], 'nameOrigin'],
+#     #                 'ID' : str(spartacus_surface.loc[spartacus_code, f'{surface[0]}1Material']),
+#     #                 'DOI': zenodo
+#     #             }
 
-    #         except:
-    #             layer['alb']['ref'] = update_desc_with_materials(nonveg_dict['Spartacus'], db_dict,  f'{surface[0]}1Material')
-    #             layer['emis']['ref'] = update_desc_with_materials(nonveg_dict['Spartacus'], db_dict,  f'{surface[0]}1Material')
+#     #         except:
+#     #             layer['alb']['ref'] = update_desc_with_materials(nonveg_dict['Spartacus'], db_dict,  f'{surface[0]}1Material')
+#     #             layer['emis']['ref'] = update_desc_with_materials(nonveg_dict['Spartacus'], db_dict,  f'{surface[0]}1Material')
 
-    #         ss_list.append(layer)
+#     #         ss_list.append(layer)
 
-    #     vertical_layers[surface+'s'] = ss_list
-
-
-    # try:
-    #     vertical_layers['ref'] = {
-    #         'desc': spartacus_surface.loc[spartacus_code, 'nameOrigin'],
-    #         'ID' : str(spartacus_code),
-    #         'DOI' : zenodo 
-    #     }
-    # except:
-    #     vertical_layers['ref'] = update_desc_with_surface(nonveg_dict['Spartacus'], db_dict)
+#     #     vertical_layers[surface+'s'] = ss_list
 
 
-# If Spartacus values is not to be calculated in suews-prepare, these standard settings are used. 
-fill_vertical_layers_yaml_no_spartacus = {
-    'nlayer': {'value': 1},
-        'height': {'value': [0.0, 10.0]},
-        'veg_frac': {'value': [0.0]},
-        'veg_scale': {'value': [1.0]},
-        'building_frac': {'value': [0.4]},
-        'building_scale': {'value': [1.0]},
-        'roofs': [
-            {
-                'alb': {'value': 0.1},
-                'emis': {'value': 0.95},
-                'thermal_layers': {
-                    'dz': {'value': [0.1, 0.2, 0.3, 0.4, 0.5]},
-                    'k': {'value': [1.0, 1.0, 1.0, 1.0, 1.0]},
-                    'C': {'value': [1000, 1000, 1000, 1000, 1000]}
-                },
-                'statelimit': {'value': 10.0},
-                'soilstorecap': {'value': 150.0},
-                'wetthresh': {'value': 0.5},
-                'roof_albedo_dir_mult_fact':{'value':  0.1},
-                'wall_specular_frac':{'value':  0.1}
-            }  
-        ],
-        'walls': [
-            {
-                'alb': {'value': 0.1},
-                'emis': {'value': 0.95},
-                'thermal_layers': {
-                    'dz': {'value': [0.1, 0.2, 0.3, 0.4, 0.5]},
-                    'k': {'value': [1.0, 1.0, 1.0, 1.0, 1.0]},
-                    'C': {'value': [1000, 1000, 1000, 1000, 1000]}
-                },
-                'statelimit': {'value': 10.0},
-                'soilstorecap': {'value': 150.0},
-                'wetthresh': {'value': 0.5},
-                'roof_albedo_dir_mult_fact':{'value':  0.1},
-                'wall_specular_frac':{'value':  0.1}
-            } 
-        ]
-    },
+#     # try:
+#     #     vertical_layers['ref'] = {
+#     #         'desc': spartacus_surface.loc[spartacus_code, 'nameOrigin'],
+#     #         'ID' : str(spartacus_code),
+#     #         'DOI' : zenodo 
+#     #     }
+#     # except:
+#     #     vertical_layers['ref'] = update_desc_with_surface(nonveg_dict['Spartacus'], db_dict)
+
+
+# # If Spartacus values is not to be calculated in suews-prepare, these standard settings are used. 
+# fill_vertical_layers_yaml_no_spartacus = {
+#     'nlayer': {'value': 1},
+#         'height': {'value': [0.0, 10.0]},
+#         'veg_frac': {'value': [0.0]},
+#         'veg_scale': {'value': [1.0]},
+#         'building_frac': {'value': [0.4]},
+#         'building_scale': {'value': [1.0]},
+#         'roofs': [
+#             {
+#                 'alb': {'value': 0.1},
+#                 'emis': {'value': 0.95},
+#                 'thermal_layers': {
+#                     'dz': {'value': [0.1, 0.2, 0.3, 0.4, 0.5]},
+#                     'k': {'value': [1.0, 1.0, 1.0, 1.0, 1.0]},
+#                     'C': {'value': [1000, 1000, 1000, 1000, 1000]}
+#                 },
+#                 'statelimit': {'value': 10.0},
+#                 'soilstorecap': {'value': 150.0},
+#                 'wetthresh': {'value': 0.5},
+#                 'roof_albedo_dir_mult_fact':{'value':  0.1},
+#                 'wall_specular_frac':{'value':  0.1}
+#             }  
+#         ],
+#         'walls': [
+#             {
+#                 'alb': {'value': 0.1},
+#                 'emis': {'value': 0.95},
+#                 'thermal_layers': {
+#                     'dz': {'value': [0.1, 0.2, 0.3, 0.4, 0.5]},
+#                     'k': {'value': [1.0, 1.0, 1.0, 1.0, 1.0]},
+#                     'C': {'value': [1000, 1000, 1000, 1000, 1000]}
+#                 },
+#                 'statelimit': {'value': 10.0},
+#                 'soilstorecap': {'value': 150.0},
+#                 'wetthresh': {'value': 0.5},
+#                 'roof_albedo_dir_mult_fact':{'value':  0.1},
+#                 'wall_specular_frac':{'value':  0.1}
+#             } 
+#         ]
+#     },
 
 # Code Scheme
 code_id_dict = {
