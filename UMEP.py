@@ -71,12 +71,6 @@ from .UMEP_about import UMEPDialogAbout
 import os.path
 import webbrowser
 
-# Uncomment the section below if you want to debug in QGIS
-# import sys
-# sys.path.append('C:/OSGeo4W64/apps/Python27/Lib/site-packages/pydev')
-# sys.path.append('C:/Program Files/JetBrains/PyCharm 2017.3.4/helpers/pydev')
-# import pydevd
-
 
 class UMEP(object):
     """QGIS Plugin Implementation."""

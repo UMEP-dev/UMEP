@@ -538,9 +538,6 @@ class SuewsSimple(object):
         yaml_dict['sites'][0]['initial_states'][surf]['sdd_id']['value'] = initial_states['gdd_2_0']
 
         yaml_dict['model']['control']['output_file'] = outfolder
-        
-        # This doesnt do anything as no switch in SUEWS-simple allows for snow-use
-        # yaml_dict['model']['physics']['snowuse']['value'] = 0
 
         with open(self.model_dir + f'/Input/{filecode}_suews_simple.yml', 'w') as file:
             yaml.dump(yaml_dict, file, sort_keys = False)
@@ -567,7 +564,7 @@ class SuewsSimple(object):
                                                             "QGIS might freeze during calculation."
                                                             "\r\n"
                                                             "\r\n"
-                                                            "This will be fixed in future versions."
+                                                            "This will hopefully be fixed in future versions."
                                                             "\r\n"
                                                             "\r\n"
                                                             "Do you want to contiune?",
@@ -580,6 +577,10 @@ class SuewsSimple(object):
             try:
                 suews_wrapper.wrapper(self.model_dir, plot, filecode)
                 self.iface.messageBar().pushMessage("Model run successful", "Model run finished", level=Qgis.Success)
+                
+                #copy yml-file to output folder
+                shutil.copy(self.model_dir + f'/Input/{filecode}_suews_simple.yml', outfolder + f'{filecode}_suews_simple.yml') # issue 782 
+
             except Exception as e:
                 QMessageBox.critical(self.dlg, "An error occurred", str(e) + "\r\n\r\n"
                                 "Check also: " + str(list(Path.cwd().glob('SuPy.log'))[0]) + "\r\n\r\n"
