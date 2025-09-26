@@ -1522,7 +1522,7 @@ class SUEWSPrepareDatabase(object):
             temp_grid['properties']['z']['value'] = float('%.3f' % z)
             temp_grid['properties']['z0m_in']['value'] = float('%.3f' % IMP_z0)
             temp_grid['properties']['zdm_in']['value'] = float('%.3f' % IMP_zd)
-            temp_grid['properties']['zdm_in']['value'] = float('%.3f' % IMP_z0)
+            temp_grid['properties']['zdm_in']['value'] = float('%.3f' % IMP_zd)
             temp_grid['properties']['z0m_in']['value'] = float('%.3f' % IMP_z0)
             
             # TODO Thesa are set according to default yaml
@@ -1905,6 +1905,8 @@ class SUEWSPrepareDatabase(object):
             QMessageBox.information(None, 'Process Complete', "Input files for SUEWS generated")
 
         self.dlg.progressBar.setValue(0)
+    
+
 
     # def write_to_init(self, initfilein, initfileout):
     #     LeafCycle = self.leaf_cycle
@@ -2016,12 +2018,14 @@ class SUEWSPrepareDatabase(object):
     #     nml.write(initfileout, force=True)
 
 
-    def progress_update(self):
-        self.steps += 1
-        self.dlg.progressBar.setValue(self.steps)
+
+## unused (old) functions
+
+# def progress_update(self):
+    #     self.steps += 1
+    #     self.dlg.progressBar.setValue(self.steps)
 
 
-## unused functions
 # def hide_show_LCF(self, widget):
     #     if widget.LCF_checkBox.isChecked():
     #         self.LCF_from_file = False
