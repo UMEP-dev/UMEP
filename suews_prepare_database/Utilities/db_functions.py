@@ -233,7 +233,7 @@ def check_fraction_consistency(ss_dict):
     if abs(diff) == 0:
         pass
     elif abs(diff) > 0 and abs(diff) < 0.03:
-        print(f'Difference of {round(abs(diff),4)} between PAI and Building Fraction detected')
+        print(f'Small difference of {round(abs(diff),4)} between PAI calculated from vertical morphology and Building Fraction detected, OK')
         # we can give user chance to chose on what datasource they think is best
 
         # If LC fraction is lower, we need to adjust that one since Spartacus needs to work with highest value or PAI at lowest vertical layer
@@ -248,7 +248,7 @@ def check_fraction_consistency(ss_dict):
 
     elif abs(diff) > 0.03:
         print('error! ')
-        print(f'Difference of {round(abs(diff),4)} between PAI and Building Fraction detected')
+        print(f'Unreasonable Difference of {round(abs(diff),4)} between PAI calculated from vertical morphology and Building Fraction detected')
 
     return ss_dict
 

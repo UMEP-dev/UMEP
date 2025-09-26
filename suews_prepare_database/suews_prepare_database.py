@@ -768,7 +768,7 @@ class SUEWSPrepareDatabase(object):
         #                  self.plugin_dir, map_units,
         #                  self.output_dir, self.day_since_rain, self.leaf_cycle, self.soil_moisture, self.file_code,
         #                  self.utc, self.checkBox_twovegfiles, self.IMPvegfile_path_dec, self.IMPvegfile_path_eve, self.pop_density_day, self.daypop)
-    def generateSiteSelect(self, settings_dict):
+    def generateSiteSelect(self, settings_dict): #yml-file
     # def generateSiteSelect(self, vlayer, poly_field, Metfile_path, start_DLS, end_DLS, LCF_from_file, LCFfile_path,
     #                      IMP_from_file, IMPfile_path, IMP_z0, IMP_zd, IMP_fai, IMPveg_from_file, IMPvegfile_path, 
     #                      IMPveg_fai_eve, IMPveg_fai_dec, pop_density, plugin_dir, map_units, output_dir, file_code,
@@ -1235,47 +1235,7 @@ class SUEWSPrepareDatabase(object):
             return
         
         else:
-        # elif os.path.isfile(settings_dict['Metfile_path'][0]):
-        #     with open(settings_dict['Metfile_path'][0]) as file:
-        #         next(file)
-        #         for line in file:
-        #             split = line.split()
-        #             if year == split[0]:
-        #                 break
-        #             else:
-        #                 if year2 == split[0]:
-        #                     year = split[0]
-        #                     break
-        #                 elif year is None:
-        #                     year = split[0]
-        #                 else:
-        #                     year2 = split[0]
-
-        # figure out the time res of input file
-        # if ind == 1:
-            # met_old = np.genfromtxt(settings_dict['Metfile_path'][0], skip_header=1, skip_footer=2)
-            # met_id = met_old[:, 1]
-            # it = met_old[:, 2]
-            # imin = met_old[:, 3]
-            # dectime0 = met_id[0] + it[0] / 24 + imin[0] / (60 * 24)
-            # dectime1 = met_id[1] + it[1] / 24 + imin[1] / (60 * 24)
-            # res = int(np.round((dectime1 - dectime0) * (60 * 24)))
-            # ind = 999
-
-            # YYYY = int32(np.min(met_old[:, 0]))
-
-            # start_date = ''
-            # end_date = ''
-            # # --- save met-file --- #
-            # data_out = self.output_dir[0] + "/" + self.file_code + '_' + str(YYYY) + '_data_' + str(res) + '.txt'
-            # header = '%iy id it imin Q* QH QE Qs Qf Wind RH Td press rain Kdn snow ldown fcld wuh xsmd lai_hr ' \
-            #          'Kdiff Kdir Wd'
-            # numformat = '%3d %2d %3d %2d %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.4f %6.2f %6.2f ' \
-            #             '%6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.2f'
-
-            # np.savetxt(data_out, met_old, fmt=numformat, delimiter=' ', header=header, comments='')
-
-            # Define the column names (you can adjust this to match the actual file)
+            # Define the column names (you can adjust this to match the actual met forcing file)
             column_names = [
                 'iy', 'id', 'it', 'imin', 'qn', 'qh', 'qe', 'qs', 'qf', 'U', 'RH', 'Td', 'press', 'rain',
                 'kdown', 'snow', 'ldown', 'fcld', 'wuh', 'xsmd', 'lai', 'kdiff', 'kdir', 'wdir'
@@ -1310,10 +1270,6 @@ class SUEWSPrepareDatabase(object):
             np.savetxt(data_out, df_out.to_numpy(), fmt='%3d %2d %3d %2d %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f '
                         '%6.2f %6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.2f',
                         delimiter=' ', header=header, comments='')
-        # else:
-        #     QMessageBox.critical(None, "Error",
-        #                             "Could not find the file containing meteorological data")
-        #     return
 
         with open(plugin_dir + '/Utilities/sample_config.yml', 'r')  as f: # TODO FIX so that yaml is fetched from supy-lib instead of file from Utilities dir! open(self.supylib + '/sample_run/sample_config.yml', 'r')
             yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
@@ -1385,7 +1341,8 @@ class SUEWSPrepareDatabase(object):
         for feature in settings_dict['vlayer'].getFeatures():
             
             # temp_grid is the yaml_dict key that is used for each grid
-            temp_grid = base_grid_dict.copy()
+            temp_grid = copy.deepcopy(base_grid_dict)
+            # temp_grid = base_grid_dict.copy()
             feat_id = int(feature.attribute(settings_dict['poly_field']))
             
             temp_grid['name'] = f'grid no: {str(feat_id)}'
@@ -1433,9 +1390,6 @@ class SUEWSPrepareDatabase(object):
             lonlat = transform.TransformPoint(centroid.x(), centroid.y())
             
             altitude = 1    # TODO Is this not set?
-            day = 1         # 
-            hour = 0        #
-            minute = 0      # 
 
             if settings_dict['LCF_from_file']:
                 LCF_paved     = LCF_dict[feat_id]['Paved']
@@ -1445,7 +1399,6 @@ class SUEWSPrepareDatabase(object):
                 LCF_grass     = LCF_dict[feat_id]['Grass']
                 LCF_baresoil  = LCF_dict[feat_id]['Baresoil']
                 LCF_water     = LCF_dict[feat_id]['Water']
-            
 
             # 
             irrFr_EveTr = 0
@@ -1537,6 +1490,7 @@ class SUEWSPrepareDatabase(object):
             if z < 10.:
                 z = 10.
 
+            #TODO add pop density to yml
             if settings_dict['pop_density'] is not None:
                 pop_density_night = feature.attribute(settings_dict['pop_density'])
             else:
@@ -1570,7 +1524,7 @@ class SUEWSPrepareDatabase(object):
             temp_grid['properties']['zdm_in']['value'] = float('%.3f' % IMP_zd)
             temp_grid['properties']['zdm_in']['value'] = float('%.3f' % IMP_z0)
             temp_grid['properties']['z0m_in']['value'] = float('%.3f' % IMP_z0)
-
+            
             # TODO Thesa are set according to default yaml
             # temp_grid['properties']['pipecapacity']['value'] = PipeCap
             # temp_grid['properties']['runofftowater']['value'] = RunoffToWater
@@ -1923,11 +1877,12 @@ class SUEWSPrepareDatabase(object):
             #         'tin': {'value': 20.0}
             #         }] * gridlayoutOut[feat_id]['nlayer']
             # }
-            
-            temp_grid = check_fraction_consistency(temp_grid)
+            if settings_dict['spartacus'] == 1: # Check fraction consistency between land cover data and spartcus fractions
+                temp_grid = check_fraction_consistency(temp_grid)
             
             yaml_dict['sites'].append(temp_grid)
-            
+            del temp_grid
+
         # Convert values in the nested dictionary
         yaml_dict_native = convert_numpy_types(yaml_dict)
 
