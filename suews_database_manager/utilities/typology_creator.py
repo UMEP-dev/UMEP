@@ -3,7 +3,7 @@ from .database_functions import create_code, save_to_db
 from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.PyQt.QtGui import QImage, QPixmap
 import urllib.request, urllib.error, urllib.parse
-from qgis.core import QgsMessageLog
+from qgis.core import QgsMessageLog, Qgis
 from numpy import nan
 
 #################################################################################################
@@ -162,7 +162,7 @@ def setup_typology_creator(self, dlg, db_dict, db_path):
                 dlg.textBrowser_source.setText('Picture Author:, '+  str(imageSource))
                 
 
-            req = urllib.request.Request(str(url))
+            req = urllib.request.Request(str(url), headers={'User-Agent': 'Mozilla/5.0'})
             try:
                 resp = urllib.request.urlopen(req)
             except urllib.error.HTTPError as e:

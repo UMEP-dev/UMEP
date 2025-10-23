@@ -100,12 +100,15 @@ def getVertheights(ssVect, heightMethod, vertHeightsIn, nlayerIn, skew, id):
         if ssVect['z'].max() > 80: nlayerOut = 6
         if ssVect['z'].max() > 120: nlayerOut = 7
 
-    if heightMethod > 1: # detrmine if exponential hieght should be used
+    if heightMethod > 1: # determine if exponential height should be used
         intervals = np.ceil(ssVect['z'].max() / nlayerOut) #TODO: Fix if no buildings and/or no veg is present.
+        zMax = np.ceil(ssVect['z'].max())
         heightIntervals = []
         heightIntervals.append(.0)
         for i in range(1, nlayerOut):
-            heightIntervals.append(float(round((intervals * i) / skew)))
+            t = (intervals * i) / zMax
+            y = 0. + (zMax - 0.) * (np.exp(skew * t) - 1) / (np.exp(skew) - 1) #exponential function
+            heightIntervals.append(float(round(y)))
         heightIntervals.append(float(ssVect['z'].max()))
 
     return heightIntervals, nlayerOut #, error_output Moved out

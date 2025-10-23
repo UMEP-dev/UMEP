@@ -422,6 +422,7 @@ class TARGETAnalyser:
 
             gid = str(int(f.attributes()[idx]))
             datawhole = np.genfromtxt(self.folderPath[0] + '/output/' + self.prefix + '_' + gid + '_UMEP_TARGET.txt', skip_header=1)
+            
             # cut TARGET data 
             start = np.min(np.where(datawhole[:, 1] == startD))
             if endD > np.max(datawhole[:, 1]):
@@ -429,18 +430,25 @@ class TARGETAnalyser:
             else:
                 ending = np.min(np.where(datawhole[:, 1] == endD))
             data1 = datawhole[start:int(ending + 12), :] # + 12 to include whole final night 
-            data1 = data1[np.where(data1[:, 14] < 1.), :] # include only nighttime. 14 is position for global radiation
-            data1 = data1[0][:]
 
-            # cut ref data
+            # cut REF data
             if endD > np.max(dataref[:, 1]):
                 ending = np.max(np.where(dataref[:, 1] == endD - 1))
             else:
                 ending = np.min(np.where(dataref[:, 1] == endD))
             data2 = dataref[start:int(ending + 12), :] # + 12 to include whole final night 
 
-            data2 = data2[np.where(data2[:, 14] < 1.), :] # include only nighttime. 14 is position for global radiation
-            data2 = data2[0][:]
+            # Select depending of time of day for modelled data. Issue #792
+            if self.dlg.radioButtonDaytime_3.isChecked():
+                data1 = data1[np.where(data1[:, 14] > 1.), :]
+                data1 = data1[0][:]
+                data2 = data2[np.where(data2[:, 14] > 1.), :]
+                data2 = data2[0][:]
+            if self.dlg.radioButtonNighttime_3.isChecked():
+                data1 = data1[np.where(data1[:, 14] < 1.), :]
+                data1 = data1[0][:]
+                data2 = data2[np.where(data2[:, 14] < 1.), :]
+                data2 = data2[0][:]
 
             vardatauwg = data1[:, 11] # 11 is temperature column
             vardataref = data2[:, 11] 
@@ -449,8 +457,7 @@ class TARGETAnalyser:
             if self.dlg.radioButtonMean.isChecked():
                 statresult = np.nanmean(vardata)
                 header = 'mean'
-            # if self.dlg.radioButtonMin.isChecked():
-            #     statresult = np.nanmin(vardata)
+
             if self.dlg.radioButtonMax.isChecked():
                 statresult = np.nanmax(vardata)
                 header = 'max'

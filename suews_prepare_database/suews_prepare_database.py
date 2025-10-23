@@ -1385,11 +1385,10 @@ class SUEWSPrepareDatabase(object):
 
             else:
                 hectare = area
-            # gdalver == GDAL-version
-            gdalver = float(gdal.__version__[0])
+
             lonlat = transform.TransformPoint(centroid.x(), centroid.y())
             
-            altitude = 1    # TODO Is this not set?
+            altitude = 1    # TODO Is this not set? No. This is used for sun position calculations and have very small effect.
 
             if settings_dict['LCF_from_file']:
                 LCF_paved     = LCF_dict[feat_id]['Paved']
