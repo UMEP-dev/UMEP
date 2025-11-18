@@ -25,7 +25,6 @@ def setup_SS_material_creator(self, dlg, db_dict, db_path):
         dlg.textEditDensity.clear()
 
     def base_changed():
-        
         base_str = dlg.comboBoxBase.currentText()
         if base_str != '': 
             

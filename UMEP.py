@@ -26,7 +26,7 @@ from builtins import object
 from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from qgis.PyQt.QtWidgets import QMenu, QAction, QMessageBox
 from qgis.PyQt.QtGui import QIcon
-from .UMEP_dialog import UMEPDialog
+# from .UMEP_dialog import UMEPDialog
 from .MetdataProcessor.metdata_processor import MetdataProcessor
 #from .ShadowGenerator.shadow_generator import ShadowGenerator
 #from .SkyViewFactorCalculator.svf_calculator import SkyViewFactorCalculator
@@ -51,7 +51,7 @@ from .LucyQF.LQF import LQF
 #from .SEBE.sebe import SEBE
 # from .SEBEpv.sebepv import SEBEpv      # MRevesz
 from .SuewsSimple.suews_simple import SuewsSimple
-from .SUEWSPrepare.suews_prepare import SUEWSPrepare
+# from .SUEWSPrepare.suews_prepare import SUEWSPrepare
 from .suews_converter.suews_converter import SUEWSConverter
 #from .SUEWS.suews import SUEWS
 from .SOLWEIG.solweig import SOLWEIG
@@ -102,7 +102,7 @@ class UMEP(object):
                 QCoreApplication.installTranslator(self.translator)
 
         # Create the dialog (after translation) and keep reference
-        self.dlg = UMEPDialog()
+        # self.dlg = UMEPDialog()
 
         # Declare instance attributes
         self.actions = []
@@ -462,8 +462,11 @@ class UMEP(object):
         #sg.run()
 
     def SUEWS_Prepare(self):
-        sg = SUEWSPrepare(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin deprecated",
+                        "This tool is deprecated. Use the new tools, SUEWS Database Manager and SUEWS Database Prepare!")
+        return
+        # sg = SUEWSPrepare(self.iface)
+        # sg.run()
 
     def SUEWS_Convert(self):
         sg = SUEWSConverter(self.iface)

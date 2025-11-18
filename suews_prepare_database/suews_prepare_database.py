@@ -25,9 +25,8 @@
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import  QAction, QMessageBox, QFileDialog
-
 from qgis.utils import iface
-from qgis.core import Qgis
+from osgeo import gdal, osr
 
 from qgis.core import (QgsMapLayerProxyModel, 
                        QgsFieldProxyModel, 
@@ -35,36 +34,33 @@ from qgis.core import (QgsMapLayerProxyModel,
                        QgsFeature, 
                        QgsProject,
                        QgsVectorFileWriter,
-                       QgsFeatureRequest)
+                       Qgis)
 
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
 from .suews_prepare_database_dialog import SUEWSPrepareDatabaseDialog
 import os.path
-# from .tabs.main_tab import MainTab
 import webbrowser
 
 #These are not needed here later
 import copy
-# import time
 import numpy as np
 import pandas as pd
 import os
 import yaml
 import sys
 
-from osgeo import gdal, osr
-#from .Utilities import f90nml
-from .Utilities import RoughnessCalcFunction as rg
-from .Utilities.misc import saveraster
-# from .Utilities import wallalgorithms as wa
+from ..Utilities import RoughnessCalcFunction as rg
+from ..Utilities.misc import saveraster
 from .Utilities.db_functions import * 
-#from .Utilities.def_config_suews import *
-
 from .Utilities.ssParms import getVertheights, ss_calc_gridlayout
-from .Utilities.umep_suewsss_export_component import writeGridLayout
-from shutil import copyfile, rmtree
+from shutil import rmtree
+
+# used for pydantic testing
+# from pathlib import Path
+from supy.cmd.validate_config import validate_single_file
+from supy.data_model.schema.publisher import generate_json_schema
 
 # from .prepare_workertypo import Worker
 import processing
@@ -133,6 +129,7 @@ class SUEWSPrepareDatabase(object):
         self.steps = 0
         # self.region = None
         self.defTypo = None
+        self.twovegfiles = 0
 
         self.output_dir = None
         self.LCFfile_path = None
@@ -148,10 +145,6 @@ class SUEWSPrepareDatabase(object):
         self.nlayers = 3
         self.skew = 2
         self.heightMethod = 0
-
-        self.LCF_from_file = True
-        self.IMP_from_file = True
-        self.IMPveg_from_file = True
 
         # self.comboBoxRegion = True
         self.comboBoxCountry = True
@@ -170,13 +163,6 @@ class SUEWSPrepareDatabase(object):
 
     def initGui(self):
         # """Create the menu entries and toolbar icons inside the QGIS GUI."""
-
-        # icon_path = ':/plugins/suews_prepare_database/icon.png'
-        # self.add_action(
-        #     icon_path,
-        #     text=self.tr(u'SUEWS Prepare - Database Typologies'),
-        #     callback=self.run,
-        #     parent=self.iface.mainWindow())
         
         # Create action that will start plugin configuration
         self.action = QAction(
@@ -192,11 +178,6 @@ class SUEWSPrepareDatabase(object):
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
-        # for action in self.actions:
-        #     self.iface.removePluginMenu(
-        #         self.tr(u'&SUEWS Prepare - Database Typologies'),
-        #         action)
-        #     self.iface.removeToolBarIcon(action)
 
         self.iface.removePluginMenu("&SUEWS Prepare - Database Typologies", self.action)
         self.iface.removeToolBarIcon(self.action)
@@ -204,7 +185,15 @@ class SUEWSPrepareDatabase(object):
 
     def run(self):
 
-        self.supylib = sys.modules["supy"].__path__[0] #TODO Fix so that this path works! 
+        try:
+            import supy
+        except Exception as e:
+            QMessageBox.critical(None, 'SuPy library missing', 'This plugin requires the supy package to be installed OR upgraded. '
+                                                'See Section 2.3 in the UMEP-manual for further information on how ' 
+                                                'to install missing/external python packages in QGIS3.')
+            return
+
+        self.supylib = sys.modules["supy"].__path__[0]
         
         # Declare instance attributes
         self.dlg = SUEWSPrepareDatabaseDialog()
@@ -310,10 +299,10 @@ class SUEWSPrepareDatabase(object):
         # New for Typology database
         self.dlg.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.dlg.layerComboManagerDSM.setFixedWidth(175)
-        self.dlg.layerComboManagerDSM.setCurrentIndex(1)
+        self.dlg.layerComboManagerDSM.setCurrentIndex(-1)
         self.dlg.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.RasterLayer)
         self.dlg.layerComboManagerDEM.setFixedWidth(175)
-        self.dlg.layerComboManagerDEM.setCurrentIndex(0)
+        self.dlg.layerComboManagerDEM.setCurrentIndex(-1)
 
         self.dlg.layerComboManagerPolygridTypo.setFilters(QgsMapLayerProxyModel.PolygonLayer)
         self.dlg.layerComboManagerPolygridTypo.setFixedWidth(175)
@@ -328,6 +317,7 @@ class SUEWSPrepareDatabase(object):
         self.dlg.pushButtonImportLCF.clicked.connect(lambda: self.set_LCFfile_path())
         self.dlg.pushButtonImportIMPVeg.clicked.connect(lambda: self.set_IMPvegfile_path())
 
+        self.dlg.checkBox_twovegfiles.clicked.connect(lambda: self.use_twovegfiles())
         self.dlg.pushButtonImportIMPVeg_eve.clicked.connect(lambda: self.set_IMPvegfile_path_eve())
         self.dlg.pushButtonImportIMPVeg_dec.clicked.connect(lambda: self.set_IMPvegfile_path_dec())
 
@@ -360,7 +350,7 @@ class SUEWSPrepareDatabase(object):
         self.dlg.exec_()
 
     def help(self):
-        url = "https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Energy%20Balance%20SUEWS%20Database%20Manager.html"
+        url = "https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Energy%20Balance%20SUEWS%20Database%20Prepare.html"
         webbrowser.open_new_tab(url)
 
     def set_output_folder(self):
@@ -390,14 +380,13 @@ class SUEWSPrepareDatabase(object):
         self.soil_moisture = value
 
     def utc_changed(self, index):
-        self.utc = index
+        self.utc = int(index)
 
     def leaf_cycle_changed(self, index):
         self.leaf_cycle = index
 
     def file_code_changed(self, code):
         self.file_code = code
-
 
     def country_changed(self, db_dict):
         country_sel = self.dlg.comboBoxCountry.currentText()
@@ -473,6 +462,12 @@ class SUEWSPrepareDatabase(object):
         else:
             self.spartacus = 0
 
+    def use_twovegfiles(self):
+        if self.dlg.checkBox_twovegfiles.isChecked():
+            self.twovegfiles = 1
+        else:
+            self.twovegfiles = 0
+
     def popdaystate(self):
         if self.dlg.checkBox_day.isChecked():
             self.daypop = 1
@@ -542,17 +537,13 @@ class SUEWSPrepareDatabase(object):
         self.Metfile_path = self.fileDialog.getOpenFileName()
         self.dlg.textInputMetData.setText(self.Metfile_path[0])
 
-
     def start_DLS_changed(self, value):
         self.start_DLS = value
-
 
     def end_DLS_changed(self, value):
         self.end_DLS = value
 
-
     def generate(self):
-        
         # First check that all parts of the interface have been filled in correclty
         # output dir
         if self.output_dir is None:
@@ -587,7 +578,6 @@ class SUEWSPrepareDatabase(object):
             return
             pass
         
-
         # # check polygon grid
         poly = self.dlg.layerComboManagerPolygrid.currentLayer()
             
@@ -595,7 +585,6 @@ class SUEWSPrepareDatabase(object):
            QMessageBox.critical(None, "Error", "No valid Polygon layer is selected")
            return
         
-
         poly_field = self.dlg.layerComboManagerPolyField.currentField()
         
         if poly_field == '':
@@ -614,7 +603,6 @@ class SUEWSPrepareDatabase(object):
             QMessageBox.critical(None, "Error", "An attribute field including night-time population density (pp/ha) must be selected")
             return
 
-
         if self.daypop == 1:
             if self.dlg.pop_density_day.currentField() == '':
                 QMessageBox.critical(None, "Error", "An attribute field including working population density (pp/ha) must be selected")
@@ -630,8 +618,6 @@ class SUEWSPrepareDatabase(object):
                                      "choosen. Preferably start the model run during Winter or Summer.")
 
         # Morphometric and land cover files
-
-
         if self.IMP_from_file:
             if self.IMPfile_path is None:
                 QMessageBox.critical(None, "Error", "Building morphology file has not been provided")
@@ -646,7 +632,21 @@ class SUEWSPrepareDatabase(object):
             if not os.path.isfile(self.IMPvegfile_path[0]):
                 QMessageBox.critical(None, "Error", "Could not find the file containing vegetation morphology")
                 return
-
+            
+        if self.twovegfiles == 1:
+            if self.IMPvegfile_path_eve is None:
+                QMessageBox.critical(None, "Error", "Vegetation morphology file has not been provided")
+                return
+            if not os.path.isfile(self.IMPvegfile_path_eve[0]):
+                QMessageBox.critical(None, "Error", "Could not find the file containing vegetation morphology")
+                return
+            if self.IMPvegfile_path_dec is None:
+                QMessageBox.critical(None, "Error", "Vegetation morphology file has not been provided")
+                return
+            if not os.path.isfile(self.IMPvegfile_path_dec[0]):
+                QMessageBox.critical(None, "Error", "Could not find the file containing vegetation morphology")
+                return
+            
         if self.LCF_from_file:
             if self.LCFfile_path is None:
                 QMessageBox.critical(None, "Error", "Land cover fractions file has not been provided")
@@ -655,7 +655,6 @@ class SUEWSPrepareDatabase(object):
                 QMessageBox.critical(None, "Error", "Could not find the file containing land cover fractions")
                 return
         
-
         if self.file_code == '':
             QMessageBox.critical(None, "Error", "Specify a file code prefix")
             return
@@ -670,24 +669,12 @@ class SUEWSPrepareDatabase(object):
         if demlayer is None:
             QMessageBox.critical(self.dlg, "Error", "No valid DEM selected")
             return
-        
-        # cdsmlayer = self.dlg.layerComboManagerCDSM.currentLayer()
-        # if cdsmlayer is None:
-        #     QMessageBox.critical(self.dlg, "Error", "No valid vegetation DSM (CDSM) selected")
-        #     return
-
-        # # # Land cover layer for aggegation
-        # lclayer = self.dlg.layerComboManagerLC.currentLayer()
-        # if lclayer is None:
-        #     QMessageBox.critical(self.dlg, "Error", "No valid land cover grid is selected")
-        #     return   
 
         polyTypolayer = self.dlg.layerComboManagerPolygridTypo.currentLayer()
         if self.typologies == 1 and polyTypolayer is None:
             QMessageBox.critical(None, "Error", "No valid Urban typology polygon layer is selected")
             return   
         
-        # typologyFieldName = self.dlg.layerComboManagerPolygridTypofield.currentText()
         typologyFieldName = 'TypolID'
 
         # Spartacus check
@@ -722,7 +709,7 @@ class SUEWSPrepareDatabase(object):
             'IMP_from_file' : self.IMP_from_file, 'IMPfile_path': self.IMPfile_path, 'IMP_z0' : self.IMP_z0, 'IMP_zd' : self.IMP_zd, 
             'IMP_fai': self.IMP_fai, 'IMPveg_from_file': self.IMPveg_from_file, 'IMPvegfile_path': self.IMPvegfile_path, 
             'IMPveg_fai_eve': self.IMPveg_fai_eve, 'IMPveg_fai_dec' : self.IMPveg_fai_dec, 'pop_density' : self.pop_density, 
-             'checkBox_twovegfiles' : self.checkBox_twovegfiles, 'IMPvegfile_path_dec':  self.IMPvegfile_path_dec, 
+            'twovegfiles' : self.twovegfiles, 'IMPvegfile_path_dec':  self.IMPvegfile_path_dec, 
             # Typology
             'IMPvegfile_path_eve' : self.IMPvegfile_path_eve, 'pop_density_day': self.pop_density_day, 'daypop' :self.daypop,
             'polyTypolayer' : polyTypolayer, 'typologyFieldName': typologyFieldName, 'dsmlayer': dsmlayer, 'demlayer' :demlayer, 
@@ -752,30 +739,8 @@ class SUEWSPrepareDatabase(object):
         # #Here worker loop starts. We make function. Then it is easier to put in worker later
         self.generateSiteSelect(settings_dict)
 
-        # OLD EDIT KEEP
-        # self.generateSiteSelect(vlayer, poly_field, self.Metfile_path, self.start_DLS, self.end_DLS, self.LCF_from_file, self.LCFfile_path,
-        #                  self.IMP_from_file, self.IMPfile_path, self.IMP_z0, self.IMP_zd, self.IMP_fai, self.IMPveg_from_file, self.IMPvegfile_path, 
-        #                  self.IMPveg_fai_eve, self.IMPveg_fai_dec, self.pop_density, self.plugin_dir, map_units, self.output_dir, self.file_code,
-        #                  self.utc, self.checkBox_twovegfiles, self.IMPvegfile_path_dec, self.IMPvegfile_path_eve, self.pop_density_day, self.daypop,
-        #                  polyTypolayer, typologyFieldName, dsmlayer, demlayer, self.region_str, self.country_str, self.typologies,
-        #                  self.heightMethod, self.vertheights, self.nlayers, self.skew, self.ss_dir, self.spartacus, self.defTypo)
 
-        # self.startWorker(vlayer, poly_field, self.Metfile_path, self.start_DLS, self.end_DLS, self.LCF_from_file, self.LCFfile_path,
-        #                  self.LCF_Paved, self.LCF_Buildings, self.LCF_Evergreen, self.LCF_Decidious, self.LCF_Grass, self.LCF_Baresoil,
-        #                  self.LCF_Water, self.IMP_from_file, self.IMPfile_path, self.IMP_mean_height, self.IMP_z0, self.IMP_zd,
-        #                  self.IMP_fai, self.IMPveg_from_file, self.IMPvegfile_path, self.IMPveg_mean_height_eve,
-        #                  self.IMPveg_mean_height_dec, self.IMPveg_fai_eve, self.IMPveg_fai_dec, self.pop_density, 
-        #                  self.plugin_dir, map_units,
-        #                  self.output_dir, self.day_since_rain, self.leaf_cycle, self.soil_moisture, self.file_code,
-        #                  self.utc, self.checkBox_twovegfiles, self.IMPvegfile_path_dec, self.IMPvegfile_path_eve, self.pop_density_day, self.daypop)
     def generateSiteSelect(self, settings_dict): #yml-file
-    # def generateSiteSelect(self, vlayer, poly_field, Metfile_path, start_DLS, end_DLS, LCF_from_file, LCFfile_path,
-    #                      IMP_from_file, IMPfile_path, IMP_z0, IMP_zd, IMP_fai, IMPveg_from_file, IMPvegfile_path, 
-    #                      IMPveg_fai_eve, IMPveg_fai_dec, pop_density, plugin_dir, map_units, output_dir, file_code,
-    #                      utc, checkBox_twovegfiles, IMPvegfile_path_dec, IMPvegfile_path_eve, pop_density_day, daypop,
-    #                      polyTypolayer, typologyFieldName, dsmlayer, demlayer, region_str, country_str, checkBoxTypologies,
-    #                      heightMethod, vertheights, nlayerIn, skew, ss_dir, spartacus, defTypo):
-
         
         plugin_dir = settings_dict['plugin_dir']
         output_dir = settings_dict ['output_dir']
@@ -795,9 +760,7 @@ class SUEWSPrepareDatabase(object):
 
         os.mkdir(temp_folder)
 
-
-
-        ss_dict = {}                 # SiteSelect Dict. This is the final dict where all parameters for each grid are found. 
+        #ss_dict = {}                 # SiteSelect Dict. This is the final dict where all parameters for each grid are found. 
         veg_dict = {}                # dict for populating and sorting Veg parameter
         nonVeg_dict = {}             # dict for populating and sorting NonVeg parameter
         country_conv_dict = {}       # Dict for getting selected Country parameters
@@ -823,7 +786,6 @@ class SUEWSPrepareDatabase(object):
 
             try:
                 settings_dict[var] =  gui_lookup_dict[lookup][settings_dict[var]]
-
             except:
                   for lu in ['Paved' ,'Buildings', 'Bare Soil', 'Evergreen Tree', 'Deciduous Tree', 
                     'Grass' ,'AnthropogenicEmission', 'Traffic'  , 'Traffic',
@@ -857,6 +819,10 @@ class SUEWSPrepareDatabase(object):
 
         if settings_dict['IMPveg_from_file']:
             IMPveg_dict = read_morph_txt(settings_dict['IMPvegfile_path'][0])
+
+        if settings_dict['twovegfiles'] == 1:
+            IMPveg_dict_dec = read_morph_txt(settings_dict['IMPvegfile_path_dec'][0])
+            IMPveg_dict_eve = read_morph_txt(settings_dict['IMPvegfile_path_eve'][0])
 
         
         geodata_output = {} # Dict for storing the output of the QGIS geodata processes
@@ -1225,15 +1191,10 @@ class SUEWSPrepareDatabase(object):
         #                                               Writing SiteSelect.txt  (now, yaml)     
         # ################################################################################################################################
 
-        # ind = 1
-        # year = None     # Not sure what this is, but it works
-        # year2 = None    # Not surre what this is, but it works
-
         if settings_dict['Metfile_path'] is None:
             QMessageBox.critical(None, "Error", "Meteorological data file has not been provided,"
                                         " please check the main tab")
             return
-        
         else:
             # Define the column names (you can adjust this to match the actual met forcing file)
             column_names = [
@@ -1271,66 +1232,35 @@ class SUEWSPrepareDatabase(object):
                         '%6.2f %6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.2f',
                         delimiter=' ', header=header, comments='')
 
-        with open(plugin_dir + '/Utilities/sample_config.yml', 'r')  as f: # TODO FIX so that yaml is fetched from supy-lib instead of file from Utilities dir! open(self.supylib + '/sample_run/sample_config.yml', 'r')
+        with open(self.supylib + '/sample_data/sample_config.yml', 'r') as f:
             yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
 
-        # ss_dict, siteselect_dict. Populate dict that will go to yaml
-        # this section is for all grids.
 
-        # ['model']['control']
-        # yaml_dict['model']['control']['tstep'] = 300  # not set
-        # yaml_dict['model']['control']['output_file'] = output.txt # not set 
-        # yaml_dict['model']['control']['diagnose'] = 0     # not set
+        # Start populating yml-file
         yaml_dict['model']['control']['forcing_file']['value'] = data_out
         yaml_dict['model']['control']['forcing_file']['value'] = data_out
         yaml_dict['model']['control']['start_time'] = start_date
         yaml_dict['model']['control']['end_time'] = end_date
         
         # yaml_dict['model']['physics']
-        # TODO Perhaps comment out lines that only contains default values here
-        yaml_dict['model']['physics']['netradiationmethod']['value'] = 1 #changed from 1 FL
+        # Comment out lines that only contains default values here. This is set later in Processing/SUEWS
+        # yaml_dict['model']['physics']['netradiationmethod']['value'] = 1 #changed from 1 FL
         yaml_dict['model']['physics']['emissionsmethod']['value'] = db_dict['AnthropogenicEmission'].loc[parameter_dict['AnthropogenicCode'],'Model']
-        yaml_dict['model']['physics']['storageheatmethod']['value'] = 1 #Changed from 3 FL
-        yaml_dict['model']['physics']['ohmincqf']['value'] = 0
-        yaml_dict['model']['physics']['roughlenmommethod']['value'] = 1 # Values based on Kent et al. 2017
-        yaml_dict['model']['physics']['roughlenheatmethod']['value'] = 2
-        yaml_dict['model']['physics']['stabilitymethod']['value'] = 3
-        yaml_dict['model']['physics']['smdmethod']['value'] = 0
-        yaml_dict['model']['physics']['waterusemethod']['value'] = 0
+        # yaml_dict['model']['physics']['storageheatmethod']['value'] = 1 #Changed from 3 FL
+        # yaml_dict['model']['physics']['ohmincqf']['value'] = 0
+        # yaml_dict['model']['physics']['roughlenmommethod']['value'] = 1 # Values based on Kent et al. 2017
+        # yaml_dict['model']['physics']['roughlenheatmethod']['value'] = 2
+        #['model']['physics']['stabilitymethod']['value'] = 3
+        #yaml_dict['model']['physics']['smdmethod']['value'] = 0
+        #yaml_dict['model']['physics']['waterusemethod']['value'] = 0
         # yaml_dict['model']['physics']['rslmethod']['value'] = 2
         # yaml_dict['model']['physics']['rsllevel']['value'] = 1
-        # yaml_dict['model']['physics']['faimethod']['value'] = 0
+        #yaml_dict['model']['physics']['faimethod']['value'] = 0
         # yaml_dict['model']['physics']['localclimatemethod']['value'] = 0
-        yaml_dict['model']['physics']['snowuse']['value'] = 0
+        #yaml_dict['model']['physics']['snowuse']['value'] = 0
         # yaml_dict['model']['physics']['stebbsmethod']['value'] = 0
-        yaml_dict['model']['physics']['gsmodel']['value'] = cond_dict['gsModel']
+        #yaml_dict['model']['physics']['gsmodel']['value'] = cond_dict['gsModel']
 
-
-        # ss_dict = {
-        #     'name': 'sample_config',
-        #     'description': 'this is a sample config for testing purposes ONLY - values are not realistic',
-
-        #         'physics': {
-        #             'netradiationmethod': {'value': 3}, #changed from 1 FL
-        #             'emissionsmethod': {'value' : db_dict['AnthropogenicEmission'].loc[parameter_dict['AnthropogenicCode'],'Model']},
-        #             'storageheatmethod': {'value': 1}, #Changed from 3 FL
-        #             'ohmincqf': {'value': 0},
-        #             'roughlenmommethod': {'value': 1}, # Values based on Kent et al. 2017
-        #             'roughlenheatmethod': {'value': 2},
-        #             'stabilitymethod': {'value': 3},
-        #             'smdmethod': {'value': 0},
-        #             'waterusemethod': {'value': 0},
-        #             'diagmethod': {'value': 0},
-        #             'faimethod': {'value': 0},
-        #             'localclimatemethod': {'value': 0},
-        #             'snowuse': {'value': 0},
-        #             'stebbsmethod': {'value': 0},
-        #             'gsmodel': {'value': cond_dict['gsModel']},
-        #         },
-        #     },
-        #     'sites' : []
-        # }
-        
         # Crete a default template of sites to poulate in loop
         base_grid_dict = yaml_dict['sites'][0].copy()
 
@@ -1342,9 +1272,7 @@ class SUEWSPrepareDatabase(object):
             
             # temp_grid is the yaml_dict key that is used for each grid
             temp_grid = copy.deepcopy(base_grid_dict)
-            # temp_grid = base_grid_dict.copy()
             feat_id = int(feature.attribute(settings_dict['poly_field']))
-            
             temp_grid['name'] = f'grid no: {str(feat_id)}'
             temp_grid['gridiv'] = feat_id
     
@@ -1376,19 +1304,16 @@ class SUEWSPrepareDatabase(object):
 
             # TODO Check so that this is m2 not hectare and change to more proper naming
             settings_dict['map_units'] = 0 # OB 200825 hardcoded to set m2 
-
             if settings_dict['map_units'] == 0:
                 hectare = area # meter
-
             elif settings_dict['map_units'] == 1:
                 hectare = area / 107640. # square foot
-
             else:
                 hectare = area
 
             lonlat = transform.TransformPoint(centroid.x(), centroid.y())
             
-            altitude = 1    # TODO Is this not set? No. This is used for sun position calculations and have very small effect.
+            altitude = 1  #This is used for sun position calculations and have very small effect.
 
             if settings_dict['LCF_from_file']:
                 LCF_paved     = LCF_dict[feat_id]['Paved']
@@ -1399,8 +1324,8 @@ class SUEWSPrepareDatabase(object):
                 LCF_baresoil  = LCF_dict[feat_id]['Baresoil']
                 LCF_water     = LCF_dict[feat_id]['Water']
 
-            # 
-            irrFr_EveTr = 0
+            # Fraction of surface area that can be irrigated
+            irrFr_EveTr = 0 
             irrFr_DecTr = 0
             irrFr_Grass = 0
             IrrFr_Bldgs = 0
@@ -1408,11 +1333,10 @@ class SUEWSPrepareDatabase(object):
             IrrFr_Water = 0
             IrrFr_BSoil = 0
 
-            # TrafficRate_WD = 0.0135 ## Already in dict
-            # TrafficRate_WE = 0.0095 ## Already in dict
-
-            # QF0_BEU_WD = 0.88 ## Already in dict
-            # QF0_BEU_WE = 0.88 ## Already in dict
+            # TrafficRate_WD = 0.0135 # Already in dict
+            # TrafficRate_WE = 0.0095 # Already in dict
+            # QF0_BEU_WD = 0.88 # Already in dict
+            # QF0_BEU_WE = 0.88 # Already in dict
            
             if settings_dict['IMP_from_file']:
                 IMP_heights_mean = IMP_dict[feat_id]['zH']
@@ -1423,7 +1347,16 @@ class SUEWSPrepareDatabase(object):
                 IMP_sd = IMP_dict[feat_id]['zHstd']
                 IMP_wai = IMP_dict[feat_id]['wai']
 
-            if settings_dict['IMPveg_from_file']:
+            if settings_dict['twovegfiles'] == 1:
+                IMPveg_heights_mean_eve = IMPveg_dict_eve[feat_id]['zH']
+                IMPveg_heights_mean_dec = IMPveg_dict_dec[feat_id]['zH']
+                IMPveg_fai_eve = IMPveg_dict_eve[feat_id]['fai']
+                IMPveg_fai_dec = IMPveg_dict_dec[feat_id]['fai']
+                IMPveg_max_eve = IMPveg_dict_eve[feat_id]['zHmax']  #TODO not used yet
+                IMPveg_sd_eve = IMPveg_dict_eve[feat_id]['zHmax']  #TODO not used yet
+                IMPveg_max_dec = IMPveg_dict_dec[feat_id]['zHstd']
+                IMPveg_sd_dec = IMPveg_dict_dec[feat_id]['zHstd']                
+            elif settings_dict['IMPveg_from_file']:
                 IMPveg_heights_mean_eve = IMPveg_dict[feat_id]['zH']
                 IMPveg_heights_mean_dec = IMPveg_dict[feat_id]['zH']
                 IMPveg_fai_eve = IMPveg_dict[feat_id]['fai']
@@ -1441,7 +1374,7 @@ class SUEWSPrepareDatabase(object):
             LCF_tr = LCF_de + LCF_ev # temporary fix while ev and de is not separated, issue 155
             if (LCF_de  == 0 and LCF_ev == 0 and LCF_bu == 0):
                 zH = 0
-                zMAx = 0
+                zMax = 0
             else:
                 zH = (float(IMP_heights_mean) * LCF_bu + float(IMPveg_heights_mean_eve) * LCF_ev + float(IMPveg_heights_mean_dec) * LCF_de) / (LCF_bu + LCF_ev + LCF_de)                    
                 zMax = max(float(IMPveg_max_dec),float(IMP_max))
@@ -1489,7 +1422,7 @@ class SUEWSPrepareDatabase(object):
             if z < 10.:
                 z = 10.
 
-            #TODO add pop density to yml
+            # Add pop density to yml
             if settings_dict['pop_density'] is not None:
                 pop_density_night = feature.attribute(settings_dict['pop_density'])
             else:
@@ -1512,19 +1445,19 @@ class SUEWSPrepareDatabase(object):
             AnEm = fill_AnEm_yaml(db_dict, parameter_dict['AnthropogenicCode'], profiles_dict, parameter_dict, settings_dict['start_DLS'], settings_dict['end_DLS'], TrafficRate_WD, TrafficRate_WE, pop_density_night, pop_density_day, zenodo)
 
             # Lägg till grids i listan inom en loop
-            temp_grid['properties']['lat']['value'] =  round(float(lonlat[0]),3)
-            temp_grid['properties']['lng']['value'] = round(float(lonlat[1]),3)
+            temp_grid['properties']['lat']['value'] =  round(float(lonlat[0]), 3)
+            temp_grid['properties']['lng']['value'] = round(float(lonlat[1]), 3)
             temp_grid['properties']['alt']['value'] = altitude
 
             temp_grid['properties']['timezone']['value'] = settings_dict['utc']
-            temp_grid['properties']['surfacearea']['value'] = round(hectare ,2)
+            temp_grid['properties']['surfacearea']['value'] = round(hectare , 2)
             temp_grid['properties']['z']['value'] = float('%.3f' % z)
             temp_grid['properties']['z0m_in']['value'] = float('%.3f' % IMP_z0)
             temp_grid['properties']['zdm_in']['value'] = float('%.3f' % IMP_zd)
             temp_grid['properties']['zdm_in']['value'] = float('%.3f' % IMP_zd)
             temp_grid['properties']['z0m_in']['value'] = float('%.3f' % IMP_z0)
             
-            # TODO Thesa are set according to default yaml
+            # TODO These are set according to default yaml
             # temp_grid['properties']['pipecapacity']['value'] = PipeCap
             # temp_grid['properties']['runofftowater']['value'] = RunoffToWater
             # temp_grid['properties']['narp_trans_site']['value'] = NARP_Trans
@@ -1663,7 +1596,7 @@ class SUEWSPrepareDatabase(object):
             #         'CoolingSetpointTemperature': {'value': 25.0}
             #         },
 
-                # Conductance # TODO Create function in db_functions to fill this too
+            # Conductance # TODO Create function in db_functions to fill this too
             temp_grid['properties']['conductance'] = {
                     'g_max': {'value': cond_dict['G1']},
                     'g_k': {'value': cond_dict['G2']},
@@ -1899,9 +1832,21 @@ class SUEWSPrepareDatabase(object):
             
             error_string = error_string + '\n\nCheck Python console to find this information again'
 
-            iface.messageBar().pushMessage("Process completed with warnings from Spartacus", error_string, level=Qgis.Warning)
+            iface.messageBar().pushMessage("Warnings related to vertical morphology", error_string, level=Qgis.Warning)
+        
+        # Pydantic check
+        schema = generate_json_schema()
+        is_valid, errors = validate_single_file(save_txt_folder + settings_dict['file_code'] + '.yml', schema, show_details=True)
+        if not is_valid:
+            pydanticError = ''
+            for error in errors:
+                pydanticError = pydanticError + error
+            QMessageBox.information(None, 'Process Complete with warnings', "See information in the Message bar or QGIS Message log")
+            iface.messageBar().pushMessage("Process completed with warnings from pydantic testing", pydanticError, level=Qgis.Warning)
         else:
+            iface.messageBar().pushMessage("Process completed without warnings", level=Qgis.Info)
             QMessageBox.information(None, 'Process Complete', "Input files for SUEWS generated")
+        
 
         self.dlg.progressBar.setValue(0)
     

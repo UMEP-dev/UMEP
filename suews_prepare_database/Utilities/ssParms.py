@@ -209,7 +209,7 @@ def ss_calc_gridlayout(build_array, wall_array, typoList, typo_array, gridlayout
         vertical_layers['veg_scale']['value'].append(np.round(np.mean(ssVect.loc[startH:endH, 'vScale']),3)) # intergrated vscale mean in ith vertical layer
     
 
-    if len(typoList) != 1:
+    if len(typoList) != 1: # more than one typology
 
         for hh in range(0, int(max(gridlayoutOut[id]['height']) + 1)):
             dictTypofrac[hh] = {}
@@ -368,7 +368,7 @@ def ss_calc_gridlayout(build_array, wall_array, typoList, typo_array, gridlayout
             
     # TODO Add reference texts
 
-    else:
+    else: #only one typology
         surface_code = typoList[0]
         building_code = db_dict['Types'].loc[surface_code,'Buildings']
         code = db_dict['NonVeg'].loc[building_code, 'Spartacus Surface']

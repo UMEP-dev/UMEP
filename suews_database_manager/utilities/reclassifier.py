@@ -204,7 +204,7 @@ def setup_reclassifier(self, dlg, db_dict):
 
         QgsProject.instance().addMapLayer(vlayer) # Add vectorlayer to QGIS-project
 
-        QMessageBox.information(None, 'Process Complete', 'Your reclassified shapefile has been added to project. Proceed to SUEWS Preprare Database Typologies')
+        QMessageBox.information(None, 'Process Complete', 'Your reclassified shapefile has been added to project. Proceed to SUEWS Preprare Database to generate input data for SUEWS.')
         dlg.textOutput.clear()
 
 

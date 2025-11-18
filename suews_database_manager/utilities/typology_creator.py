@@ -126,8 +126,8 @@ def setup_typology_creator(self, dlg, db_dict, db_path):
                 'ASSOCIATED BUILDING TYPE:' + '\n' +
                 'Name: ' + db_dict['NonVeg'].loc[buildID]['Name'] + '\n' +
                 'Origin: ' + db_dict['NonVeg'].loc[buildID]['Origin'] + '\n' +
-                'Mean albedo (min): ' + str(db_dict['Albedo'].loc[db_dict['NonVeg'].loc[buildID]['Albedo']]['Alb_min'].item()) + '\n' +
-                'Mean albedo (max): ' + str(db_dict['Albedo'].loc[db_dict['NonVeg'].loc[buildID]['Albedo']]['Alb_min'].item()) + '\n' +
+                'Mean bulk albedo (min): ' + str(db_dict['Albedo'].loc[db_dict['NonVeg'].loc[buildID]['Albedo']]['Alb_min'].item()) + '\n' +
+                'Mean bulk albedo (max): ' + str(db_dict['Albedo'].loc[db_dict['NonVeg'].loc[buildID]['Albedo']]['Alb_min'].item()) + '\n' +
                 'Effective Surface Emissivity: ' + str(db_dict['Emissivity'].loc[db_dict['NonVeg'].loc[buildID]['Emissivity']]['Emissivity'].item()) + '\n' +
                 'U-value (roof): ' + str(round(db_dict['Spartacus Surface'].loc[db_dict['NonVeg'].loc[buildID]['Spartacus Surface']]['u_value_roof'].item(), 2)) + '\n' +
                 'U-value (walls): ' + str(round(db_dict['Spartacus Surface'].loc[db_dict['NonVeg'].loc[buildID]['Spartacus Surface']]['u_value_wall'].item(), 2)) + '\n' +
@@ -142,8 +142,8 @@ def setup_typology_creator(self, dlg, db_dict, db_path):
                 'ASSOCIATED PAVED TYPE:' + '\n' +
                 'Name: ' + db_dict['NonVeg'].loc[PavedID]['Name'] + '\n' +
                 'Origin: ' + db_dict['NonVeg'].loc[PavedID]['Origin'] + '\n' +
-                'Mean albedo (min): ' + str(round(db_dict['Albedo'].loc[db_dict['NonVeg'].loc[PavedID]['Albedo']]['Alb_min'].item(), 2)) + '\n' +
-                'Mean albedo (max): ' + str(round(db_dict['Albedo'].loc[db_dict['NonVeg'].loc[PavedID]['Albedo']]['Alb_min'].item(), 2)) + '\n' +
+                'Mean bulk albedo (min): ' + str(round(db_dict['Albedo'].loc[db_dict['NonVeg'].loc[PavedID]['Albedo']]['Alb_min'].item(), 2)) + '\n' +
+                'Mean bulk albedo (max): ' + str(round(db_dict['Albedo'].loc[db_dict['NonVeg'].loc[PavedID]['Albedo']]['Alb_min'].item(), 2)) + '\n' +
                 'Effective Surface Emissivity: ' + str(round(db_dict['Emissivity'].loc[db_dict['NonVeg'].loc[PavedID]['Emissivity']]['Emissivity'].item(), 2))
          
                 )

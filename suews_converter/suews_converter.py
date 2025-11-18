@@ -24,25 +24,17 @@
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
-from qgis.gui import QgsMessageBar
+# from qgis.gui import QgsMessageBar
 import webbrowser
 from qgis.core import Qgis
 from pathlib import Path
-import tempfile
+# import tempfile
 
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
 from .suews_converter_dialog import SUEWSConverterDialog
 import os.path
-
-# try:
-#     from supy.util._converter import convert_table
-# except Exception as e:
-#     QMessageBox.critical(None, 'SUEWS Converter', 'This plugin requires the supy package to be installed OR upgraded. '
-#                                         'See Section 2.3 in the UMEP-manual for furtherinformation on how ' 
-#                                         'to install external python packages in QGIS3.')
-#     pass
 
 
 class SUEWSConverter:
@@ -83,8 +75,9 @@ class SUEWSConverter:
         self.dlg.pushButtonSave.clicked.connect(self.folder_path_out)
         self.dlg.helpButton.clicked.connect(self.help)
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(QFileDialog.Directory)
-        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
+        self.fileDialog.setNameFilter("(*.yml)")
+        # self.fileDialog.setFileMode(QFileDialog.Directory)
+        # self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
         self.fileDialognml = QFileDialog()
         self.fileDialognml.setNameFilter("(RunControl.nml)")
 
@@ -119,44 +112,6 @@ class SUEWSConverter:
         status_tip=None,
         whats_this=None,
         parent=None):
-        """Add a toolbar icon to the toolbar.
-
-        :param icon_path: Path to the icon for this action. Can be a resource
-            path (e.g. ':/plugins/foo/bar.png') or a normal file system path.
-        :type icon_path: str
-
-        :param text: Text that should be shown in menu items for this action.
-        :type text: str
-
-        :param callback: Function to be called when the action is triggered.
-        :type callback: function
-
-        :param enabled_flag: A flag indicating if the action should be enabled
-            by default. Defaults to True.
-        :type enabled_flag: bool
-
-        :param add_to_menu: Flag indicating whether the action should also
-            be added to the menu. Defaults to True.
-        :type add_to_menu: bool
-
-        :param add_to_toolbar: Flag indicating whether the action should also
-            be added to the toolbar. Defaults to True.
-        :type add_to_toolbar: bool
-
-        :param status_tip: Optional text to show in a popup when mouse pointer
-            hovers over the action.
-        :type status_tip: str
-
-        :param parent: Parent widget for the new action. Defaults None.
-        :type parent: QWidget
-
-        :param whats_this: Optional text to show in the status bar when the
-            mouse pointer hovers over the action.
-
-        :returns: The action that was created. Note that the action is also
-            added to self.actions list.
-        :rtype: QAction
-        """
 
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
@@ -195,7 +150,6 @@ class SUEWSConverter:
         # will be set False in run()
         self.first_start = True
 
-
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
@@ -209,10 +163,12 @@ class SUEWSConverter:
         result = self.fileDialog.exec_()
         if result == 1:
             self.folderPathOut = self.fileDialog.selectedFiles()
-            self.dlg.textOutput.setText(self.folderPathOut[0])
+            file_path = self.folderPathOut[0]
+            if not file_path.lower().endswith(".yml"):
+                file_path += ".yml"
+            self.dlg.textOutput.setText(file_path)
 
     def folder_path_in(self):
-
         self.fileDialognml.open()
         result = self.fileDialognml.exec_()
         if result == 1:
@@ -229,9 +185,10 @@ class SUEWSConverter:
         """Run method that performs all the real work"""
 
         try:
-            from supy.util._converter import convert_table
+            # from supy.util._converter import convert_table
+            from supy.util.converter import convert_to_yaml
         except Exception as e:
-            QMessageBox.critical(None, 'SUEWS Converter', 'This plugin requires the supy package to be installed OR upgraded. '
+            QMessageBox.critical(None, 'SUEWS Converter', 'This plugin requires the correct version of supy package to be installed OR upgraded. '
                                         'See Section 2.3 in the UMEP-manual for further information on how ' 
                                         'to install external python packages in QGIS3.')
             return
@@ -244,12 +201,7 @@ class SUEWSConverter:
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
-        result = self.dlg.exec_()
-        # See if OK was pressed
-        if result:
-            # Do something useful here - delete the line containing pass and
-            # substitute with your code.
-            pass
+        self.dlg.exec_()
 
     def help(self):
         url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Energy%20Balance%20SUEWS%20Converter.html'
@@ -257,19 +209,25 @@ class SUEWSConverter:
 
     def start_progress(self):
         try:
-            from supy.util._converter import convert_table
+            from supy.util.converter import convert_to_yaml
         except:
             pass
 
-        fromDir = self.dlg.textInput.text().rstrip('RunControl.nml')
+        fromDir = self.dlg.textInput.text()
         toDir = self.dlg.textOutput.text()
-        fromVer = self.dlg.comboBoxOld.currentText()
-        toVer = self.dlg.comboBoxNew.currentText()
-        print([fromDir + ',' + toDir + ',' + fromVer + ',' + toVer])
+
+        # fromDir = self.dlg.textInput.text().rstrip('RunControl.nml')
+        # toDir = self.dlg.textOutput.text().rstrip('*.yml')
+        # fromVer = self.dlg.comboBoxOld.currentText()
+        # toVer = self.dlg.comboBoxNew.currentText()
+        # print([fromDir + ',' + toDir + ',' + fromVer + ',' + toVer])
         try:
-            convert_table(fromDir, toDir, fromVer, toVer)
-            self.iface.messageBar().pushMessage("SUEWS Converter", "Data successfully converted between: "
-                        + fromVer + " to " + toVer, level=Qgis.Success)
+            # convert_table(fromDir, toDir, fromVer, toVer)
+            convert_to_yaml(fromDir, toDir)
+            self.iface.messageBar().pushMessage("SUEWS Converter", "Data successfully converted to lastest version",
+                                                 level=Qgis.Success)
+            # self.iface.messageBar().pushMessage("SUEWS Converter", "Data successfully converted between: "
+            #             + fromVer + " to " + toVer, level=Qgis.Success)
         except Exception as e:
             QMessageBox.critical(self.dlg, "An error occurred", str(e) + "\r\n\r\n"
                                 "Check: " + str(list(Path.cwd().glob('SuPy.log'))[0]) + "\r\n\r\n"

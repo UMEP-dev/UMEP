@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1158</width>
-    <height>722</height>
+    <width>1162</width>
+    <height>731</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -135,7 +135,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>544</width>
+        <width>546</width>
         <height>653</height>
        </rect>
       </property>
@@ -871,7 +871,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt; font-weight:600;&quot;&gt;Profiles&lt;/span&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt; - There are different types of activity profiles used in SUEWS. They are all gathered in this tab. This plugin has imported country-specific profile from the LUCY-model (&lt;/span&gt;&lt;a href=&quot;https://rmets.onlinelibrary.wiley.com/doi/10.1002/joc.2210&quot;&gt;&lt;span style=&quot; font-size:9pt; text-decoration: underline; color:#0000ff;&quot;&gt;Allen et al. 2010&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;) that can be used. You can also create your own profiles.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt; font-weight:600;&quot;&gt;Irrigation&lt;/span&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt; - Hydrology is one main feature in SUEWS. In this tab one can set specific parameters related to&lt;/span&gt;&lt;span style=&quot; font-size:9pt; font-weight:600;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;irrigation&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt; font-weight:600;&quot;&gt;Snow&lt;/span&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt; - A specific module within SUEWS can also model the effect of snow on water and energy balance. This tab sets various parameters related to this module.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt; font-weight:600;&quot;&gt;Building facets&lt;/span&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt; - SUEWS have capabilities to estimate radiation and storage fluxes via the SPARTACUS-model (still experimental) and the ESTM-scheme. Properties of building facts are added in this tab.  &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt; font-weight:600;&quot;&gt;Building facets&lt;/span&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt; - SUEWS have capabilities to estimate vertical radiation and storage fluxes (still experimental). Properties of building roofs and walls are added in this tab.  &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt; font-weight:600;&quot;&gt;Building Materials&lt;/span&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt; - Here building materials is added to the database.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt; font-weight:600;&quot;&gt;References&lt;/span&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt; - It is essential to be able to know the source of information for each parameter added. This tab is used to add new references into the database.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>

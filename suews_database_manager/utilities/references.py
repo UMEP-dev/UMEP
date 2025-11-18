@@ -94,7 +94,8 @@ def setup_ref_manager(self, dlg, db_dict, db_path):
         for i in range(0,16):
             first_name = getattr(dlg, f'textEditFN_{i}')
             last_name = getattr(dlg, f'textEditLN0_{i}')   
-            name = first_name.value() + ', ' + last_name.value() + ';' 
+            # name = first_name.value() + ', ' + last_name.value() + ';' 
+            name = last_name.value() + ', ' + first_name.value() + ';' 
             if len(first_name.value()) > 0 and len(last_name.value()) > 0: 
                 author_list.append(name)
 
