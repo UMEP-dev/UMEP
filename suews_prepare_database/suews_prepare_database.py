@@ -51,7 +51,7 @@ import os
 import yaml
 import sys
 
-from ..Utilities import RoughnessCalcFunction as rg
+from ..Utilities import RoughnessCalcFunctionV2 as rg
 from ..Utilities.misc import saveraster
 from .Utilities.db_functions import * 
 from .Utilities.ssParms import getVertheights, ss_calc_gridlayout
