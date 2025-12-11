@@ -45,6 +45,7 @@ import webbrowser
 import sys
 import yaml
 from pathlib import Path
+import time
 # from .suewssimpleworker import Worker
 # from ..suewsmodel import suewstask
 
@@ -313,7 +314,7 @@ class SuewsSimple(object):
 
     def set_default_settings(self):
 
-        with open(self.supylib + '/sample_run/sample_config.yml', 'r') as f:
+        with open(self.supylib + '/sample_data/sample_config.yml', 'r') as f:
             yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
 
         land_cover = yaml_dict['sites'][0]['properties']['land_cover']
@@ -340,7 +341,7 @@ class SuewsSimple(object):
 
         self.dlg.UTC.setText('0')
 
-        self.dlg.textInputMetdata.setText(self.supylib + '/sample_run/Input/Kc_2012_data_60.txt') #response to issue #655 
+        self.dlg.textInputMetdata.setText(self.supylib + '/sample_data/Kc_2012_data_60.txt') #response to issue #655 
         self.dlg.textOutput.setText(self.model_dir  + '/Output/')
         self.dlg.spinBoxSoilMoisture.setValue(100)
 
@@ -427,30 +428,30 @@ class SuewsSimple(object):
             if index == 6:
                 pai_water = arr[index]
 
-        with open(self.supylib + '/sample_run/sample_config.yml', 'r') as f:
+        with open(self.supylib + '/sample_data/sample_config.yml', 'r') as f:
             yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
 
-        land_cover = yaml_dict['sites'][0]['properties']['land_cover']
+        # land_cover = yaml_dict['sites'][0]['properties']['land_cover']
 
-        self.dlg.lineEdit_YYYY.setText(str(2012)) #response to issue #655 
-        self.dlg.pai_paved.setText(str(land_cover['paved']['sfr']['value']))
-        self.dlg.pai_build.setText(str(land_cover['bldgs']['sfr']['value']))
-        self.dlg.pai_evergreen.setText(str(land_cover['evetr']['sfr']['value']))
-        self.dlg.pai_decid.setText(str(land_cover['dectr']['sfr']['value']))
-        self.dlg.pai_grass.setText(str(land_cover['grass']['sfr']['value']))
-        self.dlg.pai_baresoil.setText(str(land_cover['bsoil']['sfr']['value']))
-        self.dlg.pai_water.setText(str(land_cover['water']['sfr']['value']))
-        self.dlg.lineEdit_zHBuild.setText(str(land_cover['bldgs']['bldgh']['value'])) #2020a: +4 cols from 20
-        self.dlg.lineEdit_faiBuild.setText(str(land_cover['bldgs']['faibldg']['value']))
-        self.dlg.lineEdit_paiBuild.setText(str(land_cover['bldgs']['sfr']['value']))
-        self.dlg.lineEdit_zHveg.setText(str((land_cover['evetr']['evetreeh']['value'] + land_cover['dectr']['dectreeh']['value']) / 2))
-        self.dlg.lineEdit_faiveg.setText(str((land_cover['evetr']['faievetree']['value'] + land_cover['dectr']['faidectree']['value']) / 2))
-        self.dlg.lineEdit_paiveg.setText(str((land_cover['evetr']['sfr']['value'] + land_cover['dectr']['sfr']['value'])))
-        self.dlg.Latitude.setText(str(yaml_dict['sites'][0]['properties']['lat']['value']))
-        self.dlg.Longitude.setText(str(yaml_dict['sites'][0]['properties']['lng']['value']))
-        self.dlg.PopDensNight.setText(str(yaml_dict['sites'][0]['properties']['anthropogenic_emissions']['heat']['popdensnighttime']))
-        self.dlg.Height.setText(str(yaml_dict['sites'][0]['properties']['z']['value']))
-        self.dlg.comboBoxLeafCycle.setCurrentIndex(1)
+        # self.dlg.lineEdit_YYYY.setText(str(2012)) #response to issue #655 
+        # self.dlg.pai_paved.setText(str(land_cover['paved']['sfr']['value']))
+        # self.dlg.pai_build.setText(str(land_cover['bldgs']['sfr']['value']))
+        # self.dlg.pai_evergreen.setText(str(land_cover['evetr']['sfr']['value']))
+        # self.dlg.pai_decid.setText(str(land_cover['dectr']['sfr']['value']))
+        # self.dlg.pai_grass.setText(str(land_cover['grass']['sfr']['value']))
+        # self.dlg.pai_baresoil.setText(str(land_cover['bsoil']['sfr']['value']))
+        # self.dlg.pai_water.setText(str(land_cover['water']['sfr']['value']))
+        # self.dlg.lineEdit_zHBuild.setText(str(land_cover['bldgs']['bldgh']['value'])) #2020a: +4 cols from 20
+        # self.dlg.lineEdit_faiBuild.setText(str(land_cover['bldgs']['faibldg']['value']))
+        # self.dlg.lineEdit_paiBuild.setText(str(land_cover['bldgs']['sfr']['value']))
+        # self.dlg.lineEdit_zHveg.setText(str((land_cover['evetr']['evetreeh']['value'] + land_cover['dectr']['dectreeh']['value']) / 2))
+        # self.dlg.lineEdit_faiveg.setText(str((land_cover['evetr']['faievetree']['value'] + land_cover['dectr']['faidectree']['value']) / 2))
+        # self.dlg.lineEdit_paiveg.setText(str((land_cover['evetr']['sfr']['value'] + land_cover['dectr']['sfr']['value'])))
+        # self.dlg.Latitude.setText(str(yaml_dict['sites'][0]['properties']['lat']['value']))
+        # self.dlg.Longitude.setText(str(yaml_dict['sites'][0]['properties']['lng']['value']))
+        # self.dlg.PopDensNight.setText(str(yaml_dict['sites'][0]['properties']['anthropogenic_emissions']['heat']['popdensnighttime']))
+        # self.dlg.Height.setText(str(yaml_dict['sites'][0]['properties']['z']['value']))
+        # self.dlg.comboBoxLeafCycle.setCurrentIndex(1)
 
         # newdata[1] = YYYY
         yaml_dict['sites'][0]['properties']['lat']['value'] = float(lat)
@@ -549,18 +550,8 @@ class SuewsSimple(object):
                 # TODO: Put suews in a worker or a QgsTask. Task is working but no correct message when model is finished.
         # self.startWorker(self.iface, self.model_dir, self.dlg)
 
-        # print('testTask')
-        # # Creae a tasks
-        # task = QgsTask.fromFunction(u'SUEWS', suewstask.suewstask, on_finished=suewstask.completed, pathtoplugin=self.model_dir)
-        # QgsApplication.taskManager().addTask(task)
-        # # task.isFinished() # did not work...
-        # print('test')
-
-        # longtask = SuewsTask('SUEWS model', self.model_dir)
-        # QgsApplication.taskManager().addTask(longtask)
-        # print('testafter')
         #suews_wrapper.wrapper(self.model_dir, self.iface, year=YYYY)
-        if QMessageBox.question(self.iface.mainWindow(), "Model information", "Model run will now start. "
+        if QMessageBox.question(None, "Model information", "Model run will now start. "
                                                             "QGIS might freeze during calculation."
                                                             "\r\n"
                                                             "\r\n"
@@ -569,14 +560,17 @@ class SuewsSimple(object):
                                                             "\r\n"
                                                             "Do you want to contiune?",
                                 QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
-            
-            self.dlg.activateWindow()
+            #self.iface.mainWindow()
+            # self.dlg.activateWindow()
             # suews_wrapper.wrapper(self.model_dir, self.iface, year=YYYY)
             #suews_wrapper.wrapper(self.model_dir, plot, filecode)
-
+            self.iface.messageBar().pushMessage("Model running", "Please wait...", level=Qgis.Success)
+            # time.sleep(0.5)
             try:
+                
                 suews_wrapper.wrapper(self.model_dir, plot, filecode)
-                self.iface.messageBar().pushMessage("Model run successful", "Model run finished", level=Qgis.Success)
+                
+                QMessageBox.information(None, "Model run successful", "Model run finished")
                 
                 #copy yml-file to output folder
                 shutil.copy(self.model_dir + f'/Input/{filecode}_suews_simple.yml', outfolder + f'{filecode}_suews_simple.yml') # issue 782 

@@ -232,7 +232,7 @@ class SUEWSAnalyzer(object):
             with open(self.yamlPath[0], 'r') as f:
                 yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
 
-            self.fileoutputpath = yaml_dict['model']['control']['output_file']
+            self.fileoutputpath = str(yaml_dict['model']['control']['output_file']['path'])
             
             if self.fileoutputpath.startswith("."):
                 yamlfolder = self.yamlPath[0][:-15]

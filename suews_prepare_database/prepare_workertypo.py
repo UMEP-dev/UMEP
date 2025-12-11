@@ -17,7 +17,7 @@ import os
 # import time
 from shutil import copyfile
 from .Utilities import f90nml
-from .Utilities import RoughnessCalcFunction as rg
+from .Utilities import RoughnessCalcFunctionV2 as rg
 import copy
 from .Utilities.db_functions import *
 
