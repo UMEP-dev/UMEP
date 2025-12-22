@@ -195,7 +195,7 @@ def setup_SUEWS_SS_creator(self, dlg, db_dict, db_path):
         db_dict['Spartacus Surface'] = concat([db_dict['Spartacus Surface'], new_edit])
         save_to_db(db_path, db_dict)
 
-        QMessageBox.information(None, 'Succesful', f'New edit {spartacus_dict['Name']}, {spartacus_dict['Origin']} added to your local database')
+        QMessageBox.information(None, 'Succesful', f"New edit {spartacus_dict['Name']}, {spartacus_dict['Origin']} added to your local database")
         fill_cboxes()
               
     def base_surface_changed():
