@@ -16,6 +16,7 @@ def wrapper(pathtoplugin, plotornot, filecode):
     import sys
     sys.path.append(pathtoplugin)
     import yaml
+    from qgis.PyQt.QtWidgets import QMessageBox
 
     try:
         import matplotlib.pyplot as plt
@@ -30,19 +31,24 @@ def wrapper(pathtoplugin, plotornot, filecode):
     #####################################################################################
     # SuPy initialisation
     yaml_path = Path(pathtoplugin + f'/Input/{filecode}_suews_simple.yml')
+    #from supy.data_model import init_config_from_yaml 
+    #from supy import SUEWSKernelError
+    from supy import SUEWSSimulation
 
-    config = sp.data_model.init_config_from_yaml(yaml_path)
-    df_state_init = config.to_df_state()
-                
-    df_forcing = sp.load_forcing_grid(yaml_path, 1, df_state_init=df_state_init)
-       
-    df_output, df_state_final = sp.run_supy(df_forcing, df_state_init)
+    # Create simulation from YAML configuration
+    sim = SUEWSSimulation(yaml_path)
+    df_state_init = sim.state_init
+    df_forcing = sim.forcing
+
+    # Run the simulation
+    sim.run()
 
     # use SuPy function to save results
     with open(yaml_path, 'r') as f:
         yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
 
-    sp.save_supy(df_output, df_state_final, path_dir_save = yaml_dict['model']['control']['output_file'])
+    sim.save(yaml_dict['model']['control']['output_file'])
+    # sp.save_supy(df_output, df_state_final, path_dir_save = yaml_dict['model']['control']['output_file'])
 
     # --- plot results --- #
     if plotornot == 1:
@@ -71,7 +77,7 @@ def wrapper(pathtoplugin, plotornot, filecode):
         if multiplemetfiles == 0:  # one file
             met_data_file = yaml_dict['model']['control']['forcing_file']['value']
 
-        suews_out = fileoutputpath + str(gridcode) + '_' + str(YYYY) + '_SUEWS_' + str(60) + '.txt'
+        suews_out = fileoutputpath + filecode + str(gridcode) + '_' + str(YYYY) + '_SUEWS_' + str(60) + '.txt'
         
         df_output_suews = suewsdataprocessing.SUEWS_txt_to_df(suews_out)
         df_met_forcing = suewsdataprocessing.SUEWS_met_txt_to_df(met_data_file)

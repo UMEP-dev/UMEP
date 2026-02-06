@@ -540,6 +540,8 @@ class SuewsSimple(object):
 
         yaml_dict['model']['control']['output_file'] = outfolder
 
+        yaml_dict['sites'][0]['name'] = filecode
+
         with open(self.model_dir + f'/Input/{filecode}_suews_simple.yml', 'w') as file:
             yaml.dump(yaml_dict, file, sort_keys = False)
        
@@ -561,10 +563,7 @@ class SuewsSimple(object):
                                                             "Do you want to contiune?",
                                 QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
             #self.iface.mainWindow()
-            # self.dlg.activateWindow()
-            # suews_wrapper.wrapper(self.model_dir, self.iface, year=YYYY)
-            #suews_wrapper.wrapper(self.model_dir, plot, filecode)
-            self.iface.messageBar().pushMessage("Model running", "Please wait...", level=Qgis.Success)
+            # suews_wrapper.wrapper(self.model_dir, plot, filecode) #For testing
             # time.sleep(0.5)
             try:
                 

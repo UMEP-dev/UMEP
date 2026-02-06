@@ -39,7 +39,7 @@ except:
                 "Please report at https://github.com/UMEP-dev/UMEP-processing/issues",
             )
         try:
-            setup_umep_python(ver='2.7')
+            setup_umep_python(ver='2.9')
             QMessageBox.information(None, "Packages successfully installed",
                                     "To make all parts of the plugin work it is recommended to restart your QGIS-session.")
         except Exception as e:
