@@ -89,7 +89,7 @@ class Worker(QtCore.QObject):
                     writer = QgsVectorFileWriter(self.dir_poly, "CP1250", self.fields, self.prov.wkbType(),
                                                  self.prov.crs(), "ESRI shapefile")
 
-                    if writer.hasError() != QgsVectorFileWriter.NoError:
+                    if writer.hasError() != QgsVectorFileWriter.WriterError.NoError:
                         self.iface.messageBar().pushMessage("Error when creating shapefile: ", str(writer.hasError()))
                     writer.addFeature(feature)
                     del writer
@@ -135,14 +135,14 @@ class Worker(QtCore.QObject):
                 nodata_test = (lc_grid_array == nd)
                 if self.dlg.checkBoxNoData.isChecked():
                     if np.sum(lc_grid_array) == (lc_grid_array.shape[0] * lc_grid_array.shape[1] * nd):
-                        QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes Only NoData Pixels", level=Qgis.Critical)
+                        QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes Only NoData Pixels", level=Qgis.MessageLevel.Critical)
                         cal = 0
                     else:
                         lc_grid_array[lc_grid_array == nd] = 6
                         cal = 1
                 else:
                     if nodata_test.any():  # == True
-                        QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes NoData Pixels", level=Qgis.Critical)
+                        QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes NoData Pixels", level=Qgis.MessageLevel.Critical)
                         cal = 0
                     else:
                         cal = 1
@@ -186,7 +186,7 @@ class Worker(QtCore.QObject):
                 current_index_length = len(self.vlayer.dataProvider().attributeIndexes())
                 caps = self.vlayer.dataProvider().capabilities()
 
-                if caps & QgsVectorDataProvider.AddAttributes:
+                if caps & QgsVectorDataProvider.Capability.AddAttributes:
                     line_split = header.split()
                     for x in range(1, len(line_split)):
 
@@ -242,7 +242,7 @@ class Worker(QtCore.QObject):
         current_index_length = len(vlayer.dataProvider().attributeIndexes())
         caps = vlayer.dataProvider().capabilities()
 
-        if caps & QgsVectorDataProvider.AddAttributes:
+        if caps & QgsVectorDataProvider.Capability.AddAttributes:
             #vlayer.startEditing()
             line_split = header.split()
             for x in range(1, len(line_split)):
@@ -330,7 +330,7 @@ class Worker(QtCore.QObject):
                 fileinput.close()
         except Exception as e:
             errorstring = self.print_exception()
-            QgsMessageLog.logMessage(errorstring, level=Qgis.Critical)
+            QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)
             fileinput.close()
 
     def kill(self):

@@ -108,8 +108,8 @@ class LQF(object):
         self.initialise() # Initialize text boxes and model fields
         self.setup() # Connect all push buttons
 
-        self.dlg.cmdRunCancel.clicked.connect(self.startWorker, Qt.UniqueConnection)
-        self.dlg.pushButtonClose.clicked.connect(self.dlg.close, Qt.UniqueConnection)                                # Close this dialog
+        self.dlg.cmdRunCancel.clicked.connect(self.startWorker, Qt.ConnectionType.UniqueConnection)
+        self.dlg.pushButtonClose.clicked.connect(self.dlg.close, Qt.ConnectionType.UniqueConnection)                                # Close this dialog
 
         # Declare instance attributes
         self.actions = []
@@ -156,23 +156,23 @@ class LQF(object):
         # Connect buttons to events
         # File loading events
 
-        self.dlg.pushButtonParams.clicked.connect(self.loadParams, Qt.UniqueConnection)              # Params file
-        self.dlg.pushButtonDataSources.clicked.connect(self.dataSources, Qt.UniqueConnection)          # Data sources file
-        self.dlg.cmdLandCoverFraction.clicked.connect(self.landCoverFraction, Qt.UniqueConnection)     # Raster for % land cover buildings
-        self.dlg.cmdPolygonGrid.clicked.connect(self.polygonGrid, Qt.UniqueConnection)                 # land cover paved
-        self.dlg.lstPrimaryKey.currentIndexChanged.connect(self.polygonGridID, Qt.UniqueConnection)
-        self.dlg.chkDateRange.clicked.connect(self.useDateRange, Qt.UniqueConnection)
-        self.dlg.chkDateList.clicked.connect(self.useDateList, Qt.UniqueConnection)
+        self.dlg.pushButtonParams.clicked.connect(self.loadParams, Qt.ConnectionType.UniqueConnection)              # Params file
+        self.dlg.pushButtonDataSources.clicked.connect(self.dataSources, Qt.ConnectionType.UniqueConnection)          # Data sources file
+        self.dlg.cmdLandCoverFraction.clicked.connect(self.landCoverFraction, Qt.ConnectionType.UniqueConnection)     # Raster for % land cover buildings
+        self.dlg.cmdPolygonGrid.clicked.connect(self.polygonGrid, Qt.ConnectionType.UniqueConnection)                 # land cover paved
+        self.dlg.lstPrimaryKey.currentIndexChanged.connect(self.polygonGridID, Qt.ConnectionType.UniqueConnection)
+        self.dlg.chkDateRange.clicked.connect(self.useDateRange, Qt.ConnectionType.UniqueConnection)
+        self.dlg.chkDateList.clicked.connect(self.useDateList, Qt.ConnectionType.UniqueConnection)
 
         # Other interface buttons
-        self.dlg.cmdVisualise.clicked.connect(self.visualise, Qt.UniqueConnection)                                    # Visualisation dialog
-        self.dlg.pushButtonRaw.clicked.connect(self.outputFolder, Qt.UniqueConnection)                               # Output folder
-        self.dlg.cmdPrepare.clicked.connect(self.disaggregate, Qt.UniqueConnection)                                  # Prepare input data
-        self.dlg.cmdLoadResults.clicked.connect(self.loadResults, Qt.UniqueConnection)                               # Load a previous model run's results
+        self.dlg.cmdVisualise.clicked.connect(self.visualise, Qt.ConnectionType.UniqueConnection)                                    # Visualisation dialog
+        self.dlg.pushButtonRaw.clicked.connect(self.outputFolder, Qt.ConnectionType.UniqueConnection)                               # Output folder
+        self.dlg.cmdPrepare.clicked.connect(self.disaggregate, Qt.ConnectionType.UniqueConnection)                                  # Prepare input data
+        self.dlg.cmdLoadResults.clicked.connect(self.loadResults, Qt.ConnectionType.UniqueConnection)                               # Load a previous model run's results
 
         # Run model
-        self.dlg.cmdProcessedDataPath.clicked.connect(self.chooseProcessedDataPath, Qt.UniqueConnection)             # Select prepared input data
-        self.dlg.pushButtonHelp.clicked.connect(self.help, Qt.UniqueConnection) # Launch web-based help
+        self.dlg.cmdProcessedDataPath.clicked.connect(self.chooseProcessedDataPath, Qt.ConnectionType.UniqueConnection)             # Select prepared input data
+        self.dlg.pushButtonHelp.clicked.connect(self.help, Qt.ConnectionType.UniqueConnection) # Launch web-based help
 
     def useDateRange(self):
         '''
@@ -202,9 +202,9 @@ class LQF(object):
         fileDialog = QFileDialog()
         # fileDialog.setFileMode(2)
         # fileDialog.setAcceptMode(0)
-        fileDialog.setFileMode(QFileDialog.Directory)
-        fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
-        result = fileDialog.exec_()
+        fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
+        result = fileDialog.exec()
         if result == 1:
             selectedFolder = fileDialog.selectedFiles()[0]
             # Check for manifest file or reject
@@ -220,10 +220,10 @@ class LQF(object):
     def outputFolder(self):
         # Let user select folder into which model outputs will be saved
         fileDialog = QFileDialog()
-        fileDialog.setFileMode(QFileDialog.Directory)
+        fileDialog.setFileMode(QFileDialog.FileMode.Directory)
         # fileDialog.setFileMode(4)
         # fileDialog.setAcceptMode(1)
-        result = fileDialog.exec_()
+        result = fileDialog.exec()
         if result == 1:
             self.model.setOutputDir(fileDialog.selectedFiles()[0])
             self.dlg.textOutput_raw.setText(fileDialog.selectedFiles()[0])
@@ -245,7 +245,7 @@ class LQF(object):
         self.dlg.cmdPrepare.setEnabled(False)
         if QMessageBox.question(self.dlg, "Prepare input data",
                                 "QGIS will freeze for a moment while preparing input. Du you want to continue?",
-                                QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
+                                QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) == QMessageBox.StandardButton.Ok:
             run = 1
         else:
             QMessageBox.critical(self.dlg, "Prepare input data", "No input data prepared. Model cannot be executed")
@@ -293,23 +293,23 @@ class LQF(object):
         self.thread.deleteLater()  # Flag for deletion
         self.dlg.cmdPrepare.setText('Prepare input data using Data sources')
         self.dlg.cmdPrepare.clicked.disconnect()
-        self.dlg.cmdPrepare.clicked.connect(self.disaggregate, Qt.UniqueConnection)
+        self.dlg.cmdPrepare.clicked.connect(self.disaggregate, Qt.ConnectionType.UniqueConnection)
         self.dlg.cmdRunCancel.setEnabled(True) # Model can now be run
         self.dlg.pushButtonClose.setEnabled(True)
         self.dlg.cmdLoadResults.setEnabled(True)
         self.model.setPreProcessedInputFolder(strDirectory)
         self.dlg.txtProcessedDataPath.setText(strDirectory)
         self.dlg.cmdPrepare.setEnabled(True)
-        self.iface.messageBar().pushMessage("LQF", "Input data has been processed. Model can now be run", level=Qgis.Info)
+        self.iface.messageBar().pushMessage("LQF", "Input data has been processed. Model can now be run", level=Qgis.MessageLevel.Info)
 
     def workerError(self, strException):
         QMessageBox.critical(None, 'Data pre-processing error:', str(strException))
-        QgsMessageLog.logMessage(traceback.format_exc(), level=Qgis.Warning)
+        QgsMessageLog.logMessage(traceback.format_exc(), level=Qgis.MessageLevel.Warning)
 
         self.dlg.progressBar.setValue(0)
         self.dlg.cmdPrepare.setText('Prepare input data using Data sources')
         self.dlg.cmdPrepare.clicked.disconnect()
-        self.dlg.cmdPrepare.clicked.connect(self.disaggregate, Qt.UniqueConnection)
+        self.dlg.cmdPrepare.clicked.connect(self.disaggregate, Qt.ConnectionType.UniqueConnection)
         self.dlg.cmdRunCancel.setEnabled(True) # Model can now be run
         self.dlg.pushButtonClose.setEnabled(True)
         self.dlg.cmdLoadResults.setEnabled(True)
@@ -323,7 +323,7 @@ class LQF(object):
         # Select and parse data sources file
         a = QFileDialog()
         a.open()
-        result = a.exec_()
+        result = a.exec()
         if result == 1:
             df = a.selectedFiles()
             try:
@@ -340,7 +340,7 @@ class LQF(object):
         # Produce extra-disaggregated population and road length layers that will be used as the output folder
         a = QFileDialog()
         a.open()
-        result = a.exec_()
+        result = a.exec()
         if result == 1:
             df = a.selectedFiles()
             self.dlg.txtLandCoverFraction.setText(df[0])
@@ -352,7 +352,7 @@ class LQF(object):
         # Select a polygon shapefile corresponding to land cover fraction data
         a = QFileDialog()
         a.open()
-        result = a.exec_()
+        result = a.exec()
 
         if result == 1:
             df = a.selectedFiles()
@@ -382,13 +382,13 @@ class LQF(object):
             return
 
         a = time_displayer(self.model, self.iface)
-        a.exec_()
+        a.exec()
 
     def loadParams(self):
         # Select and parse parameters namelist
         a = QFileDialog()
         a.open()
-        result = a.exec_()
+        result = a.exec()
         if result == 1:
             cf = a.selectedFiles()
             try:
@@ -404,9 +404,9 @@ class LQF(object):
         fileDialog = QFileDialog()
         # fileDialog.setFileMode(2)
         # fileDialog.setAcceptMode(0)
-        fileDialog.setFileMode(QFileDialog.Directory)
-        fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
-        result = fileDialog.exec_()
+        fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
+        result = fileDialog.exec()
         if result == 1:
             selectedFolder = fileDialog.selectedFiles()[0]
             # Check for manifest file or reject
@@ -422,7 +422,7 @@ class LQF(object):
 
             self.dlg.cmdLoadResults.setText('Clear results')
             self.dlg.cmdLoadResults.clicked.disconnect()
-            self.dlg.cmdLoadResults.clicked.connect(self.reset, Qt.UniqueConnection)
+            self.dlg.cmdLoadResults.clicked.connect(self.reset, Qt.ConnectionType.UniqueConnection)
 
             self.dlg.cmdVisualise.setEnabled(True)
 
@@ -537,7 +537,7 @@ class LQF(object):
         self.dlg.cmdPrepare.setEnabled(False)
         if QMessageBox.question(self.dlg, "Running model",
                                 "QGIS will freeze for a moment while calculating anthropogenic heat. Du you want to continue?",
-                                QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
+                                QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) == QMessageBox.StandardButton.Ok:
             run = 1
         else:
             QMessageBox.critical(self.dlg, "Running model", "Operation cancelled. Model will not be executed")
@@ -583,18 +583,18 @@ class LQF(object):
                 #self.model.run()
                 self.dlg.progressBar.setValue(100)
                 self.iface.messageBar().pushMessage("LQF", "Model run complete. Click 'visualise' to view output",
-                                                level=Qgis.Info)
+                                                level=Qgis.MessageLevel.Info)
 
                 # Change Run button to Clear button
                 self.dlg.cmdLoadResults.setText('Clear results')
                 self.dlg.cmdLoadResults.clicked.disconnect()
-                self.dlg.cmdLoadResults.clicked.connect(self.reset, Qt.UniqueConnection)
+                self.dlg.cmdLoadResults.clicked.connect(self.reset, Qt.ConnectionType.UniqueConnection)
                 self.dlg.cmdLoadResults.setEnabled(True)
                 self.dlg.cmdVisualise.setEnabled(True)
 
             except Exception as e:
                 QMessageBox.critical(None, 'Error running LQF', str(e))
-                QgsMessageLog.logMessage(traceback.format_exc(), level=Qgis.Warning)
+                QgsMessageLog.logMessage(traceback.format_exc(), level=Qgis.MessageLevel.Warning)
 
             self.dlg.cmdRunCancel.setText('Re-Run')
             self.dlg.cmdRunCancel.setEnabled(True)
@@ -602,19 +602,19 @@ class LQF(object):
 
     def run(self):
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def reset(self):
         ''' Reset model object and dialogues so that user can start again'''
         self.initialise()
         # Reset the "run" button
         self.dlg.cmdRunCancel.clicked.disconnect()
-        self.dlg.cmdRunCancel.clicked.connect(self.startWorker, Qt.UniqueConnection)
+        self.dlg.cmdRunCancel.clicked.connect(self.startWorker, Qt.ConnectionType.UniqueConnection)
         self.dlg.cmdRunCancel.setText('Run')
         self.dlg.cmdRunCancel.setEnabled(True)
         # Reset the "load results" button
         self.dlg.cmdLoadResults.clicked.disconnect()
         self.dlg.cmdLoadResults.setText('Load results')
-        self.dlg.cmdLoadResults.clicked.connect(self.loadResults, Qt.UniqueConnection)  # Load a previous run's results
+        self.dlg.cmdLoadResults.clicked.connect(self.loadResults, Qt.ConnectionType.UniqueConnection)  # Load a previous run's results
         self.dlg.cmdLoadResults.setEnabled(True)
 

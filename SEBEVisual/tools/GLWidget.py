@@ -8,7 +8,7 @@ from qgis.PyQt import QtWidgets
 from qgis.PyQt import QtGui
 from qgis.PyQt import QtCore
 try:
-    from PyQt5.QtOpenGL import *
+    from qgis.PyQt.QtOpenGL import *
 except:
     pass
 import numpy as np  # only for testing with test data arrays
@@ -500,4 +500,4 @@ if __name__ == '__main__':
     app = QtGui.QApplication(["Draw a Scene using PyQt OpenGL"])
     widget = VisWidget(energy, dsm, walls, 1., 1. , "dlg")
     widget.show()
-    app.exec_()
+    app.exec()

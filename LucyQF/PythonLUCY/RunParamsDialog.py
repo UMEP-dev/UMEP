@@ -23,7 +23,7 @@ class RunParamsDialog(QDialog, FORM_CLASS):
     @staticmethod
     def getUserApproval(parent = None):
         dialog = RunParamsDialog(parent)
-        result = dialog.exec_()
+        result = dialog.exec()
         date = dialog.dateTime()
-        return (date.date(), date.time(), result == QDialog.Accepted)
+        return (date.date(), date.time(), result == QDialog.DialogCode.Accepted)
 

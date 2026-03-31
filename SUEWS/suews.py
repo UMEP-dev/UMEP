@@ -72,8 +72,8 @@ class SUEWS(object):
         self.dlg.pushButtonSave.clicked.connect(self.folder_path_out)
         self.dlg.helpButton.clicked.connect(self.help)
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(QFileDialog.Directory)
-        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
+        self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
         # Declare instance attributes
         self.actions = []
@@ -155,7 +155,7 @@ class SUEWS(object):
 
         self.supylib = sys.modules["supy"].__path__[0]
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def help(self):
         url = "https://umep-docs.readthedocs.io/en/latest/processor/Urban%20Energy%20Balance%20Urban%20Energy%20Balance%20(SUEWS.BLUEWS,%20advanced).html"
@@ -163,14 +163,14 @@ class SUEWS(object):
 
     def folder_path_out(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPathOut = self.fileDialog.selectedFiles()
             self.dlg.textOutput.setText(self.folderPathOut[0])
 
     def folder_path_in(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPathOut = self.fileDialog.selectedFiles()
             self.dlg.textInput.setText(self.folderPathOut[0])
@@ -355,4 +355,4 @@ class SUEWS(object):
             return
 
         shutil.copy(self.model_dir + '/RunControl.nml', outfolder + '/RunControl.nml')
-        self.iface.messageBar().pushMessage("Model run successful", "Model run finished", level=Qgis.Success)
+        self.iface.messageBar().pushMessage("Model run successful", "Model run finished", level=Qgis.MessageLevel.Success)

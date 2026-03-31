@@ -166,8 +166,8 @@ class UWGPrepare:
         self.dlg = UWGPrepareDialog()
 
         self.outputDialog = QFileDialog()
-        self.outputDialog.setFileMode(QFileDialog.Directory)
-        self.outputDialog.setOption(QFileDialog.ShowDirsOnly, True)
+        self.outputDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.outputDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
         self.fileDialog = QFileDialog()
         # self.fileDialog.setFileMode(QFileDialog.ExistingFile)
@@ -183,15 +183,15 @@ class UWGPrepare:
 
         self.layerComboManagerPolygrid = QgsMapLayerComboBox(self.dlg.widgetPolygonLayer)
         self.layerComboManagerPolygrid.setCurrentIndex(-1)
-        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
         self.layerComboManagerPolygrid.setFixedWidth(175)
         self.layerComboManagerPolyField = QgsFieldComboBox(self.dlg.widgetPolyField)
-        self.layerComboManagerPolyField.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPolyField.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.layerComboManagerPolygrid.layerChanged.connect(self.layerComboManagerPolyField.setLayer)
 
         self.layerComboManagerPolygridBT = QgsMapLayerComboBox(self.dlg.widgetPolygonLayerBT)
         self.layerComboManagerPolygridBT.setCurrentIndex(-1)
-        self.layerComboManagerPolygridBT.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.layerComboManagerPolygridBT.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
         self.layerComboManagerPolygridBT.setFixedWidth(175)
         # self.layerComboManagerPolyFieldBT = QgsFieldComboBox(self.dlg.widgetPolyFieldBT)
         # self.layerComboManagerPolyFieldBT.setFilters(QgsFieldProxyModel.Numeric)
@@ -202,12 +202,12 @@ class UWGPrepare:
 
         # show the dialog
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
 
     def set_LCFfile_path(self):
         self.LCFfile_path = self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.LCFfile_path = self.fileDialog.selectedFiles()
         
@@ -219,7 +219,7 @@ class UWGPrepare:
 
     def set_IMPfile_path(self):
         self.IMPfile_path = self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.IMPfile_path = self.fileDialog.selectedFiles()
         
@@ -231,7 +231,7 @@ class UWGPrepare:
 
     def set_output_folder(self):
         self.outputDialog.open()
-        result = self.outputDialog.exec_()
+        result = self.outputDialog.exec()
         if result == 1:
             self.output_dir = self.outputDialog.selectedFiles()
             self.dlg.textOutput.setText(self.output_dir[0])
@@ -277,7 +277,7 @@ class UWGPrepare:
         if polyBT is None:
             self.iface.messageBar().pushMessage(
                 'No valid building type polygon layer is selected. All buildings are classified as mid-rise residental buildings.',
-                level=Qgis.Warning, duration=5)
+                level=Qgis.MessageLevel.Warning, duration=5)
             vlayerBT = None
         else:
         #     poly_fieldBT = self.layerComboManagerPolyFieldBT.currentField()

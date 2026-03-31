@@ -261,7 +261,7 @@ def SEBE_2015a_calc(a, scale, slope, aspect, voxelheight, sizey, sizex, vegdem, 
             ## HaR ska progressbaren emitta
 
     ## Including radiation from ground on walls as well as removing pixels high than walls
-    print np.copy(Energyyearwall).shape
+    print (np.copy(Energyyearwall).shape)
     wallmatrixbol = (Energyyearwall > 0).astype(float)
     Energyyearwall = (Energyyearwall + (np.sum(radmatR[:, 2]) * albedo)/2) * wallmatrixbol
 

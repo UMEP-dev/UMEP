@@ -78,8 +78,8 @@ class ShadowGenerator(object):
         self.fileDialog = QFileDialog()
         # self.fileDialog.setFileMode(4)
         # self.fileDialog.setAcceptMode(1)
-        self.fileDialog.setFileMode(QFileDialog.Directory)
-        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
+        self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
         # Declare instance attributes
         self.actions = []
@@ -97,23 +97,23 @@ class ShadowGenerator(object):
         # self.layerComboManagerVEGDSM2 = RasterLayerCombo(self.dlg.comboBox_vegdsm2)
         # RasterLayerCombo(self.dlg.comboBox_vegdsm2, initLayer="")
         self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetDSM)
-        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerDSM.setFixedWidth(175)
         self.layerComboManagerDSM.setCurrentIndex(-1)
         self.layerComboManagerVEGDSM = QgsMapLayerComboBox(self.dlg.widgetCDSM)
-        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerVEGDSM.setFixedWidth(175)
         self.layerComboManagerVEGDSM.setCurrentIndex(-1)
         self.layerComboManagerVEGDSM2 = QgsMapLayerComboBox(self.dlg.widgetTDSM)
-        self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerVEGDSM2.setFixedWidth(175)
         self.layerComboManagerVEGDSM2.setCurrentIndex(-1)
         self.layerComboManagerWH = QgsMapLayerComboBox(self.dlg.widgetWallHeight)
-        self.layerComboManagerWH.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerWH.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerWH.setFixedWidth(175)
         self.layerComboManagerWH.setCurrentIndex(-1)
         self.layerComboManagerWA = QgsMapLayerComboBox(self.dlg.widgetWallAspect)
-        self.layerComboManagerWA.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerWA.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerWA.setFixedWidth(175)
         self.layerComboManagerWA.setCurrentIndex(-1)
 
@@ -226,7 +226,7 @@ class ShadowGenerator(object):
 
     def folder_path(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.textOutput.setText(self.folderPath[0])
@@ -461,7 +461,7 @@ class ShadowGenerator(object):
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def help(self):
         url = "https://umep-docs.readthedocs.io/en/latest/processor/Solar%20Radiation%20Daily%20Shadow%20Pattern.html"

@@ -32,7 +32,7 @@ def ExtraDisaggregate(modelOutAreas, landCoverData, landCoverGrid, landCoverWeig
         raise IOError('Specified land cover data file: ' + str(landCoverData) + ' does not exist')
 
     # Headings: Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water
-    coverages = pd.read_csv(landCoverData, delim_whitespace=True, index_col=0, header=0)
+    coverages = pd.read_csv(landCoverData, sep=r"\s+", index_col=0, header=0)
 
     # Calculate weightings to use for building, transport and metabolic components
     # based on values in text file and their importance in Parameters object

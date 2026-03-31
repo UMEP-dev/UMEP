@@ -210,7 +210,7 @@ def setup_reclassifier(self, dlg, db_dict):
 
     self.layerComboManagerPoint = dlg.comboBoxVector
     self.layerComboManagerPoint.setCurrentIndex(-1)
-    self.layerComboManagerPoint.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+    self.layerComboManagerPoint.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
 
     def tab_update():
         if self.dlg.tabWidget.currentIndex() == 0:

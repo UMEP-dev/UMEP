@@ -88,7 +88,7 @@ class SEBEpv:
             result = 0
             while result != 1:
                 self.inputDialog.open()
-                result = self.inputDialog.exec_()
+                result = self.inputDialog.exec()
             self.inputPath = self.inputDialog.selectedFiles()
             self.data_path = self.inputPath[0] + "/"        # this fixes a bug: missing "/"
         else:
@@ -194,14 +194,14 @@ class SEBEpv:
 
     def folder_path(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.textOutput.setText(self.folderPath[0])
 
     def read_metdata(self):
         self.fileDialogFile.open()
-        result = self.fileDialogFile.exec_()
+        result = self.fileDialogFile.exec()
         if result == 1:
             # self.dlg.pushButtonExport.setEnabled(True)
             self.folderPathMetdata = self.fileDialogFile.selectedFiles()
@@ -240,9 +240,7 @@ class SEBEpv:
                 return
 
             if self.metdata.shape[1] == 24:
-                print "Meteorological data succefully loaded"
-            # self.iface.messageBar().pushMessage("SEBE", "Meteorological data succefully loaded",
-            # level=QgsMessageBar.INFO, duration=3)
+                print("Meteorological data succefully loaded")
             else:
                 QMessageBox.critical(None, "Import Error", "Wrong number of columns in meteorological data. You can "
                                                            "prepare your data by using 'Prepare Existing Data' in "
@@ -693,7 +691,7 @@ class SEBEpv:
 
     def run(self):
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def help(self):
         # url = "file://" + self.plugin_dir + "/help/Index.html"
@@ -705,4 +703,4 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     sebepv = SEBEpv(app)
     sebepv.run()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

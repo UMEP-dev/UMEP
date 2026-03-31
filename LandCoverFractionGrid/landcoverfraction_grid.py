@@ -80,8 +80,8 @@ class LandCoverFractionGrid(object):
         self.fileDialog = QFileDialog()
         # self.fileDialog.setFileMode(4)
         # self.fileDialog.setAcceptMode(1)  # Save
-        self.fileDialog.setFileMode(QFileDialog.Directory)
-        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
+        self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
         for i in range(1, 25):
             if 360 % i == 0:
@@ -105,17 +105,17 @@ class LandCoverFractionGrid(object):
         # fieldgen = VectorLayerCombo(self.dlg.comboBox_Polygrid, initLayer="", options={"geomType": QGis.Polygon})
         self.layerComboManagerPolygrid = QgsMapLayerComboBox(self.dlg.widget_Polygrid)
         self.layerComboManagerPolygrid.setCurrentIndex(-1)
-        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
         self.layerComboManagerPolygrid.setFixedWidth(175)
         self.layerComboManagerPolyField = QgsFieldComboBox(self.dlg.widget_Field)
-        self.layerComboManagerPolyField.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPolyField.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.layerComboManagerPolygrid.layerChanged.connect(self.layerComboManagerPolyField.setLayer)
         # self.layerComboManagerPolyField = FieldCombo(self.dlg.comboBox_Field, fieldgen) #, options={"fieldType":QGis.Float32}
 
         # self.layerComboManagerLCgrid = RasterLayerCombo(self.dlg.comboBox_lcgrid)
         # RasterLayerCombo(self.dlg.comboBox_lcgrid, initLayer="")
         self.layerComboManagerLCgrid = QgsMapLayerComboBox(self.dlg.widget_lcgrid)
-        self.layerComboManagerLCgrid.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerLCgrid.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerLCgrid.setFixedWidth(175)
         self.layerComboManagerLCgrid.setCurrentIndex(-1)
 
@@ -195,7 +195,7 @@ class LandCoverFractionGrid(object):
 
     def folder_path(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.textOutput.setText(self.folderPath[0])
@@ -303,7 +303,7 @@ class LandCoverFractionGrid(object):
                                                                            "process unsuccessful! See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.")
 
     def workerError(self, errorstring):
-        QgsMessageLog.logMessage(errorstring, level=Qgis.Critical)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)
 
     def progress_update(self):
         self.steps += 1
@@ -325,7 +325,7 @@ class LandCoverFractionGrid(object):
         #                                         'information on how to install missing python packages.')
         #     return
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
         gdal.UseExceptions()
         gdal.AllRegister()
 

@@ -15,21 +15,22 @@ from .umep_installer import locate_py, setup_umep_python
 from qgis.core import Qgis, QgsMessageLog
 
 try:
-    import supy as sp  
-    import numba
-    import jaydebeapi
-    import rioxarray
-    import yaml
-    import pydantic
-    import timezonefinder
+    # temprorary disable in preparation of QGIS4
+    # import supy as sp  
+    # import numba
+    # import jaydebeapi
+    # import rioxarray
+    # import yaml
+    # import pydantic
+    
     from supy import __version__ as ver_supy
-    QgsMessageLog.logMessage("UMEP - SuPy Version installed: " + ver_supy, level=Qgis.Info)
+    QgsMessageLog.logMessage("UMEP - SuPy Version installed: " + ver_supy, level=Qgis.MessageLevel.Info)
 
 except:
     if QMessageBox.question(None, "UMEP for Processing Python dependencies not installed",
               "Do you automatically want install missing python modules? \r\n"
               "QGIS will be non-responsive for a couple of minutes.",
-               QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
+               QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) == QMessageBox.StandardButton.Ok:
         try:
             path_pybin = locate_py()
         except Exception:
@@ -43,7 +44,7 @@ except:
             QMessageBox.information(None, "Packages successfully installed",
                                     "To make all parts of the plugin work it is recommended to restart your QGIS-session.")
         except Exception as e:
-            QgsMessageLog.logMessage(traceback.format_exc(), level=Qgis.Warning)
+            QgsMessageLog.logMessage(traceback.format_exc(), level=Qgis.MessageLevel.Warning)
             QMessageBox.information(None, "An error occurred",
                                     "UMEP couldn't install Python packages!\n"
                                     "See 'General' tab in 'Log Messages' panel for details.\n"

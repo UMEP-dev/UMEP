@@ -26,7 +26,7 @@ def get_temp_file(suffix=""):
         os.remove(temp_filename)
     except:
         pass
-    print temp_filename
+    print(temp_filename)
     return temp_filename
 
 def get_slope_aspect_gdal(dem_file):
@@ -59,7 +59,7 @@ def get_ders(dem_file, scale):
     dem,_,_=read_dem_grid(dem_file)
     # dx=0.5
     dx=scale
-    print "ders dx",dx
+    #print "ders dx",dx
     fy, fx = numpy.gradient(dem, dx, dx)
     asp,grad=cart2pol(fy,fx,'rad')
     grad=numpy.arctan(grad) #steepest slope

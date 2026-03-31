@@ -87,11 +87,11 @@ class SolweigAnalyzer(object):
         self.dlg.comboBoxSpatialVariables.currentIndexChanged.connect(self.tmrtchosen)
         self.dlg.comboBoxSpatialVariables.currentIndexChanged.connect(self.moviescale)
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(QFileDialog.Directory)
-        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
+        self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
         self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetBuildings)
-        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerDSM.setFixedWidth(175)
         self.layerComboManagerDSM.setCurrentIndex(-1)
 
@@ -194,7 +194,7 @@ class SolweigAnalyzer(object):
         # self.fileDialog.setFileMode(QFileDialog.Directory)
         # self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.textModelFolder.setText(self.folderPath[0])
@@ -301,7 +301,7 @@ class SolweigAnalyzer(object):
         # self.fileDialog.setFileMode(QFileDialog.Directory)
         # self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPathSave = self.fileDialog.selectedFiles()
             self.dlg.textOutput.setText(self.folderPathSave[0])
@@ -309,7 +309,7 @@ class SolweigAnalyzer(object):
 
     def run(self):
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def plotpoi(self):
         self.varpoi1 = self.dlg.comboBox_POI.currentText()

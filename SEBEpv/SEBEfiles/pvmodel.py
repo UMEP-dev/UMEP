@@ -150,7 +150,7 @@ class PhotovoltaicModel:
         try:
             logirr = np.where(irr > 0.001, np.log(irr), 0)
         except RuntimeWarning:
-            print 'logirr: ', logirr, 'irr: ', irr
+            print ('logirr: ', logirr, 'irr: ', irr)
         t = temp - temp0
 
         return (irr * self.power * (1 +
@@ -203,4 +203,4 @@ if __name__ == '__main__':
     pvm.set_model('mc-Si Huld')
     # p = pvm.calcpower(np.array(700.,750.,600.), cellt)
     p = pvm.calcpower(750., cellt)
-    print p, cellt
+    print (p, cellt)

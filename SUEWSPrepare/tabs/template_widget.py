@@ -119,7 +119,7 @@ class TemplateWidget(QWidget, FORM_CLASS):
                         lineEdit.setText(str(values[x]))
                     break
         except ValueError as e:
-            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.Critical)
+            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
             pass
 
     def setup_signals(self):
@@ -188,7 +188,7 @@ class TemplateWidget(QWidget, FORM_CLASS):
                 lineedit.setEnabled(0)
                 Layout2.addWidget(label)
                 Layout2.addWidget(lineedit)
-                vert_spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Maximum)
+                vert_spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Maximum)
                 Layout2.addItem(vert_spacer)
                 Layout.addLayout(Layout2, row, col)
                 lineEdit_list.append(lineedit)
@@ -196,7 +196,7 @@ class TemplateWidget(QWidget, FORM_CLASS):
                     if x % 5 == 0:
                         row += 1
                         col = 0
-                        vert_spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Maximum)
+                        vert_spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Maximum)
                         Layout.addItem(vert_spacer)
                     else:
                         col += 1
@@ -214,13 +214,13 @@ class TemplateWidget(QWidget, FORM_CLASS):
                 resp = urllib.request.urlopen(req)
             except urllib.error.HTTPError as e:
                 if e.code == 404:
-                    QgsMessageLog.logMessage("Image URL encountered a 404 problem", level=Qgis.Critical)
+                    QgsMessageLog.logMessage("Image URL encountered a 404 problem", level=Qgis.MessageLevel.Critical)
                     self.Image.clear()
                 else:
-                    QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.Critical)
+                    QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
                     self.Image.clear()
             except urllib.error.URLError as e:
-                QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.Critical)
+                QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
                 self.Image.clear()
             else:
                 data = resp.read()

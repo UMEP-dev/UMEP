@@ -204,8 +204,8 @@ def importdata_ascii(fileName, delimiter, headerRows):
                     output['textdata'].append(unicode(el))    # using tuple (i,j) as key to dict textdata
 
     # Check wether rowheaders or colheaders should be used
-    print "text data"
-    print output['textdata']
+    print ("text data")
+    print (output['textdata'])
     if headerRows == dataColumns and len(output['textdata']) == 1:    # getting the col size, assuming
                                                                                     # the dict is equivalent of struct in Matlab
         output['rowheaders'] = output['textdata']

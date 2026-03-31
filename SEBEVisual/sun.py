@@ -238,7 +238,7 @@ class Visual:
         self.visDlg.show()
         
         # Run the dialog event loop
-        result = self.visDlg.exec_()
+        result = self.visDlg.exec()
         if result:
             pass
 
@@ -253,7 +253,7 @@ class Visual:
         self.fileDialog.setAcceptMode(0)
         self.fileDialog.open()
 
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             data_path = self.fileDialog.selectedFiles()
             self.base_path_str = str(data_path[0])

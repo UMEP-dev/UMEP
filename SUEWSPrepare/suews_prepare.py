@@ -174,11 +174,11 @@ class SUEWSPrepare(object):
         self.dlg.runButton.clicked.connect(self.generate)
 
         self.outputDialog = QFileDialog()
-        self.outputDialog.setFileMode(QFileDialog.Directory)
-        self.outputDialog.setOption(QFileDialog.ShowDirsOnly, True)
+        self.outputDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.outputDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(QFileDialog.ExistingFile)
+        self.fileDialog.setFileMode(QFileDialog.FileMode.ExistingFile)
 
         self.change_dialog = ChangeDialog()
 
@@ -291,7 +291,7 @@ class SUEWSPrepare(object):
             self.setup_tab(title, sheet)
 
     def setup_tab(self, title, sheet):
-        QgsMessageLog.logMessage("Setting up tab: " + str(title), level=Qgis.Info)
+        QgsMessageLog.logMessage("Setting up tab: " + str(title), level=Qgis.MessageLevel.Info)
         tab = TemplateTab()
         x = 0
         y = 0
@@ -308,7 +308,7 @@ class SUEWSPrepare(object):
                 try:
                     code = int(values[3])
                 except ValueError as e:
-                    QgsMessageLog.logMessage("Value error for plugin titled " + title + " for input code: " + str(e), level=Qgis.Critical)
+                    QgsMessageLog.logMessage("Value error for plugin titled " + title + " for input code: " + str(e), level=Qgis.MessageLevel.Critical)
                     code = None
             if values[4] is None:
                 default_combo = None
@@ -318,7 +318,7 @@ class SUEWSPrepare(object):
                 try:
                     default_combo = int(values[4])
                 except ValueError as e:
-                    QgsMessageLog.logMessage("Value error for plugin titled " + title + " for default combo: " + str(e), level=Qgis.Critical)
+                    QgsMessageLog.logMessage("Value error for plugin titled " + title + " for default combo: " + str(e), level=Qgis.MessageLevel.Critical)
                     default_combo = None
             if values[5] is None:
                 sitelist_pos = None
@@ -328,7 +328,7 @@ class SUEWSPrepare(object):
                 try:
                     sitelist_pos = int(values[5])
                 except ValueError as e:
-                    QgsMessageLog.logMessage("Value error for plugin titled " + title + " for site list position: " + str(e), level=Qgis.Critical)
+                    QgsMessageLog.logMessage("Value error for plugin titled " + title + " for site list position: " + str(e), level=Qgis.MessageLevel.Critical)
                     sitelist_pos = None
 
             widget = TemplateWidget(input_sheet, file_path, widget_title, code, default_combo, sitelist_pos)
@@ -340,7 +340,7 @@ class SUEWSPrepare(object):
             widget.checkbox_signal.connect(lambda: self.fill_combobox(widget))
 
             self.tab_combo = QgsFieldComboBox(widget.comboBox_uniquecodes)
-            self.tab_combo.setFilters(QgsFieldProxyModel.Numeric)
+            self.tab_combo.setFilters(QgsFieldProxyModel.Filter.Numeric)
             self.layerComboManagerPolygrid.layerChanged.connect(self.tab_combo.setLayer)
 
             tab.Layout.addWidget(widget, x, y)
@@ -372,19 +372,19 @@ class SUEWSPrepare(object):
 
         self.layerComboManagerPolygrid = QgsMapLayerComboBox(widget.widgetPolygonLayer)
         self.layerComboManagerPolygrid.setCurrentIndex(-1)
-        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
         self.layerComboManagerPolygrid.setFixedWidth(175)
         self.layerComboManagerPolyField = QgsFieldComboBox(widget.widgetPolyField)
-        self.layerComboManagerPolyField.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPolyField.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.layerComboManagerPolygrid.layerChanged.connect(self.layerComboManagerPolyField.setLayer)
 
         # self.pop_density = FieldCombo(widget.comboBox_popdens, self.fieldgen, initField="")
         self.pop_density = QgsFieldComboBox(widget.widgetPop)
-        self.pop_density.setFilters(QgsFieldProxyModel.Numeric)
+        self.pop_density.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.layerComboManagerPolygrid.layerChanged.connect(self.pop_density.setLayer)
 
         self.pop_density_day = QgsFieldComboBox(widget.widgetPopDay)
-        self.pop_density_day.setFilters(QgsFieldProxyModel.Numeric)
+        self.pop_density_day.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.layerComboManagerPolygrid.layerChanged.connect(self.pop_density_day.setLayer)
 
         # self.wall_area = FieldCombo(widget.comboBox_wallArea, self.fieldgen, initField="")
@@ -558,7 +558,7 @@ class SUEWSPrepare(object):
                         lineEdit.setText(str(values[x]))
                     break
         except ValueError as e:
-            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.Critical)
+            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
             pass
 
     def setup_buttons(self, widget, outputfile, sheet, lineedit_list, code=None):
@@ -655,7 +655,7 @@ class SUEWSPrepare(object):
 
             self.change_dialog.show()
 
-            result = self.change_dialog.exec_()
+            result = self.change_dialog.exec()
 
             if result:
                 start_code = self.line_list[0].text()
@@ -697,29 +697,29 @@ class SUEWSPrepare(object):
                                 print(line, end=' ')
                         photo = QMessageBox.question(None, "Photo",
                                                      "Would you like to add a url to a suitable photo of the area?",
-                                                     QMessageBox.Yes | QMessageBox.No)
-                        if photo == QMessageBox.Yes:
+                                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+                        if photo == QMessageBox.StandardButton.Yes:
                             self.photo_dialog.show()
-                            result = self.photo_dialog.exec_()
+                            result = self.photo_dialog.exec()
                             if result:
                                 try:
                                     url = self.photo_dialog.lineEdit.text()
-                                    QgsMessageLog.logMessage("URL: " + str(url), level=Qgis.Critical)
+                                    QgsMessageLog.logMessage("URL: " + str(url), level=Qgis.MessageLevel.Critical)
                                     req = urllib.request.Request(str(url))
                                     try:
                                         resp = urllib.request.urlopen(req)
                                     except urllib.error.HTTPError as e:
-                                        QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.Critical)
+                                        QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
                                         QMessageBox.information(None, "Error", "Couldn't reach url")
                                         str_list.append('')
                                     except urllib.error.URLError as e:
-                                        QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.Critical)
+                                        QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
                                         QMessageBox.information(None, "Error", "Couldn't reach url")
                                         str_list.append('')
                                     else:
                                         str_list.append(str(url))
                                 except ValueError as e:
-                                    QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.Critical)
+                                    QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
                                     QMessageBox.information(None, "Error", "Couldn't reach url")
                                     str_list.append('')
                             else:
@@ -764,7 +764,7 @@ class SUEWSPrepare(object):
             else:
                 self.clear_layout()
         except IOError as e:
-            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.Critical)
+            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
             QMessageBox.critical(None, "Error", "Cannot access Excel file, might already be in use.")
 
     def setup_change_dialog(self, sheet):
@@ -831,13 +831,13 @@ class SUEWSPrepare(object):
                 resp = urllib.request.urlopen(req)
             except urllib.error.HTTPError as e:
                 if e.code == 404:
-                    QgsMessageLog.logMessage("Image URL encountered a 404 problem", level=Qgis.Critical)
+                    QgsMessageLog.logMessage("Image URL encountered a 404 problem", level=Qgis.MessageLevel.Critical)
                     widget.Image.clear()
                 else:
-                    QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.Critical)
+                    QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
                     widget.Image.clear()
             except urllib.error.URLError as e:
-                QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.Critical)
+                QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
                 widget.Image.clear()
             else:
                 data = resp.read()
@@ -907,7 +907,7 @@ class SUEWSPrepare(object):
                 lineedit.setEnabled(0)
                 Layout2.addWidget(label)
                 Layout2.addWidget(lineedit)
-                vert_spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Maximum)
+                vert_spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Maximum)
                 Layout2.addItem(vert_spacer)
                 Layout.addLayout(Layout2, row, col)
                 lineEdit_list.append(lineedit)
@@ -915,7 +915,7 @@ class SUEWSPrepare(object):
                     if x % 5 == 0:
                         row += 1
                         col = 0
-                        vert_spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Maximum)
+                        vert_spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Maximum)
                         Layout.addItem(vert_spacer)
                     else:
                         col += 1
@@ -929,12 +929,12 @@ class SUEWSPrepare(object):
                 if sheet.name == name:
                     return sheet
         except IndexError as e:
-            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.Critical)
+            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
             return None
 
     def set_output_folder(self):
         self.outputDialog.open()
-        result = self.outputDialog.exec_()
+        result = self.outputDialog.exec()
         if result == 1:
             self.output_dir = self.outputDialog.selectedFiles()
             self.dlg.textOutput.setText(self.output_dir[0])
@@ -989,7 +989,7 @@ class SUEWSPrepare(object):
         self.dlg.textOutput.clear()
         self.setup_tabs()
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
         self.layerComboManagerPolygrid = None
         self.layerComboManagerPolyField = None
         self.fieldgen = None
@@ -1202,7 +1202,7 @@ class SUEWSPrepare(object):
                                     "(speech bubble, lower right) for more information.")
 
     def workerError(self, errorstring):
-        QgsMessageLog.logMessage(errorstring, level=Qgis.Critical)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)
 
     def progress_update(self):
         self.steps += 1

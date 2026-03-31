@@ -104,8 +104,8 @@ class SuewsSimple(object):
         self.fileDialogMet.setNameFilter("(*.txt)")
 
         self.fileDialogOut = QFileDialog()
-        self.fileDialogOut.setFileMode(QFileDialog.Directory)
-        self.fileDialogOut.setOption(QFileDialog.ShowDirsOnly, True)
+        self.fileDialogOut.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialogOut.setOption(QFileDialog.Option.ShowDirsOnly, True)
         self.folderPathOut = None
         self.folderPath = None
         self.ret = 0
@@ -192,7 +192,7 @@ class SuewsSimple(object):
         self.supylib = sys.modules["supy"].__path__[0]
       
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def IMCP(self):
         QMessageBox.information(None, "Plugin moved",
@@ -206,7 +206,7 @@ class SuewsSimple(object):
 
     def folder_path(self):
         self.fileDialogOut.open()
-        result = self.fileDialogOut.exec_()
+        result = self.fileDialogOut.exec()
         if result == 1:
             self.folderPathOut = self.fileDialogOut.selectedFiles()
             self.dlg.textOutput.setText(self.folderPathOut[0] + '/')
@@ -215,7 +215,7 @@ class SuewsSimple(object):
 
     def met_file(self):
         self.fileDialogMet.open()
-        result = self.fileDialogMet.exec_()
+        result = self.fileDialogMet.exec()
         if result == 1:
             self.folderPathMet = self.fileDialogMet.selectedFiles()
             self.dlg.textInputMetdata.setText(self.folderPathMet[0])
@@ -224,7 +224,7 @@ class SuewsSimple(object):
 
     def import_file_IMPB(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             headernum = 1
@@ -241,11 +241,11 @@ class SuewsSimple(object):
                 if np.abs(float(self.dlg.pai_build.text()) - data[0]) > 0.01:
                     self.iface.messageBar().pushMessage("Non-consistency warning", "A relatively large difference in "
                     "building fraction between the DSM and the landcover grid was found: " + str(float(self.dlg.pai_build.text())
-                                - data[0]), level=Qgis.Warning)
+                                - data[0]), level=Qgis.MessageLevel.Warning)
 
     def import_file_IMPV(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             headernum = 1
@@ -262,11 +262,11 @@ class SuewsSimple(object):
                 if np.abs(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - data[0]) > 0.01:
                     self.iface.messageBar().pushMessage("Non-consistency warning", "A relatively large difference in "
                     "vegetation fraction between the canopy DSM and the landcover grid was found: " + str(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text())
-                                - data[0]), level=Qgis.Warning)
+                                - data[0]), level=Qgis.MessageLevel.Warning)
 
     def import_file_LCFP(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             headernum = 1
@@ -286,11 +286,11 @@ class SuewsSimple(object):
             if self.dlg.lineEdit_paiBuild.text():
                 if np.abs(float(self.dlg.lineEdit_paiBuild.text()) - data[1]) > 0.01:
                     self.iface.messageBar().pushMessage("Non-consistency warning", "A relatively large difference in "
-                    "building fraction between the DSM and the landcover grid was found: " + str(float(self.dlg.lineEdit_paiBuild.text()) - data[1]), level=Qgis.Warning)
+                    "building fraction between the DSM and the landcover grid was found: " + str(float(self.dlg.lineEdit_paiBuild.text()) - data[1]), level=Qgis.MessageLevel.Warning)
             if self.dlg.lineEdit_paiveg.text():
                 if np.abs(float(self.dlg.lineEdit_paiveg.text()) - data[2] - data[3]) > 0.01:
                     self.iface.messageBar().pushMessage("Non-consistency warning", "A relatively large difference in "
-                    "vegetation fraction between the canopy DSM and the landcover grid was found: " + str(float(self.dlg.lineEdit_paiveg.text()) - data[2] - data[3]), level=Qgis.Warning)
+                    "vegetation fraction between the canopy DSM and the landcover grid was found: " + str(float(self.dlg.lineEdit_paiveg.text()) - data[2] - data[3]), level=Qgis.MessageLevel.Warning)
 
     # def import_initial(self):
     #     self.fileDialogInit.open()
@@ -354,7 +354,7 @@ class SuewsSimple(object):
         except ImportError:
             pass
             self.iface.messageBar().pushMessage("Unable to import Matplotlib module. Plots will not be produced",
-                                                "Visit UMEP webpage for installation instructions.", level=Qgis.Warning)
+                                                "Visit UMEP webpage for installation instructions.", level=Qgis.MessageLevel.Warning)
         # Checking consistency between fractions
         if np.abs(float(self.dlg.pai_build.text()) - float(self.dlg.lineEdit_paiBuild.text())) > 0.05:
             QMessageBox.critical(self.dlg, "Non-consistency Error", "A relatively large difference in "
@@ -561,13 +561,13 @@ class SuewsSimple(object):
                                                             "\r\n"
                                                             "\r\n"
                                                             "Do you want to contiune?",
-                                QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
+                                QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) == QMessageBox.StandardButton.Ok:
             #self.iface.mainWindow()
-            # suews_wrapper.wrapper(self.model_dir, plot, filecode) #For testing
+            suews_wrapper.wrapper(self.model_dir, plot, filecode) #For testing
             # time.sleep(0.5)
             try:
                 
-                suews_wrapper.wrapper(self.model_dir, plot, filecode)
+                #suews_wrapper.wrapper(self.model_dir, plot, filecode)
                 
                 QMessageBox.information(None, "Model run successful", "Model run finished")
                 

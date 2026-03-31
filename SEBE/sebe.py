@@ -82,8 +82,8 @@ class SEBE(object):
         self.fileDialog = QFileDialog()
         # self.fileDialog.setFileMode(4)
         # self.fileDialog.setAcceptMode(1)
-        self.fileDialog.setFileMode(QFileDialog.Directory)
-        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
+        self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
         self.fileDialogFile = QFileDialog()
 
         # Declare instance attributes
@@ -105,23 +105,23 @@ class SEBE(object):
         # RasterLayerCombo(self.dlg.comboBox_wallaspect, initLayer="")
 
         self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetDSM)
-        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerDSM.setFixedWidth(175)
         self.layerComboManagerDSM.setCurrentIndex(-1)
         self.layerComboManagerVEGDSM = QgsMapLayerComboBox(self.dlg.widgetCDSM)
-        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerVEGDSM.setFixedWidth(175)
         self.layerComboManagerVEGDSM.setCurrentIndex(-1)
         self.layerComboManagerVEGDSM2 = QgsMapLayerComboBox(self.dlg.widgetTDSM)
-        self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerVEGDSM2.setFixedWidth(175)
         self.layerComboManagerVEGDSM2.setCurrentIndex(-1)
         self.layerComboManagerWH = QgsMapLayerComboBox(self.dlg.widgetWH)
-        self.layerComboManagerWH.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerWH.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerWH.setFixedWidth(175)
         self.layerComboManagerWH.setCurrentIndex(-1)
         self.layerComboManagerWA = QgsMapLayerComboBox(self.dlg.widgetWA)
-        self.layerComboManagerWA.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerWA.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerWA.setFixedWidth(175)
         self.layerComboManagerWA.setCurrentIndex(-1)
 
@@ -213,14 +213,14 @@ class SEBE(object):
 
     def folder_path(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.textOutput.setText(self.folderPath[0])
 
     def read_metdata(self):
         self.fileDialogFile.open()
-        result = self.fileDialogFile.exec_()
+        result = self.fileDialogFile.exec()
         if result == 1:
             # self.dlg.pushButtonExport.setEnabled(True)
             self.folderPathMetdata = self.fileDialogFile.selectedFiles()
@@ -244,7 +244,7 @@ class SEBE(object):
 
             if self.metdata.shape[1] == 24:
                 self.iface.messageBar().pushMessage("SEBE", "Meteorological data succefully loaded",
-                                                    level=Qgis.Info, duration=3)
+                                                    level=Qgis.MessageLevel.Info, duration=3)
             else:
                 QMessageBox.critical(None, "Import Error", "Wrong number of columns in meteorological data. You can "
                                                            "prepare your data by using 'Prepare Existing Data' in "
@@ -548,7 +548,7 @@ class SEBE(object):
             # notify the user that something went wrong
             self.iface.messageBar().pushMessage('Operations cancelled either by user or error. See the General tab in '
                                                 'Log Meassages Panel (speech bubble, lower right) for more information.'
-                                                , level=Qgis.Critical, duration=3)
+                                                , level=Qgis.MessageLevel.Critical, duration=3)
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
@@ -556,7 +556,7 @@ class SEBE(object):
             self.dlg.progressBar.setValue(0)
 
     def workerError(self, errorstring):
-        QgsMessageLog.logMessage(errorstring, level=Qgis.Critical)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)
 
     def progress_update(self):
         self.steps += 1
@@ -564,7 +564,7 @@ class SEBE(object):
 
     def run(self):
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def help(self):
         url = "https://umep-docs.readthedocs.io/en/latest/processor/Solar%20Radiation%20Solar%20Energy%20on%20Building%20Envelopes%20(SEBE).html"

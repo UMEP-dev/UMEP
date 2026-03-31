@@ -100,7 +100,7 @@ def install_umep_python(ver=None):
         )
         return str_info
     except subprocess.CalledProcessError as exc:
-        QgsMessageLog.logMessage(f"Error running {exc.args}:\n{exc.stdout}", level=Qgis.Warning)
+        QgsMessageLog.logMessage(f"Error running {exc.args}:\n{exc.stdout}", level=Qgis.MessageLevel.Warning)
         raise
 
 

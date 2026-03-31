@@ -47,7 +47,7 @@ def saveraster(gdal_data, filename, raster):
 
 def get_resolution_from_umep_forcing(met_path):
 
-    forcing = read_csv(met_path, delim_whitespace = True)
+    forcing = read_csv(met_path, sep=r"\s+")
     forcing['Datetime'] = to_datetime(forcing[['iy', 'id', 'it', 'imin']].astype(str).agg('-'.join, axis=1), format='%Y-%j-%H-%M')
     # # Set the datetime column as the index
     forcing.set_index('Datetime', inplace=True)

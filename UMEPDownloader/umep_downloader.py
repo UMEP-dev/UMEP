@@ -385,13 +385,13 @@ class UMEP_Data_Download(object):
 
         self.dlg.tblDatasets.setRowCount(len(list(self.catalogue[txt].keys()))-1)
         self.dlg.tblDatasets.setHorizontalHeaderLabels("Source;Description;Date;Resolution;Extent".split(";"))
-        self.dlg.tblDatasets.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.dlg.tblDatasets.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         header = self.dlg.tblDatasets.horizontalHeader()
-        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(4, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
         # Set column widths
         indicesToUse = [0, 4, 5, 6, 7]  # Use these entries from each list in the catalogue file
         idx = 0
@@ -401,7 +401,7 @@ class UMEP_Data_Download(object):
             for j in range(len(indicesToUse)):
                 text = self.catalogue[txt][dataSource][indicesToUse[j]]
                 item= QTableWidgetItem(text)
-                item.setFlags( Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                item.setFlags( Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
                 self.dlg.tblDatasets.setItem(idx,j, item)
             idx+=1
 
@@ -503,8 +503,8 @@ class UMEP_Data_Download(object):
             native = True
 
         if not self.dlg.checkBoxReproject.isChecked():
-            reply = QMessageBox.question(QWidget(), 'Data extraction', res_message, QMessageBox.Yes | QMessageBox.No)
-            if reply == QMessageBox.No:
+            reply = QMessageBox.question(QWidget(), 'Data extraction', res_message, QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            if reply == QMessageBox.StandardButton.No:
                 return
 
         # If downloading at native resolution, then ensure the requested bounding box aligns with grid of raster. Prevents interpolation effects.
@@ -683,7 +683,7 @@ class UMEP_Data_Download(object):
         """Run method that performs all the real work"""
         # show the dialog
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def help(self):
         url = "https://umep-docs.readthedocs.io/en/latest/pre-processor/Spatial%20Data%20Spatial%20Data%20Downloader.html"

@@ -249,7 +249,7 @@ class suews_database_manager:
               "Do you want to update your database with any changes made? \r\n"
               "Also, consider to export your database and submit to the UMEP repo. \r\n"
               "See help for more info.",
-               QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
+               QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No) == QMessageBox.StandardButton.No:
             try:
                 shutil.copy(self.db_pathCopy, self.db_path)
                 os.remove(self.db_pathCopy)
@@ -281,5 +281,5 @@ class suews_database_manager:
         self.dlg.show()
         self.dlg.adjustSize()
         # Run the dialog event loop
-        self.dlg.exec_()
+        self.dlg.exec()
 

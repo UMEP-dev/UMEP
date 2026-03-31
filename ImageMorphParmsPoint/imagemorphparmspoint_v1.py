@@ -76,8 +76,8 @@ class ImageMorphParmsPoint(object):
         self.dlg.checkBoxOnlyBuilding.toggled.connect(self.text_enable)
 
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(QFileDialog.Directory)
-        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
+        self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
         for i in range(1, 25):
             if 360 % i == 0:
@@ -104,18 +104,18 @@ class ImageMorphParmsPoint(object):
 
         self.layerComboManagerPoint = QgsMapLayerComboBox(self.dlg.widgetPointLayer)
         self.layerComboManagerPoint.setCurrentIndex(-1)
-        self.layerComboManagerPoint.setFilters(QgsMapLayerProxyModel.PointLayer)
+        self.layerComboManagerPoint.setFilters(QgsMapLayerProxyModel.Filter.PointLayer)
         self.layerComboManagerPoint.setFixedWidth(175)
         self.layerComboManagerDSMbuildground = QgsMapLayerComboBox(self.dlg.widgetDSMbuildground)
-        self.layerComboManagerDSMbuildground.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSMbuildground.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerDSMbuildground.setFixedWidth(175)
         self.layerComboManagerDSMbuildground.setCurrentIndex(-1)
         self.layerComboManagerDEM = QgsMapLayerComboBox(self.dlg.widgetDEM)
-        self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerDEM.setFixedWidth(175)
         self.layerComboManagerDEM.setCurrentIndex(-1)
         self.layerComboManagerDSMbuild = QgsMapLayerComboBox(self.dlg.widgetDSMbuild)
-        self.layerComboManagerDSMbuild.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSMbuild.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerDSMbuild.setFixedWidth(175)
         self.layerComboManagerDSMbuild.setCurrentIndex(-1)
 
@@ -221,7 +221,7 @@ class ImageMorphParmsPoint(object):
 
     def folder_path(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.textOutput.setText(self.folderPath[0])
@@ -365,7 +365,7 @@ class ImageMorphParmsPoint(object):
         writer = QgsVectorFileWriter(dir_poly, "CP1250", fields, prov.wkbType(),
                                      prov.crs(), "ESRI shapefile")
 
-        if writer.hasError() != QgsVectorFileWriter.NoError:
+        if writer.hasError() != QgsVectorFileWriter.WriterError.NoError:
             self.iface.messageBar().pushMessage("Error when creating shapefile: ", str(writer.hasError()))
 
         poly.selectAll()
@@ -555,7 +555,7 @@ class ImageMorphParmsPoint(object):
             return
 
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
         gdal.UseExceptions()
         gdal.AllRegister()
 

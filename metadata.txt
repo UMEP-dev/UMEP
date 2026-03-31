@@ -9,6 +9,7 @@
 [general]
 name=UMEP
 qgisMinimumVersion=3.0
+qgisMaximumVersion=4.99
 description=Urban Multi-scale Environmental Predictor
 
 version=4.5

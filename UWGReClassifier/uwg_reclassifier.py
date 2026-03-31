@@ -204,7 +204,7 @@ class uwg_reclassifier(object):
         # self.dlg.comboBoxTypeInfo.addItems(sorted(UWG_types))
         # self.dlg.comboBoxTypeInfo.setCurrentIndex(-1)
 
-        self.dlg.comboBoxVector.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.dlg.comboBoxVector.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
         # self.dlg.comboBoxVector.setFilters(QgsFieldProxyModel.String)
 
         self.dlg.comboBoxVector.setCurrentIndex(-1)
@@ -234,7 +234,7 @@ class uwg_reclassifier(object):
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
-        result = self.dlg.exec_()
+        result = self.dlg.exec()
         # See if OK was pressed
         if result:
             # Do something useful here - delete the line containing pass and

@@ -205,19 +205,19 @@ class SUEWSPrepareDatabase(object):
         self.dlg.runButton.clicked.connect(self.generate)
 
         self.outputDialog = QFileDialog()
-        self.outputDialog.setFileMode(QFileDialog.Directory)
-        self.outputDialog.setOption(QFileDialog.ShowDirsOnly, True)
+        self.outputDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.outputDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
         self.SSDialog = QFileDialog()
-        self.SSDialog.setFileMode(QFileDialog.Directory)
-        self.SSDialog.setOption(QFileDialog.ShowDirsOnly, True)
+        self.SSDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.SSDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(QFileDialog.ExistingFile)
+        self.fileDialog.setFileMode(QFileDialog.FileMode.ExistingFile)
 
         self.fileDialogISO = QFileDialog()
         self.fileDialogISO.setNameFilter("(*_isotropic.txt)")
-        self.fileDialogISO.setFileMode(QFileDialog.ExistingFile)
+        self.fileDialogISO.setFileMode(QFileDialog.FileMode.ExistingFile)
 
         # Read Database
         self.db_path = self.plugin_dir.split('suews_prepare_database')[0] + 'suews_database_manager/data/database.xlsx'  
@@ -291,27 +291,27 @@ class SUEWSPrepareDatabase(object):
         self.dlg.pop_density_day.currentIndexChanged.connect(lambda: self.set_pop_density_day())
 
         self.dlg.layerComboManagerPolygrid.setCurrentIndex(-1)
-        self.dlg.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.dlg.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
         self.dlg.layerComboManagerPolygrid.setFixedWidth(175)
-        self.dlg.layerComboManagerPolyField.setFilters(QgsFieldProxyModel.LongLong)
+        self.dlg.layerComboManagerPolyField.setFilters(QgsFieldProxyModel.Filter.LongLong)
         self.dlg.layerComboManagerPolygrid.layerChanged.connect(self.dlg.layerComboManagerPolyField.setLayer)
 
         # New for Typology database
-        self.dlg.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.dlg.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.dlg.layerComboManagerDSM.setFixedWidth(175)
         self.dlg.layerComboManagerDSM.setCurrentIndex(-1)
-        self.dlg.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.dlg.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.dlg.layerComboManagerDEM.setFixedWidth(175)
         self.dlg.layerComboManagerDEM.setCurrentIndex(-1)
 
-        self.dlg.layerComboManagerPolygridTypo.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.dlg.layerComboManagerPolygridTypo.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
         self.dlg.layerComboManagerPolygridTypo.setFixedWidth(175)
         self.dlg.layerComboManagerPolygridTypo.setCurrentIndex(-1)
 
-        self.dlg.pop_density.setFilters(QgsFieldProxyModel.Numeric)
+        self.dlg.pop_density.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.dlg.layerComboManagerPolygrid.layerChanged.connect(self.dlg.pop_density.setLayer)
 
-        self.dlg.pop_density_day.setFilters(QgsFieldProxyModel.Numeric)
+        self.dlg.pop_density_day.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.dlg.layerComboManagerPolygrid.layerChanged.connect(self.dlg.pop_density_day.setLayer)
     
         self.dlg.pushButtonImportLCF.clicked.connect(lambda: self.set_LCFfile_path())
@@ -341,13 +341,13 @@ class SUEWSPrepareDatabase(object):
         
         # New for traffic linedata
         self.dlg.layerComboManagerTraffic.setCurrentIndex(-1)
-        self.dlg.layerComboManagerTraffic.setFilters(QgsMapLayerProxyModel.LineLayer)
+        self.dlg.layerComboManagerTraffic.setFilters(QgsMapLayerProxyModel.Filter.LineLayer)
         self.dlg.layerComboManagerTraffic.setFixedWidth(175)
-        self.dlg.layerComboManagerTrafficField.setFilters(QgsFieldProxyModel.LongLong)
+        self.dlg.layerComboManagerTrafficField.setFilters(QgsFieldProxyModel.Filter.LongLong)
         self.dlg.layerComboManagerTraffic.layerChanged.connect(self.dlg.layerComboManagerTrafficField.setLayer)
         self.dlg.show()
         self.dlg.adjustSize()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def help(self):
         url = "https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Energy%20Balance%20SUEWS%20Database%20Prepare.html"
@@ -355,7 +355,7 @@ class SUEWSPrepareDatabase(object):
 
     def set_output_folder(self):
         self.outputDialog.open()
-        result = self.outputDialog.exec_()
+        result = self.outputDialog.exec()
         if result == 1:
             self.output_dir = self.outputDialog.selectedFiles()
             self.dlg.textOutput.setText(self.output_dir[0])
@@ -482,7 +482,7 @@ class SUEWSPrepareDatabase(object):
 
     def set_LCFfile_path(self):
         self.fileDialogISO.open()
-        result = self.fileDialogISO.exec_()
+        result = self.fileDialogISO.exec()
         if result == 1:
             self.LCFfile_path = self.fileDialogISO.selectedFiles()
             self.dlg.textInputLCFData.setText(self.LCFfile_path[0])
@@ -492,7 +492,7 @@ class SUEWSPrepareDatabase(object):
 
     def set_IMPfile_path(self):
         self.fileDialogISO.open()
-        result = self.fileDialogISO.exec_()
+        result = self.fileDialogISO.exec()
         if result == 1:
             self.IMPfile_path = self.fileDialogISO.selectedFiles()
             self.dlg.textInputIMPData.setText(self.IMPfile_path[0])
@@ -504,7 +504,7 @@ class SUEWSPrepareDatabase(object):
 
     def set_IMPvegfile_path(self):
         self.fileDialogISO.open()
-        result = self.fileDialogISO.exec_()
+        result = self.fileDialogISO.exec()
         if result == 1:
             self.IMPvegfile_path = self.fileDialogISO.selectedFiles()
             self.dlg.textInputIMPVegData.setText(self.IMPvegfile_path[0])
@@ -515,7 +515,7 @@ class SUEWSPrepareDatabase(object):
 
     def set_IMPvegfile_path_dec(self):
         self.fileDialogISO.open()
-        result = self.fileDialogISO.exec_()
+        result = self.fileDialogISO.exec()
         if result == 1:
             self.IMPvegfile_path_dec = self.fileDialogISO.selectedFiles()
             self.dlg.textInputIMPDecData.setText(self.IMPvegfile_path_dec[0])
@@ -525,7 +525,7 @@ class SUEWSPrepareDatabase(object):
 
     def set_IMPvegfile_path_eve(self):
         self.fileDialogISO.open()
-        result = self.fileDialogISO.exec_()
+        result = self.fileDialogISO.exec()
         if result == 1:
             self.IMPvegfile_path_eve = self.fileDialogISO.selectedFiles()
             self.dlg.textInputIMPEveData.setText(self.IMPvegfile_path_eve[0])
@@ -1202,7 +1202,7 @@ class SUEWSPrepareDatabase(object):
                 'kdown', 'snow', 'ldown', 'fcld', 'wuh', 'xsmd', 'lai', 'kdiff', 'kdir', 'wdir'
             ]
 
-            df = pd.read_csv(settings_dict['Metfile_path'][0], delim_whitespace=True, skiprows=1, names=column_names)
+            df = pd.read_csv(settings_dict['Metfile_path'][0], sep=r"\s+", skiprows=1, names=column_names)
 
             # 2. Construct datetime index from columns: iy (year), id (DOY), it (hour), imin (minute)
             df['datetime'] = pd.to_datetime(df['iy'], format='%Y') + pd.to_timedelta(df['id'] - 1, unit='D') + \
@@ -1832,7 +1832,7 @@ class SUEWSPrepareDatabase(object):
             
             error_string = error_string + '\n\nCheck Python console to find this information again'
 
-            iface.messageBar().pushMessage("Warnings related to vertical morphology", error_string, level=Qgis.Warning)
+            iface.messageBar().pushMessage("Warnings related to vertical morphology", error_string, level=Qgis.MessageLevel.Warning)
         
         # Pydantic check
         schema = generate_json_schema()
@@ -1842,9 +1842,9 @@ class SUEWSPrepareDatabase(object):
             for error in errors:
                 pydanticError = pydanticError + error
             QMessageBox.information(None, 'Process Complete with warnings', "See information in the Message bar or QGIS Message log")
-            iface.messageBar().pushMessage("Process completed with warnings from pydantic testing", pydanticError, level=Qgis.Warning)
+            iface.messageBar().pushMessage("Process completed with warnings from pydantic testing", pydanticError, level=Qgis.MessageLevel.Warning)
         else:
-            iface.messageBar().pushMessage("Process completed without warnings", level=Qgis.Info)
+            iface.messageBar().pushMessage("Process completed without warnings", level=Qgis.MessageLevel.Info)
             QMessageBox.information(None, 'Process Complete', "Input files for SUEWS generated")
         
 

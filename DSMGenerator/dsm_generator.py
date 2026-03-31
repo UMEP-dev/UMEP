@@ -90,17 +90,17 @@ class DSMGenerator(object):
 
         # Access the raster layer
         self.layerComboManagerDEM = QgsMapLayerComboBox(self.dlg.widgetRaster)
-        self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerDEM.setFixedWidth(175)
         self.layerComboManagerDEM.setCurrentIndex(-1)
 
         # Access the vector layer and an attribute field
         self.layerComboManagerPolygon = QgsMapLayerComboBox(self.dlg.widgetPolygon)
         self.layerComboManagerPolygon.setCurrentIndex(-1)
-        self.layerComboManagerPolygon.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.layerComboManagerPolygon.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
         self.layerComboManagerPolygon.setFixedWidth(175)
         self.layerComboManagerPolygonField = QgsFieldComboBox(self.dlg.widgetField)
-        self.layerComboManagerPolygonField.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPolygonField.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.layerComboManagerPolygonField.setFixedWidth(150)
         self.layerComboManagerPolygon.layerChanged.connect(self.layerComboManagerPolygonField.setLayer)
 
@@ -219,7 +219,7 @@ class DSMGenerator(object):
 
     def run(self):
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def start_progress(self):
         import datetime
@@ -542,7 +542,7 @@ class DSMGenerator(object):
 
         # Zonal statistics
         vlayer.startEditing()
-        zoneStat = QgsZonalStatistics(vlayer, rlayer, "stats_", 1, QgsZonalStatistics.Mean)
+        zoneStat = QgsZonalStatistics(vlayer, rlayer, "stats_", 1, QgsZonalStatistics.Statistic.Mean)
         zoneStat.calculateStatistics(None)
 
         vlayer.dataProvider().addAttributes([QgsField('height_asl', QVariant.Double, 'double', 5, 2)])

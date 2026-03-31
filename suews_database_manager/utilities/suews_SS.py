@@ -87,15 +87,15 @@ def setup_SUEWS_SS_creator(self, dlg, db_dict, db_path):
 
     def show_insulation_message(dlg, layer):
         msg_box = QMessageBox(dlg)
-        msg_box.setIcon(QMessageBox.Information)
+        msg_box.setIcon(QMessageBox.Icon.Information)
         msg_box.setWindowTitle('Insulation information')
         msg_box.setText(f'No insulation layer has been set for {layer}.\nIf this is intentional, press OK, otherwise press Cancel and select a location for the insulation layer.')
-        msg_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-        msg_box.setDefaultButton(QMessageBox.Ok)
+        msg_box.setStandardButtons(QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+        msg_box.setDefaultButton(QMessageBox.StandardButton.Ok)
         
-        result = msg_box.exec_()
+        result = msg_box.exec()
         
-        return result == QMessageBox.Ok
+        return result == QMessageBox.StandardButton.Ok
     
     def new_edit():
 
