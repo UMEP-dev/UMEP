@@ -27,11 +27,11 @@ def locate_py():
         candidates = [
             path_py
             / (
-                "../../bin/pythonw.exe"
+                "../../bin/python.exe"
                 if version.parse(str_ver_qgis) >= version.parse("3.9.1")
-                else "pythonw.exe"
+                else "python.exe"
             ),
-            path_py.with_name("pythonw.exe"),
+            path_py.with_name("python.exe"),
         ]
     else:
         candidates = [
@@ -91,7 +91,7 @@ def install_umep_python(ver=None):
         qgis_extra = f"[qgis{qgis_major}]"
         # --prefer-binary because https://github.com/jameskermode/f90wrap/issues/203
         list_cmd = f"{str(path_pybin)} -m pip install umep-reqs{qgis_extra}{str_ver} -U --user --prefer-binary {str_use_feature}".split()
-        QgsMessageLog.logMessage(list_cmd, level=Qgis.Info)
+        QgsMessageLog.logMessage(str(list_cmd), level=Qgis.Info)
         str_info = subprocess.check_output(
             list_cmd, stderr=subprocess.STDOUT, encoding="UTF8"
         )
