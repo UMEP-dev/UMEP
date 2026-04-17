@@ -14,6 +14,40 @@ from qgis.PyQt.QtWidgets import QMessageBox
 from .umep_installer import locate_py, setup_umep_python
 from qgis.core import Qgis, QgsMessageLog
 
+
+#test
+import subprocess
+from packaging import version
+ver = "3.1"
+str_ver = f"=={ver}" if ver else ""
+# get Python version
+str_ver_qgis = sys.version.split(" ")[0]
+path_pybin = locate_py()
+# update pip to use new features
+list_cmd0 = f"{str(path_pybin)} -m pip install pip -U --user".split()
+str_info0 = subprocess.check_output(
+    list_cmd0, stderr=subprocess.STDOUT, encoding="UTF8"
+)
+
+# add netCDF4 TODO: Should later be replaced with xarrays
+# list_cmd0 = f"{str(path_pybin)} -m pip install netCDF4 -U --user".split()
+# str_info0 = subprocess.check_output(
+#     list_cmd0, stderr=subprocess.STDOUT, encoding="UTF8"
+# )
+
+# install supy and dependencies
+str_use_feature = (
+    "--use-feature=2020-resolver"
+    if version.parse(str_ver_qgis) <= version.parse("3.9.1")
+    else ""
+)
+# select correct supy version via extras (QGIS 3 vs 4)
+qgis_major = int(Qgis.QGIS_VERSION.split('.')[0])
+qgis_extra = f"[qgis{qgis_major}]"
+# --prefer-binary because https://github.com/jameskermode/f90wrap/issues/203
+list_cmd = f"{str(path_pybin)} -m pip install umep-reqs{qgis_extra}{str_ver} -U --user --prefer-binary {str_use_feature}".split()
+QgsMessageLog.logMessage(str(list_cmd), level=Qgis.Info)
+
 try:
     import supy as sp  
     import numba
@@ -21,7 +55,7 @@ try:
     import rioxarray
     import yaml
     import pydantic
-    import timezonefinder
+    #import timezonefinder
     from supy import __version__ as ver_supy
     QgsMessageLog.logMessage("UMEP - SuPy Version installed: " + ver_supy, level=Qgis.Info)
 
@@ -39,7 +73,7 @@ except:
                 "Please report at https://github.com/UMEP-dev/UMEP-processing/issues",
             )
         try:
-            setup_umep_python(ver='2.9')
+            setup_umep_python(ver='3.0')
             QMessageBox.information(None, "Packages successfully installed",
                                     "To make all parts of the plugin work it is recommended to restart your QGIS-session.")
         except Exception as e:
