@@ -18,7 +18,7 @@ from qgis.core import Qgis, QgsMessageLog
 #test
 import subprocess
 from packaging import version
-ver = "3.0"
+ver = "3.1"
 str_ver = f"=={ver}" if ver else ""
 # get Python version
 str_ver_qgis = sys.version.split(" ")[0]
