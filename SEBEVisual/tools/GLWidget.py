@@ -7,8 +7,8 @@ except:
 from qgis.PyQt import QtWidgets
 from qgis.PyQt import QtGui
 from qgis.PyQt import QtCore
-try:
-    from qgis.PyQt.QtOpenGL import *
+try: #for QGIS3 TODO FInd a way for QGIS4
+    from PyQt5.QtOpenGL import *
 except:
     pass
 import numpy as np  # only for testing with test data arrays
