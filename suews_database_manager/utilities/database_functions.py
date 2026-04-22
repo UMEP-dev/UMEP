@@ -5,7 +5,10 @@ from datetime import datetime
 import json
 from pathlib import Path
 import sys
-from supy.data_model.schema.publisher import generate_json_schema
+try:
+    from supy.data_model.schema.publisher import generate_json_schema
+except:
+    pass
 
 
 def set_nameOrigin(db_dict):

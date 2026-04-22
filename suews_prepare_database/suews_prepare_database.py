@@ -59,8 +59,11 @@ from shutil import rmtree
 
 # used for pydantic testing
 # from pathlib import Path
-from supy.cmd.validate_config import validate_single_file
-from supy.data_model.schema.publisher import generate_json_schema
+try:
+    from supy.cmd.validate_config import validate_single_file
+    from supy.data_model.schema.publisher import generate_json_schema
+except:
+    pass
 
 # from .prepare_workertypo import Worker
 import processing

@@ -13,55 +13,60 @@ sys.path.insert(0, site.getusersitepackages())
 from qgis.PyQt.QtWidgets import QMessageBox
 from .umep_installer import locate_py, setup_umep_python
 from qgis.core import Qgis, QgsMessageLog
-
+# import numpy as np
 
 #test
-import subprocess
-from packaging import version
-ver = "3.1"
-str_ver = f"=={ver}" if ver else ""
-# get Python version
-str_ver_qgis = sys.version.split(" ")[0]
-path_pybin = locate_py()
-# update pip to use new features
-list_cmd0 = f"{str(path_pybin)} -m pip install pip -U --user".split()
-str_info0 = subprocess.check_output(
-    list_cmd0, stderr=subprocess.STDOUT, encoding="UTF8"
-)
-
-# add netCDF4 TODO: Should later be replaced with xarrays
-# list_cmd0 = f"{str(path_pybin)} -m pip install netCDF4 -U --user".split()
+# import subprocess
+# from packaging import version
+# ver = "3.1"
+# str_ver = f"=={ver}" if ver else ""
+# # get Python version
+# str_ver_qgis = sys.version.split(" ")[0]
+# path_pybin = locate_py()
+# # update pip to use new features
+# list_cmd0 = f"{str(path_pybin)} -m pip install pip -U --user".split()
 # str_info0 = subprocess.check_output(
 #     list_cmd0, stderr=subprocess.STDOUT, encoding="UTF8"
 # )
 
-# install supy and dependencies
-str_use_feature = (
-    "--use-feature=2020-resolver"
-    if version.parse(str_ver_qgis) <= version.parse("3.9.1")
-    else ""
-)
-# select correct supy version via extras (QGIS 3 vs 4)
-qgis_major = int(Qgis.QGIS_VERSION.split('.')[0])
-qgis_extra = f"[qgis{qgis_major}]"
-# --prefer-binary because https://github.com/jameskermode/f90wrap/issues/203
-list_cmd = f"{str(path_pybin)} -m pip install umep-reqs{qgis_extra}{str_ver} -U --user --prefer-binary {str_use_feature}".split()
-QgsMessageLog.logMessage(str(list_cmd), level=Qgis.Info)
+# # add netCDF4 TODO: Should later be replaced with xarrays
+# # list_cmd0 = f"{str(path_pybin)} -m pip install netCDF4 -U --user".split()
+# # str_info0 = subprocess.check_output(
+# #     list_cmd0, stderr=subprocess.STDOUT, encoding="UTF8"
+# # )
+
+# # install supy and dependencies
+# str_use_feature = (
+#     "--use-feature=2020-resolver"
+#     if version.parse(str_ver_qgis) <= version.parse("3.9.1")
+#     else ""
+# )
+# # select correct supy version via extras (QGIS 3 vs 4)
+# # qgis_major = int(Qgis.QGIS_VERSION.split('.')[0])
+# # qgis_extra = f"[qgis{qgis_major}]"
+# # # --prefer-binary because https://github.com/jameskermode/f90wrap/issues/203
+# # list_cmd = f"{str(path_pybin)} -m pip install umep-reqs{qgis_extra}{str_ver} -U --user --prefer-binary {str_use_feature}".split()
+# # QgsMessageLog.logMessage(str(list_cmd), level=Qgis.Info)
+# # Select correct supy version via extras (numpy 1 vs 2)
+# numpy_major = np.__version__.split('.')[0]
+# numpy_extra = f"[numpy{numpy_major}]"
+# list_cmd = f"{str(path_pybin)} -m pip install umep-reqs{numpy_extra}{str_ver} -U --user --prefer-binary {str_use_feature}".split()
+# QgsMessageLog.logMessage(str(list_cmd), level=Qgis.Info)
 
 try:
     # temprorary disable in preparation of QGIS4                                            
-    # import supy as sp  
-    # import numba
-    # import jaydebeapi
-    # import rioxarray
-    # import yaml
-    # import pydantic
+    import supy as sp  
+    import numba
+    import jaydebeapi
+    import rioxarray
+    import yaml
+    import pydantic
     #import timezonefinder
     from supy import __version__ as ver_supy
     QgsMessageLog.logMessage("UMEP - SuPy Version installed: " + ver_supy, level=Qgis.MessageLevel.Info)
 
 except:
-    if QMessageBox.question(None, "UMEP for Processing Python dependencies not installed",
+    if QMessageBox.question(None, "UMEP Python dependencies not installed or need to be updated",
               "Do you automatically want install missing python modules? \r\n"
               "QGIS will be non-responsive for a couple of minutes.",
                QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) == QMessageBox.StandardButton.Ok:
@@ -74,7 +79,7 @@ except:
                 "Please report at https://github.com/UMEP-dev/UMEP-processing/issues",
             )
         try:
-            setup_umep_python(ver='3.1')
+            setup_umep_python(ver='4.0')
             QMessageBox.information(None, "Packages successfully installed",
                                     "To make all parts of the plugin work it is recommended to restart your QGIS-session.")
         except Exception as e:
