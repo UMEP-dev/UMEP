@@ -20,21 +20,28 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QThread
-from PyQt4.QtGui import QFileDialog, QIcon, QAction, QMessageBox
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread, QCoreApplication
+from qgis.PyQt.QtWidgets import QFileDialog, QAction, QMessageBox
+from qgis.PyQt.QtGui import QIcon
 from qgis.core import *
 from qgis.gui import *
 import os
 from osgeo import gdal
-from landcoverfraction_grid_dialog import LandCoverFractionGridDialog
+from .landcoverfraction_grid_dialog import LandCoverFractionGridDialog
 import os.path
-from lcfracworker import Worker
+from .lcfracworker import Worker
 import webbrowser
 
 # Initialize Qt resources from file resources.py
-import resources_rc
+# from . import resources_rc
 
-class LandCoverFractionGrid:
+class LandCoverFractionGrid(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -71,8 +78,10 @@ class LandCoverFractionGrid:
         self.dlg.progressBar.setValue(0)
 
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(4)
-        self.fileDialog.setAcceptMode(1)  # Save
+        # self.fileDialog.setFileMode(4)
+        # self.fileDialog.setAcceptMode(1)  # Save
+        self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
         for i in range(1, 25):
             if 360 % i == 0:
@@ -96,17 +105,17 @@ class LandCoverFractionGrid:
         # fieldgen = VectorLayerCombo(self.dlg.comboBox_Polygrid, initLayer="", options={"geomType": QGis.Polygon})
         self.layerComboManagerPolygrid = QgsMapLayerComboBox(self.dlg.widget_Polygrid)
         self.layerComboManagerPolygrid.setCurrentIndex(-1)
-        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
         self.layerComboManagerPolygrid.setFixedWidth(175)
         self.layerComboManagerPolyField = QgsFieldComboBox(self.dlg.widget_Field)
-        self.layerComboManagerPolyField.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPolyField.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.layerComboManagerPolygrid.layerChanged.connect(self.layerComboManagerPolyField.setLayer)
         # self.layerComboManagerPolyField = FieldCombo(self.dlg.comboBox_Field, fieldgen) #, options={"fieldType":QGis.Float32}
 
         # self.layerComboManagerLCgrid = RasterLayerCombo(self.dlg.comboBox_lcgrid)
         # RasterLayerCombo(self.dlg.comboBox_lcgrid, initLayer="")
         self.layerComboManagerLCgrid = QgsMapLayerComboBox(self.dlg.widget_lcgrid)
-        self.layerComboManagerLCgrid.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerLCgrid.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerLCgrid.setFixedWidth(175)
         self.layerComboManagerLCgrid.setCurrentIndex(-1)
 
@@ -186,7 +195,7 @@ class LandCoverFractionGrid:
 
     def folder_path(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.textOutput.setText(self.folderPath[0])
@@ -202,14 +211,15 @@ class LandCoverFractionGrid:
             return
 
         poly_field = self.layerComboManagerPolyField.currentField()
-        if poly_field is None:
+        if poly_field == '':
             QMessageBox.critical(None, "Error", "An attribute with unique fields/records must be selected")
             return
 
         vlayer = QgsVectorLayer(poly.source(), "polygon", "ogr")
         prov = vlayer.dataProvider()
         fields = prov.fields()
-        idx = vlayer.fieldNameIndex(poly_field)
+        # idx = vlayer.fieldNameIndex(poly_field)
+        idx = vlayer.fields().indexFromName(poly_field)
 
         typetest = fields.at(idx).type()
         if typetest == 10:
@@ -293,19 +303,32 @@ class LandCoverFractionGrid:
                                                                            "process unsuccessful! See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.")
 
     def workerError(self, errorstring):
-        QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)
 
     def progress_update(self):
         self.steps += 1
         self.dlg.progressBar.setValue(self.steps)
 
     def run(self):
+        try:
+            import scipy
+        except Exception as e:
+            QMessageBox.critical(None, 'Error', 'This plugin requires the scipy package '
+                                                'to be installed. Please consult the FAQ in the manual for further '
+                                                'information on how to install missing python packages.')
+            return
+        # try:
+        #     import skimage
+        # except Exception as e:
+        #     QMessageBox.critical(None, 'Error', 'This plugin requires the scikit-image package '
+        #                                         'to be installed. Please consult the FAQ in the manual for further '
+        #                                         'information on how to install missing python packages.')
+        #     return
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
         gdal.UseExceptions()
         gdal.AllRegister()
 
     def help(self):
-        url = 'http://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Land%20Cover%20Land%20Cover%20' \
-              'Fraction%20(Grid).html'
+        url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Land%20Cover%20Land%20Cover%20Fraction%20(Grid).html'
         webbrowser.open_new_tab(url)

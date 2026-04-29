@@ -20,22 +20,29 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QThread
-from PyQt4.QtGui import QFileDialog, QIcon, QAction, QMessageBox
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread, QCoreApplication
+from qgis.PyQt.QtWidgets import QFileDialog, QAction, QMessageBox
+from qgis.PyQt.QtGui import QIcon
 from qgis.core import *
 from qgis.gui import *
-from sebe_dialog import SEBEDialog
+from .sebe_dialog import SEBEDialog
 import os.path
 from ..Utilities.misc import *
 from osgeo import gdal, osr
 import numpy as np
-from sebeworker import Worker
+from .sebeworker import Worker
 from ..Utilities.SEBESOLWEIGCommonFiles.Solweig_v2015_metdata_noload import Solweig_2015a_metdata_noload
-from SEBEfiles.sunmapcreator_2015a import sunmapcreator_2015a
+from .SEBEfiles.sunmapcreator_2015a import sunmapcreator_2015a
 import webbrowser
+from . import WriteMetaDataSEBE
 
 
-class SEBE:
+class SEBE(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -73,8 +80,10 @@ class SEBE:
         self.dlg.pushButtonImport.clicked.connect(self.read_metdata)
         self.dlg.pushButtonSaveIrradiance.clicked.connect(self.save_radmat)
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(4)
-        self.fileDialog.setAcceptMode(1)
+        # self.fileDialog.setFileMode(4)
+        # self.fileDialog.setAcceptMode(1)
+        self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
         self.fileDialogFile = QFileDialog()
 
         # Declare instance attributes
@@ -96,23 +105,23 @@ class SEBE:
         # RasterLayerCombo(self.dlg.comboBox_wallaspect, initLayer="")
 
         self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetDSM)
-        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerDSM.setFixedWidth(175)
         self.layerComboManagerDSM.setCurrentIndex(-1)
         self.layerComboManagerVEGDSM = QgsMapLayerComboBox(self.dlg.widgetCDSM)
-        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerVEGDSM.setFixedWidth(175)
         self.layerComboManagerVEGDSM.setCurrentIndex(-1)
         self.layerComboManagerVEGDSM2 = QgsMapLayerComboBox(self.dlg.widgetTDSM)
-        self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerVEGDSM2.setFixedWidth(175)
         self.layerComboManagerVEGDSM2.setCurrentIndex(-1)
         self.layerComboManagerWH = QgsMapLayerComboBox(self.dlg.widgetWH)
-        self.layerComboManagerWH.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerWH.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerWH.setFixedWidth(175)
         self.layerComboManagerWH.setCurrentIndex(-1)
         self.layerComboManagerWA = QgsMapLayerComboBox(self.dlg.widgetWA)
-        self.layerComboManagerWA.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerWA.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerWA.setFixedWidth(175)
         self.layerComboManagerWA.setCurrentIndex(-1)
 
@@ -204,14 +213,14 @@ class SEBE:
 
     def folder_path(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.textOutput.setText(self.folderPath[0])
 
     def read_metdata(self):
         self.fileDialogFile.open()
-        result = self.fileDialogFile.exec_()
+        result = self.fileDialogFile.exec()
         if result == 1:
             # self.dlg.pushButtonExport.setEnabled(True)
             self.folderPathMetdata = self.fileDialogFile.selectedFiles()
@@ -235,7 +244,7 @@ class SEBE:
 
             if self.metdata.shape[1] == 24:
                 self.iface.messageBar().pushMessage("SEBE", "Meteorological data succefully loaded",
-                                                    level=QgsMessageBar.INFO, duration=3)
+                                                    level=Qgis.MessageLevel.Info, duration=3)
             else:
                 QMessageBox.critical(None, "Import Error", "Wrong number of columns in meteorological data. You can "
                                                            "prepare your data by using 'Prepare Existing Data' in "
@@ -244,7 +253,8 @@ class SEBE:
 
     def save_radmat(self):
         self.radmatfile = self.fileDialogFile.getSaveFileName(None, "Save File As:", None, "Text Files (*.txt)")
-        self.dlg.textOutputIrradience.setText(self.radmatfile)
+        # print(self.radmatfile[0])
+        self.dlg.textOutputIrradience.setText(self.radmatfile[0])
 
     def progress_update(self):
         self.steps += 1
@@ -266,58 +276,52 @@ class SEBE:
             filepath_dsm = str(provider.dataSourceUri())
             # self.dsmpath = filepath_dsm
             self.gdal_dsm = gdal.Open(filepath_dsm)
-            self.dsm = self.gdal_dsm.ReadAsArray().astype(np.float)
+            self.dsm = self.gdal_dsm.ReadAsArray().astype(float)
             sizex = self.dsm.shape[0]
             sizey = self.dsm.shape[1]
 
-            # new latlon finding code
-            projdsm = osr.SpatialReference(wkt=self.gdal_dsm.GetProjection())
-            projdsm.AutoIdentifyEPSG()
-            projdsmepsg = int(projdsm.GetAttrValue('AUTHORITY', 1))
-            new_cs = QgsCoordinateReferenceSystem(projdsmepsg)
-            wgs84 = QgsCoordinateReferenceSystem(4326)
-            transform = QgsCoordinateTransform(new_cs, wgs84)
-            width1 = self.gdal_dsm.RasterXSize
-            height1 = self.gdal_dsm.RasterYSize
-            gt = self.gdal_dsm.GetGeoTransform()
-            minx = gt[0]
-            miny = gt[3] + width1 * gt[4] + height1 * gt[5]
-            lonlat = transform.transform(minx, miny)
-            geotransform = self.gdal_dsm.GetGeoTransform()
-            self.scale = 1 / geotransform[1]
-            lon = lonlat[0]
-            lat = lonlat[1]
+            # response to issue #85
+            nd = self.gdal_dsm.GetRasterBand(1).GetNoDataValue()
+            self.dsm[self.dsm == nd] = 0.
+            if self.dsm.min() < 0:
+                self.dsm = self.dsm + np.abs(self.dsm.min())
 
-            # # Get latlon from grid coordinate system
-            # old_cs = osr.SpatialReference()
-            # dsm_ref = dsmlayer.crs().toWkt()
-            # old_cs.ImportFromWkt(dsm_ref)
-            #
-            # wgs84_wkt = """
-            # GEOGCS["WGS 84",
-            #     DATUM["WGS_1984",
-            #         SPHEROID["WGS 84",6378137,298.257223563,
-            #             AUTHORITY["EPSG","7030"]],
-            #         AUTHORITY["EPSG","6326"]],
-            #     PRIMEM["Greenwich",0,
-            #         AUTHORITY["EPSG","8901"]],
-            #     UNIT["degree",0.01745329251994328,
-            #         AUTHORITY["EPSG","9122"]],
-            #     AUTHORITY["EPSG","4326"]]"""
-            #
-            # new_cs = osr.SpatialReference()
-            # new_cs.ImportFromWkt(wgs84_wkt)
-            #
-            # transform = osr.CoordinateTransformation(old_cs, new_cs)
-            # width = self.gdal_dsm.RasterXSize
-            # height = self.gdal_dsm.RasterYSize
-            # geotransform = self.gdal_dsm.GetGeoTransform()
-            # minx = geotransform[0]
-            # miny = geotransform[3] + width*geotransform[4] + height*geotransform[5]
-            # lonlat = transform.TransformPoint(minx, miny)
-            # lon = lonlat[0]
-            # lat = lonlat[1]
+            # Get latlon from grid coordinate system
+            old_cs = osr.SpatialReference()
+            dsm_ref = dsmlayer.crs().toWkt()
+            old_cs.ImportFromWkt(dsm_ref)
+
+            wgs84_wkt = """
+            GEOGCS["WGS 84",
+                DATUM["WGS_1984",
+                    SPHEROID["WGS 84",6378137,298.257223563,
+                        AUTHORITY["EPSG","7030"]],
+                    AUTHORITY["EPSG","6326"]],
+                PRIMEM["Greenwich",0,
+                    AUTHORITY["EPSG","8901"]],
+                UNIT["degree",0.01745329251994328,
+                    AUTHORITY["EPSG","9122"]],
+                AUTHORITY["EPSG","4326"]]"""
+
+            new_cs = osr.SpatialReference()
+            new_cs.ImportFromWkt(wgs84_wkt)
+
+            transform = osr.CoordinateTransformation(old_cs, new_cs)
+            width = self.gdal_dsm.RasterXSize
+            height = self.gdal_dsm.RasterYSize
+            geotransform = self.gdal_dsm.GetGeoTransform()
+            minx = geotransform[0]
+            miny = geotransform[3] + width*geotransform[4] + height*geotransform[5]
+            lonlat = transform.TransformPoint(minx, miny)
+            gdalver = float(gdal.__version__[0])
+            if gdalver == 3.:
+                lon = lonlat[1] #changed to gdal 3
+                lat = lonlat[0] #changed to gdal 3
+            else:
+                lon = lonlat[0] #changed to gdal 2
+                lat = lonlat[1] #changed to gdal 2
             self.scale = 1 / geotransform[1]
+            # self.iface.messageBar().pushMessage("SEBE", str(lonlat),level=QgsMessageBar.INFO)
 
             if (sizex * sizey) > 250000 and (sizex * sizey) <= 1000000:
                 QMessageBox.warning(None, "Semi lage grid", "This process will take a couple of minutes. "
@@ -335,6 +339,8 @@ class SEBE:
                 QMessageBox.warning(None, "Huge grid", "This process will take a very long time. "
                                                         "Go home for the weekend or consider to tile your grid")
 
+            trunkfile = 0
+            trunkratio = 0
             if self.dlg.checkBoxUseVeg.isChecked():
                 self.usevegdem = 1
                 self.vegdsm = self.layerComboManagerVEGDSM.currentLayer()
@@ -343,12 +349,12 @@ class SEBE:
                     QMessageBox.critical(None, "Error", "No valid vegetation DSM selected")
                     return
 
-                # load raster
+                # load vegetation raster
                 gdal.AllRegister()
                 provider = self.vegdsm.dataProvider()
-                filePathOld = str(provider.dataSourceUri())
-                dataSet = gdal.Open(filePathOld)
-                self.vegdsm = dataSet.ReadAsArray().astype(np.float)
+                filePath_cdsm = str(provider.dataSourceUri())
+                dataSet = gdal.Open(filePath_cdsm)
+                self.vegdsm = dataSet.ReadAsArray().astype(float)
 
                 vegsizex = self.vegdsm.shape[0]
                 vegsizey = self.vegdsm.shape[1]
@@ -367,10 +373,12 @@ class SEBE:
                     # load raster
                     gdal.AllRegister()
                     provider = self.vegdsm2.dataProvider()
-                    filePathOld = str(provider.dataSourceUri())
-                    dataSet = gdal.Open(filePathOld)
-                    self.vegdsm2 = dataSet.ReadAsArray().astype(np.float)
+                    filePath_tdsm = str(provider.dataSourceUri())
+                    dataSet = gdal.Open(filePath_tdsm)
+                    self.vegdsm2 = dataSet.ReadAsArray().astype(float)
+                    trunkfile = 1
                 else:
+                    filePath_tdsm = None
                     trunkratio = self.dlg.spinBoxTrunkHeight.value() / 100.0
                     self.vegdsm2 = self.vegdsm * trunkratio
 
@@ -384,6 +392,8 @@ class SEBE:
                 self.vegdsm = 0
                 self.vegdsm2 = 0
                 self.usevegdem = 0
+                filePath_cdsm = None
+                filePath_tdsm = None
 
             UTC = self.dlg.spinBoxUTC.value()
             psi = self.dlg.spinBoxTrans.value() / 100.0
@@ -404,12 +414,14 @@ class SEBE:
             provider = whlayer.dataProvider()
             filepath_wh= str(provider.dataSourceUri())
             self.gdal_wh = gdal.Open(filepath_wh)
-            self.wheight = self.gdal_wh.ReadAsArray().astype(np.float)
+            self.wheight = self.gdal_wh.ReadAsArray().astype(float)
             vhsizex = self.wheight.shape[0]
             vhsizey = self.wheight.shape[1]
             if not (vhsizex == sizex) & (vhsizey == sizey):  # &
                 QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
                 return
+
+            wallmaxheight = self.gdal_wh.GetRasterBand(1).GetStatistics(True,True)[1] #issue #244
 
             # wall aspectlayer
             walayer = self.layerComboManagerWA.currentLayer()
@@ -419,7 +431,7 @@ class SEBE:
             provider = walayer.dataProvider()
             filepath_wa= str(provider.dataSourceUri())
             self.gdal_wa = gdal.Open(filepath_wa)
-            self.waspect = self.gdal_wa.ReadAsArray().astype(np.float)
+            self.waspect = self.gdal_wa.ReadAsArray().astype(float)
             vasizex = self.waspect.shape[0]
             vasizey = self.waspect.shape[1]
             if not (vasizex == sizex) & (vasizey == sizey):
@@ -427,7 +439,9 @@ class SEBE:
                 return
 
             # Prepare metdata
-            alt = self.dsm.mean()
+            alt = np.median(self.dsm)
+            if alt < 0:
+                alt = 3
             location = {'longitude': lon, 'latitude': lat, 'altitude': alt}
             YYYY, altitude, azimuth, zen, jday, leafon, dectime, altmax = \
                 Solweig_2015a_metdata_noload(self.metdata,location, UTC)
@@ -450,55 +464,23 @@ class SEBE:
                     # metout[:, 4] = radmatR[:, 2]
                     header = '%altitude azimuth radI radD'
                     numformat = '%6.2f %6.2f %6.2f %6.2f'
-                    np.savetxt(self.radmatfile, metout, fmt=numformat, header=header, comments='')
+                    np.savetxt(self.radmatfile[0], metout, fmt=numformat, header=header, comments='')
 
             building_slope, building_aspect = get_ders(self.dsm, self.scale)
             calc_month = False  # TODO: Month not implemented
 
+            WriteMetaDataSEBE.writeRunInfo(self.folderPath[0], filepath_dsm, self.gdal_dsm, self.usevegdem,
+                                              filePath_cdsm, trunkfile, filePath_tdsm, lat, lon, UTC,
+                                           self.folderPathMetdata[0], albedo, onlyglobal, trunkratio, psi, sizex, sizey)
+
             self.startWorker(self.dsm, self.scale, building_slope,building_aspect, voxelheight, sizey, sizex,
                             self.vegdsm, self.vegdsm2, self.wheight, self.waspect, albedo, psi, radmatI, radmatD,
-                             radmatR, self.usevegdem, calc_month, self.dlg)
+                             radmatR, self.usevegdem, calc_month, self.dlg, wallmaxheight)
 
-            ## Den har functionen vill jag ha som en worker med fungerande progressbar. 145 itereringar
-            # Energyyearroof, Energyyearwall, vegdata = SEBE_2015a_calc.SEBE_2015a_calc(self.dsm, self.scale, building_slope,
-            #         building_aspect, voxelheight, sizey, sizex, self.vegdsm, self.vegdsm2, self.wheight,
-            #         self.waspect, albedo, psi, radmatI, radmatD, radmatR, self.usevegdem, calc_month)
-
-            # filenameroof = self.folderPath[0] + '/Energyyearroof.tif'
-            # saveraster(self.gdal_dsm, filenameroof, Energyyearroof)
-            # filenamewall = self.folderPath[0] + '/Energyyearwall.txt'
-            # header = '%row col irradiance'
-            # numformat = '%4d %4d %6.2f'
-            # np.savetxt(filenamewall, Energyyearwall[:, (0, 1, 2)], fmt=numformat, header=header, comments='')
-            # if self.usevegdem == 1:
-            #     filenamewall = self.folderPath[0] + '/Vegetationdata.txt'
-            #     header = '%row col height'
-            #     numformat = '%4d %4d %6.2f'
-            #     np.savetxt(filenamewall, vegdata, fmt=numformat, header=header, comments='')
-            #
-            # self.iface.messageBar().pushMessage("SEBE", "Calculation succesfully completed",
-            #                                     level=QgsMessageBar.INFO, duration=3)
-            #
-            # # load roof irradiance result into map canvas
-            # if self.dlg.checkBoxIntoCanvas.isChecked():
-            #     rlayer = self.iface.addRasterLayer(filenameroof)
-            #
-            #     # Trigger a repaint
-            #     if hasattr(rlayer, "setCacheImage"):
-            #         rlayer.setCacheImage(None)
-            #     rlayer.triggerRepaint()
-            #
-            #     rlayer.loadNamedStyle(self.plugin_dir + '/SEBE_kwh.qml')
-            #     # self.QgsMapLayerRegistry.instance().addMapLayer(rlayer)
-            #
-            #     if hasattr(rlayer, "setCacheImage"):
-            #         rlayer.setCacheImage(None)
-            #     rlayer.triggerRepaint()
-
-    def startWorker(self, dsm, scale, building_slope,building_aspect, voxelheight, sizey, sizex, vegdsm, vegdsm2, wheight,waspect, albedo, psi, radmatI, radmatD, radmatR, usevegdem, calc_month, dlg):
+    def startWorker(self, dsm, scale, building_slope,building_aspect, voxelheight, sizey, sizex, vegdsm, vegdsm2, wheight,waspect, albedo, psi, radmatI, radmatD, radmatR, usevegdem, calc_month, dlg, wallmaxheight):
 
         # create a new worker instance
-        worker = Worker(dsm, scale, building_slope,building_aspect, voxelheight, sizey, sizex, vegdsm, vegdsm2, wheight,waspect, albedo, psi, radmatI, radmatD, radmatR, usevegdem, calc_month, dlg)
+        worker = Worker(dsm, scale, building_slope,building_aspect, voxelheight, sizey, sizex, vegdsm, vegdsm2, wheight,waspect, albedo, psi, radmatI, radmatD, radmatR, usevegdem, calc_month, dlg, wallmaxheight)
 
         self.dlg.runButton.setText('Cancel')
         self.dlg.runButton.clicked.disconnect()
@@ -552,7 +534,6 @@ class SEBE:
                 rlayer.triggerRepaint()
 
                 rlayer.loadNamedStyle(self.plugin_dir + '/SEBE_kwh.qml')
-                # self.QgsMapLayerRegistry.instance().addMapLayer(rlayer)
 
                 if hasattr(rlayer, "setCacheImage"):
                     rlayer.setCacheImage(None)
@@ -565,7 +546,9 @@ class SEBE:
             self.dlg.pushButtonClose.setEnabled(True)
         else:
             # notify the user that something went wrong
-            self.iface.messageBar().pushMessage('Operations cancelled either by user or error. See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.', level=QgsMessageBar.CRITICAL, duration=3)
+            self.iface.messageBar().pushMessage('Operations cancelled either by user or error. See the General tab in '
+                                                'Log Meassages Panel (speech bubble, lower right) for more information.'
+                                                , level=Qgis.MessageLevel.Critical, duration=3)
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
@@ -573,7 +556,7 @@ class SEBE:
             self.dlg.progressBar.setValue(0)
 
     def workerError(self, errorstring):
-        QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)
 
     def progress_update(self):
         self.steps += 1
@@ -581,9 +564,8 @@ class SEBE:
 
     def run(self):
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def help(self):
-        url = "http://umep-docs.readthedocs.io/en/latest/processor/Solar%20Radiation%20Solar%20Energy%20on%20" \
-              "Building%20Envelopes%20(SEBE).html"
+        url = "https://umep-docs.readthedocs.io/en/latest/processor/Solar%20Radiation%20Solar%20Energy%20on%20Building%20Envelopes%20(SEBE).html"
         webbrowser.open_new_tab(url)

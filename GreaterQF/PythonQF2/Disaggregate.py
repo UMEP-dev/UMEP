@@ -1,11 +1,11 @@
 import os
 import pickle
-from DataManagement.spatialHelpers import saveLayerToFile, loadShapeFile, shapefile_attributes, populateShapefileFromTemplate
-from DataManagement.temporalHelpers import makeUTC
-from EnergyUseData import EnergyUseData
-from FuelConsumption import FuelConsumption
-from Population import Population
-from Transport import Transport
+from .DataManagement.spatialHelpers import saveLayerToFile, loadShapeFile, shapefile_attributes, populateShapefileFromTemplate
+from .DataManagement.temporalHelpers import makeUTC
+from .EnergyUseData import EnergyUseData
+from .FuelConsumption import FuelConsumption
+from .Population import Population
+from .Transport import Transport
 
 def disaggregate(qfDataSources, qfParams, outputFolder):
     '''
@@ -166,6 +166,7 @@ def disaggregate(qfDataSources, qfParams, outputFolder):
 
     # Pickle the dictionary as a manifest file
     with open(os.path.join(outputFolder, 'MANIFEST'), 'wb') as outpickle:
+        print('SAVING MANIFEST to ' + outputFolder)
         pickle.dump(returnDict, outpickle)
 
     # Return the output folder containing all this stuff

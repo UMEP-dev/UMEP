@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>399</width>
-    <height>526</height>
+    <width>413</width>
+    <height>585</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -111,7 +111,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="labelField">
         <property name="text">
-         <string> Field containing height:</string>
+         <string> Field containing height (m agl):</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -177,7 +177,7 @@
            <double>0.500000000000000</double>
           </property>
           <property name="value">
-           <double>3.000000000000000</double>
+           <double>3.100000000000000</double>
           </property>
          </widget>
         </item>

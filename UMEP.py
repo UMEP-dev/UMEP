@@ -20,47 +20,59 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QObject, SIGNAL, SLOT
-from PyQt4.QtGui import QMenu, QAction, QIcon
-from UMEP_dialog import UMEPDialog
-from MetdataProcessor.metdata_processor import MetdataProcessor
-from ShadowGenerator.shadow_generator import ShadowGenerator
-from SkyViewFactorCalculator.svf_calculator import SkyViewFactorCalculator
-from ImageMorphParam.image_morph_param import ImageMorphParam
-from ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
-from LandCoverFractionGrid.landcoverfraction_grid import LandCoverFractionGrid
-from LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
-from LandCoverReclassifier.land_cover_reclassifier import LandCoverReclassifier
-from WallHeight.wall_height import WallHeight
-from SEBE.sebe import SEBE
-from SEBEVisual.sun import Sun
-from SuewsSimple.suews_simple import SuewsSimple
-from SUEWSPrepare.suews_prepare import SUEWSPrepare
-from TreeGenerator.tree_generator import TreeGenerator
-from SUEWS.suews import SUEWS
-from FootprintModel.footprint_model import FootprintModel
-from WATCHData.watch import WATCHData
-from GreaterQF.greater_qf import GreaterQF
-from SOLWEIG.solweig import SOLWEIG
-from ExtremeFinder.extreme_finder import ExtremeFinder
-from SolweigAnalyzer.solweig_analyzer import SolweigAnalyzer
-from SUEWSAnalyzer.suews_analyzer import SUEWSAnalyzer
-from UMEPDownloader.umep_downloader import UMEP_Data_Download
-from LCZ_Converter.LCZ_converter import LCZ_test
-from LucyQf.LQF import LQF
-from BenchMarking.benchmarking import BenchMarking
-from DSMGenerator.dsm_generator import DSMGenerator
-from UMEP_about import UMEPDialogAbout
+from __future__ import absolute_import
+from builtins import object
+#import sys
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtWidgets import QMenu, QAction, QMessageBox
+from qgis.PyQt.QtGui import QIcon
+# from .UMEP_dialog import UMEPDialog
+from .MetdataProcessor.metdata_processor import MetdataProcessor
+#from .ShadowGenerator.shadow_generator import ShadowGenerator
+#from .SkyViewFactorCalculator.svf_calculator import SkyViewFactorCalculator
+#from .ImageMorphParam.image_morph_param import ImageMorphParam
+#from .ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
+#from .LandCoverFractionGrid.landcoverfraction_grid import LandCoverFractionGrid
+#from .LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
+from .LandCoverReclassifier.land_cover_reclassifier import LandCoverReclassifier
+#from .WallHeight.wall_height import WallHeight
+#from .TreeGenerator.tree_generator import TreeGenerator
+from .FootprintModel.footprint_model import FootprintModel
+from .LCZ_Converter.LCZ_converter import LCZ_test
+#from .UMEPDownloader.umep_downloader import UMEP_Data_Download
+#from .DSMGenerator.dsm_generator import DSMGenerator
+from .UWGReClassifier.uwg_reclassifier import uwg_reclassifier
+#from .uwg_prepare.uwg_prepare import UWGPrepare
+from .uwg_analyser.uwg_analyser import UWGAnalyser
+from .target_analyser.target_analyser import TARGETAnalyser
+from .GreaterQF.greater_qf import GreaterQF
+from .ExtremeFinder.extreme_finder import ExtremeFinder
+from .LucyQF.LQF import LQF
+#from .SEBE.sebe import SEBE
+# from .SEBEpv.sebepv import SEBEpv      # MRevesz
+from .SuewsSimple.suews_simple import SuewsSimple
+# from .SUEWSPrepare.suews_prepare import SUEWSPrepare
+from .suews_converter.suews_converter import SUEWSConverter
+#from .SUEWS.suews import SUEWS
+from .SOLWEIG.solweig import SOLWEIG
+from .BenchMarking.benchmarking import BenchMarking
+# if sys.platform == 'linux2' or sys.platform == 'linux': #TODO test PyQt5 import instead
+#     QMessageBox.critical(None, "SEBE Visual not functional on this OS",
+#                              "This tool is currenly not operational on this OS. \n"
+#                              "Use Windows or MacOS instead.")
+# else:
+from .SEBEVisual.sun import Visual
+from .SolweigAnalyzer.solweig_analyzer import SolweigAnalyzer
+from .SUEWSAnalyzer.suews_analyzer import SUEWSAnalyzer
+#from .copernicus_data.copernicus_data import CopernicusData
+from .suews_database_manager.suews_database_manager import suews_database_manager
+from .suews_prepare_database.suews_prepare_database import SUEWSPrepareDatabase
+from .UMEP_about import UMEPDialogAbout
 import os.path
 import webbrowser
 
-# Uncomment the section below if you want to debug in QGIS
-# import sys
-# sys.path.append('C:/OSGeo4W64/apps/Python27/Lib/site-packages/pydev')
-# import pydevd
 
-
-class UMEP:
+class UMEP(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -90,14 +102,11 @@ class UMEP:
                 QCoreApplication.installTranslator(self.translator)
 
         # Create the dialog (after translation) and keep reference
-        self.dlg = UMEPDialog()
+        # self.dlg = UMEPDialog()
 
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&UMEP')
-        # TODO: We are going to let the user set this up in a future iteration
-        #self.toolbar = self.iface.addToolBar(u'UMEP')
-        #self.toolbar.setObjectName(u'UMEP')
 
         # Main menu
         self.UMEP_Menu = QMenu("UMEP")
@@ -123,11 +132,11 @@ class UMEP:
         self.Pre_Menu.addMenu(self.ULC_Menu)
         self.SM_Menu = QMenu("Urban Morphology")
         self.Pre_Menu.addMenu(self.SM_Menu)
-        self.SUEWSPrepare_Action = QAction("SUEWS Prepare", self.iface.mainWindow())
-        self.Pre_Menu.addAction(self.SUEWSPrepare_Action)
-        self.SUEWSPrepare_Action.triggered.connect(self.SUEWS_Prepare)
-
-
+        self.PreUEB_Menu = QMenu("Urban Energy Balance")
+        self.Pre_Menu.addMenu(self.PreUEB_Menu)
+        self.PreUHI_Menu = QMenu("Urban Heat Island")
+        self.Pre_Menu.addMenu(self.PreUHI_Menu)
+        
         # Sub-actions to Surface Morphology
         self.IMCP_Action = QAction("Morphometric Calculator (Point)", self.iface.mainWindow())
         self.SM_Menu.addAction(self.IMCP_Action)
@@ -143,9 +152,9 @@ class UMEP:
         self.PED_Action = QAction("Prepare Existing Data", self.iface.mainWindow())
         self.MD_Menu.addAction(self.PED_Action)
         self.PED_Action.triggered.connect(self.PED)
-        self.PFD_Action = QAction("Download data (WATCH)", self.iface.mainWindow())
-        self.MD_Menu.addAction(self.PFD_Action)
-        self.PFD_Action.triggered.connect(self.WA)
+        self.ERA_Action = QAction("Download data (ERA5)", self.iface.mainWindow())
+        self.MD_Menu.addAction(self.ERA_Action)
+        self.ERA_Action.triggered.connect(self.ERA)
 
         # Sub-actions to Spatial Data Preparation
         self.SDD_Action = QAction("Spatial Data Downloader", self.iface.mainWindow())
@@ -165,9 +174,6 @@ class UMEP:
         self.SVF_Action = QAction("Sky View Factor", self.iface.mainWindow())
         self.UG_Menu.addAction(self.SVF_Action)
         self.SVF_Action.triggered.connect(self.SVF)
-        # self.HW_Action = QAction("Height/Width Ratio", self.iface.mainWindow())
-        # self.UG_Menu.addAction(self.HW_Action)
-        # self.HW_Action.setEnabled(False)
         self.WH_Action = QAction("Wall Height and Aspect", self.iface.mainWindow())
         self.UG_Menu.addAction(self.WH_Action)
         self.WH_Action.triggered.connect(self.WH)
@@ -183,6 +189,31 @@ class UMEP:
         self.ULC_Menu.addAction(self.ULCUEBG_Action)
         self.ULCUEBG_Action.triggered.connect(self.LCG)
 
+        # Sub-actions to Urban Energy Balance (SUEWS)
+        self.SUEWSDatabase_Action = QAction("SUEWS Database Manager", self.iface.mainWindow())
+        self.PreUEB_Menu.addAction(self.SUEWSDatabase_Action)
+        self.SUEWSDatabase_Action.triggered.connect(self.SUEWSDatabase)     
+        self.SUEWSPDatabasePrepare_Action = QAction("SUEWS Database Prepare", self.iface.mainWindow())
+        self.PreUEB_Menu.addAction(self.SUEWSPDatabasePrepare_Action)
+        self.SUEWSPDatabasePrepare_Action.triggered.connect(self.SUEWSPDatabasePrepare)  
+        self.SUEWSPrepare_Action = QAction("SUEWS Prepare", self.iface.mainWindow())
+        self.PreUEB_Menu.addAction(self.SUEWSPrepare_Action)
+        self.SUEWSPrepare_Action.triggered.connect(self.SUEWS_Prepare)
+        self.SUEWSConvert_Action = QAction("SUEWS Converter", self.iface.mainWindow())
+        self.PreUEB_Menu.addAction(self.SUEWSConvert_Action)
+        self.SUEWSConvert_Action.triggered.connect(self.SUEWS_Convert)
+
+        # Sub-actions to Urban Heat Island (UWG)
+        self.UWGReclassifier_Action = QAction("UWG Reclassifier", self.iface.mainWindow())
+        self.PreUHI_Menu.addAction(self.UWGReclassifier_Action)
+        self.UWGReclassifier_Action.triggered.connect(self.UWGReclass)
+        self.UWGPrepare_Action = QAction("UWG Prepare", self.iface.mainWindow())
+        self.PreUHI_Menu.addAction(self.UWGPrepare_Action)
+        self.UWGPrepare_Action.triggered.connect(self.UWGPrepare)
+        self.TARGETPrepare_Action = QAction("TARGET Prepare", self.iface.mainWindow())
+        self.PreUHI_Menu.addAction(self.TARGETPrepare_Action)
+        self.TARGETPrepare_Action.triggered.connect(self.TARGETPrepare)
+
         # Sub-menus to Processor
         self.OTC_Menu = QMenu("Outdoor Thermal Comfort")
         self.Pro_Menu.addMenu(self.OTC_Menu)
@@ -190,19 +221,19 @@ class UMEP:
         self.Pro_Menu.addMenu(self.UEB_Menu)
         self.SUN_Menu = QMenu("Solar radiation")
         self.Pro_Menu.addMenu(self.SUN_Menu)
-        # self.NUHI_Action = QAction("Nocturnal Urban Heat Island", self.iface.mainWindow())
-        # self.Pro_Menu.addAction(self.NUHI_Action)
+        self.UHI_Menu = QMenu("Urban Heat Island")
+        self.Pro_Menu.addMenu(self.UHI_Menu)
 
         # Sub-menus to Outdoor Thermal Comfort
-        self.PET_Action = QAction("Comfort Index (PET/UCTI)", self.iface.mainWindow())
-        self.OTC_Menu.addAction(self.PET_Action)
-        self.PET_Action.setEnabled(False)
+        # self.PET_Action = QAction("Comfort Index (PET/UCTI)", self.iface.mainWindow())
+        # self.OTC_Menu.addAction(self.PET_Action)
+        # self.PET_Action.setEnabled(False)
         self.MRT_Action = QAction("Mean Radiant Temperature (SOLWEIG)", self.iface.mainWindow())
         self.OTC_Menu.addAction(self.MRT_Action)
         self.MRT_Action.triggered.connect(self.SO)
-        self.PWS_Action = QAction("Pedestrian Wind Speed", self.iface.mainWindow())
-        self.OTC_Menu.addAction(self.PWS_Action)
-        self.PWS_Action.setEnabled(False)
+        # self.PWS_Action = QAction("Pedestrian Wind Speed", self.iface.mainWindow())
+        # self.OTC_Menu.addAction(self.PWS_Action)
+        # self.PWS_Action.setEnabled(False)
         self.EF_Action = QAction("Extreme Finder", self.iface.mainWindow())
         self.OTC_Menu.addAction(self.EF_Action)
         self.EF_Action.triggered.connect(self.EF)
@@ -217,23 +248,28 @@ class UMEP:
         self.SUEWSSIMPLE_Action = QAction("Urban Energy Balance (SUEWS, Simple)", self.iface.mainWindow())
         self.UEB_Menu.addAction(self.SUEWSSIMPLE_Action)
         self.SUEWSSIMPLE_Action.triggered.connect(self.SUEWS_simple)
-        self.SUEWS_Action = QAction("Urban Energy Balance (SUEWS/BLUEWS, Advanced)", self.iface.mainWindow())
+        self.SUEWS_Action = QAction("Urban Energy Balance (SUEWS, Advanced)", self.iface.mainWindow())
         self.UEB_Menu.addAction(self.SUEWS_Action)
         self.SUEWS_Action.triggered.connect(self.SUEWS_advanced)
-        # self.LUMPS_Action = QAction("Urban Energy Balance (LUMPS)", self.iface.mainWindow())
-        # self.UEB_Menu.addAction(self.LUMPS_Action)
-        # self.LUMPS_Action.setEnabled(False)
-        # self.CBL_Action = QAction("UEB + CBL (BLUEWS/BLUMPS)", self.iface.mainWindow())
-        # self.UEB_Menu.addAction(self.CBL_Action)
-        # self.CBL_Action.setEnabled(False)
 
         # Sub-menus to Solar radiation
+        # self.SEBEpv_Action = QAction("Photovoltaic Yield on Building Envelopes (SEBEpv)", self.iface.mainWindow())      # MRevesz
+        # self.SUN_Menu.addAction(self.SEBEpv_Action)      # MRevesz
+        # self.SEBEpv_Action.triggered.connect(self.SEpv)
         self.SEBE_Action = QAction("Solar Energy on Building Envelopes (SEBE)", self.iface.mainWindow())
         self.SUN_Menu.addAction(self.SEBE_Action)
         self.SEBE_Action.triggered.connect(self.SE)
         self.DSP_Action = QAction("Daily Shadow Pattern", self.iface.mainWindow())
         self.SUN_Menu.addAction(self.DSP_Action)
         self.DSP_Action.triggered.connect(self.SH)
+
+        # Sub-menus to Urban Heat Island
+        self.UWG_Action = QAction("Urban Weather Generator", self.iface.mainWindow())
+        self.UHI_Menu.addAction(self.UWG_Action)
+        self.UWG_Action.triggered.connect(self.UWG)
+        self.TARGET_Action = QAction("TARGET", self.iface.mainWindow())
+        self.UHI_Menu.addAction(self.TARGET_Action)
+        self.TARGET_Action.triggered.connect(self.TARGET)
 
         # Sub-menus to Post-processing
         self.SUNpos_Menu = QMenu("Solar Radiation")
@@ -242,6 +278,8 @@ class UMEP:
         self.Pos_Menu.addMenu(self.OTCpos_Menu)
         self.UEBpos_Menu = QMenu("Urban Energy Balance")
         self.Pos_Menu.addMenu(self.UEBpos_Menu)
+        self.UHIpos_Menu = QMenu("Urban Heat Island")
+        self.Pos_Menu.addMenu(self.UHIpos_Menu)
         self.BSS_Action = QAction("Benchmarking System", self.iface.mainWindow())
         self.Pos_Menu.addAction(self.BSS_Action)
         self.BSS_Action.triggered.connect(self.BSS)
@@ -261,15 +299,25 @@ class UMEP:
         self.UEBpos_Menu.addAction(self.SUEWSa_Action)
         self.SUEWSa_Action.triggered.connect(self.SUv)
 
+         # Sub-menus to Urban Heat Island, post processing
+        self.UWGa_Action = QAction("UWG Analyzer", self.iface.mainWindow())
+        self.UHIpos_Menu.addAction(self.UWGa_Action)
+        self.UWGa_Action.triggered.connect(self.UWGv)
+        self.TARGETa_Action = QAction("TARGET Analyzer", self.iface.mainWindow())
+        self.UHIpos_Menu.addAction(self.TARGETa_Action)
+        self.TARGETa_Action.triggered.connect(self.TARGETv)
+
         # Sub-menus to About
         self.About_Action = QAction("About", self.iface.mainWindow())
         self.About_Menu.addAction(self.About_Action)
+        self.About_Action.triggered.connect(self.About)
         self.Manual_Action = QAction("UMEP on the web", self.iface.mainWindow())
         self.About_Menu.addAction(self.Manual_Action)
         self.Manual_Action.triggered.connect(self.help)
 
         # Icons
         self.SUEWSPrepare_Action.setIcon(QIcon(self.plugin_dir + "/Icons/SuewsLogo.png"))
+        self.SUEWSConvert_Action.setIcon(QIcon(self.plugin_dir + "/Icons/SuewsLogo.png"))
         self.SUEWSSIMPLE_Action.setIcon(QIcon(self.plugin_dir + "/Icons/SuewsLogo.png"))
         self.SUEWS_Action.setIcon(QIcon(self.plugin_dir + "/Icons/SuewsLogo.png"))
         self.SVF_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_svf.png"))
@@ -286,7 +334,8 @@ class UMEP:
         self.About_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_umep.png"))
         self.Manual_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_umep.png"))
         self.PED_Action.setIcon(QIcon(self.plugin_dir + "/Icons/metdata.png"))
-        self.PFD_Action.setIcon(QIcon(self.plugin_dir + "/Icons/watch.png"))
+        # self.PFD_Action.setIcon(QIcon(self.plugin_dir + "/Icons/watch.png"))
+        self.ERA_Action.setIcon(QIcon(self.plugin_dir + "/Icons/watch.png"))
         self.MRT_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_solweig.png"))
         self.SOLWEIGa_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_solweig.png"))
         self.SUEWSa_Action.setIcon(QIcon(self.plugin_dir + "/Icons/SuewsLogo.png"))
@@ -298,6 +347,15 @@ class UMEP:
         self.QFL_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_GQF.png"))
         self.QF_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_LQF.png"))
         self.BSS_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_BSS.png"))
+        self.UWGPrepare_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
+        self.TARGETPrepare_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
+        self.UWGReclassifier_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
+        self.UWG_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
+        self.TARGET_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
+        self.UWGa_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
+        self.TARGETa_Action.setIcon(QIcon(self.plugin_dir + "/Icons/icon_uwg.png"))
+        self.SUEWSDatabase_Action.setIcon(QIcon(self.plugin_dir + "/Icons/iconSUEWSDB.png"))
+        self.SUEWSPDatabasePrepare_Action.setIcon(QIcon(self.plugin_dir + "/Icons/iconSUEWSDB.png"))
 
         self.iface.mainWindow().menuBar().insertMenu(self.iface.firstRightStandardMenu().menuAction(), self.UMEP_Menu)
         self.dlgAbout = UMEPDialogAbout()
@@ -344,7 +402,9 @@ class UMEP:
             parent=self.iface.mainWindow())
 
         # Code to show the about dialog
-        QObject.connect(self.About_Action, SIGNAL("triggered()"), self.dlgAbout, SLOT("show()"))
+        # QObject.connect(self.About_Action, SIGNAL("triggered()"), self.dlgAbout, SLOT("show()"))
+        # QObject.signal.connect(self.dlgAbout)
+
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
@@ -355,86 +415,173 @@ class UMEP:
             self.iface.removeToolBarIcon(action)
             self.iface.mainWindow().menuBar().removeAction(self.UMEP_Menu.menuAction())
 
+    def About(self):
+        self.dlgAbout.show()
+
     def PED(self):
         sg = MetdataProcessor(self.iface)
         sg.run()
 
     def SH(self):
-        sg = ShadowGenerator(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = ShadowGenerator(self.iface)
+        #sg.run()
         
     def IMCG(self):
-        sg = ImageMorphParam(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = ImageMorphParam(self.iface)
+        #sg.run()
 
     def IMCP(self):
-        sg = ImageMorphParmsPoint(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = ImageMorphParmsPoint(self.iface)
+        #sg.run()
 
     def SVF(self):
-        sg = SkyViewFactorCalculator(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = SkyViewFactorCalculator(self.iface)
+        #sg.run()
 
     def SUEWS_simple(self):
         sg = SuewsSimple(self.iface)
         sg.run()
 
     def SUEWS_advanced(self):
-        sg = SUEWS(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = SUEWS(self.iface)
+        #sg.run()
 
     def SUEWS_Prepare(self):
-        sg = SUEWSPrepare(self.iface)
+        QMessageBox.information(None, "Plugin deprecated",
+                        "This tool is deprecated. Use the new tools, SUEWS Database Manager and SUEWS Database Prepare!")
+        return
+        # sg = SUEWSPrepare(self.iface)
+        # sg.run()
+
+    def SUEWS_Convert(self):
+        sg = SUEWSConverter(self.iface)
         sg.run()
 
     def LCG(self):
-        sg = LandCoverFractionGrid(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = LandCoverFractionGrid(self.iface)
+        #sg.run()
 
     def LCP(self):
-        sg = LandCoverFractionPoint(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = LandCoverFractionPoint(self.iface)
+        #sg.run()
 
     def LCRC(self):
         sg = LandCoverReclassifier(self.iface)
         sg.run()
 
     def WH(self):
-        sg = WallHeight(self.iface)
-        # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)  #used for debugging
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = WallHeight(self.iface)
+        #sg.run()
 
     def SE(self):
-        sg = SEBE(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = SEBE(self.iface)
+        #sg.run()
+
+    # def SEpv(self):      # MRevesz
+    #     sg = SEBEpv(self.iface)
+    #     sg.run()
 
     def SEv(self):
-        sg = Sun(self.iface)
+        sg = Visual(self.iface)
+        sg.run()
+
+    def UWGv(self):
+        sg = UWGAnalyser(self.iface)
+        sg.run()
+
+    def TARGETv(self):
+        sg = TARGETAnalyser(self.iface)
         sg.run()
 
     def FP(self):
         sg = FootprintModel(self.iface)
         sg.run()
 
-    def WA(self):
-        sg = WATCHData(self.iface)
-        sg.run()
+    # def WA(self):
+    #     QMessageBox.critical(None, "WATCH plugin not functional",
+    #                          "This tool is currenly not operational. \n"
+    #                          "See issue #96 in our code repository (https://github.com/UMEP-dev/UMEP/issues/96) for more info. \n"
+    #                          "Use ERA5 downloader instead.")
+    #     return
+    #     sg = WATCHData(self.iface)
+    #     sg.run()
+
+    def UWG(self):
+        QMessageBox.information(None, "Urban Weather Generator",
+                             "The Urban Weather Generator can be accessed via <b> UMEP for processing</b>. Visit our online manual for more information.")
+        return
+    
+    def TARGET(self):
+        QMessageBox.information(None, "TARGET",
+                             "The TARGET model can be accessed via <b> UMEP for processing</b>. Visit our online manual for more information.")
+        return
+
+    def ERA(self):
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = CopernicusData(self.iface)
+        #sg.run()
 
     def GF(self):
-        sg = GreaterQF(self.iface)
-        sg.run()
+        if QMessageBox.question(None, "GQf currently not maintained",
+              "This tool might be malfunctioning based on what version of QGIS and UMEP used. \r\n"
+              "Do you want to continue?",
+               QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) == QMessageBox.StandardButton.Ok:
+        
+           sg = GreaterQF(self.iface)
+           sg.run()
+        else:
+            QMessageBox.information(
+                None,
+                "Model not started",
+                "Please contact us if you are interested to contribute to the UMEP-project and update this model.",
+            )
 
     def SO(self):
         sg = SOLWEIG(self.iface)
         sg.run()
 
     def TG(self):
-        sg = TreeGenerator(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = TreeGenerator(self.iface)
+        #sg.run()
 
     def DSMG(self):
-        sg = DSMGenerator(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        return
+        #sg = DSMGenerator(self.iface)
+        #sg.run()
 
     def EF(self):
         sg = ExtremeFinder(self.iface)
@@ -449,28 +596,71 @@ class UMEP:
         sg.run()
 
     def UD(self):
-        sg = UMEP_Data_Download(self.iface)
-        sg.run()
+        QMessageBox.information(None, "Plugin deprecated",
+                             "This tool is no longer in use. \n"
+                             "\n"
+                             "Visit the FAQ section in the UMEP manual for information on how to download data directly within QGIS using Web Services.")
+        # sg = UMEP_Data_Download(self.iface)
+        # sg.run()
 
     def WC(self):
         sg = LCZ_test(self.iface)
         sg.run()
 
     def LF(self):
-        sg = LQF(self.iface)
-        sg.run()
+        if  QMessageBox.question(None, "LQf currently not maintained",
+              "This tool might be malfunctioning based on what version of QGIS and UMEP used. \r\n"
+              "Do you want to continue?",
+               QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) == QMessageBox.StandardButton.Ok:
+        
+            sg = LQF(self.iface)
+            sg.run()
+           
+        else:
+            QMessageBox.information(
+                None,
+                "Model not started",
+                "Please contact us if you are interested to contribute to the UMEP-project and update this model.",
+            )
 
     def BSS(self):
         sg = BenchMarking(self.iface)
         sg.run()
 
+    def UWGReclass(self):
+        sg = uwg_reclassifier(self.iface)
+        sg.run()
+
+    def UWGPrepare(self):
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        # sg = UWGPrepare(self.iface)
+        # sg.run()
+
+    def TARGETPrepare(self):
+        QMessageBox.information(None, "Plugin moved",
+                        "This tool can be found in <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information.")
+        # sg = UWGPrepare(self.iface)
+        # sg.run()
+
+    def SUEWSDatabase(self):
+        sg = suews_database_manager(self.iface)
+        sg.run()
+
+    def SUEWSPDatabasePrepare(self):
+        sg = SUEWSPrepareDatabase(self.iface)
+        sg.run()
+
     def run(self):
         # This function starts the plugin
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def help(self):
-        url = "http://umep-docs.readthedocs.io/en/latest/index.html"
+        url = "https://umep-docs.readthedocs.io/en/latest/index.html"
         webbrowser.open_new_tab(url)
+
+# pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)  #used for debugging
+
 
 

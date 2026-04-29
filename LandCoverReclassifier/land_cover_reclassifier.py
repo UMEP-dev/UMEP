@@ -20,19 +20,24 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion
-from PyQt4.QtGui import QFileDialog, QIcon, QAction, QMessageBox
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtWidgets import QFileDialog, QAction, QMessageBox
+from qgis.PyQt.QtGui import QIcon
 from qgis.core import *
 from qgis.gui import *
 # Initialize Qt resources from file resources.py
-import resources_rc
+# from . import resources_rc
 # Import the code for the dialog
-from land_cover_reclassifier_dialog import LandCoverReclassifierDialog
+from .land_cover_reclassifier_dialog import LandCoverReclassifierDialog
 import os.path
 from ..Utilities.misc import *
 import webbrowser
 
-class LandCoverReclassifier:
+class LandCoverReclassifier(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -66,10 +71,11 @@ class LandCoverReclassifier:
         self.dlg.runButton.clicked.connect(self.start_progress)
         self.dlg.pushButtonSave.clicked.connect(self.save_file_place)
         self.dlg.helpButton.clicked.connect(self.help)
+        self.dlg.checkBoxTarget.clicked.connect(self.add_target)
 
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(0)
-        self.fileDialog.setAcceptMode(1)  # Save
+        # self.fileDialog.setFileMode(0)
+        # self.fileDialog.setAcceptMode(1)  # Save
         self.fileDialog.setNameFilter("(*.tif *.tiff)")
 
         # Declare instance attributes
@@ -82,7 +88,7 @@ class LandCoverReclassifier:
         # self.layerComboManagerLCgrid = RasterLayerCombo(self.dlg.comboBox_lcgrid)
         # RasterLayerCombo(self.dlg.comboBox_lcgrid, initLayer="")
         self.layerComboManagerLCgrid = QgsMapLayerComboBox(self.dlg.widgetLCgrid)
-        self.layerComboManagerLCgrid.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerLCgrid.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerLCgrid.setFixedWidth(175)
         self.layerComboManagerLCgrid.setCurrentIndex(-1)
 
@@ -159,12 +165,30 @@ class LandCoverReclassifier:
 
     def save_file_place(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         # filename = QFileDialog.getSaveFileName(self.dlg, "Save as geotiff ", '*.tif')
         if result == 1:
             self.filePath = self.fileDialog.selectedFiles()
             self.filePath[0] = self.filePath[0] + '.tif'
             self.dlg.textOutput.setText(self.filePath[0])
+
+    def add_target(self):
+        t = self.dlg.checkBoxTarget.isChecked()
+        if t:
+            for i in range(1,14):
+                Le = eval('self.dlg.Box_' + str(i))
+                Le.addItem('Grass (irrigated)')
+                Le.addItem('Concrete')
+        else:
+            for i in range(1,14):
+                Le = eval('self.dlg.Box_' + str(i))
+                Le.removeItem(8)
+                Le.removeItem(8)
+            # self.dlg.Box_1.clear()
+            # self.dlg.Box_1.addItem('Not Specified')
+        # if not self.dlg.checkBoxTarget.isChecked:
+            # self.dlg.Box_1.clear()
+            
 
     def start_progress(self):
 
@@ -242,7 +266,7 @@ class LandCoverReclassifier:
         filepath_lc_grid= str(provider.dataSourceUri())
         gdal_lc_grid = gdal.Open(filepath_lc_grid)
 
-        lc_grid = gdal_lc_grid.ReadAsArray().astype(np.float)
+        lc_grid = gdal_lc_grid.ReadAsArray().astype(float)
         sizex = lc_grid.shape[0]
         sizey = lc_grid.shape[1]
         lc_grid_rc = np.zeros((sizex, sizey))
@@ -268,10 +292,10 @@ class LandCoverReclassifier:
 
     def run(self):
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.adjustSize()
+        self.dlg.exec()
 
     def help(self):
-        url = 'http://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Land%20Cover%20Land%20Cover%20' \
-              'Reclassifier.html'
+        url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Land%20Cover%20Land%20Cover%20Reclassifier.html'
         webbrowser.open_new_tab(url)
 

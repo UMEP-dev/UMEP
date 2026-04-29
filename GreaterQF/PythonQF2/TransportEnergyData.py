@@ -1,8 +1,8 @@
 from datetime import datetime
-from DataManagement.LookupLogger import LookupLogger
-from DataManagement.SpatialTemporalResampler import SpatialTemporalResampler
-from DataManagement.spatialHelpers import *
-from PyQt4.QtCore import QSettings
+from .DataManagement.LookupLogger import LookupLogger
+from .DataManagement.SpatialTemporalResampler import SpatialTemporalResampler
+from .DataManagement.spatialHelpers import *
+from qgis.PyQt.QtCore import QSettings
 
 
 class TransportEnergyData:
@@ -111,7 +111,7 @@ class TransportEnergyData:
 def testIt():
     # Set up output polygons
     a = TransportEnergyData()
-    LLSOApolygons = 'C:\Users\pn910202\Dropbox\Shapefilecombos\PopDens\PopDens_2014_LSOA.shp'
+    LLSOApolygons = 'C:\\Users\pn910202\Dropbox\Shapefilecombos\PopDens\PopDens_2014_LSOA.shp'
     LLSOAproj = 27700
     a.setOutputShapefile(LLSOApolygons, LLSOAproj, id_field="LSOA11CD")
 
@@ -123,5 +123,5 @@ def testIt():
     trans['start_date'] = datetime.strptime('2008-01-01', '%Y-%m-%d')
     a.setEnergy(trans['shapefile'], trans['start_date'], trans['field_to_use'], epsgCode=trans['epsg'])
     # Get downscaled shapefiles for 2014
-    print a.getEnergyTable(datetime.strptime('2013-01-01', '%Y-%m-%d'))
+    print(a.getEnergyTable(datetime.strptime('2013-01-01', '%Y-%m-%d')))
 

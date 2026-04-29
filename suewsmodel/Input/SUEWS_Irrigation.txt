@@ -1,8 +1,0 @@
-1	2	3	4	5	6	7	8	9	10	11	12	13	14	15	16	17	18	19	20	21	22	23	24	25			
-Code	Ie_start	Ie_end	InternalWaterUse	Faut	Ie_a1	Ie_a2	Ie_a3	Ie_m1	Ie_m2	Ie_m3	DayWat(1)	DayWat(2)	DayWat(3)	DayWat(4)	DayWat(5)	DayWat(6)	DayWat(7)	DayWatPer(1)	DayWatPer(2)	DayWatPer(3)	DayWatPer(4)	DayWatPer(5)	DayWatPer(6)	DayWatPer(7)			
-99999	1	366	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	!	No irrigation	
-1	152	243	0	0.2	-84.535	9.959	3.674	-25.36	2.988	1.102	1	1	1	1	1	1	1	1	1	1	1	1	1	1			
-550	1	366	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	!	Swindon	"(not used, no irrigation)"
-660	1	366	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	!	London	(assume no irrigation at the moment)
--9																											
--9																											

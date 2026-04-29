@@ -1,6 +1,9 @@
-from PyQt4 import QtCore
+from builtins import next
+from builtins import str
+from builtins import range
+from qgis.PyQt import QtCore
 # from PyQt4.QtCore import QVariant
-from PyQt4.QtGui import QMessageBox  #, QFileDialog, QAction, QIcon
+from qgis.PyQt.QtWidgets import QMessageBox  #, QFileDialog, QAction, QIcon
 from qgis.core import *  # QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsRasterLayer, QgsGeometry, QgsMessageLog
 # from qgis.gui import QgsMessageBar
 import traceback
@@ -14,7 +17,7 @@ import os
 # import time
 from shutil import copyfile
 from ..Utilities import f90nml
-from ..Utilities import RoughnessCalcFunction as rg
+from ..Utilities import RoughnessCalcFunctionV2 as rg
 import copy
 
 class Worker(QtCore.QObject):
@@ -26,8 +29,8 @@ class Worker(QtCore.QObject):
     def __init__(self, vlayer, nbr_header, poly_field, Metfile_path, start_DLS, end_DLS, LCF_from_file, LCFfile_path, LCF_paved,
                  LCF_buildings, LCF_evergreen, LCF_decidious, LCF_grass, LCF_baresoil, LCF_water, IMP_from_file, IMPfile_path,
                  IMP_heights_mean, IMP_z0, IMP_zd, IMP_fai, IMPveg_from_file, IMPvegfile_path, IMPveg_heights_mean_eve,
-                 IMPveg_heights_mean_dec, IMPveg_fai_eve, IMPveg_fai_dec, pop_density, widget_list, wall_area,
-                 land_use_from_file, land_use_file_path, lines_to_write, plugin_dir, output_file_list, map_units, header_sheet, wall_area_info, output_dir,
+                 IMPveg_heights_mean_dec, IMPveg_fai_eve, IMPveg_fai_dec, pop_density, widget_list, # wall_area,
+                 land_use_from_file, land_use_file_path, lines_to_write, plugin_dir, output_file_list, map_units, header_sheet, output_dir, #, wall_area_info (second last)
                  day_since_rain, leaf_cycle, soil_moisture, file_code, utc, checkBox_twovegfiles, IMPvegfile_path_dec, IMPvegfile_path_eve, pop_density_day, daypop):
 
         QtCore.QObject.__init__(self)
@@ -61,7 +64,7 @@ class Worker(QtCore.QObject):
         self.IMPveg_fai_dec = IMPveg_fai_dec
         self.pop_density = pop_density
         self.widget_list = widget_list
-        self.wall_area = wall_area
+        # self.wall_area = wall_area
         self.land_use_from_file = land_use_from_file
         self.land_use_file_path = land_use_file_path
         self.lines_to_write = lines_to_write
@@ -69,7 +72,7 @@ class Worker(QtCore.QObject):
         self.output_file_list = output_file_list
         self.map_units = map_units
         self.header_sheet = header_sheet
-        self.wall_area_info = wall_area_info
+        # self.wall_area_info = wall_area_info
         self.input_path = plugin_dir + '/Input/'
         # self.output_path = plugin_dir + '/Output/'
         self.output_path = plugin_dir[:-12] + 'suewsmodel/Input/'
@@ -97,7 +100,7 @@ class Worker(QtCore.QObject):
                 code = "Grid"
                 index = self.find_index(code)
                 new_line[index] = str(feat_id)
-
+                print('Processing ID: ' + str(feat_id))
                 year = None
                 year2 = None
 
@@ -105,8 +108,8 @@ class Worker(QtCore.QObject):
                     QMessageBox.critical(None, "Error", "Meteorological data file has not been provided,"
                                                         " please check the main tab")
                     return
-                elif os.path.isfile(self.Metfile_path):
-                    with open(self.Metfile_path) as file:
+                elif os.path.isfile(self.Metfile_path[0]):
+                    with open(self.Metfile_path[0]) as file:
                         next(file)
                         for line in file:
                             split = line.split()
@@ -123,7 +126,7 @@ class Worker(QtCore.QObject):
 
                     # figure out the time res of input file
                     if ind == 1:
-                        met_old = np.genfromtxt(self.Metfile_path, skip_header=1, skip_footer=2)
+                        met_old = np.genfromtxt(self.Metfile_path[0], skip_header=1, skip_footer=2)
                         id = met_old[:, 1]
                         it = met_old[:, 2]
                         imin = met_old[:, 3]
@@ -147,53 +150,52 @@ class Worker(QtCore.QObject):
                 index = self.find_index(code)
                 new_line[index] = str(self.end_DLS)
 
-                # old_cs = osr.SpatialReference()
-                # vlayer_ref = self.vlayer.crs().toWkt()
-                # old_cs.ImportFromWkt(vlayer_ref)
+                old_cs = osr.SpatialReference()
+                vlayer_ref = self.vlayer.crs().toWkt()
+                old_cs.ImportFromWkt(vlayer_ref)
 
-                # new latlon finding code
-                crs = self.vlayer.crs().authid()
-                new_cs = QgsCoordinateReferenceSystem(int(crs[5:]))
-                wgs84 = QgsCoordinateReferenceSystem(4326)
-                transform = QgsCoordinateTransform(new_cs, wgs84)
+                wgs84_wkt = """
+                GEOGCS["WGS 84",
+                    DATUM["WGS_1984",
+                        SPHEROID["WGS 84",6378137,298.257223563,
+                            AUTHORITY["EPSG","7030"]],
+                        AUTHORITY["EPSG","6326"]],
+                    PRIMEM["Greenwich",0,
+                        AUTHORITY["EPSG","8901"]],
+                    UNIT["degree",0.01745329251994328,
+                        AUTHORITY["EPSG","9122"]],
+                    AUTHORITY["EPSG","4326"]]"""
 
-                # wgs84_wkt = """
-                # GEOGCS["WGS 84",
-                #     DATUM["WGS_1984",
-                #         SPHEROID["WGS 84",6378137,298.257223563,
-                #             AUTHORITY["EPSG","7030"]],
-                #         AUTHORITY["EPSG","6326"]],
-                #     PRIMEM["Greenwich",0,
-                #         AUTHORITY["EPSG","8901"]],
-                #     UNIT["degree",0.01745329251994328,
-                #         AUTHORITY["EPSG","9122"]],
-                #     AUTHORITY["EPSG","4326"]]"""
-                #
-                # new_cs = osr.SpatialReference()
-                # new_cs.ImportFromWkt(wgs84_wkt)
-                #
-                # transform = osr.CoordinateTransformation(old_cs, new_cs)
+                new_cs = osr.SpatialReference()
+                new_cs.ImportFromWkt(wgs84_wkt)
+
+                transform = osr.CoordinateTransformation(old_cs, new_cs)
 
                 centroid = feature.geometry().centroid().asPoint()
                 area = feature.geometry().area()
 
                 if self.map_units == 0:
-                    hectare = area * 0.0001
+                    hectare = area * 0.0001 # meter
 
                 elif self.map_units == 1:
-                    hectare = area / 107640.
+                    hectare = area / 107640. # square foot
 
                 else:
                     hectare = area
-
-                lonlat = transform.transform(centroid.x(), centroid.y())
-                # lonlat = transform.TransformPoint(centroid.x(), centroid.y())
+                gdalver = float(gdal.__version__[0])
+                lonlat = transform.TransformPoint(centroid.x(), centroid.y())
                 code = "lat"
                 index = self.find_index(code)
-                new_line[index] = '%.6f' % lonlat[1]
+                if gdalver == 3.:
+                    new_line[index] = '%.6f' % lonlat[0] #changed to gdal 3
+                else:
+                    new_line[index] = '%.6f' % lonlat[1] #changed to gdal 2
                 code = "lng"
                 index = self.find_index(code)
-                new_line[index] = '%.6f' % lonlat[0]
+                if gdalver == 3.:
+                    new_line[index] = '%.6f' % lonlat[1] #changed to gdal 3
+                else:
+                    new_line[index] = '%.6f' % lonlat[0] #changed to gdal 2
 
                 code = "Timezone"
                 index = self.find_index(code)
@@ -223,7 +225,7 @@ class Worker(QtCore.QObject):
 
                 if self.LCF_from_file:
                     found_LCF_line = False
-                    with open(self.LCFfile_path) as file:
+                    with open(self.LCFfile_path[0]) as file:
                         next(file)
                         for line in file:
                             split = line.split()
@@ -281,6 +283,11 @@ class Worker(QtCore.QObject):
                 irrFr_EveTr = 0
                 irrFr_DecTr = 0
                 irrFr_Grass = 0
+                IrrFr_Bldgs = 0
+                IrrFr_Paved = 0
+                IrrFr_Water = 0
+                IrrFr_BSoil = 0
+
                 code = "IrrFr_EveTr"
                 index = self.find_index(code)
                 new_line[index] = str(irrFr_EveTr)
@@ -290,15 +297,27 @@ class Worker(QtCore.QObject):
                 code = "IrrFr_Grass"
                 index = self.find_index(code)
                 new_line[index] = str(irrFr_Grass)
+                code = "IrrFr_Bldgs"
+                index = self.find_index(code)
+                new_line[index] = str(IrrFr_Bldgs)
+                code = "IrrFr_Paved"
+                index = self.find_index(code)
+                new_line[index] = str(IrrFr_Paved)
+                code = "IrrFr_Water"
+                index = self.find_index(code)
+                new_line[index] = str(IrrFr_Water)
+                code = "IrrFr_BSoil"
+                index = self.find_index(code)
+                new_line[index] = str(IrrFr_BSoil)
 
-                Traffic_Rate = 99999
-                BuildEnergy_Use = 99999
-                code = "TrafficRate"
+                TrafficRate_WD = 0.01
+                TrafficRate_WE = 0.01
+                code = "TrafficRate_WD"
                 index = self.find_index(code)
-                new_line[index] = str(Traffic_Rate)
-                code = "BuildEnergyUse"
+                new_line[index] = str(TrafficRate_WD)
+                code = "TrafficRate_WE"
                 index = self.find_index(code)
-                new_line[index] = str(BuildEnergy_Use)
+                new_line[index] = str(TrafficRate_WE)
 
                 QF0_BEU_WD = 0.88
                 QF0_BEU_WE = 0.88
@@ -322,7 +341,7 @@ class Worker(QtCore.QObject):
                 if self.IMP_from_file:
                     found_IMP_line = False
 
-                    with open(self.IMPfile_path) as file:
+                    with open(self.IMPfile_path[0]) as file:
                         next(file)
                         for line in file:
                             split = line.split()
@@ -333,6 +352,7 @@ class Worker(QtCore.QObject):
                                 IMP_fai = split[2]
                                 IMP_max = split[4]
                                 IMP_sd = split[5]
+                                IMP_wai = split[8]
                                 found_IMP_line = True
                                 break
                         if not found_IMP_line:
@@ -340,17 +360,21 @@ class Worker(QtCore.QObject):
                             IMP_z0 = -999
                             IMP_zd = -999
                             IMP_fai = -999
+                            IMP_max = -999
+                            IMP_sd = -999
+                            IMP_wai = -999
                             print_line = False
                 else:
                     IMP_heights_mean = feature.attribute(self.IMP_mean_height.getFieldName())
                     IMP_z0 = feature.attribute(self.IMP_z0.getFieldName())
                     IMP_zd = feature.attribute(self.IMP_zd.getFieldName())
                     IMP_fai = feature.attribute(self.IMP_fai.getFieldName())
+                    IMP_wai = feature.attribute(self.IMP_wai.getFieldName())
 
                 if self.IMPveg_from_file:
                     found_IMPveg_line = False
 
-                    with open(self.IMPvegfile_path) as file:
+                    with open(self.IMPvegfile_path[0]) as file:
                         next(file)
                         for line in file:
                             split = line.split()
@@ -359,10 +383,10 @@ class Worker(QtCore.QObject):
                                 IMPveg_heights_mean_dec = split[3]
                                 IMPveg_fai_eve = split[2]
                                 IMPveg_fai_dec = split[2]
-                                IMPveg_max_eve = split[4]  # not used yet
-                                IMPveg_sd_eve = split[5]  # not used yet
-                                IMPveg_max_dec = split[4]
-                                IMPveg_sd_dec = split[5]
+                                IMPveg_max_eve = split[4]  #TODO not used yet
+                                IMPveg_sd_eve = split[5]  #TODO not used yet
+                                IMPveg_max_dec = split[4] 
+                                IMPveg_sd_dec = split[5] 
                                 found_IMPveg_line = True
                                 break
                         if not found_IMPveg_line:
@@ -370,6 +394,8 @@ class Worker(QtCore.QObject):
                             IMPveg_heights_mean_dec = -999
                             IMPveg_fai_eve = -999
                             IMPveg_fai_dec = -999
+                            IMPveg_max_dec = -999 #response to issue #462
+                            IMPveg_sd_dec = -999 #response to issue #462
                             print_line = False
                 else:
                     IMPveg_heights_mean_eve = feature.attribute(self.IMPveg_mean_height_eve.getFieldName())
@@ -389,29 +415,30 @@ class Worker(QtCore.QObject):
 
                 # New calcualtion of rouhgness params v2017 (Kent et al. 2017b)
 				# Evergreen not yet included in the calculations
-                if (float(LCF_decidious) == 0 and float(LCF_evergreen) == 0 and float(LCF_buildings) == 0):
-                    sdComb = 0
-                    zMax = 0
-                    pai = 0
+                LCF_de = float(LCF_decidious)
+                LCF_ev = float(LCF_evergreen)
+                LCF_bu = float(LCF_buildings)
+                LCF_tr = LCF_de + LCF_ev # temporary fix while ev and de is not separated, issue 155
+                if (LCF_de  == 0 and LCF_ev == 0 and LCF_bu == 0):
                     zH = 0
-                    fai = 0
+                    zMax = 0
+                else:
+                    zH = (float(IMP_heights_mean) * LCF_bu + float(IMPveg_heights_mean_eve) * LCF_ev + float(IMPveg_heights_mean_dec) * LCF_de) / (LCF_bu + LCF_ev + LCF_de)                    
+                    zMax = max(float(IMPveg_max_dec),float(IMP_max))
+
+                if (LCF_de  == 0 and LCF_ev == 0 and LCF_bu == 0):
+                    sdComb = 0
                     IMP_z0 = 0
                     IMP_zd = 0
                     # sdTree = np.sqrt((IMPveg_sd_eve ^ 2 / LCF_evergreen * area) + (IMPveg_sd_dec ^ 2 / LCF_decidious * area))  # not used yet
-                elif (float(LCF_decidious) == 0 and float(LCF_buildings) != 0):
-                    zH = (float(IMP_heights_mean) * float(LCF_buildings) + float(IMPveg_heights_mean_eve) * float(LCF_evergreen) + float(IMPveg_heights_mean_dec) * float(LCF_decidious)) / (float(LCF_buildings) + float(LCF_evergreen) + float(LCF_decidious))
-                    zMax = max(float(IMPveg_max_dec),float(IMP_max))
-                    sdComb = np.sqrt(float(IMP_sd) ** 2. / (float(LCF_buildings) * float(area)))
-                elif (float(LCF_decidious) != 0 and float(LCF_buildings) == 0):
-                    zH = (float(IMP_heights_mean) * float(LCF_buildings) + float(IMPveg_heights_mean_eve) * float(LCF_evergreen) + float(IMPveg_heights_mean_dec) * float(LCF_decidious)) / (float(LCF_buildings) + float(LCF_evergreen) + float(LCF_decidious))
-                    zMax = max(float(IMPveg_max_dec),float(IMP_max))
-                    sdComb = np.sqrt(float(IMPveg_sd_dec) ** 2. / (float(LCF_decidious) * float(area)))
-                elif (float(LCF_decidious) != 0 and float(LCF_buildings) != 0):
-                    zH = (float(IMP_heights_mean) * float(LCF_buildings) + float(IMPveg_heights_mean_eve) * float(LCF_evergreen) + float(IMPveg_heights_mean_dec) * float(LCF_decidious)) / (float(LCF_buildings) + float(LCF_evergreen) + float(LCF_decidious))
-                    zMax = max(float(IMPveg_max_dec),float(IMP_max))
-                    sdComb = np.sqrt(float(IMPveg_sd_dec) ** 2. / (float(LCF_decidious) * float(area)) + float(IMP_sd) ** 2. / (float(LCF_buildings) * float(area)))
+                elif (LCF_tr == 0 and LCF_bu != 0):
+                    sdComb = np.sqrt(float(IMP_sd) ** 2. / (LCF_bu * float(area)))  # Fix (fLCF_bu) issue #162
+                elif (LCF_tr != 0 and LCF_bu == 0):
+                    sdComb = np.sqrt(float(IMPveg_sd_dec) ** 2. / (LCF_tr * float(area)))
+                elif (LCF_tr != 0 and LCF_bu != 0):
+                    sdComb = np.sqrt(float(IMPveg_sd_dec) ** 2. / (LCF_tr * float(area)) + float(IMP_sd) ** 2. / (LCF_bu * float(area)))
 
-                pai = float(LCF_buildings) + float(LCF_evergreen) + float(LCF_decidious)
+                pai = LCF_bu + LCF_ev + LCF_de
                 
                 # paiall = (planareaB + planareaV) / AT
                 porosity = 0.2  # This should change with season. Net, set for Summer
@@ -469,15 +496,13 @@ class Worker(QtCore.QObject):
                 if self.daypop == 1:
                     pop_density_day = feature.attribute(self.pop_density_day.currentField())
                 else:
-                    pop_density_day = -999
-                #TODO include warning if pop dens is empty field - include if statement?
+                    pop_density_day = pop_density_night
                 code = "PopDensDay"
                 index = self.find_index(code)
                 new_line[index] = '%.3f' % pop_density_day
                 code = "PopDensNight"
                 index = self.find_index(code)
                 new_line[index] = '%.3f' % pop_density_night
-
                 for widget in self.widget_list:
                     if widget.get_checkstate():
                         code_field = str(widget.comboBox_uniquecodes.currentText())
@@ -625,14 +650,14 @@ class Worker(QtCore.QObject):
                 index = self.find_index(code)
                 new_line[index] = str(WhitinGridWaterCode)
 
-                if self.wall_area_info:
-                    wall_area = feature.attribute(self.wall_area.getFieldName())
-                else:
-                    wall_area = -999
+                # if self.wall_area_info:
+                #     wall_area = feature.attribute(self.wall_area.getFieldName())
+                # else:
+                #     wall_area = -999
 
                 code = "AreaWall"
                 index = self.find_index(code)
-                new_line[index] = str(wall_area)
+                new_line[index] = str(float(IMP_wai) * hectare * 10000.) # currently wallarea. Will change to wai
 
                 Fr_ESTMClass_Paved1 = 0.
                 Fr_ESTMClass_Paved2 = 1.
@@ -652,7 +677,7 @@ class Worker(QtCore.QObject):
                 Code_ESTMClass_Bldgs5 = 99999
 
                 if self.land_use_from_file:
-                    with open(self.land_use_file_path) as file:
+                    with open(self.land_use_file_path[0]) as file:
                         next(file)
                         found_LUF_line = False
                         for line in file:
@@ -747,7 +772,7 @@ class Worker(QtCore.QObject):
                 self.progress.emit()
 
             # Writing met files and add lines in SIteSelect if multiple years
-            met_in = np.genfromtxt(self.Metfile_path, skip_header=1)
+            met_in = np.genfromtxt(self.Metfile_path[0], skip_header=1)
 
             YYYYmin = np.min(met_in[:, 0])
             YYYYmax = np.max(met_in[:, 0])
@@ -755,10 +780,10 @@ class Worker(QtCore.QObject):
 
             # check if full year
             if YYYYmin < YYYYmax:
-                t = np.where(met_in[:,0]==YYYYmax)
+                t = np.where(met_in[:, 0] == YYYYmax)
                 if not t.__len__() > 1:
                     # YYYYmax = YYYYmin
-                    YYYYmax = YYYYmax - 1  #  Issue #65
+                    YYYYmax = YYYYmax - 1  # Issue #65
 
             lensiteselect = self.lines_to_write.__len__() - 2
             for YYYY in range(int(YYYYmin), int(YYYYmax) + 1):
@@ -807,6 +832,11 @@ class Worker(QtCore.QObject):
             init_out = self.output_dir[0] + '/InitialConditions' + str(self.file_code) + '_' + str(year) + '.nml'
             self.write_to_init(self.input_path + 'InitialConditions.nml', init_out)
 
+            # Response to issue #462. Should change in future versions
+            copyfile(self.output_path + 'ESTMinput.nml', self.output_dir[0] + "/" + 'ESTMinput.nml')
+            copyfile(self.output_path + 'GridLayoutKc.nml', self.output_dir[0] + "/" + 'GridLayout' + str(self.file_code) + '.nml')
+            copyfile(self.output_path + 'SUEWS_SPARTACUS.nml', self.output_dir[0] + "/" + 'SUEWS_SPARTACUS.nml')
+
             output_lines = []
             output_file = self.output_dir[0] + "/SUEWS_SiteSelect.txt"
             with open(output_file, 'w+') as ofile:
@@ -821,17 +851,18 @@ class Worker(QtCore.QObject):
                 ofile.writelines(output_lines)
                 for input_file in self.output_file_list:
                     try:
+                        print("Copied: " + self.output_dir[0] + "/" + input_file)
                         copyfile(self.output_path + input_file, self.output_dir[0] + "/" + input_file)
                     except IOError as e:
                         QgsMessageLog.logMessage(
                             "Error copying output files with SUEWS_SiteSelect.txt: " + str(e),
-                            level=QgsMessageLog.CRITICAL)
+                            level=Qgis.MessageLevel.Critical)
 
             if self.killed is False:
                 self.progress.emit()
                 ret = 1
 
-        except Exception, e:
+        except Exception as e:
             ret = 0
             errorstring = self.print_exception()
             self.error.emit(errorstring)

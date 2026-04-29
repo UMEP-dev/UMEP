@@ -20,23 +20,27 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
-from qgis.gui import *
-from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
+from qgis.PyQt.QtGui import QIcon
+from qgis.gui import QgsMapLayerComboBox
+from qgis.core import QgsMapLayerProxyModel
 # Initialize Qt resources from file resources.py
-import resources_rc
+# from . import resources_rc
 # Import the code for the dialog
-from shadow_generator_dialog import ShadowGeneratorDialog
+from .shadow_generator_dialog import ShadowGeneratorDialog
 from osgeo import gdal, osr
 #import gdal from gdalconst import *
 import os.path
-import dailyshading as dsh
+from . import dailyshading as dsh
 import numpy as np
 import webbrowser
 
 
-class ShadowGenerator:
+class ShadowGenerator(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -72,8 +76,10 @@ class ShadowGenerator:
         self.dlg.pushButtonHelp.clicked.connect(self.help)
         self.dlg.pushButtonSave.clicked.connect(self.folder_path)
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(4)
-        self.fileDialog.setAcceptMode(1)
+        # self.fileDialog.setFileMode(4)
+        # self.fileDialog.setAcceptMode(1)
+        self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
         # Declare instance attributes
         self.actions = []
@@ -91,17 +97,25 @@ class ShadowGenerator:
         # self.layerComboManagerVEGDSM2 = RasterLayerCombo(self.dlg.comboBox_vegdsm2)
         # RasterLayerCombo(self.dlg.comboBox_vegdsm2, initLayer="")
         self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetDSM)
-        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerDSM.setFixedWidth(175)
         self.layerComboManagerDSM.setCurrentIndex(-1)
         self.layerComboManagerVEGDSM = QgsMapLayerComboBox(self.dlg.widgetCDSM)
-        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerVEGDSM.setFixedWidth(175)
         self.layerComboManagerVEGDSM.setCurrentIndex(-1)
         self.layerComboManagerVEGDSM2 = QgsMapLayerComboBox(self.dlg.widgetTDSM)
-        self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerVEGDSM2.setFixedWidth(175)
         self.layerComboManagerVEGDSM2.setCurrentIndex(-1)
+        self.layerComboManagerWH = QgsMapLayerComboBox(self.dlg.widgetWallHeight)
+        self.layerComboManagerWH.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerWH.setFixedWidth(175)
+        self.layerComboManagerWH.setCurrentIndex(-1)
+        self.layerComboManagerWA = QgsMapLayerComboBox(self.dlg.widgetWallAspect)
+        self.layerComboManagerWA.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerWA.setFixedWidth(175)
+        self.layerComboManagerWA.setCurrentIndex(-1)
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -212,7 +226,7 @@ class ShadowGenerator:
 
     def folder_path(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.textOutput.setText(self.folderPath[0])
@@ -238,65 +252,63 @@ class ShadowGenerator:
         dsmlayer = self.layerComboManagerDSM.currentLayer()
 
         if dsmlayer is None:
-            QMessageBox.critical(None, "Error", "No valid raster layer is selected")
+            QMessageBox.critical(None, "Error", "No valid ground and building DSM raster layer is selected")
             return
 
         provider = dsmlayer.dataProvider()
         filepath_dsm = str(provider.dataSourceUri())
 
         gdal_dsm = gdal.Open(filepath_dsm)
+        dsm = gdal_dsm.ReadAsArray().astype(float)
 
-        dsm = gdal_dsm.ReadAsArray().astype(np.float)
+        # response to issue #85
+        nd = gdal_dsm.GetRasterBand(1).GetNoDataValue()
+        dsm[dsm == nd] = 0.
+        if dsm.min() < 0:
+            dsm = dsm + np.abs(dsm.min())
+
         sizex = dsm.shape[0]
         sizey = dsm.shape[1]
 
-        # new latlon finding code
-        projdsm = osr.SpatialReference(wkt=gdal_dsm.GetProjection())
-        projdsm.AutoIdentifyEPSG()
-        projdsmepsg = int(projdsm.GetAttrValue('AUTHORITY', 1))
-        new_cs = QgsCoordinateReferenceSystem(projdsmepsg)
-        wgs84 = QgsCoordinateReferenceSystem(4326)
-        transform = QgsCoordinateTransform(new_cs, wgs84)
-        width1 = gdal_dsm.RasterXSize
-        height1 = gdal_dsm.RasterYSize
+        old_cs = osr.SpatialReference()
+        dsm_ref = dsmlayer.crs().toWkt()
+        old_cs.ImportFromWkt(dsm_ref)
+
+        wgs84_wkt = """
+        GEOGCS["WGS 84",
+            DATUM["WGS_1984",
+                SPHEROID["WGS 84",6378137,298.257223563,
+                    AUTHORITY["EPSG","7030"]],
+                AUTHORITY["EPSG","6326"]],
+            PRIMEM["Greenwich",0,
+                AUTHORITY["EPSG","8901"]],
+            UNIT["degree",0.01745329251994328,
+                AUTHORITY["EPSG","9122"]],
+            AUTHORITY["EPSG","4326"]]"""
+
+        new_cs = osr.SpatialReference()
+        new_cs.ImportFromWkt(wgs84_wkt)
+
+        transform = osr.CoordinateTransformation(old_cs, new_cs)
+
+        width = gdal_dsm.RasterXSize
+        height = gdal_dsm.RasterYSize
         gt = gdal_dsm.GetGeoTransform()
         minx = gt[0]
-        miny = gt[3] + width1 * gt[4] + height1 * gt[5]
-        lonlat = transform.transform(minx, miny)
+        miny = gt[3] + width*gt[4] + height*gt[5]
+        lonlat = transform.TransformPoint(minx, miny)
         geotransform = gdal_dsm.GetGeoTransform()
         scale = 1 / geotransform[1]
-        lon = lonlat[0]
-        lat = lonlat[1]
-
-        # old_cs = osr.SpatialReference()
-        # dsm_ref = dsmlayer.crs().toWkt()
-        # old_cs.ImportFromWkt(dsm_ref)
-        #
-        # wgs84_wkt = """
-        # GEOGCS["WGS 84",
-        #     DATUM["WGS_1984",
-        #         SPHEROID["WGS 84",6378137,298.257223563,
-        #             AUTHORITY["EPSG","7030"]],
-        #         AUTHORITY["EPSG","6326"]],
-        #     PRIMEM["Greenwich",0,
-        #         AUTHORITY["EPSG","8901"]],
-        #     UNIT["degree",0.01745329251994328,
-        #         AUTHORITY["EPSG","9122"]],
-        #     AUTHORITY["EPSG","4326"]]"""
-        #
-        # new_cs = osr.SpatialReference()
-        # new_cs.ImportFromWkt(wgs84_wkt)
-        #
-        # transform = osr.CoordinateTransformation(old_cs, new_cs)
-        #
-        # width = gdal_dsm.RasterXSize
-        # height = gdal_dsm.RasterYSize
-        # gt = gdal_dsm.GetGeoTransform()
-        # minx = gt[0]
-        # miny = gt[3] + width*gt[4] + height*gt[5]
-        # lonlat = transform.TransformPoint(minx, miny)
-        # geotransform = gdal_dsm.GetGeoTransform()
-        # scale = 1 / geotransform[1]
+        
+        gdalver = float(gdal.__version__[0])
+        if gdalver >= 3.:
+            lon = lonlat[1] #changed to gdal 3
+            lat = lonlat[0] #changed to gdal 3
+        else:
+            lon = lonlat[0] #changed to gdal 2
+            lat = lonlat[1] #changed to gdal 2
+        # print('lon:' + str(lon))
+        # print('lat:' + str(lat))
 
         trans = self.dlg.spinBoxTrans.value() / 100.0
 
@@ -305,7 +317,6 @@ class ShadowGenerator:
             usevegdem = 1
 
             vegdsm = self.layerComboManagerVEGDSM.currentLayer()
-
             if vegdsm is None:
                 QMessageBox.critical(None, "Error", "No valid vegetation DSM selected")
                 return
@@ -315,7 +326,7 @@ class ShadowGenerator:
             provider = vegdsm.dataProvider()
             filePathOld = str(provider.dataSourceUri())
             dataSet = gdal.Open(filePathOld)
-            vegdsm = dataSet.ReadAsArray().astype(np.float)
+            vegdsm = dataSet.ReadAsArray().astype(float)
 
             vegsizex = vegdsm.shape[0]
             vegsizey = vegdsm.shape[1]
@@ -336,7 +347,7 @@ class ShadowGenerator:
                 provider = vegdsm2.dataProvider()
                 filePathOld = str(provider.dataSourceUri())
                 dataSet = gdal.Open(filePathOld)
-                vegdsm2 = dataSet.ReadAsArray().astype(np.float)
+                vegdsm2 = dataSet.ReadAsArray().astype(float)
             else:
                 trunkratio = self.dlg.spinBoxTrunkHeight.value() / 100.0
                 vegdsm2 = vegdsm * trunkratio
@@ -347,13 +358,48 @@ class ShadowGenerator:
             if not (vegsizex == sizex) & (vegsizey == sizey):  # &
                 QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
                 return
-
         else:
             vegdsm = 0
             vegdsm2 = 0
             usevegdem = 0
 
-        if self.folderPath is 'None':
+        if self.dlg.checkBoxWallsh.isChecked():
+            wallsh = 1
+            # wall height layer
+            whlayer = self.layerComboManagerWH.currentLayer()
+            if whlayer is None:
+                    QMessageBox.critical(None, "Error", "No valid wall height raster layer is selected")
+                    return
+            provider = whlayer.dataProvider()
+            filepath_wh= str(provider.dataSourceUri())
+            self.gdal_wh = gdal.Open(filepath_wh)
+            wheight = self.gdal_wh.ReadAsArray().astype(float)
+            vhsizex = wheight.shape[0]
+            vhsizey = wheight.shape[1]
+            if not (vhsizex == sizex) & (vhsizey == sizey):  # &
+                QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+                return
+
+            # wall aspectlayer
+            walayer = self.layerComboManagerWA.currentLayer()
+            if walayer is None:
+                    QMessageBox.critical(None, "Error", "No valid wall aspect raster layer is selected")
+                    return
+            provider = walayer.dataProvider()
+            filepath_wa= str(provider.dataSourceUri())
+            self.gdal_wa = gdal.Open(filepath_wa)
+            waspect = self.gdal_wa.ReadAsArray().astype(float)
+            vasizex = waspect.shape[0]
+            vasizey = waspect.shape[1]
+            if not (vasizex == sizex) & (vasizey == sizey):
+                QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+                return
+        else:
+            wallsh = 0
+            wheight = 0
+            waspect = 0
+
+        if self.folderPath == 'None':
             QMessageBox.critical(None, "Error", "No selected folder")
             return
         else:
@@ -377,20 +423,21 @@ class ShadowGenerator:
             tv = [year, month, day, hour, minu, sec]
             intervalTime = self.dlg.intervalTimeEdit.time()
             self.timeInterval = intervalTime.minute() + (intervalTime.hour() * 60) + (intervalTime.second()/60)
-            shadowresult = dsh.dailyshading(dsm, vegdsm, vegdsm2, scale, lonlat, sizex, sizey, tv, UTC, usevegdem,
-                                       self.timeInterval, onetime, self.dlg, self.folderPath[0], gdal_dsm, trans, dst)
+            shadowresult = dsh.dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, usevegdem,
+                                       self.timeInterval, onetime, self.dlg, self.folderPath[0], gdal_dsm, trans, 
+                                       dst, wallsh, wheight, waspect)
 
             shfinal = shadowresult["shfinal"]
             time_vector = shadowresult["time_vector"]
 
             if onetime == 0:
                 timestr = time_vector.strftime("%Y%m%d")
-                savestr = '/shadow_fraction_on'
+                savestr = '/shadow_fraction_on_'
             else:
                 timestr = time_vector.strftime("%Y%m%d_%H%M")
-                savestr = '/shadow_at_'
+                savestr = '/Shadow_at_'
 
-        filename = self.folderPath[0] + savestr + timestr + '_LST.tif'
+        filename = self.folderPath[0] + savestr + timestr + '.tif'
 
         dsh.saveraster(gdal_dsm, filename, shfinal)
 
@@ -410,10 +457,13 @@ class ShadowGenerator:
             rlayer.triggerRepaint()
 
     def run(self):
+        """Run method that performs all the real work"""
+        # show the dialog
         self.dlg.show()
-        self.dlg.exec_()
+        # Run the dialog event loop
+        self.dlg.exec()
 
     def help(self):
-        url = "http://umep-docs.readthedocs.io/en/latest/processor/Solar%20Radiation%20Daily%20Shadow%20Pattern.html"
+        url = "https://umep-docs.readthedocs.io/en/latest/processor/Solar%20Radiation%20Daily%20Shadow%20Pattern.html"
         webbrowser.open_new_tab(url)
 

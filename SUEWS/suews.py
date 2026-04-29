@@ -20,30 +20,33 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
+from qgis.PyQt.QtGui import QIcon
+from qgis.core import Qgis
 from qgis.gui import QgsMessageBar
-from suews_dialog import SUEWSDialog
+from .suews_dialog import SUEWSDialog
 import os
 import shutil
 import sys
 import webbrowser
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from ..Utilities import f90nml
-from ..suewsmodel import Suews_wrapper_v2018a
+from ..suewsmodel import suews_wrapper
+import zipfile
+import tempfile
+from pathlib import Path
 
-
-class SUEWS:
+class SUEWS(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
-        """Constructor.
 
-        :param iface: An interface instance that will be passed to this class
-            which provides the hook by which you can manipulate the QGIS
-            application at run time.
-        :type iface: QgsInterface
-        """
         # Save reference to the QGIS interface
         self.iface = iface
         # initialize plugin directory
@@ -69,31 +72,21 @@ class SUEWS:
         self.dlg.pushButtonSave.clicked.connect(self.folder_path_out)
         self.dlg.helpButton.clicked.connect(self.help)
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(4)
-        self.fileDialog.setAcceptMode(1)
+        self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&SUEWS')
         # TODO: We are going to let the user set this up in a future iteration
-        # self.toolbar = self.iface.addToolBar(u'SUEWS')
-        # self.toolbar.setObjectName(u'SUEWS')
 
         self.model_dir = os.path.normpath(self.plugin_dir + os.sep + os.pardir + os.sep + 'suewsmodel')
-        # self.iface.messageBar().pushMessage("test: ", model_dir)
+
+        if not (os.path.isdir(self.model_dir + '/Input')):
+            os.mkdir(self.model_dir + '/Input')
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
-        """Get the translation for a string using Qt translation API.
-
-        We implement this ourselves since we do not inherit QObject.
-
-        :param message: String for translation.
-        :type message: str, QString
-
-        :returns: Translated version of message.
-        :rtype: QString
-        """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('SUEWS', message)
 
@@ -149,54 +142,35 @@ class SUEWS:
                 self.tr(u'&SUEWS'),
                 action)
             self.iface.removeToolBarIcon(action)
-        # remove the toolbar
-        # del self.toolbar
 
     def run(self):
-        if not (os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2018a') or os.path.isfile(self.model_dir + os.sep + 'SUEWS_V2018a.exe')):
-            if QMessageBox.question(self.iface.mainWindow(), "OS specific binaries missing",
-                                 "Before you start to use this plugin for the very first time, the OS specific suews\r\n"
-                                 "program (4Mb) must be be download from the UMEP repository and stored\r\n"
-                                 "in your plugin directory: "
-                                 "(" + self.model_dir + ").\r\n"
-                                                        "\r\n"
-                                 "Join the email-list for updates and other information:\r\n"
-                                 "http://www.lists.rdg.ac.uk/mailman/listinfo/met-umep.\r\n"
-                                                        "\r\n"
-                                 "UMEP on the web:\r\n"
-                                 "http://www.urban-climate.net/umep/\r\n"
-                                                        "\r\n"
-                                                        "\r\n"
-                                 "Do you want to contiune with the download?", QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
-                if sys.platform == 'win32':
-                    urllib.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695894_suews_v2018a.exe',
-                                       self.model_dir + os.sep + 'SUEWS_V2018a.exe')
-                if sys.platform == 'linux2':
-                    urllib.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695887_suews_v2018a', self.model_dir + os.sep + 'SUEWS_V2018a')
-                if sys.platform == 'darwin':
-                    urllib.urlretrieve('https://gvc.gu.se/digitalAssets/1695/1695886_suews_v2018a', self.model_dir + os.sep + 'SUEWS_V2018a')
-            else:
-                QMessageBox.critical(self.iface.mainWindow(), "Binaries not downloaded", "This plugin will not be able to start before binaries are downloaded")
-                return
 
+        try:
+            import supy
+        except Exception as e:
+            QMessageBox.critical(None, 'SUEWS Advanced', 'This plugin requires the supy package to be installed OR upgraded. '
+                                                'See Section 2.3 in the UMEP-manual for further information on how ' 
+                                                'to install external python packages in QGIS3.')
+            return
+
+        self.supylib = sys.modules["supy"].__path__[0]
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def help(self):
-        url = "http://umep-docs.readthedocs.io/en/latest/processor/Urban%20Energy%20Balance%20Urban%20Energy%20" \
-              "Balance%20(SUEWS.BLUEWS,%20advanced).html"
+        url = "https://umep-docs.readthedocs.io/en/latest/processor/Urban%20Energy%20Balance%20Urban%20Energy%20Balance%20(SUEWS.BLUEWS,%20advanced).html"
         webbrowser.open_new_tab(url)
 
     def folder_path_out(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPathOut = self.fileDialog.selectedFiles()
             self.dlg.textOutput.setText(self.folderPathOut[0])
 
     def folder_path_in(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPathOut = self.fileDialog.selectedFiles()
             self.dlg.textInput.setText(self.folderPathOut[0])
@@ -208,19 +182,25 @@ class SUEWS:
         plotnml = f90nml.read(self.model_dir + '/plot.nml')
         plotnml['plot']['plotbasic'] = plot
         plotnml['plot']['plotmonthlystat'] = plot
+        plotnml['plot']['plotforcing'] = plot
         plotnml.write(self.model_dir + '/plot.nml', force=True)
 
-        # Create modified RunControl
+        # Create modified RunControl.nml
         infolder = self.dlg.textInput.text()
         if self.dlg.checkBoxFromSP.isChecked():
+            filenamemetdata = None
             for file in os.listdir(infolder):
                 if 'data' in file:
                     filenamemetdata = file
 
             underscorePos = ([pos for pos, char in enumerate(filenamemetdata) if char == '_'])
+            if (underscorePos[1] - underscorePos[0]) == 1:
+                addunderscore = '_'
+            else:
+                addunderscore = ''
             numunderscores = underscorePos.__len__()
             inputRes = filenamemetdata[underscorePos[numunderscores - 1] + 1:filenamemetdata.find('.')]
-            filecode = filenamemetdata[0:underscorePos[0]]
+            filecode = filenamemetdata[0:underscorePos[0]] + addunderscore
         else:
             inputRes = self.dlg.InputRes.text()
             filecode = self.dlg.FileCode.text()
@@ -246,12 +226,7 @@ class SUEWS:
         # else:
         usecbl = 0
 
-        # if self.dlg.checkBoxSOLWEIG.isChecked():
-        #     usesolweig = 1
-        # else:
-        usesolweig = 0
-
-        nml = f90nml.read(self.model_dir + '/BaseFiles/RunControl.nml')
+        nml = f90nml.read(self.supylib + '/sample_run/RunControl.nml')
         nml['runcontrol']['CBLuse'] = int(usecbl)
         nml['runcontrol']['SnowUse'] = int(usesnow)
         nml['runcontrol']['NetRadiationMethod'] = int(Net)
@@ -263,7 +238,6 @@ class SUEWS:
         nml['runcontrol']['RoughLenHeatMethod'] = int(Z0) + 1
         nml['runcontrol']['SMDMethod'] = int(SMD)
         nml['runcontrol']['WaterUseMethod'] = int(WU)
-        # nml['runcontrol']['SOLWEIGuse'] = int(usesolweig)
         nml['runcontrol']['fileCode'] = str(filecode)
         nml['runcontrol']['fileinputpath'] = str(infolder) + "/"
         nml['runcontrol']['fileoutputpath'] = str(outfolder) + "/"
@@ -274,12 +248,32 @@ class SUEWS:
 
         # TODO: Put suews in a worker
         # self.startWorker(self.iface, self.plugin_dir, self.dlg)
+
+        ### Code for spin-up
+        # df_sate_init = sp.init_supy(self.model_dir + '/RunControl.nml')
+        # df_forcing = sp.load_forcing_grid('./RunControl.nml', 98)
+        # # create a preceding yar forcing dataframe
+        # df_forcing_fake = df_forcing.copy()
+        # df_forcing_fake.Year -= 1
+        # # create a complete forcing data frame
+        # df_forcing_fake = df_forcing.copy()
+        # df_forcing_fake = df_forcing_fake.shift(-366, freq='D')
+        # df_forcing_fake.iy = df_forcing_fake.index.year
+        # df_forcing_fake.id = df_forcing_fake.index.dayofyear
+        # # combine your forcing dfs
+        # df_forcing_all = pd.concat([df_forcing_fake, df_forcing])
+        # df_forcing_all.index.freq =‘300s'
+        # # run simulatoin
+        # df_output, df_state_final = sp.run_supy(df_forcing_all, df_sate_init)
+        # # select your period of interest
+        # df_sel = df_output.loc[98].loc['2012']
+
         if self.dlg.checkBoxSpinup.isChecked():
             # Open SiteSelect to get year and gridnames
             sitein = infolder + "/" + 'SUEWS_SiteSelect.txt'
             fs = open(sitein)
             lin = fs.readlines()
-            index = 3
+            index = 2
             gridcode = ''
             lines = lin[index].split()
             yyyy = int(lines[1])
@@ -300,24 +294,24 @@ class SUEWS:
                 minperyear = 525600
 
             count = 0
-            for line in open(infolder + "/" + filecode + "_" + str(yyyy) + "_data_" + inputRes + ".txt").xreadlines(): count += 1
+            for line in open(infolder + "/" + filecode + "_" + str(yyyy) + "_data_" + inputRes + ".txt"): count += 1
 
             linesperyear = int(minperyear / 60.)
 
             if (count - 1) == linesperyear:
-                QMessageBox.information(None, "Model information", "Model run will now start. QGIS might freeze during "
-                                                           "calcualtion. This will be fixed in future versions. As spin-up"
+                QMessageBox.information(self.dlg, "Model information", "Model run will now start. QGIS might freeze during "
+                                                           "calculation. This will be fixed in future versions. As spin-up"
                                                                    "is choosen model will run twice (double computation time required).")
             else:
-                QMessageBox.critical(None, "Error in spin-up", "The meteorological forcing data is not one year long."
+                QMessageBox.critical(self.dlg, "Error in spin-up", "The meteorological forcing data is not one year long."
                                                                "Either adjust your file or run without spin-up.")
                 return
         else:
-            QMessageBox.information(None, "Model information", "Model run will now start. QGIS might freeze during "
+            QMessageBox.information(self.dlg, "Model information", "Model run will now start. QGIS might freeze during "
                                                                "calcualtion. This will be fixed in future versions.")
-
+                                                    
         try:
-            Suews_wrapper_v2018a.wrapper(self.model_dir)
+            suews_wrapper.wrapper(self.model_dir, self.iface)
 
             # Use spin up:
             if self.dlg.checkBoxSpinup.isChecked():
@@ -337,10 +331,7 @@ class SUEWS:
                     yyyy = int(lines[1])
                     gridcode = lines[0]
 
-                    # if os.path.isfile(infolder + '/InitialConditions' + filecode + '_' + str(yyyy) + '.nml'):
-                    #     os.remove(infolder + '/InitialConditions' + filecode + '_' + str(yyyy) + '.nml')
-
-                    os.rename(infolder + '/InitialConditions' + filecode + gridcode + '_' + str(yyyy + 1) + '.nml',
+                    os.rename(outfolder + '/InitialConditions' + filecode + gridcode + '_' + str(yyyy + 1) + '_EndofRun.nml',
                               infolder + '/InitialConditions' + filecode + gridcode + '_' + str(yyyy) + '.nml')
                     index += 1
                     lines = lin[index].split()
@@ -355,15 +346,13 @@ class SUEWS:
 
                 fs.close()
 
-                Suews_wrapper_v2018a.wrapper(self.model_dir)
+                suews_wrapper.wrapper(self.model_dir, self.iface)
 
         except Exception as e:
-            QMessageBox.critical(None, "An error occurred", str(e) + "\r\n\r\n"
-                                       "Also check problems.txt in " + self.model_dir + "\r\n\r\n"
-                                       "Please report any errors to https://bitbucket.org/fredrik_ucg/umep/issues")
+            QMessageBox.critical(self.dlg, "An error occurred", str(e) + "\r\n\r\n"
+                                "Check: " + str(list(Path.cwd().glob('SuPy.log'))[0]) + "\r\n\r\n"
+                                "Please report any errors to https://github.com/UMEP-dev/UMEP/issues")
             return
 
-        # print outfolder
         shutil.copy(self.model_dir + '/RunControl.nml', outfolder + '/RunControl.nml')
-        self.iface.messageBar().pushMessage("Model run finished", "Check problems.txt in " + self.model_dir +
-                                            " for additional information about the run", level=QgsMessageBar.INFO)
+        self.iface.messageBar().pushMessage("Model run successful", "Model run finished", level=Qgis.MessageLevel.Success)

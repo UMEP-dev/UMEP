@@ -1,3 +1,6 @@
+from builtins import str
+from builtins import map
+from builtins import range
 import os
 import re
 from pytz import timezone
@@ -32,35 +35,35 @@ def dict_to_namelist(input_dict, outputfile):
 
 
     string_build = ''
-    for k in input_dict.keys():
+    for k in list(input_dict.keys()):
         string_build += "&" + k + "\n"
         t = type(input_dict[k])
         val = None
         if t is list:
             # Convert list to comma separated list
-            val = map(convert_list_item, input_dict[k])
+            val = list(map(convert_list_item, input_dict[k]))
             val = ",".join(val)
             string_build += '  ' + k + ' = ' + val + "\n"
         elif (t is int) or (t is float):
             # Convert to string
             val = str(input_dict[k])
             string_build += '  ' + k + ' = ' + val + "\n"
-        elif (t is str) or (t is unicode):
+        elif (t is str) or (t is str):
             # Take it literally
             val = encapsulate(input_dict[k])
             string_build += '  ' + k + ' = ' + val + "\n"
         elif (t is dict):
             # Allow one-deep recursion so groups can exist
-            for kk in input_dict[k].keys():
+            for kk in list(input_dict[k].keys()):
                 t2 = type(input_dict[k][kk])
                 if t2 is list:
                     # Convert list to comma separated list
-                    val = map(convert_list_item, input_dict[k][kk])
+                    val = list(map(convert_list_item, input_dict[k][kk]))
                     val = ",".join(val)
                 elif (t2 is int) or (t2 is float):
                     # Convert to string
                     val = str(input_dict[k][kk])
-                elif (t2 is str) or (t2 is unicode):
+                elif (t2 is str) or (t2 is str):
                     # Take it literally
                     val = encapsulate(input_dict[k][kk])
                 else:
@@ -106,13 +109,13 @@ def results_to_ncdf(results_path):
     fileList = pd.Series(fileList)
     firstFile = pd.read_csv(fileList[0], header=0, index_col=0)
     outputAreas = list(firstFile.index)
-    outputAreas = range(0, 10000)
+    outputAreas = list(range(0, 10000))
 
     # Assume each QF value is 4 bytes
     # Each file contains 3 columns: Total QF (32float), Building QF(32float), index (int) for combination of heating/cooling parameters
     #
-    output_x = range(300) # West-east coordinates
-    output_y = range(300) # south-north coordinates
+    output_x = list(range(300)) # West-east coordinates
+    output_y = list(range(300)) # south-north coordinates
 
     expectedSize = len(outputAreas) * len(fileList) * 4 * 3
     maxSize = 2000000000 * 0.95 # 0.95 gives a bit of space

@@ -20,15 +20,19 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
-from extreme_finder_dialog import ExtremeFinderDialog
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
+from qgis.PyQt.QtGui import QIcon
+from .extreme_finder_dialog import ExtremeFinderDialog
 import os.path
 import webbrowser
 from ..Utilities import f90nml
-from HeatWave.findHW import *
-from HeatWave.plotHW import plotHW
-from PyQt4.QtCore import QDate, QObject, pyqtSignal, QThread
+from .HeatWave.findHW import *
+from .HeatWave.plotHW import plotHW
+from qgis.PyQt.QtCore import QDate, QObject, pyqtSignal, QThread
 ###########################################################################
 #
 #                               Plugin
@@ -36,7 +40,7 @@ from PyQt4.QtCore import QDate, QObject, pyqtSignal, QThread
 ###########################################################################
 
 
-class ExtremeFinder:
+class ExtremeFinder(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -73,8 +77,10 @@ class ExtremeFinder:
         self.dlg.pushButtonSave_2.clicked.connect(self.infile)
         self.dlg.pushButtonSave_2.setEnabled(True)
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(4)
-        self.fileDialog.setAcceptMode(1)
+        # self.fileDialog.setFileMode(4)
+        # self.fileDialog.setAcceptMode(1)
+        self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
         self.folderPathRaw = 'None'
         self.save_file = None
         self.outputfile = 'None'
@@ -95,8 +101,8 @@ class ExtremeFinder:
         self.menu = self.tr(u'&Extreme Finder')
 
         # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'ExtremeFinder')
-        self.toolbar.setObjectName(u'ExtremeFinder')
+        # self.toolbar = self.iface.addToolBar(u'ExtremeFinder')
+        # self.toolbar.setObjectName(u'ExtremeFinder')
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -124,45 +130,7 @@ class ExtremeFinder:
             status_tip=None,
             whats_this=None,
             parent=None):
-        """Add a toolbar icon to the toolbar.
-
-        :param icon_path: Path to the icon for this action. Can be a resource
-            path (e.g. ':/plugins/foo/bar.png') or a normal file system path.
-        :type icon_path: str
-
-        :param text: Text that should be shown in menu items for this action.
-        :type text: str
-
-        :param callback: Function to be called when the action is triggered.
-        :type callback: function
-
-        :param enabled_flag: A flag indicating if the action should be enabled
-            by default. Defaults to True.
-        :type enabled_flag: bool
-
-        :param add_to_menu: Flag indicating whether the action should also
-            be added to the menu. Defaults to True.
-        :type add_to_menu: bool
-
-        :param add_to_toolbar: Flag indicating whether the action should also
-            be added to the toolbar. Defaults to True.
-        :type add_to_toolbar: bool
-
-        :param status_tip: Optional text to show in a popup when mouse pointer
-            hovers over the action.
-        :type status_tip: str
-
-        :param parent: Parent widget for the new action. Defaults None.
-        :type parent: QWidget
-
-        :param whats_this: Optional text to show in the status bar when the
-            mouse pointer hovers over the action.
-
-        :returns: The action that was created. Note that the action is also
-            added to self.actions list.
-        :rtype: QAction
-        """
-
+        
         # Create the dialog (after translation) and keep reference
 
         icon = QIcon(icon_path)
@@ -236,21 +204,21 @@ class ExtremeFinder:
 
 
     def help(self):
-        url = "http://umep-docs.readthedocs.io/en/latest/processor/Outdoor%20Thermal%20Comfort%20ExtremeFinder.html"
+        url = "https://umep-docs.readthedocs.io/en/latest/processor/Outdoor%20Thermal%20Comfort%20ExtremeFinder.html"
         webbrowser.open_new_tab(url)
 
     def run(self):
 
         try:
             import pandas as pd
-        except Exception, e:
-            QMessageBox.critical(None, 'Error', 'The Extreme Finder requires the pandas package '
+        except Exception as e:
+            QMessageBox.critical(None, 'Error', 'This plugin requires the pandas package '
                                                 'to be installed. Please consult the manual for further information')
             return
         try:
             from netCDF4 import Dataset, date2num
-        except Exception, e:
-            QMessageBox.critical(None, 'Error', 'The Extreme Finder requires the netCDF4 package '
+        except Exception as e:
+            QMessageBox.critical(None, 'Error', 'This plugin requires the netCDF4 package '
                                                 'to be installed. Please consult the manual for further information')
             return
 
@@ -258,7 +226,7 @@ class ExtremeFinder:
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
-        result = self.dlg.exec_()
+        result = self.dlg.exec()
         # See if OK was pressed
 
     def validateInputDates(self):
@@ -299,17 +267,17 @@ class ExtremeFinder:
 
     def infile(self):
         filename = QFileDialog.getOpenFileName()
-        if filename.split('.')[-1]=='nc':
+        if filename[0].split('.')[-1] == 'nc':
             # If a NetCDF file, try and get metadata to populate the dialog elements
-            (lat, lon, start_date, end_date) = get_ncmetadata(filename)
+            (lat, lon, start_date, end_date) = get_ncmetadata(filename[0])
 
-        self.dlg.textInput.setText(filename)
+        self.dlg.textInput.setText(filename[0])
         if (lat is not None) and (lon is not None):
             self.dlg.textOutput_lat.setText(str(lat))
             self.dlg.textOutput_lon.setText(str(lon))
 
-        self.dlg.dateEditStart.setDate(start_date)
-        self.dlg.dateEditEnd.setDate(end_date)
+        self.dlg.dateEditStart.setDate(str(start_date))
+        self.dlg.dateEditEnd.setDate(str(end_date))
 
     def outfile(self):
         outputfile = self.fileDialog.getSaveFileName(
@@ -318,7 +286,7 @@ class ExtremeFinder:
         # result = self.fileDialog.exec_()
         if not outputfile == 'None':
             self.outputfile = outputfile
-            self.dlg.textOutput.setText(self.outputfile)
+            self.dlg.textOutput.setText(self.outputfile[0])
 
     def start_progress_wrapped(self):
         '''
@@ -326,7 +294,7 @@ class ExtremeFinder:
         '''
         try:
             self.start_progress()
-        except Exception, e:
+        except Exception as e:
             QMessageBox.critical(None, "Error", str(e))
             self.dlg.runButton.setEnabled(True)
 
@@ -383,17 +351,29 @@ class ExtremeFinder:
                 file_name = filein
             else:
                 raise ValueError('Invalid data format')
-        except Exception, e:
+        except Exception as e:
             raise Exception('Invalid input file data format')
 
         self.validateInputDates()
 
+        # First work around for ERA5 data instead
+        if var =='Tair':
+            var = 't2m'
+        if var == 'PSurf':
+            var = 'sp'
+        if var == 'SWdown':
+            var = 'ssrd'
+        if var == 'LWdown':
+            var = 'strd'
+        if var == 'Rainf':
+            var = 'tp'
+
         if filein.split('.')[-1]=='nc':
             try:
                 Tdata, unit, self.lat, self.lon, self.hw_start, self.hw_end = get_ncdata(file_name, self.hw_start.year, self.hw_end.year, var)
-            except KeyError,e:
+            except KeyError as e:
                 raise Exception('NetCDF file must contain the variable %s in order to continue'%(e,))
-            except Exception,e:
+            except Exception as e:
                 raise e
 
             unit = '(' + str(unit) + ')'
@@ -484,7 +464,7 @@ class ExtremeFinder:
         try:
             if len(result) == 0:
                 raise ValueError('No Heat/Cold Wave Found')
-        except Exception, e:
+        except Exception as e:
             if mode == "HW":
                 QMessageBox.critical(None, "Error", "No extreme high values found")
             if mode == "CW":

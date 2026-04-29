@@ -6,8 +6,9 @@
    :copyright: Copyright 2014 Marshall Ward, see AUTHORS for details.
    :license: Apache License, Version 2.0, see LICENSE for details.
 """
+from __future__ import absolute_import
 # from f90nml.parser import Parser
-from parser import Parser
+from .parser import Parser
 
 __version__ = '0.12'
 

@@ -203,6 +203,16 @@
           <string>Shadow</string>
          </property>
         </item>
+        <item>
+         <property name="text">
+          <string>Physiological Equivalent Temperature</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Universal Thermal Comfort Index</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item row="2" column="0">
@@ -442,6 +452,16 @@ p, li { white-space: pre-wrap; }
         <item>
          <property name="text">
           <string>Shadow</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Physiological Equivalent Temperature</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Universal Thermal Comfort Index</string>
          </property>
         </item>
        </widget>

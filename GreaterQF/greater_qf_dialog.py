@@ -23,14 +23,15 @@
 
 import os
 
-from PyQt4 import QtGui, uic, QtCore
+from qgis.PyQt import uic
+from qgis.PyQt.QtWidgets import QDialog
 
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'greater_qf_dialog_base.ui'))
 
 
-class GreaterQFDialog(QtGui.QDialog, FORM_CLASS):
+class GreaterQFDialog(QDialog, FORM_CLASS):
     def __init__(self, parent=None):
         """Constructor."""
         super(GreaterQFDialog, self).__init__(parent)

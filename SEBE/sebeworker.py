@@ -1,10 +1,9 @@
-from PyQt4 import QtCore
-# import traceback
-# from SEBEfiles import SEBE_2015a_calc
+from __future__ import print_function
+from builtins import range
+from qgis.PyQt import QtCore
 import numpy as np
 from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_13 import shadowingfunction_wallheight_13
 from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_23 import shadowingfunction_wallheight_23
-# from ..Utilities import shadowingfunctions as shadow
 import linecache
 import sys
 
@@ -16,7 +15,7 @@ class Worker(QtCore.QObject):
     progress = QtCore.pyqtSignal()
 
     def __init__(self, dsm, scale, building_slope, building_aspect, voxelheight, sizey, sizex, vegdsm, vegdsm2,
-                 wheight, waspect, albedo, psi, radmatI, radmatD, radmatR, usevegdem, calc_month, dlg):
+                 wheight, waspect, albedo, psi, radmatI, radmatD, radmatR, usevegdem, calc_month, dlg, wallmaxheight):
         QtCore.QObject.__init__(self)
         self.killed = False
 
@@ -39,6 +38,7 @@ class Worker(QtCore.QObject):
         self.usevegdem = usevegdem
         self.calc_month = calc_month
         self.dlg = dlg
+        self.wallmaxheight = wallmaxheight
 
     def run(self):
         ret = None
@@ -68,6 +68,7 @@ class Worker(QtCore.QObject):
             usevegdem = self.usevegdem
             calc_month = self.calc_month
             #energymonth = output['energymonth']
+            wallmaxheight = self.wallmaxheight
 
             # Parameters
             deg2rad = np.pi/180
@@ -102,7 +103,8 @@ class Worker(QtCore.QObject):
             wallcol, wallrow = np.where(np.transpose(walls) > 0)    # row and col for each wall pixel
             # wallrow, wallcol = np.where(walls > 0.2)    #row and col for each wall pixel
             wallstot = np.floor(walls * (1 / voxelheight)) * voxelheight
-            wallsections = np.floor(np.max(walls) * (1 / voxelheight))     # finding tallest wall
+            wallsections = np.floor(wallmaxheight * (1 / voxelheight)) 
+            # wallsections = np.floor(np.max(walls) * (1 / voxelheight))     # finding tallest wall
             wallmatrix = np.zeros((np.shape(wallrow)[0], int(wallsections)))
             Energyyearwall = np.copy(wallmatrix)
             # Energymonthwall = np.zeros(np.shape(wallmatrix[0]), np.shape(wallmatrix[1]), 12)
@@ -266,7 +268,8 @@ class Worker(QtCore.QObject):
                     self.progress.emit()  # move progressbar forward
 
             # Including radiation from ground on walls as well as removing pixels high than walls
-            print np.copy(Energyyearwall).shape
+            # fix_print_with_import
+            # print(np.copy(Energyyearwall).shape)
             wallmatrixbol = (Energyyearwall > 0).astype(float)
             Energyyearwall = (Energyyearwall + (np.sum(radmatR[:, 2]) * albedo)/2) * wallmatrixbol
 

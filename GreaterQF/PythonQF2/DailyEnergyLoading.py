@@ -1,16 +1,16 @@
 # Object that stores and retrieves coefficients that describe the total energy used (gas or electricity) each day
 # This allows GreaterQF to disaggregate the annual total to a particular day
 import os
-from string import lower
+from .string_func import   lower
 try:
     import pandas as pd
 except:
     pass
 
 import pytz
-from DataManagement.DailyLoading import DailyLoading
-from DataManagement.LookupLogger import LookupLogger
-
+from .DataManagement.DailyLoading import DailyLoading
+from .DataManagement.LookupLogger import LookupLogger
+from datetime import datetime as dt
 
 class DailyEnergyLoading:
     '''
@@ -54,18 +54,18 @@ class DailyEnergyLoading:
 
         # Check file is of correct format
         dl = pd.read_csv(file,skipinitialspace=True)
-        dl.columns = map(lower, dl.columns)
+        dl.columns = list(map(lower, dl.columns))
         # Expect certain keywords
-        if 'fuel' not in dl.keys():
+        if 'fuel' not in list(dl.keys()):
             raise ValueError('First column of first row must be \'Fuel\' in ' + file)
 
-        if 'gas' not in dl.keys():
+        if 'gas' not in list(dl.keys()):
             raise ValueError('One of the column headers in ' + file + ' must be \'Gas\'')
 
-        if 'elec' not in dl.keys():
+        if 'elec' not in list(dl.keys()):
             raise ValueError('One of the column headers in ' + file + ' must be \'Elec\'')
 
-        rowHeaders = map(lower, dl.fuel[0:3])
+        rowHeaders = list(map(lower, dl.fuel[0:3]))
         if 'startdate' != rowHeaders[0]:
             raise ValueError('First column of second row must be \'StartDate\' in ' + file)
 
@@ -78,26 +78,28 @@ class DailyEnergyLoading:
         firstDataLine = 3
         # Try to extract the timezone from the file header
         try:
-            tz = pytz.timezone(dl[dl.keys()[1]][2])
+            tz = pytz.timezone(dl[list(dl.keys())[1]][2])
 
         except Exception:
-            raise ValueError('Invalid timezone "' + dl[dl.keys()[1]][2] + '" specified in ' + file +
+            raise ValueError('Invalid timezone "' + dl[list(dl.keys())[1]][2] + '" specified in ' + file +
                              '. This should be of the form "UTC" or "Europe/London" as per python timezone documentation')
 
         # Rest of rows 1 and 2 should be dates
         try:
-            sd = pd.datetime.strptime(dl[dl.keys()[1]][0], '%Y-%m-%d')
-            ed = pd.datetime.strptime(dl[dl.keys()[1]][1], '%Y-%m-%d')
-        except Exception, e:
+            sd = dt.strptime(dl[list(dl.keys())[1]][0], '%Y-%m-%d') #removed pd.datetime
+            ed = dt.strptime(dl[list(dl.keys())[1]][1], '%Y-%m-%d') #removed pd.datetime
+        except Exception as e:
             raise Exception('The second and third rows of ' + file + ' must be dates in the format YYYY-mm-dd')
 
         sd = tz.localize(sd)
         ed = tz.localize(ed)
         # Normalize by annual mean
 
-        for col in dl.columns:
-            dl[col][firstDataLine:] = dl[col][firstDataLine:].astype('float') / dl[col][firstDataLine:].astype('float').mean()
-
+        # for col in dl.columns:
+        #     dl[col][firstDataLine:] = dl[col][firstDataLine:].astype('float') / dl[col][firstDataLine:].astype('float').mean()
+        dl_data = dl.loc[firstDataLine:, :].astype('float').copy()
+        dl_data /= dl_data.mean()
+        dl.loc[firstDataLine:, :] = dl_data.values
         self.gas.addPeriod(startDate=sd, endDate=ed, dataSeries=dl.gas[firstDataLine:])
         self.electricity.addPeriod(startDate=sd, endDate=ed, dataSeries=dl.elec[firstDataLine:])
 

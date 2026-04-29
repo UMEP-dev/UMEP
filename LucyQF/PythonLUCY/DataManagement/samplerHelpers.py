@@ -44,7 +44,7 @@ def addPeriod(obj, startDate, endDate, weekSeries, timezone=pytz.timezone('Europ
         startEndDates[y] = [max(dt(y, 1, 1), startDate), min(dt(y, 12, 31), endDate)]
 
     # Go round each year (if necessary), adding entries
-    for y in startEndDates.keys():
+    for y in list(startEndDates.keys()):
         # Within the year, set start date of period as DOY
         sd = startEndDates[y][0]  # start date
         ed = startEndDates[y][1]  # End date
@@ -53,7 +53,7 @@ def addPeriod(obj, startDate, endDate, weekSeries, timezone=pytz.timezone('Europ
         formattedSeries = obj.dealWithSeries(weekSeries)
 
         # Add straight to the dict if it's the first entry for the year
-        if y not in obj.yearContents.keys():
+        if y not in list(obj.yearContents.keys()):
             obj.yearContents[y] = pd.Series(index=[sd],
                                                  data=[{'isDST': isDST, 'data': formattedSeries.copy(deep=True)}])
 

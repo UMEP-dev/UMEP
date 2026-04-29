@@ -9,8 +9,9 @@ try:
 except:
     pass
 import pytz
-from DataManagement.LookupLogger import LookupLogger
-from DataManagement.TemporalProfileSampler import TemporalProfileSampler
+from .DataManagement.LookupLogger import LookupLogger
+from .DataManagement.TemporalProfileSampler import TemporalProfileSampler
+from datetime import datetime as dt
 
 class TransportProfiles:
     def __init__(self, city, use_uk_holidays, customHolidays = [], logger=LookupLogger()):
@@ -105,13 +106,14 @@ class TransportProfiles:
         dl = pd.read_csv(file,skipinitialspace=True)
 
         # Should be 3x each season in header
-        if len(dl.keys()) != 8:
+        if len(list(dl.keys())) != 8:
             raise ValueError('There must be 8 columns in ' + file)
 
-        dl.columns = map(string.lower,  dl.columns.tolist())
+        # dl.columns = list(map(string.lower,  dl.columns.tolist()))
+        dl.columns = dl.columns.str.lower()
         expectedHeadings = ['motorcycles', 'taxis', 'cars', 'buses', 'lgvs', 'rigids', 'artics']
-        matches = list(set(dl.keys()[1:]).intersection(expectedHeadings))
-        if len(matches) != len(dl.keys())-1:
+        matches = list(set(list(dl.keys())[1:]).intersection(expectedHeadings))
+        if len(matches) != len(list(dl.keys()))-1:
             raise ValueError('Top row of transport diurnal profiles must contain each of: ' + str(expectedHeadings))
 
         firstDataRow = 3
@@ -130,17 +132,17 @@ class TransportProfiles:
 
         # Try to extract the timezone from the file header
         try:
-            tz = pytz.timezone(dl[dl.keys()[1]][2])
+            tz = pytz.timezone(dl[list(dl.keys())[1]][2])
         except Exception:
-            raise ValueError('Invalid timezone "' + dl[dl.keys()[1]][2] + '" specified in ' + file +
+            raise ValueError('Invalid timezone "' + dl[list(dl.keys())[1]][2] + '" specified in ' + file +
                              '. This should be of the form "UTC" or "Europe/London" as per python timezone documentation')
 
         # Step through the list of transport types, adding the profiles
         # Asssumes first time point is the start of monday
         try:
-            sd = pd.datetime.strptime(dl[dl.columns[1]][0], '%Y-%m-%d')
-            ed = pd.datetime.strptime(dl[dl.columns[1]][1], '%Y-%m-%d')
-        except Exception, e:
+            sd = dt.strptime(dl[dl.columns[1]][0], '%Y-%m-%d') #removed pd.datetime
+            ed = dt.strptime(dl[dl.columns[1]][1], '%Y-%m-%d') #removed pd.datetime
+        except Exception as e:
             raise Exception('Second column of Rows 2 and 3 of ' + file + ' must be dates in the format YYYY-mm-dd')
 
         sd = tz.localize(sd)
@@ -148,9 +150,10 @@ class TransportProfiles:
 
         for transportType in expectedHeadings:
             # Normalize each week series (over the whole week) so it's a weighting factor
-            dl[transportType][firstDataRow:] = dl[transportType][firstDataRow:].astype('float')/dl[transportType][firstDataRow:].astype('float').mean()
+            # dl.loc[firstDataRow:,transportType] = dl.loc[firstDataRow:,transportType].astype('float')/dl.loc[firstDataRow:,transportType].astype('float').mean()
+            dl.loc[firstDataRow:,transportType] = dl.loc[firstDataRow:,transportType].astype('float')/dl.loc[firstDataRow:,transportType].astype('float').mean()
             # Assign to the relevant element of this object
             subObj = getattr(self, transportType.lower())
             if subObj is None:
                 raise Exception('Programming error: The wrong transport type has been referenced')
-            subObj.addPeriod(startDate=sd, endDate=ed, dataSeries=dl[transportType][firstDataRow:])
+            subObj.addPeriod(startDate=sd, endDate=ed, dataSeries=dl.loc[firstDataRow:,transportType])

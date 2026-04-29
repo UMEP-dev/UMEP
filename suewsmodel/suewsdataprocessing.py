@@ -1,10 +1,14 @@
+from __future__ import print_function
+from builtins import input
+from builtins import range
+from builtins import object
 __author__ = 'Fredrik Lindberg'
 
 # This class will be used to prepare input met data into UMEP
 
 import numpy as np
 import datetime
-
+import pandas as pd
 
 def leap_year(yy):
     if (yy % 4) == 0:
@@ -21,7 +25,7 @@ def leap_year(yy):
     return leapyear
 
 
-class SuewsDataProcessing:
+class SuewsDataProcessing(object):
     def __init__(self):
         pass
 
@@ -180,18 +184,18 @@ class SuewsDataProcessing:
     def from5mintoanytime(self, results, SumCol, LastCol, TimeCol, minint):
 
         splitparts = minint / 5
-        suews_anytime = np.zeros((results.shape[0] / splitparts, results.shape[1]))
+        suews_anytime = np.zeros((int(results.shape[0] / splitparts), results.shape[1]))
 
         for i in range(0, suews_anytime.shape[0]):
-            suews_anytime[i, 5:results.shape[1] - 1] = np.mean(results[i * splitparts: i * splitparts + splitparts, 5:results.shape[1] - 1], axis=0)
+            suews_anytime[i, 5:results.shape[1] - 1] = np.mean(results[int(i * splitparts): int(i * splitparts + splitparts), 5:results.shape[1] - 1], axis=0)
 
             for j in range(0, SumCol.__len__()):
-                suews_anytime[i, SumCol[j]] = np.sum(results[i * splitparts: i * splitparts + splitparts, SumCol[j]], axis=0)
+                suews_anytime[i, SumCol[j]] = np.sum(results[int(i * splitparts): int(i * splitparts + splitparts), SumCol[j]], axis=0)
 
             for j in range(0, LastCol.__len__()):
-                suews_anytime[i, LastCol[j]] = results[i * splitparts + splitparts - 1, LastCol[j]]
+                suews_anytime[i, LastCol[j]] = results[int(i * splitparts + splitparts - 1), LastCol[j]]
 
-            suews_anytime[i, TimeCol] = results[i * splitparts + splitparts - 1, TimeCol]
+            suews_anytime[i, TimeCol] = results[int(i * splitparts + splitparts - 1), TimeCol]
 
         return suews_anytime
 
@@ -239,72 +243,74 @@ class SuewsDataProcessing:
         else:
             met_old = np.loadtxt(inputdata, skiprows=1)
 
-            user_input = int(input('Put in manually or translate from v2014 (1 or 0)?: '))
-            yyyy_exist = int(input('yyyy exist (1 or 0)?: '))
+            user_input = int(eval(input('Put in manually or translate from v2014 (1 or 0)?: ')))
+            yyyy_exist = int(eval(input('yyyy exist (1 or 0)?: ')))
             if yyyy_exist == 1:
-                yyyy_col = int(input('column for yyyy: ')) - 1
+                yyyy_col = int(eval(input('column for yyyy: '))) - 1
             else:
-                yy = int(input('Specify year (yyyy): '))
+                yy = int(eval(input('Specify year (yyyy): ')))
 
             if user_input == 1:
-                doy_exist = int(input('doy exist (1 or 0)?: '))
+                doy_exist = int(eval(input('doy exist (1 or 0)?: ')))
                 if doy_exist == 1:
-                    doy_col = int(input('column for doy: ')) - 1
+                    doy_col = int(eval(input('column for doy: '))) - 1
                 else:
-                    month_col = int(input('column for month: ')) - 1
-                    day_col = int(input('column for day of month: ')) - 1
+                    month_col = int(eval(input('column for month: '))) - 1
+                    day_col = int(eval(input('column for day of month: '))) - 1
 
-                hh_col = int(input('column for hour: ')) - 1
-                dectime_exist = int(input('dectime exist (1 or 0)?: '))
+                hh_col = int(eval(input('column for hour: '))) - 1
+                dectime_exist = int(eval(input('dectime exist (1 or 0)?: ')))
                 if dectime_exist == 1:
-                    dectime_col = int(input('column for dectime: ')) - 1
+                    dectime_col = int(eval(input('column for dectime: '))) - 1
                     if ver == 2015:
                         dechour = (met_old[:, dectime_col] - np.floor(met_old[:, dectime_col])) * 24
                         minute = np.round((dechour - np.floor(dechour)) * 60)
                         minute[(minute == 60)] = 0
                 else:
-                    min_col = int(input('column for min: ')) - 1
+                    min_col = int(eval(input('column for min: '))) - 1
 
-                only_mandatory = int(input('Only put in mandatory [Ta,RH,Kdn,pres,Ws] (1 or 0)?: '))
+                only_mandatory = int(eval(input('Only put in mandatory [Ta,RH,Kdn,pres,Ws] (1 or 0)?: ')))
 
                 if only_mandatory == 1:
-                    wind_col = int(input('column for Ws: ')) - 1
-                    RH_col = int(input('column for RH: ')) - 1
-                    Ta_col = int(input('column for Ta: ')) - 1
-                    press_exist = int(input('Pressure exist (1 or 0)?: '))
+                    wind_col = int(eval(input('column for Ws: '))) - 1
+                    RH_col = int(eval(input('column for RH: '))) - 1
+                    Ta_col = int(eval(input('column for Ta: '))) - 1
+                    press_exist = int(eval(input('Pressure exist (1 or 0)?: ')))
                     if press_exist == 1:
-                        press_col = int(input('column for Pressure (kPa): ')) - 1
+                        press_col = int(eval(input('column for Pressure (kPa): '))) - 1
                     else:
                         press_av = 101.3
-                        print 'Pressure set to 101.3 kPa'
+                        # fix_print_with_import
+                        print('Pressure set to 101.3 kPa')
 
-                    grad_col = int(input('column for Kdn: ')) - 1
+                    grad_col = int(eval(input('column for Kdn: '))) - 1
                 else:
-                    Qstar_col = int(input('column for Q*: ')) - 1
-                    Qh_col = int(input('column for Qh: ')) - 1
-                    Qe_col = int(input('column for Qe: ')) - 1
-                    Qs_col = int(input('column for Qs: ')) - 1
-                    Qf_col = int(input('column for Qf: ')) - 1
-                    wind_col = int(input('column for Ws: ')) - 1
-                    RH_col = int(input('column for RH: ')) - 1
-                    Ta_col = int(input('column for Ta: ')) - 1
-                    press_exist = int(input('Pressure exist (1 or 0)?: '))
+                    Qstar_col = int(eval(input('column for Q*: '))) - 1
+                    Qh_col = int(eval(input('column for Qh: '))) - 1
+                    Qe_col = int(eval(input('column for Qe: '))) - 1
+                    Qs_col = int(eval(input('column for Qs: '))) - 1
+                    Qf_col = int(eval(input('column for Qf: '))) - 1
+                    wind_col = int(eval(input('column for Ws: '))) - 1
+                    RH_col = int(eval(input('column for RH: '))) - 1
+                    Ta_col = int(eval(input('column for Ta: '))) - 1
+                    press_exist = int(eval(input('Pressure exist (1 or 0)?: ')))
                     if press_exist == 1:
-                        press_col = int(input('column for Pressure (kPa): ')) - 1
+                        press_col = int(eval(input('column for Pressure (kPa): '))) - 1
                     else:
                         press_av = 101.3
-                        print 'Pressure set to 101.3 kPa'
-                    rain_col = int(input('column for rain: ')) - 1
-                    grad_col = int(input('column for Kdn: ')) - 1
-                    snow_col = int(input('column for snow: ')) - 1
-                    ldown_col = int(input('column for ldown: ')) - 1
-                    fcld_col = int(input('column for fcld: ')) - 1
-                    wuh_col = int(input('column for wuh: ')) - 1
-                    xsmd_col = int(input('column for xsmd: ')) - 1
-                    lai_col = int(input('column for lai: ')) - 1
-                    drad_col = int(input('column for kdiff: ')) - 1
-                    irad_col = int(input('column for kdir: ')) - 1
-                    wdir_col = int(input('column for Wdir: ')) - 1
+                        # fix_print_with_import
+                        print('Pressure set to 101.3 kPa')
+                    rain_col = int(eval(input('column for rain: '))) - 1
+                    grad_col = int(eval(input('column for Kdn: '))) - 1
+                    snow_col = int(eval(input('column for snow: '))) - 1
+                    ldown_col = int(eval(input('column for ldown: '))) - 1
+                    fcld_col = int(eval(input('column for fcld: '))) - 1
+                    wuh_col = int(eval(input('column for wuh: '))) - 1
+                    xsmd_col = int(eval(input('column for xsmd: '))) - 1
+                    lai_col = int(eval(input('column for lai: '))) - 1
+                    drad_col = int(eval(input('column for kdiff: '))) - 1
+                    irad_col = int(eval(input('column for kdir: '))) - 1
+                    wdir_col = int(eval(input('column for Wdir: '))) - 1
 
             else:
                 doy_col = 1 - 1
@@ -477,5 +483,55 @@ class SuewsDataProcessing:
             numformat = '%3d %3d %6.5f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f'
             np.savetxt(outputdata, met_new, fmt=numformat, delimiter=delim, header=header, comments='')
 
+
+def resample_dataframe( df, expected_time_resolution_min, how='mean', missing_val=-999, interpolate_method='linear'):
+    """
+    Resample a time series DataFrame to a new temporal resolution.
+
+    Parameters:
+    - df: pandas DataFrame with a datetime index
+    - expected_time_resolution_min: int, desired frequency in minutes
+    - how: aggregation method for downsampling ('mean', 'sum', etc.)
+    - missing_val: value used to represent missing data (default: -999)
+    - interpolate_method: method to use when upsampling (e.g., 'linear', 'ffill', 'bfill')
+
+    Returns:
+    - Resampled and interpolated DataFrame
+    """
+
+    if not isinstance(df.index, pd.DatetimeIndex):
+        raise ValueError("DataFrame index must be a DatetimeIndex.")
+
+    # Clean missing values
+    df_cleaned = df.replace(missing_val, np.nan)
+
+    # Determine current resolution
+    current_resolution_min = int((df_cleaned.index[1] - df_cleaned.index[0]).total_seconds() / 60)
+
+    freq_str = f'{expected_time_resolution_min}T'
+
+    if expected_time_resolution_min > current_resolution_min:
+        # ⬇️ Downsampling (e.g., 5-min to hourly)
+        df_resampled = df_cleaned.resample(freq_str).agg(how)
+    else:
+        # ⬆️ Upsampling (e.g., hourly to 5-min) + Interpolation
+        df_resampled = df_cleaned.resample(freq_str).asfreq()
+        df_resampled = df_resampled.interpolate(method=interpolate_method, limit_direction='both')
+
+    return df_resampled
+
+def SUEWS_txt_to_df( suews_output_path):
+    df_output_suews = pd.read_csv(suews_output_path, sep=r"\s+")
+    df_output_suews['Datetime'] = pd.to_datetime(df_output_suews[['Year', 'DOY', 'Hour', 'Min']].astype(str).agg('-'.join, axis=1), format='%Y-%j-%H-%M')
+    df_output_suews.set_index('Datetime', inplace=True)
+
+    return df_output_suews
+
+def SUEWS_met_txt_to_df(suews_met_path):
+    df_met_forcing = pd.read_csv(suews_met_path, sep=r"\s+")
+    df_met_forcing['Datetime'] = pd.to_datetime(df_met_forcing[['iy', 'id', 'it', 'imin']].astype(str).agg('-'.join, axis=1), format='%Y-%j-%H-%M')
+    df_met_forcing.set_index('Datetime', inplace=True)
+    
+    return df_met_forcing
 
 

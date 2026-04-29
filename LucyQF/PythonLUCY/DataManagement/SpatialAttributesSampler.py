@@ -1,13 +1,16 @@
-from spatialHelpers import *
+from __future__ import absolute_import
+from builtins import str
+from builtins import map
+from .spatialHelpers import *
 from qgis.core import QgsField, QgsVectorLayer, QgsSpatialIndex, QgsMessageLog, QgsCoordinateReferenceSystem, QgsCoordinateTransform
-from PyQt4.QtCore import QVariant
+from qgis.PyQt.QtCore import QVariant
 
 try:
     import pandas as pd
 except:
     pass
 
-from SpatialTemporalResampler import SpatialTemporalResampler
+from .SpatialTemporalResampler import SpatialTemporalResampler
 def intorstring(x):
     try:
         return int(x)
@@ -72,7 +75,7 @@ class SpatialAttributesSampler(SpatialTemporalResampler):
 
         # Get read-across between so feature ID can be ascertained from name according to chosen ID field
         t = shapefile_attributes(newShapeFile)[self.templateIdField]
-        readAcross = pd.Series(index=map(intorstring, t.values), data=map(intorstring, t.index))
+        readAcross = pd.Series(index=list(map(intorstring, t.values)), data=list(map(intorstring, t.index)))
         t = None
 
         # If the inputLayer and outputLayer spatial units are the same, then disaggregation does not need to happen.
@@ -93,7 +96,8 @@ class SpatialAttributesSampler(SpatialTemporalResampler):
             # Work out disaggregation factor baed on area intersected
             # Use "big" totals of weightings if the same attribute present in the input data file
 
-            newShapeFile.setSelectedFeatures(list(readAcross[intersectedAreas.keys()]))
+            # newShapeFile.setSelectedFeatures(list(readAcross[list(intersectedAreas.keys())]))
+            newShapeFile.selectByIds(list(readAcross[list(intersectedAreas.keys())]))  # new as from QGIS3
             selectedOutputFeatures = newShapeFile.selectedFeatures()
             newShapeFile.startEditing()
             # Apply disaggregation to features
@@ -102,11 +106,11 @@ class SpatialAttributesSampler(SpatialTemporalResampler):
                 # Take the input area with the largest intersected area if there is more than one to choose from
                 rawData = intersectedAreas[outputFeat[self.templateIdField]]
 
-                numEntries = len(rawData.keys())
+                numEntries = len(list(rawData.keys()))
                 if numEntries == 0:
                     continue
                 elif numEntries == 1:
-                    inputValues = rawData.values()[0]
+                    inputValues = list(rawData.values())[0]
 
                 elif numEntries > 1:
                     area_info = pd.DataFrame(rawData).transpose()
@@ -122,5 +126,6 @@ class SpatialAttributesSampler(SpatialTemporalResampler):
                     newShapeFile.changeAttributeValue(outputFeat.id(), fieldIndices[field], floatorstring(inputValues[field]))
 
         newShapeFile.commitChanges()
-        newShapeFile.setSelectedFeatures([])  # De-select all features
+        # newShapeFile.setSelectedFeatures([])  # De-select all features
+        newShapeFile.selectByIds([])  # new as from QGIS3
         return newShapeFile

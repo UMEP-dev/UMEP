@@ -1,16 +1,21 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import str
+from builtins import map
+from builtins import object
 # Object that stores and retrieves temperature each day
-
+from datetime import datetime as dt
 import os
-from string import lower
+# from string import lower
 import pytz
-from DataManagement.DailyLoading import DailyLoading
+from .DataManagement.DailyLoading import DailyLoading
 try:
     import pandas as pd
 except:
     pass
-from DataManagement.LookupLogger import LookupLogger
+from .DataManagement.LookupLogger import LookupLogger
 
-class DailyTemperature:
+class DailyTemperature(object):
     '''
     Manage daily  temperature time series
     '''
@@ -60,20 +65,21 @@ class DailyTemperature:
             raise ValueError('The file ' + file + ' does not exist')
 
         # Check file is of correct format
-        dl = pd.read_csv(file,skipinitialspace=True)
-        dl.columns = map(lower, dl.columns)
+        dl = pd.read_csv(file, skipinitialspace = True)
+        # dl.columns = list(map(lower, dl.columns))
+        dl.columns = dl.columns.str.lower()
         # Expect certain keywords
-        if 't_celsius' not in map(lower, dl.keys()):
+        if 't_celsius' not in list(dl.keys()):
             raise ValueError('One of the column headers in ' + file + ' must be \'T_celsius\'')
 
-        rowHeaders = map(lower, dl.data[0:3])
-        if 'startdate' != rowHeaders[0]:
+        # rowHeaders = list(map(lower, dl.data[0:3]))
+        if 'startdate' != dl.data[0].lower():  #rowHeaders[0]:
             raise ValueError('First column of second row must be \'StartDate\' in ' + file)
 
-        if 'enddate' != rowHeaders[1]:
+        if 'enddate' != dl.data[1].lower():  #rowHeaders[1]:
             raise ValueError('First column of third row must be \'EndDate\' in ' + file)
 
-        if 'timezone' != rowHeaders[2]:
+        if 'timezone' != dl.data[2].lower():  #rowHeaders[2]:
             raise ValueError('First column of fourth row must be \'Timezone\' in ' + file)
 
         firstDataLine = 3
@@ -87,9 +93,9 @@ class DailyTemperature:
 
         # Rest of rows 1 and 2 should be dates
         try:
-            sd = pd.datetime.strptime(dl.t_celsius[0], '%Y-%m-%d')
-            ed = pd.datetime.strptime(dl.t_celsius[1], '%Y-%m-%d')
-        except Exception, e:
+            sd = dt.strptime(dl.t_celsius[0], '%Y-%m-%d') #removed pd.datetime
+            ed = dt.strptime(dl.t_celsius[1], '%Y-%m-%d') #removed pd.datetime
+        except Exception as e:
             raise Exception('The second and third rows of ' + file +
                             ' must be dates in the format YYYY-mm-dd. Got:' + dl.t_celsius[0] + ' and ' + dl.t_celsius[1])
 
@@ -103,10 +109,11 @@ class DailyTemperature:
 
 def test():
     # Add and retrieve test data
-    dr = pd.date_range(pd.datetime.strptime('2015-01-01 00:00', '%Y-%m-%d %H:%M'), pd.datetime.strptime('2015-01-05 12:00', '%Y-%m-%d %H:%M'), tz="UTC", freq="H")
+    dr = pd.date_range(dt.strptime('2015-01-01 00:00', '%Y-%m-%d %H:%M'), dt.strptime('2015-01-05 12:00', '%Y-%m-%d %H:%M'), tz="UTC", freq="H")
 
     a = DailyTemperature("Asia/Shanghai", use_uk_holidays=False, weekendDays= [], other_holidays=[])
     a.addTemperatureData('N:\QF_China\Beijing\dailyTemperature_2013_Beijing.csv')
     #a.addTemperatureData('N:\QF_Heraklion\LUCYConfig\dailyTemperature_2016_Heraklion.csv')
     for dt in dr:
-        print str(dt) + str(a.getTemp(dt.to_datetime(), 3600))
+        # fix_print_with_import
+        print(str(dt) + str(a.getTemp(dt.to_datetime(), 3600)))

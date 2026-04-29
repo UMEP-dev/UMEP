@@ -20,18 +20,24 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import pyqtSignal
-from PyQt4.QtGui import QImage, QLabel, QPixmap, QLineEdit, QGridLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QFont
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from qgis.PyQt.QtCore import pyqtSignal
+from qgis.PyQt.QtGui import QImage, QPixmap, QFont
+from qgis.PyQt.QtWidgets import QLabel, QLineEdit, QGridLayout, QVBoxLayout, QSpacerItem, QSizePolicy
 from qgis.utils import *
 import os
-import urllib2
-from PyQt4 import QtGui, uic
+import urllib.request, urllib.error, urllib.parse
+from qgis.PyQt import QtGui, uic
+from qgis.PyQt.QtWidgets import QWidget
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'template_widget.ui'))
 
 
-class TemplateWidget(QtGui.QWidget, FORM_CLASS):
+class TemplateWidget(QWidget, FORM_CLASS):
 
     edit_mode_signal = pyqtSignal()
     cancel_edits_signal = pyqtSignal()
@@ -113,7 +119,7 @@ class TemplateWidget(QtGui.QWidget, FORM_CLASS):
                         lineEdit.setText(str(values[x]))
                     break
         except ValueError as e:
-            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=QgsMessageLog.CRITICAL)
+            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
             pass
 
     def setup_signals(self):
@@ -182,7 +188,7 @@ class TemplateWidget(QtGui.QWidget, FORM_CLASS):
                 lineedit.setEnabled(0)
                 Layout2.addWidget(label)
                 Layout2.addWidget(lineedit)
-                vert_spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Maximum)
+                vert_spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Maximum)
                 Layout2.addItem(vert_spacer)
                 Layout.addLayout(Layout2, row, col)
                 lineEdit_list.append(lineedit)
@@ -190,7 +196,7 @@ class TemplateWidget(QtGui.QWidget, FORM_CLASS):
                     if x % 5 == 0:
                         row += 1
                         col = 0
-                        vert_spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Maximum)
+                        vert_spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Maximum)
                         Layout.addItem(vert_spacer)
                     else:
                         col += 1
@@ -203,18 +209,18 @@ class TemplateWidget(QtGui.QWidget, FORM_CLASS):
         if url == '':
             self.Image.clear()
         else:
-            req = urllib2.Request(str(url))
+            req = urllib.request.Request(str(url))
             try:
-                resp = urllib2.urlopen(req)
-            except urllib2.HTTPError as e:
+                resp = urllib.request.urlopen(req)
+            except urllib.error.HTTPError as e:
                 if e.code == 404:
-                    QgsMessageLog.logMessage("Image URL encountered a 404 problem", level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage("Image URL encountered a 404 problem", level=Qgis.MessageLevel.Critical)
                     self.Image.clear()
                 else:
-                    QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
                     self.Image.clear()
-            except urllib2.URLError as e:
-                QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=QgsMessageLog.CRITICAL)
+            except urllib.error.URLError as e:
+                QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
                 self.Image.clear()
             else:
                 data = resp.read()

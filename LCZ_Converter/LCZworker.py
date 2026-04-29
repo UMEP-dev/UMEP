@@ -1,8 +1,12 @@
-from PyQt4 import QtCore
-from PyQt4.QtCore import QVariant
-from PyQt4.QtGui import QMessageBox
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
+from qgis.PyQt import QtCore
+from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.core import *  # QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsRasterLayer, QgsGeometry, QgsMessageLog
-from LCZ_fractions import *
+from .LCZ_fractions import *
 import traceback
 import numpy as np
 from osgeo import gdal, ogr
@@ -45,8 +49,8 @@ class Worker(QtCore.QObject):
 
         ret = 0
         arrmat1 = np.empty((1, 8))
-        arrmat2 = np.empty((1, 8))
-        arrmat3 = np.empty((1, 8))
+        arrmat2 = np.empty((1, 9)) # added one column for wai
+        arrmat3 = np.empty((1, 9)) # added one column for wai
         pre = str(self.dlg.lineEdit.text())
 
         try:
@@ -61,10 +65,10 @@ class Worker(QtCore.QObject):
                 feature.setAttributes(attributes)
                 feature.setGeometry(geometry)
 
-                writer = QgsVectorFileWriter(self.dir_poly, "CP1250", self.fields, self.prov.geometryType(),
+                writer = QgsVectorFileWriter(self.dir_poly, "CP1250", self.fields, self.prov.wkbType(),
                                                  self.prov.crs(), "ESRI shapefile")
 
-                if writer.hasError() != QgsVectorFileWriter.NoError:
+                if writer.hasError() != QgsVectorFileWriter.WriterError.NoError:
                     self.iface.messageBar().pushMessage("Error when creating shapefile: ", str(writer.hasError()))
                 
                 writer.addFeature(feature)
@@ -96,11 +100,12 @@ class Worker(QtCore.QObject):
                 Vector.Destroy()
 
                 dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
-                lc_grid_array = dataset.ReadAsArray().astype(np.float)
+                lc_grid_array = dataset.ReadAsArray().astype(float)
                 nd = dataset.GetRasterBand(1).GetNoDataValue()
                 nodata_test = (lc_grid_array == nd)
-                if np.sum(lc_grid_array) == (lc_grid_array.shape[0] * lc_grid_array.shape[1] * nd):
-                    QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes Only NoData Pixels", level=QgsMessageLog.CRITICAL)
+                if nodata_test.any():
+                # if np.sum(lc_grid_array) == (lc_grid_array.shape[0] * lc_grid_array.shape[1] * nd):
+                    QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes Only NoData Pixels", level=Qgis.MessageLevel.Critical)
                     cal = 0
                 else:
                     lc_grid_array[lc_grid_array == nd] = 0
@@ -118,10 +123,10 @@ class Worker(QtCore.QObject):
                                      lczfractions["lc_frac_all"][0,5], lczfractions["lc_frac_all"][0,6]])
                     arr2 = np.array([f.attributes()[self.idx], lczfractions["bui_aero"][0,0], lczfractions["bui_aero"][0,1],
                                       lczfractions["bui_aero"][0,2], lczfractions["bui_aero"][0,3], lczfractions["bui_aero"][0,4],
-                                     lczfractions["bui_aero"][0,5], lczfractions["bui_aero"][0,6]])
+                                     lczfractions["bui_aero"][0,5], lczfractions["bui_aero"][0,6], lczfractions["bui_aero"][0,7]])
                     arr3 = np.array([f.attributes()[self.idx], lczfractions["veg_aero"][0,0], lczfractions["veg_aero"][0,1],
                                       lczfractions["veg_aero"][0,2], lczfractions["veg_aero"][0,3], lczfractions["veg_aero"][0,4],
-                                     lczfractions["veg_aero"][0,5], lczfractions["veg_aero"][0,6]])
+                                     lczfractions["veg_aero"][0,5], lczfractions["veg_aero"][0,6], lczfractions["veg_aero"][0,7]])
 
                     arrmat1 = np.vstack([arrmat1, arr1])
                     arrmat2 = np.vstack([arrmat2, arr2])
@@ -136,12 +141,12 @@ class Worker(QtCore.QObject):
             numformat = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
             arrmatsave1 = arrmat1[1: arrmat1.shape[0], :]
             np.savetxt(self.folderPath[0] + '/' +pre +'_'+'LCFGrid_isotropic.txt', arrmatsave1, fmt=numformat, delimiter=' ', header=header1, comments='')
-            header2 = ' ID  pai   fai   zH  zHmax   zHstd  zd  z0'
-            numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
+            header2 = ' ID  pai   fai   zH  zHmax   zHstd  zd  z0 wai'
+            numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
             arrmatsave2 = arrmat2[1: arrmat2.shape[0], :]
             np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'build_MPGrid_isotropic.txt', arrmatsave2,fmt=numformat, delimiter=' ', header=header2, comments='')
-            header3 = ' ID  pai   fai   zH  zHmax   zHstd  zd  z0'
-            numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
+            header3 = ' ID  pai   fai   zH  zHmax   zHstd  zd  z0 wai'
+            numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
             arrmatsave3 = arrmat3[1: arrmat3.shape[0], :]
             np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'veg_MPGrid_isotropic.txt', arrmatsave3,fmt=numformat, delimiter=' ', header=header3, comments='')
             
@@ -159,7 +164,7 @@ class Worker(QtCore.QObject):
                 self.progress.emit()
                 ret = 1
 
-        except Exception, e:
+        except Exception as e:
             ret = 0
             #self.error.emit(e, traceback.format_exc())
             errorstring = self.print_exception()
@@ -182,7 +187,7 @@ class Worker(QtCore.QObject):
         current_index_length = len(vlayer.dataProvider().attributeIndexes())
         caps = vlayer.dataProvider().capabilities()
 
-        if caps & QgsVectorDataProvider.AddAttributes:
+        if caps & QgsVectorDataProvider.Capability.AddAttributes:
             #vlayer.startEditing()
             line_split = header.split()
             for x in range(1, len(line_split)):
@@ -234,7 +239,8 @@ class Worker(QtCore.QObject):
                 wrote_header = False
                 for line in fileinput.input(file_path, inplace=1):
                     if not wrote_header:
-                        print line,
+                        # fix_print_with_import
+                        print(line, end=' ')
                         wrote_header = True
                     else:
                         line_split = line.split()
@@ -244,7 +250,8 @@ class Worker(QtCore.QObject):
                             total += float(line_split[x])
 
                         if total == 1.0:
-                            print line,
+                            # fix_print_with_import
+                            print(line, end=' ')
                         else:
                             diff = total - 1.0
                             # QgsMessageLog.logMessage("Diff: " + str(diff), level=QgsMessageLog.CRITICAL)
@@ -267,11 +274,12 @@ class Worker(QtCore.QObject):
                             string_to_print += str(line_split[-1])
                             string_to_print += '\n'
 
-                            print string_to_print,
+                            # fix_print_with_import
+                            print(string_to_print, end=' ')
                 fileinput.close()
-        except Exception, e:
+        except Exception as e:
             errorstring = self.print_exception()
-            QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
+            QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)
             fileinput.close()
 
     def kill(self):

@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 import numpy as np
-from Lvikt_veg import Lvikt_veg
+from .Lvikt_veg import Lvikt_veg
 
 def Lside_veg_v2015a(svfS,svfW,svfN,svfE,svfEveg,svfSveg,svfWveg,svfNveg,svfEaveg,svfSaveg,svfWaveg,svfNaveg,azimuth,altitude,Ta,Tw,SBC,ewall,Ldown,esky,t,F_sh,CI,LupE,LupS,LupW,LupN):
 

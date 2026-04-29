@@ -1,0 +1,10 @@
+# this is a comment and will be ignored!
+# seperate data with arbitrary number of spaces!
+# Header:
+# Description_with_underscore_instead_space   a   b   delta
+Open_rack_cell_glassback         -3.47 -.0594 3
+Open_rack_cell_polymerback       -3.56 -.0750 3
+Open_rack_Polymer_thinfilm_steel -3.58 -.113  3
+Roof_mount_cell_glassback        -2.98 -.0471 1
+Insulated_back_polymerback       -2.81 -.0455 0
+# 22X_Concentrator_tracker         -3.23 -.130  13

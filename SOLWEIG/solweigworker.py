@@ -1,17 +1,23 @@
-from PyQt4 import QtCore, QtGui
-import traceback
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
+from qgis.PyQt import QtCore, QtGui
+# import traceback
 import numpy as np
 import linecache
 import sys
-
-from SOLWEIGpython import Solweig_2015a_calc as so
+# from qgis.core import QgsFeature, QgsVectorFileWriter, QgsVectorDataProvider, QgsField, Qgis, QgsMessageLog
+# from .SOLWEIGpython import Solweig_2021a_calc as so
+from .SOLWEIGpython import Solweig_2022a_calc as so
 # from SOLWEIGpython.clearnessindex_2013b import clearnessindex_2013b
 from ..Utilities.SEBESOLWEIGCommonFiles.clearnessindex_2013b import clearnessindex_2013b
 from osgeo.gdalconst import *
 # from ..Utilities import shadowingfunctions as shadow
-
 from osgeo import gdal
 #from osgeo.gdalconst import *
+from . import PET_calculations as p
+from . import UTCI_calculations as utci
+
 
 class Worker(QtCore.QObject):
 
@@ -21,14 +27,15 @@ class Worker(QtCore.QObject):
 
     def __init__(self, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
                         svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
-                        vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, altitude,
+                        vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, Fcyl, altitude,
                         azimuth, zen, jday, usevegdem, onlyglobal, buildings, location,
                         psi, landcover, lcgrid, dectime, altmax, wallaspect,
                         wallheight, cyl, elvis, Ta, RH, radG, radD, radI, P, amaxvalue,
                         bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, dlg,
-                        YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname):
+                        YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname, Ws, mbody,
+                        age, ht, activity, clo, sex, sensorheight, diffsh, shmat, vegshmat, vbshvegshmat, anisotropic_sky, asvf, patch_option):
 
         QtCore.QObject.__init__(self)
         self.killed = False
@@ -60,6 +67,7 @@ class Worker(QtCore.QObject):
         self.ewall = ewall
         self.Fside = Fside
         self.Fup = Fup
+        self.Fcyl = Fcyl
         self.altitude = altitude
         self.azimuth = azimuth
         self.zen = zen
@@ -120,6 +128,21 @@ class Worker(QtCore.QObject):
         self.folderPath = folderPath
         self.poisxy = poisxy
         self.poiname = poiname
+        self.Ws = Ws
+        self.mbody = mbody
+        self.age = age
+        self.ht = ht
+        self.activity = activity
+        self.clo = clo
+        self.sex = sex
+        self.sensorheight = sensorheight
+        self.anisotropic_sky = anisotropic_sky
+        self.diffsh = diffsh
+        self.shmat = shmat
+        self.vegshmat = vegshmat
+        self.vbshvegshmat = vbshvegshmat
+        self.asvf = asvf
+        self.patch_option = patch_option
 
 
     def run(self):
@@ -152,6 +175,7 @@ class Worker(QtCore.QObject):
             ewall = self.ewall
             Fside = self.Fside
             Fup = self.Fup
+            Fcyl = self.Fcyl
             altitude = self.altitude
             azimuth = self.azimuth
             zen = self.zen
@@ -211,11 +235,30 @@ class Worker(QtCore.QObject):
             folderPath = self.folderPath
             poisxy = self.poisxy
             poiname = self.poiname
+            Ws = self.Ws
+            mbody = self.mbody
+            age = self.age
+            ht = self.ht
+            activity = self.activity
+            clo = self.clo
+            sex = self.sex
+            sensorheight = self.sensorheight
+            anisotropic_sky = self.anisotropic_sky
+            diffsh = self.diffsh
+            shmat = self.shmat
+            vegshmat = self.vegshmat
+            vbshvegshmat = self.vbshvegshmat
+            asvf = self.asvf
+            patch_option = self.patch_option
 
             tmrtplot = np.zeros((rows, cols))
             TgOut1 = np.zeros((rows, cols))
+            #TgOut = np.zeros((rows, cols))
 
-            numformat = '%3d %2d %3d %2d %6.5f ' + '%6.2f ' * 28
+            # numformat = '%d %d %d %d %.5f ' + '%.2f ' * 28
+
+            numformat = '%d %d %d %d %.5f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f ' \
+                        '%.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f'
 
             for i in np.arange(0, Ta.__len__()):
                 self.progress.emit()  # move progressbar forward
@@ -223,35 +266,64 @@ class Worker(QtCore.QObject):
                 if self.landcover == 1:
                     if ((dectime[i] - np.floor(dectime[i]))) == 0 or (i == 0):
                         Twater = np.mean(Ta[jday[0] == np.floor(dectime[i])])
-
+                # print(dectime[i])
                 # Nocturnal cloudfraction from Offerle et al. 2003
                 if (dectime[i] - np.floor(dectime[i])) == 0:
-                    # alt = altitude[i:altitude.__len__()]
-                    # alt2 = np.where(alt > 1)
-                    # rise = alt2[1][0]
                     daylines = np.where(np.floor(dectime) == dectime[i])
-                    alt = altitude[0][daylines]
-                    alt2 = np.where(alt > 1)
-                    rise = alt2[0][0]
-                    [_, CI, _, _, _] = clearnessindex_2013b(zen[0, i + rise + 1], jday[0, i + rise + 1],
-                                                            Ta[i + rise + 1],
-                                                            RH[i + rise + 1] / 100., radG[i + rise + 1], location,
-                                                            P[i + rise + 1])  # i+rise+1 to match matlab code. correct?
-                    if (CI > 1) or (CI == np.inf):
-                        CI = 1
+                    if daylines.__len__() > 1:
+                        alt = altitude[0][daylines]
+                        alt2 = np.where(alt > 1)
+                        rise = alt2[0][0]
+                        [_, CI, _, _, _] = clearnessindex_2013b(zen[0, i + rise + 1], jday[0, i + rise + 1],
+                                                                Ta[i + rise + 1],
+                                                                RH[i + rise + 1] / 100., radG[i + rise + 1], location,
+                                                                P[i + rise + 1])  # i+rise+1 to match matlab code. correct?
+                        if (CI > 1.) or (CI == np.inf):
+                            CI = 1.
+                    else:
+                        CI = 1.
 
                 Tmrt, Kdown, Kup, Ldown, Lup, Tg, ea, esky, I0, CI, shadow, firstdaytime, timestepdec, timeadd, \
-                Tgmap1, timeaddE, Tgmap1E, timeaddS, Tgmap1S, timeaddW, Tgmap1W, timeaddN, Tgmap1N, \
-                Keast, Ksouth, Kwest, Knorth, Least, Lsouth, Lwest, Lnorth, KsideI, TgOut1, TgOut, radIout, radDout \
-                    = so.Solweig_2015a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
+                    Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, Keast, Ksouth, Kwest, Knorth, Least, \
+                    Lsouth, Lwest, Lnorth, KsideI, TgOut1, TgOut, radIout, radDout, \
+                    Lside, Lsky_patch_characteristics, CI_Tg, CI_TgG, KsideD, \
+                        dRad, Kside = so.Solweig_2022a_calc(
+                        i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
                         svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
-                        vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, altitude[0][i],
+                        vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, Fcyl, altitude[0][i],
                         azimuth[0][i], zen[0][i], jday[0][i], usevegdem, onlyglobal, buildings, location,
                         psi[0][i], landcover, lcgrid, dectime[i], altmax[0][i], wallaspect,
                         wallheight, cyl, elvis, Ta[i], RH[i], radG[i], radD[i], radI[i], P[i], amaxvalue,
                         bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
-                        TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
-                        timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, TgOut1)
+                        TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timestepdec, 
+                        Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, TgOut1,
+                        diffsh, shmat, vegshmat, vbshvegshmat, anisotropic_sky, asvf, patch_option)
+
+                # Tmrt, Kdown, Kup, Ldown, Lup, Tg, ea, esky, I0, CI, shadow, firstdaytime, timestepdec, timeadd, \
+                #    Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, Keast, Ksouth, Kwest, Knorth, Least, \
+                #    Lsouth, Lwest, Lnorth, KsideI, TgOut1, TgOut, radIout, radDout = so.Solweig_2021a_calc(
+                #         i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
+                #         svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
+                #         vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, Fcyl, altitude[0][i],
+                #         azimuth[0][i], zen[0][i], jday[0][i], usevegdem, onlyglobal, buildings, location,
+                #         psi[0][i], landcover, lcgrid, dectime[i], altmax[0][i], wallaspect,
+                #         wallheight, cyl, elvis, Ta[i], RH[i], radG[i], radD[i], radI[i], P[i], amaxvalue,
+                #         bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
+                #         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timestepdec, 
+                #         Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, TgOut1, diffsh, ani)
+
+                # Tmrt, Kdown, Kup, Ldown, Lup, Tg, ea, esky, I0, CI, shadow, firstdaytime, timestepdec, timeadd, \
+                # Tgmap1, timeaddE, Tgmap1E, timeaddS, Tgmap1S, timeaddW, Tgmap1W, timeaddN, Tgmap1N, \
+                # Keast, Ksouth, Kwest, Knorth, Least, Lsouth, Lwest, Lnorth, KsideI, TgOut1, TgOut, radIout, radDout \
+                #     = so.Solweig_2019a_calc(i, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
+                #         svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
+                #         vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, Fcyl, altitude[0][i],
+                #         azimuth[0][i], zen[0][i], jday[0][i], usevegdem, onlyglobal, buildings, location,
+                #         psi[0][i], landcover, lcgrid, dectime[i], altmax[0][i], wallaspect,
+                #         wallheight, cyl, elvis, Ta[i], RH[i], radG[i], radD[i], radI[i], P[i], amaxvalue,
+                #         bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
+                #         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
+                #         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, TgOut1, diffsh, ani)
 
                 tmrtplot = tmrtplot + Tmrt
 
@@ -263,7 +335,7 @@ class Worker(QtCore.QObject):
                 # Write to POIs
                 if not poisxy is None:
                     for k in range(0, self.poisxy.shape[0]):
-                        poi_save = np.zeros((1, 33))
+                        poi_save = np.zeros((1, 35))
                         poi_save[0, 0] = YYYY[0][i]
                         poi_save[0, 1] = jday[0][i]
                         poi_save[0, 2] = hours[i]
@@ -297,9 +369,18 @@ class Worker(QtCore.QObject):
                         poi_save[0, 30] = svf[int(poisxy[k, 2]), int(poisxy[k, 1])]
                         poi_save[0, 31] = svfbuveg[int(poisxy[k, 2]), int(poisxy[k, 1])]
                         poi_save[0, 32] = KsideI[int(poisxy[k, 2]), int(poisxy[k, 1])]
-
+                        # Recalculating wind speed based on powerlaw
+                        WsPET = (1.1 / sensorheight) ** 0.2 * Ws[i]
+                        WsUTCI = (10. / sensorheight) ** 0.2 * Ws[i]
+                        resultPET = p._PET(Ta[i], RH[i], Tmrt[int(poisxy[k, 2]), int(poisxy[k, 1])], WsPET,
+                                           mbody, age, ht, activity, clo, sex)
+                        poi_save[0, 33] = resultPET
+                        resultUTCI = utci.utci_calculator(Ta[i], RH[i], Tmrt[int(poisxy[k, 2]), int(poisxy[k, 1])],
+                                                          WsUTCI)
+                        poi_save[0, 34] = resultUTCI
                         data_out = self.folderPath[0] + '/POI_' + str(self.poiname[k]) + '.txt'
-                        f_handle = file(data_out, 'a')
+                        # f_handle = file(data_out, 'a')
+                        f_handle = open(data_out, 'ab')
                         np.savetxt(f_handle, poi_save, fmt=numformat)
                         f_handle.close()
 
@@ -330,8 +411,12 @@ class Worker(QtCore.QObject):
                 if self.dlg.CheckBoxShadow.isChecked():
                     self.saveraster(gdal_dsm, folderPath[0] + '/Shadow_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
                                     + '_' + XH + str(int(hours[i])) + XM + str(int(minu[i])) + w + '.tif', shadow)
+                # Save K diffuse if checkbox for TreePlanter (used in COMFA in Spatial TC)
+                if self.dlg.checkBoxTreePlanter.isChecked():
+                    self.saveraster(gdal_dsm, folderPath[0] + '/Kdiff' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
+                                    + '_' + XH + str(int(hours[i])) + XM + str(int(minu[i])) + w + '.tif', dRad)
 
-            tmrtplot = tmrtplot / Ta.__len__()
+            tmrtplot = tmrtplot / Ta.__len__()  # fix average Tmrt instead of sum, 20191022
             solweigresult = {'tmrtplot': tmrtplot, 'altitude': altitude}
 
             if self.killed is False:

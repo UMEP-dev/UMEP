@@ -23,13 +23,14 @@
 
 import os
 
-from PyQt4 import QtGui, uic
+from qgis.PyQt import uic
+from qgis.PyQt.QtWidgets import QDialog
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'suews_simple_dialog_base.ui'))
 
 
-class SuewsSimpleDialog(QtGui.QDialog, FORM_CLASS):
+class SuewsSimpleDialog(QDialog, FORM_CLASS):
     def __init__(self, parent=None):
         """Constructor."""
         super(SuewsSimpleDialog, self).__init__(parent)

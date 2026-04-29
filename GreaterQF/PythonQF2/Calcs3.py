@@ -4,6 +4,7 @@ try:
 except:
     pass
 
+
 def QF(areaCodes, timeStepEnd, timeStepDuration, annualEnergyUse, diurnalProfiles, dailyEnergy, pop, trans, diurnalTrans,
        workingProfiles, dailyFactor, prop, hoc):
     '''
@@ -23,7 +24,8 @@ def QF(areaCodes, timeStepEnd, timeStepDuration, annualEnergyUse, diurnalProfile
     :param hoc: Heat of combustion [J/km] {petrol: float, diesel: float}
     :return: Building energy QF components for this time step
     '''
-    dailyFactor = dailyFactor.getFact(timeStepEnd - timedelta(seconds=timeStepDuration))  # Get daily factors at start of time bin to ensure correct day
+    dailyFactor = dailyFactor.getFact(timeStepEnd - timedelta(
+        seconds=timeStepDuration))  # Get daily factors at start of time bin to ensure correct day
     de = annualEnergyUse.getDomesticElecValue(areaCodes, timeStepEnd)
     ie = annualEnergyUse.getIndustrialElecValue(areaCodes, timeStepEnd)
     dg = annualEnergyUse.getDomesticGasValue(areaCodes, timeStepEnd)
@@ -42,66 +44,69 @@ def QF(areaCodes, timeStepEnd, timeStepDuration, annualEnergyUse, diurnalProfile
     NewGasInd = GasSum / (1.0 + dailyFactor * GasRho)
 
     columns = ['ElDmUnr',
-                        'ElDmE7',
-                        'ElId',
-                        'GasDm',
-                        'GasId',
-                        'OthrId',
-                        'BldTotDm',
-                        'BldTotId',
-                        'BldTot',
-                        'Mcyc',
-                        'Taxi',
-                        'Car',
-                        'Bus',
-                        'LGV',
-                        'Rigd',
-                        'Art',
-                        'TransTot',
-                        'Metab',
-                        'AllTot']
-    WattHour = pd.DataFrame(columns=columns, index=areaCodes)  #at later point do something with mods to find total hours in time period
+               'ElDmE7',
+               'ElId',
+               'GasDm',
+               'GasId',
+               'OthrId',
+               'BldTotDm',
+               'BldTotId',
+               'BldTot',
+               'Mcyc',
+               'Taxi',
+               'Car',
+               'Bus',
+               'LGV',
+               'Rigd',
+               'Art',
+               'TransTot',
+               'Metab',
+               'AllTot']
+    # at later point do something with mods to find total hours in time period
+    WattHour = pd.DataFrame(columns=columns, index=areaCodes)
 
+    # TODO: fix the pandas value assignment issues below:
+    # incorrect way of setting values
     WattHour[columns[0]][areaCodes] = prop['domestic']['elec'] * \
-                                      diurnalProfiles.getDomElec(timeStepEnd, timeStepDuration)[0] * \
-                                      dailyEnergy.getElec(timeStepEnd, timeStepDuration)[0] * \
-                                      NewElDom  # El dom unrestr
+        diurnalProfiles.getDomElec(timeStepEnd, timeStepDuration)[0] * \
+        dailyEnergy.getElec(timeStepEnd, timeStepDuration)[0] * \
+        NewElDom  # El dom unrestr
     WattHour[columns[1]][areaCodes] = prop['domestic']['eco7'] * \
-                                      diurnalProfiles.getEconomy7(timeStepEnd, timeStepDuration)[0] * \
-                                      dailyEnergy.getElec(timeStepEnd, timeStepDuration)[0] * \
-                                      annualEnergyUse.getEconomy7ElecValue(areaCodes, timeStepEnd)
+        diurnalProfiles.getEconomy7(timeStepEnd, timeStepDuration)[0] * \
+        dailyEnergy.getElec(timeStepEnd, timeStepDuration)[0] * \
+        annualEnergyUse.getEconomy7ElecValue(areaCodes, timeStepEnd)
 
     WattHour[columns[2]][areaCodes] = prop['industrial']['elec'] * \
-                                      diurnalProfiles.getIndElec(timeStepEnd, timeStepDuration)[0] * \
-                                      dailyEnergy.getElec(timeStepEnd, timeStepDuration)[0] * \
-                                      NewElInd  # El industrial
+        diurnalProfiles.getIndElec(timeStepEnd, timeStepDuration)[0] * \
+        dailyEnergy.getElec(timeStepEnd, timeStepDuration)[0] * \
+        NewElInd  # El industrial
 
     WattHour[columns[3]][areaCodes] = prop['domestic']['gas'] * \
-                                      diurnalProfiles.getDomGas(timeStepEnd, timeStepDuration)[0] * \
-                                      dailyEnergy.getGas(timeStepEnd, timeStepDuration)[0] * \
-                                      NewGasDom  # Gas domestic
+        diurnalProfiles.getDomGas(timeStepEnd, timeStepDuration)[0] * \
+        dailyEnergy.getGas(timeStepEnd, timeStepDuration)[0] * \
+        NewGasDom  # Gas domestic
 
     WattHour[columns[4]][areaCodes] = prop['industrial']['gas'] * \
-                                      diurnalProfiles.getIndGas(timeStepEnd, timeStepDuration)[0] * \
-                                      dailyEnergy.getGas(timeStepEnd, timeStepDuration)[0] * \
-                                      NewGasInd  # Gas industrial
+        diurnalProfiles.getIndGas(timeStepEnd, timeStepDuration)[0] * \
+        dailyEnergy.getGas(timeStepEnd, timeStepDuration)[0] * \
+        NewGasInd  # Gas industrial
 
     WattHour[columns[5]][areaCodes] = prop['industrial']['crude_oil'] * \
-                                      diurnalProfiles.getIndGas(timeStepEnd, timeStepDuration)[0] * \
-                                      dailyEnergy.getGas(timeStepEnd, timeStepDuration)[0] * \
-                                      annualEnergyUse.getIndustrialOtherValue(areaCodes, timeStepEnd)  # Assume same behaviour as gas
+        diurnalProfiles.getIndGas(timeStepEnd, timeStepDuration)[0] * \
+        dailyEnergy.getGas(timeStepEnd, timeStepDuration)[0] * \
+        annualEnergyUse.getIndustrialOtherValue(
+            areaCodes, timeStepEnd)  # Assume same behaviour as gas
 
     WattHour[columns[6]][areaCodes] = WattHour[columns[0]][areaCodes] + \
-                                      WattHour[columns[1]][areaCodes] + \
-                                      WattHour[columns[3]][areaCodes] # total buildings domestic
+        WattHour[columns[1]][areaCodes] + \
+        WattHour[columns[3]][areaCodes]  # total buildings domestic
 
     WattHour[columns[7]][areaCodes] = WattHour[columns[2]][areaCodes] + \
-                                      WattHour[columns[4]][areaCodes] + \
-                                      WattHour[columns[5]][areaCodes]  # total buildings industrial
+        WattHour[columns[4]][areaCodes] + \
+        WattHour[columns[5]][areaCodes]  # total buildings industrial
 
     WattHour[columns[8]][areaCodes] = WattHour[columns[6]][areaCodes] + \
-                                      WattHour[columns[7]][areaCodes] # total buildings
-
+        WattHour[columns[7]][areaCodes]  # total buildings
 
     # TRANSPORT: Take fuel consumption density [kg/m2] for petrol and diesel, convert to heat
     # Heat of combustion shorthand
@@ -110,44 +115,48 @@ def QF(areaCodes, timeStepEnd, timeStepDuration, annualEnergyUse, diurnalProfile
 
     # Scaling factor shorthand(determines whether latent and/or sensible heat should be included)
     # Factor of 86400 to convert from J/m2/day to J/m2/s (W/m2)
-    dslSc =  prop['diesel']
+    dslSc = prop['diesel']
     petSc = prop['petrol']
-    WattHour[columns[9]][areaCodes] =  (petHoc * trans.getMotorcycle(areaCodes, 'petrol', timeStepEnd) * petSc +
-                                         dslHoc * trans.getMotorcycle(areaCodes, 'diesel', timeStepEnd) * dslSc) * \
-                                         diurnalTrans.getMotorcycle(timeStepEnd, timeStepDuration)[0]/86400.0  # motorcycles
+    WattHour[columns[9]][areaCodes] = (petHoc * trans.getMotorcycle(areaCodes, 'petrol', timeStepEnd) * petSc +
+                                       dslHoc * trans.getMotorcycle(areaCodes, 'diesel', timeStepEnd) * dslSc) * \
+        diurnalTrans.getMotorcycle(timeStepEnd, timeStepDuration)[0]/86400.0  # motorcycles
 
-    WattHour[columns[10]][areaCodes] =  (petHoc * trans.getTaxi(areaCodes, 'petrol', timeStepEnd) * petSc +
-                                         dslHoc * trans.getTaxi(areaCodes, 'diesel', timeStepEnd) * dslSc) * \
-                                         diurnalTrans.getTaxi(timeStepEnd, timeStepDuration)[0]/86400.0  # Taxis
+    WattHour[columns[10]][areaCodes] = (petHoc * trans.getTaxi(areaCodes, 'petrol', timeStepEnd) * petSc +
+                                        dslHoc * trans.getTaxi(areaCodes, 'diesel', timeStepEnd) * dslSc) * \
+        diurnalTrans.getTaxi(timeStepEnd, timeStepDuration)[0]/86400.0  # Taxis
 
-    WattHour[columns[11]][areaCodes] =  (petHoc * trans.getCar(areaCodes, 'petrol', timeStepEnd) * petSc +
-                                         dslHoc * trans.getCar(areaCodes, 'diesel', timeStepEnd) * dslSc) * \
-                                         diurnalTrans.getCar(timeStepEnd, timeStepDuration)[0]/86400.0  # Cars
+    WattHour[columns[11]][areaCodes] = (petHoc * trans.getCar(areaCodes, 'petrol', timeStepEnd) * petSc +
+                                        dslHoc * trans.getCar(areaCodes, 'diesel', timeStepEnd) * dslSc) * \
+        diurnalTrans.getCar(timeStepEnd, timeStepDuration)[0]/86400.0  # Cars
 
-    WattHour[columns[12]][areaCodes] =  (petHoc * trans.getBus(areaCodes, 'petrol', timeStepEnd) * petSc +
-                                         dslHoc * trans.getBus(areaCodes, 'diesel', timeStepEnd) * dslSc) * \
-                                         diurnalTrans.getBus(timeStepEnd, timeStepDuration)[0]/86400.0  # Bus
+    WattHour[columns[12]][areaCodes] = (petHoc * trans.getBus(areaCodes, 'petrol', timeStepEnd) * petSc +
+                                        dslHoc * trans.getBus(areaCodes, 'diesel', timeStepEnd) * dslSc) * \
+        diurnalTrans.getBus(timeStepEnd, timeStepDuration)[0]/86400.0  # Bus
 
-    WattHour[columns[13]][areaCodes] =  (petHoc * trans.getLGV(areaCodes, 'petrol', timeStepEnd) * petSc +
-                                         dslHoc * trans.getLGV(areaCodes, 'diesel', timeStepEnd) * dslSc) * \
-                                         diurnalTrans.getLGV(timeStepEnd, timeStepDuration)[0]/86400.0  # LGVs
+    WattHour[columns[13]][areaCodes] = (petHoc * trans.getLGV(areaCodes, 'petrol', timeStepEnd) * petSc +
+                                        dslHoc * trans.getLGV(areaCodes, 'diesel', timeStepEnd) * dslSc) * \
+        diurnalTrans.getLGV(timeStepEnd, timeStepDuration)[0]/86400.0  # LGVs
 
-    WattHour[columns[14]][areaCodes] =  (petHoc * trans.getRigid(areaCodes, 'petrol', timeStepEnd) * petSc +
-                                         dslHoc * trans.getRigid(areaCodes, 'diesel', timeStepEnd) * dslSc) * \
-                                         diurnalTrans.getRigid(timeStepEnd, timeStepDuration)[0]/86400.0  # Rigid HGVs
+    WattHour[columns[14]][areaCodes] = (petHoc * trans.getRigid(areaCodes, 'petrol', timeStepEnd) * petSc +
+                                        dslHoc * trans.getRigid(areaCodes, 'diesel', timeStepEnd) * dslSc) * \
+        diurnalTrans.getRigid(timeStepEnd, timeStepDuration)[0]/86400.0  # Rigid HGVs
 
-    WattHour[columns[15]][areaCodes] =  (petHoc * trans.getArtic(areaCodes, 'petrol', timeStepEnd) * petSc +
-                                         dslHoc * trans.getArtic(areaCodes, 'diesel', timeStepEnd) * dslSc) * \
-                                         diurnalTrans.getArtic(timeStepEnd, timeStepDuration)[0]/86400.0  # Articulated HGVs
+    WattHour[columns[15]][areaCodes] = (petHoc * trans.getArtic(areaCodes, 'petrol', timeStepEnd) * petSc +
+                                        dslHoc * trans.getArtic(areaCodes, 'diesel', timeStepEnd) * dslSc) * \
+        diurnalTrans.getArtic(timeStepEnd, timeStepDuration)[0]/86400.0  # Articulated HGVs
 
-    WattHour[columns[16]] = WattHour[columns[9:16]].sum(axis=1)  # Calculate grand total across transport
+    WattHour[columns[16]] = WattHour[columns[9:16]].sum(
+        axis=1)  # Calculate grand total across transport
 
     # METABOLISM
-    activeFraction =  workingProfiles.getFraction(timeStepEnd, timeStepDuration)[0] # Home:Work balance of people.  1=Workday population, 0= Residential Population
-    a =  prop['metab'] * workingProfiles.getWattPerson(timeStepEnd, timeStepDuration)[0] *\
-                                ((1-activeFraction)*pop.getResPopValue(areaCodes, timeStepEnd) + activeFraction*pop.getWorkPopValue(areaCodes, timeStepEnd))
+    # Home:Work balance of people.  1=Workday population, 0= Residential Population
+    activeFraction = workingProfiles.getFraction(
+        timeStepEnd, timeStepDuration)[0]
+    a = prop['metab'] * workingProfiles.getWattPerson(timeStepEnd, timeStepDuration)[0] *\
+        ((1-activeFraction)*pop.getResPopValue(areaCodes, timeStepEnd) +
+         activeFraction*pop.getWorkPopValue(areaCodes, timeStepEnd))
 
     WattHour[columns[17]] = a
-    WattHour[columns[18]][areaCodes] = WattHour[columns[8]][areaCodes] + WattHour[columns[16]][areaCodes] + WattHour[columns[17]][areaCodes]
+    WattHour[columns[18]][areaCodes] = WattHour[columns[8]][areaCodes] + \
+        WattHour[columns[16]][areaCodes] + WattHour[columns[17]][areaCodes]
     return WattHour.astype('float16')
-

@@ -1,4 +1,5 @@
 from __future__ import division
+from __future__ import print_function
 
 try:
     from osgeo import gdal, gdal_array
@@ -26,7 +27,8 @@ def get_temp_file(suffix=""):
         os.remove(temp_filename)
     except:
         pass
-    print temp_filename
+    # fix_print_with_import
+    print(temp_filename)
     return temp_filename
 
 def get_slope_aspect_gdal(dem_file):

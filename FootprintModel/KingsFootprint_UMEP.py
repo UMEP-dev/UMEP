@@ -1,3 +1,7 @@
+from __future__ import print_function
+from builtins import zip
+from builtins import str
+from builtins import range
 ####################### FOOTPRINT MODEL WITH ITERATIONS TO CALC NEW ZO AND ZD #######################################
 #%Date: 22 October 2015                                                                                            %#
 #%Author:                                                                                                          %#
@@ -14,12 +18,17 @@
 # from PIL import Image
 import numpy as np
 import math as math
-import scipy.misc as sc
+# import scipy.misc as sc
 # from scipy.ndimage.interpolation import rotate as imrotate
 # from matplotlib.patches import Circle
-from scipy.optimize import fsolve
+
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 # import copy as copy
-import scipy.ndimage.interpolation as scnd
+try:
+    import scipy.ndimage.interpolation as scnd
+    from scipy.optimize import fsolve
+except:
+    pass
 from osgeo import gdal
 from osgeo.gdalconst import *
 from ..Utilities import RoughnessCalcFunctionV2 as rg
@@ -28,8 +37,7 @@ from ..Utilities import RoughnessCalcFunctionV2 as rg
 ##1 - Kormann and Mexiner (2001) model functions
 
 ##### {Running of KM model} ####
-def footprintiterKAM(iterations,z_0_input,z_d_input,z_ag,sigv,Obukhov,ustar,dir,porosity,bld,veg,rows,cols,res,dlg,maxfetch,rm):
-
+def footprintiterKAM(iterations,z_0_input,z_d_input,z_ag,sigv,Obukhov,ustar,wdir,porosity,bld,veg,rows,cols,res,dlg,maxfetch,rm):
     dlg.progressBar.setRange(0, iterations)
     dlg.progressBar.setValue(0)
     scale = 1. / res
@@ -72,9 +80,8 @@ def footprintiterKAM(iterations,z_0_input,z_d_input,z_ag,sigv,Obukhov,ustar,dir,
         sig_v_input = sigv[i]
         L = Obukhov[i]
         u_star = ustar[i]
-        wd_input=dir[i]
+        wd_input=wdir[i]
         por = porosity[i]
-
 
         ###Bounds of integration for equation 42 tp 46 defined on pg 218### {X1}
         z_1=3.0*z_0
@@ -83,10 +90,12 @@ def footprintiterKAM(iterations,z_0_input,z_d_input,z_ag,sigv,Obukhov,ustar,dir,
 
         ###Implementation of root finding for eqn 39 & 40###
         ##Fequ_m formulation but optimized for python {X2} {J} ##EQUATION 39
+        #QMessageBox.critical(None,"a", "before lambda m")
         fequ_m= lambda m: (I_1(2.*m,z_1,z_2,z_m)*(I_3(m,z_0/z_m,z_1,z_2,z_m)+J_2(m,z_1,z_2,z_m,L,f_psi_m(z*z_m,z_m,L))))-(I_2(2.*m,1,z_1,z_2,z_m)*(I_2(2.*m,z_0/z_m,z_1,z_2,z_m)+ J_1(m,z_1,z_2,z_m,L,f_psi_m(z*z_m,z_m,L))))
         m = fsolve(fequ_m,0.2)
 
         ##fequ_n formulation but optimized for python {X3} {K} ##EQUATION 40
+        #QMessageBox.critical(None, "a","before lambda n")
         fequ_n = lambda n: I_1(2.*n,z_1,z_2,z_m)*J_2(n,z_1,z_2,z_m,L,f_z_phi_c(z*z_m,z_m,L)) - I_2(2.*n,1,z_1,z_2,z_m)*J_1(n,z_1,z_2,z_m,L,f_z_phi_c(z*z_m,z_m,L))
         n = fsolve(fequ_n,0.5)      #solve when fequ_n falls to zero with starting guess of 0.5
 
@@ -153,13 +162,14 @@ def footprintiterKAM(iterations,z_0_input,z_d_input,z_ag,sigv,Obukhov,ustar,dir,
         domain_y = domain_y / d_input
         fy = fx
         full = np.zeros([fx, fy])
-        full[(fx+1)/2:int((fx+1)/2+(domain_x)),int((fy/2+1)-domain_y):int((fy/2+1)+domain_y+1)]=phi
+        # full = np.zeros([1000, 1000])
+        full[int((fx+1)/2):int((fx+1)/2+(domain_x)),int((fy/2+1)-domain_y):int((fy/2+1)+domain_y+1)] = phi
         full[np.isnan(full)]=0
-
         ##Rotation for wind angle for absolute plot and correction for rotation algorithm
         rotang =180-wd_input
-        rotatedphi = scnd.rotate(full, rotang, order =0, reshape=False, mode='nearest')
-
+        # rotatedphi = scnd.rotate(full, rotang[0], order=0, reshape=False, mode='nearest')
+        rotatedphi = scnd.rotate(full, rotang, order=0, reshape=False, mode='nearest')
+        
         totRotatedphi = totRotatedphi + rotatedphi
 
         #Calculate weighted morphometry and therefore weighted zo and zd
@@ -190,35 +200,35 @@ def phi_c(z,L):
 #function I_1 {C} ## EQUATION 42
 def I_1(p,z_1,z_2,z_m):
     z = np.linspace(z_1/z_m,z_2/z_m,1000)
-    dz = np.diff(z)
-    z=z[0:(len(z)-1)]+dz/2
+    dz = np.diff(z,axis=0)
+    z = z[0:(len(z) - 1)] + dz/2.
     d=np.sum((z**p)*dz)
     return d
 ##function I_2 {D} ##EQUATION 43
 def I_2(p,z0,z_1,z_2,z_m):
     z = np.linspace(z_1/z_m,z_2/z_m,1000)
-    dz = np.diff(z)
+    dz = np.diff(z,axis=0)
     z=z[0:(len(z)-1)]+dz/2
     d=np.sum((z**p)*np.log(z/z0)*dz)
     return d
 ##function I_3 {E} ##EQUATION 44
 def I_3(p,z0,z_1,z_2,z_m):
     z = np.linspace(z_1/z_m,z_2/z_m,1000)
-    dz = np.diff(z)
+    dz = np.diff(z,axis=0)
     z=z[0:(len(z)-1)]+dz/2
     d=np.sum((z**p)*np.log(z)*np.log(z/z0)*dz)        #z0
     return d
 ##function J_1 {F2} #EQUATION 45     (for use in equation 40)
 def J_1(p,z_1,z_2,z_m,L,fun):
     z = np.linspace(z_1/z_m,z_2/z_m,1000)
-    dz = np.diff(z)
+    dz = np.diff(z,axis=0)
     z=z[0:(len(z)-1)]+dz/2
     d=np.sum((z**p)*fun*dz)
     return d
 ##function J_2 {G2} #EQUATION 46    (for use in equation 40)
 def J_2(p,z_1,z_2,z_m,L,fun):
     z = np.linspace(z_1/z_m,z_2/z_m,1000)
-    dz = np.diff(z)
+    dz = np.diff(z,axis=0)
     z=z[0:(len(z)-1)]+dz/2
     d=np.sum((z**p)*fun*np.log(z)*dz)
     return d
@@ -236,7 +246,7 @@ def f_z_phi_c(z,z_m,L):
 
 ##2 - Klujn et al. (2015) model functions
 #### {Running of Klukn model} ####
-def footprintiterKLJ(iterations,z_0_input,z_d_input,z_ag,sigv,Obukhov,ustar,dir,porosity,h,bld,veg,rows,cols,res,dlg,maxfetch,rm):
+def footprintiterKLJ(iterations,z_0_input,z_d_input,z_ag,sigv,Obukhov,ustar,wdir,porosity,h,bld,veg,rows,cols,res,dlg,maxfetch,rm):
 
     dlg.progressBar.setRange(0, iterations)
     dlg.progressBar.setValue(0)
@@ -276,7 +286,7 @@ def footprintiterKLJ(iterations,z_0_input,z_d_input,z_ag,sigv,Obukhov,ustar,dir,
         sig_v = sigv[i]
         L = Obukhov[i]
         u_star = ustar[i]
-        wd_input=dir[i]
+        wd_input=wdir[i]
         por = porosity[i]
         hbl = h[i]
 
@@ -550,13 +560,15 @@ def FFP_climatology(zm=None, z0=None, umean=None, h=None, ol=None, sigmav=None, 
     valids = [True if not any([val is None for val in vals]) else False \
               for vals in zip(ustars, sigmavs, hs, ols, wind_dirs, zms)]
 
-    if verbosity > 1: print ''
+    if verbosity > 1: # fix_print_with_import
+        print('')
     for ix, (ustar, sigmav, h, ol, wind_dir, zm, z0, umean) \
             in enumerate(zip(ustars, sigmavs, hs, ols, wind_dirs, zms, z0s, umeans)):
 
         # Counter
         if verbosity > 1 and ix % pulse == 0:
-            print 'Calculating footprint ', ix+1, ' of ', ts_len
+            # fix_print_with_import
+            print('Calculating footprint ', ix+1, ' of ', ts_len)
 
         valids[ix] = check_ffp_inputs(ustar, sigmav, h, ol, wind_dir, zm, z0, umean, rslayer, verbosity)
 
@@ -622,7 +634,7 @@ def FFP_climatology(zm=None, z0=None, umean=None, h=None, ol=None, sigmav=None, 
 
             #===========================================================================
             # Add to footprint climatology raster
-            fclim_2d = fclim_2d + f_2d;
+            fclim_2d = fclim_2d + f_2d
 
     #===========================================================================
     # Continue if at least one valid footprint was calculated
@@ -630,18 +642,19 @@ def FFP_climatology(zm=None, z0=None, umean=None, h=None, ol=None, sigmav=None, 
     vs = None
     clevs = None
     if n==0:
-        print "No footprint calculated"
+        # fix_print_with_import
+        print("No footprint calculated")
         flag_err = 1
     else:
 
         #===========================================================================
         # Normalize and smooth footprint climatology
-        fclim_2d = fclim_2d / n;
+        fclim_2d = fclim_2d / n
 
         if smooth_data is not None:
             skernel  = np.matrix('0.05 0.1 0.05; 0.1 0.4 0.1; 0.05 0.1 0.05')
-            fclim_2d = sg.convolve2d(fclim_2d,skernel,mode='same');
-            fclim_2d = sg.convolve2d(fclim_2d,skernel,mode='same');
+            fclim_2d = sg.convolve2d(fclim_2d,skernel,mode='same')
+            fclim_2d = sg.convolve2d(fclim_2d,skernel,mode='same')
 
         #===========================================================================
         # Derive footprint ellipsoid incorporating R% of the flux, if requested,
@@ -728,7 +741,7 @@ def check_ffp_inputs(ustar, sigmav, h, ol, wind_dir, zm, z0, umean, rslayer, ver
         raise_ffp_exception(5, verbosity)
         return False
     if z0 is not None and umean is None and zm <= 12.5*z0:
-        if rslayer is 1:
+        if rslayer == 1:
             raise_ffp_exception(6, verbosity)
         else:
             raise_ffp_exception(20, verbosity)
@@ -957,12 +970,15 @@ def raise_ffp_exception(code, verbosity):
         raise Exception(string)
     elif ex['type'] == exTypes['alert']:
         string = string + '\n Execution continues.'
-        if verbosity > 1: print string
+        if verbosity > 1:  # fix_print_with_import
+            print(string)
     elif ex['type'] == exTypes['error']:
         string = string + '\n Execution continues.'
-        if verbosity > 1: print string
+        if verbosity > 1:  # fix_print_with_import
+            print(string)
     else:
-        if verbosity > 1: print string
+        if verbosity > 1:  # fix_print_with_import
+            print(string)
 
 
 
@@ -1035,6 +1051,7 @@ def CalcWeightedMorphVegV2(bld, veg, porosity, rotatedphi,wd_input,scale):
     #Frontal area index
     #rot_dsm = scnd.rotate(dsm, wd_input,order=0, reshape=False, mode='nearest')                #rotated buildings into wind direction
     #rot_dsm[rot_dsm<0]=0
+    ###TESTING### remove [0]
     rot_build = scnd.rotate(build, wd_input,order=0, reshape=False, mode='nearest')                #rotated buildings into wind direction
     rot_build[rot_build<0]=0
     rot_veg = scnd.rotate(veg, wd_input,order=0, reshape=False, mode='nearest')                #rotated veg into wind direction

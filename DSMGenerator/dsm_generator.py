@@ -20,21 +20,29 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QFileInfo, QVariant
-from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox, QButtonGroup
-from qgis.gui import QgsMapLayerComboBox, QgsMapLayerProxyModel, QgsFieldComboBox, QgsFieldProxyModel
-from qgis.core import QgsVectorLayer, QgsField, QgsExpression, QgsVectorFileWriter, QgsCoordinateReferenceSystem, \
-    QgsCoordinateTransform
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QFileInfo, QVariant
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox, QButtonGroup
+from qgis.PyQt.QtGui import QIcon
+from qgis.gui import QgsMapLayerComboBox, QgsFieldComboBox
+from qgis.core import QgsVectorLayer, QgsField, QgsExpression, QgsExpressionContext, QgsExpressionContextScope, QgsVectorFileWriter, QgsMapLayerProxyModel, QgsFieldProxyModel, QgsRasterLayer, QgsCoordinateTransform
 from qgis.analysis import QgsZonalStatistics
-import webbrowser, subprocess, urllib, ogr, osr, string
+import webbrowser, subprocess, urllib.request, urllib.parse, urllib.error, string
 import numpy as np
-from osgeo import gdal, ogr
-from dsm_generator_dialog import DSMGeneratorDialog
+from osgeo import gdal, ogr, osr
+from .dsm_generator_dialog import DSMGeneratorDialog
 import os.path
 import sys
+from osgeo.gdalconst import *
+import shutil
+from pathlib import Path
 
-
-class DSMGenerator:
+class DSMGenerator(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -82,17 +90,17 @@ class DSMGenerator:
 
         # Access the raster layer
         self.layerComboManagerDEM = QgsMapLayerComboBox(self.dlg.widgetRaster)
-        self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerDEM.setFixedWidth(175)
         self.layerComboManagerDEM.setCurrentIndex(-1)
 
         # Access the vector layer and an attribute field
         self.layerComboManagerPolygon = QgsMapLayerComboBox(self.dlg.widgetPolygon)
         self.layerComboManagerPolygon.setCurrentIndex(-1)
-        self.layerComboManagerPolygon.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.layerComboManagerPolygon.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
         self.layerComboManagerPolygon.setFixedWidth(175)
         self.layerComboManagerPolygonField = QgsFieldComboBox(self.dlg.widgetField)
-        self.layerComboManagerPolygonField.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPolygonField.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.layerComboManagerPolygonField.setFixedWidth(150)
         self.layerComboManagerPolygon.layerChanged.connect(self.layerComboManagerPolygonField.setLayer)
 
@@ -172,11 +180,11 @@ class DSMGenerator:
 
     def savedsmfile(self):
         self.DSMoutputfile = self.DSMfileDialog.getSaveFileName(None, "Save File As:", None, "Raster Files (*.tif)")
-        self.dlg.DSMtextOutput.setText(self.DSMoutputfile)
+        self.dlg.DSMtextOutput.setText(self.DSMoutputfile[0])
 
     def saveosmfile(self):
         self.OSMoutputfile = self.OSMfileDialog.getSaveFileName(None, "Save File As:", None, "Shapefiles (*.shp)")
-        self.dlg.OSMtextOutput.setText(self.OSMoutputfile)
+        self.dlg.OSMtextOutput.setText(self.OSMoutputfile[0])
 
     def checkbox_canvas(self):
         extent = self.iface.mapCanvas().extent()
@@ -196,7 +204,7 @@ class DSMGenerator:
 
     # Help button
     def help(self):
-        url = "http://umep-docs.readthedocs.io/en/latest/pre-processor/Spatial%20Data%20DSM%20Generator.html"
+        url = "https://umep-docs.readthedocs.io/en/latest/pre-processor/Spatial%20Data%20DSM%20Generator.html"
         webbrowser.open_new_tab(url)
 
     def unload(self):
@@ -211,61 +219,67 @@ class DSMGenerator:
 
     def run(self):
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def start_progress(self):
         import datetime
         start = datetime.datetime.now()
-        # Check OS and dep
-        if sys.platform == 'darwin':
-            gdal_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/'
-        else:
-            gdal_os_dep = ''
+        #Check OS and dep
+##        if sys.platform == 'darwin':
+##            # gdal_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/'
+##            gdal_os_dep=Path(sys.executable).parent/'bin'
+##            gdal_os_dep=gdal_os_dep.as_posix()+'/'
+##        else:
+##            gdal_os_dep = ''       
 
         if self.dlg.canvasButton.isChecked():
             # Map Canvas
             extentCanvasCRS = self.iface.mapCanvas()
-            srs = extentCanvasCRS.mapSettings().destinationCrs()
-            crs = str(srs.authid())
-            # old_crs = osr.SpatialReference()
-            # old_crs.ImportFromEPSG(int(crs[5:]))
-            can_crs = QgsCoordinateReferenceSystem(int(crs[5:]))
-            # can_wkt = extentCanvasCRS.mapRenderer().destinationCrs().toWkt()
-            # can_crs = osr.SpatialReference()
-            # can_crs.ImportFromWkt(can_wkt)
+            can_wkt = extentCanvasCRS.mapSettings().destinationCrs().toWkt()
+            can_crs = osr.SpatialReference()
+            can_crs.ImportFromWkt(can_wkt)
+
             # Raster Layer
             dem_layer = self.layerComboManagerDEM.currentLayer()
             dem_prov = dem_layer.dataProvider()
             dem_path = str(dem_prov.dataSourceUri())
             dem_raster = gdal.Open(dem_path)
-            projdsm = osr.SpatialReference(wkt=dem_raster.GetProjection())
-            projdsm.AutoIdentifyEPSG()
-            projdsmepsg = int(projdsm.GetAttrValue('AUTHORITY', 1))
-            dem_crs = QgsCoordinateReferenceSystem(projdsmepsg)
-
-            # dem_wkt = dem_raster.GetProjection()
-            # dem_crs = osr.SpatialReference()
-            # dem_crs.ImportFromWkt(dem_wkt)
-            if can_crs != dem_crs:
+            dem_wkt = dem_raster.GetProjection()
+            dem_crs = osr.SpatialReference()
+            dem_crs.ImportFromWkt(dem_wkt)
+            if can_wkt != dem_crs:
                 extentCanvas = self.iface.mapCanvas().extent()
                 extentDEM = dem_layer.extent()
 
-                transformExt = QgsCoordinateTransform(can_crs, dem_crs)
-                # transformExt = osr.CoordinateTransformation(can_crs, dem_crs)
+                transformExt = osr.CoordinateTransformation(can_crs, dem_crs)
 
                 canminx = extentCanvas.xMinimum()
                 canmaxx = extentCanvas.xMaximum()
                 canminy = extentCanvas.yMinimum()
                 canmaxy = extentCanvas.yMaximum()
 
-                canxymin = transformExt.TransformPoint(canminx, canminy)
-                canxymax = transformExt.TransformPoint(canmaxx, canmaxy)
-
-                extDiffminx = canxymin[0] - extentDEM.xMinimum()  # If smaller than zero = warning
-                extDiffminy = canxymin[1] - extentDEM.yMinimum()  # If smaller than zero = warning
-                extDiffmaxx = canxymax[0] - extentDEM.xMaximum()  # If larger than zero = warning
-                extDiffmaxy = canxymax[0] - extentDEM.yMaximum()  # If larger than zero = warning
-
+                gdalver = float(gdal.__version__[0])
+                if gdalver == 3.:
+                    minext = ogr.CreateGeometryFromWkt('POINT (' + str(canminx) + ' ' + str(canminy) + ')')
+                    minext.Transform(transformExt)
+                    maxext = ogr.CreateGeometryFromWkt('POINT (' + str(canmaxx) + ' ' + str(canmaxy) + ')')
+                    maxext.Transform(transformExt)
+                    lonminext = minext.GetY()
+                    lonmaxext = maxext.GetY()
+                    latminext = minext.GetX()
+                    latmaxext = maxext.GetX()
+                    extDiffminx = latminext - extentDEM.xMinimum() # If smaller than zero = warning #changed to gdal 3
+                    extDiffminy = lonminext - extentDEM.yMinimum() # If smaller than zero = warning #changed to gdal 3
+                    extDiffmaxx = latmaxext - extentDEM.xMaximum() # If larger than zero = warning #changed to gdal 3
+                    extDiffmaxy = lonmaxext - extentDEM.yMaximum() # If larger than zero = warning #changed to gdal 3
+                else:
+                    canxymin = transformExt.TransformPoint(canminx, canminy)
+                    canxymax = transformExt.TransformPoint(canmaxx, canmaxy)
+                    extDiffminx = canxymin[0] - extentDEM.xMinimum() # If smaller than zero = warning #changed to gdal 2
+                    extDiffminy = canxymin[1] - extentDEM.yMinimum() # If smaller than zero = warning #changed to gdal 2
+                    extDiffmaxx = canxymax[0] - extentDEM.xMaximum() # If larger than zero = warning #changed to gdal 2
+                    extDiffmaxy = canxymax[1] - extentDEM.yMaximum() # If larger than zero = warning #changed to gdal 2
+                
                 if extDiffminx < 0 or extDiffminy < 0 or extDiffmaxx > 0 or extDiffmaxy > 0:
                     QMessageBox.warning(None, "Warning! Extent of map canvas is larger than raster extent.", "Change to an extent equal to or smaller than the raster extent.")
                     return
@@ -292,27 +306,31 @@ class DSMGenerator:
         else:
             provider = dem_layer.dataProvider()
             filepath_dem = str(provider.dataSourceUri())
+
         demRaster = gdal.Open(filepath_dem)
         dem_layer_crs = osr.SpatialReference()
         dem_layer_crs.ImportFromWkt(demRaster.GetProjection())
+        dem_epsg = dem_layer_crs.GetAttrValue("PROJCS|AUTHORITY", 1)
         self.dem_layer_unit = dem_layer_crs.GetAttrValue("UNIT")
-        posUnits = ['metre', 'US survey foot', 'meter', 'm', 'ft', 'feet', 'foot', 'ftUS', 'International foot'] # Possible units
+        posUnits = ['metre', 'Metre', 'metres', 'Metres', 'meter', 'Meter', 'meters', 'Meters', 'm', 'ft', 'US survey foot', 'feet', 'Feet', 'foot', 'Foot', 'ftUS', 'International foot'] # Possible units
+
         if not self.dem_layer_unit in posUnits:
             QMessageBox.critical(None, "Error", "Raster projection is not in metre or foot. Please reproject.")
             return
 
         polygon_layer = self.layerComboManagerPolygon.currentLayer()
         osm_layer = self.dlg.checkBoxOSM.isChecked()
+
         if polygon_layer is None and osm_layer is False:
             QMessageBox.critical(None, "Error", "No valid building height layer is selected")
             return
         elif polygon_layer:
-            vlayer = QgsVectorLayer(polygon_layer.source(), "buildings", "ogr")
             fileInfo = QFileInfo(polygon_layer.source())
             polygon_ln = fileInfo.baseName()
+            vlayer = QgsVectorLayer(polygon_layer.source(), polygon_ln, "ogr")
 
             polygon_field = self.layerComboManagerPolygonField.currentField()
-            idx = vlayer.fieldNameIndex(polygon_field)
+            idx = vlayer.fields().indexFromName(polygon_field)
             flname = vlayer.attributeDisplayName(idx)
 
             if idx == -1:
@@ -325,18 +343,27 @@ class DSMGenerator:
 
         self.dlg.progressBar.setValue(1)
 
+        outputshp = self.plugin_dir + '/temp/'
+
         if self.dlg.checkBoxOSM.isChecked():
-            # TODO replace osr.CoordinateTransformation with QgsCoordinateTransform
-            dem_original = gdal.Open(filepath_dem)
-            dem_wkt = dem_original.GetProjection()
+            # dem_original = gdal.Open(filepath_dem)
+            # dem_wkt = dem_original.GetProjection()
+            # ras_crs = osr.SpatialReference()
+            # ras_crs.ImportFromWkt(dem_wkt)
+
+            # test with other method for CRS. Gives same result as above.
             ras_crs = osr.SpatialReference()
-            ras_crs.ImportFromWkt(dem_wkt)
+            dsm_ref = dem_layer.crs().toWkt()
+            ras_crs.ImportFromWkt(dsm_ref)
+
             rasEPSG = ras_crs.GetAttrValue("PROJCS|AUTHORITY", 1)
+            # print(rasEPSG)
             if self.dlg.layerButton.isChecked():
                 old_crs = ras_crs
             elif self.dlg.canvasButton.isChecked():
                 canvasCRS = self.iface.mapCanvas()
-                outputWkt = canvasCRS.mapRenderer().destinationCrs().toWkt()
+                # outputWkt = canvasCRS.mapRenderer().destinationCrs().toWkt()
+                outputWkt = canvasCRS .mapSettings().destinationCrs().toWkt()
                 old_crs = osr.SpatialReference()
                 old_crs.ImportFromWkt(outputWkt)
 
@@ -361,52 +388,93 @@ class DSMGenerator:
             miny = float(self.yMin)
             maxx = float(self.xMax)
             maxy = float(self.yMax)
-            lonlatmin = transform.TransformPoint(minx, miny)
-            lonlatmax = transform.TransformPoint(maxx, maxy)
+        
+            gdalver = float(gdal.__version__[0])
+            if gdalver == 3.:
+                # New code Fredrik 20200625
+                lonlatmin = ogr.CreateGeometryFromWkt('POINT (' + str(minx) + ' ' + str(miny) + ')')
+                lonlatmin.Transform(transform)
+                lonlatmax = ogr.CreateGeometryFromWkt('POINT (' + str(maxx) + ' ' + str(maxy) + ')')
+                lonlatmax.Transform(transform)
+                lonmin = lonlatmin.GetY()
+                lonmax = lonlatmax.GetY()
+                latmin = lonlatmin.GetX()
+                latmax = lonlatmax.GetX()
+                # lonlatmin = transform.TransformPoint(miny, minx) #changed to gdal 3
+                # lonlatmax = transform.TransformPoint(maxy, maxx) #changed to gdal 3
+            else:
+                lonlatmin = transform.TransformPoint(minx, miny)
+                lonlatmax = transform.TransformPoint(maxx, maxy)
+                lonmin = lonlatmin[0]
+                lonmax = lonlatmax[0]
+                latmin = lonlatmin[1]
+                latmax = lonlatmax[1]
+                # print(lonlatmin)
+                # print(lonlatmax)
 
-            if ras_crs != old_crs:
-                rasTrans = osr.CoordinateTransformation(old_crs, ras_crs)
-                raslonlatmin = rasTrans.TransformPoint(float(self.xMin), float(self.yMin))
-                raslonlatmax = rasTrans.TransformPoint(float(self.xMax), float(self.yMax))
-            #else:
-                #raslonlatmin = [float(self.xMin), float(self.yMin)]
-                #raslonlatmax = [float(self.xMax), float(self.yMax)]
-
-                self.xMin = raslonlatmin[0]
-                self.yMin = raslonlatmin[1]
-                self.xMax = raslonlatmax[0]
-                self.yMax = raslonlatmax[1]
+            # if ras_crs != old_crs:
+            #     if gdalver == 3.:
+            #         self.xMin = raslonlatmin[1] #changed to gdal 3
+            #         self.yMin = raslonlatmin[0] #changed to gdal 3
+            #         self.xMax = raslonlatmax[1] #changed to gdal 3
+            #         self.yMax = raslonlatmax[0] #changed to gdal 3
+            #     else:
+            #         self.xMin = raslonlatmin[0] #changed to gdal 2
+            #         self.yMin = raslonlatmin[1] #changed to gdal 2
+            #         self.xMax = raslonlatmax[0] #changed to gdal 2
+            #         self.yMax = raslonlatmax[1] #changed to gdal 2
+            #     rasTrans = osr.CoordinateTransformation(old_crs, ras_crs)
+            #     lonlatmin = rasTrans.TransformPoint(float(self.xMin), float(self.yMin))
+            #     lonlatmax = rasTrans.TransformPoint(float(self.xMax), float(self.yMax))
 
             # Make data queries to overpass-api
-            urlStr = 'http://overpass-api.de/api/map?bbox=' + str(lonlatmin[0]) + ',' + str(lonlatmin[1]) + ',' + str(lonlatmax[0]) + ',' + str(lonlatmax[1])
-            osmXml = urllib.urlopen(urlStr).read()
-            #print urlStr
-
-            # Make OSM building file
+            urlStr = 'http://overpass-api.de/api/map?bbox=' + str(lonmin) + ',' + str(latmin) + ',' + str(lonmax) + ',' + str(latmax)
+            #print(urlStr)
+            with urllib.request.urlopen(urlStr) as response:
+                osmXml = response.read()
+                osmXml = osmXml.decode('UTF-8')
             osmPath = self.plugin_dir + '/temp/OSM_building.osm'
-            osmFile = open(osmPath, 'w')
+            osmFile = open(osmPath, 'w', encoding='utf-8')
             osmFile.write(osmXml)
+
             if os.fstat(osmFile.fileno()).st_size < 1:
-                urlStr = 'http://api.openstreetmap.org/api/0.6/map?bbox=' + str(lonlatmin[0]) + ',' + str(lonlatmin[1]) + ',' + str(lonlatmax[0]) + ',' + str(lonlatmax[1])
-                osmXml = urllib.urlopen(urlStr).read()
+                urlStr = 'http://api.openstreetmap.org/api/0.6/map?bbox=' + str(lonmin) + ',' + str(latmin) + ',' + str(lonmax) + ',' + str(latmax)
+                #print(urlStr)
+                with urllib.request.urlopen(urlStr) as response:
+                    osmXml = response.read()
+                    osmXml = osmXml.decode('UTF-8')
+                osmPath = self.plugin_dir + '/temp/OSM_building.osm'
+                osmFile = open(osmPath, 'w', encoding='utf-8')
                 osmFile.write(osmXml)
-                #print 'Open Street Map'
                 if os.fstat(osmFile.fileno()).st_size < 1:
                     QMessageBox.critical(None, "Error", "No OSM data available")
                     return
 
             osmFile.close()
 
-            outputshp = self.plugin_dir + '/temp/'
+            #Creating shapefile from OSM data
+##            osmToShape = gdal_os_dep + 'ogr2ogr --config OSM_CONFIG_FILE "' + self.plugin_dir + '/osmconf.ini" -skipfailures -t_srs EPSG:' + str(
+##                rasEPSG) + ' -overwrite -nlt POLYGON -f "ESRI Shapefile" "' + outputshp + '" "' + osmPath + '"'
+##
+##            if sys.platform == 'win32':
+##                si = subprocess.STARTUPINFO()
+##                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+##                subprocess.call(osmToShape, startupinfo=si)
+##            else:
+##                os.system(osmToShape)
 
-            osmToShape = gdal_os_dep + 'ogr2ogr --config OSM_CONFIG_FILE "' + self.plugin_dir + '/osmconf.ini" -skipfailures -t_srs EPSG:' + str(rasEPSG) + ' -overwrite -nlt POLYGON -f "ESRI Shapefile" "' + outputshp + '" "' + osmPath + '"'
+            osmconf_dir = self.plugin_dir + '/osmconf.ini'
 
-            if sys.platform == 'win32':
-                si = subprocess.STARTUPINFO()
-                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                subprocess.call(osmToShape, startupinfo=si)
-            else:
-                os.system(osmToShape)
+            gdal.SetConfigOption("OSM_CONFIG_FILE", osmconf_dir)
+
+            osm_option = gdal.VectorTranslateOptions(options=[
+            '-skipfailures', 
+            '-t_srs', 'EPSG:' + str(rasEPSG),
+            '-overwrite',
+            '-nlt', 'MULTIPOLYGON',
+            '-f', 'ESRI Shapefile'])
+
+            gdal.VectorTranslate(outputshp, osmPath, options=osm_option)
 
             driver = ogr.GetDriverByName('ESRI Shapefile')
             driver.DeleteDataSource(outputshp + 'lines.shp')
@@ -415,11 +483,12 @@ class DSMGenerator:
             driver.DeleteDataSource(outputshp + 'points.shp')
 
             osmPolygonPath = outputshp + 'multipolygons.shp'
-            vlayer = QgsVectorLayer(osmPolygonPath, 'multipolygons', 'ogr')
+            vlayer = QgsVectorLayer(osmPolygonPath, 'multipolygons', 'ogr') # Reads temp file made from OSM data
             polygon_layer = vlayer
             fileInfo = QFileInfo(polygon_layer.source())
             polygon_ln = fileInfo.baseName()
 
+            # Renames attribute fields
             def renameField(srcLayer, oldFieldName, newFieldName):
                 ds = gdal.OpenEx(srcLayer.source(), gdal.OF_VECTOR | gdal.OF_UPDATE)
                 ds.ExecuteSQL('ALTER TABLE {} RENAME COLUMN {} TO {}'.format(srcLayer.name(), oldFieldName, newFieldName))
@@ -432,36 +501,31 @@ class DSMGenerator:
             renameField(vlayer, 'building_u', 'bld_use')
             vlayer.commitChanges()
 
+            # Adding building height field
             vlayer.startEditing()
             vlayer.dataProvider().addAttributes([QgsField('bld_height', QVariant.Double, 'double', 3, 2)])
             vlayer.updateFields()
-            bld_lvl = vlayer.fieldNameIndex('bld_levels')
-            hght = vlayer.fieldNameIndex('height')
-            bld_hght = vlayer.fieldNameIndex('bld_hght')
-            bld_height = vlayer.fieldNameIndex('bld_height')
+
+            flname = 'bld_height'
 
             bldLvlHght = float(self.dlg.doubleSpinBoxBldLvl.value())
-            illegal_chars = string.ascii_letters + "!#$%&'*+^_`|~:" + " "
             counterNone = 0
             counter = 0
-            #counterWeird = 0
             for feature in vlayer.getFeatures():
-                if feature[hght]:
+                if feature['height']:   # Tries first with actual building height data
                     try:
-                        #feature[bld_height] = float(re.sub("[^0-9]", ".", str(feature[hght])))
-                        feature[bld_height] = float(str(feature[hght]).translate(None, illegal_chars))
+                        feature.setAttribute(feature.fieldNameIndex('bld_height'), float(str(feature['height'])))
                     except:
                         counterNone += 1
-                elif feature[bld_hght]:
+                elif feature['bld_hght']: # Tries with possible building height data (other tag for height??)
                     try:
-                        #feature[bld_height] = float(re.sub("[^0-9]", ".", str(feature[bld_hght])))
-                        feature[bld_height] = float(str(feature[bld_hght]).translate(None, illegal_chars))
+                        feature.setAttribute(feature.fieldNameIndex('bld_height'), float(str(feature['bld_hght'])))
                     except:
                         counterNone += 1
-                elif feature[bld_lvl]:
+                elif feature['bld_levels']:  # If no height or building height then make building height from stories
                     try:
-                        #feature[bld_height] = float(re.sub("[^0-9]", "", str(feature[bld_lvl])))*bldLvlHght
-                        feature[bld_height] = float(str(feature[bld_lvl]).translate(None, illegal_chars)) * bldLvlHght
+                        temp = float(str(feature['bld_levels'])) * bldLvlHght
+                        feature.setAttribute(feature.fieldNameIndex('bld_height'), temp)
                     except:
                         counterNone += 1
                 else:
@@ -469,32 +533,64 @@ class DSMGenerator:
                 vlayer.updateFeature(feature)
                 counter += 1
             vlayer.commitChanges()
-            flname = vlayer.attributeDisplayName(bld_height)
             counterDiff = counter - counterNone
+
+        # Loading raster
+        fileInfo = QFileInfo(filepath_dem)
+        baseName = fileInfo.baseName()
+        rlayer = QgsRasterLayer(filepath_dem, baseName)
 
         # Zonal statistics
         vlayer.startEditing()
-        zoneStat = QgsZonalStatistics(vlayer, filepath_dem, "stat_", 1, QgsZonalStatistics.Mean)
+        zoneStat = QgsZonalStatistics(vlayer, rlayer, "stats_", 1, QgsZonalStatistics.Statistic.Mean)
         zoneStat.calculateStatistics(None)
-        vlayer.dataProvider().addAttributes([QgsField('height_asl', QVariant.Double)])
+
+        vlayer.dataProvider().addAttributes([QgsField('height_asl', QVariant.Double, 'double', 5, 2)])
         vlayer.updateFields()
-        e = QgsExpression('stat_mean + ' + flname)
-        e.prepare(vlayer.pendingFields())
-        idx = vlayer.fieldNameIndex('height_asl')
+
+        context = QgsExpressionContext()
+        scope = QgsExpressionContextScope()
+        context.appendScope(scope)
 
         for f in vlayer.getFeatures():
-            f[idx] = e.evaluate(f)
+            scope.setFeature(f)
+            exp = QgsExpression('stats_mean + ' + flname)
+            f.setAttribute(f.fieldNameIndex('height_asl'), exp.evaluate(context))
             vlayer.updateFeature(f)
 
         vlayer.commitChanges()
 
-        vlayer.startEditing()
-        idx2 = vlayer.fieldNameIndex('stat_mean')
-        vlayer.dataProvider().deleteAttributes([idx2])
-        vlayer.updateFields()
-        vlayer.commitChanges()
-
         self.dlg.progressBar.setValue(2)
+
+        # Sort vlayer ascending to prevent lower buildings from overwriting higher buildings in some complexes
+        sortPoly = outputshp + 'sortPoly.shp'
+
+        if self.dlg.checkBoxOSM.isChecked():
+            sort_options = gdal.VectorTranslateOptions(options=[
+                '-sql', 'SELECT * FROM multipolygons ORDER BY height_asl ASC'])
+            gdal.VectorTranslate(str(sortPoly), str(osmPolygonPath), options=sort_options)
+##            ascHeight = gdal_os_dep + 'ogr2ogr -sql "SELECT * FROM multipolygons ORDER BY height_asl ASC" "' + sortPoly + '" "' + str(osmPolygonPath) +'"'
+        else:
+            sort_options = gdal.VectorTranslateOptions(options=[
+                '-select', 'height_asl',
+                '-sql', 'SELECT * FROM "' + str(polygon_ln) + '" ORDER BY height_asl ASC'])
+                #'-t_srs', 'EPSG:' + str(dem_epsg)])
+            gdal.VectorTranslate(str(sortPoly), str(polygon_layer.source()), options=sort_options)
+##            ascHeight = gdal_os_dep + 'ogr2ogr -select "height_asl" -sql "SELECT * FROM "' + str(polygon_ln) + '" ORDER BY height_asl ASC" -t_srs EPSG:' + str(
+##                dem_epsg) + ' "' + str(sortPoly) + '" "' + str(polygon_layer.source()) + '"'
+
+##        if sys.platform == 'win32':
+##            si = subprocess.STARTUPINFO()
+##            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+##            subprocess.call(ascHeight, startupinfo=si)
+##        else:
+##            os.system(ascHeight)
+
+        # Reads temp file with sorted polygons
+        vlayer = QgsVectorLayer(sortPoly, 'sortPoly', 'ogr')
+        sort_layer = vlayer
+        fileInfo = QFileInfo(sort_layer.source())
+        sort_ln = fileInfo.baseName()
 
         # Convert polygon layer to raster
 
@@ -502,40 +598,51 @@ class DSMGenerator:
         pixel_size = self.dlg.spinBox.value()  # half picture size
 
         # Create the destination data source
-        
-        gdalrasterize = gdal_os_dep + 'gdal_rasterize -a ' + 'height_asl' + ' -te ' + str(self.xMin) + ' ' + str(self.yMin) + ' ' + str(self.xMax) + ' ' + str(self.yMax) +\
-                        ' -tr ' + str(pixel_size) + ' ' + str(pixel_size) + ' -l "' + str(polygon_ln) + '" "' \
-                         + str(polygon_layer.source()) + '" "' + self.plugin_dir + '/temp/clipdsm.tif"'
 
-        # gdalclipdem = gdal_os_dep + 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(self.xMin) + ' ' + str(self.yMin) + ' ' + str(self.xMax) + ' ' + str(self.yMax) +\
-        #               ' -tr ' + str(pixel_size) + ' ' + str(pixel_size) + \
-        #               ' -of GTiff ' + '"' + filepath_dem + '" "' + self.plugin_dir + '/temp/clipdem.tif"'
+        rasterize_options = gdal.RasterizeOptions(options=[
+            '-a', 'height_asl',
+            '-te', str(self.xMin), str(self.yMin), str(self.xMax), str(self.yMax),
+            '-tr', str(pixel_size), str(pixel_size),
+            '-l', str(sort_ln)])
 
-        # Rasterize
-        if sys.platform == 'win32':
-            si = subprocess.STARTUPINFO()
-            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            subprocess.call(gdalrasterize, startupinfo=si)
-            # subprocess.call(gdalclipdem, startupinfo=si)
-            gdal.Warp(self.plugin_dir + '/temp/clipdem.tif', filepath_dem, xRes=pixel_size, yRes=pixel_size)
-        else:
-            os.system(gdalrasterize)
-            # os.system(gdalclipdem)
-            gdal.Warp(self.plugin_dir + '/temp/clipdem.tif', filepath_dem, xRes=pixel_size, yRes=pixel_size)
+        gdal.Rasterize(self.plugin_dir + '/temp/clipdsm.tif', str(sort_layer.source()), options=rasterize_options)
 
-        # Remove gdalwarp with gdal.Translate
-        # bigraster = gdal.Open(filepath_dem)
-        # bbox = (self.xMin, self.yMax, self.xMax, self.yMin)
-        # gdal.Translate(self.plugin_dir + '/data/clipdem.tif', bigraster, projWin=bbox)
+        warp_options = gdal.WarpOptions(options=[
+            '-dstnodata', '-9999',
+            '-q',
+            '-overwrite',
+            '-te', str(self.xMin), str(self.yMin), str(self.xMax), str(self.yMax),
+            '-tr', str(pixel_size), str(pixel_size),
+            '-of', 'GTiff'])
+
+        gdal.Warp(self.plugin_dir + '/temp/clipdem.tif', filepath_dem, options=warp_options)
+
+##        gdalrasterize = gdal_os_dep + 'gdal_rasterize -a ' + 'height_asl' + ' -te ' + str(self.xMin) + ' ' + str(self.yMin) + ' ' + str(self.xMax) + ' ' + str(self.yMax) +\
+##                        ' -tr ' + str(pixel_size) + ' ' + str(pixel_size) + ' -l "' + str(sort_ln) + '" "' \
+##                         + str(sort_layer.source()) + '" "' + self.plugin_dir + '/temp/clipdsm.tif"'
+##
+##        gdalclipdem = gdal_os_dep + 'gdalwarp -dstnodata -9999 -q -overwrite -te ' + str(self.xMin) + ' ' + str(self.yMin) + ' ' + str(self.xMax) + ' ' + str(self.yMax) +\
+##                      ' -tr ' + str(pixel_size) + ' ' + str(pixel_size) + \
+##                      ' -of GTiff ' + '"' + filepath_dem + '" "' + self.plugin_dir + '/temp/clipdem.tif"'
+##
+##        # Rasterize
+##        if sys.platform == 'win32':
+##            si = subprocess.STARTUPINFO()
+##            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+##            subprocess.call(gdalrasterize, startupinfo=si)
+##            subprocess.call(gdalclipdem, startupinfo=si)
+##        else:
+##            os.system(gdalrasterize)
+##            os.system(gdalclipdem)
 
         self.dlg.progressBar.setValue(3)
 
         # Adding DSM to DEM
         # Read DEM
         dem_raster = gdal.Open(self.plugin_dir + '/temp/clipdem.tif')
-        dem_array = np.array(dem_raster.ReadAsArray().astype(np.float))
+        dem_array = np.array(dem_raster.ReadAsArray().astype(float))
         dsm_raster = gdal.Open(self.plugin_dir + '/temp/clipdsm.tif')
-        dsm_array = np.array(dsm_raster.ReadAsArray().astype(np.float))
+        dsm_array = np.array(dsm_raster.ReadAsArray().astype(float))
 
         indx = dsm_array.shape
         for ix in range(0, int(indx[0])):
@@ -545,61 +652,58 @@ class DSMGenerator:
 
         if self.dlg.checkBoxPolygon.isChecked():
             vlayer.startEditing()
-            idxHght = vlayer.fieldNameIndex('height_asl')
-            idxBld = vlayer.fieldNameIndex('building')
-            features = vlayer.getFeatures()
-            #for f in vlayer.getFeatures():
-            for f in features:
+            for f in vlayer.getFeatures():
                 geom = f.geometry()
-                posUnitsMetre = ['metre', 'meter', 'm']  # Possible metre units
-                posUnitsFt = ['US survey foot', 'ft', 'feet', 'foot', 'ftUS', 'International foot'] # Possible foot units
+                posUnitsMetre = ['metre', 'Metre', 'metres', 'Metres', 'meter', 'Meter', 'meters', 'Meters', 'm']  # Possible metre units
+                posUnitsFt = ['ft', 'US survey foot', 'feet', 'Feet', 'foot', 'Foot', 'ftUS', 'International foot'] # Possible foot units
                 if self.dem_layer_unit in posUnitsMetre:
                     sqUnit = 1
                 elif self.dem_layer_unit in posUnitsFt:
                     sqUnit = 10.76
-                if int(geom.area()) > 50000*sqUnit:
+                if int(geom.area()) > 50000*sqUnit: # Deleting large polygons
                     vlayer.deleteFeature(f.id())
 
-                #if not f[idxHght]:
-                    #vlayer.deleteFeature(f.id())
-                #elif not f[idxBld]:
-                    #vlayer.deleteFeature(f.id())
+                vlayer.updateFeature(f)
             vlayer.updateFields()
             vlayer.commitChanges()
-            QgsVectorFileWriter.writeAsVectorFormat(vlayer, str(self.OSMoutputfile), "UTF-8", None, "ESRI Shapefile")
+            QgsVectorFileWriter.writeAsVectorFormat(vlayer, str(self.OSMoutputfile[0]), "UTF-8", QgsCoordinateTransform(), "ESRI Shapefile")
 
         else:
+            vlayer = QgsVectorLayer(polygon_layer.source(), "buildings", "ogr") # Loading polygon layer and deleting added fields
+
             vlayer.startEditing()
-            idx3 = vlayer.fieldNameIndex('height_asl')
-            vlayer.dataProvider().deleteAttributes([idx3])
+            idx1 = vlayer.fields().indexFromName('stats_mean')
+            vlayer.dataProvider().deleteAttributes([idx1])
+            vlayer.updateFields()
+            idx2 = vlayer.fields().indexFromName('height_asl')
+            vlayer.dataProvider().deleteAttributes([idx2])
             vlayer.updateFields()
             vlayer.commitChanges()
 
         self.dlg.progressBar.setValue(4)
 
         # Save raster
-        def saveraster(gdal_data, filename,
-                       raster):  # gdal_data = raster extent, filename = output filename, raster = numpy array (raster to be saved)
-            rows = gdal_data.RasterYSize
-            cols = gdal_data.RasterXSize
+        def saveraster(gdal_data, filename, raster):  # gdal_data = raster extent, filename = output filename, raster = numpy array (raster to be saved)
+            rows = dsm_raster.RasterYSize
+            cols = dsm_raster.RasterXSize
 
-            outDs = gdal.GetDriverByName("GTiff").Create(filename, cols, rows, int(1), gdal.GDT_Float32)
+            outDs = gdal.GetDriverByName("GTiff").Create(self.DSMoutputfile[0], cols, rows, int(1), GDT_Float32)
             outBand = outDs.GetRasterBand(1)
 
-            # write the data
-            outBand.WriteArray(raster, 0, 0)
-            # flush data to disk, set the NoData value and calculate stats
+        # write the data
+            outBand.WriteArray(dsm_array, 0, 0)
+        # flush data to disk, set the NoData value and calculate stats
             outBand.FlushCache()
             outBand.SetNoDataValue(-9999)
 
-            # georeference the image and set the projection
-            outDs.SetGeoTransform(gdal_data.GetGeoTransform())
-            outDs.SetProjection(gdal_data.GetProjection())
+        # georeference the image and set the projection
+            outDs.SetGeoTransform(dsm_raster.GetGeoTransform())
+            outDs.SetProjection(dsm_raster.GetProjection())
 
-        saveraster(dsm_raster, self.DSMoutputfile, dsm_array)
+        saveraster(dsm_raster, self.DSMoutputfile[0], dsm_array)
 
         # Load result into canvas
-        rlayer = self.iface.addRasterLayer(self.DSMoutputfile)
+        rlayer = self.iface.addRasterLayer(self.DSMoutputfile[0])
 
         # Trigger a repaint
         if hasattr(rlayer, "setCacheImage"):
@@ -608,18 +712,16 @@ class DSMGenerator:
 
         self.dlg.progressBar.setValue(5)
 
+        # print("finished run: %s\n\n" % (datetime.datetime.now() - start))
+
         #runTime = datetime.datetime.now() - start
 
         if self.dlg.checkBoxOSM.isChecked():
             QMessageBox.information(self.dlg, 'DSM Generator', 'Operation successful! ' + str(counterDiff) + ' building polygons out of ' + str(counter) + ' contained height values.')
-            #self.iface.messageBar().pushMessage("DSM Generator. Operation successful! " + str(counterDiff) + " buildings out of " + str(counter) + " contained height values.", level=QgsMessageBar.INFO, duration=5)
         else:
-            #self.iface.messageBar().pushMessage("DSM Generator. Operation successful!", level=QgsMessageBar.INFO, duration=5)
             QMessageBox.information(self.dlg, 'DSM Generator', 'Operation successful!')
 
         self.resetPlugin()
-
-        #print "finished run: %s\n\n" % (datetime.datetime.now() - start)
 
     def resetPlugin(self):       # Reset plugin
         self.dlg.canvasButton.setAutoExclusive(False)
@@ -645,6 +747,9 @@ class DSMGenerator:
 
         # Input polygon
         self.layerComboManagerPolygon.setCurrentIndex(-1)
+
+        # Input polygon field with height values
+        self.layerComboManagerPolygonField.setCurrentIndex(-1)
 
         # Progress bar
         self.dlg.progressBar.setValue(0)

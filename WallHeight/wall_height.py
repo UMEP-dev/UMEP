@@ -20,18 +20,26 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QThread
-from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QThread
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
+from qgis.PyQt.QtGui import QIcon
 from qgis.gui import *
-from qgis.core import QgsMessageLog
-from wall_height_dialog import WallHeightDialog
+from qgis.core import QgsMessageLog, QgsMapLayerProxyModel, Qgis
+from .wall_height_dialog import WallHeightDialog
 import os.path
-import wallalgorithms as wa
+from . import wallalgorithms as wa
 from ..Utilities.misc import *
-from wallworker import Worker
+from .wallworker import Worker
 import webbrowser
+from osgeo import gdal
+from osgeo.gdalconst import *
 
-class WallHeight:
+class WallHeight(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -81,7 +89,7 @@ class WallHeight:
         # self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_dsm)
         # RasterLayerCombo(self.dlg.comboBox_dsm, initLayer="")
         self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetDSM)
-        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerDSM.setFixedWidth(175)
         self.layerComboManagerDSM.setCurrentIndex(-1)
 
@@ -161,24 +169,32 @@ class WallHeight:
 
     def save_file_place_height(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.filePathH = self.fileDialog.selectedFiles()
-            self.filePathH[0] = self.filePathH[0] + '.tif'
+            self.filePathH[0] = self.filePathH[0]  # + '.tif'
             self.dlg.textOutputHeight.setText(self.filePathH[0])
             self.dlg.runButton.setEnabled(1)
 
     def save_file_place_aspect(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.filePathA = self.fileDialog.selectedFiles()
-            self.filePathA[0] = self.filePathA[0] + '.tif'
+            self.filePathA[0] = self.filePathA[0]  # + '.tif'
             self.dlg.textOutputAspect.setText(self.filePathA[0])
 
     def run(self):
+        try:
+            import scipy
+        except Exception as e:
+            QMessageBox.critical(None, 'Error', 'This plugin requires the scipy package to '
+                                                'be installed. Please consult the FAQ in the manual for further '
+                                                'information on how to install missing python packages.')
+            return
+
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def progress_update(self):
         self.steps += 1
@@ -189,7 +205,6 @@ class WallHeight:
         if self.filePathH is None:
             QMessageBox.critical(self.dlg, "Error", "No wall height file specified")
         else:
-            #dsmlayer = self.layerComboManagerDSM.getLayer()
             dsmlayer = self.layerComboManagerDSM.currentLayer()
 
             if dsmlayer is None:
@@ -199,34 +214,21 @@ class WallHeight:
             provider = dsmlayer.dataProvider()
             filepath_dsm = str(provider.dataSourceUri())
 
-            # self.gdal_dsm = gdal.Open(filepath_dsm, gdal.GA_ReadOnly)
-            # myBand = self.gdal_dsm.GetRasterBand(1)
-            # scanline = myBand.ReadRaster(0, 0, myBand.XSize, 1, myBand.XSize, 1, gdal.GDT_Byte)
-            # import array
-            # self.dsm = array.array('B', scanline)
-            # myBand = None
-            # myImg = None
-
             self.gdal_dsm = gdal.Open(filepath_dsm)
-            self.dsm = self.gdal_dsm.ReadAsArray().astype(np.float)
+            self.dsm = self.gdal_dsm.ReadAsArray().astype(float)
             geotransform = self.gdal_dsm.GetGeoTransform()
             self.scale = 1 / geotransform[1]
-            # self.iface.messageBar().pushMessage("scale", str(self.scale))
-            # return
 
             walllimit = self.dlg.doubleSpinBoxHeight.value()
-            # self.iface.messageBar().pushMessage("SEBE", str(walllimit))
             self.walls = wa.findwalls(self.dsm, walllimit)
+
+            # Workaround to avoid NoDataValues
             self.saverasternd(self.gdal_dsm, self.filePathH[0], self.walls)
+
             # dirwalls = wa.filter1Goodwin_as_aspect_v3(self.walls, self.scale, self.dsm)
             if self.dlg.checkBoxAspect.isChecked():
                 self.startWorker(self.walls, self.scale, self.dsm, self.dlg)
-                # dirwalls = wa.filter1Goodwin_as_aspect_v3(walls, self.scale, self.dsm)
-        #         saveraster(self.gdal_dsm, self.filePathA[0], dirwalls)
-        #
-        # QMessageBox.information(None, "Wall generator", "Wall grid(s) successfully generated")
-        # # self.iface.messageBar().pushMessage("Wall generator", "Wall grid(s) successfully generated")
-        #
+
         # load height result into canvas
         if self.dlg.checkBoxIntoCanvas.isChecked():
             rlayer = self.iface.addRasterLayer(self.filePathH[0])
@@ -234,13 +236,6 @@ class WallHeight:
             if hasattr(rlayer, "setCacheImage"):
                 rlayer.setCacheImage(None)
             rlayer.triggerRepaint()
-
-            # if self.filePathA[0]:
-            #     rlayer2 = self.iface.addRasterLayer(self.filePathA[0])
-            #
-            #     if hasattr(rlayer2, "setCacheImage"):
-            #         rlayer2.setCacheImage(None)
-            #     rlayer2.triggerRepaint()
 
     def saverasternd(self, gdal_data, filename, raster):
         rows = gdal_data.RasterYSize
@@ -290,13 +285,9 @@ class WallHeight:
         if ret is not None:
             # report the result
             dirwalls = ret["dirwalls"]
-            # Energyyearwall = ret["Energyyearwall"]
-            # vegdata = ret["vegdata"]
-            # layer, total_area = ret
-            self.saverasternd(self.gdal_dsm, self.filePathA[0], dirwalls)
 
-            # QMessageBox.information(None, "Wall generator", "Wall grid(s) successfully generated")
-            # self.iface.messageBar().pushMessage("Wall generator", "Wall grid(s) successfully generated")
+            # Workaround to avoid NoDataValues
+            self.saverasternd(self.gdal_dsm, self.filePathA[0], dirwalls)
 
             # load aspect result into canvas
             if self.dlg.checkBoxAspect.isChecked():
@@ -314,7 +305,7 @@ class WallHeight:
             self.dlg.pushButton.setEnabled(True)
         else:
             # notify the user that something went wrong
-            self.iface.messageBar().pushMessage('Operations cancelled either by user or error. See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.', level=QgsMessageBar.CRITICAL, duration=5)
+            self.iface.messageBar().pushMessage('Operations cancelled either by user or error. See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.', level=Qgis.MessageLevel.Critical, duration=5)
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
@@ -322,13 +313,12 @@ class WallHeight:
             self.dlg.progressBar.setValue(0)
 
     def workerError(self, errorstring):
-        QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)
 
     def progress_update(self):
         self.steps += 1
         self.dlg.progressBar.setValue(self.steps)
 
     def help(self):
-        url = 'http://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Geometry%20Wall%20' \
-              'Height%20and%20Aspect.html'
+        url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Geometry%20Wall%20Height%20and%20Aspect.html'
         webbrowser.open_new_tab(url)

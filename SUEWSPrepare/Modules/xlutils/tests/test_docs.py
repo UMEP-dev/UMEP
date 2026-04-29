@@ -5,17 +5,16 @@
 # See license.txt for more details.
 
 from doctest import REPORT_NDIFF, ELLIPSIS
-from fixtures import test_files
 from glob import glob
 from manuel import doctest
 from manuel.testing import TestSuite
 from testfixtures import LogCapture,TempDirectory
 from os.path import dirname, join, pardir
 
-import os
+from . import compat
+from .fixtures import test_files
 
-workspace = os.environ.get('WORKSPACE', join(dirname(__file__), pardir, pardir))
-tests = glob(join(workspace, 'docs', '*.txt'))
+tests = glob(join(join(dirname(__file__), pardir, pardir), 'docs', '*.rst'))
 
 options = REPORT_NDIFF|ELLIPSIS
 
@@ -29,7 +28,8 @@ def tearDown(test):
     LogCapture.uninstall_all()
 
 def test_suite():
-    m =  doctest.Manuel(optionflags=REPORT_NDIFF|ELLIPSIS)
+    m = doctest.Manuel(optionflags=REPORT_NDIFF | ELLIPSIS,
+                       checker=compat.DocTestChecker())
     return TestSuite(m, *tests,
                      setUp=setUp,
                      tearDown=tearDown)

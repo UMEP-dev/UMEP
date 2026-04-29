@@ -1,6 +1,0 @@
-1    2       3        4      5      6       7      8  9   10   11 12   13
-Code G1      G2       G3     G4     G5      G6     TH TL  S1   S2 Kmax gsModel
-100  16.4764 566.0923 0.2163 3.3649 11.0764 0.0176 40 0   0.45 15 1200 1       ! Default Jarvi et al. (2011) gsModel=1
-200  3.5     200      0.13   0.7    30      0.05   55 -10 5.56 0  1200 2       ! Updated Ward  et al. (2016) gsModel=2
--9
--9

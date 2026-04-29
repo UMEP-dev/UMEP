@@ -139,16 +139,6 @@
      <layout class="QGridLayout" name="gridLayout_11">
       <item row="0" column="0">
        <layout class="QGridLayout" name="gridLayout_6">
-        <item row="0" column="0" colspan="2">
-         <widget class="QPushButton" name="cmdPrepare">
-          <property name="toolTip">
-           <string>Translates the input files specified in the data sources file to consistent units</string>
-          </property>
-          <property name="text">
-           <string>Prepare input data using Data sources</string>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_7">
           <property name="text">
@@ -179,6 +169,16 @@
           </property>
          </widget>
         </item>
+        <item row="0" column="0" colspan="3">
+         <widget class="QPushButton" name="cmdPrepare">
+          <property name="toolTip">
+           <string>Translates the input files specified in the data sources file to consistent units</string>
+          </property>
+          <property name="text">
+           <string>Prepare input data using Data sources</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>
@@ -203,13 +203,6 @@
          <widget class="QDateEdit" name="startDate">
           <property name="toolTip">
            <string>First day to model</string>
-          </property>
-          <property name="date">
-           <date>
-            <year>2015</year>
-            <month>1</month>
-            <day>1</day>
-           </date>
           </property>
           <property name="maximumDateTime">
            <datetime>
@@ -240,6 +233,13 @@
           <property name="calendarPopup">
            <bool>true</bool>
           </property>
+          <property name="date">
+           <date>
+            <year>2015</year>
+            <month>1</month>
+            <day>1</day>
+           </date>
+          </property>
          </widget>
         </item>
         <item row="1" column="1">
@@ -253,13 +253,6 @@
          <widget class="QDateEdit" name="endDate">
           <property name="toolTip">
            <string>Final day to model </string>
-          </property>
-          <property name="date">
-           <date>
-            <year>2015</year>
-            <month>1</month>
-            <day>2</day>
-           </date>
           </property>
           <property name="maximumDateTime">
            <datetime>
@@ -300,6 +293,13 @@
           </property>
           <property name="calendarPopup">
            <bool>true</bool>
+          </property>
+          <property name="date">
+           <date>
+            <year>2015</year>
+            <month>1</month>
+            <day>2</day>
+           </date>
           </property>
          </widget>
         </item>

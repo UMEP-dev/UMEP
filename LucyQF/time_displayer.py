@@ -1,20 +1,21 @@
-from PyQt4 import QtGui, uic
-from PyQt4.QtGui import QListWidgetItem
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
+from __future__ import absolute_import
+from builtins import map
+from builtins import str
+from qgis.PyQt import QtGui, uic
+from qgis.PyQt.QtWidgets import QListWidgetItem
 import os
 FORM_CLASS, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__), 'time_displayer.ui'))
-from qgis.core import QgsMessageLog,  QgsMapLayerRegistry, QgsVectorLayer, QgsMapRenderer, QgsRectangle#
-
-from PythonLUCY.DataManagement.spatialHelpers import populateShapefileFromTemplate, colourRanges, openShapeFileInMemory, duplicateVectorLayer
+from qgis.core import QgsProject, QgsRectangle, QgsMapRendererJob
+from .PythonLUCY.DataManagement.spatialHelpers import populateShapefileFromTemplate, colourRanges, openShapeFileInMemory, duplicateVectorLayer
 try:
     import pandas as pd
     from matplotlib import pyplot
 except:
     pass
 from datetime import datetime as dt
-from PyQt4.QtGui import QImage, QColor, QPainter, QMessageBox
-from PyQt4.QtCore import QSize
+from qgis.PyQt.QtGui import QImage, QColor, QPainter
+from qgis.PyQt.QtWidgets import QMessageBox, QDialog
+from qgis.PyQt.QtCore import QSize
 
 # Creates a dialog box that allow different model output time slices to be visualised in QGIS
 def intOrString(x):
@@ -24,7 +25,7 @@ def intOrString(x):
     except:
         return str(x)
 
-class time_displayer(QtGui.QDialog, FORM_CLASS):
+class time_displayer(QDialog, FORM_CLASS):
     def __init__(self, model, iface, parent=None):
         '''
         Given a folder containing model outputs and DataSources object, this widget displays all available time steps
@@ -68,7 +69,7 @@ class time_displayer(QtGui.QDialog, FORM_CLASS):
         :return: None
         '''
         id = self.lstAreas.currentItem().text()
-        result = self.model.fetchResultsForLocation(intOrString(id), dt(1900,01,01), dt(2200,01,01))
+        result = self.model.fetchResultsForLocation(intOrString(id), dt(1900,1,1), dt(2200,1,1))
         # Are there any valid results here?
         if len(result['Qf'].dropna()) == 0:
             QMessageBox.critical(None, 'No Data', 'This output area contains no data')
@@ -97,7 +98,7 @@ class time_displayer(QtGui.QDialog, FORM_CLASS):
         :return:
         '''
         def toString(x): return x.strftime('%Y-%m-%d %H:%M')
-        timeLabels = map(toString, self.model.getTimeSteps())
+        timeLabels = list(map(toString, self.model.getTimeSteps()))
         for label in timeLabels:
             time = QListWidgetItem(label)
             self.lstTimes.addItem(time)
@@ -110,9 +111,11 @@ class time_displayer(QtGui.QDialog, FORM_CLASS):
 
     def updateDisplay(self):
         ''' Add map(s) of all QF components to the canvas based on what's selected in self.lstTimes'''
-        timestamps = [pd.datetime.strptime(newItem.text(), '%Y-%m-%d %H:%M') for newItem in self.lstTimes.selectedItems()]
+        timestamps = [dt.strptime(newItem.text(), '%Y-%m-%d %H:%M') for newItem in self.lstTimes.selectedItems()] #testing
 
         for t in timestamps:
+            test = self.model.getFileList()[t]
+            ttt=4
             outs = pd.read_csv(self.model.getFileList()[t], header=0, index_col=0)
             outLayer = self.outputLayer
             # Make sure the output file is properly appended (this gets evaluated for non-extra-disaggregated datasets)
@@ -129,65 +132,65 @@ class time_displayer(QtGui.QDialog, FORM_CLASS):
             range_maxima = [0.000001, 0.1, 1, 10, 100, 1000]
             colours = ['#CECECE', '#FEE6CE', '#FDAE6B', '#F16913', '#D94801', '#7F2704']
             opacity = 1
-            for component in self.componentTranslation.values():
+            for component in list(self.componentTranslation.values()):
                 layerName = component + t.strftime(' %Y-%m-%d %H:%M UTC')
-                if component == self.componentTranslation.values()[0]:
+                if component == list(self.componentTranslation.values())[0]:
                     colourRanges(new_layer, component, opacity, range_minima, range_maxima, colours)
-                    new_layer.setLayerName(layerName)
+                    new_layer.setName(layerName)  #setLayerName()  before
                     layerId = new_layer.id()
-                    QgsMapLayerRegistry.instance().addMapLayer(new_layer)
+                    QgsProject.instance().addMapLayer(new_layer)
                     proportion = new_layer.extent().height() / new_layer.extent().width()
 
                 else:
                     # Have to clone. Can't seem to duplicate a map layer...
                     layer = duplicateVectorLayer(new_layer)
-                    layer.setLayerName(layerName)
+                    layer.setName(layerName)  #setLayerName()  before
                     colourRanges(layer, component, opacity, range_minima, range_maxima, colours)
                     layerId = layer.id()
-                    QgsMapLayerRegistry.instance().addMapLayer(layer)
+                    QgsProject.instance().addMapLayer(layer)
                     proportion = layer.extent().height() / layer.extent().width()
 
-
-                maxSize = 2000 # Max size of output image
-                if proportion > 1:
-                    hSize = maxSize / proportion
-                    vSize = maxSize
-                else:
-                    hSize = maxSize
-                    vSize = maxSize*proportion
-
+                # Images is no longer produced. Fredrik 20181129
+                # maxSize = 2000 # Max size of output image
+                # if proportion > 1:
+                #     hSize = maxSize / proportion
+                #     vSize = maxSize
+                # else:
+                #     hSize = maxSize
+                #     vSize = maxSize*proportion
+                #
                 # create image in proportion with layer
-                img = QImage(QSize(hSize, vSize), QImage.Format_ARGB32_Premultiplied)
-
-                # set image's background color
-                color = QColor(255, 255, 255)
-                img.fill(color.rgb())
-
-                # create painter
-                p = QPainter()
-                p.begin(img)
-                p.setRenderHint(QPainter.Antialiasing)
-
-                render = QgsMapRenderer()
-
-                # set layer set
-                lst = [layerId]  # add ID of every layer
-                render.setLayerSet(lst)
-
-                # set extent
-                rect = QgsRectangle(render.fullExtent())
-                rect.scale(1.1)
-                render.setExtent(rect)
-
-                # set output size
-                render.setOutputSize(img.size(), img.logicalDpiX())
-
-                # do the rendering
-                render.render(p)
-                p.end()
-
-                # save image
-                img.save(os.path.join(self.model.renderPath, component + t.strftime('_%Y-%m-%d_%H-%M_UTC.png')),"png")
+                # img = QImage(QSize(hSize, vSize), QImage.Format_ARGB32_Premultiplied)
+                #
+                # # set image's background color
+                # color = QColor(255, 255, 255)
+                # img.fill(color.rgb())
+                #
+                # # create painter
+                # p = QPainter()
+                # p.begin(img)
+                # p.setRenderHint(QPainter.Antialiasing)
+                #
+                # render = QgsMapRendererJob()
+                #
+                # # set layer set
+                # lst = [layerId]  # add ID of every layer
+                # render.setLayerSet(lst)
+                #
+                # # set extent
+                # rect = QgsRectangle(render.fullExtent())
+                # rect.scale(1.1)
+                # render.setExtent(rect)
+                #
+                # # set output size
+                # render.setOutputSize(img.size(), img.logicalDpiX())
+                #
+                # # do the rendering
+                # render.render(p)
+                # p.end()
+                #
+                # # save image
+                # img.save(os.path.join(self.model.renderPath, component + t.strftime('_%Y-%m-%d_%H-%M_UTC.png')),"png")
 
                     #
                     #

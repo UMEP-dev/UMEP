@@ -20,24 +20,32 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QThread, QCoreApplication
-from PyQt4.QtGui import QIcon, QAction, QFileDialog, QMessageBox
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread, QCoreApplication
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 from qgis.core import *
 from qgis.gui import *
-from solweig_dialog import SOLWEIGDialog
+from .solweig_dialog import SOLWEIGDialog
 import numpy as np
 from osgeo import gdal, osr
 import os.path
 import zipfile
 import webbrowser
 from osgeo.gdalconst import *
-from solweigworker import Worker
-import WriteMetadataSOLWEIG
+from .solweigworker import Worker
+from . import WriteMetadataSOLWEIG
 from ..Utilities.SEBESOLWEIGCommonFiles import Solweig_v2015_metdata_noload as metload
-from SOLWEIGpython.Tgmaps_v1 import Tgmaps_v1
+from .SOLWEIGpython.Tgmaps_v1 import Tgmaps_v1
+from shutil import copyfile
 
 
-class SOLWEIG:
+class SOLWEIG(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -72,8 +80,10 @@ class SOLWEIG:
         self.dlg.runButton.clicked.connect(self.start_progress)
         self.dlg.pushButtonSave.clicked.connect(self.folder_path_out)
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(4)
-        self.fileDialog.setAcceptMode(1)
+        # self.fileDialog.setFileMode(4)
+        # self.fileDialog.setAcceptMode(1)
+        self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
         self.dlg.pushButtonImportMetData.clicked.connect(self.met_file)
         self.fileDialogMet = QFileDialog()
@@ -83,6 +93,11 @@ class SOLWEIG:
         self.fileDialogSVF = QFileDialog()
         self.fileDialogSVF.setNameFilter("(svfs.zip)")
 
+        # Shadow matrices (Perez)
+        self.dlg.pushButtonImportPerez.clicked.connect(self.perez_file)
+        self.fileDialogPerez = QFileDialog()
+        self.fileDialogPerez.setNameFilter("(shadowmats.npz)")
+
         # Declare instance attributes
         self.actions = []
         # self.menu = self.tr(u'&SOLWEIG')
@@ -90,57 +105,48 @@ class SOLWEIG:
         # self.toolbar = self.iface.addToolBar(u'SOLWEIG')
         # self.toolbar.setObjectName(u'SOLWEIG')
 
-        # self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_dsm)
-        # RasterLayerCombo(self.dlg.comboBox_dsm, initLayer="")
         self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetDSM)
-        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerDSM.setFixedWidth(175)
+        self.layerComboManagerDSM.setFixedHeight(25)
         self.layerComboManagerDSM.setCurrentIndex(-1)
-        # self.layerComboManagerVEGDSM = RasterLayerCombo(self.dlg.comboBox_vegdsm)
-        # RasterLayerCombo(self.dlg.comboBox_vegdsm, initLayer="")
         self.layerComboManagerVEGDSM = QgsMapLayerComboBox(self.dlg.widgetCDSM)
-        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerVEGDSM.setFixedWidth(175)
+        self.layerComboManagerVEGDSM.setFixedHeight(25)
         self.layerComboManagerVEGDSM.setCurrentIndex(-1)
-        # self.layerComboManagerVEGDSM2 = RasterLayerCombo(self.dlg.comboBox_vegdsm2)
-        # RasterLayerCombo(self.dlg.comboBox_vegdsm2, initLayer="")
         self.layerComboManagerVEGDSM2 = QgsMapLayerComboBox(self.dlg.widgetTDSM)
-        self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerVEGDSM2.setFixedWidth(175)
+        self.layerComboManagerVEGDSM2.setFixedHeight(25)
         self.layerComboManagerVEGDSM2.setCurrentIndex(-1)
-        # self.layerComboManagerDEM = RasterLayerCombo(self.dlg.comboBox_dem)
-        # RasterLayerCombo(self.dlg.comboBox_dem, initLayer="")
         self.layerComboManagerDEM = QgsMapLayerComboBox(self.dlg.widgetDEM)
-        self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerDEM.setFixedWidth(175)
+        self.layerComboManagerDEM.setFixedHeight(25)
         self.layerComboManagerDEM.setCurrentIndex(-1)
-        # self.layerComboManagerLC = RasterLayerCombo(self.dlg.comboBox_landcover)
-        # RasterLayerCombo(self.dlg.comboBox_landcover, initLayer="")
         self.layerComboManagerLC = QgsMapLayerComboBox(self.dlg.widgetLC)
-        self.layerComboManagerLC.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerLC.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerLC.setFixedWidth(175)
+        self.layerComboManagerLC.setFixedHeight(25)
         self.layerComboManagerLC.setCurrentIndex(-1)
-        # self.layerComboManagerWH = RasterLayerCombo(self.dlg.comboBox_wallheight)
-        # RasterLayerCombo(self.dlg.comboBox_wallheight, initLayer="")
         self.layerComboManagerWH = QgsMapLayerComboBox(self.dlg.widgetWH)
-        self.layerComboManagerWH.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerWH.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerWH.setFixedWidth(175)
+        self.layerComboManagerWH.setFixedHeight(25)
         self.layerComboManagerWH.setCurrentIndex(-1)
-        # self.layerComboManagerWA = RasterLayerCombo(self.dlg.comboBox_wallaspect)
-        # RasterLayerCombo(self.dlg.comboBox_wallaspect, initLayer="")
         self.layerComboManagerWA = QgsMapLayerComboBox(self.dlg.widgetWA)
-        self.layerComboManagerWA.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerWA.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerWA.setFixedWidth(175)
+        self.layerComboManagerWA.setFixedHeight(25)
         self.layerComboManagerWA.setCurrentIndex(-1)
-        # self.layerComboManagerPOI = VectorLayerCombo(self.dlg.comboBox_POIlayer)
-        # fieldgen = VectorLayerCombo(self.dlg.comboBox_POIlayer, initLayer="", options={"geomType": QGis.Point})
-        # self.layerComboManagerPOIfield = FieldCombo(self.dlg.comboBox_POIfield, fieldgen, initField="") #, options={"fieldType": int}
         self.layerComboManagerPOI = QgsMapLayerComboBox(self.dlg.widgetPointLayer)
         self.layerComboManagerPOI.setCurrentIndex(-1)
-        self.layerComboManagerPOI.setFilters(QgsMapLayerProxyModel.PointLayer)
+        self.layerComboManagerPOI.setFilters(QgsMapLayerProxyModel.Filter.PointLayer)
         self.layerComboManagerPOI.setFixedWidth(175)
+        self.layerComboManagerPOI.setFixedHeight(25)
         self.layerComboManagerPOIfield = QgsFieldComboBox(self.dlg.widgetPOIField)
-        self.layerComboManagerPOIfield.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPOIfield.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.layerComboManagerPOI.layerChanged.connect(self.layerComboManagerPOIfield.setLayer)
 
         self.folderPath = None
@@ -154,6 +160,7 @@ class SOLWEIG:
         self.dsm = None
         self.scale = None
         self.steps = 0
+        self.demforbuild = None
         self.dem = None
         self.lcgrid = None
         self.trans = None
@@ -227,24 +234,32 @@ class SOLWEIG:
 
     def folder_path_out(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.textOutput.setText(self.folderPath[0])
 
     def met_file(self):
         self.fileDialogMet.open()
-        result = self.fileDialogMet.exec_()
+        result = self.fileDialogMet.exec()
         if result == 1:
             self.folderPathMet = self.fileDialogMet.selectedFiles()
             self.dlg.textInputMetdata.setText(self.folderPathMet[0])
 
     def svf_file(self):
         self.fileDialogSVF.open()
-        result = self.fileDialogSVF.exec_()
+        result = self.fileDialogSVF.exec()
         if result == 1:
             self.folderPathSVF = self.fileDialogSVF.selectedFiles()
             self.dlg.textInputSVF.setText(self.folderPathSVF[0])
+
+    # Perez
+    def perez_file(self):
+        self.fileDialogPerez.open()
+        result = self.fileDialogPerez.exec()
+        if result == 1:
+            self.folderPathPerez = self.fileDialogPerez.selectedFiles()
+            self.dlg.textInputPerez.setText(self.folderPathPerez[0])
 
     def read_metdata(self):
         headernum = 1
@@ -260,7 +275,7 @@ class SOLWEIG:
 
         if self.metdata.shape[1] == 24:
             self.iface.messageBar().pushMessage("SOLWEIG", "Meteorological data succesfully loaded",
-                                                level=QgsMessageBar.INFO, duration=3)
+                                                level=Qgis.MessageLevel.Info, duration=3)
         else:
             QMessageBox.critical(self.dlg, "Import Error",
                                  "Wrong number of columns in meteorological data. You can "
@@ -298,6 +313,7 @@ class SOLWEIG:
         if self.folderPath is None:
             QMessageBox.critical(self.dlg, "Error", "No save folder selected")
         else:
+            # self.dlg.textOutput.setText(self.folderPath[0])
             dsmlayer = self.layerComboManagerDSM.currentLayer()
 
             if dsmlayer is None:
@@ -305,81 +321,64 @@ class SOLWEIG:
                 return
 
             provider = dsmlayer.dataProvider()
-            filepath_dsm = str(provider.dataSourceUri())
-            self.gdal_dsm = gdal.Open(filepath_dsm)
-            self.dsm = self.gdal_dsm.ReadAsArray().astype(np.float)
+            self.filepath_dsm = str(provider.dataSourceUri())
+            self.gdal_dsm = gdal.Open(self.filepath_dsm)
+            self.dsm = self.gdal_dsm.ReadAsArray().astype(float)
             sizex = self.dsm.shape[0]  # rows
             sizey = self.dsm.shape[1]  # cols
             rows = self.dsm.shape[0]
             cols = self.dsm.shape[1]
             geotransform = self.gdal_dsm.GetGeoTransform()
             self.scale = 1 / geotransform[1]
-            alt = self.dsm.mean()
+            alt = np.median(self.dsm)
+            if alt < 0:
+                alt = 3
 
-            # new latlon finding code
-            projdsm = osr.SpatialReference(wkt=self.gdal_dsm.GetProjection())
-            projdsm.AutoIdentifyEPSG()
-            projdsmepsg = int(projdsm.GetAttrValue('AUTHORITY', 1))
-            new_cs = QgsCoordinateReferenceSystem(projdsmepsg)
-            wgs84 = QgsCoordinateReferenceSystem(4326)
-            transform = QgsCoordinateTransform(new_cs, wgs84)
-            width1 = self.gdal_dsm.RasterXSize
-            height1 = self.gdal_dsm.RasterYSize
-            gt = self.gdal_dsm.GetGeoTransform()
-            minx = gt[0]
-            miny = gt[3] + width1 * gt[4] + height1 * gt[5]
-            lonlat = transform.transform(minx, miny)
-            # geotransform = self.gdal_dsm.GetGeoTransform()
-            # scale = 1 / geotransform[1]
-            lon = lonlat[0]
-            lat = lonlat[1]
+            # response to issue #85
+            nd = self.gdal_dsm.GetRasterBand(1).GetNoDataValue()
+            self.dsm[self.dsm == nd] = 0.
+            # self.dsmcopy = np.copy(self.dsm)
+            if self.dsm.min() < 0:
+                dsmraise = np.abs(self.dsm.min())
+                self.dsm = self.dsm + np.abs(self.dsm.min())
+            else:
+                dsmraise = 0
 
-            # old_cs = osr.SpatialReference()
-            # dsm_ref = dsmlayer.crs().toWkt()
-            # old_cs.ImportFromWkt(dsm_ref)
-            #
-            # wgs84_wkt = """
-            #     GEOGCS["WGS 84",
-            #         DATUM["WGS_1984",
-            #             SPHEROID["WGS 84",6378137,298.257223563,
-            #                 AUTHORITY["EPSG","7030"]],
-            #             AUTHORITY["EPSG","6326"]],
-            #         PRIMEM["Greenwich",0,
-            #             AUTHORITY["EPSG","8901"]],
-            #         UNIT["degree",0.01745329251994328,
-            #             AUTHORITY["EPSG","9122"]],
-            #         AUTHORITY["EPSG","4326"]]"""
-            #
-            # new_cs = osr.SpatialReference()
-            # new_cs.ImportFromWkt(wgs84_wkt)
-            #
-            # transform = osr.CoordinateTransformation(old_cs, new_cs)
-            #
-            # width = self.gdal_dsm.RasterXSize
-            # height = self.gdal_dsm.RasterYSize
-            # minx = geotransform[0]
-            # miny = geotransform[3] + width * geotransform[4] + height * geotransform[5]
-            # lonlat = transform.TransformPoint(minx, miny)
-            # lon = lonlat[0]
-            # lat = lonlat[1]
+            old_cs = osr.SpatialReference()
+            dsm_ref = dsmlayer.crs().toWkt()
+            old_cs.ImportFromWkt(dsm_ref)
+
+            wgs84_wkt = """
+                GEOGCS["WGS 84",
+                    DATUM["WGS_1984",
+                        SPHEROID["WGS 84",6378137,298.257223563,
+                            AUTHORITY["EPSG","7030"]],
+                        AUTHORITY["EPSG","6326"]],
+                    PRIMEM["Greenwich",0,
+                        AUTHORITY["EPSG","8901"]],
+                    UNIT["degree",0.01745329251994328,
+                        AUTHORITY["EPSG","9122"]],
+                    AUTHORITY["EPSG","4326"]]"""
+
+            new_cs = osr.SpatialReference()
+            new_cs.ImportFromWkt(wgs84_wkt)
+
+            transform = osr.CoordinateTransformation(old_cs, new_cs)
+
+            width = self.gdal_dsm.RasterXSize
+            height = self.gdal_dsm.RasterYSize
+            minx = geotransform[0]
+            miny = geotransform[3] + width * geotransform[4] + height * geotransform[5]
+            lonlat = transform.TransformPoint(minx, miny)
+            
+            gdalver = float(gdal.__version__[0])
+            if gdalver == 3.:
+                lon = lonlat[1] #changed to gdal 3
+                lat = lonlat[0] #changed to gdal 3
+            else:
+                lon = lonlat[0] #changed to gdal 2
+                lat = lonlat[1] #changed to gdal 2
             UTC = self.dlg.spinBoxUTC.value()
-
-            if (sizex * sizey) > 250000 and (sizex * sizey) <= 1000000:
-                QMessageBox.warning(self.dlg, "Semi lage grid",
-                                    "This process will take a couple of minutes. "
-                                    "Go and make yourself a cup of tea...")
-
-            if (sizex * sizey) > 1000000 and (sizex * sizey) <= 4000000:
-                QMessageBox.warning(self.dlg, "Large grid", "This process will take some time. "
-                                                                           "Go for lunch...")
-
-            if (sizex * sizey) > 4000000 and (sizex * sizey) <= 16000000:
-                QMessageBox.warning(self.dlg, "Very large grid", "This process will take a long time. "
-                                                                                "Go for lunch and for a walk...")
-
-            if (sizex * sizey) > 16000000:
-                QMessageBox.warning(self.dlg, "Huge grid", "This process will take a very long time. "
-                                                                          "Go home for the weekend or consider to tile your grid")
 
             # Vegetation DSMs #
             trunkfile = 0
@@ -397,9 +396,9 @@ class SOLWEIG:
                 # load raster
                 gdal.AllRegister()
                 provider = self.vegdsm.dataProvider()
-                filePath_cdsm = str(provider.dataSourceUri())
-                dataSet = gdal.Open(filePath_cdsm)
-                self.vegdsm = dataSet.ReadAsArray().astype(np.float)
+                self.filePath_cdsm = str(provider.dataSourceUri())
+                dataSet = gdal.Open(self.filePath_cdsm)
+                self.vegdsm = dataSet.ReadAsArray().astype(float)
 
                 vegsizex = self.vegdsm.shape[0]
                 vegsizey = self.vegdsm.shape[1]
@@ -419,12 +418,12 @@ class SOLWEIG:
                     # load raster
                     gdal.AllRegister()
                     provider = self.vegdsm2.dataProvider()
-                    filePath_tdsm = str(provider.dataSourceUri())
-                    dataSet = gdal.Open(filePath_tdsm)
-                    self.vegdsm2 = dataSet.ReadAsArray().astype(np.float)
+                    self.filePath_tdsm = str(provider.dataSourceUri())
+                    dataSet = gdal.Open(self.filePath_tdsm)
+                    self.vegdsm2 = dataSet.ReadAsArray().astype(float)
                     trunkfile = 1
                 else:
-                    filePath_tdsm = None
+                    self.filePath_tdsm = None
                     trunkratio = self.dlg.spinBoxTrunkHeight.value() / 100.0
                     self.vegdsm2 = self.vegdsm * trunkratio
                     if self.dlg.checkBoxSaveTrunk.isChecked():
@@ -448,8 +447,8 @@ class SOLWEIG:
                 self.vegdsm = np.zeros([rows, cols])
                 self.vegdsm2 = np.zeros([rows, cols])
                 self.usevegdem = 0
-                filePath_cdsm = None
-                filePath_tdsm = None
+                self.filePath_cdsm = None
+                self.filePath_tdsm = None
 
             # Land cover #
             if self.dlg.checkBoxLandCover.isChecked():
@@ -467,7 +466,7 @@ class SOLWEIG:
                 provider = self.lcgrid.dataProvider()
                 filePath_lc = str(provider.dataSourceUri())
                 dataSet = gdal.Open(filePath_lc)
-                self.lcgrid = dataSet.ReadAsArray().astype(np.float)
+                self.lcgrid = dataSet.ReadAsArray().astype(float)
 
                 lcsizex = self.lcgrid.shape[0]
                 lcsizey = self.lcgrid.shape[1]
@@ -476,6 +475,26 @@ class SOLWEIG:
                     QMessageBox.critical(self.dlg, "Error in land cover grid",
                                          "All grids must be of same extent and resolution")
                     return
+
+                baddataConifer = (self.lcgrid == 3)
+                baddataDecid = (self.lcgrid == 4)
+                if baddataConifer.any():
+                    QMessageBox.critical(self.dlg, "Error in land cover grid",
+                                         "Land cover grid includes Confier land cover class. "
+                                         "Ground cover information (underneath canopy) is required.")
+                    return
+                if baddataDecid.any():
+                    QMessageBox.critical(self.dlg, "Error in land cover grid",
+                                         "Land cover grid includes Decidiuous land cover class. "
+                                         "Ground cover information (underneath canopy) is required.")
+                    return
+                # fix issues when NoData is included in land cover data
+                ndlc = dataSet.GetRasterBand(1).GetNoDataValue()
+                if np.where(self.lcgrid == ndlc)[0].shape[0] > 0: # fixed issue from Discussions #548
+                    self.lcgrid[self.lcgrid == nd] = 1
+                    QMessageBox.warning(self.dlg, "Land Cover includes NoData", 
+                                        "Land cover data includes NoData values (converted to paved (1)). "
+                                        "Check your input data.")
             else:
                 filePath_lc = None
 
@@ -494,7 +513,7 @@ class SOLWEIG:
                 provider = self.dem.dataProvider()
                 filePathOld = str(provider.dataSourceUri())
                 dataSet = gdal.Open(filePathOld)
-                self.dem = dataSet.ReadAsArray().astype(np.float)
+                self.dem = dataSet.ReadAsArray().astype(float)
 
                 demsizex = self.dem.shape[0]
                 demsizey = self.dem.shape[1]
@@ -502,6 +521,18 @@ class SOLWEIG:
                 if not (demsizex == sizex) & (demsizey == sizey):
                     QMessageBox.critical(self.dlg, "Error in DEM", "All grids must be of same extent and resolution")
                     return
+
+                # response to issue #230
+                nd = dataSet.GetRasterBand(1).GetNoDataValue()
+                self.dem[self.dem == nd] = 0.
+                if self.dem.min() < 0:
+                    demraise = np.abs(self.dem.min())
+                    self.dem = self.dem + np.abs(self.dem.min())
+                else:
+                    demraise = 0
+
+                if (dsmraise != demraise) and (dsmraise - demraise > 0.5):
+                    self.iface.messageBar().pushMessage('WARNiNG! DEM and DSM was raised unequally (difference > 0.5 m). Check your input data!', level=Qgis.MessageLevel.Critical, duration=3)()
 
                 alt = np.median(self.dem)
                 if alt > 0:
@@ -519,38 +550,38 @@ class SOLWEIG:
 
                 try:
                     dataSet = gdal.Open(self.plugin_dir + "/svf.tif")
-                    svf = dataSet.ReadAsArray().astype(np.float)
+                    svf = dataSet.ReadAsArray().astype(float)
                     dataSet = gdal.Open(self.plugin_dir + "/svfN.tif")
-                    svfN = dataSet.ReadAsArray().astype(np.float)
+                    svfN = dataSet.ReadAsArray().astype(float)
                     dataSet = gdal.Open(self.plugin_dir + "/svfS.tif")
-                    svfS = dataSet.ReadAsArray().astype(np.float)
+                    svfS = dataSet.ReadAsArray().astype(float)
                     dataSet = gdal.Open(self.plugin_dir + "/svfE.tif")
-                    svfE = dataSet.ReadAsArray().astype(np.float)
+                    svfE = dataSet.ReadAsArray().astype(float)
                     dataSet = gdal.Open(self.plugin_dir + "/svfW.tif")
-                    svfW = dataSet.ReadAsArray().astype(np.float)
+                    svfW = dataSet.ReadAsArray().astype(float)
 
                     if self.usevegdem == 1:
                         dataSet = gdal.Open(self.plugin_dir + "/svfveg.tif")
-                        svfveg = dataSet.ReadAsArray().astype(np.float)
+                        svfveg = dataSet.ReadAsArray().astype(float)
                         dataSet = gdal.Open(self.plugin_dir + "/svfNveg.tif")
-                        svfNveg = dataSet.ReadAsArray().astype(np.float)
+                        svfNveg = dataSet.ReadAsArray().astype(float)
                         dataSet = gdal.Open(self.plugin_dir + "/svfSveg.tif")
-                        svfSveg = dataSet.ReadAsArray().astype(np.float)
+                        svfSveg = dataSet.ReadAsArray().astype(float)
                         dataSet = gdal.Open(self.plugin_dir + "/svfEveg.tif")
-                        svfEveg = dataSet.ReadAsArray().astype(np.float)
+                        svfEveg = dataSet.ReadAsArray().astype(float)
                         dataSet = gdal.Open(self.plugin_dir + "/svfWveg.tif")
-                        svfWveg = dataSet.ReadAsArray().astype(np.float)
+                        svfWveg = dataSet.ReadAsArray().astype(float)
 
                         dataSet = gdal.Open(self.plugin_dir + "/svfaveg.tif")
-                        svfaveg = dataSet.ReadAsArray().astype(np.float)
+                        svfaveg = dataSet.ReadAsArray().astype(float)
                         dataSet = gdal.Open(self.plugin_dir + "/svfNaveg.tif")
-                        svfNaveg = dataSet.ReadAsArray().astype(np.float)
+                        svfNaveg = dataSet.ReadAsArray().astype(float)
                         dataSet = gdal.Open(self.plugin_dir + "/svfSaveg.tif")
-                        svfSaveg = dataSet.ReadAsArray().astype(np.float)
+                        svfSaveg = dataSet.ReadAsArray().astype(float)
                         dataSet = gdal.Open(self.plugin_dir + "/svfEaveg.tif")
-                        svfEaveg = dataSet.ReadAsArray().astype(np.float)
+                        svfEaveg = dataSet.ReadAsArray().astype(float)
                         dataSet = gdal.Open(self.plugin_dir + "/svfWaveg.tif")
-                        svfWaveg = dataSet.ReadAsArray().astype(np.float)
+                        svfWaveg = dataSet.ReadAsArray().astype(float)
                     else:
                         svfveg = np.ones((rows, cols))
                         svfNveg = np.ones((rows, cols))
@@ -572,7 +603,7 @@ class SOLWEIG:
                 svfsizey = svf.shape[1]
 
                 if not (svfsizex == sizex) & (svfsizey == sizey):  # &
-                    QMessageBox.critical(self.dlg, "Error in vegetation canopy DSM",
+                    QMessageBox.critical(self.dlg, "Error in svf rasters",
                                          "All grids must be of same extent and resolution")
                     return
 
@@ -592,7 +623,7 @@ class SOLWEIG:
             provider = self.wallheight.dataProvider()
             filePathOld = str(provider.dataSourceUri())
             dataSet = gdal.Open(filePathOld)
-            self.wallheight = dataSet.ReadAsArray().astype(np.float)
+            self.wallheight = dataSet.ReadAsArray().astype(float)
 
             wallheightsizex = self.wallheight.shape[0]
             wallheightsizey = self.wallheight.shape[1]
@@ -612,7 +643,7 @@ class SOLWEIG:
             provider = self.wallaspect.dataProvider()
             filePathOld = str(provider.dataSourceUri())
             dataSet = gdal.Open(filePathOld)
-            self.wallaspect = dataSet.ReadAsArray().astype(np.float)
+            self.wallaspect = dataSet.ReadAsArray().astype(float)
 
             wallaspectsizex = self.wallaspect.shape[0]
             wallaspectsizey = self.wallaspect.shape[1]
@@ -622,15 +653,28 @@ class SOLWEIG:
                                      "All grids must be of same extent and resolution")
                 return
 
+            if (sizex * sizey) > 250000 and (sizex * sizey) <= 1000000:
+                QMessageBox.warning(self.dlg, "Semi lage grid",
+                                    "This process will take a couple of minutes.")
+
+            if (sizex * sizey) > 1000000 and (sizex * sizey) <= 4000000:
+                QMessageBox.warning(self.dlg, "Large grid", "This process will take some time.")
+
+            if (sizex * sizey) > 4000000 and (sizex * sizey) <= 16000000:
+                QMessageBox.warning(self.dlg, "Very large grid", "This process will take a long time.")
+
+            if (sizex * sizey) > 16000000:
+                QMessageBox.warning(self.dlg, "Huge grid", "This process will take a very long time.")
+
             # Meteorological data #
             Twater = []
             if self.dlg.CheckBoxMetData.isChecked():
                 self.read_metdata()
                 metfileexist = 1
-                PathMet = self.folderPathMet[0]
+                self.PathMet = self.folderPathMet[0]
             else:
                 metfileexist = 0
-                PathMet = None
+                self.PathMet = None
                 self.metdata = np.zeros((1, 24)) - 999.
 
                 date = self.dlg.calendarWidget.selectedDate()
@@ -648,6 +692,7 @@ class SOLWEIG:
                 radD = self.dlg.doubleSpinBoxradD.value()
                 radI = self.dlg.doubleSpinBoxradI.value()
                 Twater = self.dlg.doubleSpinBoxTwater.value()
+                Ws = self.dlg.doubleSpinBoxWs.value()
 
                 self.metdata[0, 0] = year
                 self.metdata[0, 1] = doy
@@ -658,19 +703,29 @@ class SOLWEIG:
                 self.metdata[0, 14] = radG
                 self.metdata[0, 21] = radD
                 self.metdata[0, 22] = radI
+                self.metdata[0, 9] = Ws
 
             # Other parameters #
             absK = self.dlg.doubleSpinBoxShortwaveHuman.value()
             absL = self.dlg.doubleSpinBoxLongwaveHuman.value()
             pos = self.dlg.comboBox_posture.currentIndex()
+
+            if self.dlg.CheckBoxBox.isChecked():
+                cyl = 1
+            else:
+                cyl = 0
+
             if pos == 0:
                 Fside = 0.22
                 Fup = 0.06
                 height = 1.1
+                Fcyl = 0.28
             else:
                 Fside = 0.166666
                 Fup = 0.166666
                 height = 0.75
+                Fcyl = 0.2
+
             albedo_b = self.dlg.doubleSpinBoxAlbedo_w.value()
             albedo_g = self.dlg.doubleSpinBoxAlbedo_g.value()
             ewall = self.dlg.doubleSpinBoxEmis_w.value()
@@ -680,11 +735,6 @@ class SOLWEIG:
                 elvis = 1
             else:
                 elvis = 0
-
-            if self.dlg.CheckBoxBox.isChecked():
-                cyl = 1
-            else:
-                cyl = 0
 
             # %Initialization of maps
             Knight = np.zeros((rows, cols))
@@ -729,9 +779,6 @@ class SOLWEIG:
             YYYY, altitude, azimuth, zen, jday, leafon, dectime, altmax = \
                 metload.Solweig_2015a_metdata_noload(self.metdata, location, UTC)
 
-            # QMessageBox.critical(self.dlg, "Error", str(location))
-            # return
-
             # %Creating vectors from meteorological input
             DOY = self.metdata[:, 1]
             hours = self.metdata[:, 2]
@@ -745,11 +792,35 @@ class SOLWEIG:
             Ws = self.metdata[:, 9]
             # %Wd=met(:,13);
 
+            if self.dlg.checkBoxTreePlanter.isChecked():
+                treeplanter = 1
+                if metfileexist == 0:
+                    QMessageBox.critical(self.dlg, "Meteorological file missing",
+                                             'To generate data for the TreePlanter, a meteorological '
+                                             'input file must be used.')
+                    return
+            else:
+                treeplanter = 0
+
+            # Check if diffuse and direct radiation exist
+            if metfileexist == 1:
+                if onlyglobal == 0:
+                    if np.min(radD) == -999:
+                        QMessageBox.critical(self.dlg, "Diffuse radiation include NoData values (-999)",
+                                             'Tick in the box "Estimate diffuse and direct shortwave..." or aqcuire '
+                                             'observed values from external data sources.')
+                        return
+                    if np.min(radI) == -999:
+                        QMessageBox.critical(self.dlg, "Direct radiation include NoData values (-999)",
+                                             'Tick in the box "Estimate diffuse and direct shortwave..." or aqcuire '
+                                             'observed values from external data sources.')
+                        return
+
             # POIs check
             if self.dlg.checkboxUsePOI.isChecked():
                 header = 'yyyy id   it imin dectime altitude azimuth kdir kdiff kglobal kdown   kup    keast ksouth ' \
                          'kwest knorth ldown   lup    least lsouth lwest  lnorth   Ta      Tg     RH    Esky   Tmrt    ' \
-                         'I0     CI   Shadow  SVF_b  SVF_bv KsideI'
+                         'I0     CI   Shadow  SVF_b  SVF_bv KsideI PET UTCI'
 
                 poilyr = self.layerComboManagerPOI.currentLayer()
                 if poilyr is None:
@@ -760,28 +831,31 @@ class SOLWEIG:
                 if poi_field is None:
                     QMessageBox.critical(self.dlg, "Error", "An attribute with unique values must be selected")
                     return
+
+                if metfileexist == 1:
+                    if np.min(Ws) == -999:
+                        QMessageBox.critical(self.dlg, "Wind speed include NoData values (-999)",
+                                             'Wind speed is required to calculate PET and UTCI at the POIs')
+                        return
+
                 vlayer = QgsVectorLayer(poilyr.source(), "point", "ogr")
-                prov = vlayer.dataProvider()
-                #fields = prov.fields()
-                idx = vlayer.fieldNameIndex(poi_field)
+                idx = vlayer.fields().indexFromName(poi_field)
                 numfeat = vlayer.featureCount()
                 self.poiname = []
                 self.poisxy = np.zeros((numfeat, 3)) - 999
                 ind = 0
-                for f in vlayer.getFeatures():  # looping through each grid polygon
+                for f in vlayer.getFeatures():  # looping through each POI
                     y = f.geometry().centroid().asPoint().y()
                     x = f.geometry().centroid().asPoint().x()
 
                     self.poiname.append(f.attributes()[idx])
-
-                    #self.poisxy[ind, 0] = f.attributes()[idx]
                     self.poisxy[ind, 0] = ind
                     self.poisxy[ind, 1] = np.round((x - minx) * self.scale)
                     if miny >= 0:
-                        self.poisxy[ind, 2] = np.round(miny + rows * self.scale - y)
+                        self.poisxy[ind, 2] = np.round((miny + rows * (1. / self.scale) - y) * self.scale)
                     else:
-                        self.poisxy[ind, 2] = np.round((miny + rows * (1 / self.scale) - y) * self.scale)
-                    #attributes = f.attributes()
+                        self.poisxy[ind, 2] = np.round((miny + rows * (1. / self.scale) - y) * self.scale)
+
                     ind += 1
 
                 uni = set(self.poiname)
@@ -807,6 +881,23 @@ class SOLWEIG:
             second = np.round((height * 20.))
 
             if self.usevegdem == 1:
+                # Conifer or deciduous
+                if self.dlg.checkBoxConifer.isChecked():
+                    # If conifer, "leaves" all year
+                    leafon = np.ones((1, DOY.shape[0]))
+                else:
+                    # If deciduous, leaves part of year
+                    firstdayleaf = self.dlg.spinBoxFirstDay.value()
+                    lastdayleaf = self.dlg.spinBoxLastDay.value()
+                    leafon = np.zeros((1, DOY.shape[0]))
+                    if firstdayleaf > lastdayleaf:
+                        # Southern hemisphere?
+                        leaf_bool = ((DOY > firstdayleaf) | (DOY < lastdayleaf))
+                    else:
+                        # Northern hemisphere?
+                        leaf_bool = ((DOY > firstdayleaf) & (DOY < lastdayleaf))
+                    leafon[0, leaf_bool] = 1                
+                
                 # % Vegetation transmittivity of shortwave radiation
                 psi = leafon * self.trans
                 psi[leafon == 0] = 0.5
@@ -814,15 +905,6 @@ class SOLWEIG:
                 vegmax = self.vegdsm.max()
                 amaxvalue = self.dsm.max() - self.dsm.min()
                 amaxvalue = np.maximum(amaxvalue, vegmax)
-
-                # # Elevation vegdsms if buildingDEM includes ground heights
-                # vegdem = self.vegdsm + self.dsm
-                # vegdem[vegdem == self.dsm] = 0
-                # vegdem2 = self.vegdsm2 + self.dsm
-                # vegdem2[vegdem2 == self.dsm] = 0
-                #
-                # # % Bush separation
-                # bush = np.logical_not((vegdem2 * vegdem)) * vegdem
 
                 # Elevation vegdsms if buildingDEM includes ground heights
                 self.vegdsm = self.vegdsm + self.dsm
@@ -840,14 +922,55 @@ class SOLWEIG:
                 bush = np.zeros([rows, cols])
                 amaxvalue = 0
 
-            # QMessageBox.critical(None, "Test", str(amaxvalue))
-            # return
+            # Import shadow matrices (Anisotropic sky)
+            if self.dlg.checkBoxPerez.isChecked():
+                if self.folderPathPerez is None:
+                    QMessageBox.critical(self.dlg, "Error", "No Shadow file is selected. Use the Sky View Factor"
+                                                            "Calculator to generate shadowmats.npz")
+                    return
+                else:
+                    anisotropic_sky = 1
+                    data = np.load(self.folderPathPerez[0])
+                    shmat = data['shadowmat']
+                    vegshmat = data['vegshadowmat']
+                    vbshvegshmat = data['vbshmat']
+                    if self.usevegdem == 1:
+                        diffsh = np.zeros((rows, cols, shmat.shape[2]))
+                        for i in range(0, shmat.shape[2]):
+                            diffsh[:, :, i] = shmat[:, :, i] - (1 - vegshmat[:, :, i]) * (1 - self.trans) # changes in psi not implemented yet
+                    else:
+                        diffsh = shmat
+
+                    # Estimate number of patches based on shadow matrices
+                    if shmat.shape[2] == 145:
+                        patch_option = 1 # patch_option = 1 # 145 patches
+                    elif shmat.shape[2] == 153:
+                        patch_option = 2 # patch_option = 2 # 153 patches
+                    elif shmat.shape[2] == 306:
+                        patch_option = 3 # patch_option = 3 # 306 patches
+                    elif shmat.shape[2] == 612:
+                        patch_option = 4 # patch_option = 4 # 612 patches
+
+                    # asvf to calculate sunlit and shaded patches
+                    asvf = np.arccos(np.sqrt(svf))
+
+            else:
+                anisotropic_sky = 0
+                diffsh = None
+                shmat = None
+                vegshmat = None
+                vbshvegshmat = None
+                asvf = None
+                patch_option = 0
 
             # % Ts parameterisation maps
             if self.landcover == 1.:
                 if np.max(self.lcgrid) > 7 or np.min(self.lcgrid) < 1:
-                    QMessageBox.critical(self.dlg, "Error", "The land cover grid includes values not appropriate for UMEP-formatted land cover grid (should be integer between 1 and 7).")
+                    QMessageBox.warning(self.dlg, "Attention!", "The land cover grid includes integer values higher (or lower) than UMEP-formatted" 
+                        " land cover grid (should be integer between 1 and 7). If other LC-classes should be included they also need to be included in landcoverclasses_2016a.txt")
                     return
+                    # QMessageBox.critical(self.dlg, "Error", "The land cover grid includes values not appropriate for UMEP-formatted land cover grid (should be integer between 1 and 7).")
+                    # return
                 if np.where(self.lcgrid) == 3 or np.where(self.lcgrid) == 4:
                     QMessageBox.critical(self.dlg, "Error",
                                          "The land cover grid includes values (decidouos and/or conifer) not appropriate for SOLWEIG-formatted land cover grid (should not include 3 or 4).")
@@ -875,104 +998,61 @@ class SOLWEIG:
             timeaddN = 0.
             firstdaytime = 1.
 
-            WriteMetadataSOLWEIG.writeRunInfo(self.folderPath[0], filepath_dsm, self.gdal_dsm, self.usevegdem,
-                                              filePath_cdsm, trunkfile, filePath_tdsm, lat, lon, UTC, self.landcover,
-                                              filePath_lc, metfileexist, PathMet, self.metdata, self.plugin_dir,
+            WriteMetadataSOLWEIG.writeRunInfo(self.folderPath[0], self.filepath_dsm, self.gdal_dsm, self.usevegdem,
+                                              self.filePath_cdsm, trunkfile, self.filePath_tdsm, lat, lon, UTC, self.landcover,
+                                              filePath_lc, metfileexist, self.PathMet, self.metdata, self.plugin_dir,
                                               absK, absL, albedo_b, albedo_g, ewall, eground, onlyglobal, trunkratio,
-                                              self.trans, rows, cols, pos, elvis, cyl, demforbuild)
+                                              self.trans, rows, cols, pos, elvis, cyl, demforbuild, anisotropic_sky, treeplanter)
+
+            # Save files for Tree Planter
+            if self.dlg.checkBoxTreePlanter.isChecked():
+                # Save DSM
+                copyfile(self.filepath_dsm, self.folderPath[0] + '/DSM.tif')
+
+                # Save met file
+                copyfile(self.PathMet, self.folderPath[0] + '/metforcing.txt')
+
+                # Save CDSM
+                if self.usevegdem:
+                    copyfile(self.filePath_cdsm, self.folderPath[0] + '/CDSM.tif')
+
+                # Saving settings from SOLWEIG for SOLWEIG1D in TreePlanter
+                settingsHeader = 'UTC, posture, onlyglobal, landcover, anisotropic, cylinder, albedo_walls, albedo_ground, emissivity_walls, emissivity_ground, absK, absL, elevation, patch_option'
+                settingsFmt = '%i', '%i', '%i', '%i', '%i', '%i', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%i'
+                settingsData = np.array([[UTC, pos, onlyglobal, self.landcover, anisotropic_sky, cyl, albedo_b, albedo_g, ewall, eground, absK, absL, alt, patch_option]])
+                np.savetxt(self.folderPath[0] + '/treeplantersettings.txt', settingsData, fmt=settingsFmt, header=settingsHeader, delimiter=' ')
 
             #  If metfile starts at night
             CI = 1.
+
+            # PET variables
+            mbody = self.dlg.doubleSpinBoxWeight.value()
+            ht = self.dlg.doubleSpinBoxHeight.value() / 100.
+            clo = self.dlg.doubleSpinBoxClo.value()
+            age = self.dlg.doubleSpinBoxAge.value()
+            activity = self.dlg.doubleSpinBoxActivity.value()
+            sex = self.dlg.comboBoxGender.currentIndex() + 1
+            sensorheight = self.dlg.doubleSpinBoxWsHt.value()
+
             self.startWorker(self.dsm, self.scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
                         svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
-                        self.vegdsm, self.vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, altitude,
+                        self.vegdsm, self.vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, Fcyl, altitude,
                         azimuth, zen, jday, self.usevegdem, onlyglobal, buildings, location,
                         psi, self.landcover, self.lcgrid, dectime, altmax, self.wallaspect,
                         self.wallheight, cyl, elvis, Ta, RH, radG, radD, radI, P, amaxvalue,
                         bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, self.dlg,
-                        YYYY, DOY, hours, minu, self.gdal_dsm, self.folderPath, self.poisxy, self.poiname)
-
-            # # Main calcualtions
-            # # Loop through time series
-            # tmrtplot = np.zeros((rows, cols))
-            # for i in np.arange(0, Ta.__len__()):
-            #     # Daily water body temperature
-            #     if self.landcover == 1:
-            #         if ((dectime[i] - np.floor(dectime[i]))) == 0 or (i == 0):
-            #             Twater = np.mean(Ta[jday[0] == np.floor(dectime[i])])
-            #
-            #     # Nocturnal cloudfraction from Offerle et al. 2003
-            #     if (dectime[i] - np.floor(dectime[i])) == 0:
-            #         alt = altitude[i:altitude.__len__()]
-            #         alt2 = np.where(alt > 1)
-            #         rise = alt2[1][0]
-            #         [_, CI, _, _, _] = clearnessindex_2013b(zen[0, i + rise + 1], jday[0, i + rise + 1],
-            #                                                 Ta[i + rise + 1],
-            #                                                 RH[i + rise + 1] / 100., radG[i + rise + 1], location,
-            #                                                 P[i + rise + 1])  # i+rise+1 to match matlab code. correct?
-            #         if (CI > 1) or (CI == np.inf):
-            #             CI = 1
-            #     # self.iface.messageBar().pushMessage("__len__", str(Ta.__len__()))
-            #     # self.iface.messageBar().pushMessage("len", str(len(Ta)))
-            #     # self.iface.messageBar().pushMessage("Test", str(Ta.__len__()))
-            #     Tmrt, Kdown, Kup, Ldown, Lup, Tg, ea, esky, I0, CI, shadow, firstdaytime, timestepdec, timeadd, \
-            #     Tgmap1, timeaddE, Tgmap1E, timeaddS, Tgmap1S, timeaddW, Tgmap1W, timeaddN, Tgmap1N \
-            #         = so.Solweig_2015a_calc(i, self.dsm, self.scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
-            #             svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
-            #             self.vegdsm, self.vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, altitude[0][i],
-            #             azimuth[0][i], zen[0][i], jday[0][i], self.usevegdem, onlyglobal, buildings, location,
-            #             psi[0][i], self.landcover, self.lcgrid, dectime[i], altmax[0][i], self.wallaspect,
-            #             self.wallheight, cyl, elvis, Ta[i], RH[i], radG[i], radD[i], radI[i], P[i], amaxvalue,
-            #             bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
-            #             TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
-            #             timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI)
-            #
-            #     tmrtplot = tmrtplot + Tmrt
-            #     # self.iface.messageBar().pushMessage("__len__", str(int(YYYY[0, i])))
-            #     if self.dlg.CheckBoxTmrt.isChecked():
-            #self.saveraster(self.gdal_dsm, self.folderPath[0] + '/buildings.tif', buildings)
-            #     if self.dlg.CheckBoxKup.isChecked():
-            #         self.saveraster(self.gdal_dsm, self.folderPath[0] + '/Kup_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
-            #                         + '_' + str(int(hours[i])) + str(int(minu[i])) + '.tif', Kup)
-            #     if self.dlg.CheckBoxKdown.isChecked():
-            #         self.saveraster(self.gdal_dsm, self.folderPath[0] + '/Kdown_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
-            #                         + '_' + str(int(hours[i])) + str(int(minu[i])) + '.tif', Kdown)
-            #     if self.dlg.CheckBoxLup.isChecked():
-            #         self.saveraster(self.gdal_dsm, self.folderPath[0] + '/Lup_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
-            #                         + '_' + str(int(hours[i])) + str(int(minu[i])) + '.tif', Lup)
-            #     if self.dlg.CheckBoxLdown.isChecked():
-            #         self.saveraster(self.gdal_dsm, self.folderPath[0] + '/Ldown_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
-            #                         + '_' + str(int(hours[i])) + str(int(minu[i])) + '.tif', Ldown)
-            #     if self.dlg.CheckBoxShadow.isChecked():
-            #         self.saveraster(self.gdal_dsm, self.folderPath[0] + '/Shadow_' + str(int(YYYY[0, i])) + '_' + str(int(DOY[i]))
-            #                         + '_' + str(int(hours[i])) + str(int(minu[i])) + '.tif', shadow)
-            #
-            # if self.dlg.CheckBoxTmrt.isChecked():
-            #     tmrtplot = tmrtplot / Ta.__len__()
-            #     self.saveraster(self.gdal_dsm, self.folderPath[0] + '/Tmrt_average.tif', tmrtplot)
-            #
-            # # load result into canvas
-            # if self.dlg.checkBoxIntoCanvas.isChecked():
-            #     rlayer = self.iface.addRasterLayer(self.folderPath[0] + '/Tmrt_average.tif')
-            #
-            #     # Set opacity
-            #     # rlayer.renderer().setOpacity(0.5)
-            #
-            #     # Trigger a repaint
-            #     if hasattr(rlayer, "setCacheImage"):
-            #         rlayer.setCacheImage(None)
-            #     rlayer.triggerRepaint()
-            #
-            # self.iface.messageBar().pushMessage("SOLWEIG", "Model calculations successful.")
+                        YYYY, DOY, hours, minu, self.gdal_dsm, self.folderPath, self.poisxy, self.poiname, Ws, mbody,
+                        age, ht, activity, clo, sex, sensorheight, diffsh, shmat, vegshmat, vbshvegshmat, anisotropic_sky, asvf, patch_option)
 
     def run(self):
+        """This methods is needed for QGIS to start the plugin"""
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def help(self):
-        url = 'http://umep-docs.readthedocs.io/en/latest/processor/Outdoor%20Thermal%20Comfort%20SOLWEIG.html'
+        url = 'https://umep-docs.readthedocs.io/en/latest/processor/Outdoor%20Thermal%20Comfort%20SOLWEIG.html'
         webbrowser.open_new_tab(url)
 
     def saveraster(self, gdal_data, filename, raster):
@@ -994,26 +1074,28 @@ class SOLWEIG:
 
     def startWorker(self, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
                         svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
-                        vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, altitude,
+                        vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, Fcyl, altitude,
                         azimuth, zen, jday, usevegdem, onlyglobal, buildings, location,
                         psi, landcover, lcgrid, dectime, altmax, wallaspect,
                         wallheight, cyl, elvis, Ta, RH, radG, radD, radI, P, amaxvalue,
                         bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, dlg,
-                        YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname):
+                        YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname, Ws, mbody,
+                        age, ht, activity, clo, sex, sensorheight, diffsh, shmat, vegshmat, vbshvegshmat, anisotropic_sky, asvf, patch_option):
 
         # create a new worker instance
         worker = Worker(dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
                         svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
-                        vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, altitude,
+                        vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, Fcyl, altitude,
                         azimuth, zen, jday, usevegdem, onlyglobal, buildings, location,
                         psi, landcover, lcgrid, dectime, altmax, wallaspect,
                         wallheight, cyl, elvis, Ta, RH, radG, radD, radI, P, amaxvalue,
                         bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
                         TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
                         timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, dlg,
-                        YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname)
+                        YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname, Ws, mbody,
+                        age, ht, activity, clo, sex, sensorheight, diffsh, shmat, vegshmat, vbshvegshmat, anisotropic_sky, asvf, patch_option)
 
         self.dlg.runButton.setText('Cancel')
         self.dlg.runButton.clicked.disconnect()
@@ -1039,7 +1121,6 @@ class SOLWEIG:
         self.thread.deleteLater()
         # remove widget from message bar
         if ret is not None:
-            # report the result
             # load result into canvas
             if self.dlg.checkBoxIntoCanvas.isChecked():
                 tmrtplot = ret["tmrtplot"]
@@ -1052,23 +1133,33 @@ class SOLWEIG:
                 rlayer.triggerRepaint()
 
                 rlayer.loadNamedStyle(self.plugin_dir + '/tmrt.qml')
-                # self.QgsMapLayerRegistry.instance().addMapLayer(rlayer)
 
                 if hasattr(rlayer, "setCacheImage"):
                     rlayer.setCacheImage(None)
                 rlayer.triggerRepaint()
 
-                # Set opacity
-                # rlayer.renderer().setOpacity(0.5)
+            # # Save files for Tree Planter
+            # if self.dlg.checkBoxTreePlanter.isChecked():
+            #     # Save DSM
+            #     copyfile(self.filepath_dsm, self.folderPath[0] + '/DSM.tif')
 
-                # Trigger a repaint
-                # if hasattr(rlayer, "setCacheImage"):
-                #     rlayer.setCacheImage(None)
-                # rlayer.triggerRepaint()
+            #     # Save met file
+            #     copyfile(self.PathMet, self.folderPath[0] + '/metfile.txt')
+
+            #     # Save CDSM
+            #     if self.usevegdem:
+            #         copyfile(self.filePath_cdsm, self.folderPath[0] + '/CDSM.tif')
+
+            #     # Saving settings from SOLWEIG for SOLWEIG1D in TreePlanter
+            #     settingsHeader = 'UTC, posture, onlyglobal, landcover, anisotropic, cylinder, albedo_walls, albedo_ground, emissivity_walls, emissivity_ground, absK, absL, elevation'
+            #     settingsFmt = '%i', '%i', '%i', '%i', '%i', '%i', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f'
+            #     settingsData = np.array([[utc, pos, onlyglobal, landcover, ani, cyl, albedo_b, albedo_g, ewall, eground, absK, absL, alt]])
+            #     np.savetxt(self.folderPath[0] + '/settings.txt', settingsData, fmt=settingsFmt, header=settingsHeader, delimiter=' ')
+
 
             QMessageBox.information(self.dlg,"SOLWEIG", "Model calculations successful!\r\n"
                             "Setting for this calculation is found in RunInfoSOLWEIG.txt located in "
-                                                               "the output folder specified.")
+                                                               "the specified output folder.")
 
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
@@ -1079,7 +1170,7 @@ class SOLWEIG:
             # notify the user that something went wrong
             self.iface.messageBar().pushMessage(
                 'Operations cancelled either by user or error. See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.',
-                level=QgsMessageBar.CRITICAL, duration=3)
+                level=Qgis.MessageLevel.Critical, duration=3)
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
@@ -1087,4 +1178,4 @@ class SOLWEIG:
             self.dlg.progressBar.setValue(0)
 
     def workerError(self, errorstring):
-        QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)

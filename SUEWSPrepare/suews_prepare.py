@@ -20,36 +20,47 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QThread
-from PyQt4.QtGui import QAction, QIcon, QMessageBox, QImage, QLabel, QPixmap, QLineEdit, QGridLayout, QVBoxLayout, \
-    QSpacerItem, QSizePolicy, QFileDialog
+from __future__ import print_function
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import next
+from builtins import str
+from builtins import range
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread, QCoreApplication
+from qgis.PyQt.QtWidgets import QAction, QMessageBox, QLabel, QLineEdit, QGridLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QFileDialog
+from qgis.PyQt.QtGui import QIcon, QImage, QPixmap
 from qgis.core import *
 from qgis.gui import *
 from qgis.utils import *
-from suews_prepare_dialog import SUEWSPrepareDialog
-from tabs.template_widget import TemplateWidget
-from tabs.template_tab import TemplateTab
-from tabs.main_tab import MainTab
-from tabs.changeDialog import ChangeDialog
-from tabs.photodialog import PhotoDialog
+from .suews_prepare_dialog import SUEWSPrepareDialog
+from .tabs.template_widget import TemplateWidget
+from .tabs.template_tab import TemplateTab
+from .tabs.main_tab import MainTab
+from .tabs.changeDialog import ChangeDialog
+from .tabs.photodialog import PhotoDialog
 import sys
 import os.path
 sys.path.insert(0, os.path.dirname(__file__) + '/Modules')
-from Modules.xlutils.copy import copy
-from prepare_worker import Worker
-import urllib2
+from .Modules.xlutils.copy import copy
+from .prepare_worker import Worker
+import urllib.request, urllib.error, urllib.parse
 import fileinput
 import itertools
 import webbrowser
+import os
+import shutil
 
 try:
     import xlrd
 except ImportError:
-    QMessageBox.critical(None, 'Missing Python library', 'SUEWS Prepare requires the xlrd package to be installed. Please consult the UMEP manual for further information')
+    QMessageBox.critical(None, 'Missing Python library', 'This plugin requires the xlrd package to be installed. '
+                                                         'Please consult the UMEP manual for further information')
     pass
 
 
-class SUEWSPrepare:
+class SUEWSPrepare(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -77,7 +88,7 @@ class SUEWSPrepare:
 
         self.input_path = self.plugin_dir + '/Input/'
         self.output_path = self.plugin_dir[:-12] + 'suewsmodel/'
-        self.output_heat = 'SUEWS_AnthropogenicHeat.txt'
+        self.output_heat = 'SUEWS_AnthropogenicEmission.txt' #'SUEWS_AnthropogenicHeat.txt'
         self.output_file_list.append(self.output_heat)
         self.output_cond = 'SUEWS_Conductance.txt'
         self.output_file_list.append(self.output_cond)
@@ -112,19 +123,36 @@ class SUEWSPrepare:
         self.LCF_from_file = True
         self.IMP_from_file = True
         self.IMPveg_from_file = True
-        self.wall_area_info = False
+        # self.wall_area_info = False
         self.land_use_from_file = False
 
+        # Copy basefiles from sample_run if not present
+        self.supylib = sys.modules["supy"].__path__[0]
+        if not (os.path.isdir(self.output_path + '/Input')):
+            os.mkdir(self.output_path + '/Input')
+            basefiles = ['ESTMinput.nml', 'SUEWS_AnthropogenicEmission.txt', 'SUEWS_BiogenCO2.txt', 'SUEWS_Conductance.txt', 
+            'SUEWS_ESTMCoefficients.txt', 'SUEWS_Irrigation.txt', 'SUEWS_NonVeg.txt', 'SUEWS_OHMCoefficients.txt', 
+            'SUEWS_Profiles.txt', 'SUEWS_Snow.txt', 'SUEWS_Soil.txt', 'SUEWS_Water.txt', 'SUEWS_Veg.txt', 
+            'SUEWS_WithinGridWaterDist.txt', 'SUEWS_SPARTACUS.nml', 'GridLayoutKc.nml'] # added Spartacus files (Issue #462)
+            for i in range(0, basefiles.__len__()):
+                print(basefiles[i])
+                if not (os.path.isfile(self.output_path + '/Input/' + basefiles[i])):
+                    try:
+                        shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.output_path + '/Input/' + basefiles[i])
+                    except:
+                        os.remove(self.output_path + '/Input/' + basefiles[i])
+                        shutil.copy(self.supylib + '/sample_run/Input/' + basefiles[i], self.output_path + '/Input/' + basefiles[i])
+
         self.file_path = self.plugin_dir + '/Input/SUEWS_SiteLibrary.xls'
-        self.init_path = self.plugin_dir + '/Input/SUEWS_init.xlsx'
-        self.header_file_path = self.plugin_dir + '/Input/SUEWS_SiteSelect.xlsx'
+        self.init_path = self.plugin_dir + '/Input/SUEWS_init.xls'
+        self.header_file_path = self.plugin_dir + '/Input/SUEWS_SiteSelect.xls'
         self.line_list = []
         self.widget_list = []
         self.data = xlrd.open_workbook(self.file_path)
         self.init_data = xlrd.open_workbook(self.init_path)
         self.header_data = xlrd.open_workbook(self.header_file_path)
         self.isEditable = False
-        self.heatsheet = self.data.sheet_by_name("SUEWS_AnthropogenicHeat")
+        self.heatsheet = self.data.sheet_by_name("SUEWS_AnthropogenicEmission") #SUEWS_AnthropogenicHeat")
         self.condsheet = self.data.sheet_by_name("SUEWS_Conductance")
         self.irrsheet = self.data.sheet_by_name("SUEWS_Irrigation")
         self.impsheet = self.data.sheet_by_name("SUEWS_NonVeg")
@@ -146,12 +174,11 @@ class SUEWSPrepare:
         self.dlg.runButton.clicked.connect(self.generate)
 
         self.outputDialog = QFileDialog()
-        self.outputDialog.setFileMode(4)
-        self.outputDialog.setAcceptMode(1)
+        self.outputDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.outputDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(0)
-        self.fileDialog.setAcceptMode(0)
+        self.fileDialog.setFileMode(QFileDialog.FileMode.ExistingFile)
 
         self.change_dialog = ChangeDialog()
 
@@ -178,25 +205,18 @@ class SUEWSPrepare:
         self.IMPveg_fai_dec = None
         self.IMPveg_fai_eve = None
         self.wall_area = None
-
+        self.daypop = 0
         self.start_DLS = 85
         self.end_DLS = 302
-
         self.day_since_rain = 0
         self.leaf_cycle = 0
         self.soil_moisture = 100
         self.utc = 0
         self.file_code = ''
         self.steps = 0
-        self.daypop = 0
 
         # Declare instance attributes
-
         self.actions = []
-        # self.menu = self.tr(u'&SUEWS Prepare')
-        # TODO: We are going to let the user set this up in a future iteration
-        # self.toolbar = self.iface.addToolBar(u'SUEWSPrepare')
-        # self.toolbar.setObjectName(u'SUEWSPrepare')
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -265,17 +285,17 @@ class SUEWSPrepare:
         self.dlg.tabWidget.addTab(main_tab, "Main settings")
         sheet_names = self.init_data.sheet_names()
 
-        for shidx in xrange(1, self.init_data.nsheets):
+        for shidx in range(1, self.init_data.nsheets):
             sheet = self.init_data.sheet_by_index(shidx)
             title = sheet_names[shidx]
             self.setup_tab(title, sheet)
 
     def setup_tab(self, title, sheet):
-        QgsMessageLog.logMessage("Setting up tab: " + str(title), level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage("Setting up tab: " + str(title), level=Qgis.MessageLevel.Info)
         tab = TemplateTab()
         x = 0
         y = 0
-        for row in xrange(0, sheet.nrows):
+        for row in range(0, sheet.nrows):
             values = sheet.row_values(row)
             input_sheet = self.data.sheet_by_name(str(values[0]))
             file_path = str(values[1])
@@ -288,7 +308,7 @@ class SUEWSPrepare:
                 try:
                     code = int(values[3])
                 except ValueError as e:
-                    QgsMessageLog.logMessage("Value error for plugin titled " + title + " for input code: " + str(e), level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage("Value error for plugin titled " + title + " for input code: " + str(e), level=Qgis.MessageLevel.Critical)
                     code = None
             if values[4] is None:
                 default_combo = None
@@ -298,7 +318,7 @@ class SUEWSPrepare:
                 try:
                     default_combo = int(values[4])
                 except ValueError as e:
-                    QgsMessageLog.logMessage("Value error for plugin titled " + title + " for default combo: " + str(e), level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage("Value error for plugin titled " + title + " for default combo: " + str(e), level=Qgis.MessageLevel.Critical)
                     default_combo = None
             if values[5] is None:
                 sitelist_pos = None
@@ -308,7 +328,7 @@ class SUEWSPrepare:
                 try:
                     sitelist_pos = int(values[5])
                 except ValueError as e:
-                    QgsMessageLog.logMessage("Value error for plugin titled " + title + " for site list position: " + str(e), level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage("Value error for plugin titled " + title + " for site list position: " + str(e), level=Qgis.MessageLevel.Critical)
                     sitelist_pos = None
 
             widget = TemplateWidget(input_sheet, file_path, widget_title, code, default_combo, sitelist_pos)
@@ -320,7 +340,7 @@ class SUEWSPrepare:
             widget.checkbox_signal.connect(lambda: self.fill_combobox(widget))
 
             self.tab_combo = QgsFieldComboBox(widget.comboBox_uniquecodes)
-            self.tab_combo.setFilters(QgsFieldProxyModel.Numeric)
+            self.tab_combo.setFilters(QgsFieldProxyModel.Filter.Numeric)
             self.layerComboManagerPolygrid.layerChanged.connect(self.tab_combo.setLayer)
 
             tab.Layout.addWidget(widget, x, y)
@@ -332,263 +352,6 @@ class SUEWSPrepare:
                 y = 0
 
         self.dlg.tabWidget.addTab(tab, str(title))
-
-    # def setup_tabs_outdated2(self):
-    #
-    #     self.dlg.tabWidget.clear()
-    #     self.widget_list = []
-    #
-    #     main_tab = MainTab()
-    #     self.setup_maintab(main_tab)
-    #
-    #     paved_tab = PavedTab()
-    #     buildings_tab = BuildingsTab()
-    #     evergreen_tab = EvergreenTab()
-    #     decidious_tab = DecidiousTab()
-    #     grass_tab = GrassTab()
-    #     baresoil_tab = BareSoilTab()
-    #     water_tab = WaterTab()
-    #     conductance_tab = ConductanceTab()
-    #     snow_tab = SnowTab()
-    #     anthro_tab = AnthroTab()
-    #     energy_tab = EnergyTab()
-    #     irrigation_tab = IrrigationTab()
-    #     wateruse_tab = WaterUseTab()
-    #
-    #     imp_paved_widget = TemplateWidget(self.impsheet, self.output_nonveg, "Paved surface characteristics", 1, 661)
-    #     self.widget_list.append(imp_paved_widget)
-    #     imp_buildings_widget = TemplateWidget(self.impsheet, self.output_nonveg, "Building surface characteristics", 2,
-    #                                           662)
-    #     self.widget_list.append(imp_buildings_widget)
-    #     veg_evergreen_widget = TemplateWidget(self.vegsheet, self.output_veg, "Evergreen surface characteristics", 3,
-    #                       661)
-    #     self.widget_list.append(veg_evergreen_widget)
-    #     veg_decidious_widget = TemplateWidget(self.vegsheet, self.output_veg, "Decidious surface characteristics", 4,
-    #                       662)
-    #     self.widget_list.append(veg_decidious_widget)
-    #     veg_grass_widget = TemplateWidget(self.vegsheet, self.output_veg, "Grass surface characteristics", 5, 663)
-    #     self.widget_list.append(veg_grass_widget)
-    #     imp_baresoil_widget = TemplateWidget(self.impsheet, self.output_nonveg, "Bare soil surface characteristics", 6,
-    #                                          663)
-    #     self.widget_list.append(imp_baresoil_widget)
-    #     water_widget = TemplateWidget(self.watersheet, self.output_water, "Water surface characteristics", None, 661)
-    #     self.widget_list.append(water_widget)
-    #     conductance_widget = TemplateWidget(self.condsheet, self.output_cond, "Surface conductance parameters", None,
-    #                                         100)
-    #     self.widget_list.append(conductance_widget)
-    #     snow_widget = TemplateWidget(self.snowsheet, self.output_snow, "Snow surface characteristics", None, 660)
-    #     self.widget_list.append(snow_widget)
-    #     prof_snow1_widget = TemplateWidget(self.profsheet, self.output_prof, "Snow clearing profile (Weekdays)", 1, 660)
-    #     self.widget_list.append(prof_snow1_widget)
-    #     prof_snow2_widget = TemplateWidget(self.profsheet, self.output_prof, "Snow clearing profile (Weekends)", 1, 660)
-    #     self.widget_list.append(prof_snow2_widget)
-    #     heat_widget = TemplateWidget(self.heatsheet, self.output_heat, "Modelling anthropogenic heat flux", None, 661)
-    #     self.widget_list.append(heat_widget)
-    #     prof_energy1_widget = TemplateWidget(self.profsheet, self.output_prof, "Energy use profile (Weekdays)", 2, 661)
-    #     self.widget_list.append(prof_energy1_widget)
-    #     prof_energy2_widget = TemplateWidget(self.profsheet, self.output_prof, "Energy use profile (Weekends)", 3, 662)
-    #     self.widget_list.append(prof_energy2_widget)
-    #     irr_widget = TemplateWidget(self.irrsheet, self.output_irr, "Modelling irrigation", None, 660)
-    #     self.widget_list.append(irr_widget)
-    #     prof_wateruse1_widget = TemplateWidget(self.profsheet, self.output_prof,
-    #                                            "Water use profile (Manual irrigation, Weekdays)", 1, 660)
-    #     self.widget_list.append(prof_wateruse1_widget)
-    #     prof_wateruse2_widget = TemplateWidget(self.profsheet, self.output_prof,
-    #                                            "Water use profile (Manual irrigation, Weekends)", 1, 660)
-    #     self.widget_list.append(prof_wateruse2_widget)
-    #     prof_wateruse3_widget = TemplateWidget(self.profsheet, self.output_prof,
-    #                                            "Water use profile (Automatic irrigation, Weekdays)", 1, 660)
-    #     self.widget_list.append(prof_wateruse3_widget)
-    #     prof_wateruse4_widget = TemplateWidget(self.profsheet, self.output_prof,
-    #                                            "Water use profile (Automatic irrigation, Weekends)", 1, 660)
-    #     self.widget_list.append(prof_wateruse4_widget)
-    #
-    #     paved_tab.Layout.addWidget(imp_paved_widget)
-    #
-    #     buildings_tab.Layout.addWidget(imp_buildings_widget)
-    #
-    #     evergreen_tab.Layout.addWidget(veg_evergreen_widget)
-    #
-    #     decidious_tab.Layout.addWidget(veg_decidious_widget)
-    #
-    #     grass_tab.Layout.addWidget(veg_grass_widget)
-    #
-    #     baresoil_tab.Layout.addWidget(imp_baresoil_widget)
-    #
-    #     water_tab.Layout.addWidget(water_widget)
-    #
-    #     conductance_tab.Layout.addWidget(conductance_widget)
-    #
-    #     snow_tab.Layout.addWidget(snow_widget)
-    #     snow_tab.Layout2.addWidget(prof_snow1_widget)
-    #     snow_tab.Layout2.addWidget(prof_snow2_widget)
-    #
-    #     anthro_tab.Layout.addWidget(heat_widget)
-    #
-    #     energy_tab.Layout.addWidget(prof_energy1_widget)
-    #     energy_tab.Layout.addWidget(prof_energy2_widget)
-    #
-    #     irrigation_tab.Layout.addWidget(irr_widget)
-    #
-    #     wateruse_tab.Layout.addWidget(prof_wateruse1_widget)
-    #     wateruse_tab.Layout.addWidget(prof_wateruse2_widget)
-    #     wateruse_tab.Layout2.addWidget(prof_wateruse3_widget)
-    #     wateruse_tab.Layout2.addWidget(prof_wateruse4_widget)
-    #
-    #     self.dlg.tabWidget.addTab(main_tab, "Main settings")
-    #     self.dlg.tabWidget.addTab(paved_tab, "Paved")
-    #     self.dlg.tabWidget.addTab(buildings_tab, "Building")
-    #     self.dlg.tabWidget.addTab(evergreen_tab, "Evergreen")
-    #     self.dlg.tabWidget.addTab(decidious_tab, "Decidious")
-    #     self.dlg.tabWidget.addTab(grass_tab, "Grass")
-    #     self.dlg.tabWidget.addTab(baresoil_tab, "Bare Soil")
-    #     self.dlg.tabWidget.addTab(water_tab, "Water")
-    #     self.dlg.tabWidget.addTab(conductance_tab, "Conductance")
-    #     self.dlg.tabWidget.addTab(snow_tab, "Snow")
-    #     self.dlg.tabWidget.addTab(anthro_tab, "Anthropogenic")
-    #     self.dlg.tabWidget.addTab(energy_tab, "Energy")
-    #     self.dlg.tabWidget.addTab(irrigation_tab, "Irrigation")
-    #     self.dlg.tabWidget.addTab(wateruse_tab, "Water Use")
-    #
-    #     for widget in self.widget_list:
-    #         widget.setup_widget()
-    #         widget.make_edits_signal.connect(self.make_edits)
-    #         widget.edit_mode_signal.connect(self.edit_mode)
-    #         widget.cancel_edits_signal.connect(self.cancel_edits)
-
-    # def setup_tabs_outdated(self):
-    #     self.dlg.tabWidget.clear()
-    #
-    #     main_tab = MainTab()
-    #     self.setup_maintab(main_tab)
-    #
-    #     paved_tab = PavedTab()
-    #     buildings_tab = BuildingsTab()
-    #     baresoil_tab = BareSoilTab()
-    #     evergreen_tab = EvergreenTab()
-    #     decidious_tab = DecidiousTab()
-    #     grass_tab = GrassTab()
-    #     water_tab = WaterTab()
-    #     conductance_tab = ConductanceTab()
-    #     snow_tab = SnowTab()
-    #     anthro_tab = AnthroTab()
-    #     energy_tab = EnergyTab()
-    #     irrigation_tab = IrrigationTab()
-    #     wateruse_tab = WaterUseTab()
-    #
-    #     conductance_widget = TemplateWidget()
-    #     heat_widget = TemplateWidget()
-    #     imp_paved_widget = TemplateWidget()
-    #     imp_buildings_widget = TemplateWidget()
-    #     irr_widget = TemplateWidget()
-    #     imp_baresoil_widget = TemplateWidget()
-    #     prof_snow1_widget = TemplateWidget()
-    #     prof_snow2_widget = TemplateWidget()
-    #     prof_energy1_widget = TemplateWidget()
-    #     prof_energy2_widget = TemplateWidget()
-    #     prof_wateruse1_widget = TemplateWidget()
-    #     prof_wateruse2_widget = TemplateWidget()
-    #     prof_wateruse3_widget = TemplateWidget()
-    #     prof_wateruse4_widget = TemplateWidget()
-    #     snow_widget = TemplateWidget()
-    #     water_widget = TemplateWidget()
-    #     veg_evergreen_widget = TemplateWidget()
-    #     veg_decidious_widget = TemplateWidget()
-    #     veg_grass_widget = TemplateWidget()
-    #
-    #     paved_tab.Layout.addWidget(imp_paved_widget)
-    #
-    #     buildings_tab.Layout.addWidget(imp_buildings_widget)
-    #
-    #     baresoil_tab.Layout.addWidget(imp_baresoil_widget)
-    #
-    #     evergreen_tab.Layout.addWidget(veg_evergreen_widget)
-    #
-    #     decidious_tab.Layout.addWidget(veg_decidious_widget)
-    #
-    #     grass_tab.Layout.addWidget(veg_grass_widget)
-    #
-    #     water_tab.Layout.addWidget(water_widget)
-    #
-    #     conductance_tab.Layout.addWidget(conductance_widget)
-    #
-    #     snow_tab.Layout.addWidget(snow_widget)
-    #     snow_tab.Layout2.addWidget(prof_snow1_widget)
-    #     snow_tab.Layout2.addWidget(prof_snow2_widget)
-    #
-    #     anthro_tab.Layout.addWidget(heat_widget)
-    #
-    #     energy_tab.Layout.addWidget(prof_energy1_widget)
-    #     energy_tab.Layout.addWidget(prof_energy2_widget)
-    #
-    #     irrigation_tab.Layout.addWidget(irr_widget)
-    #
-    #     wateruse_tab.Layout.addWidget(prof_wateruse1_widget)
-    #     wateruse_tab.Layout.addWidget(prof_wateruse2_widget)
-    #     wateruse_tab.Layout2.addWidget(prof_wateruse3_widget)
-    #     wateruse_tab.Layout2.addWidget(prof_wateruse4_widget)
-    #
-    #     self.dlg.tabWidget.addTab(main_tab, "Main settings")
-    #     self.dlg.tabWidget.addTab(paved_tab, "Paved")
-    #     self.dlg.tabWidget.addTab(buildings_tab, "Building")
-    #     self.dlg.tabWidget.addTab(baresoil_tab, "Bare Soil")
-    #     self.dlg.tabWidget.addTab(evergreen_tab, "Evergreen")
-    #     self.dlg.tabWidget.addTab(decidious_tab, "Decidious")
-    #     self.dlg.tabWidget.addTab(grass_tab, "Grass")
-    #     self.dlg.tabWidget.addTab(water_tab, "Water")
-    #     self.dlg.tabWidget.addTab(conductance_tab, "Conductance")
-    #     self.dlg.tabWidget.addTab(snow_tab, "Snow")
-    #     self.dlg.tabWidget.addTab(anthro_tab, "Anthropogenic")
-    #     self.dlg.tabWidget.addTab(energy_tab, "Energy")
-    #     self.dlg.tabWidget.addTab(irrigation_tab, "Irrigation")
-    #     self.dlg.tabWidget.addTab(wateruse_tab, "Water Use")
-    #
-    #     self.setup_widget(imp_paved_widget, self.impsheet, self.output_nonveg, "Paved surface characteristics", 1, 661)
-    #
-    #     self.setup_widget(imp_buildings_widget, self.impsheet, self.output_nonveg,
-    #                       "Building surface characteristics", 2, 662)
-    #
-    #     self.setup_widget(veg_evergreen_widget, self.vegsheet, self.output_veg, "Evergreen surface characteristics", 3,
-    #                       661)
-    #
-    #     self.setup_widget(veg_decidious_widget, self.vegsheet, self.output_veg, "Decidious surface characteristics", 4,
-    #                       662)
-    #
-    #     self.setup_widget(veg_grass_widget, self.vegsheet, self.output_veg, "Grass surface characteristics", 5, 663)
-    #
-    #     self.setup_widget(imp_baresoil_widget, self.impsheet, self.output_nonveg,
-    #                       "Bare soil surface characteristics", 6, 663)
-    #
-    #     self.setup_widget(water_widget, self.watersheet, self.output_water, "Water surface characteristics", None, 661)
-    #
-    #     self.setup_widget(conductance_widget, self.condsheet, self.output_cond, "Surface conductance parameters", None,
-    #                       100)
-    #
-    #     self.setup_widget(snow_widget, self.snowsheet, self.output_snow, "Snow surface characteristics", None, 660)
-    #
-    #     self.setup_widget(prof_snow1_widget, self.profsheet, self.output_prof, "Snow clearing profile (Weekdays)", 1)
-    #
-    #     self.setup_widget(prof_snow2_widget, self.profsheet, self.output_prof, "Snow clearing profile (Weekends)", 2)
-    #
-    #     self.setup_widget(heat_widget, self.heatsheet, self.output_heat, "Modelling anthropogenic heat flux")
-    #
-    #     self.setup_widget(prof_energy1_widget, self.profsheet, self.output_prof, "Energy use profile (Weekdays)", 3)
-    #
-    #     self.setup_widget(prof_energy2_widget, self.profsheet, self.output_prof, "Energy use profile (Weekends)", 4)
-    #
-    #     self.setup_widget(irr_widget, self.irrsheet, self.output_irr, "Modelling irrigation")
-    #
-    #     self.setup_widget(prof_wateruse1_widget, self.profsheet, self.output_prof,
-    #                       "Water use profile (Manual irrigation, Weekdays)", 5)
-    #
-    #     self.setup_widget(prof_wateruse2_widget, self.profsheet, self.output_prof,
-    #                       "Water use profile (Manual irrigation, Weekends)", 6)
-    #
-    #     self.setup_widget(prof_wateruse3_widget, self.profsheet, self.output_prof,
-    #                       "Water use profile (Automatic irrigation, Weekdays)", 7)
-    #
-    #     self.setup_widget(prof_wateruse4_widget, self.profsheet, self.output_prof,
-    #                       "Water use profile (Automatic irrigation, Weekends)", 8)
 
     def setup_maintab(self, widget):
 
@@ -603,52 +366,31 @@ class SUEWSPrepare:
         widget.IMP_checkBox.stateChanged.connect(lambda: self.hide_show_IMP(widget))
         widget.IMPveg_checkBox.stateChanged.connect(lambda: self.hide_show_IMPveg(widget))
         widget.LUF_checkBox.stateChanged.connect(lambda: self.LUF_file(widget))
-        widget.WallArea_checkBox.stateChanged.connect(lambda: self.enable_wall_area(widget))
+        # widget.WallArea_checkBox.stateChanged.connect(lambda: self.enable_wall_area(widget))
 
         widget.checkBox_day.stateChanged.connect(lambda: self.popdaystate(widget))
 
-        # self.layerComboManagerPolygrid = VectorLayerCombo(widget.comboBox_Polygrid)
-        # self.fieldgen = VectorLayerCombo(widget.comboBox_Polygrid, initLayer="", options={"geomType": QGis.Polygon})
-        # self.layerComboManagerPolyField = FieldCombo(widget.comboBox_Field, self.fieldgen, initField="")
         self.layerComboManagerPolygrid = QgsMapLayerComboBox(widget.widgetPolygonLayer)
         self.layerComboManagerPolygrid.setCurrentIndex(-1)
-        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
         self.layerComboManagerPolygrid.setFixedWidth(175)
         self.layerComboManagerPolyField = QgsFieldComboBox(widget.widgetPolyField)
-        self.layerComboManagerPolyField.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPolyField.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.layerComboManagerPolygrid.layerChanged.connect(self.layerComboManagerPolyField.setLayer)
 
         # self.pop_density = FieldCombo(widget.comboBox_popdens, self.fieldgen, initField="")
         self.pop_density = QgsFieldComboBox(widget.widgetPop)
-        self.pop_density.setFilters(QgsFieldProxyModel.Numeric)
+        self.pop_density.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.layerComboManagerPolygrid.layerChanged.connect(self.pop_density.setLayer)
 
         self.pop_density_day = QgsFieldComboBox(widget.widgetPopDay)
-        self.pop_density_day.setFilters(QgsFieldProxyModel.Numeric)
+        self.pop_density_day.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.layerComboManagerPolygrid.layerChanged.connect(self.pop_density_day.setLayer)
 
         # self.wall_area = FieldCombo(widget.comboBox_wallArea, self.fieldgen, initField="")
-        self.wall_area = QgsFieldComboBox(widget.widgetWallArea)
-        self.wall_area.setFilters(QgsFieldProxyModel.Numeric)
-        self.layerComboManagerPolygrid.layerChanged.connect(self.wall_area.setLayer)
-
-        # self.LCF_Paved = FieldCombo(widget.LCF_Paved, self.fieldgen, initField="")
-        # self.LCF_Buildings = FieldCombo(widget.LCF_Buildings, self.fieldgen, initField="")
-        # self.LCF_Evergreen = FieldCombo(widget.LCF_Evergreen, self.fieldgen, initField="")
-        # self.LCF_Decidious = FieldCombo(widget.LCF_Decidious, self.fieldgen, initField="")
-        # self.LCF_Grass = FieldCombo(widget.LCF_Grass, self.fieldgen, initField="")
-        # self.LCF_Baresoil = FieldCombo(widget.LCF_Baresoil, self.fieldgen, initField="")
-        # self.LCF_Water = FieldCombo(widget.LCF_Water, self.fieldgen, initField="")
-        #
-        # self.IMP_mean_height = FieldCombo(widget.IMP_mean, self.fieldgen, initField="")
-        # self.IMP_z0 = FieldCombo(widget.IMP_z0, self.fieldgen, initField="")
-        # self.IMP_zd = FieldCombo(widget.IMP_zd, self.fieldgen, initField="")
-        # self.IMP_fai = FieldCombo(widget.IMP_fai, self.fieldgen, initField="")
-        #
-        # self.IMPveg_mean_height_dec = FieldCombo(widget.IMPveg_mean_dec, self.fieldgen, initField="")
-        # self.IMPveg_mean_height_eve = FieldCombo(widget.IMPveg_mean_eve, self.fieldgen, initField="")
-        # self.IMPveg_fai_dec = FieldCombo(widget.IMPveg_fai_dec, self.fieldgen, initField="")
-        # self.IMPveg_fai_eve = FieldCombo(widget.IMPveg_fai_eve, self.fieldgen, initField="")
+        # self.wall_area = QgsFieldComboBox(widget.widgetWallArea)
+        # self.wall_area.setFilters(QgsFieldProxyModel.Numeric)
+        # self.layerComboManagerPolygrid.layerChanged.connect(self.wall_area.setLayer)
 
         widget.pushButtonImportLCF.clicked.connect(lambda: self.set_LCFfile_path(widget))
         widget.pushButtonImportIMPVeg.clicked.connect(lambda: self.set_IMPvegfile_path(widget))
@@ -742,13 +484,13 @@ class SUEWSPrepare:
         else:
             self.daypop = 0
 
-    def enable_wall_area(self, widget):
-        if widget.WallArea_checkBox.isChecked():
-            self.wall_area_info = True
-            widget.widgetWallArea.setEnabled(1)
-        else:
-            self.wall_area_info = False
-            widget.widgetWallArea.setEnabled(0)
+    # def enable_wall_area(self, widget):
+    #     if widget.WallArea_checkBox.isChecked():
+    #         self.wall_area_info = True
+    #         widget.widgetWallArea.setEnabled(1)
+    #     else:
+    #         self.wall_area_info = False
+    #         widget.widgetWallArea.setEnabled(0)
 
     def setup_widget(self, widget, sheet, outputfile, title, code=None, default_combo=None):
         widget.tab_name.setText(title)
@@ -816,7 +558,7 @@ class SUEWSPrepare:
                         lineEdit.setText(str(values[x]))
                     break
         except ValueError as e:
-            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=QgsMessageLog.CRITICAL)
+            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
             pass
 
     def setup_buttons(self, widget, outputfile, sheet, lineedit_list, code=None):
@@ -831,9 +573,10 @@ class SUEWSPrepare:
         poly = self.layerComboManagerPolygrid.currentLayer()
         if poly is None:
             QMessageBox.information(None, "Error", "No polygon grid added in main settings yet")
-            widget.checkBox.setCheckState(0)
-        else:
-            widget.checkBox.setCheckState(1)
+        # comment out as response to issue #461
+            # widget.checkBox.setCheckState(0)
+        # else: 
+            # widget.checkBox.setCheckState(1)
             # FieldCombo(widget.comboBox_uniquecodes, self.fieldgen, initField="")
 
     def edit_mode(self):
@@ -912,7 +655,7 @@ class SUEWSPrepare:
 
             self.change_dialog.show()
 
-            result = self.change_dialog.exec_()
+            result = self.change_dialog.exec()
 
             if result:
                 start_code = self.line_list[0].text()
@@ -940,39 +683,43 @@ class SUEWSPrepare:
                                 if wrote_line is False:
                                     string_to_print = ''
                                     for element in str_list:
-                                        string_to_print += element + '\t'
-                                    print string_to_print
-                                    print line,
+                                        string_to_print += element + ' ' #'\t' # to better work with current textfile
+                                    # fix_print_with_import
+                                    print(string_to_print)
+                                    # fix_print_with_import
+                                    print(line, end=' ')
                                     wrote_line = True
                                 else:
-                                    print line,
+                                    # fix_print_with_import
+                                    print(line, end=' ')
                             else:
-                                print line,
+                                # fix_print_with_import
+                                print(line, end=' ')
                         photo = QMessageBox.question(None, "Photo",
                                                      "Would you like to add a url to a suitable photo of the area?",
-                                                     QMessageBox.Yes | QMessageBox.No)
-                        if photo == QMessageBox.Yes:
+                                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+                        if photo == QMessageBox.StandardButton.Yes:
                             self.photo_dialog.show()
-                            result = self.photo_dialog.exec_()
+                            result = self.photo_dialog.exec()
                             if result:
                                 try:
                                     url = self.photo_dialog.lineEdit.text()
-                                    QgsMessageLog.logMessage("URL: " + str(url), level=QgsMessageLog.CRITICAL)
-                                    req = urllib2.Request(str(url))
+                                    QgsMessageLog.logMessage("URL: " + str(url), level=Qgis.MessageLevel.Critical)
+                                    req = urllib.request.Request(str(url))
                                     try:
-                                        resp = urllib2.urlopen(req)
-                                    except urllib2.HTTPError as e:
-                                        QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=QgsMessageLog.CRITICAL)
+                                        resp = urllib.request.urlopen(req)
+                                    except urllib.error.HTTPError as e:
+                                        QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
                                         QMessageBox.information(None, "Error", "Couldn't reach url")
                                         str_list.append('')
-                                    except urllib2.URLError as e:
-                                        QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=QgsMessageLog.CRITICAL)
+                                    except urllib.error.URLError as e:
+                                        QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
                                         QMessageBox.information(None, "Error", "Couldn't reach url")
                                         str_list.append('')
                                     else:
                                         str_list.append(str(url))
                                 except ValueError as e:
-                                    QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=QgsMessageLog.CRITICAL)
+                                    QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
                                     QMessageBox.information(None, "Error", "Couldn't reach url")
                                     str_list.append('')
                             else:
@@ -1017,7 +764,7 @@ class SUEWSPrepare:
             else:
                 self.clear_layout()
         except IOError as e:
-            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=QgsMessageLog.CRITICAL)
+            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
             QMessageBox.critical(None, "Error", "Cannot access Excel file, might already be in use.")
 
     def setup_change_dialog(self, sheet):
@@ -1041,7 +788,7 @@ class SUEWSPrepare:
 
     def update_sheets(self):
         self.data = xlrd.open_workbook(self.file_path)
-        self.heatsheet = self.data.sheet_by_name("SUEWS_AnthropogenicHeat")
+        self.heatsheet = self.data.sheet_by_name("SUEWS_AnthropogenicEmission") #SUEWS_AnthropogenicHeat")
         self.condsheet = self.data.sheet_by_name("SUEWS_Conductance")
         self.irrsheet = self.data.sheet_by_name("SUEWS_Irrigation")
         self.impsheet = self.data.sheet_by_name("SUEWS_NonVeg")
@@ -1074,22 +821,23 @@ class SUEWSPrepare:
     def setup_image(self, widget, sheet, row):
         values = sheet.row_values(row, 0)
         url = values[len(values)-3]
-        print url
+        # fix_print_with_import
+        # print(url)
         if url == '':
             widget.Image.clear()
         else:
-            req = urllib2.Request(str(url))
+            req = urllib.request.Request(str(url))
             try:
-                resp = urllib2.urlopen(req)
-            except urllib2.HTTPError as e:
+                resp = urllib.request.urlopen(req)
+            except urllib.error.HTTPError as e:
                 if e.code == 404:
-                    QgsMessageLog.logMessage("Image URL encountered a 404 problem", level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage("Image URL encountered a 404 problem", level=Qgis.MessageLevel.Critical)
                     widget.Image.clear()
                 else:
-                    QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
                     widget.Image.clear()
-            except urllib2.URLError as e:
-                QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=QgsMessageLog.CRITICAL)
+            except urllib.error.URLError as e:
+                QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
                 widget.Image.clear()
             else:
                 data = resp.read()
@@ -1159,7 +907,7 @@ class SUEWSPrepare:
                 lineedit.setEnabled(0)
                 Layout2.addWidget(label)
                 Layout2.addWidget(lineedit)
-                vert_spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Maximum)
+                vert_spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Maximum)
                 Layout2.addItem(vert_spacer)
                 Layout.addLayout(Layout2, row, col)
                 lineEdit_list.append(lineedit)
@@ -1167,7 +915,7 @@ class SUEWSPrepare:
                     if x % 5 == 0:
                         row += 1
                         col = 0
-                        vert_spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Maximum)
+                        vert_spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Maximum)
                         Layout.addItem(vert_spacer)
                     else:
                         col += 1
@@ -1181,12 +929,12 @@ class SUEWSPrepare:
                 if sheet.name == name:
                     return sheet
         except IndexError as e:
-            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=QgsMessageLog.CRITICAL)
+            QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
             return None
 
     def set_output_folder(self):
         self.outputDialog.open()
-        result = self.outputDialog.exec_()
+        result = self.outputDialog.exec()
         if result == 1:
             self.output_dir = self.outputDialog.selectedFiles()
             self.dlg.textOutput.setText(self.output_dir[0])
@@ -1194,15 +942,15 @@ class SUEWSPrepare:
 
     def set_LCFfile_path(self, widget):
         self.LCFfile_path = self.fileDialog.getOpenFileName()
-        widget.textInputLCFData.setText(self.LCFfile_path)
+        widget.textInputLCFData.setText(self.LCFfile_path[0])
 
     def set_IMPfile_path(self, widget):
         self.IMPfile_path = self.fileDialog.getOpenFileName()
-        widget.textInputIMPData.setText(self.IMPfile_path)
+        widget.textInputIMPData.setText(self.IMPfile_path[0])
 
     def set_IMPvegfile_path(self, widget):
         self.IMPvegfile_path = self.fileDialog.getOpenFileName()
-        widget.textInputIMPVegData.setText(self.IMPvegfile_path)
+        widget.textInputIMPVegData.setText(self.IMPvegfile_path[0])
 
     def set_IMPvegfile_path_dec(self, widget):
         self.IMPvegfile_path_dec = self.fileDialog.getOpenFileName()
@@ -1210,15 +958,15 @@ class SUEWSPrepare:
 
     def set_IMPvegfile_path_eve(self, widget):
         self.IMPvegfile_path_dec = self.fileDialog.getOpenFileName()
-        widget.textInputIMPEveData.setText(self.IMPvegfile_path_eve)
+        widget.textInputIMPEveData.setText(self.IMPvegfile_path_eve[0])
 
     def set_metfile_path(self, widget):
         self.Metfile_path = self.fileDialog.getOpenFileName()
-        widget.textInputMetData.setText(self.Metfile_path)
+        widget.textInputMetData.setText(self.Metfile_path[0])
 
     def set_LUFfile_path(self, widget):
         self.land_use_file_path = self.fileDialog.getOpenFileName()
-        widget.textInputLUFData.setText(self.land_use_file_path)
+        widget.textInputLUFData.setText(self.land_use_file_path[0])
 
     def start_DLS_changed(self, value):
         self.start_DLS = value
@@ -1241,7 +989,7 @@ class SUEWSPrepare:
         self.dlg.textOutput.clear()
         self.setup_tabs()
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
         self.layerComboManagerPolygrid = None
         self.layerComboManagerPolyField = None
         self.fieldgen = None
@@ -1298,8 +1046,8 @@ class SUEWSPrepare:
             return
 
         poly_field = self.layerComboManagerPolyField.currentField()
-        if poly_field is None:
-            QMessageBox.critical(None, "Error", "An attribute filed with unique fields must be selected")
+        if poly_field == '':
+            QMessageBox.critical(None, "Error", "An attribute field with unique fields must be selected")
             return
 
         vlayer = QgsVectorLayer(poly.source(), "polygon", "ogr")
@@ -1311,8 +1059,8 @@ class SUEWSPrepare:
             QMessageBox.critical(self.dlg, "Error", "Meteorological data file has not been provided,"
                                                 " please check the main tab")
             return
-        elif os.path.isfile(self.Metfile_path):
-            with open(self.Metfile_path) as metfile:
+        elif os.path.isfile(self.Metfile_path[0]):
+            with open(self.Metfile_path[0]) as metfile:
                 next(metfile)
                 for line in metfile:
                     split = line.split()
@@ -1330,6 +1078,11 @@ class SUEWSPrepare:
             QMessageBox.critical(self.dlg, "Error", "Could not find the file containing meteorological data")
             return
 
+        pop_field = self.pop_density.currentField()
+        if pop_field == '':
+            QMessageBox.critical(None, "Error", "An attribute field including population density (pp/ha) must be selected")
+            return
+        
         if self.leaf_cycle == 0:
             QMessageBox.critical(self.dlg, "Error", "No leaf cycle period has been selected")
             return
@@ -1349,7 +1102,7 @@ class SUEWSPrepare:
                 QMessageBox.critical(None, "Error", "Land cover fractions file has not been provided,"
                                                         " please check the main tab")
                 return
-            if not os.path.isfile(self.LCFfile_path):
+            if not os.path.isfile(self.LCFfile_path[0]):
                 QMessageBox.critical(None, "Error", "Could not find the file containing land cover fractions")
                 return
 
@@ -1358,7 +1111,7 @@ class SUEWSPrepare:
                 QMessageBox.critical(None, "Error", "Building morphology file has not been provided,"
                                                     " please check the main tab")
                 return
-            if not os.path.isfile(self.IMPfile_path):
+            if not os.path.isfile(self.IMPfile_path[0]):
                 QMessageBox.critical(None, "Error", "Could not find the file containing building morphology")
                 return
 
@@ -1367,7 +1120,7 @@ class SUEWSPrepare:
                 QMessageBox.critical(None, "Error", "Vegetation morphology file has not been provided,"
                                                     " please check the main tab")
                 return
-            if not os.path.isfile(self.IMPvegfile_path):
+            if not os.path.isfile(self.IMPvegfile_path[0]):
                 QMessageBox.critical(None, "Error", "Could not find the file containing vegetation morphology")
                 return
 
@@ -1376,7 +1129,7 @@ class SUEWSPrepare:
                 QMessageBox.critical(None, "Error", "Land use fractions file has not been provided,"
                                                     " please check the main tab")
                 return
-            if not os.path.isfile(self.land_use_file_path):
+            if not os.path.isfile(self.land_use_file_path[0]):
                 QMessageBox.critical(None, "Error", "Could not find the file containing land use cover fractions")
                 return
 
@@ -1385,24 +1138,24 @@ class SUEWSPrepare:
         self.startWorker(vlayer, nbr_header, poly_field, self.Metfile_path, self.start_DLS, self.end_DLS, self.LCF_from_file, self.LCFfile_path,
                          self.LCF_Paved, self.LCF_Buildings, self.LCF_Evergreen, self.LCF_Decidious, self.LCF_Grass, self.LCF_Baresoil,
                          self.LCF_Water, self.IMP_from_file, self.IMPfile_path, self.IMP_mean_height, self.IMP_z0, self.IMP_zd,
-                         self.IMP_fai, self.IMPveg_from_file, self.IMPvegfile_path,self.IMPveg_mean_height_eve,
-                         self.IMPveg_mean_height_dec, self.IMPveg_fai_eve, self.IMPveg_fai_dec, self.pop_density, self.widget_list, self.wall_area,
+                         self.IMP_fai, self.IMPveg_from_file, self.IMPvegfile_path, self.IMPveg_mean_height_eve,
+                         self.IMPveg_mean_height_dec, self.IMPveg_fai_eve, self.IMPveg_fai_dec, self.pop_density, self.widget_list,
                          self.land_use_from_file, self.land_use_file_path, lines_to_write, self.plugin_dir, self.output_file_list, map_units,
-                         self.header_sheet, self.wall_area_info, self.output_dir, self.day_since_rain, self.leaf_cycle, self.soil_moisture, self.file_code,
+                         self.header_sheet, self.output_dir, self.day_since_rain, self.leaf_cycle, self.soil_moisture, self.file_code,
                          self.utc, self.checkBox_twovegfiles, self.IMPvegfile_path_dec, self.IMPvegfile_path_eve, self.pop_density_day, self.daypop)
 
     def startWorker(self, vlayer, nbr_header, poly_field, Metfile_path, start_DLS, end_DLS, LCF_from_file, LCFfile_path, LCF_Paved,
                  LCF_buildings, LCF_evergreen, LCF_decidious, LCF_grass, LCF_baresoil, LCF_water, IMP_from_file, IMPfile_path,
                  IMP_heights_mean, IMP_z0, IMP_zd, IMP_fai, IMPveg_from_file, IMPvegfile_path, IMPveg_heights_mean_eve,
-                 IMPveg_heights_mean_dec, IMPveg_fai_eve, IMPveg_fai_dec, pop_density, widget_list, wall_area,
-                 land_use_from_file, land_use_file_path, lines_to_write, plugin_dir, output_file_list, map_units, header_sheet, wall_area_info, output_dir,
+                 IMPveg_heights_mean_dec, IMPveg_fai_eve, IMPveg_fai_dec, pop_density, widget_list,
+                 land_use_from_file, land_use_file_path, lines_to_write, plugin_dir, output_file_list, map_units, header_sheet, output_dir,
                  day_since_rain, leaf_cycle, soil_moisture, file_code, utc, checkBox_twovegfiles, IMPvegfile_path_dec, IMPvegfile_path_eve, pop_density_day, daypop):
 
         worker = Worker(vlayer, nbr_header, poly_field, Metfile_path, start_DLS, end_DLS, LCF_from_file, LCFfile_path, LCF_Paved,
                  LCF_buildings, LCF_evergreen, LCF_decidious, LCF_grass, LCF_baresoil, LCF_water, IMP_from_file, IMPfile_path,
                  IMP_heights_mean, IMP_z0, IMP_zd, IMP_fai, IMPveg_from_file, IMPvegfile_path, IMPveg_heights_mean_eve,
-                 IMPveg_heights_mean_dec, IMPveg_fai_eve, IMPveg_fai_dec, pop_density, widget_list, wall_area,
-                 land_use_from_file, land_use_file_path, lines_to_write, plugin_dir, output_file_list, map_units, header_sheet, wall_area_info, output_dir,
+                 IMPveg_heights_mean_dec, IMPveg_fai_eve, IMPveg_fai_dec, pop_density, widget_list,
+                 land_use_from_file, land_use_file_path, lines_to_write, plugin_dir, output_file_list, map_units, header_sheet, output_dir,
                  day_since_rain, leaf_cycle, soil_moisture, file_code, utc, checkBox_twovegfiles, IMPvegfile_path_dec, IMPvegfile_path_eve, pop_density_day, daypop)
 
         self.dlg.runButton.setText('Cancel')
@@ -1449,14 +1202,14 @@ class SUEWSPrepare:
                                     "(speech bubble, lower right) for more information.")
 
     def workerError(self, errorstring):
-        QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)
 
     def progress_update(self):
         self.steps += 1
         self.dlg.progressBar.setValue(self.steps)
 
     def help(self):
-        url = "http://umep-docs.readthedocs.io/en/latest/pre-processor/SUEWS%20Prepare.html"
+        url = "https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Energy%20Balance%20SUEWS%20Prepare.html"
         webbrowser.open_new_tab(url)
 
 

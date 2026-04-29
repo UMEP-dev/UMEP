@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>388</width>
-    <height>652</height>
+    <height>562</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -79,19 +79,6 @@
      </item>
     </layout>
    </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="lblNotice">
-     <property name="text">
-      <string>Note: QGIS will be unresponsive while model calculations are performed</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox_4">
      <property name="title">
@@ -121,7 +108,7 @@
          <string>Choose LQF model parameters (configuration) file</string>
         </property>
         <property name="text">
-         <string>...</string>
+         <string>Select</string>
         </property>
        </widget>
       </item>
@@ -148,7 +135,7 @@
          <string>Choose LQF data sources file</string>
         </property>
         <property name="text">
-         <string>...</string>
+         <string>Select</string>
         </property>
        </widget>
       </item>
@@ -175,7 +162,7 @@
          <string>Choose directory into which model outputs will be saved</string>
         </property>
         <property name="text">
-         <string>...</string>
+         <string>Select</string>
         </property>
        </widget>
       </item>
@@ -383,7 +370,7 @@
               <string>Choose polygon grid (ESRI shapefile) corresponding to land covers</string>
              </property>
              <property name="text">
-              <string>...</string>
+              <string>Select</string>
              </property>
             </widget>
            </item>
@@ -393,7 +380,7 @@
               <string>Choose land cover fractions file</string>
              </property>
              <property name="text">
-              <string>...</string>
+              <string>Select</string>
              </property>
             </widget>
            </item>
@@ -458,7 +445,7 @@
            <string>Browse for processed input data that is already available</string>
           </property>
           <property name="text">
-           <string>...</string>
+           <string>Select</string>
           </property>
          </widget>
         </item>

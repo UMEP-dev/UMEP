@@ -1,23 +1,23 @@
-from ..Utilities import shadowingfunctions as shadow
-# from ..Utilities import Pysolarn as pys
-from ..Utilities.SEBESOLWEIGCommonFiles import sun_position as sp
 import datetime as dt
-from ..Utilities.misc import *
-# from PyQt4.QtGui import QMessageBox
+from builtins import range
+
+from ..Utilities import shadowingfunctions as shadow
+from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_13 import shadowingfunction_wallheight_13
 from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_23 import shadowingfunction_wallheight_23
+from ..Utilities.misc import *
+from ..Utilities.SEBESOLWEIGCommonFiles import sun_position as sp
 
 
-def dailyshading(dsm, vegdsm, vegdsm2, scale, lonlat, sizex, sizey, tv, UTC, usevegdem, timeInterval, onetime, dlg, folder, gdal_data, trans, dst):
+def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, usevegdem, timeInterval, onetime, dlg, folder, gdal_data, trans, dst, wallshadow, wheight, waspect):
 
-    lon = lonlat[0]
-    lat = lonlat[1]
+    # lon = lonlat[0]
+    # lat = lonlat[1]
     year = tv[0]
     month = tv[1]
     day = tv[2]
 
     alt = np.median(dsm)
     location = {'longitude': lon, 'latitude': lat, 'altitude': alt}
-
     if usevegdem == 1:
         psi = trans
         # amaxvalue
@@ -34,14 +34,15 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lonlat, sizex, sizey, tv, UTC, use
         # Bush separation
         bush = np.logical_not((vegdem2*vegdem))*vegdem
 
-        vegshtot = np.zeros((sizex, sizey))
-    else:
-        shtot = np.zeros((sizex, sizey))
+    #     vegshtot = np.zeros((sizex, sizey))
+    # else:
+        
+    shtot = np.zeros((sizex, sizey))
 
     if onetime == 1:
         itera = 1
     else:
-        itera = int(1440 / timeInterval)
+        itera = int(np.round(1440 / timeInterval))
 
     alt = np.zeros(itera)
     azi = np.zeros(itera)
@@ -50,8 +51,12 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lonlat, sizex, sizey, tv, UTC, use
     time = dict()
     time['UTC'] = UTC
 
-    walls = np.zeros((sizex, sizey))
-    dirwalls = np.zeros((sizex, sizey))
+    if wallshadow == 1:
+        walls = wheight
+        dirwalls = waspect
+    else: 
+        walls = np.zeros((sizex, sizey))
+        dirwalls = np.zeros((sizex, sizey))
 
     for i in range(0, itera):
         if onetime == 0:
@@ -62,11 +67,11 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lonlat, sizex, sizey, tv, UTC, use
         else:
             minu = tv[4]
             hour = tv[3]
-
+        
         doy = day_of_year(year, month, day)
 
         ut_time = doy - 1. + ((hour - dst) / 24.0) + (minu / (60. * 24.0)) + (0. / (60. * 60. * 24.0))
-
+        
         if ut_time < 0:
             year = year - 1
             month = 12
@@ -75,7 +80,7 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lonlat, sizex, sizey, tv, UTC, use
             ut_time = ut_time + doy - 1
 
         HHMMSS = dectime_to_timevec(ut_time)
-
+        
         time['year'] = year
         time['month'] = month
         time['day'] = day
@@ -87,55 +92,71 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lonlat, sizex, sizey, tv, UTC, use
         alt[i] = 90. - sun['zenith']
         azi[i] = sun['azimuth']
 
-        time_vector = dt.datetime(year, month, day, HHMMSS[0], HHMMSS[1], HHMMSS[2])
-        # alt[i] = pys.GetAltitude(lat, lon, time_vector, 0)
-        # if onetime == 1:
-        #     if alt[i] < 0:
-        #         QMessageBox.critical(None, "Sun altitude below zero", "Grid with only NaNs will be procduced. Try again...")
-        #         return
-        #
-        # azi[i] = abs(pys.GetAzimuth(lat, lon, time_vector, 0)) - 180
-        # if azi[i] < 0:
-        #     azi[i] = azi[i] + 360
-        # if np.isinf(azi[i]):
-        #     azi[i] = 0.000000001
-        # QMessageBox.critical(None, "time", str(time['hour']) + str(time['min']))
-        # QMessageBox.critical(None, "Test", str(azi[i]) + ' ' + str(alt[i]))
+        if time['sec'] == 59: #issue 228 and 256
+            time['sec'] = 0
+            time['min'] = time['min'] + 1
+            if time['min'] == 60:
+                time['min'] = 0
+                time['hour'] = time['hour'] + 1
+                if time['hour'] == 24:
+                    time['hour'] = 0
+
+        time_vector = dt.datetime(year, month, day, time['hour'], time['min'], time['sec'])
+        timestr = time_vector.strftime("%Y%m%d_%H%M")
+
         if alt[i] > 0:
-            if usevegdem == 0:
-                sh = shadow.shadowingfunctionglobalradiation(dsm, azi[i], alt[i], scale, dlg, 0)
-                shtot = shtot + sh
+            if wallshadow == 1: # Include wall shadows (Issue #121)
+                if usevegdem == 1:
+                    vegsh, sh, _, wallsh, _, wallshve, _, _ = shadowingfunction_wallheight_23(dsm, vegdem, vegdem2,
+                                                azi[i], alt[i], scale, amaxvalue, bush, walls, dirwalls * np.pi / 180.)
+                    sh = sh - (1 - vegsh) * (1 - psi)
+                    if onetime == 0:
+                        filenamewallshve = folder + '/Facadeshadow_fromvegetation_' + timestr + '_LST.tif'
+                        saveraster(gdal_data, filenamewallshve, wallshve)
+                else:
+                    sh, wallsh, _, _, _ = shadowingfunction_wallheight_13(dsm, azi[i], alt[i], scale,
+                                                                                        walls, dirwalls * np.pi / 180.)
+                    # shtot = shtot + sh
+                
+                if onetime == 0:
+                    filename = folder + '/Shadow_ground_' + timestr + '_LST.tif'
+                    saveraster(gdal_data, filename, sh)
+                    filenamewallsh = folder + '/Facadeshadow_frombuilding_' + timestr + '_LST.tif'
+                    saveraster(gdal_data, filenamewallsh, wallsh)
+                    
 
             else:
-                # print str(vegdem)
-                # print str(vegdem2)
-                vegsh, sh, _, wallsh, wallsun, wallshve, _, facesun = shadowingfunction_wallheight_23(dsm, vegdem,
-                                                                                                      vegdem2,
-                                                                                                      azi[i], alt[i],
-                                                                                                      scale, amaxvalue,
-                                                                                                      bush, walls,
-                                                                                                      dirwalls * np.pi / 180.)
+                if usevegdem == 0:
+                    sh = shadow.shadowingfunctionglobalradiation(dsm, azi[i], alt[i], scale, dlg, 0)
+                    # shtot = shtot + sh
+                else:
+                    shadowresult = shadow.shadowingfunction_20(dsm, vegdem, vegdem2, azi[i], alt[i], scale, amaxvalue,
+                                                            bush, dlg, 0)
+                    vegsh = shadowresult["vegsh"]
+                    sh = shadowresult["sh"]
+                    sh=sh-(1-vegsh)*(1-psi)
+                    # vegshtot = vegshtot + sh
 
-                # shadowresult = shadow.shadowingfunction_20(dsm, vegdem, vegdem2, azi[i], alt[i], scale, amaxvalue,
-                #                                            bush, dlg, 0)
-                # vegsh = shadowresult["vegsh"]
-                # sh = shadowresult["sh"]
-                sh=sh-(1-vegsh)*(1-psi)
-                vegshtot = vegshtot + sh
+                if onetime == 0:
+                    filename = folder + '/Shadow_' + timestr + '_LST.tif'
+                    saveraster(gdal_data, filename, sh)
 
-            if onetime == 0:
-                timestr = time_vector.strftime("%Y%m%d_%H%M")
-                filename = folder + '/shadow_' + timestr + '_LST.tif'
-                saveraster(gdal_data, filename, sh)
-
+            shtot = shtot + sh
             index += 1
 
-    if usevegdem == 1:
-        shfinal = vegshtot / index
-    else:
-        shfinal = shtot / index
+    shfinal = shtot / index
+
+    if wallshadow == 1:
+        if onetime == 1:
+            filenamewallsh = folder + '/Facadeshadow_frombuilding_' + timestr + '_LST.tif'
+            saveraster(gdal_data, filenamewallsh, wallsh)
+            if usevegdem == 1:
+                filenamewallshve = folder + '/Facadeshadow_fromvegetation_' + timestr + '_LST.tif'
+                saveraster(gdal_data, filenamewallshve, wallshve)
 
     shadowresult = {'shfinal': shfinal, 'time_vector': time_vector}
+
+    dlg.progressBar.setValue(0)
 
     return shadowresult
 

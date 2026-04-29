@@ -1,0 +1,36 @@
+&file
+    path_obs = './test-data/London_KCL_obs_1h.txt'
+    path_ref = './test-data/v2016a-Kc1_2011_60.txt'
+    name_cfg(1) = 'dataset1'
+    path_cfg(1) = './test-data/v2016a-Kc1_2011_60.txt'
+
+    path_report_pdf = './comp-test'
+    path_report_html = ' '
+
+    name_exe    = 'SUEWS_V2018b'
+    dir_exe     = '../../ReleaseRepo/build/macOS'
+    dir_input   = '../BaseInput'
+    dir_baserun = '../BaseRun/2018b'
+
+/
+
+&benchmark
+    list_var = 0
+    list_metric = 'MAE', 'MBE', 'RMSE'
+    method_score = 1
+/
+
+&test
+    ! not used at the moment
+    multi_grid = 1
+    multi_year = 1
+    sample_run = 1
+/
+
+&physics_test
+    snowuse            = 0, 1
+    stabilitymethod    = 2, 3
+    netradiationmethod = 3
+    storageheatmethod  = 1, 3
+    emissionsmethod    = 0, 1, 2
+/

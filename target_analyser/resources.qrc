@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/target_analyser" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>

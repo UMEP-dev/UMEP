@@ -1,3 +1,4 @@
+from builtins import str
 # Helper methods for temporal calculations and calendar events
 
 from datetime import datetime as dt
@@ -28,7 +29,9 @@ def is_holiday(timeStepEnd, use_UK, extraHolidays):
      extraHolidays: List of datetime objects containing any extra holidays.
      UK holidays generated automatically unless unexpected'''
 
-    if type(timeStepEnd) in [type(dt(2015, 1, 1)), pd.datetime(2015, 1, 1), pd.tslib.Timestamp]:
+    # if type(timeStepEnd) in [type(dt(2015, 1, 1)), pd.datetime(2015, 1, 1), pd.tslib.Timestamp]:
+    if type(timeStepEnd) in [type(dt(2015, 1, 1)), dt(2015, 1, 1), pd.Timestamp]:
+        reqDate = timeStepEnd.date()
         reqDate = timeStepEnd.date()
     elif type(timeStepEnd) is type(dtd(2015, 1, 1)):
         reqDate = timeStepEnd
@@ -51,10 +54,10 @@ def holidaysForYear(year):
     # Christmas day/boxing day falling on weekend isn't included (assumed standard weekend)
     holidays = []
     # New year:
-    holidays.append(dt(year, 01, 01))
+    holidays.append(dt(year, 0o1, 0o1))
     # If 2 or 3 january is a monday, this is the bank holiday
-    jan2 = dt(year, 01, 02)
-    jan3 = dt(year, 01, 03)
+    jan2 = dt(year, 0o1, 0o2)
+    jan3 = dt(year, 0o1, 0o3)
     if jan2.weekday() == 0:
         holidays.append(jan2)
     if jan3.weekday() == 0:
@@ -67,7 +70,7 @@ def holidaysForYear(year):
     holidays.extend([good_fri, easter_mon])
 
     # Early and late may
-    may1 = dt(year, 05, 01)
+    may1 = dt(year, 0o5, 0o1)
     may1 = may1 if may1.weekday() is 0 else may1 + timedelta(7 - may1.weekday())
     holidays.append(may1)
     holidays.append(dt(year, 5, 31) - timedelta(dt(year, 5, 31).weekday()))

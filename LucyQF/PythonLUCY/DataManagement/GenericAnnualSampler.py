@@ -1,3 +1,7 @@
+from __future__ import absolute_import
+from builtins import str
+from builtins import map
+from builtins import object
 # Class to handle temporal profiles for different year, season, day of week and time of day
 # to make it easy to pull the relevant number out
 
@@ -7,8 +11,8 @@ try:
 except:
     pass
 from dateutil.relativedelta import *
-from temporalHelpers import *
-from LookupLogger import LookupLogger
+from .temporalHelpers import *
+from .LookupLogger import LookupLogger
 from datetime import datetime as dt
 from datetime import date as dateType
 
@@ -51,7 +55,7 @@ class GenericAnnualSampler(object):
         self.extraHolidays = holidayDates
         def niceDate(dateobj): return dateobj.strftime('%Y-%m-%d')
         if holidayDates not in [None, []]:
-            self.logger.addEvent('TemporalSampler', None, None, None, 'Special bank holidays added: ' + str(map(niceDate, holidayDates)))
+            self.logger.addEvent('TemporalSampler', None, None, None, 'Special bank holidays added: ' + str(list(map(niceDate, holidayDates))))
 
     def useUKHolidays(self, state):
         '''Use UK bank holidays: Christmas, Boxing day, New Year's day, Easter Friday and Monday, May day, early and late summer

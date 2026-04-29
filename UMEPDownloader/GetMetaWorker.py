@@ -1,5 +1,8 @@
-from PyQt4.QtCore import QObject, pyqtSignal
-import urllib2
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from qgis.PyQt.QtCore import QObject, pyqtSignal
+import urllib.request, urllib.error, urllib.parse
 import xml.etree.ElementTree as etree
 import traceback
 
@@ -7,7 +10,7 @@ class GetMetaWorker(QObject):
     # Worker to get WMS metadata for a layer to keep the process from slowing down the interace thread
     finished = pyqtSignal(object)
     update = pyqtSignal(object)
-    error = pyqtSignal(Exception, basestring)
+    error = pyqtSignal(Exception, str)
     def __init__(self, baseURL, layerName):
         QObject.__init__(self)
         self.baseURL = baseURL
@@ -20,7 +23,7 @@ class GetMetaWorker(QObject):
         try:
             output = getWMSInfo(self.baseURL, self.layerName, self.update)
             self.finished.emit(output)
-        except Exception,e:
+        except Exception as e:
             self.error.emit(e, traceback.format_exc())
 
 
@@ -34,7 +37,7 @@ def getWMSInfo(baseURL, layer_name, update):
     '''
     update.emit({'Abstract':'Loading abstract for layer...'})
     caps = baseURL + '/wms?service=WMS&version=1.1.1&request=GetCapabilities'
-    f = urllib2.urlopen(caps)
+    f = urllib.request.urlopen(caps)
     data = f.read()
     f.close()
     root = etree.fromstring(data)

@@ -20,23 +20,31 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QThread, QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QFileDialog, QIcon, QAction, QMessageBox, QTableWidgetItem
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import zip
+from builtins import str
+from builtins import range
+from builtins import object
+from qgis.PyQt.QtCore import QThread, QSettings, QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtWidgets import QFileDialog, QAction, QMessageBox, QTableWidgetItem
+from qgis.PyQt.QtGui import QIcon
 from qgis.core import *
 from qgis.gui import *
 import os
 import os.path
 from osgeo import gdal
 # Initialize Qt resources from file resources.py
-import resources
+# from . import resources
 import webbrowser
-import qgis.analysis
+# import qgis.analysis
 # Import the code for the dialog
-from LCZ_converter_dialog import LCZ_testDialog
-from LCZworker import Worker
+from .LCZ_converter_dialog import LCZ_testDialog
+from .LCZworker import Worker
 import numpy as np
 
-class LCZ_test:
+class LCZ_test(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -78,8 +86,10 @@ class LCZ_test:
         self.dlg.colorButton.clicked.connect(self.color)
         self.dlg.progressBar.setValue(0)
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(4)
-        self.fileDialog.setAcceptMode(1)  # Save
+        # self.fileDialog.setFileMode(4)
+        # self.fileDialog.setAcceptMode(1)  # Save
+        self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
         if self.dlg.radioButton_2.isChecked():
             self.dlg.pushButton_2.clicked.connect(self.updatetable)
         if self.dlg.radioButton.isChecked():
@@ -91,16 +101,16 @@ class LCZ_test:
         # self.layerComboManagerPolyField = FieldCombo(self.dlg.comboBox_31, fieldgen) #, options={"fieldType":QGis.Float32}
         self.layerComboManagerPolygrid = QgsMapLayerComboBox(self.dlg.widgetPolyLayer)
         self.layerComboManagerPolygrid.setCurrentIndex(-1)
-        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
         self.layerComboManagerPolygrid.setFixedWidth(175)
         self.layerComboManagerPolyField = QgsFieldComboBox(self.dlg.widgetField)
-        self.layerComboManagerPolyField.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPolyField.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.layerComboManagerPolygrid.layerChanged.connect(self.layerComboManagerPolyField.setLayer)
 
         # self.layerComboManagerLCgrid = RasterLayerCombo(self.dlg.comboBox)
         # RasterLayerCombo(self.dlg.comboBox, initLayer="")
         self.layerComboManagerLCgrid = QgsMapLayerComboBox(self.dlg.widgetLC)
-        self.layerComboManagerLCgrid.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerLCgrid.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerLCgrid.setFixedWidth(175)
         self.layerComboManagerLCgrid.setCurrentIndex(-1)
 
@@ -114,9 +124,9 @@ class LCZ_test:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&LCZ_converter')
-        self.toolbar = self.iface.addToolBar(u'LCZ_test')
-        self.toolbar.setObjectName(u'LCZ_test')
+        # self.menu = self.tr(u'&LCZ_converter')
+        # self.toolbar = self.iface.addToolBar(u'LCZ_test')
+        # self.toolbar.setObjectName(u'LCZ_test')
 
         if not (os.path.isdir(self.plugin_dir + '/data')):
             os.mkdir(self.plugin_dir + '/data')
@@ -189,29 +199,34 @@ class LCZ_test:
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
         del self.toolbar
+
     def bla(self):
         if self.dlg.radioButton_2.isChecked():
             self.dlg.pushButton_2.clicked.connect(self.updatetable)
         if self.dlg.radioButton.isChecked():
             self.dlg.pushButton_2.clicked.connect(self.updatetable2)
+
     def text_enable(self):
         if self.dlg.checkBox.isChecked():
             self.dlg.tableWidget.setEnabled(True)
         else:
             self.dlg.tableWidget.setEnabled(False)
+
     def color(self):
         lcz_grid = self.layerComboManagerLCgrid.currentLayer()
         if lcz_grid is None:
             QMessageBox.critical(None, "Error", "No valid raster layer is selected")
             return
-        lcz_grid.loadNamedStyle(self.plugin_dir + '/cmap_WUDAPT_2015.qml')
+        lcz_grid.loadNamedStyle(self.plugin_dir + '/cmap_WUDAPT_2015_new.qml')
         lcz_grid.triggerRepaint()
+
     def folder_path(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.lineEdit_2.setText(self.folderPath[0])
+
     def LCZ_selection(self,enabled):
         if enabled:
             self.dlg.comboBox_27.clear()
@@ -263,7 +278,7 @@ class LCZ_test:
             provider = lcz_grid.dataProvider()
             filepath_lc_grid= str(provider.dataSourceUri())
             gdal_lc_grid = gdal.Open(filepath_lc_grid)
-            lcz_grid = gdal_lc_grid.ReadAsArray().astype(np.float)
+            lcz_grid = gdal_lc_grid.ReadAsArray().astype(float)
             LCZs = [1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,101.,102.,103.]
             countlcz = np.zeros(len(LCZs))
             for l in range(len(LCZs)): 
@@ -297,54 +312,63 @@ class LCZ_test:
                 self.dlg.pushButton_2.clicked.connect(self.updatetable)
             if self.dlg.radioButton.isChecked():
                 self.dlg.pushButton_2.clicked.connect(self.updatetable2)        
+
     def pervious_select1(self):
         self.dlg.comboBox_9.clear()
         if (int(self.dlg.comboBox_3.currentText())<=10):
             self.dlg.comboBox_9.addItems(self.urbanchoices)
         if (int(self.dlg.comboBox_3.currentText())>100 and int(self.dlg.comboBox_3.currentText())<=103):
             self.dlg.comboBox_9.addItems(self.treechoices)
+
     def pervious_select2(self):
         self.dlg.comboBox_10.clear()
         if (int(self.dlg.comboBox_4.currentText())<=10):
             self.dlg.comboBox_10.addItems(self.urbanchoices)
         if (int(self.dlg.comboBox_4.currentText())>100 and int(self.dlg.comboBox_4.currentText())<=103):
             self.dlg.comboBox_10.addItems(self.treechoices)
+
     def pervious_select3(self):
         self.dlg.comboBox_11.clear()
         if (int(self.dlg.comboBox_5.currentText())<=10):
             self.dlg.comboBox_11.addItems(self.urbanchoices)
         if (int(self.dlg.comboBox_5.currentText())>100 and int(self.dlg.comboBox_5.currentText())<=103):
             self.dlg.comboBox_11.addItems(self.treechoices)
+
     def pervious_select4(self):
         self.dlg.comboBox_12.clear()
         if (int(self.dlg.comboBox_6.currentText())<=10):
             self.dlg.comboBox_12.addItems(self.urbanchoices)
         if (int(self.dlg.comboBox_6.currentText())>100 and int(self.dlg.comboBox_6.currentText())<=103):
             self.dlg.comboBox_12.addItems(self.treechoices)
+
     def pervious_select5(self):
         self.dlg.comboBox_13.clear()
         if (int(self.dlg.comboBox_7.currentText())<=10):
             self.dlg.comboBox_13.addItems(self.urbanchoices)
         if (int(self.dlg.comboBox_7.currentText())>100 and int(self.dlg.comboBox_7.currentText())<=103):
             self.dlg.comboBox_13.addItems(self.treechoices)
+
     def pervious_select6(self):
         self.dlg.comboBox_14.clear()
         if (int(self.dlg.comboBox_8.currentText())<=10):
             self.dlg.comboBox_14.addItems(self.urbanchoices)
         if (int(self.dlg.comboBox_8.currentText())>100 and int(self.dlg.comboBox_8.currentText())<=103):
             self.dlg.comboBox_14.addItems(self.treechoices)
+
     def pervious_select7(self):
         self.dlg.comboBox_17.clear()
         if (int(self.dlg.comboBox_15.currentText())<=10):
             self.dlg.comboBox_17.addItems(self.urbanchoices)
         if (int(self.dlg.comboBox_15.currentText())>100 and int(self.dlg.comboBox_15.currentText())<=103):
             self.dlg.comboBox_17.addItems(self.treechoices)
+
     def pervious_select8(self):
         self.dlg.comboBox_18.clear()
         if (int(self.dlg.comboBox_16.currentText())<=10):
             self.dlg.comboBox_18.addItems(self.urbanchoices)
         if (int(self.dlg.comboBox_16.currentText())>100 and int(self.dlg.comboBox_16.currentText())<=103):
             self.dlg.comboBox_18.addItems(self.treechoices)
+
     def updatetable(self):
         lczboxes = [self.dlg.comboBox_3,self.dlg.comboBox_4,self.dlg.comboBox_5,
                     self.dlg.comboBox_6,self.dlg.comboBox_7,self.dlg.comboBox_8,self.dlg.comboBox_15,self.dlg.comboBox_16]
@@ -464,6 +488,7 @@ class LCZ_test:
                     self.dlg.tableWidget.setItem(8,lcz-1, QTableWidgetItem(str(30.0)))
                     self.dlg.tableWidget.setItem(12,lcz-1, QTableWidgetItem(str(10)))
                     self.dlg.tableWidget.setItem(14,lcz-1, QTableWidgetItem(str(45.0)))
+
     def allclass(self,enabled):
         if enabled:
             self.dlg.comboBox_27.setEnabled(True)
@@ -526,6 +551,7 @@ class LCZ_test:
                 self.dlg.pushButton_2.clicked.connect(self.updatetable)
             if self.dlg.radioButton.isChecked():
                 self.dlg.pushButton_2.clicked.connect(self.updatetable2)
+                
     def updatetable2(self):
         for l in range(len(self.LCZs)): 
             if (l<10):
@@ -654,7 +680,8 @@ class LCZ_test:
         vlayer = QgsVectorLayer(poly.source(), "polygon", "ogr")
         prov = vlayer.dataProvider()
         fields = prov.fields()
-        idx = vlayer.fieldNameIndex(poly_field)
+        # idx = vlayer.fieldNameIndex(poly_field)
+        idx = vlayer.fields().indexFromName(poly_field)
         typetest = fields.at(idx).type()
         if typetest == 10:
             QMessageBox.critical(None, "ID field is sting type", "ID field must be either integer or float")
@@ -669,7 +696,9 @@ class LCZ_test:
         if self.folderPath == 'None':
             QMessageBox.critical(None, "Error", "Select a valid output folder")
             return
-        # self.iface.messageBar().pushMessage("test: ", str(test))
+        if not (lc_grid.crs() == vlayer.crs()):
+            QMessageBox.critical(None, "Coordinate Reference System Error", "The vector polygon grid and the LCZ raster layer have different CRSs")
+            return
 
         self.startWorker(lc_grid, poly, vlayer, prov, fields, idx, dir_poly, self.iface,
                          self.plugin_dir, self.folderPath, self.dlg)
@@ -727,7 +756,7 @@ class LCZ_test:
 
     def workerError(self, errorstring):
         #strerror = "Worker thread raised an exception: " + str(e)
-        QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)
 
     def progress_update(self):
         self.steps +=1
@@ -747,12 +776,12 @@ class LCZ_test:
 
     def run(self):
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
         gdal.UseExceptions()
         gdal.AllRegister()
     def close(self):
         self.dlg.close()
 
     def help(self):
-        url = 'http://umep-docs.readthedocs.io/en/latest/pre-processor/Spatial%20Data%20LCZ%20Converter.html'
+        url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/Spatial%20Data%20LCZ%20Converter.html'
         webbrowser.open_new_tab(url)

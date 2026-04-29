@@ -20,24 +20,28 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion
-from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtWidgets import QAction, QMessageBox, QFileDialog
+from qgis.PyQt.QtGui import QIcon
 from qgis.core import *
 from qgis.gui import *
 import webbrowser
 import os
-from osgeo import gdal
+from osgeo import gdal, osr
 import numpy as np
-import makevegdems
+from . import makevegdems
 from osgeo.gdalconst import *
 import sys
 
 # Import the code for the dialog
-from tree_generator_dialog import TreeGeneratorDialog
+from .tree_generator_dialog import TreeGeneratorDialog
 import os.path
 
 
-class TreeGenerator:
+class TreeGenerator(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -73,8 +77,10 @@ class TreeGenerator:
         self.dlg.helpButton.clicked.connect(self.help)
 
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(4)
-        self.fileDialog.setAcceptMode(1)
+        # self.fileDialog.setFileMode(4)
+        # self.fileDialog.setAcceptMode(1)
+        self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
         # Declare instance attributes
         self.actions = []
@@ -91,19 +97,19 @@ class TreeGenerator:
         # self.layerComboManagerDiameterField = FieldCombo(self.dlg.comboBox_diameter, fieldgen, initField="")
         self.layerComboManagerPoint = QgsMapLayerComboBox(self.dlg.widgetPointLayer)
         self.layerComboManagerPoint.setCurrentIndex(-1)
-        self.layerComboManagerPoint.setFilters(QgsMapLayerProxyModel.PointLayer)
+        self.layerComboManagerPoint.setFilters(QgsMapLayerProxyModel.Filter.PointLayer)
         self.layerComboManagerPoint.setFixedWidth(175)
         self.layerComboManagerTreeTypeField = QgsFieldComboBox(self.dlg.widgetTreeType)
-        self.layerComboManagerTreeTypeField.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerTreeTypeField.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.layerComboManagerPoint.layerChanged.connect(self.layerComboManagerTreeTypeField.setLayer)
         self.layerComboManagerTotalHeightField = QgsFieldComboBox(self.dlg.widgetTotalHeight)
-        self.layerComboManagerTotalHeightField.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerTotalHeightField.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.layerComboManagerPoint.layerChanged.connect(self.layerComboManagerTotalHeightField.setLayer)
         self.layerComboManagerTrunkHeightField = QgsFieldComboBox(self.dlg.widgetTrunkHeight)
-        self.layerComboManagerTrunkHeightField.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerTrunkHeightField.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.layerComboManagerPoint.layerChanged.connect(self.layerComboManagerTrunkHeightField.setLayer)
         self.layerComboManagerDiameterField = QgsFieldComboBox(self.dlg.widgetDiameter)
-        self.layerComboManagerDiameterField.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerDiameterField.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.layerComboManagerPoint.layerChanged.connect(self.layerComboManagerDiameterField.setLayer)
 
         # self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_DSM)
@@ -117,23 +123,23 @@ class TreeGenerator:
         # self.layerComboManagerTDSM = RasterLayerCombo(self.dlg.comboBox_TDSM)
         # RasterLayerCombo(self.dlg.comboBox_TDSM, initLayer="")
         self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetDSM)
-        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerDSM.setFixedWidth(175)
         self.layerComboManagerDSM.setCurrentIndex(-1)
         self.layerComboManagerDEM = QgsMapLayerComboBox(self.dlg.widgetDEM)
-        self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerDEM.setFixedWidth(175)
         self.layerComboManagerDEM.setCurrentIndex(-1)
         self.layerComboManagerBuild = QgsMapLayerComboBox(self.dlg.widgetBuild)
-        self.layerComboManagerBuild.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerBuild.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerBuild.setFixedWidth(175)
         self.layerComboManagerBuild.setCurrentIndex(-1)
         self.layerComboManagerCDSM = QgsMapLayerComboBox(self.dlg.widgetCDSM)
-        self.layerComboManagerCDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerCDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerCDSM.setFixedWidth(175)
         self.layerComboManagerCDSM.setCurrentIndex(-1)
         self.layerComboManagerTDSM = QgsMapLayerComboBox(self.dlg.widgetTDSM)
-        self.layerComboManagerTDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerTDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerTDSM.setFixedWidth(175)
         self.layerComboManagerTDSM.setCurrentIndex(-1)
 
@@ -218,14 +224,14 @@ class TreeGenerator:
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
-        self.dlg.exec_()
+        self.dlg.exec()
 
         gdal.UseExceptions()
         gdal.AllRegister()
 
     def folder_path(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.textOutput.setText(self.folderPath[0])
@@ -248,7 +254,7 @@ class TreeGenerator:
             provider = build.dataProvider()
             filePath_build = str(provider.dataSourceUri())
             dataset = gdal.Open(filePath_build)
-            build_array = dataset.ReadAsArray().astype(np.float)
+            build_array = dataset.ReadAsArray().astype(float)
 
         else:  # Both building ground heights
             dsm = self.layerComboManagerDSM.currentLayer()
@@ -267,9 +273,9 @@ class TreeGenerator:
             filePath_dem = str(provider.dataSourceUri())
 
             dataset = gdal.Open(filePath_dsm)
-            dsm_array = dataset.ReadAsArray().astype(np.float)
+            dsm_array = dataset.ReadAsArray().astype(float)
             dataset2 = gdal.Open(filePath_dem)
-            dem_array = dataset2.ReadAsArray().astype(np.float)
+            dem_array = dataset2.ReadAsArray().astype(float)
 
             if not (dsm_array.shape[0] == dem_array.shape[0]) & (dsm_array.shape[1] == dem_array.shape[1]):
                 QMessageBox.critical(self.dlg, "Error", "All grids must be of same pixel resolution")
@@ -281,7 +287,7 @@ class TreeGenerator:
 
         sizey = build_array.shape[0]
         sizex = build_array.shape[1]
-
+        
         if self.dlg.checkBoxMergeCDSM.isChecked():  # vegetation cdsm
             cdsm = self.layerComboManagerCDSM.currentLayer()
             if cdsm is None:
@@ -292,7 +298,7 @@ class TreeGenerator:
             filePath_cdsm = str(provider.dataSourceUri())
 
             dataset = gdal.Open(filePath_cdsm)
-            cdsm_array = dataset.ReadAsArray().astype(np.float)
+            cdsm_array = dataset.ReadAsArray().astype(float)
             tdsm = self.layerComboManagerCDSM.currentLayer()
             if tdsm is None:
                 QMessageBox.critical(self.dlg, "Error", "No valid vegetation TDSM raster layer is selected")
@@ -302,7 +308,7 @@ class TreeGenerator:
             filePath_tdsm = str(provider.dataSourceUri())
 
             dataset = gdal.Open(filePath_tdsm)
-            tdsm_array = dataset.ReadAsArray().astype(np.float)
+            tdsm_array = dataset.ReadAsArray().astype(float)
 
         else:
             cdsm_array = np.zeros((sizey, sizex))
@@ -312,6 +318,23 @@ class TreeGenerator:
         scale = 1 / geotransform[1]
         # nd = dataset.GetRasterBand(1).GetNoDataValue()
         # dem_array = np.zeros((sizex, sizey))
+
+        # Check units of raster data. Should be in meters or feet.
+        if build:
+            crs_temp = build.crs()
+            unit_temp = crs_temp.mapUnits()
+        else:
+            crs_temp = dsm.crs()
+            unit_temp = crs_temp.mapUnits()   
+
+        # print(QgsUnitTypes.toString(unit_temp))         
+        temp_crs = osr.SpatialReference()
+        temp_crs.ImportFromWkt(dataset.GetProjection())
+        temp_unit = temp_crs.GetAttrValue('UNIT')
+        possible_units = ['metre', 'Metre', 'metres', 'Metres', 'meter', 'Meter', 'meters', 'Meters', 'm', 'ft', 'US survey foot', 'feet', 'Feet', 'foot', 'Foot', 'ftUS', 'International foot'] # Possible units
+        if not temp_unit in possible_units:
+            QMessageBox.critical(self.dlg, 'Error!', 'Raster data is currently in ' + QgsUnitTypes.toString(unit_temp) + '. Meters or feet required. Please reproject.')
+            return
 
         # Get attributes
         vlayer = QgsVectorLayer(point.source(), "point", "ogr")
@@ -323,10 +346,34 @@ class TreeGenerator:
         tot_field = self.layerComboManagerTotalHeightField.currentField()
         dia_field = self.layerComboManagerDiameterField.currentField()
 
-        idx_ttype = vlayer.fieldNameIndex(ttype_field)
-        idx_trunk = vlayer.fieldNameIndex(trunk_field)
-        idx_tot = vlayer.fieldNameIndex(tot_field)
-        idx_dia = vlayer.fieldNameIndex(dia_field)
+        # idx_ttype = vlayer.fieldNameIndex(ttype_field)
+        # idx_trunk = vlayer.fieldNameIndex(trunk_field)
+        # idx_tot = vlayer.fieldNameIndex(tot_field)
+        # idx_dia = vlayer.fieldNameIndex(dia_field)
+        idx_ttype = vlayer.fields().indexFromName(ttype_field)
+        idx_trunk = vlayer.fields().indexFromName(trunk_field)
+        idx_tot = vlayer.fields().indexFromName(tot_field)
+        idx_dia = vlayer.fields().indexFromName(dia_field)
+
+        # Check CRS of raster and vector layers. Needs to be the same.
+        if self.dlg.checkBoxOnlyBuilding.isChecked():
+            if self.dlg.checkBoxMergeCDSM.isChecked():
+                if not ((build.crs().authid() == vlayer.crs().authid()) & (build.crs().authid() == cdsm.crs().authid())):
+                    QMessageBox.critical(self.dlg, "Error", "Check the coordinate systems of your input data. Have to match!")
+                    return
+            else:
+                if not (build.crs().authid() == vlayer.crs().authid()):
+                    QMessageBox.critical(self.dlg, "Error", "Check the coordinate systems of your input data. Have to match!")
+                    return
+        else:
+            if self.dlg.checkBoxMergeCDSM.isChecked():
+                if not ((dsm.crs().authid() == vlayer.crs().authid()) & (dsm.crs().authid() == cdsm.crs().authid())):
+                    QMessageBox.critical(self.dlg, "Error", "Check the coordinate systems of your input data. Have to match!")
+                    return
+            else:
+                if not (dsm.crs().authid() == vlayer.crs().authid()):
+                    QMessageBox.critical(self.dlg, "Error", "Check the coordinate systems of your input data. Have to match!")
+                    return
 
         if self.folderPath == 'None':
             QMessageBox.critical(self.dlg, "Error", "Select a valid output folder")
@@ -372,13 +419,18 @@ class TreeGenerator:
             # QMessageBox.information(None, "cola=", str(cola))
             # QMessageBox.information(None, "rowa=", str(rowa))
             # QMessageBox.information(None, "rows=", str(rows))
+            
+            # Check if there are trees with a tree canopy diameter smaller than the pixel resolution of the input raster data
+            if dia < geotransform[1]:
+                QMessageBox.critical(self.dlg, "Error", "You have tree canopy diameters that are smaller than the pixel resolution.")
+                return
 
             cdsm_array, tdsm_array = makevegdems.vegunitsgeneration(build_array, cdsm_array, tdsm_array, ttype, height,
                                                                     trunk, dia, rowa, cola, sizex, sizey, scale)
 
         # temporary fix for mac, ISSUE #15
         pf = sys.platform
-        if pf == 'darwin' or pf == 'linux2':
+        if pf == 'darwin' or pf == 'linux2' or pf == 'linux':
             if not os.path.exists(self.folderPath[0]):
                 os.makedirs(self.folderPath[0])
 
@@ -388,7 +440,7 @@ class TreeGenerator:
         QMessageBox.information(self.dlg, "TreeGenerator", "Vegetation DSMs succesfully generated")
 
     def help(self):
-        url = "http://umep-docs.readthedocs.io/en/latest/pre-processor/Spatial%20Data%20Tree%20Generator.html"
+        url = "https://umep-docs.readthedocs.io/en/latest/pre-processor/Spatial%20Data%20Tree%20Generator.html"
         webbrowser.open_new_tab(url)
 
     def saveraster(self, gdal_data, filename, raster):

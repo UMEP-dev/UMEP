@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 author = 'xlinfr'
 
-import sun_distance
+from . import sun_distance
 import numpy as np
 import math
 

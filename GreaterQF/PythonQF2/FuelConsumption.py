@@ -3,7 +3,8 @@ try:
 except:
     pass
 import os
-from string import lower
+from .string_func import   lower
+from datetime import datetime as dt
 class FuelConsumption():
     def __init__(self, filename):
         ''' Class to read in fuel consumption file with prescribed format in g/km,
@@ -25,7 +26,7 @@ class FuelConsumption():
             raise ValueError('Fuel consumption file ' + filename + ' does not exist')
 
         # Create multi-indexed data frame
-        def todate(x): return pd.datetime.strptime(x, '%Y-%m-%d')
+        def todate(x): return dt.strptime(x, '%Y-%m-%d')
         try:
             self.data = pd.read_csv(filename, header=1, delimiter=',', index_col=[0,1,2], parse_dates=True)
         except Exception:
@@ -33,26 +34,26 @@ class FuelConsumption():
 
         # Validate the entries
         # Index level 0 is date, level 1 is fuel, level 2 is vehicle type
-        roadsPresent = list(pd.unique(self.data.keys()))
+        roadsPresent = list(pd.unique(list(self.data.keys())))
 
-        missingRoads = list(set(self.roadTypes).difference(map(lower, roadsPresent)))
+        missingRoads = list(set(self.roadTypes).difference(list(map(lower, roadsPresent))))
         if len(missingRoads) > 0:
             raise ValueError('Not all of the required road types were found in ' + filename + '. Expected: ' + str(self.roadTypes) + ' but got ' + str(roadsPresent))
 
         fuelsPresent = list(pd.unique(self.data.index.levels[1]))
-        missingFuels = list(set(self.fuelTypes).difference(map(lower, fuelsPresent)))
+        missingFuels = list(set(self.fuelTypes).difference(list(map(lower, fuelsPresent))))
         if len(missingFuels) > 0:
             raise ValueError('Not all of the required fuel types were found in ' + filename + '. Expected: ' + str(self.fuelTypes) + ' but got ' + str(fuelsPresent))
 
         vehiclesPresent = list(pd.unique(self.data.index.levels[2]))
-        missingVehicles = list(set(self.vehicleTypes).difference(map(lower, vehiclesPresent)))
+        missingVehicles = list(set(self.vehicleTypes).difference(list(map(lower, vehiclesPresent))))
         if len(missingVehicles) > 0:
             raise ValueError('Not all of the required vehicle types were found in ' + filename + '. Expected: ' + str(self.vehicleTypes) + ' but got ' + str(missingVehicles))
 
         # Map lexical matches to expected indices to avoid case sensitivites
-        self.roadMatch = {expected: roadsPresent[map(lower, roadsPresent).index(expected)] for expected in self.roadTypes}
-        self.fuelMatch = {expected: fuelsPresent[map(lower, fuelsPresent).index(expected)] for expected in self.fuelTypes}
-        self.vehicleMatch = {expected: vehiclesPresent[map(lower, vehiclesPresent).index(expected)] for expected in self.vehicleTypes}
+        self.roadMatch = {expected: roadsPresent[list(map(lower, roadsPresent)).index(expected)] for expected in self.roadTypes}
+        self.fuelMatch = {expected: fuelsPresent[list(map(lower, fuelsPresent)).index(expected)] for expected in self.fuelTypes}
+        self.vehicleMatch = {expected: vehiclesPresent[list(map(lower, vehiclesPresent)).index(expected)] for expected in self.vehicleTypes}
 
     def getFuelConsumption(self, date, vehicle, road, fuel):
         '''

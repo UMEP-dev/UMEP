@@ -1,6 +1,10 @@
-from PyQt4 import QtCore
-from PyQt4.QtCore import QVariant
-from PyQt4.QtGui import QAction, QIcon, QMessageBox, QFileDialog
+from __future__ import print_function
+from builtins import str
+from builtins import range
+from qgis.PyQt import QtCore
+from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtWidgets import QAction, QMessageBox, QFileDialog
+from qgis.PyQt.QtGui import QIcon
 # from qgis.gui import *
 from qgis.core import *  # QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsRasterLayer, QgsGeometry, QgsMessageLog
 import traceback
@@ -60,7 +64,7 @@ class Worker(QtCore.QObject):
 
         # temporary fix for mac, ISSUE #15
         pf = sys.platform
-        if pf == 'darwin' or pf == 'linux2':
+        if pf == 'darwin' or pf == 'linux2' or pf == 'linux':
             if not os.path.exists(self.folderPath[0] + '/' + pre):
                 os.makedirs(self.folderPath[0] + '/' + pre)
 
@@ -82,10 +86,10 @@ class Worker(QtCore.QObject):
                     x = f.geometry().centroid().asPoint().x()
                 else:
                     r = 0
-                    writer = QgsVectorFileWriter(self.dir_poly, "CP1250", self.fields, self.prov.geometryType(),
+                    writer = QgsVectorFileWriter(self.dir_poly, "CP1250", self.fields, self.prov.wkbType(),
                                                  self.prov.crs(), "ESRI shapefile")
 
-                    if writer.hasError() != QgsVectorFileWriter.NoError:
+                    if writer.hasError() != QgsVectorFileWriter.WriterError.NoError:
                         self.iface.messageBar().pushMessage("Error when creating shapefile: ", str(writer.hasError()))
                     writer.addFeature(feature)
                     del writer
@@ -126,19 +130,19 @@ class Worker(QtCore.QObject):
 
                 time.sleep(0.05)
                 dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
-                lc_grid_array = dataset.ReadAsArray().astype(np.float)
+                lc_grid_array = dataset.ReadAsArray().astype(float)
                 nd = dataset.GetRasterBand(1).GetNoDataValue()
                 nodata_test = (lc_grid_array == nd)
                 if self.dlg.checkBoxNoData.isChecked():
                     if np.sum(lc_grid_array) == (lc_grid_array.shape[0] * lc_grid_array.shape[1] * nd):
-                        QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes Only NoData Pixels", level=QgsMessageLog.CRITICAL)
+                        QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes Only NoData Pixels", level=Qgis.MessageLevel.Critical)
                         cal = 0
                     else:
                         lc_grid_array[lc_grid_array == nd] = 6
                         cal = 1
                 else:
                     if nodata_test.any():  # == True
-                        QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes NoData Pixels", level=QgsMessageLog.CRITICAL)
+                        QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes NoData Pixels", level=Qgis.MessageLevel.Critical)
                         cal = 0
                     else:
                         cal = 1
@@ -177,13 +181,45 @@ class Worker(QtCore.QObject):
             self.textFileCheck(pre)
 
             if self.dlg.addResultToGrid.isChecked():
-                self.addattributes(self.vlayer, arrmatsave, header, pre)
+                # self.addattributes(self.vlayer, arrmatsave, header, pre)
+                matdata = arrmatsave
+                current_index_length = len(self.vlayer.dataProvider().attributeIndexes())
+                caps = self.vlayer.dataProvider().capabilities()
+
+                if caps & QgsVectorDataProvider.Capability.AddAttributes:
+                    line_split = header.split()
+                    for x in range(1, len(line_split)):
+
+                        self.vlayer.dataProvider().addAttributes([QgsField(pre + '_' + line_split[x], QVariant.Double)])
+                        self.vlayer.updateFields()
+                        self.vlayer.commitChanges()
+
+                    features=self.vlayer.getFeatures()
+                    self.vlayer_provider=self.vlayer.dataProvider()
+                    self.vlayer.startEditing()
+                    for f in features:
+                        id = f.id()
+                        idxx = f.attributes()[self.idx]
+                        pos = np.where(idxx == matdata[:,0])
+                        if pos[0].size > 0:
+                            for x in range(1, matdata.shape[1]):
+                                pos2 = current_index_length + x - 1
+                                val = float(matdata[pos[0], x])
+                                attr_dict = {current_index_length + x - 1: float(matdata[pos[0], x])}
+                                self.vlayer.dataProvider().changeAttributeValues({id: attr_dict})
+                                attr_dict.clear()
+
+                    self.vlayer.commitChanges()
+                    self.vlayer.updateFields()
+                    self.iface.mapCanvas().refresh()
+                else:
+                    QMessageBox.critical(None, "Error", "Vector Layer does not support adding attributes")
 
             if self.killed is False:
                 self.progress.emit()
                 ret = 1
 
-        except Exception, e:
+        except Exception as e:
             ret = 0
             #self.error.emit(e, traceback.format_exc())
             errorstring = self.print_exception()
@@ -206,12 +242,14 @@ class Worker(QtCore.QObject):
         current_index_length = len(vlayer.dataProvider().attributeIndexes())
         caps = vlayer.dataProvider().capabilities()
 
-        if caps & QgsVectorDataProvider.AddAttributes:
+        if caps & QgsVectorDataProvider.Capability.AddAttributes:
             #vlayer.startEditing()
             line_split = header.split()
             for x in range(1, len(line_split)):
 
                 vlayer.dataProvider().addAttributes([QgsField(pre + '_' + line_split[x], QVariant.Double)])
+                vlayer.commitChanges()
+                vlayer.updateFields()
 
             attr_dict = {}
 
@@ -220,10 +258,9 @@ class Worker(QtCore.QObject):
                 idx = int(matdata[y, 0])
                 for x in range(1, matdata.shape[1]):
                     attr_dict[current_index_length + x - 1] = float(matdata[y, x])
-                #QMessageBox.information(None, "Error", str(line_split[x]))
                 vlayer.dataProvider().changeAttributeValues({idx: attr_dict})
 
-            #vlayer.commitChanges()
+            vlayer.commitChanges()
             vlayer.updateFields()
         else:
             QMessageBox.critical(None, "Error", "Vector Layer does not support adding attributes")
@@ -256,22 +293,21 @@ class Worker(QtCore.QObject):
                 wrote_header = False
                 for line in fileinput.input(file_path, inplace=1):
                     if not wrote_header:
-                        print line,
+                        # fix_print_with_import
+                        print(line, end=' ')
                         wrote_header = True
                     else:
                         line_split = line.split()
                         total = 0.
-                        # QgsMessageLog.logMessage(str(line), level=QgsMessageLog.CRITICAL)
                         for x in range(1, len(line_split)):
                             total += float(line_split[x])
 
                         if total == 1.0:
-                            print line,
+                            # fix_print_with_import
+                            print(line, end=' ')
                         else:
                             diff = total - 1.0
-                            # QgsMessageLog.logMessage("Diff: " + str(diff), level=QgsMessageLog.CRITICAL)
                             max_number = max(line_split[1:])
-                            # QgsMessageLog.logMessage("Max number: " + str(max_number), level=QgsMessageLog.CRITICAL)
 
                             for x in range(1, len(line_split)):
                                 if float(max_number) == float(line_split[x]):
@@ -289,11 +325,12 @@ class Worker(QtCore.QObject):
                             string_to_print += str(line_split[-1])
                             string_to_print += '\n'
 
-                            print string_to_print,
+                            # fix_print_with_import
+                            print(string_to_print, end=' ')
                 fileinput.close()
-        except Exception, e:
+        except Exception as e:
             errorstring = self.print_exception()
-            QgsMessageLog.logMessage(errorstring, level=QgsMessageLog.CRITICAL)
+            QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)
             fileinput.close()
 
     def kill(self):

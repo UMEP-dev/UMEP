@@ -9,9 +9,9 @@ import pytz
 from datetime import datetime as dt
 from datetime import timedelta
 from dateutil.relativedelta import *
-from temporalHelpers import *
+from .temporalHelpers import *
 #from samplerHelpers import *
-from GenericAnnualSampler import GenericAnnualSampler
+from .GenericAnnualSampler import GenericAnnualSampler
 
 class TemporalProfileSampler(GenericAnnualSampler):
 
@@ -21,14 +21,14 @@ class TemporalProfileSampler(GenericAnnualSampler):
         # Returns data frame that bins according to START OF EACH PERIOD
 
         # This has already been validated for length, so divide it into 7 days of data. Final point is midnight on Sunday evening
-        binsPerDay = len(series)/7 # Integers
+        binsPerDay = int(len(series)/7) # Integers
         if type(series) is not type(pd.Series()):
             raise ValueError('Input series must be a pandas.Series()')
 
         dayCol = np.repeat(np.arange(0,7,1), binsPerDay)  # Label each row with the day of the week (same convention as datetime)
         # Each bin of profile data is demarcated by the end of the period.
         # But it's easier from a programming poV to use the start of each period.
-        secCol = np.tile(np.linspace(0, 24., binsPerDay, endpoint=False)*3600, 7)
+        secCol = np.tile(np.linspace(0, int(24.), int(binsPerDay), endpoint=False)*3600, 7)
         # Ensure data is float before going in
         df = pd.concat([pd.Series(np.array(dayCol).astype('int')), pd.Series(np.array(secCol).astype('int')), pd.Series(np.array(series.tolist()).astype('float'))], axis=1)
         df.columns = ['dayofweek', 'seconds', 'data']

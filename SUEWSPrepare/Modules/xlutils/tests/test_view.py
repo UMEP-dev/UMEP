@@ -11,6 +11,8 @@ from testfixtures import compare, ShouldRaise
 
 from xlutils.view import View, Row, Col, CheckerView
 from xlutils.tests.fixtures import test_files
+from .compat import PY3
+
 
 class Check(object):
 
@@ -156,21 +158,7 @@ class CheckerViewTests(TestCase):
 
         
     def test_does_not_match(self):
-        with ShouldRaise(AssertionError('''\
-Sequence not as expected:
-
-same:
-((u'R0C0', u'R0C1'),
- (u'R1C0', u'R1C1'),
- (u'A merged cell', ''),
- ('', ''),
- ('', ''))
-
-first:
-((u'More merged cells', 'XX'),)
-
-second:
-((u'More merged cells', ''),)''')):
+        with ShouldRaise(AssertionError) as s:
             CheckerView(path.join(test_files,'testall.xls'))['Sheet1'].compare(
                 (u'R0C0', u'R0C1'),
                 (u'R1C0', u'R1C1'),
@@ -179,3 +167,60 @@ second:
                 ('', ''),
                 (u'More merged cells', 'XX')
                 )
+
+        if PY3:
+            expected="""\
+sequence not as expected:
+
+same:
+(('R0C0', 'R0C1'), ('R1C0', 'R1C1'), ('A merged cell', ''), ('', ''), ('', ''))
+
+expected:
+(('More merged cells', 'XX'),)
+
+actual:
+(('More merged cells', ''),)
+
+While comparing [5]: sequence not as expected:
+
+same:
+('More merged cells',)
+
+expected:
+('XX',)
+
+actual:
+('',)
+
+While comparing [5][1]: 'XX' (expected) != '' (actual)"""
+        else:
+            expected='''\
+sequence not as expected:
+
+same:
+((u'R0C0', u'R0C1'),
+ (u'R1C0', u'R1C1'),
+ (u'A merged cell', ''),
+ ('', ''),
+ ('', ''))
+
+expected:
+((u'More merged cells', 'XX'),)
+
+actual:
+((u'More merged cells', u''),)
+
+While comparing [5]: sequence not as expected:
+
+same:
+(u'More merged cells',)
+
+expected:
+('XX',)
+
+actual:
+(u'',)
+
+While comparing [5][1]: 'XX' (expected) != u'' (actual)'''
+
+        compare(expected, actual=str(s.raised))

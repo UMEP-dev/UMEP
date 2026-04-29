@@ -1,5 +1,8 @@
-from PyQt4.QtCore import QObject, pyqtSignal
-import urllib
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from qgis.PyQt.QtCore import QObject, pyqtSignal
+import urllib.request, urllib.parse, urllib.error
 import os
 import xml.etree.ElementTree as etree
 from qgis.core import QgsRasterLayer, QgsRasterPipe, QgsRasterFileWriter
@@ -10,7 +13,7 @@ class DownloadDataWorker(QObject):
     # Worker to get raster data saved to a file in a thread
     finished = pyqtSignal(object)
     update = pyqtSignal(object)
-    error = pyqtSignal(Exception, basestring)
+    error = pyqtSignal(Exception, str)
     def __init__(self, baseURL, layerName, outputFile, bbox, resolution, srs):
         QObject.__init__(self)
         self.baseURL = baseURL
@@ -25,9 +28,10 @@ class DownloadDataWorker(QObject):
 
     def run(self):
         try:
-            output = webToRaster(self.baseURL, self.layerName, self.outputFile, self.bbox, self.resolution, self.srs, self.update)
-            self.finished.emit({'filename':output, 'srs':self.srs, 'progress':100})
-        except Exception,e:
+            output = webToRaster(self.baseURL, self.layerName, self.outputFile, self.bbox, self.resolution, self.srs,
+                                 self.update)
+            self.finished.emit({'filename': output, 'srs': self.srs, 'progress': 100})
+        except Exception as e:
             self.error.emit(e, traceback.format_exc())
 
 def webToRaster(baseURL, layer_name, output_file, bbox, resolution, srs, update):
@@ -54,15 +58,16 @@ def webToRaster(baseURL, layer_name, output_file, bbox, resolution, srs, update)
     #bigURL = baseURL + '/wcs?SERVICE=WCS&VERSION=1.0.0&REQUEST=GetCoverage&coverage=%s&identifier=%s&bbox=%s&FORMAT=image/tiff&CRS=EPSG:4326&WIDTH=%d&HEIGHT=%d'%(layer_name, layer_name, bboxString, width, height)
     bigURL = baseURL + '/wcs?SERVICE=WCS&VERSION=1.0.0&REQUEST=GetCoverage&coverage=%s&identifier=%s&bbox=%s&FORMAT=image/geotiff&CRS=%s&RESX=%f&RESY=%f'%(layer_name, layer_name, bboxString, srs, resolution['x'], resolution['y'])
     # Save data to temporary file
-
-    try:
-        dataOut = tempfile.mktemp('.tif')
-    except Exception,e:
-        raise Exception('Problem creating temporary file to store raster data: '+  str(e))
+    dataOut = output_file
+    # TODO: tempfile not working in QGIS3
+    # try:
+    #     dataOut = tempfile.mktemp('.tif')
+    # except Exception as e:
+    #     raise Exception('Problem creating temporary file to store raster data: ' + str(e))
     # TODO: Work out if the response is an XML error
     update.emit({'progress':10, 'message':'Downloading file...'})
-
-    urllib.urlretrieve(bigURL, dataOut)
+    # dataOut = "c:/temp/testing.tif"
+    urllib.request.urlretrieve(bigURL, dataOut)
 
     # Load data as QgsRasterLayer and then re-save it, ensuring it has the correct projection info
     a = QgsRasterLayer(dataOut, "temporary raster layer")
@@ -70,7 +75,7 @@ def webToRaster(baseURL, layer_name, output_file, bbox, resolution, srs, update)
     crs = a.crs()
     crs.createFromId(int(srs.split(':')[1]))
     a.setCrs(crs)
-    update.emit({'progress':90, 'message':'Saving file...'})
+    update.emit({'progress': 90, 'message': 'Saving file...'})
     writer = QgsRasterFileWriter(output_file)
 
     pipe = QgsRasterPipe()
@@ -83,5 +88,5 @@ def webToRaster(baseURL, layer_name, output_file, bbox, resolution, srs, update)
     pipe = None
     provider = None
     # Delete temp file
-    os.remove(dataOut)
+    # os.remove(dataOut) # Removed outside of worker since QGIS3
     return output_file
