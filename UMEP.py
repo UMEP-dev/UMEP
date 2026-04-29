@@ -554,7 +554,7 @@ class UMEP(object):
         if QMessageBox.question(None, "GQf currently not maintained",
               "This tool might be malfunctioning based on what version of QGIS and UMEP used. \r\n"
               "Do you want to continue?",
-               QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
+               QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) == QMessageBox.StandardButton.Ok:
         
            sg = GreaterQF(self.iface)
            sg.run()
@@ -611,7 +611,7 @@ class UMEP(object):
         if  QMessageBox.question(None, "LQf currently not maintained",
               "This tool might be malfunctioning based on what version of QGIS and UMEP used. \r\n"
               "Do you want to continue?",
-               QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
+               QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) == QMessageBox.StandardButton.Ok:
         
             sg = LQF(self.iface)
             sg.run()
@@ -654,7 +654,7 @@ class UMEP(object):
     def run(self):
         # This function starts the plugin
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def help(self):
         url = "https://umep-docs.readthedocs.io/en/latest/index.html"

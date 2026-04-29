@@ -825,7 +825,7 @@ def saveLayerToFile(layer, filename, targetCRS=None, label=None):
             raise IOError('Failed to delete existing vector file ' + str(filename) + '. The file may be in use. Please close it and try again.')
     error = QgsVectorFileWriter.writeAsVectorFormat(layer, filename, "CP1250", targetCRS, "ESRI Shapefile")
 
-    if error[0] != QgsVectorFileWriter.NoError:  # error now have two variables 20181122
+    if error[0] != QgsVectorFileWriter.WriterError.NoError:  # error now have two variables 20181122
         raise IOError('Failed to write vector file ' + str(filename))
 
 def addNewField(inLayer, fieldNames, initialValue=None):
@@ -929,7 +929,7 @@ def colourRanges(displayLayer, attribute, opacity, range_minima, range_maxima, c
         rangeList.append(valueRange)
 
     renderer = QgsGraduatedSymbolRenderer('', rangeList)
-    renderer.setMode(QgsGraduatedSymbolRenderer.EqualInterval)
+    renderer.setMode(QgsGraduatedSymbolRenderer.Mode.EqualInterval)
     renderer.setClassAttribute(attribute)
     displayLayer.setRenderer(renderer)  #setRendererV2 before
 

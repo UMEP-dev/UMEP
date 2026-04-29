@@ -181,11 +181,11 @@ class BenchMarking(object):
             return
 
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def import_basefile(self):
         self.fileDialogBaseData.open()
-        result = self.fileDialogBaseData.exec_()
+        result = self.fileDialogBaseData.exec()
         if result == 1:
             self.folderPath = self.fileDialogBaseData.selectedFiles()
             self.dlg.textInput_BaseData.setText(self.folderPath[0])
@@ -212,7 +212,7 @@ class BenchMarking(object):
 
     def import_reffile(self):
         self.fileDialogRefData.open()
-        result = self.fileDialogRefData.exec_()
+        result = self.fileDialogRefData.exec()
         if result == 1:
             self.folderPath1 = self.fileDialogRefData.selectedFiles()
             self.dlg.textInput_RefData.setText(self.folderPath1[0])
@@ -227,7 +227,7 @@ class BenchMarking(object):
 
     def import_data2file(self):
         self.fileDialogData2.open()
-        result = self.fileDialogData2.exec_()
+        result = self.fileDialogData2.exec()
         if result == 1:
             self.folderPath2 = self.fileDialogData2.selectedFiles()
             self.dlg.textInput_Data2.setText(self.folderPath2[0])
@@ -242,7 +242,7 @@ class BenchMarking(object):
 
     def import_data3file(self):
         self.fileDialogData3.open()
-        result = self.fileDialogData3.exec_()
+        result = self.fileDialogData3.exec()
         if result == 1:
             self.folderPath3 = self.fileDialogData3.selectedFiles()
             self.dlg.textInput_Data3.setText(self.folderPath3[0])
@@ -257,7 +257,7 @@ class BenchMarking(object):
 
     def import_data4file(self):
         self.fileDialogData4.open()
-        result = self.fileDialogData4.exec_()
+        result = self.fileDialogData4.exec()
         if result == 1:
             self.folderPath4 = self.fileDialogData4.selectedFiles()
             self.dlg.textInput_Data4.setText(self.folderPath4[0])
@@ -272,7 +272,7 @@ class BenchMarking(object):
 
     def import_data5file(self):
         self.fileDialogData5.open()
-        result = self.fileDialogData5.exec_()
+        result = self.fileDialogData5.exec()
         if result == 1:
             self.folderPath5 = self.fileDialogData5.selectedFiles()
             self.dlg.textInput_Data5.setText(self.folderPath5[0])

@@ -3,7 +3,7 @@ from numpy import nonzero, isnan, nan, vectorize, average, int32, int64, int8, f
 from time import sleep
 from datetime import datetime
 from collections import defaultdict
-from PyQt5.QtWidgets import QMessageBox, QApplication
+from qgis.PyQt.QtWidgets import QMessageBox, QApplication
 import sys
 from scipy.ndimage import maximum_filter, label
 
@@ -117,7 +117,7 @@ def read_morph_txt(txt_file):
     '''
     This function is used to read output files from morphometric calculator .txt
     '''
-    morph_dict = read_csv(txt_file, delim_whitespace=True, index_col=[0]).to_dict(orient='index')
+    morph_dict = read_csv(txt_file, sep=r"\s+", index_col=[0]).to_dict(orient='index')
     return morph_dict 
 
 

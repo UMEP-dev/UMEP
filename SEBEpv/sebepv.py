@@ -236,14 +236,14 @@ class SEBEpv:
 
     def folder_path(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.textOutput.setText(self.folderPath[0])
 
     def read_metdata(self):
         self.fileDialogFile.open()
-        result = self.fileDialogFile.exec_()
+        result = self.fileDialogFile.exec()
         if result == 1:
             # self.dlg.pushButtonExport.setEnabled(True)
             self.folderPathMetdata = self.fileDialogFile.selectedFiles()
@@ -666,7 +666,7 @@ class SEBEpv:
 
     def run(self):
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def help(self):
         # url = "file://" + self.plugin_dir + "/help/Index.html"

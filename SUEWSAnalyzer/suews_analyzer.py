@@ -94,10 +94,10 @@ class SUEWSAnalyzer(object):
 
         self.layerComboManagerPolygrid = QgsMapLayerComboBox(self.dlg.widgetPolygrid)
         self.layerComboManagerPolygrid.setCurrentIndex(-1)
-        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
         self.layerComboManagerPolygrid.setFixedWidth(175)
         self.layerComboManagerPolyfield = QgsFieldComboBox(self.dlg.widgetField)
-        self.layerComboManagerPolyfield.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPolyfield.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.layerComboManagerPolygrid.layerChanged.connect(self.layerComboManagerPolyfield.setLayer)
         
         self.dlg.comboBox_POIVariable.currentIndexChanged.connect(self.variable_changed)
@@ -189,7 +189,7 @@ class SUEWSAnalyzer(object):
 
     def run(self):
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
         self.clearentries()
         self.dlg.textModelFolder.clear()
 
@@ -225,7 +225,7 @@ class SUEWSAnalyzer(object):
         self.clearentries()
 
         self.fileDialogyaml.open()
-        result = self.fileDialogyaml.exec_()
+        result = self.fileDialogyaml.exec()
         if result == 1:
             self.yamlPath = self.fileDialogyaml.selectedFiles()
             self.dlg.textModelFolder.setText(self.yamlPath[0])
@@ -554,7 +554,7 @@ class SUEWSAnalyzer(object):
                 # # Set colors
                 s = QgsRasterShader()
                 c = QgsColorRampShader()
-                c.setColorRampType(QgsColorRampShader.Interpolated)
+                c.setColorRampType(QgsColorRampShader.Type.Interpolated)
                 i = []
                 i.append(QgsColorRampShader.ColorRampItem(np.nanmin(gridout), QtGui.QColor('#2b83ba'), str(np.nanmin(gridout))))
                 i.append(QgsColorRampShader.ColorRampItem(np.nanmedian(gridout), QtGui.QColor('#ffffbf'), str(np.nanmedian(gridout))))
@@ -594,7 +594,7 @@ class SUEWSAnalyzer(object):
         current_index_length = len(vlayer.dataProvider().attributeIndexes())
         caps = vlayer.dataProvider().capabilities()
 
-        if caps & QgsVectorDataProvider.AddAttributes:
+        if caps & QgsVectorDataProvider.Capability.AddAttributes:
             vlayer.dataProvider().addAttributes([QgsField(header, QVariant.Double)])
             attr_dict = {}
             for y in range(0, matdata.shape[0]):

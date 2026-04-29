@@ -88,8 +88,8 @@ class LCZ_test(object):
         self.fileDialog = QFileDialog()
         # self.fileDialog.setFileMode(4)
         # self.fileDialog.setAcceptMode(1)  # Save
-        self.fileDialog.setFileMode(QFileDialog.Directory)
-        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
+        self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
         if self.dlg.radioButton_2.isChecked():
             self.dlg.pushButton_2.clicked.connect(self.updatetable)
         if self.dlg.radioButton.isChecked():
@@ -101,16 +101,16 @@ class LCZ_test(object):
         # self.layerComboManagerPolyField = FieldCombo(self.dlg.comboBox_31, fieldgen) #, options={"fieldType":QGis.Float32}
         self.layerComboManagerPolygrid = QgsMapLayerComboBox(self.dlg.widgetPolyLayer)
         self.layerComboManagerPolygrid.setCurrentIndex(-1)
-        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
         self.layerComboManagerPolygrid.setFixedWidth(175)
         self.layerComboManagerPolyField = QgsFieldComboBox(self.dlg.widgetField)
-        self.layerComboManagerPolyField.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPolyField.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.layerComboManagerPolygrid.layerChanged.connect(self.layerComboManagerPolyField.setLayer)
 
         # self.layerComboManagerLCgrid = RasterLayerCombo(self.dlg.comboBox)
         # RasterLayerCombo(self.dlg.comboBox, initLayer="")
         self.layerComboManagerLCgrid = QgsMapLayerComboBox(self.dlg.widgetLC)
-        self.layerComboManagerLCgrid.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerLCgrid.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerLCgrid.setFixedWidth(175)
         self.layerComboManagerLCgrid.setCurrentIndex(-1)
 
@@ -222,7 +222,7 @@ class LCZ_test(object):
 
     def folder_path(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.lineEdit_2.setText(self.folderPath[0])
@@ -756,7 +756,7 @@ class LCZ_test(object):
 
     def workerError(self, errorstring):
         #strerror = "Worker thread raised an exception: " + str(e)
-        QgsMessageLog.logMessage(errorstring, level=Qgis.Critical)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)
 
     def progress_update(self):
         self.steps +=1
@@ -776,7 +776,7 @@ class LCZ_test(object):
 
     def run(self):
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
         gdal.UseExceptions()
         gdal.AllRegister()
     def close(self):

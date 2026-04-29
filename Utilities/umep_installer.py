@@ -2,7 +2,7 @@ import sys, subprocess, os
 from pathlib import Path
 import platform
 from packaging import version
-
+import numpy as np
 from qgis.core import Qgis, QgsMessageLog
 
 
@@ -86,12 +86,17 @@ def install_umep_python(ver=None):
             if version.parse(str_ver_qgis) <= version.parse("3.9.1")
             else ""
         )
+        # Select correct supy version via extras (numpy 1 vs 2)
+        numpy_major = np.__version__.split('.')[0]
+        numpy_extra = f"[numpy{numpy_major}]"
+        list_cmd = f"{str(path_pybin)} -m pip install umep-reqs{numpy_extra}{str_ver} -U --user --prefer-binary {str_use_feature}".split()
+
         # select correct supy version via extras (QGIS 3 vs 4)
-        qgis_major = int(Qgis.QGIS_VERSION.split('.')[0])
-        qgis_extra = f"[qgis{qgis_major}]"
-        # --prefer-binary because https://github.com/jameskermode/f90wrap/issues/203
-        list_cmd = f"{str(path_pybin)} -m pip install umep-reqs{qgis_extra}{str_ver} -U --user --prefer-binary {str_use_feature}".split()
-        QgsMessageLog.logMessage(str(list_cmd), level=Qgis.Info)
+        # qgis_major = int(Qgis.QGIS_VERSION.split('.')[0])
+        # qgis_extra = f"[qgis{qgis_major}]"
+        # # --prefer-binary because https://github.com/jameskermode/f90wrap/issues/203
+        # list_cmd = f"{str(path_pybin)} -m pip install umep-reqs{qgis_extra}{str_ver} -U --user --prefer-binary {str_use_feature}".split()
+        # QgsMessageLog.logMessage(str(list_cmd), level=Qgis.Info)
         str_info = subprocess.check_output(
             list_cmd, stderr=subprocess.STDOUT, encoding="UTF8"
         )
@@ -105,7 +110,7 @@ def install_umep_python(ver=None):
         )
         return str_info
     except subprocess.CalledProcessError as exc:
-        QgsMessageLog.logMessage(f"Error running {exc.args}:\n{exc.stdout}", level=Qgis.Warning)
+        QgsMessageLog.logMessage(f"Error running {exc.args}:\n{exc.stdout}", level=Qgis.MessageLevel.Warning)
         raise
 
 

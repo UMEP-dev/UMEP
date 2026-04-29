@@ -521,14 +521,14 @@ def resample_dataframe( df, expected_time_resolution_min, how='mean', missing_va
     return df_resampled
 
 def SUEWS_txt_to_df( suews_output_path):
-    df_output_suews = pd.read_csv(suews_output_path, delim_whitespace = True)
+    df_output_suews = pd.read_csv(suews_output_path, sep=r"\s+")
     df_output_suews['Datetime'] = pd.to_datetime(df_output_suews[['Year', 'DOY', 'Hour', 'Min']].astype(str).agg('-'.join, axis=1), format='%Y-%j-%H-%M')
     df_output_suews.set_index('Datetime', inplace=True)
 
     return df_output_suews
 
 def SUEWS_met_txt_to_df(suews_met_path):
-    df_met_forcing = pd.read_csv(suews_met_path, delim_whitespace = True)
+    df_met_forcing = pd.read_csv(suews_met_path, sep=r"\s+")
     df_met_forcing['Datetime'] = pd.to_datetime(df_met_forcing[['iy', 'id', 'it', 'imin']].astype(str).agg('-'.join, axis=1), format='%Y-%j-%H-%M')
     df_met_forcing.set_index('Datetime', inplace=True)
     

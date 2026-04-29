@@ -176,12 +176,12 @@ class TARGETAnalyser:
         self.fileDialog = QFileDialog()
 
         self.fileDialogIn = QFileDialog()
-        self.fileDialogIn.setFileMode(QFileDialog.Directory)
-        self.fileDialogIn.setOption(QFileDialog.ShowDirsOnly, True)
+        self.fileDialogIn.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialogIn.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
         self.fileDialogOut = QFileDialog()
-        self.fileDialogOut.setFileMode(QFileDialog.Directory)
-        self.fileDialogOut.setOption(QFileDialog.ShowDirsOnly, True)
+        self.fileDialogOut.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialogOut.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
         self.dlg.pushButtonInFolder.clicked.connect(self.folder_path_inmodel)
         #self.dlg.pushButtonOutFolder.clicked.connect(self.folder_path_outmodel)
@@ -191,16 +191,16 @@ class TARGETAnalyser:
 
         self.layerComboManagerPolygrid = QgsMapLayerComboBox(self.dlg.widgetPolygrid)
         self.layerComboManagerPolygrid.setCurrentIndex(-1)
-        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
         self.layerComboManagerPolygrid.setFixedWidth(175)
         self.layerComboManagerPolyfield = QgsFieldComboBox(self.dlg.widgetField)
-        self.layerComboManagerPolyfield.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPolyfield.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.layerComboManagerPolyfield.setFixedWidth(125)
         self.layerComboManagerPolygrid.layerChanged.connect(self.layerComboManagerPolyfield.setLayer)
 
         # show the dialog
         self.dlg.show()
-        result = self.dlg.exec_()
+        result = self.dlg.exec()
         # See if OK was pressed
         if result:
             pass
@@ -229,7 +229,7 @@ class TARGETAnalyser:
         self.clearentries()
 
         self.fileDialogIn.open()
-        result = self.fileDialogIn.exec_()
+        result = self.fileDialogIn.exec()
         if result == 1:
             self.folderPath = self.fileDialogIn.selectedFiles()
             self.dlg.textModelInFolder.setText(self.folderPath[0])
@@ -535,7 +535,7 @@ class TARGETAnalyser:
                 # # Set colors
                 s = QgsRasterShader()
                 c = QgsColorRampShader()
-                c.setColorRampType(QgsColorRampShader.Interpolated)
+                c.setColorRampType(QgsColorRampShader.Type.Interpolated)
                 i = []
                 i.append(QgsColorRampShader.ColorRampItem(np.nanmin(gridout), QtGui.QColor('#2b83ba'), str(np.nanmin(gridout))))
                 i.append(QgsColorRampShader.ColorRampItem(np.nanmedian(gridout), QtGui.QColor('#ffffbf'), str(np.nanmedian(gridout))))
@@ -622,7 +622,7 @@ class TARGETAnalyser:
     def addattributes(self, vlayer, matdata, header):
         current_index_length = len(vlayer.dataProvider().attributeIndexes())
         caps = vlayer.dataProvider().capabilities()
-        if caps & QgsVectorDataProvider.AddAttributes:
+        if caps & QgsVectorDataProvider.Capability.AddAttributes:
             vlayer.dataProvider().addAttributes([QgsField(header, QVariant.Double)])
             attr_dict = {}
             for y in range(0, matdata.shape[0]):

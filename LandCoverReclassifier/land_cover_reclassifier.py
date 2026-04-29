@@ -88,7 +88,7 @@ class LandCoverReclassifier(object):
         # self.layerComboManagerLCgrid = RasterLayerCombo(self.dlg.comboBox_lcgrid)
         # RasterLayerCombo(self.dlg.comboBox_lcgrid, initLayer="")
         self.layerComboManagerLCgrid = QgsMapLayerComboBox(self.dlg.widgetLCgrid)
-        self.layerComboManagerLCgrid.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerLCgrid.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerLCgrid.setFixedWidth(175)
         self.layerComboManagerLCgrid.setCurrentIndex(-1)
 
@@ -165,7 +165,7 @@ class LandCoverReclassifier(object):
 
     def save_file_place(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         # filename = QFileDialog.getSaveFileName(self.dlg, "Save as geotiff ", '*.tif')
         if result == 1:
             self.filePath = self.fileDialog.selectedFiles()
@@ -293,7 +293,7 @@ class LandCoverReclassifier(object):
     def run(self):
         self.dlg.show()
         self.dlg.adjustSize()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def help(self):
         url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Land%20Cover%20Land%20Cover%20Reclassifier.html'

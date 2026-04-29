@@ -85,8 +85,8 @@ class SkyViewFactorCalculator(object):
         self.dlg.checkBoxUseVeg.toggled.connect(self.text_enable)
         self.dlg.checkBoxTrunkExist.toggled.connect(self.text_enable2)
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(QFileDialog.Directory)
-        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
+        self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
         # Declare instance attributes
         self.actions = []
@@ -96,15 +96,15 @@ class SkyViewFactorCalculator(object):
         # self.toolbar.setObjectName(u'SkyViewFactorCalculator')
 
         self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widget_dsm)
-        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerDSM.setFixedWidth(200)
         self.layerComboManagerDSM.setCurrentIndex(-1)
         self.layerComboManagerVEGDSM = QgsMapLayerComboBox(self.dlg.widget_vegdsm)
-        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerVEGDSM.setFixedWidth(200)
         self.layerComboManagerVEGDSM.setCurrentIndex(-1)
         self.layerComboManagerVEGDSM2 = QgsMapLayerComboBox(self.dlg.widget_vegdsm2)
-        self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerVEGDSM2.setFixedWidth(200)
         self.layerComboManagerVEGDSM2.setCurrentIndex(-1)
         # self.layerComboManagerWH = QgsMapLayerComboBox(self.dlg.widgetWH)
@@ -252,7 +252,7 @@ class SkyViewFactorCalculator(object):
 
     def folder_path(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.textOutput.setText(self.folderPath[0])
@@ -385,7 +385,7 @@ class SkyViewFactorCalculator(object):
         else:
             self.iface.messageBar().pushMessage('Operations cancelled either by user or error. See the General tab in '
                                                 'Log Meassages Panel (speech bubble, lower right) for more information.'
-                                                , level=Qgis.Critical, duration=3)
+                                                , level=Qgis.MessageLevel.Critical, duration=3)
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
@@ -525,7 +525,7 @@ class SkyViewFactorCalculator(object):
         else:
             self.iface.messageBar().pushMessage('Operations cancelled either by user or error. See the General tab in '
                                                 'Log Meassages Panel (speech bubble, lower right) for more information.'
-                                                , level=Qgis.Critical, duration=3)
+                                                , level=Qgis.MessageLevel.Critical, duration=3)
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
@@ -619,7 +619,7 @@ class SkyViewFactorCalculator(object):
             # notify the user that something went wrong
             self.iface.messageBar().pushMessage('Operations cancelled either by user or error. See the General tab in '
                                                 'Log Meassages Panel (speech bubble, lower right) for more information.'
-                                                , level=Qgis.Critical, duration=3)
+                                                , level=Qgis.MessageLevel.Critical, duration=3)
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
@@ -627,10 +627,10 @@ class SkyViewFactorCalculator(object):
             self.dlg.progressBar.setValue(0)
 
     def workerError(self, errorstring):
-        QgsMessageLog.logMessage(errorstring, level=Qgis.Critical)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)
 
     def vegWorkerError(self, errorstring):
-        QgsMessageLog.logMessage(errorstring, level=Qgis.Critical)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)
 
     def progress_update(self):
         self.steps += 1
@@ -781,7 +781,7 @@ class SkyViewFactorCalculator(object):
     def run(self):
         """Run method that performs all the real work"""
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def help(self):
         url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Geometry%20Sky%20View%20Factor%20Calculator.html'

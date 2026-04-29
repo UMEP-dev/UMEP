@@ -160,7 +160,7 @@ class SUEWSConverter:
 
     def folder_path_out(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPathOut = self.fileDialog.selectedFiles()
             file_path = self.folderPathOut[0]
@@ -170,7 +170,7 @@ class SUEWSConverter:
 
     def folder_path_in(self):
         self.fileDialognml.open()
-        result = self.fileDialognml.exec_()
+        result = self.fileDialognml.exec()
         if result == 1:
             self.folderPathOut = self.fileDialognml.selectedFiles()
             self.dlg.textInput.setText(self.folderPathOut[0])
@@ -201,7 +201,7 @@ class SUEWSConverter:
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def help(self):
         url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Energy%20Balance%20SUEWS%20Converter.html'
@@ -225,7 +225,7 @@ class SUEWSConverter:
             # convert_table(fromDir, toDir, fromVer, toVer)
             convert_to_yaml(fromDir, toDir)
             self.iface.messageBar().pushMessage("SUEWS Converter", "Data successfully converted to lastest version",
-                                                 level=Qgis.Success)
+                                                 level=Qgis.MessageLevel.Success)
             # self.iface.messageBar().pushMessage("SUEWS Converter", "Data successfully converted between: "
             #             + fromVer + " to " + toVer, level=Qgis.Success)
         except Exception as e:

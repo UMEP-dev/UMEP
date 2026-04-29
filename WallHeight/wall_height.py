@@ -89,7 +89,7 @@ class WallHeight(object):
         # self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_dsm)
         # RasterLayerCombo(self.dlg.comboBox_dsm, initLayer="")
         self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetDSM)
-        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerDSM.setFixedWidth(175)
         self.layerComboManagerDSM.setCurrentIndex(-1)
 
@@ -169,7 +169,7 @@ class WallHeight(object):
 
     def save_file_place_height(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.filePathH = self.fileDialog.selectedFiles()
             self.filePathH[0] = self.filePathH[0]  # + '.tif'
@@ -178,7 +178,7 @@ class WallHeight(object):
 
     def save_file_place_aspect(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.filePathA = self.fileDialog.selectedFiles()
             self.filePathA[0] = self.filePathA[0]  # + '.tif'
@@ -194,7 +194,7 @@ class WallHeight(object):
             return
 
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def progress_update(self):
         self.steps += 1
@@ -305,7 +305,7 @@ class WallHeight(object):
             self.dlg.pushButton.setEnabled(True)
         else:
             # notify the user that something went wrong
-            self.iface.messageBar().pushMessage('Operations cancelled either by user or error. See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.', level=Qgis.Critical, duration=5)
+            self.iface.messageBar().pushMessage('Operations cancelled either by user or error. See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.', level=Qgis.MessageLevel.Critical, duration=5)
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
@@ -313,7 +313,7 @@ class WallHeight(object):
             self.dlg.progressBar.setValue(0)
 
     def workerError(self, errorstring):
-        QgsMessageLog.logMessage(errorstring, level=Qgis.Critical)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)
 
     def progress_update(self):
         self.steps += 1

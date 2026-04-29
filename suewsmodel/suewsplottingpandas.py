@@ -71,7 +71,7 @@ class SuewsPlottingPandas(object):
 
     def plotbasic(self, suews_ouput_path, grid):
 
-        df_output_suews = pd.read_csv(suews_ouput_path, delim_whitespace = True)
+        df_output_suews = pd.read_csv(suews_ouput_path, sep=r"\s+")
         df_output_suews['Datetime'] = pd.to_datetime(df_output_suews[['Year', 'DOY', 'Hour', 'Min']].astype(str).agg('-'.join, axis=1), format='%Y-%j-%H-%M')
         df_output_suews.set_index('Datetime', inplace=True)
 
@@ -104,7 +104,7 @@ class SuewsPlottingPandas(object):
 
     def plotmonthly(self, suews_ouput_path, grid):
         
-        df_output_suews = pd.read_csv(suews_ouput_path, delim_whitespace = True)
+        df_output_suews = pd.read_csv(suews_ouput_path, sep=r"\s+")
         df_output_suews['Datetime'] = pd.to_datetime(df_output_suews[['Year', 'DOY', 'Hour', 'Min']].astype(str).agg('-'.join, axis=1), format='%Y-%j-%H-%M')
         df_output_suews.set_index('Datetime', inplace=True)
 

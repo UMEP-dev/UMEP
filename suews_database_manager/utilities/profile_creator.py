@@ -1,13 +1,14 @@
 from pandas import DataFrame, concat
 from qgis.PyQt.QtWidgets import QMessageBox
-from PyQt5.QtWidgets import  QVBoxLayout
+from qgis.PyQt.QtWidgets import  QVBoxLayout
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
 from .database_functions import save_to_db, create_code, ref_changed
 
-from PyQt5.QtGui import QRegExpValidator
-from PyQt5.QtCore import QRegExp
-
+#from qgis.PyQt.QtGui import QRegExpValidator
+#from qgis.PyQt.QtCore import QRegExp
+from qgis.PyQt.QtCore import QRegularExpression
+from qgis.PyQt.QtGui import QRegularExpressionValidator
 
 #################################################################################################
 #                                                                                               #
@@ -33,12 +34,14 @@ def setup_profile_creator(self, dlg, db_dict, db_path):
         # set up rules for profile LineEdits
         # Only 5
         # only 0-9 and .
-        reg_ex = QRegExp("[0-9.]*")  
+        #reg_ex = QRegExp("[0-9.]*")
+        reg_ex = QRegularExpression(r"[0-9.]*")        
               
         for i in range(24):
             Le = getattr(dlg, f'lineEdit_{i}')
             Le.setMaxLength(5)
-            input_validator = QRegExpValidator(reg_ex, Le)
+            #input_validator = QRegExpValidator(reg_ex, Le)
+            input_validator = QRegularExpressionValidator(reg_ex, Le)
             Le.setValidator(input_validator)
 
 

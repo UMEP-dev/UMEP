@@ -27,7 +27,7 @@ import sys
 try:
     import scipy.ndimage.interpolation as sc
 except Exception as e: 
-    QgsMessageLog.logMessage(str(e), level=Qgis.Critical)
+    QgsMessageLog.logMessage(str(e), level=Qgis.MessageLevel.Critical)
 
 def imagemorphparam_v2(dsm, dem, scale, mid, dtheta, dlg, imp_point):
 
@@ -128,7 +128,7 @@ def imagemorphparam_v2(dsm, dem, scale, mid, dtheta, dlg, imp_point):
         line = linecache.getline(filename, lineno, f.f_globals)
         errorstring = 'EXCEPTION IN {}, \nLINE {} "{}" \nERROR MESSAGE: {}'.format(filename, lineno, line.strip(),
                                                                                    exc_obj)
-        QgsMessageLog.logMessage(errorstring, level=Qgis.Critical)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)
 
 
 def imagemorphparam_v1(dsm, dem, scale, mid, dtheta, dlg, imp_point):

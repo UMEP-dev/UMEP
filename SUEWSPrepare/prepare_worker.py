@@ -856,7 +856,7 @@ class Worker(QtCore.QObject):
                     except IOError as e:
                         QgsMessageLog.logMessage(
                             "Error copying output files with SUEWS_SiteSelect.txt: " + str(e),
-                            level=Qgis.Critical)
+                            level=Qgis.MessageLevel.Critical)
 
             if self.killed is False:
                 self.progress.emit()

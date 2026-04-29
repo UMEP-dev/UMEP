@@ -103,7 +103,7 @@ class Worker(QtCore.QObject):
                     #                              self.prov.crs(), "ESRI shapefile")
                     writer = QgsVectorFileWriter(self.dir_poly, "CP1250", self.fields, self.prov.wkbType(),
                                                  self.prov.crs(), "ESRI shapefile")
-                    if writer.hasError() != QgsVectorFileWriter.NoError:
+                    if writer.hasError() != QgsVectorFileWriter.WriterError.NoError:
                         self.iface.messageBar().pushMessage("Error when creating shapefile: ", str(writer.hasError()))
                     writer.addFeature(feature)
                     del writer
@@ -216,7 +216,7 @@ class Worker(QtCore.QObject):
                     if np.sum(dsm_array) == (dsm_array.shape[0] * dsm_array.shape[1] * nd):
                         QgsMessageLog.logMessage(
                             "Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes Only NoData Pixels",
-                            level=Qgis.Critical)
+                            level=Qgis.MessageLevel.Critical)
                         cal = 0
                     else:
                         dsm_array[dsm_array == nd] = np.mean(dem_array)
@@ -226,7 +226,7 @@ class Worker(QtCore.QObject):
                     if nodata_test.any():  # == True
                         QgsMessageLog.logMessage(
                             "Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes NoData Pixels",
-                            level=Qgis.Critical)
+                            level=Qgis.MessageLevel.Critical)
                         cal = 0
                     else:
                         cal = 1
@@ -291,7 +291,7 @@ class Worker(QtCore.QObject):
                 current_index_length = len(self.vlayer.dataProvider().attributeIndexes())
                 caps = self.vlayer.dataProvider().capabilities()
 
-                if caps & QgsVectorDataProvider.AddAttributes:
+                if caps & QgsVectorDataProvider.Capability.AddAttributes:
                     line_split = header.split()
                     for x in range(1, len(line_split)):
 

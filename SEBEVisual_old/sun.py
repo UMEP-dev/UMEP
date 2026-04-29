@@ -225,7 +225,7 @@ class Visual:
         :return:
         """
         self.visDlg.open()
-        self.visDlg.exec_()
+        self.visDlg.exec()
 
     def help(self):
         url = "http://bitbucket.org/pvoptiray/umep-3d/wiki/Manual#!sebepv-visualizer"
@@ -264,7 +264,7 @@ class Visual:
         self.fileDialog.setAcceptMode(0)
         self.fileDialog.open()
 
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             data_path = self.fileDialog.selectedFiles()
             self.base_path_str = str(data_path[0])

@@ -198,7 +198,7 @@ def julian_calculation(t_input):
                 A = np.floor(Y/100)
                 B = 2 - A + np.floor(A/4)
             else:
-                print 'This date never existed!. Date automatically set to October 4, 1582'
+                print ('This date never existed!. Date automatically set to October 4, 1582')
                 time['month'] = 10
                 time['day'] = 4
                 B = 0

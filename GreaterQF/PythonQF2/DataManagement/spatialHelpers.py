@@ -1025,7 +1025,7 @@ def saveLayerToFile(layer, filename, targetCRS=None, label=None):
     error_code, error_msg = QgsVectorFileWriter.writeAsVectorFormat(
         layer, filename, "CP1250", targetCRS, "ESRI Shapefile")
 
-    if error_code != QgsVectorFileWriter.NoError:
+    if error_code != QgsVectorFileWriter.WriterError.NoError:
         print(error)
         raise IOError('Failed to write vector file ' + str(filename))
 
@@ -1146,7 +1146,7 @@ def colourRanges(displayLayer, attribute, opacity, range_minima, range_maxima, c
         rangeList.append(valueRange)
 
     renderer = QgsGraduatedSymbolRenderer('', rangeList)
-    renderer.setMode(QgsGraduatedSymbolRenderer.EqualInterval)
+    renderer.setMode(QgsGraduatedSymbolRenderer.Mode.EqualInterval)
     renderer.setClassAttribute(attribute)
     displayLayer.setRenderer(renderer)  # setRendererV2 before
 

@@ -82,8 +82,8 @@ class SOLWEIG(object):
         self.fileDialog = QFileDialog()
         # self.fileDialog.setFileMode(4)
         # self.fileDialog.setAcceptMode(1)
-        self.fileDialog.setFileMode(QFileDialog.Directory)
-        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
+        self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
         self.dlg.pushButtonImportMetData.clicked.connect(self.met_file)
         self.fileDialogMet = QFileDialog()
@@ -106,47 +106,47 @@ class SOLWEIG(object):
         # self.toolbar.setObjectName(u'SOLWEIG')
 
         self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetDSM)
-        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerDSM.setFixedWidth(175)
         self.layerComboManagerDSM.setFixedHeight(25)
         self.layerComboManagerDSM.setCurrentIndex(-1)
         self.layerComboManagerVEGDSM = QgsMapLayerComboBox(self.dlg.widgetCDSM)
-        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerVEGDSM.setFixedWidth(175)
         self.layerComboManagerVEGDSM.setFixedHeight(25)
         self.layerComboManagerVEGDSM.setCurrentIndex(-1)
         self.layerComboManagerVEGDSM2 = QgsMapLayerComboBox(self.dlg.widgetTDSM)
-        self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerVEGDSM2.setFixedWidth(175)
         self.layerComboManagerVEGDSM2.setFixedHeight(25)
         self.layerComboManagerVEGDSM2.setCurrentIndex(-1)
         self.layerComboManagerDEM = QgsMapLayerComboBox(self.dlg.widgetDEM)
-        self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerDEM.setFixedWidth(175)
         self.layerComboManagerDEM.setFixedHeight(25)
         self.layerComboManagerDEM.setCurrentIndex(-1)
         self.layerComboManagerLC = QgsMapLayerComboBox(self.dlg.widgetLC)
-        self.layerComboManagerLC.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerLC.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerLC.setFixedWidth(175)
         self.layerComboManagerLC.setFixedHeight(25)
         self.layerComboManagerLC.setCurrentIndex(-1)
         self.layerComboManagerWH = QgsMapLayerComboBox(self.dlg.widgetWH)
-        self.layerComboManagerWH.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerWH.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerWH.setFixedWidth(175)
         self.layerComboManagerWH.setFixedHeight(25)
         self.layerComboManagerWH.setCurrentIndex(-1)
         self.layerComboManagerWA = QgsMapLayerComboBox(self.dlg.widgetWA)
-        self.layerComboManagerWA.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layerComboManagerWA.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.layerComboManagerWA.setFixedWidth(175)
         self.layerComboManagerWA.setFixedHeight(25)
         self.layerComboManagerWA.setCurrentIndex(-1)
         self.layerComboManagerPOI = QgsMapLayerComboBox(self.dlg.widgetPointLayer)
         self.layerComboManagerPOI.setCurrentIndex(-1)
-        self.layerComboManagerPOI.setFilters(QgsMapLayerProxyModel.PointLayer)
+        self.layerComboManagerPOI.setFilters(QgsMapLayerProxyModel.Filter.PointLayer)
         self.layerComboManagerPOI.setFixedWidth(175)
         self.layerComboManagerPOI.setFixedHeight(25)
         self.layerComboManagerPOIfield = QgsFieldComboBox(self.dlg.widgetPOIField)
-        self.layerComboManagerPOIfield.setFilters(QgsFieldProxyModel.Numeric)
+        self.layerComboManagerPOIfield.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.layerComboManagerPOI.layerChanged.connect(self.layerComboManagerPOIfield.setLayer)
 
         self.folderPath = None
@@ -234,21 +234,21 @@ class SOLWEIG(object):
 
     def folder_path_out(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.textOutput.setText(self.folderPath[0])
 
     def met_file(self):
         self.fileDialogMet.open()
-        result = self.fileDialogMet.exec_()
+        result = self.fileDialogMet.exec()
         if result == 1:
             self.folderPathMet = self.fileDialogMet.selectedFiles()
             self.dlg.textInputMetdata.setText(self.folderPathMet[0])
 
     def svf_file(self):
         self.fileDialogSVF.open()
-        result = self.fileDialogSVF.exec_()
+        result = self.fileDialogSVF.exec()
         if result == 1:
             self.folderPathSVF = self.fileDialogSVF.selectedFiles()
             self.dlg.textInputSVF.setText(self.folderPathSVF[0])
@@ -256,7 +256,7 @@ class SOLWEIG(object):
     # Perez
     def perez_file(self):
         self.fileDialogPerez.open()
-        result = self.fileDialogPerez.exec_()
+        result = self.fileDialogPerez.exec()
         if result == 1:
             self.folderPathPerez = self.fileDialogPerez.selectedFiles()
             self.dlg.textInputPerez.setText(self.folderPathPerez[0])
@@ -275,7 +275,7 @@ class SOLWEIG(object):
 
         if self.metdata.shape[1] == 24:
             self.iface.messageBar().pushMessage("SOLWEIG", "Meteorological data succesfully loaded",
-                                                level=Qgis.Info, duration=3)
+                                                level=Qgis.MessageLevel.Info, duration=3)
         else:
             QMessageBox.critical(self.dlg, "Import Error",
                                  "Wrong number of columns in meteorological data. You can "
@@ -532,7 +532,7 @@ class SOLWEIG(object):
                     demraise = 0
 
                 if (dsmraise != demraise) and (dsmraise - demraise > 0.5):
-                    self.iface.messageBar().pushMessage('WARNiNG! DEM and DSM was raised unequally (difference > 0.5 m). Check your input data!', level=Qgis.Critical, duration=3)()
+                    self.iface.messageBar().pushMessage('WARNiNG! DEM and DSM was raised unequally (difference > 0.5 m). Check your input data!', level=Qgis.MessageLevel.Critical, duration=3)()
 
                 alt = np.median(self.dem)
                 if alt > 0:
@@ -1049,7 +1049,7 @@ class SOLWEIG(object):
     def run(self):
         """This methods is needed for QGIS to start the plugin"""
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def help(self):
         url = 'https://umep-docs.readthedocs.io/en/latest/processor/Outdoor%20Thermal%20Comfort%20SOLWEIG.html'
@@ -1170,7 +1170,7 @@ class SOLWEIG(object):
             # notify the user that something went wrong
             self.iface.messageBar().pushMessage(
                 'Operations cancelled either by user or error. See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.',
-                level=Qgis.Critical, duration=3)
+                level=Qgis.MessageLevel.Critical, duration=3)
             self.dlg.runButton.setText('Run')
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
@@ -1178,4 +1178,4 @@ class SOLWEIG(object):
             self.dlg.progressBar.setValue(0)
 
     def workerError(self, errorstring):
-        QgsMessageLog.logMessage(errorstring, level=Qgis.Critical)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)

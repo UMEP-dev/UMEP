@@ -9,9 +9,10 @@
 [general]
 name=UMEP
 qgisMinimumVersion=3.0
+qgisMaximumVersion=4.99
 description=Urban Multi-scale Environmental Predictor
 
-version=4.5
+version=4.6
 author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Natalie Theeuwes - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg - Oscar Bäcklin - Jeremy Bernard - Sandro Oswald - Matthias Demuzere - Kerry Nice - Jixuan Chen
 email=fredrikl@gvc.gu.se
 
@@ -29,6 +30,7 @@ repository=https://github.com/UMEP-dev/UMEP
 
 # Uncomment the following line and add your changelog:
 changelog=
+   4.6   : QGIS4 compability
    4.5   : New SUEWS version 2026.1.28rc1. Response to #804
    4.4.5 : Minor fix in SUEWS DB Manager and DB Prepare
    4.4.4 : Response to #792

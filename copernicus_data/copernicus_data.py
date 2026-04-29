@@ -72,8 +72,8 @@ class CopernicusData:
         self.dlg.cmdRunDownload.clicked.connect(self.download)
         self.dlg.pushButtonHelp.clicked.connect(self.help)
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(QFileDialog.Directory)
-        self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
+        self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
         self.dlg.progressBar.setRange(0, 100)
         self.dlg.progressBar.setValue(0)
@@ -249,7 +249,7 @@ class CopernicusData:
             return
 
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def validate_downloader_input(self):
         """Validates user input for downloader section of form. Raises exception if a problem, commits
@@ -299,7 +299,7 @@ class CopernicusData:
 
     def folder_path(self):
         self.fileDialog.open()
-        result = self.fileDialog.exec_()
+        result = self.fileDialog.exec()
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             # self.dlg.textOutput.setText(self.folderPath[0])
@@ -334,7 +334,7 @@ class CopernicusData:
                                     "\r\n"
                                     "\r\n"
                                     "Do you want to contiune?",
-                                    QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
+                                    QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) == QMessageBox.StandardButton.Ok:
                 test = 4
         else:
             QMessageBox.critical(self.iface.mainWindow(),
@@ -428,7 +428,7 @@ class CopernicusData:
 
     def download_error(self, errorstring):
         self.setDownloaderButtonState(True)
-        QgsMessageLog.logMessage(errorstring, level=Qgis.Critical)
+        QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)
         
     def abort_download(self):
         self.dlg.progressBar.setValue(0)

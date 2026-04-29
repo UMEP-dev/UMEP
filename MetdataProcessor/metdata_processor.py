@@ -152,7 +152,7 @@ class MetdataProcessor(object):
                 self.yyKeep = 1
             else:
                 self.yyKeep = 0
-            result = self.fileDialog.exec_()
+            result = self.fileDialog.exec()
             self.dlg.pushButtonExport.setEnabled(True)
             self.folderPath = self.fileDialog.selectedFiles()
             self.dlg.textInput.setText(self.folderPath[0])
@@ -194,7 +194,7 @@ class MetdataProcessor(object):
             self.dlg.comboBox_ws.clear()
             self.dlg.comboBox_xsmd.clear()
             self.fileDialog.open()
-            result = self.fileDialog.exec_()
+            result = self.fileDialog.exec()
             if result == 1:
                 self.dlg.pushButtonExport.setEnabled(True)
                 self.folderPath = self.fileDialog.selectedFiles()
@@ -732,7 +732,7 @@ class MetdataProcessor(object):
         """Run method that performs all the real work"""
         # show the dialog
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def help(self):
         url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/Meteorological%20Data%20MetPreprocessor.html'
