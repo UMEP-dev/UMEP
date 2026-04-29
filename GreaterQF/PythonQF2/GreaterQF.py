@@ -1,5 +1,5 @@
 import os
-import pickle
+#import pickle TODO: Not allowed in QGIS4. Should be replaced with json
 import re
 from datetime import datetime as dt
 from datetime import timedelta as timedelta
@@ -153,7 +153,7 @@ class Model():
         expectedManifest = os.path.join(path, 'MANIFEST')
         if os.path.exists(expectedManifest):
             with open(expectedManifest, 'rb') as manf:
-                manif = pickle.load(manf)
+                #manif = pickle.load(manf)
                 if type(manif) is not dict:
                     raise Exception(
                         path + ' does not seem to be a valid store of processed input data (manifest file missing)')

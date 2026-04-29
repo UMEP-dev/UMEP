@@ -27,11 +27,11 @@ def locate_py():
         candidates = [
             path_py
             / (
-                "../../bin/python.exe"
+                "../../bin/pythonw.exe"
                 if version.parse(str_ver_qgis) >= version.parse("3.9.1")
-                else "python.exe"
+                else "pythonw.exe"
             ),
-            path_py.with_name("python.exe"),
+            path_py.with_name("pythonw.exe"),
         ]
     else:
         candidates = [

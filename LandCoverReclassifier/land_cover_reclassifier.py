@@ -172,22 +172,35 @@ class LandCoverReclassifier(object):
             self.filePath[0] = self.filePath[0] + '.tif'
             self.dlg.textOutput.setText(self.filePath[0])
 
-    def add_target(self):
-        t = self.dlg.checkBoxTarget.isChecked()
-        if t:
-            for i in range(1,14):
-                Le = eval('self.dlg.Box_' + str(i))
-                Le.addItem('Grass (irrigated)')
-                Le.addItem('Concrete')
-        else:
-            for i in range(1,14):
-                Le = eval('self.dlg.Box_' + str(i))
-                Le.removeItem(8)
-                Le.removeItem(8)
+    # def add_target(self):
+    #     t = self.dlg.checkBoxTarget.isChecked()
+    #     if t:
+    #         for i in range(1,14):
+    #             Le = eval('self.dlg.Box_' + str(i))
+    #             Le.addItem('Grass (irrigated)')
+    #             Le.addItem('Concrete')
+    #     else:
+    #         for i in range(1,14):
+    #             Le = eval('self.dlg.Box_' + str(i))
+    #             Le.removeItem(8)
+    #             Le.removeItem(8)
             # self.dlg.Box_1.clear()
             # self.dlg.Box_1.addItem('Not Specified')
         # if not self.dlg.checkBoxTarget.isChecked:
             # self.dlg.Box_1.clear()
+
+    def add_target(self):
+        t = self.dlg.checkBoxTarget.isChecked()
+        
+        for i in range(1, 14):
+            Le = getattr(self.dlg, f"Box_{i}")
+            
+            if t:
+                Le.addItem('Grass (irrigated)')
+                Le.addItem('Concrete')
+            else:
+                Le.removeItem(8)
+                Le.removeItem(8)
             
 
     def start_progress(self):
