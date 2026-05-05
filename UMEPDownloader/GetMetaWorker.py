@@ -2,8 +2,9 @@ from future import standard_library
 standard_library.install_aliases()
 from builtins import str
 from qgis.PyQt.QtCore import QObject, pyqtSignal
-import urllib.request, urllib.error, urllib.parse
-import xml.etree.ElementTree as etree
+import urllib.parse
+import requests
+import defusedxml.ElementTree as etree
 import traceback
 
 class GetMetaWorker(QObject):
@@ -37,9 +38,15 @@ def getWMSInfo(baseURL, layer_name, update):
     '''
     update.emit({'Abstract':'Loading abstract for layer...'})
     caps = baseURL + '/wms?service=WMS&version=1.1.1&request=GetCapabilities'
-    f = urllib.request.urlopen(caps)
-    data = f.read()
-    f.close()
+    ## Check if URL is valid
+    parsed_url = urllib.parse.urlparse(caps)
+    if parsed_url.scheme not in ('http', 'https'):
+        raise Exception('Invalid URL: ' + caps)
+            
+    safe_url = parsed_url.geturl()
+
+    response = requests.get(safe_url, timeout=15)
+    data = response.content
     root = etree.fromstring(data)
     layer = root.find('Capability/Layer')
     if layer is None:
@@ -49,6 +56,6 @@ def getWMSInfo(baseURL, layer_name, update):
     for l in a:
         layName = l.find('Name').text
         if str(layName) == layer_name:
-            # Extract and reutrn the information
+            # Extract and return the information
             if l.find('Abstract') is not None:
                 return {'Abstract':l.find('Abstract').text}

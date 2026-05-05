@@ -29,17 +29,14 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 from qgis.PyQt.QtGui import QIcon
 from qgis.core import Qgis
-from qgis.gui import QgsMessageBar
 from .suews_dialog import SUEWSDialog
 import os
 import shutil
 import sys
 import webbrowser
-import urllib.request, urllib.parse, urllib.error
 from ..Utilities import f90nml
 from ..suewsmodel import suews_wrapper
-import zipfile
-import tempfile
+
 from pathlib import Path
 
 class SUEWS(object):

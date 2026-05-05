@@ -5,6 +5,7 @@ from qgis.PyQt.QtGui import QImage, QPixmap
 import urllib.request, urllib.error, urllib.parse
 from qgis.core import QgsMessageLog, Qgis
 from numpy import nan
+import requests
 
 #################################################################################################
 #                                                                                               #
@@ -158,25 +159,35 @@ def setup_typology_creator(self, dlg, db_dict, db_path):
             # widget.clear()
         # else:
         if type(url) == str:
-            if imageSource != None:
-                dlg.textBrowser_source.setText('Picture Author:, '+  str(imageSource))
-                
-
-            req = urllib.request.Request(str(url), headers={'User-Agent': 'Mozilla/5.0'})
-            try:
-                resp = urllib.request.urlopen(req)
-            except urllib.error.HTTPError as e:
-                if e.code == 404:
-                    QgsMessageLog.logMessage("Image URL encountered a 404 problem", level=Qgis.MessageLevel.Critical)
-                    widget.clear()
-                else:
-                    QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
-                    widget.clear()
-            except urllib.error.URLError as e:
-                QgsMessageLog.logMessage("SUEWSPrepare encountered a problem: " + str(e), level=Qgis.MessageLevel.Critical)
+            
+            ## Check if URL is valid
+            parsed_url = urllib.parse.urlparse(url)
+            if parsed_url.scheme not in ('http', 'https'):
+                QgsMessageLog.logMessage("The URL provided is not valid. It should start with http:// or https://", level=Qgis.MessageLevel.Critical)
                 widget.clear()
+            
+            safe_url = parsed_url.geturl()
+
+            if imageSource != None:
+                dlg.textBrowser_source.setText('Picture Author:, '+  str(imageSource))            
+
+            try:
+                resp =  requests.get(safe_url, headers={'User-Agent': 'Mozilla/5.0'}, timeout=5)
+            
+            except requests.exceptions.HTTPError as e:
+                print(f"Erreur HTTP : {e}")
+
+            except requests.exceptions.ConnectionError as e:
+                print(f"Erreur de connexion : {e}")
+
+            except requests.exceptions.Timeout as e:
+                print(f"Le serveur a mis trop de temps à répondre : {e}")
+
+            except requests.exceptions.RequestException as e:
+                print(f"Une erreur est survenue : {e}")
+                
             else:
-                data = resp.read()
+                data = resp.content
                 image = QImage()
                 image.loadFromData(data)
 

@@ -9,7 +9,7 @@ try:
     import pandas as pd
     import numpy as np
     import netCDF4 as nc4
-    from requests.auth import HTTPBasicAuth, HTTPDigestAuth
+    from requests.auth import HTTPDigestAuth
     import requests
 except:
     pass
@@ -150,7 +150,7 @@ class NCWMS_Connector(object):
 
         # Convert each file to netcdf4_classic so it can be used with MFDataset
         for file_date in list(self.results.keys()):
-            tmp = tempfile.mktemp(suffix='.nc')
+            tmp = tempfile.mkstemp(suffix='.nc')
             new_data = nc4.Dataset(tmp, 'w', clobber=True,  format='NETCDF3_CLASSIC')
             extant = nc4.Dataset(self.results[file_date])
 
@@ -209,7 +209,7 @@ class NCWMS_Connector(object):
         # from https://gist.github.com/guziy/8543562
 
         # Go round the variables and average them
-        tmp = tempfile.mktemp(suffix='.nc')
+        tmp = tempfile.mkstemp(suffix='.nc')
         new_data = nc4.Dataset(tmp, 'w', clobber=True,  format='NETCDF3_CLASSIC')
         times = combined_data.variables['time']
         time_bins = nc4.num2date(times[:], units=times.units)
@@ -286,13 +286,13 @@ class NCWMS_Connector(object):
                  'VARIABLES':','.join(self.request_params['vars']),
                  'TIME':'%s/%s'%(start_period.strftime('%Y-%m-%dT%H:%M:%S'),end_period.strftime('%Y-%m-%dT%H:%M:%S'))}
         try:
-            dataOut = tempfile.mktemp('.nc')
+            dataOut = tempfile.mkstemp('.nc')
         except Exception as e:
             os.remove(dataOut)
             raise Exception('Problem creating temporary file to store raster data: '+  str(e))
         # TODO: Work out if the response is an XML error
 
-        resp = requests.get(baseURL, params=parms, auth=HTTPDigestAuth("umep-user", "pUEmw5BbVdzfu3dz"), stream=True)
+        resp = requests.get(baseURL, params=parms, auth=HTTPDigestAuth("umep-user", "pUEmw5BbVdzfu3dz"), stream=True, timeout=5)
         if resp.status_code != 200:
             raise Exception('Error connecting to server. Got HTTP response code %d'%(resp.status_code,))
         with open(dataOut, 'wb') as out:

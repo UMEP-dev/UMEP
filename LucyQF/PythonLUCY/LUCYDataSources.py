@@ -1,160 +1,160 @@
-from builtins import str
-from builtins import map
-from builtins import range
-from builtins import object
-from ...Utilities import f90nml as nml
-import os
-from datetime import datetime as dt
-try:
-    import numpy as np
-except:
-    pass
-# from string import upper
+# from builtins import str
+# from builtins import map
+# from builtins import range
+# from builtins import object
+# from ...Utilities import f90nml as nml
+# import os
+# from datetime import datetime as dt
+# try:
+#     import numpy as np
+# except:
+#     pass
+# # from string import upper
 
 
-# Validate "shapefile" as either numeric or a valid file location
-def validateInput(x):
-    try:
-        numVal = float(x)
-    except Exception:
-        if not os.path.exists(x):
-            raise ValueError(x + ' could not be found on the filesystem and is not a valid number')
+# # Validate "shapefile" as either numeric or a valid file location
+# def validateInput(x):
+#     try:
+#         numVal = float(x)
+#     except Exception:
+#         if not os.path.exists(x):
+#             raise ValueError(x + ' could not be found on the filesystem and is not a valid number')
 
-# Convert start dates to datetime
-def makeTimey(x):
-    return dt.strptime(x, '%Y-%m-%d')
+# # Convert start dates to datetime
+# def makeTimey(x):
+#     return dt.strptime(x, '%Y-%m-%d')
 
-def validFile(x):
-    if not os.path.exists(x):
-        raise ValueError('The diurnal input file ' + str(x) + ' was not found')
+# def validFile(x):
+#     if not os.path.exists(x):
+#         raise ValueError('The diurnal input file ' + str(x) + ' was not found')
 
-class LUCYDataSources(object):
-    ''' Loads the data sources namelist, conducts validation and structures inputs for use with data management routines
-    '''
-    def __init__(self, configFile):
-        # Lists of the config parameters for spatial datasets
-        self.resPop_spat = []
-        self.outputAreas_spat = []
-        self.database = None
-        # And the same for the temporal datasets
-        self.diurnTraffic = []
-        self.diurnMetab = []
-        self.dailyTemp = []
-        self.diurnEnergy = []
+# class LUCYDataSources(object):
+#     ''' Loads the data sources namelist, conducts validation and structures inputs for use with data management routines
+#     '''
+#     def __init__(self, configFile):
+#         # Lists of the config parameters for spatial datasets
+#         self.resPop_spat = []
+#         self.outputAreas_spat = []
+#         self.database = None
+#         # And the same for the temporal datasets
+#         self.diurnTraffic = []
+#         self.diurnMetab = []
+#         self.dailyTemp = []
+#         self.diurnEnergy = []
 
-        try:
-            ds = nml.read(configFile)
-        except Exception as e:
-            raise ValueError('Unable to read data sources config file at: ' + str(configFile))
+#         try:
+#             ds = nml.read(configFile)
+#         except Exception as e:
+#             raise ValueError('Unable to read data sources config file at: ' + str(configFile))
 
-        self.inputFile = configFile
+#         self.inputFile = configFile
 
-        # Are all main entries present?
-        # For shapefile inputs
-        expectedKeys_spatial = ['outputareas', 'residentialpop']
+#         # Are all main entries present?
+#         # For shapefile inputs
+#         expectedKeys_spatial = ['outputareas', 'residentialpop']
 
-        # Get the database
-        try:
-            self.database = ds['database']['path']
-        except Exception as e:
-            raise ValueError('Could not set LQF database locations: %s'%str(e))
+#         # Get the database
+#         try:
+#             self.database = ds['database']['path']
+#         except Exception as e:
+#             raise ValueError('Could not set LQF database locations: %s'%str(e))
 
-        if not os.path.exists(self.database):
-            raise ValueError('LQF database file (%s) does not exist'%ds['database'])
+#         if not os.path.exists(self.database):
+#             raise ValueError('LQF database file (%s) does not exist'%ds['database'])
 
-        missing = list(set(expectedKeys_spatial).difference(list(ds.keys())))
-        if len(missing) > 0:
-            raise ValueError('Spatial entries missing from ' + str(configFile) + ' in namelist: ' + str(missing))
+#         missing = list(set(expectedKeys_spatial).difference(list(ds.keys())))
+#         if len(missing) > 0:
+#             raise ValueError('Spatial entries missing from ' + str(configFile) + ' in namelist: ' + str(missing))
 
-        # Loop over the spatial data sources to validate
-        for subEntry in expectedKeys_spatial:
-            content = ds[subEntry]
-            # Check it's all lists or no lists
-            # types = np.unique(list(map(type, list(content.values()))))
-            # are all required sub-entries present?
-            if subEntry == "outputareas": # Special case for output areas
-                expectedNames_spat = ['shapefile', 'epsgCode', 'featureIds']
-            elif subEntry == "residentialpop":
-                expectedNames_spat = ['shapefiles', 'startDates', 'epsgCodes', 'featureIds']
-            elif subEntry == "database":
-                expectedNames_spat = ['path']
+#         # Loop over the spatial data sources to validate
+#         for subEntry in expectedKeys_spatial:
+#             content = ds[subEntry]
+#             # Check it's all lists or no lists
+#             # types = np.unique(list(map(type, list(content.values()))))
+#             # are all required sub-entries present?
+#             if subEntry == "outputareas": # Special case for output areas
+#                 expectedNames_spat = ['shapefile', 'epsgCode', 'featureIds']
+#             elif subEntry == "residentialpop":
+#                 expectedNames_spat = ['shapefiles', 'startDates', 'epsgCodes', 'featureIds']
+#             elif subEntry == "database":
+#                 expectedNames_spat = ['path']
 
-            # missing = list(set(map(upper, expectedNames_spat)).difference(list(map(upper, list(content.keys())))))
-            missing = list(set(map(str.upper, expectedNames_spat)).difference(list(map(str.upper, list(content.keys())))))
-            if len(missing) > 0:
-                raise ValueError('Entries missing from ' + subEntry + ' in namelist: ' + str(missing))
+#             # missing = list(set(map(upper, expectedNames_spat)).difference(list(map(upper, list(content.keys())))))
+#             missing = list(set(map(str.upper, expectedNames_spat)).difference(list(map(str.upper, list(content.keys())))))
+#             if len(missing) > 0:
+#                 raise ValueError('Entries missing from ' + subEntry + ' in namelist: ' + str(missing))
 
-            for k in list(content.keys()):
-                if content[k] == '':
-                    content[k] = None
-                content[k] = [content[k]]
+#             for k in list(content.keys()):
+#                 if content[k] == '':
+#                     content[k] = None
+#                 content[k] = [content[k]]
 
-            list(map(validateInput, content[expectedNames_spat[0]]))
+#             list(map(validateInput, content[expectedNames_spat[0]]))
 
-            # Having gotten this far means the entries are valid, so populate the object field
-            if subEntry == "outputareas": # Special case for output areas
-                entries = {      'shapefile': content['shapefile'][0],
-                                 'epsgCode': content['epsgcode'][0],
-                                 'featureIds': content['featureids'][0]}
-                self.outputAreas_spat = entries
-            else:
-                try:
-                    content['startDates'] = list(map(makeTimey, content['startDates']))
-                except Exception as e:
-                    raise ValueError('One or more startDate entries is not in YYYY-mm-dd format for ' + subEntry + ':' + str(e))
+#             # Having gotten this far means the entries are valid, so populate the object field
+#             if subEntry == "outputareas": # Special case for output areas
+#                 entries = {      'shapefile': content['shapefile'][0],
+#                                  'epsgCode': content['epsgcode'][0],
+#                                  'featureIds': content['featureids'][0]}
+#                 self.outputAreas_spat = entries
+#             else:
+#                 try:
+#                     content['startDates'] = list(map(makeTimey, content['startDates']))
+#                 except Exception as e:
+#                     raise ValueError('One or more startDate entries is not in YYYY-mm-dd format for ' + subEntry + ':' + str(e))
 
-                # Ensure dates within a subentry are unique
-                if len(np.unique(content['startDates'])) != len(content['startDates']):
-                    raise ValueError('One or more startDates is duplicated for ' + subEntry + ':')
+#                 # Ensure dates within a subentry are unique
+#                 if len(np.unique(content['startDates'])) != len(content['startDates']):
+#                     raise ValueError('One or more startDates is duplicated for ' + subEntry + ':')
 
-                # User can define 1 world database and 1..n residential populations to track time evolution
-                # Local residential populations for city in question
-                if subEntry == "residentialpop":
-                    for i in range(0, len(content['shapefiles']), 1):
-                        self.resPop_spat.append({'shapefile': content['shapefiles'][i],
-                                        'epsgCode': content['epsgCodes'][i],
-                                        'attribToUse': 'Pop', # Residential population MUST be in a field named "Pop"
-                                        'startDate': content['startDates'][i],
-                                        'featureIds': content['featureIds'][i]})
+#                 # User can define 1 world database and 1..n residential populations to track time evolution
+#                 # Local residential populations for city in question
+#                 if subEntry == "residentialpop":
+#                     for i in range(0, len(content['shapefiles']), 1):
+#                         self.resPop_spat.append({'shapefile': content['shapefiles'][i],
+#                                         'epsgCode': content['epsgCodes'][i],
+#                                         'attribToUse': 'Pop', # Residential population MUST be in a field named "Pop"
+#                                         'startDate': content['startDates'][i],
+#                                         'featureIds': content['featureIds'][i]})
 
-                # World database (user can't choose names of fields here)
-                if subEntry == "database":
-                    for i in range(0, len(content['shapefiles']), 1):
-                        self.database = content['path'][0]
+#                 # World database (user can't choose names of fields here)
+#                 if subEntry == "database":
+#                     for i in range(0, len(content['shapefiles']), 1):
+#                         self.database = content['path'][0]
 
-        # Mandatory: Get temperature data
-        if 'dailytemperature' not in list(ds['temporal'].keys()):
-            raise ValueError('Temperature data file(s) not specified')
+#         # Mandatory: Get temperature data
+#         if 'dailytemperature' not in list(ds['temporal'].keys()):
+#             raise ValueError('Temperature data file(s) not specified')
 
-        if type(ds['temporal']['dailyTemperature']) is not list:
-            tempList = [ds['temporal']['dailyTemperature']]
-        else:
-            tempList = ds['temporal']['dailyTemperature']
+#         if type(ds['temporal']['dailyTemperature']) is not list:
+#             tempList = [ds['temporal']['dailyTemperature']]
+#         else:
+#             tempList = ds['temporal']['dailyTemperature']
 
-        for temperatureFile in tempList:
-            if os.path.exists(temperatureFile):
-                self.dailyTemp.append(temperatureFile)
-            else:
-                raise ValueError('Temperature data file %s not found'%temperatureFile)
+#         for temperatureFile in tempList:
+#             if os.path.exists(temperatureFile):
+#                 self.dailyTemp.append(temperatureFile)
+#             else:
+#                 raise ValueError('Temperature data file %s not found'%temperatureFile)
 
-        # Optional: Get diurnal profiles for metabolism, traffic and/or energy use
-        cycles = ['diurnEnergy', 'diurnTraffic', 'diurnMetab']
-        labels = {'diurnEnergy':'Energy use',
-                  'diurnTraffic':'Traffic flow',
-                  'diurnMetab':'Metabolism'}
-        for c in cycles:
-            if c.lower() not in list(ds['temporal'].keys()):
-                setattr(self, c, None)
-                continue # No cycle(s) specified
-            fileList = []
-            cycleList = ds['temporal'][c]
-            if type(cycleList) is not list:
-                cycleList = [cycleList]
-            for file in cycleList:
-                if os.path.exists(file):
-                    fileList.append(file)
-                else:
-                    raise ValueError('Diurnal %s profile file not found: %s'%(labels[c], file))
-            setattr(self, c, fileList)
+#         # Optional: Get diurnal profiles for metabolism, traffic and/or energy use
+#         cycles = ['diurnEnergy', 'diurnTraffic', 'diurnMetab']
+#         labels = {'diurnEnergy':'Energy use',
+#                   'diurnTraffic':'Traffic flow',
+#                   'diurnMetab':'Metabolism'}
+#         for c in cycles:
+#             if c.lower() not in list(ds['temporal'].keys()):
+#                 setattr(self, c, None)
+#                 continue # No cycle(s) specified
+#             fileList = []
+#             cycleList = ds['temporal'][c]
+#             if type(cycleList) is not list:
+#                 cycleList = [cycleList]
+#             for file in cycleList:
+#                 if os.path.exists(file):
+#                     fileList.append(file)
+#                 else:
+#                     raise ValueError('Diurnal %s profile file not found: %s'%(labels[c], file))
+#             setattr(self, c, fileList)
 
 

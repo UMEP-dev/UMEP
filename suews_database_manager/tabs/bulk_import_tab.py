@@ -24,7 +24,7 @@
 import os
 
 from qgis.PyQt import uic
-from qgis.PyQt.QtWidgets import QWidget, QDialog
+from qgis.PyQt.QtWidgets import QDialog
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'bulk_import_tab.ui'))

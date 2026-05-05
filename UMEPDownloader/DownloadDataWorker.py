@@ -2,12 +2,10 @@ from future import standard_library
 standard_library.install_aliases()
 from builtins import str
 from qgis.PyQt.QtCore import QObject, pyqtSignal
-import urllib.request, urllib.parse, urllib.error
-import os
-import xml.etree.ElementTree as etree
+import urllib.request
 from qgis.core import QgsRasterLayer, QgsRasterPipe, QgsRasterFileWriter
-import tempfile
 import traceback
+import requests
 
 class DownloadDataWorker(QObject):
     # Worker to get raster data saved to a file in a thread
@@ -61,13 +59,19 @@ def webToRaster(baseURL, layer_name, output_file, bbox, resolution, srs, update)
     dataOut = output_file
     # TODO: tempfile not working in QGIS3
     # try:
-    #     dataOut = tempfile.mktemp('.tif')
+    #     dataOut = tempfile.mkstemp('.tif')
     # except Exception as e:
     #     raise Exception('Problem creating temporary file to store raster data: ' + str(e))
     # TODO: Work out if the response is an XML error
     update.emit({'progress':10, 'message':'Downloading file...'})
-    # dataOut = "c:/temp/testing.tif"
-    urllib.request.urlretrieve(bigURL, dataOut)
+    
+    print("Requesting WCS data with URL: " + bigURL)
+    with requests.get(bigURL, stream=True, timeout=5) as r:
+        r.raise_for_status()
+        # dataOut = "c:/temp/testing.tif"
+        with open(dataOut, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                f.write(chunk)
 
     # Load data as QgsRasterLayer and then re-save it, ensuring it has the correct projection info
     a = QgsRasterLayer(dataOut, "temporary raster layer")

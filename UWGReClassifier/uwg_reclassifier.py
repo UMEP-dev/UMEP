@@ -212,14 +212,14 @@ class uwg_reclassifier(object):
         self.dlg.comboBoxField.clear()
 
         for i in range(0,21):
-            Oc = eval('self.dlg.lineEdit_' + str(i))
+            Oc = getattr(self.dlg, f'lineEdit_{i}')            
             Oc.clear()
             Oc.setDisabled(True)
-            Nc = eval('self.dlg.comboBoxNew_' + str(i))
+            Nc = getattr(self.dlg, f'comboBoxNew_{i}')
             Nc.addItems(sorted(UWG_types))
             Nc.setCurrentIndex(-1)
             Nc.setDisabled(True)
-            Pr = eval('self.dlg.comboBoxpPeriod_' + str(i))
+            Pr = getattr(self.dlg, f'comboBoxpPeriod_{i}')
             Pr.addItems(['Pre80','Pst80','New'])
             Pr.setCurrentIndex(-1)
             Pr.setDisabled(True)
@@ -271,28 +271,28 @@ class uwg_reclassifier(object):
             print(unique_values)
             for i in range(0,21):
                 # Oc == Old Class
-                Oc = eval('self.dlg.lineEdit_' + str(i))
+                Oc = getattr(self.dlg, f'lineEdit_{i}')
                 Oc.clear()
                 Oc.setDisabled(True)
                 # Nc == New Class
-                Nc = eval('self.dlg.comboBoxNew_' + str(i))
+                Nc = getattr(self.dlg, f'comboBoxNew_{i}')
                 Nc.setCurrentIndex(-1)
                 Nc.setDisabled(True)
                 # Pr == Period
-                Pr = eval('self.dlg.comboBoxpPeriod_' + str(i))
+                Pr = getattr(self.dlg, f'comboBoxpPeriod_{i}')
                 Pr.setCurrentIndex(-1)
                 Pr.setDisabled(True)
                 
             # Add Items to left side Comboboxes and enable right side comboboxes 
             for i in range(len(unique_values)):
-                Oc = eval('self.dlg.lineEdit_' + str(i))
+                Oc = getattr(self.dlg, f'lineEdit_{i}')
                 Oc.clear()
                 Oc.setText(unique_values[i])
                 # Oc.setCurrentIndex(i)
-                Nc = eval('self.dlg.comboBoxNew_' + str(i))
+                Nc = getattr(self.dlg, f'comboBoxNew_{i}')
                 Nc.setEnabled(True)
                 Nc.setCurrentIndex(0)
-                Pr = eval('self.dlg.comboBoxpPeriod_' + str(i))
+                Pr = getattr(self.dlg, f'comboBoxpPeriod_{i}')
                 Pr.setCurrentIndex(0)
                 Pr.setEnabled(True)
         except:
@@ -357,11 +357,11 @@ class uwg_reclassifier(object):
         for i in range(len(unique_values)):
             if i >20:
                 break
-            Oc = eval('self.dlg.lineEdit_' + str(i))
+            Oc = getattr(self.dlg, f'lineEdit_{i}')
             oldField = Oc.text()
-            Nc = eval('self.dlg.comboBoxNew_' + str(i))          
+            Nc = getattr(self.dlg, f'comboBoxNew_{i}')          
             dict_reclass[oldField] = str(Nc.currentText())
-            Pr = eval('self.dlg.comboBoxpPeriod_' + str(i))      
+            Pr = getattr(self.dlg, f'comboBoxpPeriod_{i}')      
             dict_period[oldField] = Pr.currentText()
 
         # # Add new field # TODO perhaps make it able for user to select field name
@@ -414,13 +414,13 @@ class uwg_reclassifier(object):
         self.dlg.comboBoxField.setCurrentIndex(-1)
 
         for i in range(0,21):
-                    Oc = eval('self.dlg.lineEdit_' + str(i))
+                    Oc = getattr(self.dlg, f'lineEdit_{i}')
                     Oc.clear()
                     Oc.setDisabled(True)
-                    Nc = eval('self.dlg.comboBoxNew_' + str(i))
+                    Nc = getattr(self.dlg, f'comboBoxNew_{i}')
                     Nc.setCurrentIndex(-1)
                     Nc.setDisabled(True)
-                    Pr = eval('self.dlg.comboBoxpPeriod_' + str(i))
+                    Pr = getattr(self.dlg, f'comboBoxpPeriod_{i}')
                     Pr.setCurrentIndex(-1)
                     Pr.setDisabled(True)
         vlayer = QgsVectorLayer(self.dlg.textOutput.text(), Path(self.outputfile[0]).name[:-4])
