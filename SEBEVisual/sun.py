@@ -46,12 +46,6 @@ import numpy as np
 import webbrowser
 import matplotlib
 
-# if(Qgis.QGIS_VERSION_INT >= 40000):
-#     # Make sure that we are using QT6
-#     matplotlib.use('QtAgg')
-# else:
-#     # Make sure that we are using QT5
-#     matplotlib.use('Qt5Agg')
 matplotlib.use('QtAgg')
 from matplotlib.figure import Figure
 from matplotlib import colorbar, colors
@@ -103,7 +97,7 @@ class Visual:
         """
         # Save reference to the QGIS interface
         self.iface = iface
-        # initialize plugin directory
+        # initialize plugiQtAggn directory
         self.plugin_dir = os.path.dirname(__file__)
         
         self.screen = screen
@@ -256,12 +250,6 @@ class Visual:
     def data_directory(self):
         """ Select directory with data and test if valid. """
         self.fileDialog = QFileDialog()
-        # if(Qgis.QGIS_VERSION_INT >= 40000):
-        #     self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
-        #     self.fileDialog.setAcceptMode(QFileDialog.AcceptMode.AcceptOpen)
-        # else:
-        #     self.fileDialog.setFileMode(2)
-        #     self.fileDialog.setAcceptMode(0)
         self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
         self.fileDialog.setAcceptMode(QFileDialog.AcceptMode.AcceptOpen)
 
