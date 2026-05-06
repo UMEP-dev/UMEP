@@ -241,7 +241,7 @@ class UMEP(object):
         # Sub-menus to Urban Energy Balance
         self.QFL_Action = QAction("Antropogenic heat - GQf (Greater Qf)", self.iface.mainWindow())
         self.UEB_Menu.addAction(self.QFL_Action)
-        # self.QFL_Action.triggered.connect(self.GF)
+        self.QFL_Action.triggered.connect(self.GF)
         self.QF_Action = QAction("Antropogenic heat - LQf (LUCY)", self.iface.mainWindow())
         self.UEB_Menu.addAction(self.QF_Action)
         self.QF_Action.triggered.connect(self.LF)
@@ -551,19 +551,21 @@ class UMEP(object):
         #sg.run()
 
     def GF(self):
-        if QMessageBox.question(None, "GQf currently not maintained",
-              "This tool might be malfunctioning based on what version of QGIS and UMEP used. \r\n"
-              "Do you want to continue?",
-               QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) == QMessageBox.StandardButton.Ok:
+        QMessageBox.information(None, "Temporarely unavailable because not maintained",
+                                "Temporarely unavailable because not maintained. Please contact us if you are interested to contribute to the UMEP-project and update this model.")
+        # if QMessageBox.question(None, "GQf currently not maintained",
+        #       "This tool might be malfunctioning based on what version of QGIS and UMEP used. \r\n"
+        #       "Do you want to continue?",
+        #        QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) == QMessageBox.StandardButton.Ok:
         
-            sg = GreaterQF(self.iface)
-            sg.run()
-        else:
-            QMessageBox.information(
-                None,
-                "Model not started",
-                "Please contact us if you are interested to contribute to the UMEP-project and update this model.",
-            )
+        #     sg = GreaterQF(self.iface)
+        #     sg.run()
+        # else:
+        #     QMessageBox.information(
+        #         None,
+        #         "Model not started",
+        #         "Please contact us if you are interested to contribute to the UMEP-project and update this model.",
+        #     )
 
     def SO(self):
         sg = SOLWEIG(self.iface)
