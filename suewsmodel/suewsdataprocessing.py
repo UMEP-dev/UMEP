@@ -243,74 +243,74 @@ class SuewsDataProcessing(object):
         else:
             met_old = np.loadtxt(inputdata, skiprows=1)
 
-            user_input = int(eval(input('Put in manually or translate from v2014 (1 or 0)?: ')))
-            yyyy_exist = int(eval(input('yyyy exist (1 or 0)?: ')))
+            user_input = int(input('Put in manually or translate from v2014 (1 or 0)?: '))
+            yyyy_exist = int(input('yyyy exist (1 or 0)?: '))
             if yyyy_exist == 1:
-                yyyy_col = int(eval(input('column for yyyy: '))) - 1
+                yyyy_col = int(input('column for yyyy: ')) - 1
             else:
-                yy = int(eval(input('Specify year (yyyy): ')))
+                yy = int(input('Specify year (yyyy): '))
 
             if user_input == 1:
-                doy_exist = int(eval(input('doy exist (1 or 0)?: ')))
+                doy_exist = int(input('doy exist (1 or 0)?: '))
                 if doy_exist == 1:
-                    doy_col = int(eval(input('column for doy: '))) - 1
+                    doy_col = int(input('column for doy: ')) - 1
                 else:
-                    month_col = int(eval(input('column for month: '))) - 1
-                    day_col = int(eval(input('column for day of month: '))) - 1
+                    month_col = int(input('column for month: ')) - 1
+                    day_col = int(input('column for day of month: ')) - 1
 
-                hh_col = int(eval(input('column for hour: '))) - 1
-                dectime_exist = int(eval(input('dectime exist (1 or 0)?: ')))
+                hh_col = int(input('column for hour: ')) - 1
+                dectime_exist = int(input('dectime exist (1 or 0)?: '))
                 if dectime_exist == 1:
-                    dectime_col = int(eval(input('column for dectime: '))) - 1
+                    dectime_col = int(input('column for dectime: ')) - 1
                     if ver == 2015:
                         dechour = (met_old[:, dectime_col] - np.floor(met_old[:, dectime_col])) * 24
                         minute = np.round((dechour - np.floor(dechour)) * 60)
                         minute[(minute == 60)] = 0
                 else:
-                    min_col = int(eval(input('column for min: '))) - 1
+                    min_col = int(input('column for min: ')) - 1
 
-                only_mandatory = int(eval(input('Only put in mandatory [Ta,RH,Kdn,pres,Ws] (1 or 0)?: ')))
+                only_mandatory = int(input('Only put in mandatory [Ta,RH,Kdn,pres,Ws] (1 or 0)?: '))
 
                 if only_mandatory == 1:
-                    wind_col = int(eval(input('column for Ws: '))) - 1
-                    RH_col = int(eval(input('column for RH: '))) - 1
-                    Ta_col = int(eval(input('column for Ta: '))) - 1
-                    press_exist = int(eval(input('Pressure exist (1 or 0)?: ')))
+                    wind_col = int(input('column for Ws: ')) - 1
+                    RH_col = int(input('column for RH: ')) - 1
+                    Ta_col = int(input('column for Ta: ')) - 1
+                    press_exist = int(input('Pressure exist (1 or 0)?: '))
                     if press_exist == 1:
-                        press_col = int(eval(input('column for Pressure (kPa): '))) - 1
+                        press_col = int(input('column for Pressure (kPa): ')) - 1
                     else:
                         press_av = 101.3
                         # fix_print_with_import
                         print('Pressure set to 101.3 kPa')
 
-                    grad_col = int(eval(input('column for Kdn: '))) - 1
+                    grad_col = int(input('column for Kdn: ')) - 1
                 else:
-                    Qstar_col = int(eval(input('column for Q*: '))) - 1
-                    Qh_col = int(eval(input('column for Qh: '))) - 1
-                    Qe_col = int(eval(input('column for Qe: '))) - 1
-                    Qs_col = int(eval(input('column for Qs: '))) - 1
-                    Qf_col = int(eval(input('column for Qf: '))) - 1
-                    wind_col = int(eval(input('column for Ws: '))) - 1
-                    RH_col = int(eval(input('column for RH: '))) - 1
-                    Ta_col = int(eval(input('column for Ta: '))) - 1
-                    press_exist = int(eval(input('Pressure exist (1 or 0)?: ')))
+                    Qstar_col = int(input('column for Q*: ')) - 1
+                    Qh_col = int(input('column for Qh: ')) - 1
+                    Qe_col = int(input('column for Qe: ')) - 1
+                    Qs_col = int(input('column for Qs: ')) - 1
+                    Qf_col = int(input('column for Qf: ')) - 1
+                    wind_col = int(input('column for Ws: ')) - 1
+                    RH_col = int(input('column for RH: ')) - 1
+                    Ta_col = int(input('column for Ta: ')) - 1
+                    press_exist = int(input('Pressure exist (1 or 0)?: '))
                     if press_exist == 1:
-                        press_col = int(eval(input('column for Pressure (kPa): '))) - 1
+                        press_col = int(input('column for Pressure (kPa): ')) - 1
                     else:
                         press_av = 101.3
                         # fix_print_with_import
                         print('Pressure set to 101.3 kPa')
-                    rain_col = int(eval(input('column for rain: '))) - 1
-                    grad_col = int(eval(input('column for Kdn: '))) - 1
-                    snow_col = int(eval(input('column for snow: '))) - 1
-                    ldown_col = int(eval(input('column for ldown: '))) - 1
-                    fcld_col = int(eval(input('column for fcld: '))) - 1
-                    wuh_col = int(eval(input('column for wuh: '))) - 1
-                    xsmd_col = int(eval(input('column for xsmd: '))) - 1
-                    lai_col = int(eval(input('column for lai: '))) - 1
-                    drad_col = int(eval(input('column for kdiff: '))) - 1
-                    irad_col = int(eval(input('column for kdir: '))) - 1
-                    wdir_col = int(eval(input('column for Wdir: '))) - 1
+                    rain_col = int(input('column for rain: ')) - 1
+                    grad_col = int(input('column for Kdn: ')) - 1
+                    snow_col = int(input('column for snow: ')) - 1
+                    ldown_col = int(input('column for ldown: ')) - 1
+                    fcld_col = int(input('column for fcld: ')) - 1
+                    wuh_col = int(input('column for wuh: ')) - 1
+                    xsmd_col = int(input('column for xsmd: ')) - 1
+                    lai_col = int(input('column for lai: ')) - 1
+                    drad_col = int(input('column for kdiff: ')) - 1
+                    irad_col = int(input('column for kdir: ')) - 1
+                    wdir_col = int(input('column for Wdir: ')) - 1
 
             else:
                 doy_col = 1 - 1

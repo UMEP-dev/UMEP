@@ -22,6 +22,7 @@
 """
 from __future__ import absolute_import
 from future import standard_library
+import requests
 standard_library.install_aliases()
 from builtins import map
 from builtins import str
@@ -47,14 +48,12 @@ except:
     # If not present, assume plugin is standalone and has its own f90nml
     import f90nml
 
-import urllib.request, urllib.error, urllib.parse
-import urllib.request, urllib.parse, urllib.error
-import xml.etree.ElementTree as etree
-import tempfile
+import urllib.request, urllib.parse
+import defusedxml.ElementTree as etree
 import numpy as np
 from .GetMetaWorker import GetMetaWorker
 from .DownloadDataWorker import DownloadDataWorker
-import sys, os, subprocess
+import os
 
 def getLayerMetadata(baseURL, layer_name):
     ''' Uses WCS DescribeCoverage request to get metadata from a layer of interest on a remote server
@@ -66,9 +65,14 @@ def getLayerMetadata(baseURL, layer_name):
     #### WCS data: For grid resolution and other detailed stuff
     # Get data
     coverageInfoURL = baseURL + '/wcs?SERVICE=WCS&VERSION=1.0.0&REQUEST=DescribeCoverage&coverage=%s'%(layer_name,)
-    f = urllib.request.urlopen(coverageInfoURL)
-    data = f.read()
-    f.close()
+    parsed_url = urllib.parse.urlparse(coverageInfoURL)
+    if parsed_url.scheme not in ('http', 'https'):
+        raise Exception('Invalid URL: ' + coverageInfoURL)
+            
+    safe_url = parsed_url.geturl()
+    
+    f = requests.get(safe_url, timeout=15)
+    data = f.content
     root = etree.fromstring(data)
     offering = root.find("{http://www.opengis.net/wcs}CoverageOffering")
     if offering is None:
@@ -270,7 +274,7 @@ class UMEP_Data_Download(object):
         tempFile = self.plugin_dir + '/catalogue.nml'
 
         # THIS PART DOES NOT WORK IN QGIS3
-        # tempFile = tempfile.mktemp(".nml")
+        # tempFile = tempfile.mkstemp(".nml")
         # with open(tempFile, "w") as tmp:
         #     tmp.write(str(f.read()))
         # f.close()

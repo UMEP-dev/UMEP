@@ -47,7 +47,7 @@ from .uwg_analyser.uwg_analyser import UWGAnalyser
 from .target_analyser.target_analyser import TARGETAnalyser
 from .GreaterQF.greater_qf import GreaterQF
 from .ExtremeFinder.extreme_finder import ExtremeFinder
-from .LucyQF.LQF import LQF
+# from .LucyQF.LQF import LQF
 #from .SEBE.sebe import SEBE
 # from .SEBEpv.sebepv import SEBEpv      # MRevesz
 from .SuewsSimple.suews_simple import SuewsSimple
@@ -551,19 +551,21 @@ class UMEP(object):
         #sg.run()
 
     def GF(self):
-        if QMessageBox.question(None, "GQf currently not maintained",
-              "This tool might be malfunctioning based on what version of QGIS and UMEP used. \r\n"
-              "Do you want to continue?",
-               QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) == QMessageBox.StandardButton.Ok:
+        QMessageBox.information(None, "Temporarely unavailable because not maintained",
+                                "Temporarely unavailable because not maintained. Please contact us if you are interested to contribute to the UMEP-project and update this model.")
+        # if QMessageBox.question(None, "GQf currently not maintained",
+        #       "This tool might be malfunctioning based on what version of QGIS and UMEP used. \r\n"
+        #       "Do you want to continue?",
+        #        QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) == QMessageBox.StandardButton.Ok:
         
-           sg = GreaterQF(self.iface)
-           sg.run()
-        else:
-            QMessageBox.information(
-                None,
-                "Model not started",
-                "Please contact us if you are interested to contribute to the UMEP-project and update this model.",
-            )
+        #     sg = GreaterQF(self.iface)
+        #     sg.run()
+        # else:
+        #     QMessageBox.information(
+        #         None,
+        #         "Model not started",
+        #         "Please contact us if you are interested to contribute to the UMEP-project and update this model.",
+        #     )
 
     def SO(self):
         sg = SOLWEIG(self.iface)
@@ -608,20 +610,22 @@ class UMEP(object):
         sg.run()
 
     def LF(self):
-        if  QMessageBox.question(None, "LQf currently not maintained",
-              "This tool might be malfunctioning based on what version of QGIS and UMEP used. \r\n"
-              "Do you want to continue?",
-               QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) == QMessageBox.StandardButton.Ok:
+        QMessageBox.information(None, "Temporarely unavailable because not maintained",
+                                "Temporarely unavailable because not maintained. Please contact us if you are interested to contribute to the UMEP-project and update this model.")
+        # if  QMessageBox.question(None, "LQf currently not maintained",
+        #       "This tool might be malfunctioning based on what version of QGIS and UMEP used. \r\n"
+        #       "Do you want to continue?",
+        #        QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) == QMessageBox.StandardButton.Ok:
         
-            sg = LQF(self.iface)
-            sg.run()
+        #     sg = LQF(self.iface)
+        #     sg.run()
            
-        else:
-            QMessageBox.information(
-                None,
-                "Model not started",
-                "Please contact us if you are interested to contribute to the UMEP-project and update this model.",
-            )
+        # else:
+        #     QMessageBox.information(
+        #         None,
+        #         "Model not started",
+        #         "Please contact us if you are interested to contribute to the UMEP-project and update this model.",
+        #     )
 
     def BSS(self):
         sg = BenchMarking(self.iface)

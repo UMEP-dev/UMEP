@@ -4,10 +4,13 @@
         Authors: A. Pasotti, V. Picavet
         git sha              : $TemplateVCSFormat
 """
+import defusedxml.xmlrpc
+defusedxml.xmlrpc.monkey_patch()
 
 import sys
 import getpass
-import xmlrpc.client
+
+import xmlrpc.client # nosec B411
 from optparse import OptionParser
 
 standard_library.install_aliases()
