@@ -260,8 +260,13 @@ class Visual:
     def data_directory(self):
         """ Select directory with data and test if valid. """
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(2)
-        self.fileDialog.setAcceptMode(0)
+        
+        if(Qgis.QGIS_VERSION_INT >= 40000):
+            self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+            self.fileDialog.setAcceptMode(QFileDialog.AcceptMode.AcceptOpen)
+        else:
+            self.fileDialog.setFileMode(2)
+            self.fileDialog.setAcceptMode(0)
         self.fileDialog.open()
 
         result = self.fileDialog.exec()
