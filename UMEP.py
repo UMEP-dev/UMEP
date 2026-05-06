@@ -46,7 +46,7 @@ from .UWGReClassifier.uwg_reclassifier import uwg_reclassifier
 from .uwg_analyser.uwg_analyser import UWGAnalyser
 from .target_analyser.target_analyser import TARGETAnalyser
 from .GreaterQF.greater_qf import GreaterQF
-# from .ExtremeFinder.extreme_finder import ExtremeFinder
+from .ExtremeFinder.extreme_finder import ExtremeFinder
 # from .LucyQF.LQF import LQF
 #from .SEBE.sebe import SEBE
 # from .SEBEpv.sebepv import SEBEpv      # MRevesz
