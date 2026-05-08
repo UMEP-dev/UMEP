@@ -13,7 +13,7 @@ qgisMaximumVersion=4.99
 description=Urban Multi-scale Environmental Predictor
 
 version=4.6
-author=Fredrik Lindberg - Sue Grimmond - Niklas Krave - Leena Jarvi - Helen Ward - Shiho Onomura - Christoph Kent - Natalie Theeuwes - Andy Gabey - Frans Olofson - Ting Sun - Bei Huang - Nils Wallenberg - Oscar Bäcklin - Jeremy Bernard - Sandro Oswald - Matthias Demuzere - Kerry Nice - Jixuan Chen
+author=UMEP-dev Team
 email=fredrikl@gvc.gu.se
 
 about=
