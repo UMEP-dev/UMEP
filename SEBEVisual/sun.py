@@ -32,6 +32,7 @@ from qgis.core import (QgsProject,
                        QgsRasterLayer, QgsVectorLayer, 
                        QgsFeature, QgsGeometry, 
                        QgsRectangle, QgsPoint, 
+                        Qgis,
                        QgsMessageLog)
 from qgis.PyQt import QtWidgets
 from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread, QCoreApplication
@@ -44,8 +45,8 @@ import subprocess
 import numpy as np
 import webbrowser
 import matplotlib
-# Make sure that we are using QT5
-matplotlib.use('Qt5Agg')
+
+matplotlib.use('QtAgg')
 from matplotlib.figure import Figure
 from matplotlib import colorbar, colors
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -96,7 +97,7 @@ class Visual:
         """
         # Save reference to the QGIS interface
         self.iface = iface
-        # initialize plugin directory
+        # initialize plugiQtAggn directory
         self.plugin_dir = os.path.dirname(__file__)
         
         self.screen = screen
@@ -249,8 +250,9 @@ class Visual:
     def data_directory(self):
         """ Select directory with data and test if valid. """
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(2)
-        self.fileDialog.setAcceptMode(0)
+        self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialog.setAcceptMode(QFileDialog.AcceptMode.AcceptOpen)
+
         self.fileDialog.open()
 
         result = self.fileDialog.exec()

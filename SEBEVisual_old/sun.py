@@ -46,8 +46,9 @@ import subprocess
 import numpy as np
 import webbrowser
 import matplotlib
-# Make sure that we are using QT5
-matplotlib.use('Qt5Agg')
+
+matplotlib.use('QtAgg')
+
 from matplotlib.figure import Figure
 from matplotlib import colorbar, colors
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -260,8 +261,8 @@ class Visual:
     def data_directory(self):
         """ Select directory with data and test if valid. """
         self.fileDialog = QFileDialog()
-        self.fileDialog.setFileMode(2)
-        self.fileDialog.setAcceptMode(0)
+        self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.fileDialog.setAcceptMode(QFileDialog.AcceptMode.AcceptOpen)
         self.fileDialog.open()
 
         result = self.fileDialog.exec()
