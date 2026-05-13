@@ -32,4 +32,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .sebe import SEBE
+
     return SEBE(iface)

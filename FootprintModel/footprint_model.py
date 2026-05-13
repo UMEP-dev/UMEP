@@ -20,6 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 from __future__ import absolute_import
 from builtins import str
 from builtins import object
@@ -27,7 +28,13 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 from qgis.PyQt.QtGui import QIcon
 from qgis.gui import *
-from qgis.core import QgsMapLayerProxyModel, QgsFeature, QgsGeometry, QgsVectorLayer, QgsProject
+from qgis.core import (
+    QgsMapLayerProxyModel,
+    QgsFeature,
+    QgsGeometry,
+    QgsVectorLayer,
+    QgsProject,
+)
 from .footprint_model_dialog import FootprintModelDialog
 import os.path
 import numpy as np
@@ -36,7 +43,6 @@ from osgeo import gdal
 import subprocess
 import sys
 import webbrowser
-from pathlib import Path
 
 
 class FootprintModel(object):
@@ -49,17 +55,16 @@ class FootprintModel(object):
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'FootprintModel_{}.qm'.format(locale))
+            self.plugin_dir, "i18n", "FootprintModel_{}.qm".format(locale)
+        )
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
 
-            if qVersion() > '4.3.3':
+            if qVersion() > "4.3.3":
                 QCoreApplication.installTranslator(self.translator)
 
         # Create the dialog (after translation) and keep reference
@@ -67,7 +72,7 @@ class FootprintModel(object):
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&Footprint model')
+        self.menu = self.tr("&Footprint model")
         # TODO: We are going to let the user set this up in a future iteration
         # self.toolbar = self.iface.addToolBar(u'FootprintModel')
         # self.toolbar.setObjectName(u'FootprintModel')
@@ -76,7 +81,7 @@ class FootprintModel(object):
         self.canvas = self.iface.mapCanvas()
         self.poiLayer = None
         self.polyLayer = None
-        self.folderPath = 'None'
+        self.folderPath = "None"
         self.degree = 5.0
         self.point = None
         self.pointx = None
@@ -105,30 +110,48 @@ class FootprintModel(object):
         self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
         self.fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
-        self.layerComboManagerPoint = QgsMapLayerComboBox(self.dlg.widgetPointLayer)
+        self.layerComboManagerPoint = QgsMapLayerComboBox(
+            self.dlg.widgetPointLayer
+        )
         self.layerComboManagerPoint.setCurrentIndex(-1)
-        self.layerComboManagerPoint.setFilters(QgsMapLayerProxyModel.Filter.PointLayer)
+        self.layerComboManagerPoint.setFilters(
+            QgsMapLayerProxyModel.Filter.PointLayer
+        )
         self.layerComboManagerPoint.setFixedWidth(175)
 
-        self.layerComboManagerDSMbuildground = QgsMapLayerComboBox(self.dlg.widgetDSMbuildground)
-        self.layerComboManagerDSMbuildground .setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
-        self.layerComboManagerDSMbuildground .setFixedWidth(175)
-        self.layerComboManagerDSMbuildground .setCurrentIndex(-1)
+        self.layerComboManagerDSMbuildground = QgsMapLayerComboBox(
+            self.dlg.widgetDSMbuildground
+        )
+        self.layerComboManagerDSMbuildground.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
+        self.layerComboManagerDSMbuildground.setFixedWidth(175)
+        self.layerComboManagerDSMbuildground.setCurrentIndex(-1)
         self.layerComboManagerDEM = QgsMapLayerComboBox(self.dlg.widgetDEM)
-        self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerDEM.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerDEM.setFixedWidth(175)
         self.layerComboManagerDEM.setCurrentIndex(-1)
-        self.layerComboManagerDSMbuild = QgsMapLayerComboBox(self.dlg.widgetDSMbuild)
-        self.layerComboManagerDSMbuild.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerDSMbuild = QgsMapLayerComboBox(
+            self.dlg.widgetDSMbuild
+        )
+        self.layerComboManagerDSMbuild.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerDSMbuild.setFixedWidth(175)
         self.layerComboManagerDSMbuild.setCurrentIndex(-1)
-        self.layerComboManagerVEGDSM = QgsMapLayerComboBox(self.dlg.widgetVegDSM)
-        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerVEGDSM = QgsMapLayerComboBox(
+            self.dlg.widgetVegDSM
+        )
+        self.layerComboManagerVEGDSM.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerVEGDSM.setFixedWidth(175)
         self.layerComboManagerVEGDSM.setCurrentIndex(-1)
 
-        if not (os.path.isdir(self.plugin_dir + '/data')):
-            os.mkdir(self.plugin_dir + '/data')
+        if not (os.path.isdir(self.plugin_dir + "/data")):
+            os.mkdir(self.plugin_dir + "/data")
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -143,8 +166,7 @@ class FootprintModel(object):
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('FootprintModel', message)
-
+        return QCoreApplication.translate("FootprintModel", message)
 
     def add_action(
         self,
@@ -156,7 +178,8 @@ class FootprintModel(object):
         add_to_toolbar=True,
         status_tip=None,
         whats_this=None,
-        parent=None):
+        parent=None,
+    ):
 
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
@@ -173,9 +196,7 @@ class FootprintModel(object):
             self.toolbar.addAction(action)
 
         if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action)
+            self.iface.addPluginToMenu(self.menu, action)
 
         self.actions.append(action)
 
@@ -184,19 +205,18 @@ class FootprintModel(object):
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/FootprintModel/icon.png'
+        icon_path = ":/plugins/FootprintModel/icon.png"
         self.add_action(
             icon_path,
-            text=self.tr(u'Footprint model'),
+            text=self.tr("Footprint model"),
             callback=self.run,
-            parent=self.iface.mainWindow())
+            parent=self.iface.mainWindow(),
+        )
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
-            self.iface.removePluginMenu(
-                self.tr(u'&Footprint model'),
-                action)
+            self.iface.removePluginMenu(self.tr("&Footprint model"), action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
         # del self.toolbar
@@ -214,15 +234,25 @@ class FootprintModel(object):
             delim = None  # space
 
             try:
-                self.data = np.loadtxt(self.filePath[0], skiprows=1, delimiter=delim)
+                self.data = np.loadtxt(
+                    self.filePath[0], skiprows=1, delimiter=delim
+                )
             except:
-                QMessageBox.critical(None, "Import Error", "Check format of textfile format."
-                                            " See help section to get correct format.")
+                QMessageBox.critical(
+                    None,
+                    "Import Error",
+                    "Check format of textfile format."
+                    " See help section to get correct format.",
+                )
                 return
 
             if not self.data.shape[1] == 13:
-                QMessageBox.critical(None, "Import Error", "Check number of columns in textfile."
-                                            " See help section to get correct format.")
+                QMessageBox.critical(
+                    None,
+                    "Import Error",
+                    "Check number of columns in textfile."
+                    " See help section to get correct format.",
+                )
                 return
 
     def folder_path(self):
@@ -243,7 +273,7 @@ class FootprintModel(object):
         feature.setGeometry(QgsGeometry.fromPointXY(point))
         feature.setAttributes([fc, point.x(), point.y()])
         self.poiLayer.startEditing()
-        self.poiLayer.addFeature(feature)  #, True
+        self.poiLayer.addFeature(feature)  # , True
         self.poiLayer.commitChanges()
         self.poiLayer.triggerRepaint()
         self.dlg.setEnabled(True)
@@ -255,7 +285,8 @@ class FootprintModel(object):
     def select_point(self):  # Connected to "Select Point on Canves"
         if self.poiLayer is not None:
             QgsProject.instance().removeMapLayer(self.poiLayer.id())
-        self.canvas.setMapTool(self.pointTool)  # Calls a canvas click and create_point
+        # Calls a canvas click and create_point
+        self.canvas.setMapTool(self.pointTool)
         self.dlg.setEnabled(False)
         self.create_point_layer()
 
@@ -264,7 +295,10 @@ class FootprintModel(object):
         srs = canvas.mapSettings().destinationCrs()
         self.srs = srs
         crs = str(srs.authid())
-        uri = "Point?field=id:integer&field=x:double&field=y:double&index=yes&crs=" + crs
+        uri = (
+            "Point?field=id:integer&field=x:double&field=y:double&index=yes&crs="
+            + crs
+        )
         self.poiLayer = QgsVectorLayer(uri, "Flux tower", "memory")
         self.provider = self.poiLayer.dataProvider()
 
@@ -288,23 +322,27 @@ class FootprintModel(object):
 
     def start_process(self):
 
-        #Check OS and dep
+        # Check OS and dep
         # if sys.platform == 'darwin':
         #     gdalwarp_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdalwarp'
         # else:
         #     gdalwarp_os_dep = ''
-        
-##        if sys.platform == 'darwin':
-##            # gdal_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/'
-##            gdal_os_dep=Path(sys.executable).parent/'bin'
-##            gdal_os_dep=gdal_os_dep.as_posix()+'/'
-##        else:
-##            gdal_os_dep = ''
+
+        # if sys.platform == 'darwin':
+        # gdal_os_dep = '/Library/Frameworks/GDAL.framework/Versions/Current/Programs/'
+        # gdal_os_dep=Path(sys.executable).parent/'bin'
+        # gdal_os_dep=gdal_os_dep.as_posix()+'/'
+        # else:
+        # gdal_os_dep = ''
 
         if self.dlg.checkBoxUseFile.isChecked():
-            if self.data == 'None':
-                QMessageBox.critical(None, "No inputfile selected", "Choose an input file."
-                                            " See help section to get correct format.")
+            if self.data == "None":
+                QMessageBox.critical(
+                    None,
+                    "No inputfile selected",
+                    "Choose an input file."
+                    " See help section to get correct format.",
+                )
                 return
             # QMessageBox.critical(None, "test1", str(self.data.shape))
             it = self.data.shape[0]
@@ -319,8 +357,8 @@ class FootprintModel(object):
             Obukhov = self.data[:, 8]
             ustar = self.data[:, 9]
             wdir = self.data[:, 10]
-            pbl = self.data[:,11]
-            por = self.data[:,12]
+            pbl = self.data[:, 11]
+            por = self.data[:, 12]
             # QMessageBox.critical(None, "Test", str(self.data[:,11]))
             # return
         else:
@@ -337,18 +375,18 @@ class FootprintModel(object):
             Obukhov = np.ones((1, 1)) * self.dlg.doubleSpinBox_L.value()
             ustar = np.ones((1, 1)) * self.dlg.doubleSpinBox_ustar.value()
             # wdir = np.ones((1, 1)) * self.dlg.doubleSpinBox_wd.value()
-            wdir = [self.dlg.doubleSpinBox_wd.value()] # reponse to issue #203
+            wdir = [self.dlg.doubleSpinBox_wd.value()]  # reponse to issue #203
             pbl = np.ones((1, 1)) * self.dlg.doubleSpinBox_bl.value()
-            #por = np.ones((1, 1)) * 100.
+            # por = np.ones((1, 1)) * 100.
             por = np.ones((1, 1)) * self.dlg.spinBoxPorosity.value()
 
-        #QMessageBox.critical(None, "Error", str(por))
+        # QMessageBox.critical(None, "Error", str(por))
 
-        if self.folderPath == 'None':
+        if self.folderPath == "None":
             QMessageBox.critical(None, "Error", "Select a valid output folder")
             return
 
-        if sys.platform == 'win32':
+        if sys.platform == "win32":
             si = subprocess.STARTUPINFO()
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         else:
@@ -357,7 +395,9 @@ class FootprintModel(object):
         if self.dlg.checkBoxVectorLayer.isChecked():
             point = self.layerComboManagerPoint.currentLayer()
             if point is None:
-                QMessageBox.critical(None, "Error", "No valid point layer is selected")
+                QMessageBox.critical(
+                    None, "Error", "No valid point layer is selected"
+                )
                 return
 
             for poi in point.getFeatures():
@@ -366,7 +406,9 @@ class FootprintModel(object):
                 self.pointy = loc[1]
         else:
             if not self.pointx:
-                QMessageBox.critical(None, "Error", "No click registred on map canvas")
+                QMessageBox.critical(
+                    None, "Error", "No click registred on map canvas"
+                )
                 return
 
         x = self.pointx
@@ -374,12 +416,21 @@ class FootprintModel(object):
         r = self.dlg.spinBoxFetch.value()
         # r = 1000
 
-        warp_options = gdal.WarpOptions(options=[
-                '-dstnodata', '-9999',
-                '-q',
-                '-overwrite',
-                '-te', str(x - r), str(y - r), str(x + r), str(y + r),
-                '-of', 'GTiff'])
+        warp_options = gdal.WarpOptions(
+            options=[
+                "-dstnodata",
+                "-9999",
+                "-q",
+                "-overwrite",
+                "-te",
+                str(x - r),
+                str(y - r),
+                str(x + r),
+                str(y + r),
+                "-of",
+                "GTiff",
+            ]
+        )
 
         # coords = "{}, {}".format(x, y)
         # QMessageBox.critical(None, "Test", str(coords))
@@ -387,28 +438,36 @@ class FootprintModel(object):
         if self.dlg.checkBoxOnlyBuilding.isChecked():  # Only building heights
             dsm_build = self.layerComboManagerDSMbuild.currentLayer()
             if dsm_build is None:
-                QMessageBox.critical(None, "Error", "No valid building DSM raster layer is selected")
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "No valid building DSM raster layer is selected",
+                )
                 return
 
             provider = dsm_build.dataProvider()
             filePath_dsm_build = str(provider.dataSourceUri())
-            #gdalruntextdsm_build = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+            # gdalruntextdsm_build = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
             #                       ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
             #                       filePath_dsm_build + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
 
-            #if sys.platform == 'win32':
+            # if sys.platform == 'win32':
             #    subprocess.call(gdalruntextdsm_build, startupinfo=si)
-            #else:
+            # else:
             #    os.system(gdalruntextdsm_build)
 
-            gdal.Warp(self.plugin_dir + '/data/clipdsm.tif', filePath_dsm_build, options=warp_options)
+            gdal.Warp(
+                self.plugin_dir + "/data/clipdsm.tif",
+                filePath_dsm_build,
+                options=warp_options,
+            )
 
             # Remove gdalwarp with gdal.Translate
             # bigraster = gdal.Open(filePath_dsm_build)
             # bbox = (x - r, y + r, x + r, y - r)
             # gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster, projWin=bbox)
 
-            dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
+            dataset = gdal.Open(self.plugin_dir + "/data/clipdsm.tif")
             dsm = dataset.ReadAsArray().astype(float)
             sizex = dsm.shape[0]
             sizey = dsm.shape[1]
@@ -419,10 +478,18 @@ class FootprintModel(object):
             dem = self.layerComboManagerDEM.currentLayer()
 
             if dsm is None:
-                QMessageBox.critical(None, "Error", "No valid ground and building DSM raster layer is selected")
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "No valid ground and building DSM raster layer is selected",
+                )
                 return
             if dem is None:
-                QMessageBox.critical(None, "Error", "No valid ground DEM raster layer is selected")
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "No valid ground DEM raster layer is selected",
+                )
                 return
 
             # # get raster source - gdalwarp
@@ -431,24 +498,32 @@ class FootprintModel(object):
             provider = dem.dataProvider()
             filePath_dem = str(provider.dataSourceUri())
 
-##            gdalruntextdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-##                                               ' ' + str(x + r ) + ' ' + str(y + r) + ' -of GTiff "' + \
-##                                               filePath_dsm + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
-##            gdalruntextdem = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-##                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
-##                                   filePath_dem + '" "' + self.plugin_dir + '/data/clipdem.tif"'
-##
-##            if sys.platform == 'win32':
-##                si = subprocess.STARTUPINFO()
-##                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-##                subprocess.call(gdalruntextdsm, startupinfo=si)
-##                subprocess.call(gdalruntextdem, startupinfo=si)
-##            else:
-##                os.system(gdalruntextdsm)
-##                os.system(gdalruntextdem)
+            # gdalruntextdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+            # ' ' + str(x + r ) + ' ' + str(y + r) + ' -of GTiff "' + \
+            # filePath_dsm + '" "' + self.plugin_dir + '/data/clipdsm.tif"'
+            # gdalruntextdem = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+            # ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+            # filePath_dem + '" "' + self.plugin_dir + '/data/clipdem.tif"'
+            ##
+            # if sys.platform == 'win32':
+            # si = subprocess.STARTUPINFO()
+            # si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            # subprocess.call(gdalruntextdsm, startupinfo=si)
+            # subprocess.call(gdalruntextdem, startupinfo=si)
+            # else:
+            # os.system(gdalruntextdsm)
+            # os.system(gdalruntextdem)
 
-            gdal.Warp(self.plugin_dir + '/data/clipdsm.tif', filePath_dsm, options=warp_options)
-            gdal.Warp(self.plugin_dir + '/data/clipdem.tif', filePath_dem, options=warp_options)
+            gdal.Warp(
+                self.plugin_dir + "/data/clipdsm.tif",
+                filePath_dsm,
+                options=warp_options,
+            )
+            gdal.Warp(
+                self.plugin_dir + "/data/clipdem.tif",
+                filePath_dem,
+                options=warp_options,
+            )
 
             # Remove gdalwarp with gdal.Translate. Not working. Not same size of raster
             # bigraster_dsm = gdal.Open(filePath_dsm)
@@ -463,21 +538,28 @@ class FootprintModel(object):
             # gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster_dsm, projWin=bbox)
             # gdal.Translate(self.plugin_dir + '/data/clipdem.tif', bigraster_dem, projWin=bbox)
 
-            dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
+            dataset = gdal.Open(self.plugin_dir + "/data/clipdsm.tif")
             dsm = dataset.ReadAsArray().astype(float)
-            dataset2 = gdal.Open(self.plugin_dir + '/data/clipdem.tif')
+            dataset2 = gdal.Open(self.plugin_dir + "/data/clipdem.tif")
             dem = dataset2.ReadAsArray().astype(float)
 
             sizex = dsm.shape[0]
             sizey = dsm.shape[1]
 
-            dsm = dsm - dem     #remove ground height
+            dsm = dsm - dem  # remove ground height
 
-            if not (dsm.shape[0] == dem.shape[0]) & (dsm.shape[1] == dem.shape[1]):
-                QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+            if not (dsm.shape[0] == dem.shape[0]) & (
+                dsm.shape[1] == dem.shape[1]
+            ):
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "All grids must be of same extent and resolution",
+                )
                 return
 
-        vegdsm = np.zeros((sizex, sizey))           #initiate zeroed vegdsm the same size of building
+        # initiate zeroed vegdsm the same size of building
+        vegdsm = np.zeros((sizex, sizey))
 
         if self.dlg.checkBoxUseVeg.isChecked():
 
@@ -489,137 +571,273 @@ class FootprintModel(object):
                 por = np.ones((1, 1)) * self.dlg.spinBoxPorosity.value()
 
             if vegdsm is None:
-                QMessageBox.critical(None, "Error", "No valid vegetation DSM selected")
+                QMessageBox.critical(
+                    None, "Error", "No valid vegetation DSM selected"
+                )
                 return
 
             # load raster
             provider = vegdsm.dataProvider()
             filePath_vegdsm = str(provider.dataSourceUri())
-##            gdalruntextvegdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
-##                                   ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
-##                                   filePath_vegdsm + '" "' + self.plugin_dir + '/data/clipvegdsm.tif"'
-##
-##            if sys.platform == 'win32':
-##                subprocess.call(gdalruntextvegdsm, startupinfo=si)
-##            else:
-##                os.system(gdalruntextvegdsm)
+            # gdalruntextvegdsm = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -te ' + str(x - r) + ' ' + str(y - r) + \
+            # ' ' + str(x + r) + ' ' + str(y + r) + ' -of GTiff "' + \
+            # filePath_vegdsm + '" "' + self.plugin_dir + '/data/clipvegdsm.tif"'
+            ##
+            # if sys.platform == 'win32':
+            # subprocess.call(gdalruntextvegdsm, startupinfo=si)
+            # else:
+            # os.system(gdalruntextvegdsm)
 
-            gdal.Warp(self.plugin_dir + '/data/clipvegdsm.tif', filePath_vegdsm, options=warp_options)
+            gdal.Warp(
+                self.plugin_dir + "/data/clipvegdsm.tif",
+                filePath_vegdsm,
+                options=warp_options,
+            )
 
             # Remove gdalwarp with gdal.Translate
             # bigraster_vegdsm = gdal.Open(filePath_vegdsm)
             # bbox = (x - r, y + r, x + r, y - r)
             # gdal.Translate(self.plugin_dir + '/data/clipvegdsm.tif', bigraster_vegdsm, projWin=bbox)
 
-            dataset = gdal.Open(self.plugin_dir + '/data/clipvegdsm.tif')
+            dataset = gdal.Open(self.plugin_dir + "/data/clipvegdsm.tif")
             vegdsm = dataset.ReadAsArray().astype(float)
             vegsizex = vegdsm.shape[0]
             vegsizey = vegdsm.shape[1]
 
             if not (vegsizex == sizex) & (vegsizey == sizey):
-                QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "All grids must be of same extent and resolution",
+                )
                 return
         else:
-            vegdsm = np.zeros((sizex, sizey))           #initiate zeroed vegdsm the same size of building
-            if por == 'None':
-                por = np.ones((1, 1)) * 100.
+            # initiate zeroed vegdsm the same size of building
+            vegdsm = np.zeros((sizex, sizey))
+            if por == "None":
+                por = np.ones((1, 1)) * 100.0
 
             vegsizex = vegdsm.shape[0]
             vegsizey = vegdsm.shape[1]
 
-        por = por/100.          # convert to 0 - 1 scale
+        por = por / 100.0  # convert to 0 - 1 scale
 
         geotransform = dataset.GetGeoTransform()
         # scale = 1 / geotransform[1]
         res = geotransform[1]
         # QMessageBox.critical(None, "test", str(res) + ' ' + str(sizey) + ' ' + str(sizex))
 
-        nodata_test = (dsm == -9999)
+        nodata_test = dsm == -9999
         if nodata_test.any():
-            QMessageBox.critical(None,"Error", "Grids includes nodata pixels. Is your point closer than " +
-                                 str(r) + " meters (maximum fetch) from the extent of the DSM?")
+            QMessageBox.critical(
+                None,
+                "Error",
+                "Grids includes nodata pixels. Is your point closer than "
+                + str(r)
+                + " meters (maximum fetch) from the extent of the DSM?",
+            )
             return
         else:
             # #Calculate Z0m and Zdm depending on the Z0 method
             ro = self.dlg.comboBox_Roughness.currentIndex()
             if ro == 0:
-                Rm = 'RT'
+                Rm = "RT"
             elif ro == 1:
-                Rm = 'Rau'
+                Rm = "Rau"
             elif ro == 2:
-                Rm = 'Bot'
+                Rm = "Bot"
             elif ro == 3:
-                Rm = 'Mac'
+                Rm = "Mac"
             elif ro == 4:
-                Rm = 'Mho'
+                Rm = "Mho"
             else:
-                Rm = 'Kan'
+                Rm = "Kan"
 
             ro2 = self.dlg.comboBoxFPM.currentIndex()
             if ro2 == 0:
-                fpm = 'KAM'
+                fpm = "KAM"
             elif ro2 == 1:
-                fpm = 'KLJ'
+                fpm = "KLJ"
 
-            #print testing parameters in QGIS
-            #QMessageBox.critical(None, "TEST 1", "res = "+str(res) + ' size x = ' + str(sizex) + ' size y = ' + str(sizey)+ ' vegsize x = ' + str(vegsizex)+ ' vegsize y = ' + str(vegsizey)+ ' max veg = ' + str(np.nanmax(vegdsm))+ ' bld max = ' + str(np.nanmax(dsm)))
-            #QMessageBox.critical(None, "TEST 2", "roughness meth = "+ str(Rm) + ' FPM = ' + str(fpm))
+            # print testing parameters in QGIS
+            # QMessageBox.critical(None, "TEST 1", "res = "+str(res) + ' size x = ' + str(sizex) + ' size y = ' + str(sizey)+ ' vegsize x = ' + str(vegsizex)+ ' vegsize y = ' + str(vegsizey)+ ' max veg = ' + str(np.nanmax(vegdsm))+ ' bld max = ' + str(np.nanmax(dsm)))
+            # QMessageBox.critical(None, "TEST 2", "roughness meth = "+ str(Rm) + ' FPM = ' + str(fpm))
 
-            #Run FPR model
+            # Run FPR model
             if fpm == "KAM":
-                totRotatedphi,Wz_d_output,Wz_0_output,Wz_m_output,phi_maxdist,phi_totdist,Wfai,Wpai,WzH,WzMax,WzSdev,Wfaiveg,\
-                        Wpaiveg,WzHveg,WzMaxveg,WzSdevveg,Wfaibuild,Wpaibuild,WzHbuild,WzMaxbuild,WzSdevbuild = \
-                        fp.footprintiterKAM(iterations=it,z_0_input=z_0_input,z_d_input=z_d_input,z_ag=z_m_input,sigv=sigv,
-                        Obukhov=Obukhov,ustar=ustar,wdir=wdir,porosity=por,bld=dsm,veg=vegdsm,rows=sizey,cols=sizex,res=res,dlg=self.dlg,
-                        maxfetch=r,rm=Rm)
+                (
+                    totRotatedphi,
+                    Wz_d_output,
+                    Wz_0_output,
+                    Wz_m_output,
+                    phi_maxdist,
+                    phi_totdist,
+                    Wfai,
+                    Wpai,
+                    WzH,
+                    WzMax,
+                    WzSdev,
+                    Wfaiveg,
+                    Wpaiveg,
+                    WzHveg,
+                    WzMaxveg,
+                    WzSdevveg,
+                    Wfaibuild,
+                    Wpaibuild,
+                    WzHbuild,
+                    WzMaxbuild,
+                    WzSdevbuild,
+                ) = fp.footprintiterKAM(
+                    iterations=it,
+                    z_0_input=z_0_input,
+                    z_d_input=z_d_input,
+                    z_ag=z_m_input,
+                    sigv=sigv,
+                    Obukhov=Obukhov,
+                    ustar=ustar,
+                    wdir=wdir,
+                    porosity=por,
+                    bld=dsm,
+                    veg=vegdsm,
+                    rows=sizey,
+                    cols=sizex,
+                    res=res,
+                    dlg=self.dlg,
+                    maxfetch=r,
+                    rm=Rm,
+                )
             elif fpm == "KLJ":
-                totRotatedphi,Wz_d_output,Wz_0_output,Wz_m_output,phi_maxdist,phi_totdist,Wfai,Wpai,WzH,WzMax,WzSdev,Wfaiveg,\
-                        Wpaiveg,WzHveg,WzMaxveg,WzSdevveg,Wfaibuild,Wpaibuild,WzHbuild,WzMaxbuild,WzSdevbuild = \
-                        fp.footprintiterKLJ(iterations=it,z_0_input=z_0_input,z_d_input=z_d_input,z_ag=z_m_input,sigv=sigv,
-                        Obukhov=Obukhov,ustar=ustar,wdir=wdir,porosity=por,h=pbl,bld=dsm,veg=vegdsm,rows=sizey,cols=sizex,res=res,
-                        dlg=self.dlg,maxfetch=r,rm=Rm)
+                (
+                    totRotatedphi,
+                    Wz_d_output,
+                    Wz_0_output,
+                    Wz_m_output,
+                    phi_maxdist,
+                    phi_totdist,
+                    Wfai,
+                    Wpai,
+                    WzH,
+                    WzMax,
+                    WzSdev,
+                    Wfaiveg,
+                    Wpaiveg,
+                    WzHveg,
+                    WzMaxveg,
+                    WzSdevveg,
+                    Wfaibuild,
+                    Wpaibuild,
+                    WzHbuild,
+                    WzMaxbuild,
+                    WzSdevbuild,
+                ) = fp.footprintiterKLJ(
+                    iterations=it,
+                    z_0_input=z_0_input,
+                    z_d_input=z_d_input,
+                    z_ag=z_m_input,
+                    sigv=sigv,
+                    Obukhov=Obukhov,
+                    ustar=ustar,
+                    wdir=wdir,
+                    porosity=por,
+                    h=pbl,
+                    bld=dsm,
+                    veg=vegdsm,
+                    rows=sizey,
+                    cols=sizex,
+                    res=res,
+                    dlg=self.dlg,
+                    maxfetch=r,
+                    rm=Rm,
+                )
 
-            #If zd and z0 are lower than open country, set to open country
-            for i in np.arange(0,it,1):
-                if Wz_d_output[i]< 0.03:
+            # If zd and z0 are lower than open country, set to open country
+            for i in np.arange(0, it, 1):
+                if Wz_d_output[i] < 0.03:
                     Wz_d_output[i] = 0.03
-                if Wz_0_output[i]< 0.03:
+                if Wz_0_output[i] < 0.03:
                     Wz_0_output[i] = 0.03
 
             # save to file
-            header = 'iy id it imin z_0_input z_d_input z_m_input sigv Obukhov ustar dir h por fai pai zH zMax zSdev zd z0'
-            numfmt = '%3d %2d %3d %2d %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f'
-            mat = np.column_stack((yyyy[0:it], doy[0:it], ih[0:it], imin[0:it], z_0_input[0:it], z_d_input[0:it],
-                                   z_m_input[0:it], sigv[0:it], Obukhov[0:it], ustar[0:it], wdir[0:it],pbl[0:it],por[0:it],
-                                   Wfai, Wpai, WzH, WzMax, WzSdev,Wz_d_output,Wz_0_output))
+            header = "iy id it imin z_0_input z_d_input z_m_input sigv Obukhov ustar dir h por fai pai zH zMax zSdev zd z0"
+            numfmt = "%3d %2d %3d %2d %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f"
+            mat = np.column_stack(
+                (
+                    yyyy[0:it],
+                    doy[0:it],
+                    ih[0:it],
+                    imin[0:it],
+                    z_0_input[0:it],
+                    z_d_input[0:it],
+                    z_m_input[0:it],
+                    sigv[0:it],
+                    Obukhov[0:it],
+                    ustar[0:it],
+                    wdir[0:it],
+                    pbl[0:it],
+                    por[0:it],
+                    Wfai,
+                    Wpai,
+                    WzH,
+                    WzMax,
+                    WzSdev,
+                    Wz_d_output,
+                    Wz_0_output,
+                )
+            )
             pre = self.dlg.textOutput_prefix.text()
-            np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'SourceMorphParameters.txt', mat, fmt=('%5.5f'), comments='', header=header)
+            np.savetxt(
+                self.folderPath[0]
+                + "/"
+                + pre
+                + "_"
+                + "SourceMorphParameters.txt",
+                mat,
+                fmt=("%5.5f"),
+                comments="",
+                header=header,
+            )
 
             # QMessageBox.critical(None, "Test", str(mat))
-            #Presentation of Source area
-            #rotatedphiPerc = totRotatedphi/np.nansum(totRotatedphi)
-            rotatedphiPerc = (totRotatedphi/np.nanmax(totRotatedphi))*100
-            rotatedphiPerc = (rotatedphiPerc - 100)*-1
-            #rotatedphiPerc[rotatedphiPerc == 0] = -9999
+            # Presentation of Source area
+            # rotatedphiPerc = totRotatedphi/np.nansum(totRotatedphi)
+            rotatedphiPerc = (totRotatedphi / np.nanmax(totRotatedphi)) * 100
+            rotatedphiPerc = (rotatedphiPerc - 100) * -1
+            # rotatedphiPerc[rotatedphiPerc == 0] = -9999
             rotatedphiPerc[rotatedphiPerc >= 100] = -9999
-            fp.saveraster(dataset, self.folderPath[0] + '/' + pre + '_' + 'SourceAreaCumulativePercentage.tif', rotatedphiPerc)
+            fp.saveraster(
+                dataset,
+                self.folderPath[0]
+                + "/"
+                + pre
+                + "_"
+                + "SourceAreaCumulativePercentage.tif",
+                rotatedphiPerc,
+            )
 
             # load roof irradiance result into map canvas
             if self.dlg.checkBoxIntoCanvas.isChecked():
-                rlayer = self.iface.addRasterLayer(self.folderPath[0] + '/' + pre + '_' + 'SourceAreaCumulativePercentage.tif')
+                rlayer = self.iface.addRasterLayer(
+                    self.folderPath[0]
+                    + "/"
+                    + pre
+                    + "_"
+                    + "SourceAreaCumulativePercentage.tif"
+                )
 
                 # Trigger a repaint
                 if hasattr(rlayer, "setCacheImage"):
                     rlayer.setCacheImage(None)
 
-                rlayer.loadNamedStyle(self.plugin_dir + '/footprint_style.qml')
+                rlayer.loadNamedStyle(self.plugin_dir + "/footprint_style.qml")
 
                 if hasattr(rlayer, "setCacheImage"):
                     rlayer.setCacheImage(None)
 
                 rlayer.triggerRepaint()
 
-            QMessageBox.information(None, "Source Area Model: ", "Process successful!")
+            QMessageBox.information(
+                None, "Source Area Model: ", "Process successful!"
+            )
             self.dlg.progressBar.setValue(0)
 
     def help(self):

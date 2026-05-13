@@ -20,6 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 from __future__ import absolute_import
 from builtins import str
 from builtins import object
@@ -28,12 +29,14 @@ from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 from qgis.PyQt.QtGui import QIcon
 from qgis.gui import QgsMapLayerComboBox
 from qgis.core import QgsMapLayerProxyModel
+
 # Initialize Qt resources from file resources.py
 # from . import resources_rc
 # Import the code for the dialog
 from .shadow_generator_dialog import ShadowGeneratorDialog
 from osgeo import gdal, osr
-#import gdal from gdalconst import *
+
+# import gdal from gdalconst import *
 import os.path
 from . import dailyshading as dsh
 import numpy as np
@@ -56,17 +59,16 @@ class ShadowGenerator(object):
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'ShadowGenerator_{}.qm'.format(locale))
+            self.plugin_dir, "i18n", "ShadowGenerator_{}.qm".format(locale)
+        )
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
 
-            if qVersion() > '4.3.3':
+            if qVersion() > "4.3.3":
                 QCoreApplication.installTranslator(self.translator)
 
         # Create the dialog (after translation) and keep reference
@@ -83,11 +85,11 @@ class ShadowGenerator(object):
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&Shadow Generator')
+        self.menu = self.tr("&Shadow Generator")
         # TODO: We are going to let the user set this up in a future iteration
         # self.toolbar = self.iface.addToolBar(u'ShadowGenerator')
         # self.toolbar.setObjectName(u'ShadowGenerator')
-        self.folderPath = 'None'
+        self.folderPath = "None"
         self.timeInterval = 30
 
         # self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_dsm)
@@ -97,23 +99,39 @@ class ShadowGenerator(object):
         # self.layerComboManagerVEGDSM2 = RasterLayerCombo(self.dlg.comboBox_vegdsm2)
         # RasterLayerCombo(self.dlg.comboBox_vegdsm2, initLayer="")
         self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetDSM)
-        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerDSM.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerDSM.setFixedWidth(175)
         self.layerComboManagerDSM.setCurrentIndex(-1)
         self.layerComboManagerVEGDSM = QgsMapLayerComboBox(self.dlg.widgetCDSM)
-        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerVEGDSM.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerVEGDSM.setFixedWidth(175)
         self.layerComboManagerVEGDSM.setCurrentIndex(-1)
-        self.layerComboManagerVEGDSM2 = QgsMapLayerComboBox(self.dlg.widgetTDSM)
-        self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerVEGDSM2 = QgsMapLayerComboBox(
+            self.dlg.widgetTDSM
+        )
+        self.layerComboManagerVEGDSM2.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerVEGDSM2.setFixedWidth(175)
         self.layerComboManagerVEGDSM2.setCurrentIndex(-1)
-        self.layerComboManagerWH = QgsMapLayerComboBox(self.dlg.widgetWallHeight)
-        self.layerComboManagerWH.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerWH = QgsMapLayerComboBox(
+            self.dlg.widgetWallHeight
+        )
+        self.layerComboManagerWH.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerWH.setFixedWidth(175)
         self.layerComboManagerWH.setCurrentIndex(-1)
-        self.layerComboManagerWA = QgsMapLayerComboBox(self.dlg.widgetWallAspect)
-        self.layerComboManagerWA.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerWA = QgsMapLayerComboBox(
+            self.dlg.widgetWallAspect
+        )
+        self.layerComboManagerWA.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerWA.setFixedWidth(175)
         self.layerComboManagerWA.setCurrentIndex(-1)
 
@@ -130,7 +148,7 @@ class ShadowGenerator(object):
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('ShadowGenerator', message)
+        return QCoreApplication.translate("ShadowGenerator", message)
 
     def add_action(
         self,
@@ -142,8 +160,8 @@ class ShadowGenerator(object):
         add_to_toolbar=True,
         status_tip=None,
         whats_this=None,
-        parent=None):
-
+        parent=None,
+    ):
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -198,9 +216,7 @@ class ShadowGenerator(object):
             self.toolbar.addAction(action)
 
         if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action)
+            self.iface.addPluginToMenu(self.menu, action)
 
         self.actions.append(action)
 
@@ -209,19 +225,18 @@ class ShadowGenerator(object):
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/ShadowGenerator/ShadowIcon.png'
+        icon_path = ":/plugins/ShadowGenerator/ShadowIcon.png"
         self.add_action(
             icon_path,
-            text=self.tr(u'Shadow Generator'),
+            text=self.tr("Shadow Generator"),
             callback=self.run,
-            parent=self.iface.mainWindow())
+            parent=self.iface.mainWindow(),
+        )
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
-            self.iface.removePluginMenu(
-                self.tr(u'&Shadow Generator'),
-                action)
+            self.iface.removePluginMenu(self.tr("&Shadow Generator"), action)
             self.iface.removeToolBarIcon(action)
 
     def folder_path(self):
@@ -244,7 +259,7 @@ class ShadowGenerator(object):
         else:
             dst = 0
 
-        if self.folderPath == 'None':
+        if self.folderPath == "None":
             QMessageBox.critical(None, "Error", "Select a valid output folder")
             return
 
@@ -252,7 +267,11 @@ class ShadowGenerator(object):
         dsmlayer = self.layerComboManagerDSM.currentLayer()
 
         if dsmlayer is None:
-            QMessageBox.critical(None, "Error", "No valid ground and building DSM raster layer is selected")
+            QMessageBox.critical(
+                None,
+                "Error",
+                "No valid ground and building DSM raster layer is selected",
+            )
             return
 
         provider = dsmlayer.dataProvider()
@@ -263,7 +282,7 @@ class ShadowGenerator(object):
 
         # response to issue #85
         nd = gdal_dsm.GetRasterBand(1).GetNoDataValue()
-        dsm[dsm == nd] = 0.
+        dsm[dsm == nd] = 0.0
         if dsm.min() < 0:
             dsm = dsm + np.abs(dsm.min())
 
@@ -295,18 +314,18 @@ class ShadowGenerator(object):
         height = gdal_dsm.RasterYSize
         gt = gdal_dsm.GetGeoTransform()
         minx = gt[0]
-        miny = gt[3] + width*gt[4] + height*gt[5]
+        miny = gt[3] + width * gt[4] + height * gt[5]
         lonlat = transform.TransformPoint(minx, miny)
         geotransform = gdal_dsm.GetGeoTransform()
         scale = 1 / geotransform[1]
-        
+
         gdalver = float(gdal.__version__[0])
-        if gdalver >= 3.:
-            lon = lonlat[1] #changed to gdal 3
-            lat = lonlat[0] #changed to gdal 3
+        if gdalver >= 3.0:
+            lon = lonlat[1]  # changed to gdal 3
+            lat = lonlat[0]  # changed to gdal 3
         else:
-            lon = lonlat[0] #changed to gdal 2
-            lat = lonlat[1] #changed to gdal 2
+            lon = lonlat[0]  # changed to gdal 2
+            lat = lonlat[1]  # changed to gdal 2
         # print('lon:' + str(lon))
         # print('lat:' + str(lat))
 
@@ -318,7 +337,9 @@ class ShadowGenerator(object):
 
             vegdsm = self.layerComboManagerVEGDSM.currentLayer()
             if vegdsm is None:
-                QMessageBox.critical(None, "Error", "No valid vegetation DSM selected")
+                QMessageBox.critical(
+                    None, "Error", "No valid vegetation DSM selected"
+                )
                 return
 
             # load raster
@@ -332,14 +353,20 @@ class ShadowGenerator(object):
             vegsizey = vegdsm.shape[1]
 
             if not (vegsizex == sizex) & (vegsizey == sizey):
-                QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "All grids must be of same extent and resolution",
+                )
                 return
 
             if self.dlg.checkBoxTrunkExist.isChecked():
                 vegdsm2 = self.layerComboManagerVEGDSM2.currentLayer()
 
                 if vegdsm2 is None:
-                    QMessageBox.critical(None, "Error", "No valid trunk zone DSM selected")
+                    QMessageBox.critical(
+                        None, "Error", "No valid trunk zone DSM selected"
+                    )
                     return
 
                 # load raster
@@ -356,7 +383,11 @@ class ShadowGenerator(object):
             vegsizey = vegdsm2.shape[1]
 
             if not (vegsizex == sizex) & (vegsizey == sizey):  # &
-                QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "All grids must be of same extent and resolution",
+                )
                 return
         else:
             vegdsm = 0
@@ -368,38 +399,54 @@ class ShadowGenerator(object):
             # wall height layer
             whlayer = self.layerComboManagerWH.currentLayer()
             if whlayer is None:
-                    QMessageBox.critical(None, "Error", "No valid wall height raster layer is selected")
-                    return
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "No valid wall height raster layer is selected",
+                )
+                return
             provider = whlayer.dataProvider()
-            filepath_wh= str(provider.dataSourceUri())
+            filepath_wh = str(provider.dataSourceUri())
             self.gdal_wh = gdal.Open(filepath_wh)
             wheight = self.gdal_wh.ReadAsArray().astype(float)
             vhsizex = wheight.shape[0]
             vhsizey = wheight.shape[1]
             if not (vhsizex == sizex) & (vhsizey == sizey):  # &
-                QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "All grids must be of same extent and resolution",
+                )
                 return
 
             # wall aspectlayer
             walayer = self.layerComboManagerWA.currentLayer()
             if walayer is None:
-                    QMessageBox.critical(None, "Error", "No valid wall aspect raster layer is selected")
-                    return
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "No valid wall aspect raster layer is selected",
+                )
+                return
             provider = walayer.dataProvider()
-            filepath_wa= str(provider.dataSourceUri())
+            filepath_wa = str(provider.dataSourceUri())
             self.gdal_wa = gdal.Open(filepath_wa)
             waspect = self.gdal_wa.ReadAsArray().astype(float)
             vasizex = waspect.shape[0]
             vasizey = waspect.shape[1]
             if not (vasizex == sizex) & (vasizey == sizey):
-                QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "All grids must be of same extent and resolution",
+                )
                 return
         else:
             wallsh = 0
             wheight = 0
             waspect = 0
 
-        if self.folderPath == 'None':
+        if self.folderPath == "None":
             QMessageBox.critical(None, "Error", "No selected folder")
             return
         else:
@@ -422,26 +469,52 @@ class ShadowGenerator(object):
 
             tv = [year, month, day, hour, minu, sec]
             intervalTime = self.dlg.intervalTimeEdit.time()
-            self.timeInterval = intervalTime.minute() + (intervalTime.hour() * 60) + (intervalTime.second()/60)
-            shadowresult = dsh.dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, usevegdem,
-                                       self.timeInterval, onetime, self.dlg, self.folderPath[0], gdal_dsm, trans, 
-                                       dst, wallsh, wheight, waspect)
+            self.timeInterval = (
+                intervalTime.minute()
+                + (intervalTime.hour() * 60)
+                + (intervalTime.second() / 60)
+            )
+            shadowresult = dsh.dailyshading(
+                dsm,
+                vegdsm,
+                vegdsm2,
+                scale,
+                lon,
+                lat,
+                sizex,
+                sizey,
+                tv,
+                UTC,
+                usevegdem,
+                self.timeInterval,
+                onetime,
+                self.dlg,
+                self.folderPath[0],
+                gdal_dsm,
+                trans,
+                dst,
+                wallsh,
+                wheight,
+                waspect,
+            )
 
             shfinal = shadowresult["shfinal"]
             time_vector = shadowresult["time_vector"]
 
             if onetime == 0:
                 timestr = time_vector.strftime("%Y%m%d")
-                savestr = '/shadow_fraction_on_'
+                savestr = "/shadow_fraction_on_"
             else:
                 timestr = time_vector.strftime("%Y%m%d_%H%M")
-                savestr = '/Shadow_at_'
+                savestr = "/Shadow_at_"
 
-        filename = self.folderPath[0] + savestr + timestr + '.tif'
+        filename = self.folderPath[0] + savestr + timestr + ".tif"
 
         dsh.saveraster(gdal_dsm, filename, shfinal)
 
-        QMessageBox.information(None, "ShadowGenerator", "Shadow grid(s) successfully generated")
+        QMessageBox.information(
+            None, "ShadowGenerator", "Shadow grid(s) successfully generated"
+        )
         # self.iface.messageBar().pushMessage("ShadowGenerator", "Shadow grid(s) successfully generated")
 
         # load result into canvas
@@ -466,4 +539,3 @@ class ShadowGenerator(object):
     def help(self):
         url = "https://umep-docs.readthedocs.io/en/latest/processor/Solar%20Radiation%20Daily%20Shadow%20Pattern.html"
         webbrowser.open_new_tab(url)
-

@@ -1,9 +1,9 @@
-import sys, subprocess, os
+import sys
+import subprocess
+import os
 from pathlib import Path
 import platform
 from packaging import version
-
-from qgis.core import Qgis, QgsMessageLog
 
 
 # locate QGIS-python interpreter
@@ -45,7 +45,9 @@ def locate_py():
         if candidate_path.exists():
             return candidate_path
 
-    raise RuntimeError("UMEP cannot locate the Python interpreter used by QGIS!")
+    raise RuntimeError(
+        "UMEP cannot locate the Python interpreter used by QGIS!"
+    )
 
 
 # check if supy is installed
@@ -53,11 +55,15 @@ def check_supy_version():
     try:
         path_pybin = locate_py()
         list_cmd = f"{str(path_pybin)} -m pip show supy".split()
-        list_info = subprocess.check_output(list_cmd, encoding="UTF8").split("\n")
+        list_info = subprocess.check_output(list_cmd, encoding="UTF8").split(
+            "\n"
+        )
         str_ver = list_info[1].split(":")[1].strip()
         return str_ver
     except Exception:
-        raise RuntimeError("UMEP cannot identify a supy installation!") from Exception
+        raise RuntimeError(
+            "UMEP cannot identify a supy installation!"
+        ) from Exception
 
 
 # install supy
@@ -74,7 +80,9 @@ def install_supy(ver=None):
         )
 
         # add netCDF4 TODO: Should later be replaced with xarrays
-        list_cmd0 = f"{str(path_pybin)} -m pip install netCDF4 -U --user".split()
+        list_cmd0 = (
+            f"{str(path_pybin)} -m pip install netCDF4 -U --user".split()
+        )
         str_info0 = subprocess.check_output(
             list_cmd0, stderr=subprocess.STDOUT, encoding="UTF8"
         )
@@ -100,7 +108,9 @@ def install_supy(ver=None):
         )
         return str_info
     except Exception:
-        raise RuntimeError(f"UMEP couldn't install supy {str_ver}!") from Exception
+        raise RuntimeError(
+            f"UMEP couldn't install supy {str_ver}!"
+        ) from Exception
 
 
 # uninstall supy
@@ -109,7 +119,9 @@ def uninstall_supy():
     try:
         path_pybin = locate_py()
         list_cmd = f"{str(path_pybin)} -m pip uninstall supy -y".split()
-        list_info = subprocess.check_output(list_cmd, encoding="UTF8").split("\n")
+        list_info = subprocess.check_output(list_cmd, encoding="UTF8").split(
+            "\n"
+        )
 
         str_info = list_info[-2].strip()
         return str_info

@@ -28,6 +28,7 @@
 # This works around https://github.com/qgis/QGIS/issues/55258
 import site
 import sys
+
 sys.path.insert(0, site.getusersitepackages())
 
 
@@ -40,4 +41,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .UMEP import UMEP
+
     return UMEP(iface)

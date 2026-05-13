@@ -26,8 +26,9 @@ import os
 from qgis.PyQt import uic
 from qgis.PyQt.QtWidgets import QDialog
 
-FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'LCZ_converter_dialog_base.ui'))
+FORM_CLASS, _ = uic.loadUiType(
+    os.path.join(os.path.dirname(__file__), "LCZ_converter_dialog_base.ui")
+)
 
 
 class LCZ_testDialog(QDialog, FORM_CLASS):

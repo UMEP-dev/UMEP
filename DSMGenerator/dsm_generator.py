@@ -230,7 +230,7 @@
 # ##            gdal_os_dep=Path(sys.executable).parent/'bin'
 # ##            gdal_os_dep=gdal_os_dep.as_posix()+'/'
 # ##        else:
-# ##            gdal_os_dep = ''       
+# ##            gdal_os_dep = ''
 
 #         if self.dlg.canvasButton.isChecked():
 #             # Map Canvas
@@ -279,7 +279,7 @@
 #                     extDiffminy = canxymin[1] - extentDEM.yMinimum() # If smaller than zero = warning #changed to gdal 2
 #                     extDiffmaxx = canxymax[0] - extentDEM.xMaximum() # If larger than zero = warning #changed to gdal 2
 #                     extDiffmaxy = canxymax[1] - extentDEM.yMaximum() # If larger than zero = warning #changed to gdal 2
-                
+
 #                 if extDiffminx < 0 or extDiffminy < 0 or extDiffmaxx > 0 or extDiffmaxy > 0:
 #                     QMessageBox.warning(None, "Warning! Extent of map canvas is larger than raster extent.", "Change to an extent equal to or smaller than the raster extent.")
 #                     return
@@ -388,7 +388,7 @@
 #             miny = float(self.yMin)
 #             maxx = float(self.xMax)
 #             maxy = float(self.yMax)
-        
+
 #             gdalver = float(gdal.__version__[0])
 #             if gdalver == 3.:
 #                 # New code Fredrik 20200625
@@ -468,7 +468,7 @@
 #             gdal.SetConfigOption("OSM_CONFIG_FILE", osmconf_dir)
 
 #             osm_option = gdal.VectorTranslateOptions(options=[
-#             '-skipfailures', 
+#             '-skipfailures',
 #             '-t_srs', 'EPSG:' + str(rasEPSG),
 #             '-overwrite',
 #             '-nlt', 'MULTIPOLYGON',

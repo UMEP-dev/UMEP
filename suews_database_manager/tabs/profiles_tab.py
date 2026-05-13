@@ -24,10 +24,11 @@
 import os
 
 from qgis.PyQt import uic
-from qgis.PyQt.QtWidgets import QWidget, QDialog
+from qgis.PyQt.QtWidgets import QDialog
 
-FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'profiles_tab.ui'))
+FORM_CLASS, _ = uic.loadUiType(
+    os.path.join(os.path.dirname(__file__), "profiles_tab.ui")
+)
 
 
 class ProfileCreator_tab(QDialog, FORM_CLASS):
@@ -40,5 +41,3 @@ class ProfileCreator_tab(QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
-
-

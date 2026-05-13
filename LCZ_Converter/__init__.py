@@ -32,4 +32,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .LCZ_converter import LCZ_test
+
     return LCZ_test(iface)

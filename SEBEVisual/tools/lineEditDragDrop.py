@@ -18,21 +18,21 @@ class LineEditDragFile:
     def _dragEnterEvent(self, event):
         data = event.mimeData()
         urls = data.urls()
-        if (urls and urls[0].scheme() == 'file'):
+        if urls and urls[0].scheme() == "file":
             event.acceptProposedAction()
 
     def _dragMoveEvent(self, event):
         data = event.mimeData()
         urls = data.urls()
-        if (urls and urls[0].scheme() == 'file'):
+        if urls and urls[0].scheme() == "file":
             event.acceptProposedAction()
 
     def _dropEvent(self, event):
         data = event.mimeData()
         urls = data.urls()
-        if (urls and urls[0].scheme() == 'file'):
+        if urls and urls[0].scheme() == "file":
             # for some reason, this doubles up the intro slash
             for i, v in enumerate(urls):
                 urls[i] = str(v.path())[1:]
-            filepath = ';'.join(urls)
+            filepath = ";".join(urls)
             self.lineEdit.setText(filepath)

@@ -1,14 +1,15 @@
-from qgis.PyQt import QtCore, QtGui
-import traceback
+from qgis.PyQt import QtCore
 import numpy as np
 from ..Utilities import shadowingfunctions as shadow
-#import Skyviewfactor4d as svf
-#import shadowingfunctions as shadow
-#from osgeo import gdal
-#from osgeo.gdalconst import *
+
+# import Skyviewfactor4d as svf
+# import shadowingfunctions as shadow
+# from osgeo import gdal
+# from osgeo.gdalconst import *
 
 import sys
 import linecache
+
 
 class WorkerOld(QtCore.QObject):
 
@@ -39,43 +40,63 @@ class WorkerOld(QtCore.QObject):
             svfS = svf
             svfW = svf
             svfN = svf
-            noa = 19.
+            noa = 19.0
             # % No. of angle steps minus 1
-            step = 89./noa
-            iangle = np.array(np.hstack((np.arange(step/2., 89., step), 90.)))
-            annulino = np.array(np.hstack((np.round(np.arange(0., 89., step)), 90.)))
+            step = 89.0 / noa
+            iangle = np.array(
+                np.hstack((np.arange(step / 2.0, 89.0, step), 90.0))
+            )
+            annulino = np.array(
+                np.hstack((np.round(np.arange(0.0, 89.0, step)), 90.0))
+            )
             angleresult = self.svf_angles_100121()
             aziinterval = angleresult["aziinterval"]
             iazimuth = angleresult["iazimuth"]
-            aziintervalaniso = np.ceil((aziinterval/2.))
-            index = 1.
+            aziintervalaniso = np.ceil((aziinterval / 2.0))
+            index = 1.0
 
-            for i in np.arange(0, iangle.shape[0]-1):
+            for i in np.arange(0, iangle.shape[0] - 1):
                 if self.killed is True:
                     break
                 for j in np.arange(0, (aziinterval[int(i)])):
                     if self.killed is True:
                         break
                     altitude = iangle[int(i)]
-                    azimuth = iazimuth[int(index)-1]
+                    azimuth = iazimuth[int(index) - 1]
 
                     # self.dlg.progressBar.setValue(index)
-                    sh = shadow.shadowingfunctionglobalradiation(self.a, azimuth, altitude, self.scale, self.dlg, 1)
-                    for k in np.arange(annulino[int(i)]+1, (annulino[int(i+1.)])+1):
+                    sh = shadow.shadowingfunctionglobalradiation(
+                        self.a, azimuth, altitude, self.scale, self.dlg, 1
+                    )
+                    for k in np.arange(
+                        annulino[int(i)] + 1, (annulino[int(i + 1.0)]) + 1
+                    ):
 
-                        weight = self.annulus_weight(k, aziinterval[i])*sh
+                        weight = self.annulus_weight(k, aziinterval[i]) * sh
                         svf = svf + weight
                         if (azimuth >= 0) and (azimuth < 180):
-                            weight = self.annulus_weight(k, aziintervalaniso[i])*sh
+                            weight = (
+                                self.annulus_weight(k, aziintervalaniso[i])
+                                * sh
+                            )
                             svfE = svfE + weight
                         if (azimuth >= 90) and (azimuth < 270):
-                            weight = self.annulus_weight(k, aziintervalaniso[i])*sh
+                            weight = (
+                                self.annulus_weight(k, aziintervalaniso[i])
+                                * sh
+                            )
                             svfS = svfS + weight
                         if (azimuth >= 180) and (azimuth < 360):
-                            weight = self.annulus_weight(k, aziintervalaniso[i])*sh
+                            weight = (
+                                self.annulus_weight(k, aziintervalaniso[i])
+                                * sh
+                            )
                             svfW = svfW + weight
                         if (azimuth >= 270) or (azimuth < 90):
-                            weight = self.annulus_weight(k, aziintervalaniso[i])*sh
+                            weight = (
+                                self.annulus_weight(k, aziintervalaniso[i])
+                                * sh
+                            )
                             svfN = svfN + weight
                     index += 1
                     self.progress.emit()
@@ -84,13 +105,19 @@ class WorkerOld(QtCore.QObject):
             svfW = svfW + 3.0459e-004
             # % Last azimuth is 90. Hence, manual add of last annuli for svfS and SVFW
             # %Forcing svf not be greater than 1 (some MATLAB crazyness)
-            svf[(svf > 1.)] = 1.
-            svfE[(svfE > 1.)] = 1.
-            svfS[(svfS > 1.)] = 1.
-            svfW[(svfW > 1.)] = 1.
-            svfN[(svfN > 1.)] = 1.
+            svf[(svf > 1.0)] = 1.0
+            svfE[(svfE > 1.0)] = 1.0
+            svfS[(svfS > 1.0)] = 1.0
+            svfW[(svfW > 1.0)] = 1.0
+            svfN[(svfN > 1.0)] = 1.0
 
-            svfresult = {'svf': svf, 'svfE': svfE, 'svfS': svfS, 'svfW': svfW, 'svfN': svfN}
+            svfresult = {
+                "svf": svf,
+                "svfE": svfE,
+                "svfS": svfS,
+                "svfW": svfW,
+                "svfN": svfN,
+            }
 
             if self.killed is False:
                 self.progress.emit()
@@ -108,48 +135,101 @@ class WorkerOld(QtCore.QObject):
         filename = f.f_code.co_filename
         linecache.checkcache(filename)
         line = linecache.getline(filename, lineno, f.f_globals)
-        return 'EXCEPTION IN {}, \nLINE {} "{}" \nERROR MESSAGE: {}'.format(filename, lineno, line.strip(), exc_obj)
-
+        return 'EXCEPTION IN {}, \nLINE {} "{}" \nERROR MESSAGE: {}'.format(
+            filename, lineno, line.strip(), exc_obj
+        )
 
     def kill(self):
         self.killed = True
 
     def svf_angles_100121(self):
 
-        azi1 = np.arange(1., 360., 360./16.)  # %22.5
-        azi2 = np.arange(12., 360., 360./16.)  # %22.5
-        azi3 = np.arange(5., 360., 360./32.)  # %11.25
-        azi4 = np.arange(2., 360., 360./32.)  # %11.25
-        azi5 = np.arange(4., 360., 360./40.)  # %9
-        azi6 = np.arange(7., 360., 360./48.)  # %7.50
-        azi7 = np.arange(6., 360., 360./48.)  # %7.50
-        azi8 = np.arange(1., 360., 360./48.)  # %7.50
-        azi9 = np.arange(4., 359., 360./52.)  # %6.9231
-        azi10 = np.arange(5., 360., 360./52.)  # %6.9231
-        azi11 = np.arange(1., 360., 360./48.)  # %7.50
-        azi12 = np.arange(0., 359., 360./44.)  # %8.1818
-        azi13 = np.arange(3., 360., 360./44.)  # %8.1818
-        azi14 = np.arange(2., 360., 360./40.)  # %9
-        azi15 = np.arange(7., 360., 360./32.)  # %10
-        azi16 = np.arange(3., 360., 360./24.)  # %11.25
-        azi17 = np.arange(10., 360., 360./16.)  # %15
-        azi18 = np.arange(19., 360., 360./12.)  # %22.5
-        azi19 = np.arange(17., 360., 360./8.)  # %45
-        azi20 = 0.  # %360
-        iazimuth = np.array(np.hstack((azi1, azi2, azi3, azi4, azi5, azi6, azi7, azi8, azi9, azi10, azi11, azi12, azi13,
-                                       azi14, azi15, azi16, azi17, azi18, azi19, azi20)))
-        aziinterval = np.array(np.hstack((16., 16., 32., 32., 40., 48., 48., 48., 52., 52., 48., 44., 44., 40., 32., 24.,
-                                          16., 12., 8., 1.)))
-        angleresult = {'iazimuth': iazimuth, 'aziinterval': aziinterval}
+        azi1 = np.arange(1.0, 360.0, 360.0 / 16.0)  # %22.5
+        azi2 = np.arange(12.0, 360.0, 360.0 / 16.0)  # %22.5
+        azi3 = np.arange(5.0, 360.0, 360.0 / 32.0)  # %11.25
+        azi4 = np.arange(2.0, 360.0, 360.0 / 32.0)  # %11.25
+        azi5 = np.arange(4.0, 360.0, 360.0 / 40.0)  # %9
+        azi6 = np.arange(7.0, 360.0, 360.0 / 48.0)  # %7.50
+        azi7 = np.arange(6.0, 360.0, 360.0 / 48.0)  # %7.50
+        azi8 = np.arange(1.0, 360.0, 360.0 / 48.0)  # %7.50
+        azi9 = np.arange(4.0, 359.0, 360.0 / 52.0)  # %6.9231
+        azi10 = np.arange(5.0, 360.0, 360.0 / 52.0)  # %6.9231
+        azi11 = np.arange(1.0, 360.0, 360.0 / 48.0)  # %7.50
+        azi12 = np.arange(0.0, 359.0, 360.0 / 44.0)  # %8.1818
+        azi13 = np.arange(3.0, 360.0, 360.0 / 44.0)  # %8.1818
+        azi14 = np.arange(2.0, 360.0, 360.0 / 40.0)  # %9
+        azi15 = np.arange(7.0, 360.0, 360.0 / 32.0)  # %10
+        azi16 = np.arange(3.0, 360.0, 360.0 / 24.0)  # %11.25
+        azi17 = np.arange(10.0, 360.0, 360.0 / 16.0)  # %15
+        azi18 = np.arange(19.0, 360.0, 360.0 / 12.0)  # %22.5
+        azi19 = np.arange(17.0, 360.0, 360.0 / 8.0)  # %45
+        azi20 = 0.0  # %360
+        iazimuth = np.array(
+            np.hstack(
+                (
+                    azi1,
+                    azi2,
+                    azi3,
+                    azi4,
+                    azi5,
+                    azi6,
+                    azi7,
+                    azi8,
+                    azi9,
+                    azi10,
+                    azi11,
+                    azi12,
+                    azi13,
+                    azi14,
+                    azi15,
+                    azi16,
+                    azi17,
+                    azi18,
+                    azi19,
+                    azi20,
+                )
+            )
+        )
+        aziinterval = np.array(
+            np.hstack(
+                (
+                    16.0,
+                    16.0,
+                    32.0,
+                    32.0,
+                    40.0,
+                    48.0,
+                    48.0,
+                    48.0,
+                    52.0,
+                    52.0,
+                    48.0,
+                    44.0,
+                    44.0,
+                    40.0,
+                    32.0,
+                    24.0,
+                    16.0,
+                    12.0,
+                    8.0,
+                    1.0,
+                )
+            )
+        )
+        angleresult = {"iazimuth": iazimuth, "aziinterval": aziinterval}
 
         return angleresult
 
     def annulus_weight(self, altitude, aziinterval):
 
-        n = 90.
-        steprad = (360./aziinterval) * (np.pi/180.)
-        annulus = 91.-altitude
-        w = (1./(2.*np.pi)) * np.sin(np.pi / (2.*n)) * np.sin((np.pi * (2. * annulus - 1.)) / (2. * n))
+        n = 90.0
+        steprad = (360.0 / aziinterval) * (np.pi / 180.0)
+        annulus = 91.0 - altitude
+        w = (
+            (1.0 / (2.0 * np.pi))
+            * np.sin(np.pi / (2.0 * n))
+            * np.sin((np.pi * (2.0 * annulus - 1.0)) / (2.0 * n))
+        )
         weight = steprad * w
 
         return weight

@@ -42,6 +42,3 @@
 #         # #widgets-and-dialogs-with-auto-connect
 #         self.setupUi(self)
 #      #   print self.dlg
-
-
-

@@ -32,4 +32,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .image_morph_param import ImageMorphParam
+
     return ImageMorphParam(iface)

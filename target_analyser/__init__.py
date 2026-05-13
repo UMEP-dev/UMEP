@@ -33,4 +33,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .target_analyser import TARGETAnalyser
+
     return TARGETAnalyser(iface)

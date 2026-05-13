@@ -3,7 +3,7 @@
 /***************************************************************************
  WallHeightDialog
                                  A QGIS plugin
- This plugin identifies wall pixels on a DSM and derives wall height and aspect 
+ This plugin identifies wall pixels on a DSM and derives wall height and aspect
                              -------------------
         begin                : 2015-09-16
         git sha              : $Format:%H$
@@ -26,8 +26,9 @@ import os
 from qgis.PyQt import uic
 from qgis.PyQt.QtWidgets import QDialog
 
-FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'wall_height_dialog_base.ui'))
+FORM_CLASS, _ = uic.loadUiType(
+    os.path.join(os.path.dirname(__file__), "wall_height_dialog_base.ui")
+)
 
 
 class WallHeightDialog(QDialog, FORM_CLASS):

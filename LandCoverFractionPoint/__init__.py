@@ -32,4 +32,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .landcover_fraction_point import LandCoverFractionPoint
+
     return LandCoverFractionPoint(iface)

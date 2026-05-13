@@ -2,13 +2,39 @@ import datetime as dt
 from builtins import range
 
 from ..Utilities import shadowingfunctions as shadow
-from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_13 import shadowingfunction_wallheight_13
-from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_23 import shadowingfunction_wallheight_23
+from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_13 import (
+    shadowingfunction_wallheight_13,
+)
+from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_23 import (
+    shadowingfunction_wallheight_23,
+)
 from ..Utilities.misc import *
 from ..Utilities.SEBESOLWEIGCommonFiles import sun_position as sp
 
 
-def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, usevegdem, timeInterval, onetime, dlg, folder, gdal_data, trans, dst, wallshadow, wheight, waspect):
+def dailyshading(
+    dsm,
+    vegdsm,
+    vegdsm2,
+    scale,
+    lon,
+    lat,
+    sizex,
+    sizey,
+    tv,
+    UTC,
+    usevegdem,
+    timeInterval,
+    onetime,
+    dlg,
+    folder,
+    gdal_data,
+    trans,
+    dst,
+    wallshadow,
+    wheight,
+    waspect,
+):
 
     # lon = lonlat[0]
     # lat = lonlat[1]
@@ -17,7 +43,7 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
     day = tv[2]
 
     alt = np.median(dsm)
-    location = {'longitude': lon, 'latitude': lat, 'altitude': alt}
+    location = {"longitude": lon, "latitude": lat, "altitude": alt}
     if usevegdem == 1:
         psi = trans
         # amaxvalue
@@ -32,11 +58,11 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
         vegdem2[vegdem2 == dsm] = 0
 
         # Bush separation
-        bush = np.logical_not((vegdem2*vegdem))*vegdem
+        bush = np.logical_not((vegdem2 * vegdem)) * vegdem
 
     #     vegshtot = np.zeros((sizex, sizey))
     # else:
-        
+
     shtot = np.zeros((sizex, sizey))
 
     if onetime == 1:
@@ -49,12 +75,12 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
     hour = int(0)
     index = 0
     time = dict()
-    time['UTC'] = UTC
+    time["UTC"] = UTC
 
     if wallshadow == 1:
         walls = wheight
         dirwalls = waspect
-    else: 
+    else:
         walls = np.zeros((sizex, sizey))
         dirwalls = np.zeros((sizex, sizey))
 
@@ -67,11 +93,17 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
         else:
             minu = tv[4]
             hour = tv[3]
-        
+
         doy = day_of_year(year, month, day)
 
-        ut_time = doy - 1. + ((hour - dst) / 24.0) + (minu / (60. * 24.0)) + (0. / (60. * 60. * 24.0))
-        
+        ut_time = (
+            doy
+            - 1.0
+            + ((hour - dst) / 24.0)
+            + (minu / (60.0 * 24.0))
+            + (0.0 / (60.0 * 60.0 * 24.0))
+        )
+
         if ut_time < 0:
             year = year - 1
             month = 12
@@ -80,65 +112,108 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
             ut_time = ut_time + doy - 1
 
         HHMMSS = dectime_to_timevec(ut_time)
-        
-        time['year'] = year
-        time['month'] = month
-        time['day'] = day
-        time['hour'] = HHMMSS[0]
-        time['min'] = HHMMSS[1]
-        time['sec'] = HHMMSS[2]
+
+        time["year"] = year
+        time["month"] = month
+        time["day"] = day
+        time["hour"] = HHMMSS[0]
+        time["min"] = HHMMSS[1]
+        time["sec"] = HHMMSS[2]
 
         sun = sp.sun_position(time, location)
-        alt[i] = 90. - sun['zenith']
-        azi[i] = sun['azimuth']
+        alt[i] = 90.0 - sun["zenith"]
+        azi[i] = sun["azimuth"]
 
-        if time['sec'] == 59: #issue 228 and 256
-            time['sec'] = 0
-            time['min'] = time['min'] + 1
-            if time['min'] == 60:
-                time['min'] = 0
-                time['hour'] = time['hour'] + 1
-                if time['hour'] == 24:
-                    time['hour'] = 0
+        if time["sec"] == 59:  # issue 228 and 256
+            time["sec"] = 0
+            time["min"] = time["min"] + 1
+            if time["min"] == 60:
+                time["min"] = 0
+                time["hour"] = time["hour"] + 1
+                if time["hour"] == 24:
+                    time["hour"] = 0
 
-        time_vector = dt.datetime(year, month, day, time['hour'], time['min'], time['sec'])
+        time_vector = dt.datetime(
+            year, month, day, time["hour"], time["min"], time["sec"]
+        )
         timestr = time_vector.strftime("%Y%m%d_%H%M")
 
         if alt[i] > 0:
-            if wallshadow == 1: # Include wall shadows (Issue #121)
+            if wallshadow == 1:  # Include wall shadows (Issue #121)
                 if usevegdem == 1:
-                    vegsh, sh, _, wallsh, _, wallshve, _, _ = shadowingfunction_wallheight_23(dsm, vegdem, vegdem2,
-                                                azi[i], alt[i], scale, amaxvalue, bush, walls, dirwalls * np.pi / 180.)
+                    vegsh, sh, _, wallsh, _, wallshve, _, _ = (
+                        shadowingfunction_wallheight_23(
+                            dsm,
+                            vegdem,
+                            vegdem2,
+                            azi[i],
+                            alt[i],
+                            scale,
+                            amaxvalue,
+                            bush,
+                            walls,
+                            dirwalls * np.pi / 180.0,
+                        )
+                    )
                     sh = sh - (1 - vegsh) * (1 - psi)
                     if onetime == 0:
-                        filenamewallshve = folder + '/Facadeshadow_fromvegetation_' + timestr + '_LST.tif'
+                        filenamewallshve = (
+                            folder
+                            + "/Facadeshadow_fromvegetation_"
+                            + timestr
+                            + "_LST.tif"
+                        )
                         saveraster(gdal_data, filenamewallshve, wallshve)
                 else:
-                    sh, wallsh, _, _, _ = shadowingfunction_wallheight_13(dsm, azi[i], alt[i], scale,
-                                                                                        walls, dirwalls * np.pi / 180.)
+                    sh, wallsh, _, _, _ = shadowingfunction_wallheight_13(
+                        dsm,
+                        azi[i],
+                        alt[i],
+                        scale,
+                        walls,
+                        dirwalls * np.pi / 180.0,
+                    )
                     # shtot = shtot + sh
-                
+
                 if onetime == 0:
-                    filename = folder + '/Shadow_ground_' + timestr + '_LST.tif'
+                    filename = (
+                        folder + "/Shadow_ground_" + timestr + "_LST.tif"
+                    )
                     saveraster(gdal_data, filename, sh)
-                    filenamewallsh = folder + '/Facadeshadow_frombuilding_' + timestr + '_LST.tif'
+                    filenamewallsh = (
+                        folder
+                        + "/Facadeshadow_frombuilding_"
+                        + timestr
+                        + "_LST.tif"
+                    )
                     saveraster(gdal_data, filenamewallsh, wallsh)
-                    
 
             else:
                 if usevegdem == 0:
-                    sh = shadow.shadowingfunctionglobalradiation(dsm, azi[i], alt[i], scale, dlg, 0)
+                    sh = shadow.shadowingfunctionglobalradiation(
+                        dsm, azi[i], alt[i], scale, dlg, 0
+                    )
                     # shtot = shtot + sh
                 else:
-                    shadowresult = shadow.shadowingfunction_20(dsm, vegdem, vegdem2, azi[i], alt[i], scale, amaxvalue,
-                                                            bush, dlg, 0)
+                    shadowresult = shadow.shadowingfunction_20(
+                        dsm,
+                        vegdem,
+                        vegdem2,
+                        azi[i],
+                        alt[i],
+                        scale,
+                        amaxvalue,
+                        bush,
+                        dlg,
+                        0,
+                    )
                     vegsh = shadowresult["vegsh"]
                     sh = shadowresult["sh"]
-                    sh=sh-(1-vegsh)*(1-psi)
+                    sh = sh - (1 - vegsh) * (1 - psi)
                     # vegshtot = vegshtot + sh
 
                 if onetime == 0:
-                    filename = folder + '/Shadow_' + timestr + '_LST.tif'
+                    filename = folder + "/Shadow_" + timestr + "_LST.tif"
                     saveraster(gdal_data, filename, sh)
 
             shtot = shtot + sh
@@ -148,17 +223,25 @@ def dailyshading(dsm, vegdsm, vegdsm2, scale, lon, lat, sizex, sizey, tv, UTC, u
 
     if wallshadow == 1:
         if onetime == 1:
-            filenamewallsh = folder + '/Facadeshadow_frombuilding_' + timestr + '_LST.tif'
+            filenamewallsh = (
+                folder + "/Facadeshadow_frombuilding_" + timestr + "_LST.tif"
+            )
             saveraster(gdal_data, filenamewallsh, wallsh)
             if usevegdem == 1:
-                filenamewallshve = folder + '/Facadeshadow_fromvegetation_' + timestr + '_LST.tif'
+                filenamewallshve = (
+                    folder
+                    + "/Facadeshadow_fromvegetation_"
+                    + timestr
+                    + "_LST.tif"
+                )
                 saveraster(gdal_data, filenamewallshve, wallshve)
 
-    shadowresult = {'shfinal': shfinal, 'time_vector': time_vector}
+    shadowresult = {"shfinal": shfinal, "time_vector": time_vector}
 
     dlg.progressBar.setValue(0)
 
     return shadowresult
+
 
 def day_of_year(yy, month, day):
     if (yy % 4) == 0:
@@ -177,7 +260,7 @@ def day_of_year(yy, month, day):
     else:
         dayspermonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
-    doy = np.sum(dayspermonth[0:month-1]) + day
+    doy = np.sum(dayspermonth[0 : month - 1]) + day
 
     return doy
 
@@ -187,11 +270,11 @@ def dectime_to_timevec(dectime):
 
     doy = np.floor(dectime)
 
-    DH = dectime-doy
+    DH = dectime - doy
     HOURS = int(24 * DH)
 
-    DM=24*DH - HOURS
-    MINS=int(60 * DM)
+    DM = 24 * DH - HOURS
+    MINS = int(60 * DM)
 
     DS = 60 * DM - MINS
     SECS = int(60 * DS)

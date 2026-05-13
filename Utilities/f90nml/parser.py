@@ -1,12 +1,13 @@
 """f90nml.parser
-   =============
+=============
 
-   Fortran namelist parser and tokenizer to convert contents into a hierarchy
-   of dicts containing intrinsic Python data types.
+Fortran namelist parser and tokenizer to convert contents into a hierarchy
+of dicts containing intrinsic Python data types.
 
-   :copyright: Copyright 2014 Marshall Ward, see AUTHORS for details.
-   :license: Apache License, Version 2.0, see LICENSE for details.
+:copyright: Copyright 2014 Marshall Ward, see AUTHORS for details.
+:license: Apache License, Version 2.0, see LICENSE for details.
 """
+
 from __future__ import absolute_import
 from builtins import next
 from builtins import range
@@ -40,33 +41,35 @@ class Parser(object):
         >>> parser = Parser()
         >>> data_nml = parser.read('data.nml')"""
 
-        nml_file = open(nml_fname, 'r')
+        nml_file = open(nml_fname, "r")
 
         if nml_patch_in:
 
             if not isinstance(nml_patch_in, dict):
                 nml_file.close()
-                raise ValueError('Input patch must be a dict or an NmlDict.')
+                raise ValueError("Input patch must be a dict or an NmlDict.")
 
             nml_patch = copy.deepcopy(NmlDict(nml_patch_in))
 
             if not patch_fname:
-                patch_fname = nml_fname + '~'
+                patch_fname = nml_fname + "~"
             elif nml_fname == patch_fname:
                 nml_file.close()
-                raise ValueError('f90nml: error: Patch filepath cannot be the '
-                                 'same as the original filepath.')
-            self.pfile = open(patch_fname, 'w')
+                raise ValueError(
+                    "f90nml: error: Patch filepath cannot be the "
+                    "same as the original filepath."
+                )
+            self.pfile = open(patch_fname, "w")
         else:
             nml_patch = NmlDict()
 
         f90lex = shlex.shlex(nml_file)
-        f90lex.whitespace = ''
-        f90lex.wordchars += '.-+'       # Include floating point tokens
+        f90lex.whitespace = ""
+        f90lex.wordchars += ".-+"  # Include floating point tokens
         if nml_patch:
-            f90lex.commenters = ''
+            f90lex.commenters = ""
         else:
-            f90lex.commenters = '!'
+            f90lex.commenters = "!"
 
         self.tokens = iter(f90lex)
 
@@ -77,11 +80,11 @@ class Parser(object):
         while True:
             try:
                 # Check for classic group terminator
-                if self.token == 'end':
+                if self.token == "end":
                     self.update_tokens()
 
                 # Ignore tokens outside of namelist groups
-                while self.token not in ('&', '$'):
+                while self.token not in ("&", "$"):
                     self.update_tokens()
 
             except StopIteration:
@@ -99,15 +102,16 @@ class Parser(object):
             # Populate the namelist group
             while g_name:
 
-                if self.token not in ('=', '%', '('):
+                if self.token not in ("=", "%", "("):
                     self.update_tokens()
 
                 # Set the next active variable
-                if self.token in ('=', '(', '%'):
+                if self.token in ("=", "(", "%"):
 
                     try:
                         v_name, v_values = self.parse_variable(
-                            g_vars, patch_nml=grp_patch)
+                            g_vars, patch_nml=grp_patch
+                        )
                     except ValueError:
                         nml_file.close()
                         if self.pfile:
@@ -128,14 +132,14 @@ class Parser(object):
                     v_values = []
 
                 # Finalise namelist group
-                if self.token in ('/', '&', '$'):
+                if self.token in ("/", "&", "$"):
 
                     # Append any remaining patched variables
                     for v_name, v_val in list(grp_patch.items()):
                         g_vars[v_name] = v_val
                         v_strs = nmls.var_strings(v_name, v_val)
                         for v_str in v_strs:
-                            self.pfile.write('    {0}\n'.format(v_str))
+                            self.pfile.write("    {0}\n".format(v_str))
 
                     # Append the grouplist to the namelist
                     if g_name in nmls:
@@ -179,7 +183,7 @@ class Parser(object):
         patch_values = None
         write_token = v_name not in patch_nml
 
-        if self.token == '(':
+        if self.token == "(":
 
             v_indices = self.parse_index()
 
@@ -195,7 +199,7 @@ class Parser(object):
         else:
             v_idx = None
 
-        if self.token == '%':
+        if self.token == "%":
 
             # Resolve the derived type
 
@@ -216,7 +220,7 @@ class Parser(object):
         else:
             # Construct the variable array
 
-            assert self.token == '='
+            assert self.token == "="
             n_vals = None
             prior_ws_sep = ws_sep = False
 
@@ -231,11 +235,13 @@ class Parser(object):
                     self.pfile.write(p_val)
 
             # Add variables until next variable trigger
-            while (self.token not in ('=', '(', '%') or
-                   (self.prior_token, self.token) == ('=', '(')):
+            while self.token not in ("=", "(", "%") or (
+                self.prior_token,
+                self.token,
+            ) == ("=", "("):
 
                 # Check for repeated values
-                if self.token == '*':
+                if self.token == "*":
                     n_vals = self.parse_value(write_token)
                     assert isinstance(n_vals, int)
                     self.update_tokens(write_token)
@@ -243,19 +249,22 @@ class Parser(object):
                     n_vals = 1
 
                 # First check for implicit null values
-                if self.prior_token in ('=', '%', ','):
-                    if (self.token in (',', '/', '&', '$') and
-                            not (self.prior_token == ',' and
-                                 self.token in ('/', '&', '$'))):
+                if self.prior_token in ("=", "%", ","):
+                    if self.token in (",", "/", "&", "$") and not (
+                        self.prior_token == ","
+                        and self.token in ("/", "&", "$")
+                    ):
                         append_value(v_values, None, v_idx, n_vals)
 
-                elif self.prior_token == '*':
+                elif self.prior_token == "*":
 
-                    if self.token not in ('/', '&', '$'):
+                    if self.token not in ("/", "&", "$"):
                         self.update_tokens(write_token)
 
-                    if (self.token == '=' or (self.token in ('/', '&', '$') and
-                                              self.prior_token == '*')):
+                    if self.token == "=" or (
+                        self.token in ("/", "&", "$")
+                        and self.prior_token == "*"
+                    ):
                         next_value = None
                     else:
                         next_value = self.parse_value(write_token)
@@ -269,17 +278,22 @@ class Parser(object):
                     write_token = True
 
                     # Check for escaped strings
-                    if (v_values and isinstance(v_values[-1], str) and
-                            isinstance(next_value, str) and not prior_ws_sep):
+                    if (
+                        v_values
+                        and isinstance(v_values[-1], str)
+                        and isinstance(next_value, str)
+                        and not prior_ws_sep
+                    ):
 
                         quote_char = self.prior_token[0]
-                        v_values[-1] = quote_char.join([v_values[-1],
-                                                        next_value])
+                        v_values[-1] = quote_char.join(
+                            [v_values[-1], next_value]
+                        )
                     else:
                         append_value(v_values, next_value, v_idx, n_vals)
 
                 # Exit for end of nml group (/, &, $) or null broadcast (=)
-                if self.token in ('/', '&', '$', '='):
+                if self.token in ("/", "&", "$", "="):
                     break
                 else:
                     prior_ws_sep = ws_sep
@@ -306,49 +320,55 @@ class Parser(object):
             i_start = int(self.token)
             self.update_tokens()
         except ValueError:
-            if self.token in (',', ')'):
-                raise ValueError('{0} index cannot be empty.'.format(v_name))
-            elif not self.token == ':':
+            if self.token in (",", ")"):
+                raise ValueError("{0} index cannot be empty.".format(v_name))
+            elif not self.token == ":":
                 raise
 
         # End index
-        if self.token == ':':
+        if self.token == ":":
             self.update_tokens()
             try:
                 i_end = 1 + int(self.token)
                 self.update_tokens()
             except ValueError:
-                if self.token == ':':
-                    raise ValueError('{0} end index cannot be implicit '
-                                     'when using stride.'.format(v_name))
-                elif self.token not in (',', ')'):
+                if self.token == ":":
+                    raise ValueError(
+                        "{0} end index cannot be implicit "
+                        "when using stride.".format(v_name)
+                    )
+                elif self.token not in (",", ")"):
                     raise
-        elif self.token in (',', ')'):
+        elif self.token in (",", ")"):
             # Replace index with single-index range
             if i_start:
                 i_end = 1 + i_start
 
         # Stride index
-        if self.token == ':':
+        if self.token == ":":
             self.update_tokens()
             try:
                 i_stride = int(self.token)
             except ValueError:
-                if self.token == ')':
-                    raise ValueError('{0} stride index cannot be '
-                                     'implicit.'.format(v_name))
+                if self.token == ")":
+                    raise ValueError(
+                        "{0} stride index cannot be "
+                        "implicit.".format(v_name)
+                    )
                 else:
                     raise
 
             if i_stride == 0:
-                raise ValueError('{0} stride index cannot be zero.'
-                                 ''.format(v_name))
+                raise ValueError(
+                    "{0} stride index cannot be zero." "".format(v_name)
+                )
 
             self.update_tokens()
 
-        if self.token not in (',', ')'):
-            raise ValueError('{0} index did not terminate '
-                             'correctly.'.format(v_name))
+        if self.token not in (",", ")"):
+            raise ValueError(
+                "{0} index did not terminate " "correctly.".format(v_name)
+            )
 
         idx_triplet = (i_start, i_end, i_stride)
         v_indices.append((idx_triplet))
@@ -361,20 +381,20 @@ class Parser(object):
         v_str = self.prior_token
 
         # Construct the complex string
-        if v_str == '(':
+        if v_str == "(":
             v_re = self.token
 
             self.update_tokens(write_token)
-            assert self.token == ','
+            assert self.token == ","
 
             self.update_tokens(write_token)
             v_im = self.token
 
             self.update_tokens(write_token)
-            assert self.token == ')'
+            assert self.token == ")"
 
             self.update_tokens(write_token)
-            v_str = '({0}, {1})'.format(v_re, v_im)
+            v_str = "({0}, {1})".format(v_re, v_im)
 
         recast_funcs = [int, pyfloat, pycomplex, pybool, pystr]
 
@@ -395,14 +415,14 @@ class Parser(object):
             self.pfile.write(self.token)
 
         # Commas between values are interpreted as whitespace
-        if self.token == ',':
+        if self.token == ",":
             ws_sep = True
 
-        while next_token in tuple(whitespace + '!'):
+        while next_token in tuple(whitespace + "!"):
 
             if self.pfile:
-                if next_token == '!':
-                    while not next_token == '\n':
+                if next_token == "!":
+                    while not next_token == "\n":
                         self.pfile.write(next_token)
                         next_token = next(self.tokens)
                 self.pfile.write(next_token)
@@ -416,6 +436,7 @@ class Parser(object):
 
 
 # Support functions
+
 
 def append_value(v_values, next_value, v_idx=None, n_vals=1):
     """Update a list of parsed values with a new value."""

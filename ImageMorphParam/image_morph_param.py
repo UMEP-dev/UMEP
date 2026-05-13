@@ -20,26 +20,35 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 from __future__ import absolute_import
+import webbrowser
+from .image_morph_param_dialog import ImageMorphParamDialog
+from .impgworker import Worker
+from ..Utilities.imageMorphometricParms_v1 import *
+from osgeo import gdal
+import os
+from qgis.core import *
+from qgis.gui import *
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QAction, QMessageBox, QFileDialog
+from qgis.PyQt.QtCore import (
+    QSettings,
+    QTranslator,
+    qVersion,
+    QThread,
+    QCoreApplication,
+)
+from builtins import range
 from future import standard_library
+
 standard_library.install_aliases()
 # from builtins import str
-from builtins import range
 # from builtins import object
-from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread, QCoreApplication
-from qgis.PyQt.QtWidgets import QAction, QMessageBox, QFileDialog
-from qgis.PyQt.QtGui import QIcon
-from qgis.gui import *
-from qgis.core import *
-import os
-from osgeo import gdal
-from ..Utilities.imageMorphometricParms_v1 import *
-from .impgworker import Worker
-from .image_morph_param_dialog import ImageMorphParamDialog
-import webbrowser
 
 # Initialize Qt resources from file resources.py
 # import resources_rc
+
 
 class ImageMorphParam(object):
     """QGIS Plugin Implementation."""
@@ -57,17 +66,16 @@ class ImageMorphParam(object):
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'ImageMorphParam_{}.qm'.format(locale))
+            self.plugin_dir, "i18n", "ImageMorphParam_{}.qm".format(locale)
+        )
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
 
-            if qVersion() > '4.3.3':
+            if qVersion() > "4.3.3":
                 QCoreApplication.installTranslator(self.translator)
 
         # Create the dialog (after translation) and keep reference
@@ -89,7 +97,7 @@ class ImageMorphParam(object):
                 self.dlg.degreeBox.addItem(str(i))
         self.dlg.degreeBox.setCurrentIndex(4)
 
-        self.folderPath = 'None'
+        self.folderPath = "None"
         self.degree = 5.0
         self.dsm = None
         self.dem = None
@@ -100,33 +108,53 @@ class ImageMorphParam(object):
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&Image Morphometric Parameters')
+        self.menu = self.tr("&Image Morphometric Parameters")
         # self.toolbar = self.iface.addToolBar(u'ImageMorphParam')
         # self.toolbar.setObjectName(u'ImageMorphParam')
 
-        self.layerComboManagerPolygrid = QgsMapLayerComboBox(self.dlg.widgetPolygrid)
+        self.layerComboManagerPolygrid = QgsMapLayerComboBox(
+            self.dlg.widgetPolygrid
+        )
         self.layerComboManagerPolygrid.setCurrentIndex(-1)
-        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
+        self.layerComboManagerPolygrid.setFilters(
+            QgsMapLayerProxyModel.Filter.PolygonLayer
+        )
         self.layerComboManagerPolygrid.setFixedWidth(175)
-        self.layerComboManagerPolyField = QgsFieldComboBox(self.dlg.widgetField)
-        self.layerComboManagerPolyField .setFilters(QgsFieldProxyModel.Filter.Numeric)
-        self.layerComboManagerPolygrid .layerChanged.connect(self.layerComboManagerPolyField.setLayer)
+        self.layerComboManagerPolyField = QgsFieldComboBox(
+            self.dlg.widgetField
+        )
+        self.layerComboManagerPolyField.setFilters(
+            QgsFieldProxyModel.Filter.Numeric
+        )
+        self.layerComboManagerPolygrid.layerChanged.connect(
+            self.layerComboManagerPolyField.setLayer
+        )
 
-        self.layerComboManagerDSMbuildground = QgsMapLayerComboBox(self.dlg.widgetDSMbuildground)
-        self.layerComboManagerDSMbuildground.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerDSMbuildground = QgsMapLayerComboBox(
+            self.dlg.widgetDSMbuildground
+        )
+        self.layerComboManagerDSMbuildground.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerDSMbuildground.setFixedWidth(175)
         self.layerComboManagerDSMbuildground.setCurrentIndex(-1)
         self.layerComboManagerDEM = QgsMapLayerComboBox(self.dlg.widgetDEM)
-        self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerDEM.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerDEM.setFixedWidth(175)
         self.layerComboManagerDEM.setCurrentIndex(-1)
-        self.layerComboManagerDSMbuild = QgsMapLayerComboBox(self.dlg.widgetDSMbuild)
-        self.layerComboManagerDSMbuild.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerDSMbuild = QgsMapLayerComboBox(
+            self.dlg.widgetDSMbuild
+        )
+        self.layerComboManagerDSMbuild.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerDSMbuild.setFixedWidth(175)
         self.layerComboManagerDSMbuild.setCurrentIndex(-1)
 
-        if not (os.path.isdir(self.plugin_dir + '/data')):
-            os.mkdir(self.plugin_dir + '/data')
+        if not (os.path.isdir(self.plugin_dir + "/data")):
+            os.mkdir(self.plugin_dir + "/data")
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -141,7 +169,7 @@ class ImageMorphParam(object):
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('ImageMorphParam', message)
+        return QCoreApplication.translate("ImageMorphParam", message)
 
     def add_action(
         self,
@@ -153,7 +181,8 @@ class ImageMorphParam(object):
         add_to_toolbar=True,
         status_tip=None,
         whats_this=None,
-        parent=None):
+        parent=None,
+    ):
 
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
@@ -170,9 +199,7 @@ class ImageMorphParam(object):
             self.toolbar.addAction(action)
 
         if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action)
+            self.iface.addPluginToMenu(self.menu, action)
 
         self.actions.append(action)
 
@@ -181,19 +208,20 @@ class ImageMorphParam(object):
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/ImageMorphParam/ImageMorphIcon.png'
+        icon_path = ":/plugins/ImageMorphParam/ImageMorphIcon.png"
         self.add_action(
             icon_path,
-            text=self.tr(u'Image Morphometric Parameters'),
+            text=self.tr("Image Morphometric Parameters"),
             callback=self.run,
-            parent=self.iface.mainWindow())
+            parent=self.iface.mainWindow(),
+        )
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr(u'&Image Morphometric Parameters'),
-                action)
+                self.tr("&Image Morphometric Parameters"), action
+            )
             self.iface.removeToolBarIcon(action)
 
     def folder_path(self):
@@ -213,13 +241,50 @@ class ImageMorphParam(object):
             self.dlg.label_3.setEnabled(True)
             self.dlg.label_4.setEnabled(False)
 
-    def startWorker(self, dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, iface, plugin_dir,
-                    folderPath, dlg, imid, radius, degree, rm):
+    def startWorker(
+        self,
+        dsm,
+        dem,
+        dsm_build,
+        poly,
+        poly_field,
+        vlayer,
+        prov,
+        fields,
+        idx,
+        dir_poly,
+        iface,
+        plugin_dir,
+        folderPath,
+        dlg,
+        imid,
+        radius,
+        degree,
+        rm,
+    ):
         # create a new worker instance
-        worker = Worker(dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, iface,
-                        plugin_dir, folderPath, dlg, imid, radius, degree, rm)
+        worker = Worker(
+            dsm,
+            dem,
+            dsm_build,
+            poly,
+            poly_field,
+            vlayer,
+            prov,
+            fields,
+            idx,
+            dir_poly,
+            iface,
+            plugin_dir,
+            folderPath,
+            dlg,
+            imid,
+            radius,
+            degree,
+            rm,
+        )
 
-        self.dlg.runButton.setText('Cancel')
+        self.dlg.runButton.setText("Cancel")
         self.dlg.runButton.clicked.disconnect()
         self.dlg.runButton.clicked.connect(worker.kill)
         self.dlg.closeButton.setEnabled(False)
@@ -241,50 +306,65 @@ class ImageMorphParam(object):
         try:
             self.worker.deleteLater()
         except RuntimeError:
-             pass
+            pass
         self.thread.quit()
         self.thread.wait()
         self.thread.deleteLater()
 
         if ret == 1:
-            self.dlg.runButton.setText('Run')
+            self.dlg.runButton.setText("Run")
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
             self.dlg.closeButton.setEnabled(True)
             self.dlg.progressBar.setValue(0)
 
-            self.iface.messageBar().pushMessage("Image Morphometric Parameters",
-                                    "Process finished! Check General Messages (speech bubble, lower left) "
-                                    "to obtain information of the process.", duration=5)
+            self.iface.messageBar().pushMessage(
+                "Image Morphometric Parameters",
+                "Process finished! Check General Messages (speech bubble, lower left) "
+                "to obtain information of the process.",
+                duration=5,
+            )
         else:
-            self.dlg.runButton.setText('Run')
+            self.dlg.runButton.setText("Run")
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
             self.dlg.closeButton.setEnabled(True)
             self.dlg.progressBar.setValue(0)
-            QMessageBox.information(None, "Image Morphometric Parameters", "Operations cancelled, "
-                                                                           "process unsuccessful! See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.")
+            QMessageBox.information(
+                None,
+                "Image Morphometric Parameters",
+                "Operations cancelled, "
+                "process unsuccessful! See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.",
+            )
 
     def workerError(self, errorstring):
         QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)
 
     def progress_update(self):
-        self.steps +=1
+        self.steps += 1
         self.dlg.progressBar.setValue(self.steps)
 
     def start_progress(self):
         self.steps = 0
         poly = self.layerComboManagerPolygrid.currentLayer()
         if poly is None:
-            QMessageBox.critical(self.dlg, "Error", "No valid Polygon layer is selected")
+            QMessageBox.critical(
+                self.dlg, "Error", "No valid Polygon layer is selected"
+            )
             return
         if not poly.geometryType() == 2:
-            QMessageBox.critical(self.dlg, "Error", "No valid Polygon layer is selected")
+            QMessageBox.critical(
+                self.dlg, "Error", "No valid Polygon layer is selected"
+            )
             return
 
         poly_field = self.layerComboManagerPolyField.currentField()
-        if poly_field == '':
-            QMessageBox.critical(self.dlg, "Error", "An attribute filed with unique fields must be selected")
+        if poly_field == "":
+            QMessageBox.critical(
+                self.dlg,
+                "Error",
+                "An attribute filed with unique fields must be selected",
+            )
             return
         vlayer = QgsVectorLayer(poly.source(), "polygon", "ogr")
         prov = vlayer.dataProvider()
@@ -292,7 +372,7 @@ class ImageMorphParam(object):
         # idx = vlayer.fieldNameIndex(poly_field)
         idx = vlayer.fields().indexFromName(poly_field)
 
-        dir_poly = self.plugin_dir + '/data/poly_temp.shp'
+        dir_poly = self.plugin_dir + "/data/poly_temp.shp"
         self.dlg.progressBar.setMaximum(vlayer.featureCount())
 
         if self.dlg.checkBoxOnlyBuilding.isChecked():  # Only building heights
@@ -300,7 +380,11 @@ class ImageMorphParam(object):
             dsm = None
             dem = None
             if dsm_build is None:
-                QMessageBox.critical(self.dlg, "Error", "No valid building DSM raster layer is selected")
+                QMessageBox.critical(
+                    self.dlg,
+                    "Error",
+                    "No valid building DSM raster layer is selected",
+                )
                 return
 
         else:  # Both building ground heights
@@ -308,10 +392,18 @@ class ImageMorphParam(object):
             dem = self.layerComboManagerDEM.currentLayer()
             dsm_build = None
             if dsm is None:
-                QMessageBox.critical(None, "Error", "No valid ground and building DSM raster layer is selected")
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "No valid ground and building DSM raster layer is selected",
+                )
                 return
             if dem is None:
-                QMessageBox.critical(None, "Error", "No valid ground DEM raster layer is selected")
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "No valid ground DEM raster layer is selected",
+                )
                 return
 
         if self.dlg.radioButtonExtent.isChecked():  # What search method to use
@@ -322,27 +414,45 @@ class ImageMorphParam(object):
         # #Calculate Z0m and Zdm depending on the Z0 method
         ro = self.dlg.comboBox_Roughness.currentIndex()
         if ro == 0:
-            rm = 'RT'
+            rm = "RT"
         elif ro == 1:
-            rm = 'Rau'
+            rm = "Rau"
         elif ro == 2:
-            rm = 'Bot'
+            rm = "Bot"
         elif ro == 3:
-            rm = 'Mac'
+            rm = "Mac"
         elif ro == 4:
-            rm = 'Mho'
+            rm = "Mho"
         else:
-            rm = 'Kan'
+            rm = "Kan"
 
-        if self.folderPath == 'None':
+        if self.folderPath == "None":
             QMessageBox.critical(None, "Error", "Select a valid output folder")
             return
 
         radius = self.dlg.spinBoxDistance.value()
         degree = float(self.dlg.degreeBox.currentText())
 
-        self.startWorker(dsm, dem, dsm_build, poly, poly_field, vlayer, prov, fields, idx, dir_poly, self.iface,
-                         self.plugin_dir, self.folderPath, self.dlg, imid, radius, degree, rm)
+        self.startWorker(
+            dsm,
+            dem,
+            dsm_build,
+            poly,
+            poly_field,
+            vlayer,
+            prov,
+            fields,
+            idx,
+            dir_poly,
+            self.iface,
+            self.plugin_dir,
+            self.folderPath,
+            self.dlg,
+            imid,
+            radius,
+            degree,
+            rm,
+        )
 
     def run(self):
         self.dlg.show()

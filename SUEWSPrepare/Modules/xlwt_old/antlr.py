@@ -50,7 +50,6 @@
 # ## End of contents of the ANTLR 2.7.7 LICENSE.txt ########################
 
 
-
 # ###xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx###
 # ###                     global symbols                             ###
 # ###xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx###
@@ -2708,7 +2707,6 @@
 
 #     def getASTNodeClass(self):
 #         return self._class
-
 
 
 #     def getTokenTypeToASTClassMap(self):

@@ -20,6 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 from __future__ import absolute_import
 from builtins import str
 from builtins import range
@@ -28,14 +29,22 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 from qgis.PyQt.QtGui import QIcon
 from qgis.gui import QgsMapLayerComboBox, QgsMapToolEmitPoint
-from qgis.core import QgsMapLayerProxyModel, QgsFeature, QgsGeometry, QgsVectorLayer, QgsPointXY, \
-    QgsVectorFileWriter, QgsProject
+from qgis.core import (
+    QgsMapLayerProxyModel,
+    QgsFeature,
+    QgsGeometry,
+    QgsVectorLayer,
+    QgsPointXY,
+    QgsVectorFileWriter,
+    QgsProject,
+)
 import os
 from ..Utilities.landCoverFractions_v1 import *
 from osgeo import gdal
 import subprocess
 import sys
 import webbrowser
+
 # Initialize Qt resources from file resources.py
 # from . import resources_rc
 # Import the code for the dialog
@@ -58,17 +67,18 @@ class LandCoverFractionPoint(object):
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(
             self.plugin_dir,
-            'i18n',
-            'LandCoverFractionPoint_{}.qm'.format(locale))
+            "i18n",
+            "LandCoverFractionPoint_{}.qm".format(locale),
+        )
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
 
-            if qVersion() > '4.3.3':
+            if qVersion() > "4.3.3":
                 QCoreApplication.installTranslator(self.translator)
 
         # Create the dialog (after translation) and keep reference
@@ -93,13 +103,13 @@ class LandCoverFractionPoint(object):
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&Land Cover Fraction Point')
+        self.menu = self.tr("&Land Cover Fraction Point")
 
         # get reference to the canvas
         self.canvas = self.iface.mapCanvas()
         self.poiLayer = None
         self.polyLayer = None
-        self.folderPath = 'None'
+        self.folderPath = "None"
         self.degree = 5.0
         self.point = None
         self.pointx = None
@@ -107,25 +117,33 @@ class LandCoverFractionPoint(object):
 
         # #g pin tool
         self.pointTool = QgsMapToolEmitPoint(self.canvas)
-        #self.toolPan = QgsMapToolPan(self.canvas)
+        # self.toolPan = QgsMapToolPan(self.canvas)
         self.pointTool.canvasClicked.connect(self.create_point)
 
         # self.layerComboManagerPoint = VectorLayerCombo(self.dlg.comboBox_Point)
         # fieldgen = VectorLayerCombo(self.dlg.comboBox_Point, initLayer="", options={"geomType": QGis.Point})
-        self.layerComboManagerPoint = QgsMapLayerComboBox(self.dlg.widgetPointLayer)
+        self.layerComboManagerPoint = QgsMapLayerComboBox(
+            self.dlg.widgetPointLayer
+        )
         self.layerComboManagerPoint.setCurrentIndex(-1)
-        self.layerComboManagerPoint.setFilters(QgsMapLayerProxyModel.Filter.PointLayer)
+        self.layerComboManagerPoint.setFilters(
+            QgsMapLayerProxyModel.Filter.PointLayer
+        )
         self.layerComboManagerPoint.setFixedWidth(175)
 
         # self.layerComboManagerLCgrid = RasterLayerCombo(self.dlg.comboBox_lcgrid)
         # RasterLayerCombo(self.dlg.comboBox_lcgrid, initLayer="")
-        self.layerComboManagerLCgrid = QgsMapLayerComboBox(self.dlg.widget_lcgrid)
-        self.layerComboManagerLCgrid.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerLCgrid = QgsMapLayerComboBox(
+            self.dlg.widget_lcgrid
+        )
+        self.layerComboManagerLCgrid.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerLCgrid.setFixedWidth(175)
         self.layerComboManagerLCgrid.setCurrentIndex(-1)
 
-        if not (os.path.isdir(self.plugin_dir + '/data')):
-            os.mkdir(self.plugin_dir + '/data')
+        if not (os.path.isdir(self.plugin_dir + "/data")):
+            os.mkdir(self.plugin_dir + "/data")
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -140,8 +158,7 @@ class LandCoverFractionPoint(object):
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('LandCoverFractionPoint', message)
-
+        return QCoreApplication.translate("LandCoverFractionPoint", message)
 
     def add_action(
         self,
@@ -153,7 +170,8 @@ class LandCoverFractionPoint(object):
         add_to_toolbar=True,
         status_tip=None,
         whats_this=None,
-        parent=None):
+        parent=None,
+    ):
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -208,9 +226,7 @@ class LandCoverFractionPoint(object):
             self.toolbar.addAction(action)
 
         if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action)
+            self.iface.addPluginToMenu(self.menu, action)
 
         self.actions.append(action)
 
@@ -219,19 +235,22 @@ class LandCoverFractionPoint(object):
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/LandCoverFractionPoint/icon.png'
+        icon_path = ":/plugins/LandCoverFractionPoint/icon.png"
         self.add_action(
             icon_path,
-            text=self.tr(u'Calculates land cover fraction from a buffered point'),
+            text=self.tr(
+                "Calculates land cover fraction from a buffered point"
+            ),
             callback=self.run,
-            parent=self.iface.mainWindow())
+            parent=self.iface.mainWindow(),
+        )
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr(u'&Land Cover Fraction Point'),
-                action)
+                self.tr("&Land Cover Fraction Point"), action
+            )
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
         del self.toolbar
@@ -271,10 +290,14 @@ class LandCoverFractionPoint(object):
         if self.dlg.checkBoxVectorLayer.isChecked():
             point = self.layerComboManagerPoint.currentLayer()
             if point is None:
-                QMessageBox.critical(None, "Error", "No valid point layer is selected")
+                QMessageBox.critical(
+                    None, "Error", "No valid point layer is selected"
+                )
                 return
             if not point.geometryType() == 0:
-                QMessageBox.critical(None, "Error", "No valid Polygon layer is selected")
+                QMessageBox.critical(
+                    None, "Error", "No valid Polygon layer is selected"
+                )
                 return
 
             for poi in point.getFeatures():
@@ -283,7 +306,9 @@ class LandCoverFractionPoint(object):
                 self.pointy = loc[1]
         else:
             if not self.pointx:
-                QMessageBox.critical(None, "Error", "No click registred on map canvas")
+                QMessageBox.critical(
+                    None, "Error", "No click registred on map canvas"
+                )
                 return
 
         self.dlg.runButton.setEnabled(1)
@@ -299,7 +324,8 @@ class LandCoverFractionPoint(object):
             self.polyLayer.commitChanges()
             QgsProject.instance().removeMapLayer(self.polyLayer.id())
 
-        self.canvas.setMapTool(self.pointTool)  # Calls a canvas click and create_point
+        # Calls a canvas click and create_point
+        self.canvas.setMapTool(self.pointTool)
 
         self.dlg.setEnabled(False)
         self.create_point_layer()
@@ -308,7 +334,10 @@ class LandCoverFractionPoint(object):
         canvas = self.iface.mapCanvas()
         srs = canvas.mapSettings().destinationCrs()
         crs = str(srs.authid())
-        uri = "Point?field=id:integer&field=x:double&field=y:double&index=yes&crs=" + crs
+        uri = (
+            "Point?field=id:integer&field=x:double&field=y:double&index=yes&crs="
+            + crs
+        )
         self.poiLayer = QgsVectorLayer(uri, "Point of Interest", "memory")
         self.provider = self.poiLayer.dataProvider()
 
@@ -318,10 +347,10 @@ class LandCoverFractionPoint(object):
         crs = str(srs.authid())
         uri = "Polygon?field=id:integer&index=yes&crs=" + crs
         # dir_poly = self.plugin_dir + '/data/poly_temp.shp'
-        #self.polyLayer = QgsVectorLayer(dir_poly, "Study area", "ogr")
+        # self.polyLayer = QgsVectorLayer(dir_poly, "Study area", "ogr")
         self.polyLayer = QgsVectorLayer(uri, "Study area", "memory")
         self.provider = self.polyLayer.dataProvider()
-        #QgsMapLayerRegistry.instance().addMapLayer(self.polyLayer)
+        # QgsMapLayerRegistry.instance().addMapLayer(self.polyLayer)
 
         # create buffer feature
         fc = int(self.provider.featureCount())
@@ -329,10 +358,14 @@ class LandCoverFractionPoint(object):
 
         # Assign feature the buffered geometry
         radius = self.dlg.spinBox.value()
-        featurepoly.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(self.pointx, self.pointy)).buffer(radius, 1000)) #fix issue #400
+        featurepoly.setGeometry(
+            QgsGeometry.fromPointXY(
+                QgsPointXY(self.pointx, self.pointy)
+            ).buffer(radius, 1000)
+        )  # fix issue #400
         featurepoly.setAttributes([fc])
         self.polyLayer.startEditing()
-        self.polyLayer.addFeature(featurepoly)  #, True
+        self.polyLayer.addFeature(featurepoly)  # , True
         self.polyLayer.commitChanges()
         QgsProject.instance().addMapLayer(self.polyLayer)
 
@@ -344,7 +377,7 @@ class LandCoverFractionPoint(object):
         # self.polyLayer.repaintRequested(None)
         # self.polyLayer.setCacheImage(None)
         self.polyLayer.triggerRepaint()
-        #QObject.connect(self.dlg.selectpoint, SIGNAL("clicked()"), self.select_point)
+        # QObject.connect(self.dlg.selectpoint, SIGNAL("clicked()"), self.select_point)
 
     # def help(self):
     #     url = "file://" + self.plugin_dir + "/README.html"
@@ -360,28 +393,40 @@ class LandCoverFractionPoint(object):
 
         self.dlg.progressBar.setValue(0)
 
-        if self.folderPath == 'None':
+        if self.folderPath == "None":
             QMessageBox.critical(None, "Error", "Select a valid output folder")
             return
 
         poly = self.iface.activeLayer()
         if poly is None:
-            QMessageBox.critical(None, "Error", "No valid Polygon layer is selected")
+            QMessageBox.critical(
+                None, "Error", "No valid Polygon layer is selected"
+            )
             return
         if not poly.geometryType() == 2:
-            QMessageBox.critical(None, "Error", "No valid Polygon layer is selected")
+            QMessageBox.critical(
+                None, "Error", "No valid Polygon layer is selected"
+            )
             return
 
         prov = poly.dataProvider()
         fields = prov.fields()
 
-        dir_poly = self.plugin_dir + '/data/poly_temp.shp'
+        dir_poly = self.plugin_dir + "/data/poly_temp.shp"
 
-        writer = QgsVectorFileWriter(dir_poly, "CP1250", fields, prov.wkbType(),
-                                     prov.crs(), "ESRI shapefile")
+        writer = QgsVectorFileWriter(
+            dir_poly,
+            "CP1250",
+            fields,
+            prov.wkbType(),
+            prov.crs(),
+            "ESRI shapefile",
+        )
 
         if writer.hasError() != QgsVectorFileWriter.WriterError.NoError:
-            self.iface.messageBar().pushMessage("Error when creating shapefile: ", str(writer.hasError()))
+            self.iface.messageBar().pushMessage(
+                "Error when creating shapefile: ", str(writer.hasError())
+            )
 
         poly.selectAll()
         selection = poly.selectedFeatures()
@@ -390,7 +435,7 @@ class LandCoverFractionPoint(object):
             writer.addFeature(feature)
         del writer
 
-        if sys.platform == 'win32':
+        if sys.platform == "win32":
             si = subprocess.STARTUPINFO()
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         else:
@@ -402,7 +447,9 @@ class LandCoverFractionPoint(object):
 
         dsm_build = self.layerComboManagerLCgrid.currentLayer()
         if dsm_build is None:
-            QMessageBox.critical(None, "Error", "No valid land cover raster layer is selected")
+            QMessageBox.critical(
+                None, "Error", "No valid land cover raster layer is selected"
+            )
             return
 
         provider = dsm_build.dataProvider()
@@ -419,17 +466,21 @@ class LandCoverFractionPoint(object):
         # Remove gdalwarp with gdal.Translate
         bigraster = gdal.Open(filePath_dsm_build)
         bbox = (x - r, y + r, x + r, y - r)
-        gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster, projWin=bbox)
+        gdal.Translate(
+            self.plugin_dir + "/data/clipdsm.tif", bigraster, projWin=bbox
+        )
         bigraster = None
 
-        dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
+        dataset = gdal.Open(self.plugin_dir + "/data/clipdsm.tif")
         dsm = dataset.ReadAsArray().astype(float)
 
         self.degree = float(self.dlg.degreeBox.currentText())
         nd = dataset.GetRasterBand(1).GetNoDataValue()
-        nodata_test = (dsm == nd)
+        nodata_test = dsm == nd
         if nodata_test.any():
-            QMessageBox.critical(None, "Error", "Clipped grid includes nodata pixels")
+            QMessageBox.critical(
+                None, "Error", "Clipped grid includes nodata pixels"
+            )
             return
         else:
             landcoverresult = landcover_v1(dsm, 1, self.degree, self.dlg, 1)
@@ -439,28 +490,44 @@ class LandCoverFractionPoint(object):
 
         # save to file
         pre = self.dlg.textOutput_prefix.text()
-        header = 'Wd Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
-        numformat = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
-        arr = np.concatenate((landcoverresult["deg"], landcoverresult["lc_frac"]), axis=1)
-        np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'LCFPoint_anisotropic.txt', arr,
-                   fmt=numformat, delimiter=' ', header=header, comments='')
+        header = "Wd Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water"
+        numformat = "%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f"
+        arr = np.concatenate(
+            (landcoverresult["deg"], landcoverresult["lc_frac"]), axis=1
+        )
+        np.savetxt(
+            self.folderPath[0] + "/" + pre + "_" + "LCFPoint_anisotropic.txt",
+            arr,
+            fmt=numformat,
+            delimiter=" ",
+            header=header,
+            comments="",
+        )
 
-        header = 'Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
-        numformat = '%5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
+        header = "Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water"
+        numformat = "%5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f"
         arr2 = np.array(landcoverresult["lc_frac_all"])
         # print(arrcheck)
         # print(arr2)
-        np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'LCFPoint_isotropic.txt', arrcheck,
-                    fmt=numformat, delimiter=' ', header=header, comments='')
+        np.savetxt(
+            self.folderPath[0] + "/" + pre + "_" + "LCFPoint_isotropic.txt",
+            arrcheck,
+            fmt=numformat,
+            delimiter=" ",
+            header=header,
+            comments="",
+        )
 
         dataset = None
         dataset2 = None
         dataset3 = None
 
-        QMessageBox.information(None, "Land Cover Fraction Point: ", "Process successful!")
+        QMessageBox.information(
+            None, "Land Cover Fraction Point: ", "Process successful!"
+        )
 
     def resultcheck(self, landcoverresult):
-        total = 0.
+        total = 0.0
         arr = np.array(landcoverresult["lc_frac_all"])
 
         for x in range(0, len(arr[0])):
@@ -483,17 +550,20 @@ class LandCoverFractionPoint(object):
 
     def run(self):
         try:
-            import scipy
+            pass
         except Exception as e:
-            QMessageBox.critical(None, 'Error', 'This plugin requires the scipy package '
-                                                'to be installed. Please consult the FAQ in the manual for further '
-                                                'information on how to install missing python packages.')
+            QMessageBox.critical(
+                None,
+                "Error",
+                "This plugin requires the scipy package "
+                "to be installed. Please consult the FAQ in the manual for further "
+                "information on how to install missing python packages.",
+            )
             return
 
         self.dlg.show()
         self.dlg.exec()
 
     def help(self):
-        url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Land%20Cover%20Land%20Cover%20Fraction%20(Point).html'
+        url = "https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Land%20Cover%20Land%20Cover%20Fraction%20(Point).html"
         webbrowser.open_new_tab(url)
-

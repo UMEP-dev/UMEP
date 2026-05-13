@@ -1,6 +1,8 @@
-''' Calculates the sensible, latent, wastewater parts of each source and sector.
-Calculations consider the gross and net heat combustion for each fuel used. 
-'''
+"""Calculates the sensible, latent, wastewater parts of each source and sector.
+Calculations consider the gross and net heat combustion for each fuel used.
+"""
+
+
 def getQFComponents():
     # List and return the components of anthropogenic heat flux
     # Same order as GreaterQF output array
@@ -26,4 +28,3 @@ def getQFComponents():
     components[17] = "Metabolism"
     components[18] = "Everything"
     return components
-

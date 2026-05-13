@@ -33,4 +33,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .suews_database_manager import suews_database_manager
+
     return suews_database_manager(iface)

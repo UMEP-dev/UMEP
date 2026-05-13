@@ -33,4 +33,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .uwg_reclassifier import uwg_reclassifier
+
     return uwg_reclassifier(iface)

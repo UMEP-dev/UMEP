@@ -1,12 +1,13 @@
-
 import numpy as np
+
 # from ..Utilities import shadowingfunctions as shadow
-#import shadowingfunctions as shadow
+# import shadowingfunctions as shadow
 from osgeo import gdal
 from osgeo.gdalconst import *
-#import matplotlib.pyplot as plt
-#from svf_calculator_dialog import SkyViewFactorCalculatorDialog
-#import svf_calculator
+
+# import matplotlib.pyplot as plt
+# from svf_calculator_dialog import SkyViewFactorCalculatorDialog
+# import svf_calculator
 
 # def Skyviewfactor4d(a, scale, dlg):
 #
@@ -175,52 +176,107 @@ from osgeo.gdalconst import *
 
 def svf_angles_100121():
 
-    azi1 = np.arange(1., 360., 360./16.)  #%22.5
-    azi2 = np.arange(12., 360., 360./16.)  #%22.5
-    azi3 = np.arange(5., 360., 360./32.)  #%11.25
-    azi4 = np.arange(2., 360., 360./32.)  #%11.25
-    azi5 = np.arange(4., 360., 360./40.)  #%9
-    azi6 = np.arange(7., 360., 360./48.)  #%7.50
-    azi7 = np.arange(6., 360., 360./48.)  #%7.50
-    azi8 = np.arange(1., 360., 360./48.)  #%7.50
-    azi9 = np.arange(4., 359., 360./52.)  #%6.9231
-    azi10 = np.arange(5., 360., 360./52.)  #%6.9231
-    azi11 = np.arange(1., 360., 360./48.)  #%7.50
-    azi12 = np.arange(0., 359., 360./44.)  #%8.1818
-    azi13 = np.arange(3., 360., 360./44.)  #%8.1818
-    azi14 = np.arange(2., 360., 360./40.)  #%9
-    azi15 = np.arange(7., 360., 360./32.)  #%10
-    azi16 = np.arange(3., 360., 360./24.)  #%11.25
-    azi17 = np.arange(10., 360., 360./16.)  #%15
-    azi18 = np.arange(19., 360., 360./12.)  #%22.5
-    azi19 = np.arange(17., 360., 360./8.)  #%45
-    azi20 = 0.  #%360
-    iazimuth = np.array(np.hstack((azi1, azi2, azi3, azi4, azi5, azi6, azi7, azi8, azi9, azi10, azi11, azi12, azi13,
-                                   azi14, azi15, azi16, azi17, azi18, azi19, azi20)))
-    aziinterval = np.array(np.hstack((16., 16., 32., 32., 40., 48., 48., 48., 52., 52., 48., 44., 44., 40., 32., 24.,
-                                      16., 12., 8., 1.)))
-    angleresult = {'iazimuth': iazimuth, 'aziinterval': aziinterval}
+    azi1 = np.arange(1.0, 360.0, 360.0 / 16.0)  # %22.5
+    azi2 = np.arange(12.0, 360.0, 360.0 / 16.0)  # %22.5
+    azi3 = np.arange(5.0, 360.0, 360.0 / 32.0)  # %11.25
+    azi4 = np.arange(2.0, 360.0, 360.0 / 32.0)  # %11.25
+    azi5 = np.arange(4.0, 360.0, 360.0 / 40.0)  # %9
+    azi6 = np.arange(7.0, 360.0, 360.0 / 48.0)  # %7.50
+    azi7 = np.arange(6.0, 360.0, 360.0 / 48.0)  # %7.50
+    azi8 = np.arange(1.0, 360.0, 360.0 / 48.0)  # %7.50
+    azi9 = np.arange(4.0, 359.0, 360.0 / 52.0)  # %6.9231
+    azi10 = np.arange(5.0, 360.0, 360.0 / 52.0)  # %6.9231
+    azi11 = np.arange(1.0, 360.0, 360.0 / 48.0)  # %7.50
+    azi12 = np.arange(0.0, 359.0, 360.0 / 44.0)  # %8.1818
+    azi13 = np.arange(3.0, 360.0, 360.0 / 44.0)  # %8.1818
+    azi14 = np.arange(2.0, 360.0, 360.0 / 40.0)  # %9
+    azi15 = np.arange(7.0, 360.0, 360.0 / 32.0)  # %10
+    azi16 = np.arange(3.0, 360.0, 360.0 / 24.0)  # %11.25
+    azi17 = np.arange(10.0, 360.0, 360.0 / 16.0)  # %15
+    azi18 = np.arange(19.0, 360.0, 360.0 / 12.0)  # %22.5
+    azi19 = np.arange(17.0, 360.0, 360.0 / 8.0)  # %45
+    azi20 = 0.0  # %360
+    iazimuth = np.array(
+        np.hstack(
+            (
+                azi1,
+                azi2,
+                azi3,
+                azi4,
+                azi5,
+                azi6,
+                azi7,
+                azi8,
+                azi9,
+                azi10,
+                azi11,
+                azi12,
+                azi13,
+                azi14,
+                azi15,
+                azi16,
+                azi17,
+                azi18,
+                azi19,
+                azi20,
+            )
+        )
+    )
+    aziinterval = np.array(
+        np.hstack(
+            (
+                16.0,
+                16.0,
+                32.0,
+                32.0,
+                40.0,
+                48.0,
+                48.0,
+                48.0,
+                52.0,
+                52.0,
+                48.0,
+                44.0,
+                44.0,
+                40.0,
+                32.0,
+                24.0,
+                16.0,
+                12.0,
+                8.0,
+                1.0,
+            )
+        )
+    )
+    angleresult = {"iazimuth": iazimuth, "aziinterval": aziinterval}
 
     return angleresult
 
 
 def annulus_weight(altitude, aziinterval):
 
-    n = 90.
-    steprad = (360./aziinterval) * (np.pi/180.)
-    annulus = 91.-altitude
-    #% 91 before
-    w = (1./(2.*np.pi)) * np.sin(np.pi / (2.*n)) * np.sin((np.pi * (2. * annulus - 1.)) / (2. * n))
+    n = 90.0
+    steprad = (360.0 / aziinterval) * (np.pi / 180.0)
+    annulus = 91.0 - altitude
+    # % 91 before
+    w = (
+        (1.0 / (2.0 * np.pi))
+        * np.sin(np.pi / (2.0 * n))
+        * np.sin((np.pi * (2.0 * annulus - 1.0)) / (2.0 * n))
+    )
     weight = steprad * w
 
     return weight
+
 
 def saveraster(gdal_data, filename, raster):
     rows = gdal_data.RasterYSize
     cols = gdal_data.RasterXSize
 
     # outDs = gdal.GetDriverByName("GTiff").Create(folder + 'shadow' + tv + '.tif', cols, rows, int(1), GDT_Float32)
-    outDs = gdal.GetDriverByName("GTiff").Create(filename, cols, rows, int(1), GDT_Float32)
+    outDs = gdal.GetDriverByName("GTiff").Create(
+        filename, cols, rows, int(1), GDT_Float32
+    )
     # outDs = gdal.GetDriverByName(gdal_data.GetDriver().LongName).Create(filename, cols, rows, int(1), GDT_Float32)
     outBand = outDs.GetRasterBand(1)
 

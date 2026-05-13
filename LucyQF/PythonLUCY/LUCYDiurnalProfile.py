@@ -122,4 +122,3 @@
 #         :param week: Pd.Series: Continuous week (Monday-Sunday) of values upon which to base the diurnal cycle
 #         '''
 #         self.diurnal.addPeriod(startDate=sd, endDate=ed, dataSeries=week)
-

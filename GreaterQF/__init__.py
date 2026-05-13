@@ -23,6 +23,8 @@
 """
 
 # noinspection PyPep8Naming
+
+
 def classFactory(iface):  # pylint: disable=invalid-name
     """Load GreaterQF class from file GreaterQF.
 
@@ -31,4 +33,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .greater_qf import GreaterQF
+
     return GreaterQF(iface)

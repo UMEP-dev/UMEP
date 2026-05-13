@@ -21,21 +21,24 @@
  *                                                                         *
  ***************************************************************************/
 """
-from tracemalloc import stop
+
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
-from qgis.core import  QgsMapLayerProxyModel, QgsVectorLayer, QgsProject, QgsVectorFileWriter, QgsField, QgsFieldProxyModel
+from qgis.core import (
+    QgsMapLayerProxyModel,
+    QgsVectorLayer,
+    QgsProject,
+    QgsVectorFileWriter,
+    QgsField,
+)
 from qgis.PyQt.QtWidgets import QFileDialog, QAction, QMessageBox
 
 # Initialize Qt resources from file resources.py
-from .resources import *
 # Import the code for the dialog
 from .uwg_reclassifier_dialog import uwg_reclassifierDialog
 import os.path
-import pandas as pd
 from pathlib import Path
-import copy
 import webbrowser
 
 
@@ -55,11 +58,10 @@ class uwg_reclassifier(object):
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'uwg_reclassifier_{}.qm'.format(locale))
+            self.plugin_dir, "i18n", "uwg_reclassifier_{}.qm".format(locale)
+        )
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
@@ -68,7 +70,7 @@ class uwg_reclassifier(object):
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&UWG Reclassifier')
+        self.menu = self.tr("&UWG Reclassifier")
 
         # Check if plugin was started the first time in current QGIS session
         # Must be set in initGui() to survive plugin reloads
@@ -87,8 +89,7 @@ class uwg_reclassifier(object):
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('uwg_reclassifier', message)
-
+        return QCoreApplication.translate("uwg_reclassifier", message)
 
     def add_action(
         self,
@@ -100,7 +101,8 @@ class uwg_reclassifier(object):
         add_to_toolbar=True,
         status_tip=None,
         whats_this=None,
-        parent=None):
+        parent=None,
+    ):
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -156,9 +158,7 @@ class uwg_reclassifier(object):
             self.iface.addToolBarIcon(action)
 
         if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action)
+            self.iface.addPluginToMenu(self.menu, action)
 
         self.actions.append(action)
 
@@ -167,25 +167,22 @@ class uwg_reclassifier(object):
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/uwg_reclassifier/icon.png'
+        icon_path = ":/plugins/uwg_reclassifier/icon.png"
         self.add_action(
             icon_path,
-            text=self.tr(u'UWG Reclassifier'),
+            text=self.tr("UWG Reclassifier"),
             callback=self.run,
-            parent=self.iface.mainWindow())
+            parent=self.iface.mainWindow(),
+        )
 
         # will be set False in run()
         self.first_start = True
 
-
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
-            self.iface.removePluginMenu(
-                self.tr(u'&UWG Reclassifier'),
-                action)
+            self.iface.removePluginMenu(self.tr("&UWG Reclassifier"), action)
             self.iface.removeToolBarIcon(action)
-
 
     def run(self):
         """Run method that performs all the real work"""
@@ -194,33 +191,49 @@ class uwg_reclassifier(object):
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
         # if self.first_start == True:
         #     self.first_start = False
-        self.dlg = uwg_reclassifierDialog()      
-      
-        UWG_types = ['FullServiceRestaurant','Hospital','LargeHotel','LargeOffice','MedOffice',
-        'MidRiseApartment','OutPatient','PrimarySchool','QuickServiceRestaurant',
-        'SecondarySchool','SmallHotel','SmallOffice','StandAloneRetail','StripMall',
-        'SuperMarket','Warehouse']
-        
+        self.dlg = uwg_reclassifierDialog()
+
+        UWG_types = [
+            "FullServiceRestaurant",
+            "Hospital",
+            "LargeHotel",
+            "LargeOffice",
+            "MedOffice",
+            "MidRiseApartment",
+            "OutPatient",
+            "PrimarySchool",
+            "QuickServiceRestaurant",
+            "SecondarySchool",
+            "SmallHotel",
+            "SmallOffice",
+            "StandAloneRetail",
+            "StripMall",
+            "SuperMarket",
+            "Warehouse",
+        ]
+
         # self.dlg.comboBoxTypeInfo.addItems(sorted(UWG_types))
         # self.dlg.comboBoxTypeInfo.setCurrentIndex(-1)
 
-        self.dlg.comboBoxVector.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
+        self.dlg.comboBoxVector.setFilters(
+            QgsMapLayerProxyModel.Filter.PolygonLayer
+        )
         # self.dlg.comboBoxVector.setFilters(QgsFieldProxyModel.String)
 
         self.dlg.comboBoxVector.setCurrentIndex(-1)
 
         self.dlg.comboBoxField.clear()
 
-        for i in range(0,21):
-            Oc = getattr(self.dlg, f'lineEdit_{i}')            
+        for i in range(0, 21):
+            Oc = getattr(self.dlg, f"lineEdit_{i}")
             Oc.clear()
             Oc.setDisabled(True)
-            Nc = getattr(self.dlg, f'comboBoxNew_{i}')
+            Nc = getattr(self.dlg, f"comboBoxNew_{i}")
             Nc.addItems(sorted(UWG_types))
             Nc.setCurrentIndex(-1)
             Nc.setDisabled(True)
-            Pr = getattr(self.dlg, f'comboBoxpPeriod_{i}')
-            Pr.addItems(['Pre80','Pst80','New'])
+            Pr = getattr(self.dlg, f"comboBoxpPeriod_{i}")
+            Pr.addItems(["Pre80", "Pst80", "New"])
             Pr.setCurrentIndex(-1)
             Pr.setDisabled(True)
 
@@ -228,7 +241,9 @@ class uwg_reclassifier(object):
         self.dlg.runButton.clicked.connect(self.reclassify_to_UWG)
         self.dlg.pushButtonSave.clicked.connect(self.savefile)
         self.dlg.comboBoxVector.currentIndexChanged.connect(self.layer_changed)
-        self.dlg.comboBoxField.currentIndexChanged.connect(self.attribute_changed)
+        self.dlg.comboBoxField.currentIndexChanged.connect(
+            self.attribute_changed
+        )
         self.dlg.helpButton.clicked.connect(self.help)
 
         # show the dialog
@@ -244,71 +259,71 @@ class uwg_reclassifier(object):
             self.dlg.__init__()
 
     def layer_changed(self):
-            try:
-                vector_cbox = self.dlg.comboBoxVector
-                att_list = list(vector_cbox.currentLayer().attributeAliases())
-                self.dlg.comboBoxField.clear()
-                self.dlg.comboBoxField.addItems(att_list)
-                self.dlg.comboBoxField.setCurrentIndex(0)
+        try:
+            vector_cbox = self.dlg.comboBoxVector
+            att_list = list(vector_cbox.currentLayer().attributeAliases())
+            self.dlg.comboBoxField.clear()
+            self.dlg.comboBoxField.addItems(att_list)
+            self.dlg.comboBoxField.setCurrentIndex(0)
 
-            except:
-                pass
+        except:
+            pass
 
     def attribute_changed(self):
-        
+
         layer = self.dlg.comboBoxVector.currentLayer()
 
         try:
             att_column = self.dlg.comboBoxField.currentText()
-            att_list =[]
+            att_list = []
 
             for fieldName in layer.fields():
                 att_list.append(fieldName.name())
             att_index = att_list.index(att_column)
-   
+
             unique_values = list(layer.uniqueValues(att_index))
             # unique_values = ([str(x) for x in unique_values])
             print(unique_values)
-            for i in range(0,21):
+            for i in range(0, 21):
                 # Oc == Old Class
-                Oc = getattr(self.dlg, f'lineEdit_{i}')
+                Oc = getattr(self.dlg, f"lineEdit_{i}")
                 Oc.clear()
                 Oc.setDisabled(True)
                 # Nc == New Class
-                Nc = getattr(self.dlg, f'comboBoxNew_{i}')
+                Nc = getattr(self.dlg, f"comboBoxNew_{i}")
                 Nc.setCurrentIndex(-1)
                 Nc.setDisabled(True)
                 # Pr == Period
-                Pr = getattr(self.dlg, f'comboBoxpPeriod_{i}')
+                Pr = getattr(self.dlg, f"comboBoxpPeriod_{i}")
                 Pr.setCurrentIndex(-1)
                 Pr.setDisabled(True)
-                
-            # Add Items to left side Comboboxes and enable right side comboboxes 
+
+            # Add Items to left side Comboboxes and enable right side comboboxes
             for i in range(len(unique_values)):
-                Oc = getattr(self.dlg, f'lineEdit_{i}')
+                Oc = getattr(self.dlg, f"lineEdit_{i}")
                 Oc.clear()
                 Oc.setText(unique_values[i])
                 # Oc.setCurrentIndex(i)
-                Nc = getattr(self.dlg, f'comboBoxNew_{i}')
+                Nc = getattr(self.dlg, f"comboBoxNew_{i}")
                 Nc.setEnabled(True)
                 Nc.setCurrentIndex(0)
-                Pr = getattr(self.dlg, f'comboBoxpPeriod_{i}')
+                Pr = getattr(self.dlg, f"comboBoxpPeriod_{i}")
                 Pr.setCurrentIndex(0)
                 Pr.setEnabled(True)
         except:
             pass
-    
+
     # def type_info(self):
 
     #     # Create dict or similar to fill this.
     #     self.dlg.textBrowser.clear()
 
     #     # uwg_type = self.dlg.comboBoxTypeInfo.currentText()
-        
+
     #     # self.dlg.textBrowser.setText(
     #     #     'UWG Type: '+ uwg_type +
     #     #     '\n\nOrigin: ' 'something' +
-    #     #     '\n\nDescription: ' + 'something') 
+    #     #     '\n\nDescription: ' + 'something')
 
     #     ref = {} # Here you can show UWG building type info
 
@@ -325,9 +340,11 @@ class uwg_reclassifier(object):
     #         pass
 
     def savefile(self):
-        self.outputfile = self.fileDialog.getSaveFileName(None, 'Save File As:', None, 'Shapefiles (*.shp)')
+        self.outputfile = self.fileDialog.getSaveFileName(
+            None, "Save File As:", None, "Shapefiles (*.shp)"
+        )
         self.dlg.textOutput.setText(self.outputfile[0])
-    
+
     def stopper(self):
         a = 1
         return
@@ -338,10 +355,12 @@ class uwg_reclassifier(object):
 
     def reclassify_to_UWG(self):
         if len(self.dlg.textOutput.text()) < 1:
-            QMessageBox.critical(self.dlg, "Error", "No Output Folder selected")
+            QMessageBox.critical(
+                self.dlg, "Error", "No Output Folder selected"
+            )
             return
 
-        att_column =  self.dlg.comboBoxField.currentText()
+        att_column = self.dlg.comboBoxField.currentText()
         vlayer = self.dlg.comboBoxVector.currentLayer()
 
         att_list = []
@@ -349,81 +368,103 @@ class uwg_reclassifier(object):
             att_list.append(fieldName.name())
 
         att_index = att_list.index(att_column)
-        
+
         unique_values = list(vlayer.uniqueValues(att_index))
-        
+
         dict_reclass = {}
         dict_period = {}
         for i in range(len(unique_values)):
-            if i >20:
+            if i > 20:
                 break
-            Oc = getattr(self.dlg, f'lineEdit_{i}')
+            Oc = getattr(self.dlg, f"lineEdit_{i}")
             oldField = Oc.text()
-            Nc = getattr(self.dlg, f'comboBoxNew_{i}')          
+            Nc = getattr(self.dlg, f"comboBoxNew_{i}")
             dict_reclass[oldField] = str(Nc.currentText())
-            Pr = getattr(self.dlg, f'comboBoxpPeriod_{i}')      
+            Pr = getattr(self.dlg, f"comboBoxpPeriod_{i}")
             dict_period[oldField] = Pr.currentText()
 
         # # Add new field # TODO perhaps make it able for user to select field name
         # # fieldname = dlg.textEditFilename.text() or similar
-        vlayer.dataProvider().addAttributes([QgsField('UWGType',QVariant.String)])
-        vlayer.dataProvider().addAttributes([QgsField('UWGTime',QVariant.String)])
+        vlayer.dataProvider().addAttributes(
+            [QgsField("UWGType", QVariant.String)]
+        )
+        vlayer.dataProvider().addAttributes(
+            [QgsField("UWGTime", QVariant.String)]
+        )
         vlayer.updateFields()
 
-        typeIndex = vlayer.fields().indexFromName('UWGType') #The field needs to be created in advance
-        attrmapType = {} #dictionary of feature id: {field index: new value}
+        # The field needs to be created in advance
+        typeIndex = vlayer.fields().indexFromName("UWGType")
+        attrmapType = {}  # dictionary of feature id: {field index: new value}
         for f in vlayer.getFeatures():
             if f[att_column] in dict_reclass:
-                attrmapType[f.id()] = {typeIndex:dict_reclass[f[att_column]]}
+                attrmapType[f.id()] = {typeIndex: dict_reclass[f[att_column]]}
 
         vlayer.dataProvider().changeAttributeValues(attrmapType)
         vlayer.updateFields()
 
-        timeIndex = vlayer.fields().indexFromName('UWGTime') #The field needs to be created in advance
-        attrmapPeriod = {} #dictionary of feature id: {field index: new value}
+        # The field needs to be created in advance
+        timeIndex = vlayer.fields().indexFromName("UWGTime")
+        attrmapPeriod = (
+            {}
+        )  # dictionary of feature id: {field index: new value}
         for f in vlayer.getFeatures():
             if f[att_column] in dict_period:
-                attrmapPeriod[f.id()] = {timeIndex:dict_period[f[att_column]]}
+                attrmapPeriod[f.id()] = {timeIndex: dict_period[f[att_column]]}
 
         vlayer.dataProvider().changeAttributeValues(attrmapPeriod)
         vlayer.updateFields()
 
         # Write new Shapefile
 
-        QgsVectorFileWriter.writeAsVectorFormat(vlayer, self.dlg.textOutput.text(), "UTF-8", vlayer.crs(), "ESRI Shapefile")
+        QgsVectorFileWriter.writeAsVectorFormat(
+            vlayer,
+            self.dlg.textOutput.text(),
+            "UTF-8",
+            vlayer.crs(),
+            "ESRI Shapefile",
+        )
 
         # Remove created fields from original shapefile
         att_list = []
         for fieldName in vlayer.fields():
             att_list.append(fieldName.name())
 
-        UWGType = att_list.index('UWGType')
-        UWGTime = att_list.index('UWGTime')
+        UWGType = att_list.index("UWGType")
+        UWGTime = att_list.index("UWGTime")
         vlayer.dataProvider().deleteAttributes([UWGType, UWGTime])
         vlayer.updateFields()
 
         # Add newly created shapefile to Project
-        new_vlayer = QgsVectorLayer(self.outputfile[0], Path(self.outputfile[0]).name[:-4])
+        new_vlayer = QgsVectorLayer(
+            self.outputfile[0], Path(self.outputfile[0]).name[:-4]
+        )
         QgsProject.instance().addMapLayer(new_vlayer)
 
-        QMessageBox.information(None, 'Process Complete', 'Your reclassified shapefile has been added to project. Proceed to UWG Preprare')
+        QMessageBox.information(
+            None,
+            "Process Complete",
+            "Your reclassified shapefile has been added to project. Proceed to UWG Preprare",
+        )
         self.dlg.textOutput.clear()
-        
+
     def reset_plugin(self):
         self.dlg.comboBoxVector.setCurrentIndex(-1)
         self.dlg.comboBoxField.setCurrentIndex(-1)
 
-        for i in range(0,21):
-                    Oc = getattr(self.dlg, f'lineEdit_{i}')
-                    Oc.clear()
-                    Oc.setDisabled(True)
-                    Nc = getattr(self.dlg, f'comboBoxNew_{i}')
-                    Nc.setCurrentIndex(-1)
-                    Nc.setDisabled(True)
-                    Pr = getattr(self.dlg, f'comboBoxpPeriod_{i}')
-                    Pr.setCurrentIndex(-1)
-                    Pr.setDisabled(True)
-        vlayer = QgsVectorLayer(self.dlg.textOutput.text(), Path(self.outputfile[0]).name[:-4])
+        for i in range(0, 21):
+            Oc = getattr(self.dlg, f"lineEdit_{i}")
+            Oc.clear()
+            Oc.setDisabled(True)
+            Nc = getattr(self.dlg, f"comboBoxNew_{i}")
+            Nc.setCurrentIndex(-1)
+            Nc.setDisabled(True)
+            Pr = getattr(self.dlg, f"comboBoxpPeriod_{i}")
+            Pr.setCurrentIndex(-1)
+            Pr.setDisabled(True)
+        vlayer = QgsVectorLayer(
+            self.dlg.textOutput.text(), Path(self.outputfile[0]).name[:-4]
+        )
         QgsProject.instance().addMapLayer(vlayer)
         self.dlg.textOutput.clear()
 

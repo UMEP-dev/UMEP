@@ -20,33 +20,42 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import object
-from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread, QCoreApplication
-from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
-from qgis.core import QgsMapLayerProxyModel, Qgis, QgsMessageLog
+import sys
+import zipfile
+import webbrowser
+from .svfvegworker_old import VegWorkerOld
+from .svfworker_old import WorkerOld
+from .svfworker import Worker
+from . import Skyviewfactor4d as svf
+from osgeo import gdal
+import numpy as np
+import os.path
+from .svf_calculator_dialog import SkyViewFactorCalculatorDialog
 from qgis.gui import QgsMapLayerComboBox
+from qgis.core import QgsMapLayerProxyModel, Qgis, QgsMessageLog
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtCore import (
+    QSettings,
+    QTranslator,
+    qVersion,
+    QThread,
+    QCoreApplication,
+)
+from builtins import object
+from builtins import str
+from future import standard_library
+
+standard_library.install_aliases()
 # Initialize Qt resources from file resources.py
 # from . import resources_rc
 
 # Import the code for the dialog
-from .svf_calculator_dialog import SkyViewFactorCalculatorDialog
-import os.path
-import numpy as np
-from osgeo import gdal
-from . import Skyviewfactor4d as svf
-from .svfworker import Worker
 # from .svfvegworker import VegWorker
-from .svfworker_old import WorkerOld
-from .svfvegworker_old import VegWorkerOld
 # from osgeo.gdalconst import *
-import webbrowser
-import zipfile
-import sys
+
 
 class SkyViewFactorCalculator(object):
     """QGIS Plugin Implementation."""
@@ -64,17 +73,18 @@ class SkyViewFactorCalculator(object):
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(
             self.plugin_dir,
-            'i18n',
-            'SkyViewFactorCalculator_{}.qm'.format(locale))
+            "i18n",
+            "SkyViewFactorCalculator_{}.qm".format(locale),
+        )
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
 
-            if qVersion() > '4.3.3':
+            if qVersion() > "4.3.3":
                 QCoreApplication.installTranslator(self.translator)
 
         # Create the dialog (after translation) and keep reference
@@ -90,21 +100,31 @@ class SkyViewFactorCalculator(object):
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&Sky View Factor Calculator')
+        self.menu = self.tr("&Sky View Factor Calculator")
         # TODO: We are going to let the user set this up in a future iteration
         # self.toolbar = self.iface.addToolBar(u'SkyViewFactorCalculator')
         # self.toolbar.setObjectName(u'SkyViewFactorCalculator')
 
         self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widget_dsm)
-        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerDSM.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerDSM.setFixedWidth(200)
         self.layerComboManagerDSM.setCurrentIndex(-1)
-        self.layerComboManagerVEGDSM = QgsMapLayerComboBox(self.dlg.widget_vegdsm)
-        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerVEGDSM = QgsMapLayerComboBox(
+            self.dlg.widget_vegdsm
+        )
+        self.layerComboManagerVEGDSM.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerVEGDSM.setFixedWidth(200)
         self.layerComboManagerVEGDSM.setCurrentIndex(-1)
-        self.layerComboManagerVEGDSM2 = QgsMapLayerComboBox(self.dlg.widget_vegdsm2)
-        self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerVEGDSM2 = QgsMapLayerComboBox(
+            self.dlg.widget_vegdsm2
+        )
+        self.layerComboManagerVEGDSM2.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerVEGDSM2.setFixedWidth(200)
         self.layerComboManagerVEGDSM2.setCurrentIndex(-1)
         # self.layerComboManagerWH = QgsMapLayerComboBox(self.dlg.widgetWH)
@@ -143,7 +163,7 @@ class SkyViewFactorCalculator(object):
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('SkyViewFactorCalculator', message)
+        return QCoreApplication.translate("SkyViewFactorCalculator", message)
 
     def add_action(
         self,
@@ -155,8 +175,8 @@ class SkyViewFactorCalculator(object):
         add_to_toolbar=True,
         status_tip=None,
         whats_this=None,
-        parent=None):
-
+        parent=None,
+    ):
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -211,9 +231,7 @@ class SkyViewFactorCalculator(object):
             self.toolbar.addAction(action)
 
         if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action)
+            self.iface.addPluginToMenu(self.menu, action)
 
         self.actions.append(action)
 
@@ -222,19 +240,22 @@ class SkyViewFactorCalculator(object):
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/SkyViewFactorCalculator/icon_svf.png'
+        icon_path = ":/plugins/SkyViewFactorCalculator/icon_svf.png"
         self.add_action(
             icon_path,
-            text=self.tr(u'Calculates SVF on high resolution DSM (building and vegetation)'),
+            text=self.tr(
+                "Calculates SVF on high resolution DSM (building and vegetation)"
+            ),
             callback=self.run,
-            parent=self.iface.mainWindow())
+            parent=self.iface.mainWindow(),
+        )
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr(u'&Sky View Factor Calculator'),
-                action)
+                self.tr("&Sky View Factor Calculator"), action
+            )
             self.iface.removeToolBarIcon(action)
 
     def text_enable(self):
@@ -261,7 +282,7 @@ class SkyViewFactorCalculator(object):
 
         worker = Worker(dsm, vegdem, vegdem2, scale, usevegdem, dlg)
 
-        self.dlg.runButton.setText('Cancel')
+        self.dlg.runButton.setText("Cancel")
         self.dlg.runButton.clicked.disconnect()
         self.dlg.runButton.clicked.connect(worker.kill)
         self.dlg.pushButton.setEnabled(False)
@@ -281,7 +302,7 @@ class SkyViewFactorCalculator(object):
         # create a new worker instance
         worker = WorkerOld(dsm, scale, dlg)
 
-        self.dlg.runButton.setText('Cancel')
+        self.dlg.runButton.setText("Cancel")
         self.dlg.runButton.clicked.disconnect()
         self.dlg.runButton.clicked.connect(worker.kill)
         self.dlg.pushButton.setEnabled(False)
@@ -326,7 +347,9 @@ class SkyViewFactorCalculator(object):
 
         # temporary fix for mac, ISSUE #15
         pf = sys.platform
-        if pf == 'darwin' or pf == 'linux2' or pf == 'linux':  #Typo, issue #168
+        if (
+            pf == "darwin" or pf == "linux2" or pf == "linux"
+        ):  # Typo, issue #168
             if not os.path.exists(self.folderPath[0]):
                 os.makedirs(self.folderPath[0])
 
@@ -337,32 +360,42 @@ class SkyViewFactorCalculator(object):
             svfbuW = ret["svfW"]
             svfbuN = ret["svfN"]
 
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svf.tif', self.svfbu)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfE.tif', svfbuE)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfS.tif', svfbuS)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfW.tif', svfbuW)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfN.tif', svfbuN)
+            svf.saveraster(
+                self.gdal_dsm, self.folderPath[0] + "/" + "svf.tif", self.svfbu
+            )
+            svf.saveraster(
+                self.gdal_dsm, self.folderPath[0] + "/" + "svfE.tif", svfbuE
+            )
+            svf.saveraster(
+                self.gdal_dsm, self.folderPath[0] + "/" + "svfS.tif", svfbuS
+            )
+            svf.saveraster(
+                self.gdal_dsm, self.folderPath[0] + "/" + "svfW.tif", svfbuW
+            )
+            svf.saveraster(
+                self.gdal_dsm, self.folderPath[0] + "/" + "svfN.tif", svfbuN
+            )
 
-            if os.path.isfile(self.folderPath[0] + '/' + 'svfs.zip'):
-                os.remove(self.folderPath[0] + '/' + 'svfs.zip')
+            if os.path.isfile(self.folderPath[0] + "/" + "svfs.zip"):
+                os.remove(self.folderPath[0] + "/" + "svfs.zip")
 
-            zip = zipfile.ZipFile(self.folderPath[0] + '/' + 'svfs.zip', 'a')
-            zip.write(self.folderPath[0] + '/' + 'svf.tif', 'svf.tif')
-            zip.write(self.folderPath[0] + '/' + 'svfE.tif', 'svfE.tif')
-            zip.write(self.folderPath[0] + '/' + 'svfS.tif', 'svfS.tif')
-            zip.write(self.folderPath[0] + '/' + 'svfW.tif', 'svfW.tif')
-            zip.write(self.folderPath[0] + '/' + 'svfN.tif', 'svfN.tif')
+            zip = zipfile.ZipFile(self.folderPath[0] + "/" + "svfs.zip", "a")
+            zip.write(self.folderPath[0] + "/" + "svf.tif", "svf.tif")
+            zip.write(self.folderPath[0] + "/" + "svfE.tif", "svfE.tif")
+            zip.write(self.folderPath[0] + "/" + "svfS.tif", "svfS.tif")
+            zip.write(self.folderPath[0] + "/" + "svfW.tif", "svfW.tif")
+            zip.write(self.folderPath[0] + "/" + "svfN.tif", "svfN.tif")
             zip.close()
 
-            os.remove(self.folderPath[0] + '/' + 'svf.tif')
-            os.remove(self.folderPath[0] + '/' + 'svfE.tif')
-            os.remove(self.folderPath[0] + '/' + 'svfS.tif')
-            os.remove(self.folderPath[0] + '/' + 'svfW.tif')
-            os.remove(self.folderPath[0] + '/' + 'svfN.tif')
+            os.remove(self.folderPath[0] + "/" + "svf.tif")
+            os.remove(self.folderPath[0] + "/" + "svfE.tif")
+            os.remove(self.folderPath[0] + "/" + "svfS.tif")
+            os.remove(self.folderPath[0] + "/" + "svfW.tif")
+            os.remove(self.folderPath[0] + "/" + "svfN.tif")
 
             if self.usevegdem == 0:
                 self.svftotal = self.svfbu
-                filename = self.folderPath[0] + '/' + 'SkyViewFactor' + '.tif'
+                filename = self.folderPath[0] + "/" + "SkyViewFactor" + ".tif"
                 svf.saveraster(self.gdal_dsm, filename, self.svftotal)
 
                 if self.dlg.checkBoxIntoCanvas.isChecked():
@@ -376,17 +409,24 @@ class SkyViewFactorCalculator(object):
                         rlayer.repaintRequested.emit()
                     rlayer.triggerRepaint()
 
-                QMessageBox.information(self.iface.mainWindow(), "Sky View Factor Calculator", "SVF grid(s) successfully generated")
-                self.dlg.runButton.setText('Run')
+                QMessageBox.information(
+                    self.iface.mainWindow(),
+                    "Sky View Factor Calculator",
+                    "SVF grid(s) successfully generated",
+                )
+                self.dlg.runButton.setText("Run")
                 self.dlg.runButton.clicked.disconnect()
                 self.dlg.runButton.clicked.connect(self.start_progress)
                 self.dlg.pushButton.setEnabled(True)
                 self.dlg.progressBar.setValue(0)
         else:
-            self.iface.messageBar().pushMessage('Operations cancelled either by user or error. See the General tab in '
-                                                'Log Meassages Panel (speech bubble, lower right) for more information.'
-                                                , level=Qgis.MessageLevel.Critical, duration=3)
-            self.dlg.runButton.setText('Run')
+            self.iface.messageBar().pushMessage(
+                "Operations cancelled either by user or error. See the General tab in "
+                "Log Meassages Panel (speech bubble, lower right) for more information.",
+                level=Qgis.MessageLevel.Critical,
+                duration=3,
+            )
+            self.dlg.runButton.setText("Run")
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
             self.dlg.pushButton.setEnabled(True)
@@ -398,11 +438,11 @@ class SkyViewFactorCalculator(object):
         self.thread.wait()
         self.thread.deleteLater()
 
-        filename = self.folderPath[0] + '/' + 'SkyViewFactor' + '.tif'
+        filename = self.folderPath[0] + "/" + "SkyViewFactor" + ".tif"
 
         # temporary fix for mac, ISSUE #15
         pf = sys.platform
-        if pf == 'darwin' or pf == 'linux2' or pf == 'linux':
+        if pf == "darwin" or pf == "linux2" or pf == "linux":
             if not os.path.exists(self.folderPath[0]):
                 os.makedirs(self.folderPath[0])
 
@@ -413,28 +453,38 @@ class SkyViewFactorCalculator(object):
             svfbuW = ret["svfW"]
             svfbuN = ret["svfN"]
 
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svf.tif', self.svfbu)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfE.tif', svfbuE)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfS.tif', svfbuS)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfW.tif', svfbuW)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfN.tif', svfbuN)
+            svf.saveraster(
+                self.gdal_dsm, self.folderPath[0] + "/" + "svf.tif", self.svfbu
+            )
+            svf.saveraster(
+                self.gdal_dsm, self.folderPath[0] + "/" + "svfE.tif", svfbuE
+            )
+            svf.saveraster(
+                self.gdal_dsm, self.folderPath[0] + "/" + "svfS.tif", svfbuS
+            )
+            svf.saveraster(
+                self.gdal_dsm, self.folderPath[0] + "/" + "svfW.tif", svfbuW
+            )
+            svf.saveraster(
+                self.gdal_dsm, self.folderPath[0] + "/" + "svfN.tif", svfbuN
+            )
 
-            if os.path.isfile(self.folderPath[0] + '/' + 'svfs.zip'):
-                os.remove(self.folderPath[0] + '/' + 'svfs.zip')
+            if os.path.isfile(self.folderPath[0] + "/" + "svfs.zip"):
+                os.remove(self.folderPath[0] + "/" + "svfs.zip")
 
-            zip = zipfile.ZipFile(self.folderPath[0] + '/' + 'svfs.zip', 'a')
-            zip.write(self.folderPath[0] + '/' + 'svf.tif', 'svf.tif')
-            zip.write(self.folderPath[0] + '/' + 'svfE.tif', 'svfE.tif')
-            zip.write(self.folderPath[0] + '/' + 'svfS.tif', 'svfS.tif')
-            zip.write(self.folderPath[0] + '/' + 'svfW.tif', 'svfW.tif')
-            zip.write(self.folderPath[0] + '/' + 'svfN.tif', 'svfN.tif')
+            zip = zipfile.ZipFile(self.folderPath[0] + "/" + "svfs.zip", "a")
+            zip.write(self.folderPath[0] + "/" + "svf.tif", "svf.tif")
+            zip.write(self.folderPath[0] + "/" + "svfE.tif", "svfE.tif")
+            zip.write(self.folderPath[0] + "/" + "svfS.tif", "svfS.tif")
+            zip.write(self.folderPath[0] + "/" + "svfW.tif", "svfW.tif")
+            zip.write(self.folderPath[0] + "/" + "svfN.tif", "svfN.tif")
             zip.close()
 
-            os.remove(self.folderPath[0] + '/' + 'svf.tif')
-            os.remove(self.folderPath[0] + '/' + 'svfE.tif')
-            os.remove(self.folderPath[0] + '/' + 'svfS.tif')
-            os.remove(self.folderPath[0] + '/' + 'svfW.tif')
-            os.remove(self.folderPath[0] + '/' + 'svfN.tif')
+            os.remove(self.folderPath[0] + "/" + "svf.tif")
+            os.remove(self.folderPath[0] + "/" + "svfE.tif")
+            os.remove(self.folderPath[0] + "/" + "svfS.tif")
+            os.remove(self.folderPath[0] + "/" + "svfW.tif")
+            os.remove(self.folderPath[0] + "/" + "svfN.tif")
 
             if self.usevegdem == 0:
                 self.svftotal = self.svfbu
@@ -451,43 +501,105 @@ class SkyViewFactorCalculator(object):
                 svfWaveg = ret["svfWaveg"]
                 svfNaveg = ret["svfNaveg"]
 
-                svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfveg.tif', svfveg)
-                svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfEveg.tif', svfEveg)
-                svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfSveg.tif', svfSveg)
-                svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfWveg.tif', svfWveg)
-                svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfNveg.tif', svfNveg)
-                svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfaveg.tif', svfaveg)
-                svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfEaveg.tif', svfEaveg)
-                svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfSaveg.tif', svfSaveg)
-                svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfWaveg.tif', svfWaveg)
-                svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfNaveg.tif', svfNaveg)
+                svf.saveraster(
+                    self.gdal_dsm,
+                    self.folderPath[0] + "/" + "svfveg.tif",
+                    svfveg,
+                )
+                svf.saveraster(
+                    self.gdal_dsm,
+                    self.folderPath[0] + "/" + "svfEveg.tif",
+                    svfEveg,
+                )
+                svf.saveraster(
+                    self.gdal_dsm,
+                    self.folderPath[0] + "/" + "svfSveg.tif",
+                    svfSveg,
+                )
+                svf.saveraster(
+                    self.gdal_dsm,
+                    self.folderPath[0] + "/" + "svfWveg.tif",
+                    svfWveg,
+                )
+                svf.saveraster(
+                    self.gdal_dsm,
+                    self.folderPath[0] + "/" + "svfNveg.tif",
+                    svfNveg,
+                )
+                svf.saveraster(
+                    self.gdal_dsm,
+                    self.folderPath[0] + "/" + "svfaveg.tif",
+                    svfaveg,
+                )
+                svf.saveraster(
+                    self.gdal_dsm,
+                    self.folderPath[0] + "/" + "svfEaveg.tif",
+                    svfEaveg,
+                )
+                svf.saveraster(
+                    self.gdal_dsm,
+                    self.folderPath[0] + "/" + "svfSaveg.tif",
+                    svfSaveg,
+                )
+                svf.saveraster(
+                    self.gdal_dsm,
+                    self.folderPath[0] + "/" + "svfWaveg.tif",
+                    svfWaveg,
+                )
+                svf.saveraster(
+                    self.gdal_dsm,
+                    self.folderPath[0] + "/" + "svfNaveg.tif",
+                    svfNaveg,
+                )
 
-                zip = zipfile.ZipFile(self.folderPath[0] + '/' + 'svfs.zip', 'a')
-                zip.write(self.folderPath[0] + '/' + 'svfveg.tif', 'svfveg.tif')
-                zip.write(self.folderPath[0] + '/' + 'svfEveg.tif', 'svfEveg.tif')
-                zip.write(self.folderPath[0] + '/' + 'svfSveg.tif', 'svfSveg.tif')
-                zip.write(self.folderPath[0] + '/' + 'svfWveg.tif', 'svfWveg.tif')
-                zip.write(self.folderPath[0] + '/' + 'svfNveg.tif', 'svfNveg.tif')
-                zip.write(self.folderPath[0] + '/' + 'svfaveg.tif', 'svfaveg.tif')
-                zip.write(self.folderPath[0] + '/' + 'svfEaveg.tif', 'svfEaveg.tif')
-                zip.write(self.folderPath[0] + '/' + 'svfSaveg.tif', 'svfSaveg.tif')
-                zip.write(self.folderPath[0] + '/' + 'svfWaveg.tif', 'svfWaveg.tif')
-                zip.write(self.folderPath[0] + '/' + 'svfNaveg.tif', 'svfNaveg.tif')
+                zip = zipfile.ZipFile(
+                    self.folderPath[0] + "/" + "svfs.zip", "a"
+                )
+                zip.write(
+                    self.folderPath[0] + "/" + "svfveg.tif", "svfveg.tif"
+                )
+                zip.write(
+                    self.folderPath[0] + "/" + "svfEveg.tif", "svfEveg.tif"
+                )
+                zip.write(
+                    self.folderPath[0] + "/" + "svfSveg.tif", "svfSveg.tif"
+                )
+                zip.write(
+                    self.folderPath[0] + "/" + "svfWveg.tif", "svfWveg.tif"
+                )
+                zip.write(
+                    self.folderPath[0] + "/" + "svfNveg.tif", "svfNveg.tif"
+                )
+                zip.write(
+                    self.folderPath[0] + "/" + "svfaveg.tif", "svfaveg.tif"
+                )
+                zip.write(
+                    self.folderPath[0] + "/" + "svfEaveg.tif", "svfEaveg.tif"
+                )
+                zip.write(
+                    self.folderPath[0] + "/" + "svfSaveg.tif", "svfSaveg.tif"
+                )
+                zip.write(
+                    self.folderPath[0] + "/" + "svfWaveg.tif", "svfWaveg.tif"
+                )
+                zip.write(
+                    self.folderPath[0] + "/" + "svfNaveg.tif", "svfNaveg.tif"
+                )
                 zip.close()
 
-                os.remove(self.folderPath[0] + '/' + 'svfveg.tif')
-                os.remove(self.folderPath[0] + '/' + 'svfEveg.tif')
-                os.remove(self.folderPath[0] + '/' + 'svfSveg.tif')
-                os.remove(self.folderPath[0] + '/' + 'svfWveg.tif')
-                os.remove(self.folderPath[0] + '/' + 'svfNveg.tif')
-                os.remove(self.folderPath[0] + '/' + 'svfaveg.tif')
-                os.remove(self.folderPath[0] + '/' + 'svfEaveg.tif')
-                os.remove(self.folderPath[0] + '/' + 'svfSaveg.tif')
-                os.remove(self.folderPath[0] + '/' + 'svfWaveg.tif')
-                os.remove(self.folderPath[0] + '/' + 'svfNaveg.tif')
+                os.remove(self.folderPath[0] + "/" + "svfveg.tif")
+                os.remove(self.folderPath[0] + "/" + "svfEveg.tif")
+                os.remove(self.folderPath[0] + "/" + "svfSveg.tif")
+                os.remove(self.folderPath[0] + "/" + "svfWveg.tif")
+                os.remove(self.folderPath[0] + "/" + "svfNveg.tif")
+                os.remove(self.folderPath[0] + "/" + "svfaveg.tif")
+                os.remove(self.folderPath[0] + "/" + "svfEaveg.tif")
+                os.remove(self.folderPath[0] + "/" + "svfSaveg.tif")
+                os.remove(self.folderPath[0] + "/" + "svfWaveg.tif")
+                os.remove(self.folderPath[0] + "/" + "svfNaveg.tif")
 
                 trans = self.dlg.spinBoxTrans.value() / 100.0
-                self.svftotal = (self.svfbu - (1 - svfveg) * (1 - trans))
+                self.svftotal = self.svfbu - (1 - svfveg) * (1 - trans)
 
             svf.saveraster(self.gdal_dsm, filename, self.svftotal)
 
@@ -500,9 +612,14 @@ class SkyViewFactorCalculator(object):
             # wallshvemat = ret["wallshvemat"]
             # facesunmat = ret["facesunmat"]
 
-            np.savez_compressed(self.folderPath[0] + '/' + "shadowmats.npz", shadowmat=shmat, vegshadowmat=vegshmat, vbshmat=vbshvegshmat) #,
-                                # vbshvegshmat=vbshvegshmat, wallshmat=wallshmat, wallsunmat=wallsunmat,
-                                # facesunmat=facesunmat, wallshvemat=wallshvemat)
+            np.savez_compressed(
+                self.folderPath[0] + "/" + "shadowmats.npz",
+                shadowmat=shmat,
+                vegshadowmat=vegshmat,
+                vbshmat=vbshvegshmat,
+            )  # ,
+            # vbshvegshmat=vbshvegshmat, wallshmat=wallshmat, wallsunmat=wallsunmat,
+            # facesunmat=facesunmat, wallshvemat=wallshvemat)
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
                 rlayer = self.iface.addRasterLayer(filename)
@@ -515,18 +632,24 @@ class SkyViewFactorCalculator(object):
                     rlayer.repaintRequested.emit()
                 rlayer.triggerRepaint()
 
-            QMessageBox.information(self.iface.mainWindow(), "Sky View Factor Calculator",
-                                    "SVF grid(s) successfully generated")
-            self.dlg.runButton.setText('Run')
+            QMessageBox.information(
+                self.iface.mainWindow(),
+                "Sky View Factor Calculator",
+                "SVF grid(s) successfully generated",
+            )
+            self.dlg.runButton.setText("Run")
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
             self.dlg.pushButton.setEnabled(True)
             self.dlg.progressBar.setValue(0)
         else:
-            self.iface.messageBar().pushMessage('Operations cancelled either by user or error. See the General tab in '
-                                                'Log Meassages Panel (speech bubble, lower right) for more information.'
-                                                , level=Qgis.MessageLevel.Critical, duration=3)
-            self.dlg.runButton.setText('Run')
+            self.iface.messageBar().pushMessage(
+                "Operations cancelled either by user or error. See the General tab in "
+                "Log Meassages Panel (speech bubble, lower right) for more information.",
+                level=Qgis.MessageLevel.Critical,
+                duration=3,
+            )
+            self.dlg.runButton.setText("Run")
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
             self.dlg.pushButton.setEnabled(True)
@@ -540,7 +663,7 @@ class SkyViewFactorCalculator(object):
 
         # temporary fix for mac, ISSUE #15
         pf = sys.platform
-        if pf == 'darwin' or pf == 'linux2' or pf == 'linux':
+        if pf == "darwin" or pf == "linux2" or pf == "linux":
             if not os.path.exists(self.folderPath[0]):
                 os.makedirs(self.folderPath[0])
 
@@ -557,45 +680,91 @@ class SkyViewFactorCalculator(object):
             svfWaveg = ret["svfWaveg"]
             svfNaveg = ret["svfNaveg"]
 
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfveg.tif', svfveg)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfEveg.tif', svfEveg)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfSveg.tif', svfSveg)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfWveg.tif', svfWveg)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfNveg.tif', svfNveg)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfaveg.tif', svfaveg)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfEaveg.tif', svfEaveg)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfSaveg.tif', svfSaveg)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfWaveg.tif', svfWaveg)
-            svf.saveraster(self.gdal_dsm, self.folderPath[0] + '/' + 'svfNaveg.tif', svfNaveg)
+            svf.saveraster(
+                self.gdal_dsm, self.folderPath[0] + "/" + "svfveg.tif", svfveg
+            )
+            svf.saveraster(
+                self.gdal_dsm,
+                self.folderPath[0] + "/" + "svfEveg.tif",
+                svfEveg,
+            )
+            svf.saveraster(
+                self.gdal_dsm,
+                self.folderPath[0] + "/" + "svfSveg.tif",
+                svfSveg,
+            )
+            svf.saveraster(
+                self.gdal_dsm,
+                self.folderPath[0] + "/" + "svfWveg.tif",
+                svfWveg,
+            )
+            svf.saveraster(
+                self.gdal_dsm,
+                self.folderPath[0] + "/" + "svfNveg.tif",
+                svfNveg,
+            )
+            svf.saveraster(
+                self.gdal_dsm,
+                self.folderPath[0] + "/" + "svfaveg.tif",
+                svfaveg,
+            )
+            svf.saveraster(
+                self.gdal_dsm,
+                self.folderPath[0] + "/" + "svfEaveg.tif",
+                svfEaveg,
+            )
+            svf.saveraster(
+                self.gdal_dsm,
+                self.folderPath[0] + "/" + "svfSaveg.tif",
+                svfSaveg,
+            )
+            svf.saveraster(
+                self.gdal_dsm,
+                self.folderPath[0] + "/" + "svfWaveg.tif",
+                svfWaveg,
+            )
+            svf.saveraster(
+                self.gdal_dsm,
+                self.folderPath[0] + "/" + "svfNaveg.tif",
+                svfNaveg,
+            )
 
-            zip = zipfile.ZipFile(self.folderPath[0] + '/' + 'svfs.zip', 'a')
-            zip.write(self.folderPath[0] + '/' + 'svfveg.tif', 'svfveg.tif')
-            zip.write(self.folderPath[0] + '/' + 'svfEveg.tif', 'svfEveg.tif')
-            zip.write(self.folderPath[0] + '/' + 'svfSveg.tif', 'svfSveg.tif')
-            zip.write(self.folderPath[0] + '/' + 'svfWveg.tif', 'svfWveg.tif')
-            zip.write(self.folderPath[0] + '/' + 'svfNveg.tif', 'svfNveg.tif')
-            zip.write(self.folderPath[0] + '/' + 'svfaveg.tif', 'svfaveg.tif')
-            zip.write(self.folderPath[0] + '/' + 'svfEaveg.tif', 'svfEaveg.tif')
-            zip.write(self.folderPath[0] + '/' + 'svfSaveg.tif', 'svfSaveg.tif')
-            zip.write(self.folderPath[0] + '/' + 'svfWaveg.tif', 'svfWaveg.tif')
-            zip.write(self.folderPath[0] + '/' + 'svfNaveg.tif', 'svfNaveg.tif')
+            zip = zipfile.ZipFile(self.folderPath[0] + "/" + "svfs.zip", "a")
+            zip.write(self.folderPath[0] + "/" + "svfveg.tif", "svfveg.tif")
+            zip.write(self.folderPath[0] + "/" + "svfEveg.tif", "svfEveg.tif")
+            zip.write(self.folderPath[0] + "/" + "svfSveg.tif", "svfSveg.tif")
+            zip.write(self.folderPath[0] + "/" + "svfWveg.tif", "svfWveg.tif")
+            zip.write(self.folderPath[0] + "/" + "svfNveg.tif", "svfNveg.tif")
+            zip.write(self.folderPath[0] + "/" + "svfaveg.tif", "svfaveg.tif")
+            zip.write(
+                self.folderPath[0] + "/" + "svfEaveg.tif", "svfEaveg.tif"
+            )
+            zip.write(
+                self.folderPath[0] + "/" + "svfSaveg.tif", "svfSaveg.tif"
+            )
+            zip.write(
+                self.folderPath[0] + "/" + "svfWaveg.tif", "svfWaveg.tif"
+            )
+            zip.write(
+                self.folderPath[0] + "/" + "svfNaveg.tif", "svfNaveg.tif"
+            )
             zip.close()
 
-            os.remove(self.folderPath[0] + '/' + 'svfveg.tif')
-            os.remove(self.folderPath[0] + '/' + 'svfEveg.tif')
-            os.remove(self.folderPath[0] + '/' + 'svfSveg.tif')
-            os.remove(self.folderPath[0] + '/' + 'svfWveg.tif')
-            os.remove(self.folderPath[0] + '/' + 'svfNveg.tif')
-            os.remove(self.folderPath[0] + '/' + 'svfaveg.tif')
-            os.remove(self.folderPath[0] + '/' + 'svfEaveg.tif')
-            os.remove(self.folderPath[0] + '/' + 'svfSaveg.tif')
-            os.remove(self.folderPath[0] + '/' + 'svfWaveg.tif')
-            os.remove(self.folderPath[0] + '/' + 'svfNaveg.tif')
+            os.remove(self.folderPath[0] + "/" + "svfveg.tif")
+            os.remove(self.folderPath[0] + "/" + "svfEveg.tif")
+            os.remove(self.folderPath[0] + "/" + "svfSveg.tif")
+            os.remove(self.folderPath[0] + "/" + "svfWveg.tif")
+            os.remove(self.folderPath[0] + "/" + "svfNveg.tif")
+            os.remove(self.folderPath[0] + "/" + "svfaveg.tif")
+            os.remove(self.folderPath[0] + "/" + "svfEaveg.tif")
+            os.remove(self.folderPath[0] + "/" + "svfSaveg.tif")
+            os.remove(self.folderPath[0] + "/" + "svfWaveg.tif")
+            os.remove(self.folderPath[0] + "/" + "svfNaveg.tif")
 
             trans = self.dlg.spinBoxTrans.value() / 100.0
 
-            self.svftotal = (self.svfbu-(1-svfveg)*(1-trans))
-            filename = self.folderPath[0] + '/' + 'SkyViewFactor' + '.tif'
+            self.svftotal = self.svfbu - (1 - svfveg) * (1 - trans)
+            filename = self.folderPath[0] + "/" + "SkyViewFactor" + ".tif"
             svf.saveraster(self.gdal_dsm, filename, self.svftotal)
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
@@ -607,20 +776,27 @@ class SkyViewFactorCalculator(object):
                     rlayer.repaintRequested.emit()
                 rlayer.triggerRepaint()
 
-            QMessageBox.information(self.iface.mainWindow(), "Sky View Factor Calculator", "SVF grid(s) successfully generated")
+            QMessageBox.information(
+                self.iface.mainWindow(),
+                "Sky View Factor Calculator",
+                "SVF grid(s) successfully generated",
+            )
 
             self.dlg.progressBar.setValue(0)
-            self.dlg.runButton.setText('Run')
+            self.dlg.runButton.setText("Run")
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
             self.dlg.pushButton.setEnabled(True)
 
         else:
             # notify the user that something went wrong
-            self.iface.messageBar().pushMessage('Operations cancelled either by user or error. See the General tab in '
-                                                'Log Meassages Panel (speech bubble, lower right) for more information.'
-                                                , level=Qgis.MessageLevel.Critical, duration=3)
-            self.dlg.runButton.setText('Run')
+            self.iface.messageBar().pushMessage(
+                "Operations cancelled either by user or error. See the General tab in "
+                "Log Meassages Panel (speech bubble, lower right) for more information.",
+                level=Qgis.MessageLevel.Critical,
+                duration=3,
+            )
+            self.dlg.runButton.setText("Run")
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
             self.dlg.pushButton.setEnabled(True)
@@ -639,14 +815,20 @@ class SkyViewFactorCalculator(object):
     def start_progress(self):
         self.steps = 0
         if self.folderPath is None:
-            QMessageBox.critical(self.iface.mainWindow(), "Error", "No save folder selected")
+            QMessageBox.critical(
+                self.iface.mainWindow(), "Error", "No save folder selected"
+            )
 
         else:
             dsmlayer = self.layerComboManagerDSM.currentLayer()
 
             if dsmlayer is None:
-                    QMessageBox.critical(self.iface.mainWindow(), "Error", "No valid raster layer is selected")
-                    return
+                QMessageBox.critical(
+                    self.iface.mainWindow(),
+                    "Error",
+                    "No valid raster layer is selected",
+                )
+                return
 
             provider = dsmlayer.dataProvider()
             filepath_dsm = str(provider.dataSourceUri())
@@ -659,32 +841,49 @@ class SkyViewFactorCalculator(object):
 
             # response to issue #85
             nd = self.gdal_dsm.GetRasterBand(1).GetNoDataValue()
-            self.dsm[self.dsm == nd] = 0.
+            self.dsm[self.dsm == nd] = 0.0
             if self.dsm.min() < 0:
                 self.dsm = self.dsm + np.abs(self.dsm.min())
 
             if (sizex * sizey) > 250000 and (sizex * sizey) <= 1000000:
-                QMessageBox.warning(self.iface.mainWindow(), "Semi lage grid", "This process will take a couple of minutes. "
-                                                        "Go and make yourself a cup of tea...")
+                QMessageBox.warning(
+                    self.iface.mainWindow(),
+                    "Semi lage grid",
+                    "This process will take a couple of minutes. "
+                    "Go and make yourself a cup of tea...",
+                )
 
             if (sizex * sizey) > 1000000 and (sizex * sizey) <= 4000000:
-                QMessageBox.warning(self.iface.mainWindow(), "Large grid", "This process will take some time. "
-                                                        "Go for lunch...")
+                QMessageBox.warning(
+                    self.iface.mainWindow(),
+                    "Large grid",
+                    "This process will take some time. " "Go for lunch...",
+                )
 
             if (sizex * sizey) > 4000000 and (sizex * sizey) <= 16000000:
-                QMessageBox.warning(self.iface.mainWindow(), "Very large grid", "This process will take a long time. "
-                                                        "Go for lunch and for a walk...")
+                QMessageBox.warning(
+                    self.iface.mainWindow(),
+                    "Very large grid",
+                    "This process will take a long time. "
+                    "Go for lunch and for a walk...",
+                )
 
             if (sizex * sizey) > 16000000:
-                QMessageBox.warning(self.iface.mainWindow(), "Huge grid", "This process will take a very long time. "
-                                                        "Go home for the weekend or consider to tile your grid")
+                QMessageBox.warning(
+                    self.iface.mainWindow(),
+                    "Huge grid",
+                    "This process will take a very long time. "
+                    "Go home for the weekend or consider to tile your grid",
+                )
 
             if self.dlg.checkBoxUseVeg.isChecked():
                 self.usevegdem = 1
                 self.vegdsm = self.layerComboManagerVEGDSM.currentLayer()
 
                 if self.vegdsm is None:
-                    QMessageBox.critical(self.dlg, "Error", "No valid vegetation DSM selected")
+                    QMessageBox.critical(
+                        self.dlg, "Error", "No valid vegetation DSM selected"
+                    )
                     return
 
                 # load raster
@@ -698,14 +897,22 @@ class SkyViewFactorCalculator(object):
                 vegsizey = self.vegdsm.shape[1]
 
                 if not (vegsizex == sizex) & (vegsizey == sizey):  # &
-                    QMessageBox.critical(self.dlg, "Error", "All grids must be of same extent and resolution")
+                    QMessageBox.critical(
+                        self.dlg,
+                        "Error",
+                        "All grids must be of same extent and resolution",
+                    )
                     return
 
                 if self.dlg.checkBoxTrunkExist.isChecked():
                     self.vegdsm2 = self.layerComboManagerVEGDSM2.currentLayer()
 
                     if self.vegdsm2 is None:
-                        QMessageBox.critical(self.dlg, "Error", "No valid trunk zone DSM selected")
+                        QMessageBox.critical(
+                            self.dlg,
+                            "Error",
+                            "No valid trunk zone DSM selected",
+                        )
                         return
 
                     # load raster
@@ -722,7 +929,11 @@ class SkyViewFactorCalculator(object):
                 vegsizey = self.vegdsm2.shape[1]
 
                 if not (vegsizex == sizex) & (vegsizey == sizey):  # &
-                    QMessageBox.critical(self.dlg, "Error", "All grids must be of same extent and resolution")
+                    QMessageBox.critical(
+                        self.dlg,
+                        "Error",
+                        "All grids must be of same extent and resolution",
+                    )
                     return
 
             else:
@@ -761,14 +972,21 @@ class SkyViewFactorCalculator(object):
             #         QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
             #         return
 
-            if self.folderPath == 'None':
+            if self.folderPath == "None":
                 QMessageBox.critical(self.dlg, "Error", "No selected folder")
                 return
             else:
                 if self.dlg.checkBoxNewMethod.isChecked():
                     self.dlg.progressBar.setRange(0, 145)
                     # self.startWorker(self.dsm, self.vegdsm, self.vegdsm2, self.scale, self.usevegdem, self.wheight, self.waspect, self.dlg)
-                    self.startWorker(self.dsm, self.vegdsm, self.vegdsm2, self.scale, self.usevegdem, self.dlg)
+                    self.startWorker(
+                        self.dsm,
+                        self.vegdsm,
+                        self.vegdsm2,
+                        self.scale,
+                        self.usevegdem,
+                        self.dlg,
+                    )
                 else:
                     if self.usevegdem == 0:
                         self.dlg.progressBar.setRange(0, 655)
@@ -776,7 +994,13 @@ class SkyViewFactorCalculator(object):
                         self.dlg.progressBar.setRange(0, 1310)
                     self.startWorkerOld(self.dsm, self.scale, self.dlg)
                     if self.usevegdem == 1:
-                        self.startVegWorkerOld(self.dsm, self.scale, self.vegdsm, self.vegdsm2, self.dlg)
+                        self.startVegWorkerOld(
+                            self.dsm,
+                            self.scale,
+                            self.vegdsm,
+                            self.vegdsm2,
+                            self.dlg,
+                        )
 
     def run(self):
         """Run method that performs all the real work"""
@@ -784,8 +1008,6 @@ class SkyViewFactorCalculator(object):
         self.dlg.exec()
 
     def help(self):
-        url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Geometry%20Sky%20View%20Factor%20Calculator.html'
+        url = "https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Geometry%20Sky%20View%20Factor%20Calculator.html"
         # QDesktopServices.openUrl(QUrl(url))
         webbrowser.open_new_tab(url)
-
-

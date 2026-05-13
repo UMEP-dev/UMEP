@@ -20,29 +20,39 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import range
-from builtins import object
-from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread, QCoreApplication
-from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
-from qgis.core import *
-from qgis.gui import *
-from .solweig_dialog import SOLWEIGDialog
-import numpy as np
-from osgeo import gdal, osr
-import os.path
-import zipfile
-import webbrowser
-from osgeo.gdalconst import *
-from .solweigworker import Worker
-from . import WriteMetadataSOLWEIG
-from ..Utilities.SEBESOLWEIGCommonFiles import Solweig_v2015_metdata_noload as metload
-from .SOLWEIGpython.Tgmaps_v1 import Tgmaps_v1
 from shutil import copyfile
+from .SOLWEIGpython.Tgmaps_v1 import Tgmaps_v1
+from ..Utilities.SEBESOLWEIGCommonFiles import (
+    Solweig_v2015_metdata_noload as metload,
+)
+from . import WriteMetadataSOLWEIG
+from .solweigworker import Worker
+from osgeo.gdalconst import *
+import webbrowser
+import zipfile
+import os.path
+from osgeo import gdal, osr
+import numpy as np
+from .solweig_dialog import SOLWEIGDialog
+from qgis.gui import *
+from qgis.core import *
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtCore import (
+    QSettings,
+    QTranslator,
+    qVersion,
+    QThread,
+    QCoreApplication,
+)
+from builtins import object
+from builtins import range
+from builtins import str
+from future import standard_library
+
+standard_library.install_aliases()
 
 
 class SOLWEIG(object):
@@ -61,17 +71,16 @@ class SOLWEIG(object):
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'SOLWEIG_{}.qm'.format(locale))
+            self.plugin_dir, "i18n", "SOLWEIG_{}.qm".format(locale)
+        )
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
 
-            if qVersion() > '4.3.3':
+            if qVersion() > "4.3.3":
                 QCoreApplication.installTranslator(self.translator)
 
         # Create the dialog (after translation) and keep reference
@@ -106,48 +115,74 @@ class SOLWEIG(object):
         # self.toolbar.setObjectName(u'SOLWEIG')
 
         self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetDSM)
-        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerDSM.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerDSM.setFixedWidth(175)
         self.layerComboManagerDSM.setFixedHeight(25)
         self.layerComboManagerDSM.setCurrentIndex(-1)
         self.layerComboManagerVEGDSM = QgsMapLayerComboBox(self.dlg.widgetCDSM)
-        self.layerComboManagerVEGDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerVEGDSM.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerVEGDSM.setFixedWidth(175)
         self.layerComboManagerVEGDSM.setFixedHeight(25)
         self.layerComboManagerVEGDSM.setCurrentIndex(-1)
-        self.layerComboManagerVEGDSM2 = QgsMapLayerComboBox(self.dlg.widgetTDSM)
-        self.layerComboManagerVEGDSM2.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerVEGDSM2 = QgsMapLayerComboBox(
+            self.dlg.widgetTDSM
+        )
+        self.layerComboManagerVEGDSM2.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerVEGDSM2.setFixedWidth(175)
         self.layerComboManagerVEGDSM2.setFixedHeight(25)
         self.layerComboManagerVEGDSM2.setCurrentIndex(-1)
         self.layerComboManagerDEM = QgsMapLayerComboBox(self.dlg.widgetDEM)
-        self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerDEM.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerDEM.setFixedWidth(175)
         self.layerComboManagerDEM.setFixedHeight(25)
         self.layerComboManagerDEM.setCurrentIndex(-1)
         self.layerComboManagerLC = QgsMapLayerComboBox(self.dlg.widgetLC)
-        self.layerComboManagerLC.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerLC.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerLC.setFixedWidth(175)
         self.layerComboManagerLC.setFixedHeight(25)
         self.layerComboManagerLC.setCurrentIndex(-1)
         self.layerComboManagerWH = QgsMapLayerComboBox(self.dlg.widgetWH)
-        self.layerComboManagerWH.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerWH.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerWH.setFixedWidth(175)
         self.layerComboManagerWH.setFixedHeight(25)
         self.layerComboManagerWH.setCurrentIndex(-1)
         self.layerComboManagerWA = QgsMapLayerComboBox(self.dlg.widgetWA)
-        self.layerComboManagerWA.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerWA.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerWA.setFixedWidth(175)
         self.layerComboManagerWA.setFixedHeight(25)
         self.layerComboManagerWA.setCurrentIndex(-1)
-        self.layerComboManagerPOI = QgsMapLayerComboBox(self.dlg.widgetPointLayer)
+        self.layerComboManagerPOI = QgsMapLayerComboBox(
+            self.dlg.widgetPointLayer
+        )
         self.layerComboManagerPOI.setCurrentIndex(-1)
-        self.layerComboManagerPOI.setFilters(QgsMapLayerProxyModel.Filter.PointLayer)
+        self.layerComboManagerPOI.setFilters(
+            QgsMapLayerProxyModel.Filter.PointLayer
+        )
         self.layerComboManagerPOI.setFixedWidth(175)
         self.layerComboManagerPOI.setFixedHeight(25)
-        self.layerComboManagerPOIfield = QgsFieldComboBox(self.dlg.widgetPOIField)
-        self.layerComboManagerPOIfield.setFilters(QgsFieldProxyModel.Filter.Numeric)
-        self.layerComboManagerPOI.layerChanged.connect(self.layerComboManagerPOIfield.setLayer)
+        self.layerComboManagerPOIfield = QgsFieldComboBox(
+            self.dlg.widgetPOIField
+        )
+        self.layerComboManagerPOIfield.setFilters(
+            QgsFieldProxyModel.Filter.Numeric
+        )
+        self.layerComboManagerPOI.layerChanged.connect(
+            self.layerComboManagerPOIfield.setLayer
+        )
 
         self.folderPath = None
         self.folderPathSVF = None
@@ -174,8 +209,7 @@ class SOLWEIG(object):
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('SOLWEIG', message)
-
+        return QCoreApplication.translate("SOLWEIG", message)
 
     def add_action(
         self,
@@ -187,7 +221,8 @@ class SOLWEIG(object):
         add_to_toolbar=True,
         status_tip=None,
         whats_this=None,
-        parent=None):
+        parent=None,
+    ):
 
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
@@ -204,9 +239,7 @@ class SOLWEIG(object):
             self.toolbar.addAction(action)
 
         if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action)
+            self.iface.addPluginToMenu(self.menu, action)
 
         self.actions.append(action)
 
@@ -215,19 +248,18 @@ class SOLWEIG(object):
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/SOLWEIG/icon.png'
+        icon_path = ":/plugins/SOLWEIG/icon.png"
         self.add_action(
             icon_path,
-            text=self.tr(u''),
+            text=self.tr(""),
             callback=self.run,
-            parent=self.iface.mainWindow())
+            parent=self.iface.mainWindow(),
+        )
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
-            self.iface.removePluginMenu(
-                self.tr(u'&SOLWEIG'),
-                action)
+            self.iface.removePluginMenu(self.tr("&SOLWEIG"), action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
         del self.toolbar
@@ -263,24 +295,36 @@ class SOLWEIG(object):
 
     def read_metdata(self):
         headernum = 1
-        delim = ' '
+        delim = " "
         try:
-            self.metdata = np.loadtxt(self.folderPathMet[0], skiprows=headernum, delimiter=delim)
+            self.metdata = np.loadtxt(
+                self.folderPathMet[0], skiprows=headernum, delimiter=delim
+            )
         except:
-            QMessageBox.critical(self.dlg, "Import Error",
-                                 "Make sure format of meteorological file is correct. You can "
-                                 "prepare your data by using 'Prepare Existing Data' in "
-                                 "the Pre-processor")
+            QMessageBox.critical(
+                self.dlg,
+                "Import Error",
+                "Make sure format of meteorological file is correct. You can "
+                "prepare your data by using 'Prepare Existing Data' in "
+                "the Pre-processor",
+            )
             return
 
         if self.metdata.shape[1] == 24:
-            self.iface.messageBar().pushMessage("SOLWEIG", "Meteorological data succesfully loaded",
-                                                level=Qgis.MessageLevel.Info, duration=3)
+            self.iface.messageBar().pushMessage(
+                "SOLWEIG",
+                "Meteorological data succesfully loaded",
+                level=Qgis.MessageLevel.Info,
+                duration=3,
+            )
         else:
-            QMessageBox.critical(self.dlg, "Import Error",
-                                 "Wrong number of columns in meteorological data. You can "
-                                 "prepare your data by using 'Prepare Existing Data' in "
-                                 "the Pre-processor")
+            QMessageBox.critical(
+                self.dlg,
+                "Import Error",
+                "Wrong number of columns in meteorological data. You can "
+                "prepare your data by using 'Prepare Existing Data' in "
+                "the Pre-processor",
+            )
             return
 
     def day_of_year(self, yyyy, month, day):
@@ -300,7 +344,7 @@ class SOLWEIG(object):
         else:
             dayspermonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
-        doy = np.sum(dayspermonth[0:month - 1]) + day
+        doy = np.sum(dayspermonth[0 : month - 1]) + day
 
         return doy
 
@@ -317,7 +361,11 @@ class SOLWEIG(object):
             dsmlayer = self.layerComboManagerDSM.currentLayer()
 
             if dsmlayer is None:
-                QMessageBox.critical(self.dlg, "Error", "No valid ground and building DSM is selected")
+                QMessageBox.critical(
+                    self.dlg,
+                    "Error",
+                    "No valid ground and building DSM is selected",
+                )
                 return
 
             provider = dsmlayer.dataProvider()
@@ -336,7 +384,7 @@ class SOLWEIG(object):
 
             # response to issue #85
             nd = self.gdal_dsm.GetRasterBand(1).GetNoDataValue()
-            self.dsm[self.dsm == nd] = 0.
+            self.dsm[self.dsm == nd] = 0.0
             # self.dsmcopy = np.copy(self.dsm)
             if self.dsm.min() < 0:
                 dsmraise = np.abs(self.dsm.min())
@@ -368,16 +416,20 @@ class SOLWEIG(object):
             width = self.gdal_dsm.RasterXSize
             height = self.gdal_dsm.RasterYSize
             minx = geotransform[0]
-            miny = geotransform[3] + width * geotransform[4] + height * geotransform[5]
+            miny = (
+                geotransform[3]
+                + width * geotransform[4]
+                + height * geotransform[5]
+            )
             lonlat = transform.TransformPoint(minx, miny)
-            
+
             gdalver = float(gdal.__version__[0])
-            if gdalver == 3.:
-                lon = lonlat[1] #changed to gdal 3
-                lat = lonlat[0] #changed to gdal 3
+            if gdalver == 3.0:
+                lon = lonlat[1]  # changed to gdal 3
+                lat = lonlat[0]  # changed to gdal 3
             else:
-                lon = lonlat[0] #changed to gdal 2
-                lat = lonlat[1] #changed to gdal 2
+                lon = lonlat[0]  # changed to gdal 2
+                lat = lonlat[1]  # changed to gdal 2
             UTC = self.dlg.spinBoxUTC.value()
 
             # Vegetation DSMs #
@@ -390,7 +442,11 @@ class SOLWEIG(object):
                 self.vegdsm = self.layerComboManagerVEGDSM.currentLayer()
 
                 if self.vegdsm is None:
-                    QMessageBox.critical(self.dlg, "Error", "No valid vegetation canopy DSM selected")
+                    QMessageBox.critical(
+                        self.dlg,
+                        "Error",
+                        "No valid vegetation canopy DSM selected",
+                    )
                     return
 
                 # load raster
@@ -404,15 +460,22 @@ class SOLWEIG(object):
                 vegsizey = self.vegdsm.shape[1]
 
                 if not (vegsizex == sizex) & (vegsizey == sizey):  # &
-                    QMessageBox.critical(self.dlg, "Error in vegetation canopy DSM",
-                                         "All grids must be of same extent and resolution")
+                    QMessageBox.critical(
+                        self.dlg,
+                        "Error in vegetation canopy DSM",
+                        "All grids must be of same extent and resolution",
+                    )
                     return
 
                 if self.dlg.checkBoxTrunkExist.isChecked():
                     self.vegdsm2 = self.layerComboManagerVEGDSM2.currentLayer()
 
                     if self.vegdsm2 is None:
-                        QMessageBox.critical(self.dlg, "Error", "No valid trunk zone DSM selected")
+                        QMessageBox.critical(
+                            self.dlg,
+                            "Error",
+                            "No valid trunk zone DSM selected",
+                        )
                         return
 
                     # load raster
@@ -427,7 +490,13 @@ class SOLWEIG(object):
                     trunkratio = self.dlg.spinBoxTrunkHeight.value() / 100.0
                     self.vegdsm2 = self.vegdsm * trunkratio
                     if self.dlg.checkBoxSaveTrunk.isChecked():
-                        outDs = gdal.GetDriverByName("GTiff").Create(self.folderPath[0] + '/TDSM.tif', cols, rows, int(1), GDT_Float32)
+                        outDs = gdal.GetDriverByName("GTiff").Create(
+                            self.folderPath[0] + "/TDSM.tif",
+                            cols,
+                            rows,
+                            int(1),
+                            GDT_Float32,
+                        )
                         outBand = outDs.GetRasterBand(1)
                         outBand.WriteArray(self.vegdsm2, 0, 0)
                         outBand.FlushCache()
@@ -439,8 +508,11 @@ class SOLWEIG(object):
                 vegsizey = self.vegdsm2.shape[1]
 
                 if not (vegsizex == sizex) & (vegsizey == sizey):  # &
-                    QMessageBox.critical(self.dlg, "Error in trunk zone DSM",
-                                         "All grids must be of same extent and resolution")
+                    QMessageBox.critical(
+                        self.dlg,
+                        "Error in trunk zone DSM",
+                        "All grids must be of same extent and resolution",
+                    )
                     return
 
             else:
@@ -458,7 +530,11 @@ class SOLWEIG(object):
                 self.lcgrid = self.layerComboManagerLC.currentLayer()
 
                 if self.lcgrid is None:
-                    QMessageBox.critical(self.dlg, "Error", "No valid land cover grid is selected")
+                    QMessageBox.critical(
+                        self.dlg,
+                        "Error",
+                        "No valid land cover grid is selected",
+                    )
                     return
 
                 # load raster
@@ -472,29 +548,42 @@ class SOLWEIG(object):
                 lcsizey = self.lcgrid.shape[1]
 
                 if not (lcsizex == sizex) & (lcsizey == sizey):
-                    QMessageBox.critical(self.dlg, "Error in land cover grid",
-                                         "All grids must be of same extent and resolution")
+                    QMessageBox.critical(
+                        self.dlg,
+                        "Error in land cover grid",
+                        "All grids must be of same extent and resolution",
+                    )
                     return
 
-                baddataConifer = (self.lcgrid == 3)
-                baddataDecid = (self.lcgrid == 4)
+                baddataConifer = self.lcgrid == 3
+                baddataDecid = self.lcgrid == 4
                 if baddataConifer.any():
-                    QMessageBox.critical(self.dlg, "Error in land cover grid",
-                                         "Land cover grid includes Confier land cover class. "
-                                         "Ground cover information (underneath canopy) is required.")
+                    QMessageBox.critical(
+                        self.dlg,
+                        "Error in land cover grid",
+                        "Land cover grid includes Confier land cover class. "
+                        "Ground cover information (underneath canopy) is required.",
+                    )
                     return
                 if baddataDecid.any():
-                    QMessageBox.critical(self.dlg, "Error in land cover grid",
-                                         "Land cover grid includes Decidiuous land cover class. "
-                                         "Ground cover information (underneath canopy) is required.")
+                    QMessageBox.critical(
+                        self.dlg,
+                        "Error in land cover grid",
+                        "Land cover grid includes Decidiuous land cover class. "
+                        "Ground cover information (underneath canopy) is required.",
+                    )
                     return
                 # fix issues when NoData is included in land cover data
                 ndlc = dataSet.GetRasterBand(1).GetNoDataValue()
-                if np.where(self.lcgrid == ndlc)[0].shape[0] > 0: # fixed issue from Discussions #548
+                # fixed issue from Discussions #548
+                if np.where(self.lcgrid == ndlc)[0].shape[0] > 0:
                     self.lcgrid[self.lcgrid == nd] = 1
-                    QMessageBox.warning(self.dlg, "Land Cover includes NoData", 
-                                        "Land cover data includes NoData values (converted to paved (1)). "
-                                        "Check your input data.")
+                    QMessageBox.warning(
+                        self.dlg,
+                        "Land Cover includes NoData",
+                        "Land cover data includes NoData values (converted to paved (1)). "
+                        "Check your input data.",
+                    )
             else:
                 filePath_lc = None
 
@@ -505,7 +594,9 @@ class SOLWEIG(object):
                 self.dem = self.layerComboManagerDEM.currentLayer()
 
                 if self.dem is None:
-                    QMessageBox.critical(self.dlg, "Error", "No valid DEM selected")
+                    QMessageBox.critical(
+                        self.dlg, "Error", "No valid DEM selected"
+                    )
                     return
 
                 # load raster
@@ -519,12 +610,16 @@ class SOLWEIG(object):
                 demsizey = self.dem.shape[1]
 
                 if not (demsizex == sizex) & (demsizey == sizey):
-                    QMessageBox.critical(self.dlg, "Error in DEM", "All grids must be of same extent and resolution")
+                    QMessageBox.critical(
+                        self.dlg,
+                        "Error in DEM",
+                        "All grids must be of same extent and resolution",
+                    )
                     return
 
                 # response to issue #230
                 nd = dataSet.GetRasterBand(1).GetNoDataValue()
-                self.dem[self.dem == nd] = 0.
+                self.dem[self.dem == nd] = 0.0
                 if self.dem.min() < 0:
                     demraise = np.abs(self.dem.min())
                     self.dem = self.dem + np.abs(self.dem.min())
@@ -532,19 +627,27 @@ class SOLWEIG(object):
                     demraise = 0
 
                 if (dsmraise != demraise) and (dsmraise - demraise > 0.5):
-                    self.iface.messageBar().pushMessage('WARNiNG! DEM and DSM was raised unequally (difference > 0.5 m). Check your input data!', level=Qgis.MessageLevel.Critical, duration=3)()
+                    self.iface.messageBar().pushMessage(
+                        "WARNiNG! DEM and DSM was raised unequally (difference > 0.5 m). Check your input data!",
+                        level=Qgis.MessageLevel.Critical,
+                        duration=3,
+                    )()
 
                 alt = np.median(self.dem)
                 if alt > 0:
-                    alt = 3.
+                    alt = 3.0
 
             # SVFs #
             if self.folderPathSVF is None:
-                QMessageBox.critical(self.dlg, "Error", "No SVF zipfile is selected. Use the Sky View Factor"
-                                                        "Calculator to generate svf.zip")
+                QMessageBox.critical(
+                    self.dlg,
+                    "Error",
+                    "No SVF zipfile is selected. Use the Sky View Factor"
+                    "Calculator to generate svf.zip",
+                )
                 return
             else:
-                zip = zipfile.ZipFile(self.folderPathSVF[0], 'r')
+                zip = zipfile.ZipFile(self.folderPathSVF[0], "r")
                 zip.extractall(self.plugin_dir)
                 zip.close()
 
@@ -594,29 +697,38 @@ class SOLWEIG(object):
                         svfEaveg = np.ones((rows, cols))
                         svfWaveg = np.ones((rows, cols))
                 except:
-                    QMessageBox.critical(self.dlg, "SVF import error", "The zipfile including the SVFs seems corrupt. "
-                                                                   "Retry calcualting the SVFs in the Pre-processor or choose "
-                                                                   "another file ")
+                    QMessageBox.critical(
+                        self.dlg,
+                        "SVF import error",
+                        "The zipfile including the SVFs seems corrupt. "
+                        "Retry calcualting the SVFs in the Pre-processor or choose "
+                        "another file ",
+                    )
                     return
 
                 svfsizex = svf.shape[0]
                 svfsizey = svf.shape[1]
 
                 if not (svfsizex == sizex) & (svfsizey == sizey):  # &
-                    QMessageBox.critical(self.dlg, "Error in svf rasters",
-                                         "All grids must be of same extent and resolution")
+                    QMessageBox.critical(
+                        self.dlg,
+                        "Error in svf rasters",
+                        "All grids must be of same extent and resolution",
+                    )
                     return
 
-                tmp = svf + svfveg - 1.
-                tmp[tmp < 0.] = 0.
+                tmp = svf + svfveg - 1.0
+                tmp[tmp < 0.0] = 0.0
                 # %matlab crazyness around 0
-                svfalfa = np.arcsin(np.exp((np.log((1. - tmp)) / 2.)))
+                svfalfa = np.arcsin(np.exp((np.log((1.0 - tmp)) / 2.0)))
 
             # Wall height and aspect #
             self.wallheight = self.layerComboManagerWH.currentLayer()
 
             if self.wallheight is None:
-                QMessageBox.critical(self.dlg, "Error", "No valid wall height grid is selected")
+                QMessageBox.critical(
+                    self.dlg, "Error", "No valid wall height grid is selected"
+                )
                 return
 
             gdal.AllRegister()
@@ -629,14 +741,19 @@ class SOLWEIG(object):
             wallheightsizey = self.wallheight.shape[1]
 
             if not (wallheightsizex == sizex) & (wallheightsizey == sizey):
-                QMessageBox.critical(self.dlg, "Error in wall height grid",
-                                     "All grids must be of same extent and resolution")
+                QMessageBox.critical(
+                    self.dlg,
+                    "Error in wall height grid",
+                    "All grids must be of same extent and resolution",
+                )
                 return
 
             self.wallaspect = self.layerComboManagerWA.currentLayer()
 
             if self.wallaspect is None:
-                QMessageBox.critical(self.dlg, "Error", "No valid wall aspect grid is selected")
+                QMessageBox.critical(
+                    self.dlg, "Error", "No valid wall aspect grid is selected"
+                )
                 return
 
             gdal.AllRegister()
@@ -649,22 +766,38 @@ class SOLWEIG(object):
             wallaspectsizey = self.wallaspect.shape[1]
 
             if not (wallaspectsizex == sizex) & (wallaspectsizey == sizey):
-                QMessageBox.critical(self.dlg, "Error in wall aspect grid",
-                                     "All grids must be of same extent and resolution")
+                QMessageBox.critical(
+                    self.dlg,
+                    "Error in wall aspect grid",
+                    "All grids must be of same extent and resolution",
+                )
                 return
 
             if (sizex * sizey) > 250000 and (sizex * sizey) <= 1000000:
-                QMessageBox.warning(self.dlg, "Semi lage grid",
-                                    "This process will take a couple of minutes.")
+                QMessageBox.warning(
+                    self.dlg,
+                    "Semi lage grid",
+                    "This process will take a couple of minutes.",
+                )
 
             if (sizex * sizey) > 1000000 and (sizex * sizey) <= 4000000:
-                QMessageBox.warning(self.dlg, "Large grid", "This process will take some time.")
+                QMessageBox.warning(
+                    self.dlg, "Large grid", "This process will take some time."
+                )
 
             if (sizex * sizey) > 4000000 and (sizex * sizey) <= 16000000:
-                QMessageBox.warning(self.dlg, "Very large grid", "This process will take a long time.")
+                QMessageBox.warning(
+                    self.dlg,
+                    "Very large grid",
+                    "This process will take a long time.",
+                )
 
             if (sizex * sizey) > 16000000:
-                QMessageBox.warning(self.dlg, "Huge grid", "This process will take a very long time.")
+                QMessageBox.warning(
+                    self.dlg,
+                    "Huge grid",
+                    "This process will take a very long time.",
+                )
 
             # Meteorological data #
             Twater = []
@@ -675,7 +808,7 @@ class SOLWEIG(object):
             else:
                 metfileexist = 0
                 self.PathMet = None
-                self.metdata = np.zeros((1, 24)) - 999.
+                self.metdata = np.zeros((1, 24)) - 999.0
 
                 date = self.dlg.calendarWidget.selectedDate()
                 year = date.year()
@@ -764,20 +897,27 @@ class SOLWEIG(object):
                 buildings[buildings == 2] = 0
             else:
                 buildings = self.dsm - self.dem
-                buildings[buildings < 2.] = 1.
-                buildings[buildings >= 2.] = 0.
+                buildings[buildings < 2.0] = 1.0
+                buildings[buildings >= 2.0] = 0.0
 
             if self.dlg.checkBoxBuild.isChecked():
-                self.saveraster(self.gdal_dsm, self.folderPath[0] + '/buildings.tif', buildings)
+                self.saveraster(
+                    self.gdal_dsm,
+                    self.folderPath[0] + "/buildings.tif",
+                    buildings,
+                )
 
             if self.dlg.checkBoxUseOnlyGlobal.isChecked():
                 onlyglobal = 1
             else:
                 onlyglobal = 0
 
-            location = {'longitude': lon, 'latitude': lat, 'altitude': alt}
-            YYYY, altitude, azimuth, zen, jday, leafon, dectime, altmax = \
-                metload.Solweig_2015a_metdata_noload(self.metdata, location, UTC)
+            location = {"longitude": lon, "latitude": lat, "altitude": alt}
+            YYYY, altitude, azimuth, zen, jday, leafon, dectime, altmax = (
+                metload.Solweig_2015a_metdata_noload(
+                    self.metdata, location, UTC
+                )
+            )
 
             # %Creating vectors from meteorological input
             DOY = self.metdata[:, 1]
@@ -795,9 +935,12 @@ class SOLWEIG(object):
             if self.dlg.checkBoxTreePlanter.isChecked():
                 treeplanter = 1
                 if metfileexist == 0:
-                    QMessageBox.critical(self.dlg, "Meteorological file missing",
-                                             'To generate data for the TreePlanter, a meteorological '
-                                             'input file must be used.')
+                    QMessageBox.critical(
+                        self.dlg,
+                        "Meteorological file missing",
+                        "To generate data for the TreePlanter, a meteorological "
+                        "input file must be used.",
+                    )
                     return
             else:
                 treeplanter = 0
@@ -806,36 +949,53 @@ class SOLWEIG(object):
             if metfileexist == 1:
                 if onlyglobal == 0:
                     if np.min(radD) == -999:
-                        QMessageBox.critical(self.dlg, "Diffuse radiation include NoData values (-999)",
-                                             'Tick in the box "Estimate diffuse and direct shortwave..." or aqcuire '
-                                             'observed values from external data sources.')
+                        QMessageBox.critical(
+                            self.dlg,
+                            "Diffuse radiation include NoData values (-999)",
+                            'Tick in the box "Estimate diffuse and direct shortwave..." or aqcuire '
+                            "observed values from external data sources.",
+                        )
                         return
                     if np.min(radI) == -999:
-                        QMessageBox.critical(self.dlg, "Direct radiation include NoData values (-999)",
-                                             'Tick in the box "Estimate diffuse and direct shortwave..." or aqcuire '
-                                             'observed values from external data sources.')
+                        QMessageBox.critical(
+                            self.dlg,
+                            "Direct radiation include NoData values (-999)",
+                            'Tick in the box "Estimate diffuse and direct shortwave..." or aqcuire '
+                            "observed values from external data sources.",
+                        )
                         return
 
             # POIs check
             if self.dlg.checkboxUsePOI.isChecked():
-                header = 'yyyy id   it imin dectime altitude azimuth kdir kdiff kglobal kdown   kup    keast ksouth ' \
-                         'kwest knorth ldown   lup    least lsouth lwest  lnorth   Ta      Tg     RH    Esky   Tmrt    ' \
-                         'I0     CI   Shadow  SVF_b  SVF_bv KsideI PET UTCI'
+                header = (
+                    "yyyy id   it imin dectime altitude azimuth kdir kdiff kglobal kdown   kup    keast ksouth "
+                    "kwest knorth ldown   lup    least lsouth lwest  lnorth   Ta      Tg     RH    Esky   Tmrt    "
+                    "I0     CI   Shadow  SVF_b  SVF_bv KsideI PET UTCI"
+                )
 
                 poilyr = self.layerComboManagerPOI.currentLayer()
                 if poilyr is None:
-                    QMessageBox.critical(self.dlg, "Error", "No valid point layer is selected")
+                    QMessageBox.critical(
+                        self.dlg, "Error", "No valid point layer is selected"
+                    )
                     return
 
                 poi_field = self.layerComboManagerPOIfield.currentField()
                 if poi_field is None:
-                    QMessageBox.critical(self.dlg, "Error", "An attribute with unique values must be selected")
+                    QMessageBox.critical(
+                        self.dlg,
+                        "Error",
+                        "An attribute with unique values must be selected",
+                    )
                     return
 
                 if metfileexist == 1:
                     if np.min(Ws) == -999:
-                        QMessageBox.critical(self.dlg, "Wind speed include NoData values (-999)",
-                                             'Wind speed is required to calculate PET and UTCI at the POIs')
+                        QMessageBox.critical(
+                            self.dlg,
+                            "Wind speed include NoData values (-999)",
+                            "Wind speed is required to calculate PET and UTCI at the POIs",
+                        )
                         return
 
                 vlayer = QgsVectorLayer(poilyr.source(), "point", "ogr")
@@ -852,21 +1012,40 @@ class SOLWEIG(object):
                     self.poisxy[ind, 0] = ind
                     self.poisxy[ind, 1] = np.round((x - minx) * self.scale)
                     if miny >= 0:
-                        self.poisxy[ind, 2] = np.round((miny + rows * (1. / self.scale) - y) * self.scale)
+                        self.poisxy[ind, 2] = np.round(
+                            (miny + rows * (1.0 / self.scale) - y) * self.scale
+                        )
                     else:
-                        self.poisxy[ind, 2] = np.round((miny + rows * (1. / self.scale) - y) * self.scale)
+                        self.poisxy[ind, 2] = np.round(
+                            (miny + rows * (1.0 / self.scale) - y) * self.scale
+                        )
 
                     ind += 1
 
                 uni = set(self.poiname)
                 if not uni.__len__() == self.poisxy.shape[0]:
-                    QMessageBox.critical(self.dlg, "Error", "A POI attribute with unique values must be selected")
+                    QMessageBox.critical(
+                        self.dlg,
+                        "Error",
+                        "A POI attribute with unique values must be selected",
+                    )
                     return
 
                 for k in range(0, self.poisxy.shape[0]):
                     poi_save = []  # np.zeros((1, 33))
-                    data_out = self.folderPath[0] + '/POI_' + str(self.poiname[k]) + '.txt'
-                    np.savetxt(data_out, poi_save,  delimiter=' ', header=header, comments='')  # fmt=numformat,
+                    data_out = (
+                        self.folderPath[0]
+                        + "/POI_"
+                        + str(self.poiname[k])
+                        + ".txt"
+                    )
+                    np.savetxt(
+                        data_out,
+                        poi_save,
+                        delimiter=" ",
+                        header=header,
+                        comments="",
+                    )  # fmt=numformat,
 
             self.dlg.progressBar.setRange(0, Ta.__len__())
 
@@ -876,9 +1055,9 @@ class SOLWEIG(object):
 
             # %Radiative surface influence, Rule of thumb by Schmid et al. (1990).
             first = np.round(height)
-            if first == 0.:
-                first = 1.
-            second = np.round((height * 20.))
+            if first == 0.0:
+                first = 1.0
+            second = np.round((height * 20.0))
 
             if self.usevegdem == 1:
                 # Conifer or deciduous
@@ -892,12 +1071,12 @@ class SOLWEIG(object):
                     leafon = np.zeros((1, DOY.shape[0]))
                     if firstdayleaf > lastdayleaf:
                         # Southern hemisphere?
-                        leaf_bool = ((DOY > firstdayleaf) | (DOY < lastdayleaf))
+                        leaf_bool = (DOY > firstdayleaf) | (DOY < lastdayleaf)
                     else:
                         # Northern hemisphere?
-                        leaf_bool = ((DOY > firstdayleaf) & (DOY < lastdayleaf))
-                    leafon[0, leaf_bool] = 1                
-                
+                        leaf_bool = (DOY > firstdayleaf) & (DOY < lastdayleaf)
+                    leafon[0, leaf_bool] = 1
+
                 # % Vegetation transmittivity of shortwave radiation
                 psi = leafon * self.trans
                 psi[leafon == 0] = 0.5
@@ -913,11 +1092,14 @@ class SOLWEIG(object):
                 self.vegdsm2[self.vegdsm2 == self.dsm] = 0
 
                 # % Bush separation
-                bush = np.logical_not((self.vegdsm2 * self.vegdsm)) * self.vegdsm
+                bush = (
+                    np.logical_not((self.vegdsm2 * self.vegdsm)) * self.vegdsm
+                )
 
-                svfbuveg = (svf - (1. - svfveg) * (1. - self.trans))  # % major bug fixed 20141203
+                # % major bug fixed 20141203
+                svfbuveg = svf - (1.0 - svfveg) * (1.0 - self.trans)
             else:
-                psi = leafon * 0. + 1.
+                psi = leafon * 0.0 + 1.0
                 svfbuveg = svf
                 bush = np.zeros([rows, cols])
                 amaxvalue = 0
@@ -925,31 +1107,38 @@ class SOLWEIG(object):
             # Import shadow matrices (Anisotropic sky)
             if self.dlg.checkBoxPerez.isChecked():
                 if self.folderPathPerez is None:
-                    QMessageBox.critical(self.dlg, "Error", "No Shadow file is selected. Use the Sky View Factor"
-                                                            "Calculator to generate shadowmats.npz")
+                    QMessageBox.critical(
+                        self.dlg,
+                        "Error",
+                        "No Shadow file is selected. Use the Sky View Factor"
+                        "Calculator to generate shadowmats.npz",
+                    )
                     return
                 else:
                     anisotropic_sky = 1
                     data = np.load(self.folderPathPerez[0])
-                    shmat = data['shadowmat']
-                    vegshmat = data['vegshadowmat']
-                    vbshvegshmat = data['vbshmat']
+                    shmat = data["shadowmat"]
+                    vegshmat = data["vegshadowmat"]
+                    vbshvegshmat = data["vbshmat"]
                     if self.usevegdem == 1:
                         diffsh = np.zeros((rows, cols, shmat.shape[2]))
                         for i in range(0, shmat.shape[2]):
-                            diffsh[:, :, i] = shmat[:, :, i] - (1 - vegshmat[:, :, i]) * (1 - self.trans) # changes in psi not implemented yet
+                            # changes in psi not implemented yet
+                            diffsh[:, :, i] = shmat[:, :, i] - (
+                                1 - vegshmat[:, :, i]
+                            ) * (1 - self.trans)
                     else:
                         diffsh = shmat
 
                     # Estimate number of patches based on shadow matrices
                     if shmat.shape[2] == 145:
-                        patch_option = 1 # patch_option = 1 # 145 patches
+                        patch_option = 1  # patch_option = 1 # 145 patches
                     elif shmat.shape[2] == 153:
-                        patch_option = 2 # patch_option = 2 # 153 patches
+                        patch_option = 2  # patch_option = 2 # 153 patches
                     elif shmat.shape[2] == 306:
-                        patch_option = 3 # patch_option = 3 # 306 patches
+                        patch_option = 3  # patch_option = 3 # 306 patches
                     elif shmat.shape[2] == 612:
-                        patch_option = 4 # patch_option = 4 # 612 patches
+                        patch_option = 4  # patch_option = 4 # 612 patches
 
                     # asvf to calculate sunlit and shaded patches
                     asvf = np.arccos(np.sqrt(svf))
@@ -964,18 +1153,34 @@ class SOLWEIG(object):
                 patch_option = 0
 
             # % Ts parameterisation maps
-            if self.landcover == 1.:
+            if self.landcover == 1.0:
                 if np.max(self.lcgrid) > 7 or np.min(self.lcgrid) < 1:
-                    QMessageBox.warning(self.dlg, "Attention!", "The land cover grid includes integer values higher (or lower) than UMEP-formatted" 
-                        " land cover grid (should be integer between 1 and 7). If other LC-classes should be included they also need to be included in landcoverclasses_2016a.txt")
+                    QMessageBox.warning(
+                        self.dlg,
+                        "Attention!",
+                        "The land cover grid includes integer values higher (or lower) than UMEP-formatted"
+                        " land cover grid (should be integer between 1 and 7). If other LC-classes should be included they also need to be included in landcoverclasses_2016a.txt",
+                    )
                     return
                     # QMessageBox.critical(self.dlg, "Error", "The land cover grid includes values not appropriate for UMEP-formatted land cover grid (should be integer between 1 and 7).")
                     # return
                 if np.where(self.lcgrid) == 3 or np.where(self.lcgrid) == 4:
-                    QMessageBox.critical(self.dlg, "Error",
-                                         "The land cover grid includes values (decidouos and/or conifer) not appropriate for SOLWEIG-formatted land cover grid (should not include 3 or 4).")
+                    QMessageBox.critical(
+                        self.dlg,
+                        "Error",
+                        "The land cover grid includes values (decidouos and/or conifer) not appropriate for SOLWEIG-formatted land cover grid (should not include 3 or 4).",
+                    )
                     return
-                [TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST, TmaxLST_wall] = Tgmaps_v1(self.lcgrid, lc_class)
+                [
+                    TgK,
+                    Tstart,
+                    alb_grid,
+                    emis_grid,
+                    TgK_wall,
+                    Tstart_wall,
+                    TmaxLST,
+                    TmaxLST_wall,
+                ] = Tgmaps_v1(self.lcgrid, lc_class)
             else:
                 TgK = Knight + 0.37
                 Tstart = Knight - 3.41
@@ -983,68 +1188,234 @@ class SOLWEIG(object):
                 emis_grid = Knight + eground
                 TgK_wall = 0.37
                 Tstart_wall = -3.41
-                TmaxLST = 15.
-                TmaxLST_wall = 15.
+                TmaxLST = 15.0
+                TmaxLST_wall = 15.0
 
             # Initialisation of time related variables
             if Ta.__len__() == 1:
                 timestepdec = 0
             else:
                 timestepdec = dectime[1] - dectime[0]
-            timeadd = 0.
-            timeaddE = 0.
-            timeaddS = 0.
-            timeaddW = 0.
-            timeaddN = 0.
-            firstdaytime = 1.
+            timeadd = 0.0
+            timeaddE = 0.0
+            timeaddS = 0.0
+            timeaddW = 0.0
+            timeaddN = 0.0
+            firstdaytime = 1.0
 
-            WriteMetadataSOLWEIG.writeRunInfo(self.folderPath[0], self.filepath_dsm, self.gdal_dsm, self.usevegdem,
-                                              self.filePath_cdsm, trunkfile, self.filePath_tdsm, lat, lon, UTC, self.landcover,
-                                              filePath_lc, metfileexist, self.PathMet, self.metdata, self.plugin_dir,
-                                              absK, absL, albedo_b, albedo_g, ewall, eground, onlyglobal, trunkratio,
-                                              self.trans, rows, cols, pos, elvis, cyl, demforbuild, anisotropic_sky, treeplanter)
+            WriteMetadataSOLWEIG.writeRunInfo(
+                self.folderPath[0],
+                self.filepath_dsm,
+                self.gdal_dsm,
+                self.usevegdem,
+                self.filePath_cdsm,
+                trunkfile,
+                self.filePath_tdsm,
+                lat,
+                lon,
+                UTC,
+                self.landcover,
+                filePath_lc,
+                metfileexist,
+                self.PathMet,
+                self.metdata,
+                self.plugin_dir,
+                absK,
+                absL,
+                albedo_b,
+                albedo_g,
+                ewall,
+                eground,
+                onlyglobal,
+                trunkratio,
+                self.trans,
+                rows,
+                cols,
+                pos,
+                elvis,
+                cyl,
+                demforbuild,
+                anisotropic_sky,
+                treeplanter,
+            )
 
             # Save files for Tree Planter
             if self.dlg.checkBoxTreePlanter.isChecked():
                 # Save DSM
-                copyfile(self.filepath_dsm, self.folderPath[0] + '/DSM.tif')
+                copyfile(self.filepath_dsm, self.folderPath[0] + "/DSM.tif")
 
                 # Save met file
-                copyfile(self.PathMet, self.folderPath[0] + '/metforcing.txt')
+                copyfile(self.PathMet, self.folderPath[0] + "/metforcing.txt")
 
                 # Save CDSM
                 if self.usevegdem:
-                    copyfile(self.filePath_cdsm, self.folderPath[0] + '/CDSM.tif')
+                    copyfile(
+                        self.filePath_cdsm, self.folderPath[0] + "/CDSM.tif"
+                    )
 
                 # Saving settings from SOLWEIG for SOLWEIG1D in TreePlanter
-                settingsHeader = 'UTC, posture, onlyglobal, landcover, anisotropic, cylinder, albedo_walls, albedo_ground, emissivity_walls, emissivity_ground, absK, absL, elevation, patch_option'
-                settingsFmt = '%i', '%i', '%i', '%i', '%i', '%i', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%1.2f', '%i'
-                settingsData = np.array([[UTC, pos, onlyglobal, self.landcover, anisotropic_sky, cyl, albedo_b, albedo_g, ewall, eground, absK, absL, alt, patch_option]])
-                np.savetxt(self.folderPath[0] + '/treeplantersettings.txt', settingsData, fmt=settingsFmt, header=settingsHeader, delimiter=' ')
+                settingsHeader = "UTC, posture, onlyglobal, landcover, anisotropic, cylinder, albedo_walls, albedo_ground, emissivity_walls, emissivity_ground, absK, absL, elevation, patch_option"
+                settingsFmt = (
+                    "%i",
+                    "%i",
+                    "%i",
+                    "%i",
+                    "%i",
+                    "%i",
+                    "%1.2f",
+                    "%1.2f",
+                    "%1.2f",
+                    "%1.2f",
+                    "%1.2f",
+                    "%1.2f",
+                    "%1.2f",
+                    "%i",
+                )
+                settingsData = np.array(
+                    [
+                        [
+                            UTC,
+                            pos,
+                            onlyglobal,
+                            self.landcover,
+                            anisotropic_sky,
+                            cyl,
+                            albedo_b,
+                            albedo_g,
+                            ewall,
+                            eground,
+                            absK,
+                            absL,
+                            alt,
+                            patch_option,
+                        ]
+                    ]
+                )
+                np.savetxt(
+                    self.folderPath[0] + "/treeplantersettings.txt",
+                    settingsData,
+                    fmt=settingsFmt,
+                    header=settingsHeader,
+                    delimiter=" ",
+                )
 
             #  If metfile starts at night
-            CI = 1.
+            CI = 1.0
 
             # PET variables
             mbody = self.dlg.doubleSpinBoxWeight.value()
-            ht = self.dlg.doubleSpinBoxHeight.value() / 100.
+            ht = self.dlg.doubleSpinBoxHeight.value() / 100.0
             clo = self.dlg.doubleSpinBoxClo.value()
             age = self.dlg.doubleSpinBoxAge.value()
             activity = self.dlg.doubleSpinBoxActivity.value()
             sex = self.dlg.comboBoxGender.currentIndex() + 1
             sensorheight = self.dlg.doubleSpinBoxWsHt.value()
 
-            self.startWorker(self.dsm, self.scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
-                        svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
-                        self.vegdsm, self.vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, Fcyl, altitude,
-                        azimuth, zen, jday, self.usevegdem, onlyglobal, buildings, location,
-                        psi, self.landcover, self.lcgrid, dectime, altmax, self.wallaspect,
-                        self.wallheight, cyl, elvis, Ta, RH, radG, radD, radI, P, amaxvalue,
-                        bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
-                        TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
-                        timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, self.dlg,
-                        YYYY, DOY, hours, minu, self.gdal_dsm, self.folderPath, self.poisxy, self.poiname, Ws, mbody,
-                        age, ht, activity, clo, sex, sensorheight, diffsh, shmat, vegshmat, vbshvegshmat, anisotropic_sky, asvf, patch_option)
+            self.startWorker(
+                self.dsm,
+                self.scale,
+                rows,
+                cols,
+                svf,
+                svfN,
+                svfW,
+                svfE,
+                svfS,
+                svfveg,
+                svfNveg,
+                svfEveg,
+                svfSveg,
+                svfWveg,
+                svfaveg,
+                svfEaveg,
+                svfSaveg,
+                svfWaveg,
+                svfNaveg,
+                self.vegdsm,
+                self.vegdsm2,
+                albedo_b,
+                absK,
+                absL,
+                ewall,
+                Fside,
+                Fup,
+                Fcyl,
+                altitude,
+                azimuth,
+                zen,
+                jday,
+                self.usevegdem,
+                onlyglobal,
+                buildings,
+                location,
+                psi,
+                self.landcover,
+                self.lcgrid,
+                dectime,
+                altmax,
+                self.wallaspect,
+                self.wallheight,
+                cyl,
+                elvis,
+                Ta,
+                RH,
+                radG,
+                radD,
+                radI,
+                P,
+                amaxvalue,
+                bush,
+                Twater,
+                TgK,
+                Tstart,
+                alb_grid,
+                emis_grid,
+                TgK_wall,
+                Tstart_wall,
+                TmaxLST,
+                TmaxLST_wall,
+                first,
+                second,
+                svfalfa,
+                svfbuveg,
+                firstdaytime,
+                timeadd,
+                timeaddE,
+                timeaddS,
+                timeaddW,
+                timeaddN,
+                timestepdec,
+                Tgmap1,
+                Tgmap1E,
+                Tgmap1S,
+                Tgmap1W,
+                Tgmap1N,
+                CI,
+                self.dlg,
+                YYYY,
+                DOY,
+                hours,
+                minu,
+                self.gdal_dsm,
+                self.folderPath,
+                self.poisxy,
+                self.poiname,
+                Ws,
+                mbody,
+                age,
+                ht,
+                activity,
+                clo,
+                sex,
+                sensorheight,
+                diffsh,
+                shmat,
+                vegshmat,
+                vbshvegshmat,
+                anisotropic_sky,
+                asvf,
+                patch_option,
+            )
 
     def run(self):
         """This methods is needed for QGIS to start the plugin"""
@@ -1052,14 +1423,16 @@ class SOLWEIG(object):
         self.dlg.exec()
 
     def help(self):
-        url = 'https://umep-docs.readthedocs.io/en/latest/processor/Outdoor%20Thermal%20Comfort%20SOLWEIG.html'
+        url = "https://umep-docs.readthedocs.io/en/latest/processor/Outdoor%20Thermal%20Comfort%20SOLWEIG.html"
         webbrowser.open_new_tab(url)
 
     def saveraster(self, gdal_data, filename, raster):
         rows = gdal_data.RasterYSize
         cols = gdal_data.RasterXSize
 
-        outDs = gdal.GetDriverByName("GTiff").Create(filename, cols, rows, int(1), GDT_Float32)
+        outDs = gdal.GetDriverByName("GTiff").Create(
+            filename, cols, rows, int(1), GDT_Float32
+        )
         outBand = outDs.GetRasterBand(1)
 
         # write the data
@@ -1072,32 +1445,221 @@ class SOLWEIG(object):
         outDs.SetGeoTransform(gdal_data.GetGeoTransform())
         outDs.SetProjection(gdal_data.GetProjection())
 
-    def startWorker(self, dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
-                        svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
-                        vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, Fcyl, altitude,
-                        azimuth, zen, jday, usevegdem, onlyglobal, buildings, location,
-                        psi, landcover, lcgrid, dectime, altmax, wallaspect,
-                        wallheight, cyl, elvis, Ta, RH, radG, radD, radI, P, amaxvalue,
-                        bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
-                        TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
-                        timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, dlg,
-                        YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname, Ws, mbody,
-                        age, ht, activity, clo, sex, sensorheight, diffsh, shmat, vegshmat, vbshvegshmat, anisotropic_sky, asvf, patch_option):
+    def startWorker(
+        self,
+        dsm,
+        scale,
+        rows,
+        cols,
+        svf,
+        svfN,
+        svfW,
+        svfE,
+        svfS,
+        svfveg,
+        svfNveg,
+        svfEveg,
+        svfSveg,
+        svfWveg,
+        svfaveg,
+        svfEaveg,
+        svfSaveg,
+        svfWaveg,
+        svfNaveg,
+        vegdsm,
+        vegdsm2,
+        albedo_b,
+        absK,
+        absL,
+        ewall,
+        Fside,
+        Fup,
+        Fcyl,
+        altitude,
+        azimuth,
+        zen,
+        jday,
+        usevegdem,
+        onlyglobal,
+        buildings,
+        location,
+        psi,
+        landcover,
+        lcgrid,
+        dectime,
+        altmax,
+        wallaspect,
+        wallheight,
+        cyl,
+        elvis,
+        Ta,
+        RH,
+        radG,
+        radD,
+        radI,
+        P,
+        amaxvalue,
+        bush,
+        Twater,
+        TgK,
+        Tstart,
+        alb_grid,
+        emis_grid,
+        TgK_wall,
+        Tstart_wall,
+        TmaxLST,
+        TmaxLST_wall,
+        first,
+        second,
+        svfalfa,
+        svfbuveg,
+        firstdaytime,
+        timeadd,
+        timeaddE,
+        timeaddS,
+        timeaddW,
+        timeaddN,
+        timestepdec,
+        Tgmap1,
+        Tgmap1E,
+        Tgmap1S,
+        Tgmap1W,
+        Tgmap1N,
+        CI,
+        dlg,
+        YYYY,
+        DOY,
+        hours,
+        minu,
+        gdal_dsm,
+        folderPath,
+        poisxy,
+        poiname,
+        Ws,
+        mbody,
+        age,
+        ht,
+        activity,
+        clo,
+        sex,
+        sensorheight,
+        diffsh,
+        shmat,
+        vegshmat,
+        vbshvegshmat,
+        anisotropic_sky,
+        asvf,
+        patch_option,
+    ):
 
         # create a new worker instance
-        worker = Worker(dsm, scale, rows, cols, svf, svfN, svfW, svfE, svfS, svfveg,
-                        svfNveg, svfEveg, svfSveg, svfWveg, svfaveg, svfEaveg, svfSaveg, svfWaveg, svfNaveg,
-                        vegdsm, vegdsm2, albedo_b, absK, absL, ewall, Fside, Fup, Fcyl, altitude,
-                        azimuth, zen, jday, usevegdem, onlyglobal, buildings, location,
-                        psi, landcover, lcgrid, dectime, altmax, wallaspect,
-                        wallheight, cyl, elvis, Ta, RH, radG, radD, radI, P, amaxvalue,
-                        bush, Twater, TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST,
-                        TmaxLST_wall, first, second, svfalfa, svfbuveg, firstdaytime, timeadd, timeaddE, timeaddS,
-                        timeaddW, timeaddN, timestepdec, Tgmap1, Tgmap1E, Tgmap1S, Tgmap1W, Tgmap1N, CI, dlg,
-                        YYYY, DOY, hours, minu, gdal_dsm, folderPath, poisxy, poiname, Ws, mbody,
-                        age, ht, activity, clo, sex, sensorheight, diffsh, shmat, vegshmat, vbshvegshmat, anisotropic_sky, asvf, patch_option)
+        worker = Worker(
+            dsm,
+            scale,
+            rows,
+            cols,
+            svf,
+            svfN,
+            svfW,
+            svfE,
+            svfS,
+            svfveg,
+            svfNveg,
+            svfEveg,
+            svfSveg,
+            svfWveg,
+            svfaveg,
+            svfEaveg,
+            svfSaveg,
+            svfWaveg,
+            svfNaveg,
+            vegdsm,
+            vegdsm2,
+            albedo_b,
+            absK,
+            absL,
+            ewall,
+            Fside,
+            Fup,
+            Fcyl,
+            altitude,
+            azimuth,
+            zen,
+            jday,
+            usevegdem,
+            onlyglobal,
+            buildings,
+            location,
+            psi,
+            landcover,
+            lcgrid,
+            dectime,
+            altmax,
+            wallaspect,
+            wallheight,
+            cyl,
+            elvis,
+            Ta,
+            RH,
+            radG,
+            radD,
+            radI,
+            P,
+            amaxvalue,
+            bush,
+            Twater,
+            TgK,
+            Tstart,
+            alb_grid,
+            emis_grid,
+            TgK_wall,
+            Tstart_wall,
+            TmaxLST,
+            TmaxLST_wall,
+            first,
+            second,
+            svfalfa,
+            svfbuveg,
+            firstdaytime,
+            timeadd,
+            timeaddE,
+            timeaddS,
+            timeaddW,
+            timeaddN,
+            timestepdec,
+            Tgmap1,
+            Tgmap1E,
+            Tgmap1S,
+            Tgmap1W,
+            Tgmap1N,
+            CI,
+            dlg,
+            YYYY,
+            DOY,
+            hours,
+            minu,
+            gdal_dsm,
+            folderPath,
+            poisxy,
+            poiname,
+            Ws,
+            mbody,
+            age,
+            ht,
+            activity,
+            clo,
+            sex,
+            sensorheight,
+            diffsh,
+            shmat,
+            vegshmat,
+            vbshvegshmat,
+            anisotropic_sky,
+            asvf,
+            patch_option,
+        )
 
-        self.dlg.runButton.setText('Cancel')
+        self.dlg.runButton.setText("Cancel")
         self.dlg.runButton.clicked.disconnect()
         self.dlg.runButton.clicked.connect(worker.kill)
         self.dlg.pushButtonClose.setEnabled(False)
@@ -1124,15 +1686,22 @@ class SOLWEIG(object):
             # load result into canvas
             if self.dlg.checkBoxIntoCanvas.isChecked():
                 tmrtplot = ret["tmrtplot"]
-                self.saveraster(self.gdal_dsm, self.folderPath[0] + '/Tmrt_average.tif', tmrtplot)
-                rlayer = self.iface.addRasterLayer(self.folderPath[0] + '/Tmrt_average.tif', 'Average Tmrt [degC]')
+                self.saveraster(
+                    self.gdal_dsm,
+                    self.folderPath[0] + "/Tmrt_average.tif",
+                    tmrtplot,
+                )
+                rlayer = self.iface.addRasterLayer(
+                    self.folderPath[0] + "/Tmrt_average.tif",
+                    "Average Tmrt [degC]",
+                )
 
                 # Trigger a repaint
                 if hasattr(rlayer, "setCacheImage"):
                     rlayer.setCacheImage(None)
                 rlayer.triggerRepaint()
 
-                rlayer.loadNamedStyle(self.plugin_dir + '/tmrt.qml')
+                rlayer.loadNamedStyle(self.plugin_dir + "/tmrt.qml")
 
                 if hasattr(rlayer, "setCacheImage"):
                     rlayer.setCacheImage(None)
@@ -1156,12 +1725,15 @@ class SOLWEIG(object):
             #     settingsData = np.array([[utc, pos, onlyglobal, landcover, ani, cyl, albedo_b, albedo_g, ewall, eground, absK, absL, alt]])
             #     np.savetxt(self.folderPath[0] + '/settings.txt', settingsData, fmt=settingsFmt, header=settingsHeader, delimiter=' ')
 
+            QMessageBox.information(
+                self.dlg,
+                "SOLWEIG",
+                "Model calculations successful!\r\n"
+                "Setting for this calculation is found in RunInfoSOLWEIG.txt located in "
+                "the specified output folder.",
+            )
 
-            QMessageBox.information(self.dlg,"SOLWEIG", "Model calculations successful!\r\n"
-                            "Setting for this calculation is found in RunInfoSOLWEIG.txt located in "
-                                                               "the specified output folder.")
-
-            self.dlg.runButton.setText('Run')
+            self.dlg.runButton.setText("Run")
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
             self.dlg.pushButtonClose.setEnabled(True)
@@ -1169,9 +1741,11 @@ class SOLWEIG(object):
         else:
             # notify the user that something went wrong
             self.iface.messageBar().pushMessage(
-                'Operations cancelled either by user or error. See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.',
-                level=Qgis.MessageLevel.Critical, duration=3)
-            self.dlg.runButton.setText('Run')
+                "Operations cancelled either by user or error. See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.",
+                level=Qgis.MessageLevel.Critical,
+                duration=3,
+            )
+            self.dlg.runButton.setText("Run")
             self.dlg.runButton.clicked.disconnect()
             self.dlg.runButton.clicked.connect(self.start_progress)
             self.dlg.pushButtonClose.setEnabled(True)

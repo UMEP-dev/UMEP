@@ -20,10 +20,17 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 from __future__ import absolute_import
 from builtins import str
 from builtins import object
-from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt
+from qgis.PyQt.QtCore import (
+    QSettings,
+    QTranslator,
+    qVersion,
+    QCoreApplication,
+    Qt,
+)
 from qgis.PyQt.QtWidgets import QAction, QMessageBox, QFileDialog
 from qgis.PyQt.QtGui import QIcon
 from qgis.core import Qgis
@@ -39,10 +46,10 @@ from .PythonQF2.GreaterQF import Model
 from .time_displayer import time_displayer
 
 try:
-    import pandas as pd
-    import matplotlib as plt
+    pass
 except:
     pass
+
 
 class GreaterQF(object):
     """QGIS Plugin Implementation."""
@@ -60,72 +67,104 @@ class GreaterQF(object):
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'GreaterQF_{}.qm'.format(locale))
+            self.plugin_dir, "i18n", "GreaterQF_{}.qm".format(locale)
+        )
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
 
-            if qVersion() > '4.3.3':
+            if qVersion() > "4.3.3":
                 QCoreApplication.installTranslator(self.translator)
 
         # Check dependencies
         try:
-            import pandas
-            import matplotlib as plt
+            pass
         except Exception as e:
-            QMessageBox.critical(None, 'Error',
-                                 'This plugin requires the pandas and matplotlib packages to be installed. '
-                                 'Please consult the manual for further information')
+            QMessageBox.critical(
+                None,
+                "Error",
+                "This plugin requires the pandas and matplotlib packages to be installed. "
+                "Please consult the manual for further information",
+            )
             return
         self.dlg = GreaterQFDialog()
-        self.setup() # Establish all object params
+        self.setup()  # Establish all object params
         self.connectButtons()
-        self.dlg.cmdRunCancel.clicked.connect(self.startWorker, Qt.ConnectionType.UniqueConnection)
+        self.dlg.cmdRunCancel.clicked.connect(
+            self.startWorker, Qt.ConnectionType.UniqueConnection
+        )
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&GQF')
+        self.menu = self.tr("&GQF")
         # self.toolbar = self.iface.addToolBar(u'GQF')
         # self.toolbar.setObjectName(u'GQF')
 
     def connectButtons(self):
-        ''' Connect buttons to default actions '''
-        self.dlg.cmdVisualise.clicked.connect(self.visualise, Qt.ConnectionType.UniqueConnection)                                   # Visualisation dialog
-        self.dlg.pushButtonClose.clicked.connect(self.dlg.close, Qt.ConnectionType.UniqueConnection)                                # Close this dialog
-        self.dlg.pushButtonRaw.clicked.connect(self.outputFolder, Qt.ConnectionType.UniqueConnection)                               # Output folder
-        self.dlg.cmdPrepare.clicked.connect(self.disaggregate, Qt.ConnectionType.UniqueConnection)                                  # Prepare input data
-        self.dlg.cmdLoadResults.clicked.connect(self.loadResults, Qt.ConnectionType.UniqueConnection)                               # Load a previous model run's results
-        self.dlg.chkDateRange.clicked.connect(self.useDateRange, Qt.ConnectionType.UniqueConnection)
-        self.dlg.chkDateList.clicked.connect(self.useDateList, Qt.ConnectionType.UniqueConnection)
-        self.dlg.pushButtonParams.clicked.connect(self.loadParams, Qt.ConnectionType.UniqueConnection)              # Params file
-        self.dlg.pushButtonDataSources.clicked.connect(self.dataSources, Qt.ConnectionType.UniqueConnection)        # Data sources file
-        self.dlg.pushButtonHelp.clicked.connect(self.help, Qt.ConnectionType.UniqueConnection) # Launch web-based help
-        self.dlg.cmdProcessedDataPath.clicked.connect(self.chooseProcessedDataPath, Qt.ConnectionType.UniqueConnection)             # Select prepared input data
+        """Connect buttons to default actions"""
+        self.dlg.cmdVisualise.clicked.connect(
+            # Visualisation dialog
+            self.visualise,
+            Qt.ConnectionType.UniqueConnection,
+        )
+        # Close this dialog
+        self.dlg.pushButtonClose.clicked.connect(
+            self.dlg.close, Qt.ConnectionType.UniqueConnection
+        )
+        # Output folder
+        self.dlg.pushButtonRaw.clicked.connect(
+            self.outputFolder, Qt.ConnectionType.UniqueConnection
+        )
+        # Prepare input data
+        self.dlg.cmdPrepare.clicked.connect(
+            self.disaggregate, Qt.ConnectionType.UniqueConnection
+        )
+        # Load a previous model run's results
+        self.dlg.cmdLoadResults.clicked.connect(
+            self.loadResults, Qt.ConnectionType.UniqueConnection
+        )
+        self.dlg.chkDateRange.clicked.connect(
+            self.useDateRange, Qt.ConnectionType.UniqueConnection
+        )
+        self.dlg.chkDateList.clicked.connect(
+            self.useDateList, Qt.ConnectionType.UniqueConnection
+        )
+        self.dlg.pushButtonParams.clicked.connect(
+            self.loadParams, Qt.ConnectionType.UniqueConnection
+        )  # Params file
+        self.dlg.pushButtonDataSources.clicked.connect(
+            self.dataSources, Qt.ConnectionType.UniqueConnection
+        )  # Data sources file
+        self.dlg.pushButtonHelp.clicked.connect(
+            self.help, Qt.ConnectionType.UniqueConnection
+        )  # Launch web-based help
+        self.dlg.cmdProcessedDataPath.clicked.connect(
+            # Select prepared input data
+            self.chooseProcessedDataPath,
+            Qt.ConnectionType.UniqueConnection,
+        )
 
     def setup(self):
-        ''' Set up the dialog box with empty parameters and a fresh model object'''
-         # Create the dialog (after translation) and keep reference
+        """Set up the dialog box with empty parameters and a fresh model object"""
+        # Create the dialog (after translation) and keep reference
         self.model = Model()
         self.useDateRange()
 
         # Populate text boxes with default entries
-        self.dlg.txtParams.setText('')
-        self.dlg.txtDataSources.setText('')
-        self.dlg.textOutput_raw.setText('')
-        self.dlg.txtProcessedDataPath.setText('')
-        self.dlg.txtDateList.setText('')
-
+        self.dlg.txtParams.setText("")
+        self.dlg.txtDataSources.setText("")
+        self.dlg.textOutput_raw.setText("")
+        self.dlg.txtProcessedDataPath.setText("")
+        self.dlg.txtDateList.setText("")
 
     def chooseProcessedDataPath(self):
-        '''
+        """
         Allows user to select folder containing pre-processed input data. Validates the folder and checks for a valid manifest.
         :return:
-        '''
+        """
 
         fileDialog = QFileDialog()
         fileDialog.setFileMode(QFileDialog.FileMode.Directory)
@@ -139,7 +178,9 @@ class GreaterQF(object):
             try:
                 self.model.setPreProcessedInputFolder(selectedFolder)
             except Exception as e:
-                QMessageBox.critical(None, 'Error setting processed data path', str(e))
+                QMessageBox.critical(
+                    None, "Error setting processed data path", str(e)
+                )
                 return
             self.dlg.txtProcessedDataPath.setText(selectedFolder)
             self.processedDataPath = selectedFolder
@@ -168,29 +209,43 @@ class GreaterQF(object):
             try:
                 self.model.setDataSources(df[0])
             except Exception as e:
-                QMessageBox.critical(None, 'Invalid Data Sources file provided', str(e))
+                QMessageBox.critical(
+                    None, "Invalid Data Sources file provided", str(e)
+                )
                 return
 
             self.dlg.txtDataSources.setText(df[0])
 
     def disaggregate(self):
-        '''
+        """
         Disaggregates model inputs to files on hard drive (saves user having to repeat over and over)
         :return: Dict containing information about each disaggregated file, for use by model
-        '''
+        """
 
         self.dlg.cmdPrepare.setEnabled(False)
-        if QMessageBox.question(self.dlg, "Prepare input data",
-                                "QGIS will freeze for a moment while preparing input. Du you want to continue?",
-                                QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) == QMessageBox.StandardButton.Ok:
+        if (
+            QMessageBox.question(
+                self.dlg,
+                "Prepare input data",
+                "QGIS will freeze for a moment while preparing input. Du you want to continue?",
+                QMessageBox.StandardButton.Ok
+                | QMessageBox.StandardButton.Cancel,
+            )
+            == QMessageBox.StandardButton.Ok
+        ):
             run = 1
         else:
-            QMessageBox.critical(self.dlg, "Prepare input data", "No input data prepared. Model cannot be executed")
+            QMessageBox.critical(
+                self.dlg,
+                "Prepare input data",
+                "No input data prepared. Model cannot be executed",
+            )
             run = 0
 
         if run == 1:
             processed = self.model.processInputData()
-            self.dlg.txtProcessedDataPath.setText(processed)  # Update the UI to show path being used
+            # Update the UI to show path being used
+            self.dlg.txtProcessedDataPath.setText(processed)
             self.model.setPreProcessedInputFolder(processed)
 
     def help(self):
@@ -200,7 +255,11 @@ class GreaterQF(object):
     def visualise(self):
         # Launch results visualisation dialog, specifying the current model outputs directory as the one to use
         if not self.model.resultsAvailable:
-            QMessageBox.critical(None, 'No results available', 'Nothing to plot: Either run the model or load some previous results')#
+            QMessageBox.critical(
+                None,
+                "No results available",
+                "Nothing to plot: Either run the model or load some previous results",
+            )
             return
 
         a = time_displayer(self.model, self.iface)
@@ -216,14 +275,14 @@ class GreaterQF(object):
             try:
                 self.model.setParameters(cf[0])
             except Exception as e:
-                QMessageBox.critical(None, 'Invalid parameters file', str(e))
+                QMessageBox.critical(None, "Invalid parameters file", str(e))
                 return
 
             self.dlg.txtParams.setText(cf[0])
 
     def loadResults(self):
-        ''' Load a previous model run for visualisation'''
-        self.reset() # Clear everything as we are loading previous results
+        """Load a previous model run for visualisation"""
+        self.reset()  # Clear everything as we are loading previous results
 
         fileDialog = QFileDialog()
         # fileDialog.setFileMode(2)
@@ -237,36 +296,49 @@ class GreaterQF(object):
             try:
                 locations = self.model.loadModelResults(selectedFolder)
             except Exception as e:
-                QMessageBox.critical(None, 'Error loading previous model results', str(e))
+                QMessageBox.critical(
+                    None, "Error loading previous model results", str(e)
+                )
                 return
 
-
             self.dlg.cmdLoadResults.clicked.disconnect()
-            self.dlg.cmdLoadResults.clicked.connect(self.reset, Qt.ConnectionType.UniqueConnection)
-            self.dlg.cmdLoadResults.setText('Clear data')
+            self.dlg.cmdLoadResults.clicked.connect(
+                self.reset, Qt.ConnectionType.UniqueConnection
+            )
+            self.dlg.cmdLoadResults.setText("Clear data")
             self.dlg.cmdVisualise.setEnabled(True)
 
             # Update text boxes with file locations for user information
-            self.dlg.txtProcessedDataPath.setText(locations['processedInputData'])
-            self.dlg.textOutput_raw.setText(locations['outputPath'])
-            self.dlg.txtDataSources.setText(locations['dsFile'])
+            self.dlg.txtProcessedDataPath.setText(
+                locations["processedInputData"]
+            )
+            self.dlg.textOutput_raw.setText(locations["outputPath"])
+            self.dlg.txtDataSources.setText(locations["dsFile"])
 
             try:
-                self.model.setDataSources(locations['dsFile'])
+                self.model.setDataSources(locations["dsFile"])
             except Exception as e:
-                QMessageBox.critical(None, 'Error loading previous model data sources', str(e) + '. Re-runs not available')
+                QMessageBox.critical(
+                    None,
+                    "Error loading previous model data sources",
+                    str(e) + ". Re-runs not available",
+                )
                 self.dlg.cmdRunCancel.setEnabled(False)
 
-            self.dlg.txtParams.setText(locations['paramsFile'])
+            self.dlg.txtParams.setText(locations["paramsFile"])
             try:
-                self.model.setParameters(locations['paramsFile'])
+                self.model.setParameters(locations["paramsFile"])
             except Exception as e:
-                QMessageBox.critical(None, 'Error loading previous model configuration', str(e) + '. Re-runs not available')
+                QMessageBox.critical(
+                    None,
+                    "Error loading previous model configuration",
+                    str(e) + ". Re-runs not available",
+                )
                 self.dlg.cmdRunCancel.setEnabled(False)
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
-        return QCoreApplication.translate('GQF', message)
+        return QCoreApplication.translate("GQF", message)
 
     def add_action(
         self,
@@ -278,7 +350,8 @@ class GreaterQF(object):
         add_to_toolbar=True,
         status_tip=None,
         whats_this=None,
-        parent=None):
+        parent=None,
+    ):
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -333,9 +406,7 @@ class GreaterQF(object):
             self.toolbar.addAction(action)
 
         if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action)
+            self.iface.addPluginToMenu(self.menu, action)
 
         self.actions.append(action)
 
@@ -344,19 +415,18 @@ class GreaterQF(object):
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/GreaterQF/icon.png'
+        icon_path = ":/plugins/GreaterQF/icon.png"
         self.add_action(
             icon_path,
-            text=self.tr(u'GQF'),
+            text=self.tr("GQF"),
             callback=self.run,
-            parent=self.iface.mainWindow())
+            parent=self.iface.mainWindow(),
+        )
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
-            self.iface.removePluginMenu(
-                self.tr(u'&GQF'),
-                action)
+            self.iface.removePluginMenu(self.tr("&GQF"), action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
         del self.toolbar
@@ -367,8 +437,13 @@ class GreaterQF(object):
 
         if self.dateRange:
             # Date range supplied
-            if self.dlg.startDate.date().toPyDate() >= self.dlg.endDate.date().toPyDate():
-                QMessageBox.critical(None, 'Error', 'Start date must be earlier than end date')
+            if (
+                self.dlg.startDate.date().toPyDate()
+                >= self.dlg.endDate.date().toPyDate()
+            ):
+                QMessageBox.critical(
+                    None, "Error", "Start date must be earlier than end date"
+                )
                 return
             startDates = [self.dlg.startDate.date().toPyDate()]
             endDates = [self.dlg.endDate.date().toPyDate()]
@@ -376,38 +451,53 @@ class GreaterQF(object):
             # Date list supplied
             # Parse date list
             text = self.dlg.txtDateList.text()
-            dateList = text.split(',')
+            dateList = text.split(",")
             startDates = []
             endDates = []
             for date in dateList:
                 try:
-                    startDates.append(dt.strptime(date.strip(), '%Y-%m-%d'))
+                    startDates.append(dt.strptime(date.strip(), "%Y-%m-%d"))
                     endDates.append(startDates[-1] + timedelta(hours=24))
                 except Exception:
-                    raise ValueError('Invalid date list: ' + date + '. Must be comma-separated and in format YYYY-mm-dd')
+                    raise ValueError(
+                        "Invalid date list: "
+                        + date
+                        + ". Must be comma-separated and in format YYYY-mm-dd"
+                    )
 
-        if self.dlg.startDate.date().toPyDate() >= self.dlg.endDate.date().toPyDate():
-            QMessageBox.critical(None, 'Error', 'Start date must be earlier than end date')
+        if (
+            self.dlg.startDate.date().toPyDate()
+            >= self.dlg.endDate.date().toPyDate()
+        ):
+            QMessageBox.critical(
+                None, "Error", "Start date must be earlier than end date"
+            )
             return
 
         # Run-time configuration
         # Component options (checkboxes)
-        componentOptions = {'sensible':self.dlg.chkSensibleQf.checkState()>0, 'latent':self.dlg.chkLatentQf.checkState()>0, 'wastewater':self.dlg.chkWastewaterQf.checkState()>0}
-        startDate = self.dlg.startDate.date().toPyDate().strftime('%Y-%m-%d')
-        endDate = self.dlg.endDate.date().toPyDate().strftime('%Y-%m-%d')
+        componentOptions = {
+            "sensible": self.dlg.chkSensibleQf.checkState() > 0,
+            "latent": self.dlg.chkLatentQf.checkState() > 0,
+            "wastewater": self.dlg.chkWastewaterQf.checkState() > 0,
+        }
+        startDate = self.dlg.startDate.date().toPyDate().strftime("%Y-%m-%d")
+        endDate = self.dlg.endDate.date().toPyDate().strftime("%Y-%m-%d")
 
-        doLatent = componentOptions['latent']
-        doSensible = componentOptions['sensible']
-        doWastewater = componentOptions['wastewater']
+        doLatent = componentOptions["latent"]
+        doSensible = componentOptions["sensible"]
+        doWastewater = componentOptions["wastewater"]
         doAll = doLatent & doWastewater & doSensible
 
         # Create a Config object based on form entries
-        configParams = {'start_dates': startDates,
-                        'end_dates': endDates,
-                        'all_qf': doAll,
-                        'sensible_qf': doSensible,
-                        'latent_qf': doLatent,
-                        'wastewater_qf': doWastewater}
+        configParams = {
+            "start_dates": startDates,
+            "end_dates": endDates,
+            "all_qf": doAll,
+            "sensible_qf": doSensible,
+            "latent_qf": doLatent,
+            "wastewater_qf": doWastewater,
+        }
 
         config = Config()
         config.loadFromDictionary(configParams)
@@ -415,18 +505,23 @@ class GreaterQF(object):
         self.dlg.cmdRunCancel.setEnabled(False)
         self.dlg.pushButtonClose.setEnabled(False)
         # RUN MODEL HERE
-        #self.model.run() #TODO Moved it outside to find error
+        # self.model.run() #TODO Moved it outside to find error
         try:
             self.model.run()
             self.dlg.progressBar.setValue(100)
-            self.iface.messageBar().pushMessage("GQF", "Model run complete. Click 'visualise' to view output",
-                                            level=Qgis.MessageLevel.Info)
+            self.iface.messageBar().pushMessage(
+                "GQF",
+                "Model run complete. Click 'visualise' to view output",
+                level=Qgis.MessageLevel.Info,
+            )
             # Swap the "load" button to a "Clear" button
             self.dlg.cmdLoadResults.clicked.disconnect()
-            self.dlg.cmdLoadResults.clicked.connect(self.reset, Qt.ConnectionType.UniqueConnection)
-            self.dlg.cmdLoadResults.setText('Clear data')
+            self.dlg.cmdLoadResults.clicked.connect(
+                self.reset, Qt.ConnectionType.UniqueConnection
+            )
+            self.dlg.cmdLoadResults.setText("Clear data")
         except Exception as e:
-            QMessageBox.critical(None, 'Error running GQF', str(e))
+            QMessageBox.critical(None, "Error running GQF", str(e))
 
         self.dlg.cmdRunCancel.setEnabled(True)
         self.dlg.pushButtonClose.setEnabled(True)
@@ -438,31 +533,33 @@ class GreaterQF(object):
         self.dlg.exec()
 
     def reset(self):
-        ''' Reset model object and dialogues so that user can start again'''
+        """Reset model object and dialogues so that user can start again"""
         self.setup()
         # Replace the "clear results" box with "Load results"
         self.dlg.cmdLoadResults.clicked.disconnect()
-        self.dlg.cmdLoadResults.clicked.connect(self.loadResults, Qt.ConnectionType.UniqueConnection)
-        self.dlg.cmdLoadResults.setText('Load results')
+        self.dlg.cmdLoadResults.clicked.connect(
+            self.loadResults, Qt.ConnectionType.UniqueConnection
+        )
+        self.dlg.cmdLoadResults.setText("Load results")
         self.dlg.cmdRunCancel.setEnabled(True)
         self.dlg.chkDateRange.setChecked(True)
         self.dlg.chkDateList.setChecked(False)
 
     def useDateRange(self):
-        '''
+        """
         Enable date range boxes and disable date list box
         :return:
-        '''
+        """
         self.dateRange = True
         self.dlg.startDate.setEnabled(True)
         self.dlg.endDate.setEnabled(True)
         self.dlg.txtDateList.setEnabled(False)
 
     def useDateList(self):
-        '''
+        """
         Enable date list box and disable date range boxes
         :return:
-        '''
+        """
         self.dateRange = False
         self.dlg.startDate.setEnabled(False)
         self.dlg.endDate.setEnabled(False)

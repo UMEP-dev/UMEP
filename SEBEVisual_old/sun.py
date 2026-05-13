@@ -27,13 +27,36 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 # Import the PyQt and QGIS libraries
-from qgis.core import QgsRasterLayer, QgsProject, QgsVectorLayer, QgsFeature, QgsRectangle, QgsGeometry, QgsMessageLog, Qgis, QgsPointXY
-from qgis.utils import *
-from qgis.gui import *
+from .wallworker import wallWorker
+from .tools.lineEditDragDrop import LineEditDragFile
+from .tools.areaTool import AreaTool
+from .tools.GLWidget import VisWidget
+from .visualizer_dialog import VisualizerDialog
+from matplotlib.backends.backend_qt5agg import (
+    FigureCanvasQTAgg as FigureCanvas,
+)
+from matplotlib import colorbar, colors
+from matplotlib.figure import Figure
+from qgis.core import (
+    QgsRasterLayer,
+    QgsVectorLayer,
+    QgsFeature,
+    QgsRectangle,
+    QgsGeometry,
+    QgsMessageLog,
+    QgsPointXY,
+)
 from qgis.PyQt import QtWidgets
-from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread, QCoreApplication
-from qgis.PyQt.QtGui import QIcon, QPixmap, QScreen
+from qgis.PyQt.QtCore import (
+    QSettings,
+    QTranslator,
+    qVersion,
+    QThread,
+    QCoreApplication,
+)
+from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 
 # Initialize Qt resources from file resources.py
@@ -47,18 +70,10 @@ import numpy as np
 import webbrowser
 import matplotlib
 
-matplotlib.use('QtAgg')
+matplotlib.use("QtAgg")
 
-from matplotlib.figure import Figure
-from matplotlib import colorbar, colors
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 # Import the code for the GUI dialog
-from .visualizer_dialog import VisualizerDialog
-from .tools.GLWidget import VisWidget
-from .tools.areaTool import AreaTool
-from .tools.lineEditDragDrop import LineEditDragFile
-from .wallworker import wallWorker
 
 # from .rectangleAreaTool import RectangleAreaTool
 
@@ -79,8 +94,8 @@ def get_dsm_corners(filepath):
 
 
 def valid_float(value):
-    """ Returns True if value can be converted to float,
-        otherwise returns False.
+    """Returns True if value can be converted to float,
+    otherwise returns False.
     """
     try:
         float(value)
@@ -93,7 +108,7 @@ def valid_float(value):
 class Visual:
     # Runs when QGis starts up and the plugin is set to be active
     def __init__(self, iface, screen=None):
-        """ Initialization
+        """Initialization
         :param iface: Reference to QGIS interface, is None if run as __main__
         """
 
@@ -105,13 +120,15 @@ class Visual:
         if self.iface is not None:
             # initialize locale
             locale = QSettings().value("locale/userLocale")[0:2]
-            localePath = os.path.join(self.plugin_dir, 'i18n', 'sun_{}.qm'.format(locale))
+            localePath = os.path.join(
+                self.plugin_dir, "i18n", "sun_{}.qm".format(locale)
+            )
 
             if os.path.exists(localePath):
                 self.translator = QTranslator()
                 self.translator.load(localePath)
 
-                if qVersion() > '4.3.3':
+                if qVersion() > "4.3.3":
                     QCoreApplication.installTranslator(self.translator)
 
             # variables for additional layers
@@ -139,21 +156,23 @@ class Visual:
             screenw, screenh = 900, 800
         else:
             screenw, screenh = screensize.width(), screensize.height()
-        self.screenw = screenw // 4    # screen-width
-        self.screenh = screenh // 2    # screen-height
+        self.screenw = screenw // 4  # screen-width
+        self.screenh = screenh // 2  # screen-height
 
-        self.windowtitle = "SEBE(pv) Visualizer"   # Main title to be shown in window title
-        self.GLsize = (0, 0)   # width, height of GL drawinf area to be shown in window title
-        self.graphtitle = ""   # wall file name to be shown in window title
+        # Main title to be shown in window title
+        self.windowtitle = "SEBE(pv) Visualizer"
+        # width, height of GL drawinf area to be shown in window title
+        self.GLsize = (0, 0)
+        self.graphtitle = ""  # wall file name to be shown in window title
 
-        self.base_path_str = None       # string of the path of data
+        self.base_path_str = None  # string of the path of data
         self.point1 = None
         self.point2 = None
         self.gl_widget = None
         self.energy_array = None
         self.dsm_array = None
 
-        self.xulcorner = None   # corners of selected dsm area
+        self.xulcorner = None  # corners of selected dsm area
         self.yulcorner = None
         self.cellsizex = None
         self.cellsizey = None
@@ -161,17 +180,17 @@ class Visual:
         self.yulcorner_sel = None
 
         # default file names:
-        self.roofground_default = 'Energyyearroof.tif'
-        self.veg_default = 'Vegetationdata.txt'
-        self.wall_default = 'Energyyearwall.txt'
-        self.height_default = 'dsm.tif'
+        self.roofground_default = "Energyyearroof.tif"
+        self.veg_default = "Vegetationdata.txt"
+        self.wall_default = "Energyyearwall.txt"
+        self.height_default = "dsm.tif"
 
         self.roofground_file = None
         self.veg_file = None
         self.wall_file = None
         self.height_file = None
 
-        self.showpv = False          # if True, prefix wall and roof files with 'PV'
+        self.showpv = False  # if True, prefix wall and roof files with 'PV'
 
         self.thread = None
         self.wallworker = None
@@ -187,7 +206,7 @@ class Visual:
         self.visDlg.checkBoxPV.setEnabled(0)
         self.visDlg.ButtonClose.clicked.connect(self.cleanup)
 
-        self.fileDialog = None      # for file dialog to choose data folder
+        self.fileDialog = None  # for file dialog to choose data folder
 
         LineEditDragFile(self.visDlg.textOutput)
         self.visDlg.textOutput.textChanged.connect(self.process_paths)
@@ -201,7 +220,7 @@ class Visual:
         gdal.UseExceptions()  # make gdal throw python exceptions
 
     def initGui(self):
-        """ Create toolbar within UMEP plugin for QGIS
+        """Create toolbar within UMEP plugin for QGIS
         :return:
         """
         self.toolBar = self.iface.addToolBar("Sun Toolbar")
@@ -209,20 +228,22 @@ class Visual:
         # Action for initializing the plugin, will add shape-files and OLlayer to the QGis-project
         self.initialize = QAction(
             QIcon(":/plugins/sun/initicon.png"),
-            u"Initialize plugin environment", self.iface.mainWindow())
+            "Initialize plugin environment",
+            self.iface.mainWindow(),
+        )
 
         self.initialize.triggered.connect(self.run)
 
         self.toolBar.addAction(self.initialize)
 
     def unload(self):
-        """ Runs when the plugin is deleted, remove it from QGIS toolbar.
+        """Runs when the plugin is deleted, remove it from QGIS toolbar.
         :return:
         """
         del self.toolBar
 
     def run(self):
-        """ Initialisation method
+        """Initialisation method
         :return:
         """
         self.visDlg.open()
@@ -233,19 +254,25 @@ class Visual:
         webbrowser.open_new_tab(url)
 
     def area(self):
-        """ Select an area of the scene for visualisation
+        """Select an area of the scene for visualisation
         :return:
         """
-        xtl, ytl, xbr, ybr = get_dsm_corners(self.base_path_str + '/' + self.height_file)
+        xtl, ytl, xbr, ybr = get_dsm_corners(
+            self.base_path_str + "/" + self.height_file
+        )
         self.point1 = QgsPointXY(xtl, ytl)
         self.point2 = QgsPointXY(xbr, ybr)
 
-        QMessageBox.warning(self.visDlg, "Full extent will be selected", "This functionality is currently not active. "
-                                "Full extent will used for visualisation. For large model domains, this will make the plugin low in performance.")
+        QMessageBox.warning(
+            self.visDlg,
+            "Full extent will be selected",
+            "This functionality is currently not active. "
+            "Full extent will used for visualisation. For large model domains, this will make the plugin low in performance.",
+        )
 
         self.visDlg.ButtonVisualize.setEnabled(1)
-        
-        #TODO: Make user define area to visualise
+
+        # TODO: Make user define area to visualise
         # if self.iface is None:
         #     # changed for testing:
         #     xtl, ytl, xbr, ybr = get_dsm_corners(self.base_path_str + '/' + self.height_file)
@@ -259,7 +286,7 @@ class Visual:
         #     self.canvas.setMapTool(self.AreaTool)
 
     def data_directory(self):
-        """ Select directory with data and test if valid. """
+        """Select directory with data and test if valid."""
         self.fileDialog = QFileDialog()
         self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
         self.fileDialog.setAcceptMode(QFileDialog.AcceptMode.AcceptOpen)
@@ -270,11 +297,12 @@ class Visual:
             data_path = self.fileDialog.selectedFiles()
             self.base_path_str = str(data_path[0])
 
-        self.visDlg.ButtonVisualize.setEnabled(False)  # see, if needed here also for QGIS plugin!!
+        # see, if needed here also for QGIS plugin!!
+        self.visDlg.ButtonVisualize.setEnabled(False)
         self.visDlg.textOutput.setText(self.base_path_str)
 
     def process_paths(self):
-        """ Process the directory path or file-paths and check if valid. """
+        """Process the directory path or file-paths and check if valid."""
 
         # reset data paths:
         self.base_path_str = None
@@ -293,7 +321,7 @@ class Visual:
             self.visDlg.checkBoxPV.setEnabled(False)
 
             pathslist = paths.split(";")
-            pathendindex = pathslist[0].rfind("/")+1
+            pathendindex = pathslist[0].rfind("/") + 1
             self.base_path_str = pathslist[0][0:pathendindex]
             for i in pathslist:
                 if "roof" in i:
@@ -318,7 +346,10 @@ class Visual:
             self.height_file = self.height_default
 
             fileslist = os.listdir(self.base_path_str)
-            if self.roofground_default in fileslist and 'PV'+self.roofground_default in fileslist:
+            if (
+                self.roofground_default in fileslist
+                and "PV" + self.roofground_default in fileslist
+            ):
                 self.visDlg.checkBoxPV.setEnabled(True)
 
                 self.roofground_file = self.roofground_default
@@ -326,9 +357,11 @@ class Visual:
                 self.wall_file = self.wall_default
                 self.showpv = False
 
-                QMessageBox.warning(None, "Warning",
-                                    "Check the checkbox 'Show PV'! \n Choose Irradiance or Photovoltaic."
-                                    )
+                QMessageBox.warning(
+                    None,
+                    "Warning",
+                    "Check the checkbox 'Show PV'! \n Choose Irradiance or Photovoltaic.",
+                )
             elif self.roofground_default in fileslist:
                 self.visDlg.checkBoxPV.setEnabled(False)
                 self.showpv = False
@@ -336,7 +369,7 @@ class Visual:
                 self.roofground_file = self.roofground_default
                 self.veg_file = self.veg_default
                 self.wall_file = self.wall_default
-            elif 'PV'+self.roofground_default in fileslist:
+            elif "PV" + self.roofground_default in fileslist:
                 self.visDlg.checkBoxPV.setEnabled(False)
                 self.showpv = True
 
@@ -347,9 +380,13 @@ class Visual:
         if self.check_data_exist():
             if self.iface is not None:
                 # Load Energyyearroof as layer to QGIS:
-                self.layer = QgsRasterLayer(self.base_path_str + self.height_file, "loaded DSM")
-                loadedlayer = self.iface.addRasterLayer(self.base_path_str + self.height_file)
-                #loadedlayer = QgsMapLayerRegistry.instance().addMapLayer(self.layer)
+                self.layer = QgsRasterLayer(
+                    self.base_path_str + self.height_file, "loaded DSM"
+                )
+                loadedlayer = self.iface.addRasterLayer(
+                    self.base_path_str + self.height_file
+                )
+                # loadedlayer = QgsMapLayerRegistry.instance().addMapLayer(self.layer)
                 loadedlayer.triggerRepaint()
 
             self.visDlg.ButtonSelect.setEnabled(True)  # enables area selection
@@ -371,16 +408,19 @@ class Visual:
     def check_data_exist(self):
 
         err = ""
-        #print(err)
+        # print(err)
         # check dsm file:
         try:
             layer = gdal.Open(str(self.base_path_str + self.height_file))
         except (RuntimeError, TypeError) as err:
             layer = None
         if layer is None:
-            QMessageBox.critical(None, "Error",
-                                 "Could not find valid ground .tif file in directory!\n" + str(err)
-                                 )
+            QMessageBox.critical(
+                None,
+                "Error",
+                "Could not find valid ground .tif file in directory!\n"
+                + str(err),
+            )
             return 0
         # check energy-roof file:
         try:
@@ -388,23 +428,32 @@ class Visual:
         except (RuntimeError, TypeError) as err:
             layer = None
         if layer is None:
-            QMessageBox.critical(None, "Error",
-                                 ("Could not find valid energy on roof/ground .tif file in directory!\n" +
-                                  str(err))
-                                 )
+            QMessageBox.critical(
+                None,
+                "Error",
+                (
+                    "Could not find valid energy on roof/ground .tif file in directory!\n"
+                    + str(err)
+                ),
+            )
             return 0
         # check energy-wall file:
         try:
-            layer = open(str(self.base_path_str + self.wall_file), 'r')
+            layer = open(str(self.base_path_str + self.wall_file), "r")
         except (RuntimeError, TypeError) as err:
             layer = None
         if layer is None:
-            QMessageBox.critical(None, "Error", "Could not find valid wall .txt file in directory!\n" + str(err))
+            QMessageBox.critical(
+                None,
+                "Error",
+                "Could not find valid wall .txt file in directory!\n"
+                + str(err),
+            )
             return 0
         return 1
 
     def display_area(self, point1, point2):
-        """ Adds the selected study area as poly layer to QGIS
+        """Adds the selected study area as poly layer to QGIS
         (Not used if run as __main__)
 
         :param point1: 1st QgsPoint of selected area
@@ -431,7 +480,7 @@ class Visual:
         self.polyLayer.addFeature(featurepoly, True)
         self.polyLayer.commitChanges()
         self.iface.addVectorLayer(self.polyLayer)
-        #QgsMapLayerRegistry.instance().addMapLayer(self.polyLayer)
+        # QgsMapLayerRegistry.instance().addMapLayer(self.polyLayer)
 
         self.polyLayer.setLayerTransparency(42)
 
@@ -443,7 +492,7 @@ class Visual:
 
         self.steps = 0
         gdal.UseExceptions()
-        self.check_data_exist()     # in case the checkbox got changed in the meanwhile
+        self.check_data_exist()  # in case the checkbox got changed in the meanwhile
 
         si = subprocess.STARTUPINFO()
         si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -490,48 +539,76 @@ class Visual:
         self.cellsizex = geotransform[1]
         self.cellsizey = geotransform[5]
 
-        ulcorner = (geotransform[0], geotransform[3])  # x, y for upper left corner
-        cellsize = (geotransform[1], geotransform[5])   # gridsize in x, y direction
+        # x, y for upper left corner
+        ulcorner = (geotransform[0], geotransform[3])
+        # gridsize in x, y direction
+        cellsize = (geotransform[1], geotransform[5])
 
-        gdalclip_build = 'gdal_translate -a_nodata -9999 -projwin ' + str(minx) + ' ' + str(maxy) \
-                         + ' ' + str(maxx) + ' ' + str(miny) + \
-                         ' -of GTiff ' + self.base_path_str + self.roofground_file + ' ' \
-                         + self.plugin_dir + '/data/temp.tif'
+        gdalclip_build = (
+            "gdal_translate -a_nodata -9999 -projwin "
+            + str(minx)
+            + " "
+            + str(maxy)
+            + " "
+            + str(maxx)
+            + " "
+            + str(miny)
+            + " -of GTiff "
+            + self.base_path_str
+            + self.roofground_file
+            + " "
+            + self.plugin_dir
+            + "/data/temp.tif"
+        )
 
         subprocess.call(gdalclip_build, startupinfo=si)
 
         # ground energy data for selected area:
-        dataset = gdal.Open(self.plugin_dir + '/data/temp.tif')
+        dataset = gdal.Open(self.plugin_dir + "/data/temp.tif")
         self.energy_array = dataset.ReadAsArray().astype(float)
 
         sizex = self.energy_array.shape[1]
         sizey = self.energy_array.shape[0]
 
         # dsm:
-        gdalclipasc_build = 'gdal_translate -a_nodata -9999 -projwin ' + \
-                            str(minx) + ' ' + str(maxy) + ' ' + str(maxx) + ' ' + str(miny) + \
-                            ' -of GTiff ' + self.base_path_str + self.height_file + ' ' + \
-                            self.plugin_dir + '/data/temp_asc.tif'
+        gdalclipasc_build = (
+            "gdal_translate -a_nodata -9999 -projwin "
+            + str(minx)
+            + " "
+            + str(maxy)
+            + " "
+            + str(maxx)
+            + " "
+            + str(miny)
+            + " -of GTiff "
+            + self.base_path_str
+            + self.height_file
+            + " "
+            + self.plugin_dir
+            + "/data/temp_asc.tif"
+        )
 
         subprocess.call(gdalclipasc_build, startupinfo=si)
 
         # dsm data for selected area:
-        dataset = gdal.Open(self.plugin_dir + '/data/temp_asc.tif')
+        dataset = gdal.Open(self.plugin_dir + "/data/temp_asc.tif")
 
         select_geotransform = dataset.GetGeoTransform()
         self.xulcorner_sel = select_geotransform[0]
         self.yulcorner_sel = select_geotransform[3]
 
-        select_ulcorner = (select_geotransform[0], select_geotransform[3])   # x, y for upper left corner
-        select_size = (sizex, sizey)   # size of selected array in x, y direction
+        # x, y for upper left corner
+        select_ulcorner = (select_geotransform[0], select_geotransform[3])
+        # size of selected array in x, y direction
+        select_size = (sizex, sizey)
 
         self.dsm_array = dataset.ReadAsArray().astype(float)
-        np.place(self.dsm_array, self.dsm_array == -9999., np.nan)
+        np.place(self.dsm_array, self.dsm_array == -9999.0, np.nan)
 
         # if self.iface is not None:
         #     # Load dsm of selected area as layer to QGIS:
         #     self.dsmlayer = QgsRasterLayer(self.plugin_dir + '/data/temp_asc.tif', "selected DSM")
-            
+
         #     #selectedlayer = QgsMapLayerRegistry.instance().addMapLayer(self.dsmlayer)
         #     selectedlayer = self.iface.addRasterLayer(self.plugin_dir + '/data/temp_asc.tif')
         #     selectedlayer.triggerRepaint()
@@ -543,11 +620,20 @@ class Visual:
 
         self.start_wallworker(ulcorner, cellsize, select_size, select_ulcorner)
 
-    def start_wallworker(self, ulcorner, cellsize, select_size, select_ulcorner):
+    def start_wallworker(
+        self, ulcorner, cellsize, select_size, select_ulcorner
+    ):
         # create a new worker instance
-        worker = wallWorker(ulcorner, cellsize, select_size, select_ulcorner, self.base_path_str, self.wall_file)
+        worker = wallWorker(
+            ulcorner,
+            cellsize,
+            select_size,
+            select_ulcorner,
+            self.base_path_str,
+            self.wall_file,
+        )
 
-        self.visDlg.ButtonVisualize.setText('Cancel')
+        self.visDlg.ButtonVisualize.setText("Cancel")
         self.visDlg.ButtonVisualize.clicked.disconnect()
         self.visDlg.ButtonVisualize.clicked.connect(self.kill_worker)
         self.visDlg.ButtonClose.setEnabled(False)
@@ -560,7 +646,7 @@ class Visual:
         worker.error.connect(self.worker_error)
         # worker.progress.connect(self.progress_update)
         thread.started.connect(worker.run)
-        
+
         thread.start()
         self.thread = thread
         self.wallworker = worker
@@ -586,17 +672,26 @@ class Visual:
         self.thread.deleteLater()
 
         if ret is not None:
-            QgsMessageLog.logMessage('WALL_ARRAY length: ' + str(len(ret)), level=2)
-            QgsMessageLog.logMessage('WALL_ARRAY: ' + str(ret), level=2)
-            QgsMessageLog.logMessage('ASC_ARRAY: ' + str(self.dsm_array), level=2)
+            QgsMessageLog.logMessage(
+                "WALL_ARRAY length: " + str(len(ret)), level=2
+            )
+            QgsMessageLog.logMessage("WALL_ARRAY: " + str(ret), level=2)
+            QgsMessageLog.logMessage(
+                "ASC_ARRAY: " + str(self.dsm_array), level=2
+            )
 
             renewWidget = True
             if self.gl_widget is not None:
                 if np.array_equal(self.gl_widget.dsm_array, self.dsm_array):
                     # reuse same gl_widget settings for view!
                     renewWidget = False
-                    self.gl_widget.reinitiate(self.energy_array, self.dsm_array, wall_array,
-                                              self.cellsizex, self.cellsizey)
+                    self.gl_widget.reinitiate(
+                        self.energy_array,
+                        self.dsm_array,
+                        wall_array,
+                        self.cellsizex,
+                        self.cellsizey,
+                    )
                 else:
                     renewWidget = True
                     self.visDlg.layout.removeWidget(self.gl_widget)
@@ -604,15 +699,21 @@ class Visual:
                 pass
             if renewWidget:
                 # i.e. widget wasnt initiated at all, or should be renewed:
-                self.gl_widget = VisWidget(self.energy_array, self.dsm_array, wall_array,
-                                           self.cellsizex, self.cellsizey, self)
+                self.gl_widget = VisWidget(
+                    self.energy_array,
+                    self.dsm_array,
+                    wall_array,
+                    self.cellsizex,
+                    self.cellsizey,
+                    self,
+                )
                 self.visDlg.layout.addWidget(self.gl_widget, 0, 0)
             else:
                 pass
             # add the colorbar to frame:
             self.redraw_colorbar()
 
-        self.visDlg.ButtonVisualize.setText('Visualize')
+        self.visDlg.ButtonVisualize.setText("Visualize")
         self.visDlg.ButtonVisualize.clicked.disconnect()
         self.visDlg.ButtonVisualize.clicked.connect(self.visualize)
         self.visDlg.ButtonClose.setEnabled(True)
@@ -639,8 +740,12 @@ class Visual:
         self.visDlg.ButtonRange.setCheckable(True)
         self.visDlg.ButtonRange.setChecked(True)
         self.visDlg.ButtonRange.toggled.connect(self.printautorange)
-        self.visDlg.textMinimum.editingFinished.connect(self.min_energy_changed)
-        self.visDlg.textMaximum.editingFinished.connect(self.max_energy_changed)
+        self.visDlg.textMinimum.editingFinished.connect(
+            self.min_energy_changed
+        )
+        self.visDlg.textMaximum.editingFinished.connect(
+            self.max_energy_changed
+        )
         self.visDlg.label_14.hide()
         self.visDlg.label_15.hide()
         self.visDlg.textMinimum.hide()
@@ -654,7 +759,7 @@ class Visual:
     def printautorange(self, value):
         self.autorange = value
         if self.autorange:
-            self.visDlg.ButtonRange.setText('set Manual Range')
+            self.visDlg.ButtonRange.setText("set Manual Range")
             self.visDlg.label_14.hide()
             self.visDlg.label_15.hide()
             self.visDlg.textMinimum.hide()
@@ -667,17 +772,23 @@ class Visual:
             self.gl_widget.updateGL()
             self.redraw_colorbar()
         elif not self.autorange:
-            self.visDlg.ButtonRange.setText('set Auto Range')
+            self.visDlg.ButtonRange.setText("set Auto Range")
             self.visDlg.ButtonRedraw.show()
             self.visDlg.label_14.show()
             self.visDlg.label_15.show()
             self.visDlg.textMinimum.show()
             self.visDlg.textMaximum.show()
-            self.visDlg.textMinimum.setText(str(self.gl_widget.get_min_energy()))
-            self.visDlg.textMaximum.setText(str(self.gl_widget.get_max_energy()))
+            self.visDlg.textMinimum.setText(
+                str(self.gl_widget.get_min_energy())
+            )
+            self.visDlg.textMaximum.setText(
+                str(self.gl_widget.get_max_energy())
+            )
 
     def redrawGL(self):
-        if (self.visDlg.textMaximum.text() == "invalid number") or (self.visDlg.textMinimum.text() == "invalid number"):
+        if (self.visDlg.textMaximum.text() == "invalid number") or (
+            self.visDlg.textMinimum.text() == "invalid number"
+        ):
             pass
         else:
             self.gl_widget.calc_energyrange()
@@ -701,23 +812,23 @@ class Visual:
             self.visDlg.textMaximum.setText("invalid number")
 
     def txt_update_azim(self, value):
-        """ when azimuth value is changed in GL"""
+        """when azimuth value is changed in GL"""
         self.visDlg.TextAzim.setText(str(value))
 
     def txt_update_zeni(self, value):
-        """ when zenith value is changed in GL"""
+        """when zenith value is changed in GL"""
         self.visDlg.TextZeni.setText(str(value))
 
     def txt_update_zoom(self, value):
-        """ when zoom value is changed in GL"""
+        """when zoom value is changed in GL"""
         self.visDlg.TextViewDist.setText(str(value))
 
     def txt_update_xshf(self, value):
-        """ when x-shift value is changed in GL"""
+        """when x-shift value is changed in GL"""
         self.visDlg.TextShiftX.setText(str(value))
 
     def txt_update_yshf(self, value):
-        """ when y-shift value is changed in GL"""
+        """when y-shift value is changed in GL"""
         self.visDlg.TextShiftY.setText(str(value))
 
     def txt_changed_azim(self):
@@ -768,19 +879,25 @@ class Visual:
         except:
             pass
         # add new color bar:
-        self.figure = Figure(figsize=(1, 10), facecolor='white')
+        self.figure = Figure(figsize=(1, 10), facecolor="white")
         self.colorbar = FigureCanvas(self.figure)
-        ax1 = self.figure.add_axes([0.05, 0.05, 0.15, 0.9])  # left bottom width height (fraction of figsize)
-        norm = colors.Normalize(vmin=self.gl_widget.get_min_energy(), vmax=self.gl_widget.get_max_energy())
-        cb1 = colorbar.ColorbarBase(ax1,
-                                    cmap=self.gl_widget.cm,
-                                    norm=norm,
-                                    orientation='vertical',
-                                    format='%.2e')
+        # left bottom width height (fraction of figsize)
+        ax1 = self.figure.add_axes([0.05, 0.05, 0.15, 0.9])
+        norm = colors.Normalize(
+            vmin=self.gl_widget.get_min_energy(),
+            vmax=self.gl_widget.get_max_energy(),
+        )
+        cb1 = colorbar.ColorbarBase(
+            ax1,
+            cmap=self.gl_widget.cm,
+            norm=norm,
+            orientation="vertical",
+            format="%.2e",
+        )
         if self.showpv:
-            cb1.set_label('PV Yield [kWh/kWp]')
+            cb1.set_label("PV Yield [kWh/kWp]")
         else:
-            cb1.set_label('Irradiation [kWh/m2]')
+            cb1.set_label("Irradiation [kWh/m2]")
         self.visDlg.layoutBar.addWidget(self.colorbar, 0, 0)
 
     def getRelativeFrameGeometry(self, widget):
@@ -789,7 +906,7 @@ class Visual:
         return fg.translated(-g.left(), -g.top())
 
     def savescreen(self):
-        filename = 'output.png'
+        filename = "output.png"
         #####
         # for name, widget in self.visDlg:
         # pixmap = QPixmap.grabWidget(self.visDlg
@@ -803,32 +920,43 @@ class Visual:
         # self.visDlg.layoutContain.render(pix)
         # pix.save(self.base_path_str + "2-sssss" + ".jpg")
 
-        #screen = QtWidgets.QApplication.primaryScreen()
-        ##screenshot = screen.grabWindow(self.visDlg.winId())
-        #screenshot = screen.grabWindow(self.visDlg.layoutContain.winId())
-        #screenshot.save(self.base_path_str + "3-sssss" + ".tif")
+        # screen = QtWidgets.QApplication.primaryScreen()
+        # screenshot = screen.grabWindow(self.visDlg.winId())
+        # screenshot = screen.grabWindow(self.visDlg.layoutContain.winId())
+        # screenshot.save(self.base_path_str + "3-sssss" + ".tif")
 
-        #pixmap = QScreen.grabWindow(self.visDlg.layoutContain[rfg.left(), rfg.top(), rfg.width(), rfg.height()])
-        #print(rfg.left(), rfg.top(), rfg.width(), rfg.height())
+        # pixmap = QScreen.grabWindow(self.visDlg.layoutContain[rfg.left(), rfg.top(), rfg.width(), rfg.height()])
+        # print(rfg.left(), rfg.top(), rfg.width(), rfg.height())
         try:
             screen = QtWidgets.QApplication.primaryScreen()
-            #screenshot = screen.grabWindow(self.visDlg.winId())
+            # screenshot = screen.grabWindow(self.visDlg.winId())
             screenshot = screen.grabWindow(self.visDlg.layoutContain.winId())
             screenshot.save(self.base_path_str + filename)
             # pixmap.save(self.base_path_str + filename, fileformat)
-            QMessageBox.information(self.visDlg, "Information", "Image saved as: " + "\n" + self.base_path_str + filename)
+            QMessageBox.information(
+                self.visDlg,
+                "Information",
+                "Image saved as: " + "\n" + self.base_path_str + filename,
+            )
         except TypeError:
-            print("Screen not saved! TypeError. \ndirectory: %s \nfilename: %s" % (self.base_path_str, filename))
+            print(
+                "Screen not saved! TypeError. \ndirectory: %s \nfilename: %s"
+                % (self.base_path_str, filename)
+            )
 
     def update_windowsize(self, width, height):
-        """ Print new screen size of GLWidget to App-menu
+        """Print new screen size of GLWidget to App-menu
 
         :param width: Width of screen size
         :param height: Height of screen size
         :return:
         """
-        self.GLsize = (width, height)   # update GL-graph area size
-        title = self.windowtitle + (" - w: %s h: %s - " % self.GLsize) + self.graphtitle
+        self.GLsize = (width, height)  # update GL-graph area size
+        title = (
+            self.windowtitle
+            + (" - w: %s h: %s - " % self.GLsize)
+            + self.graphtitle
+        )
         self.visDlg.setWindowTitle(title)
 
     def update_title_filename(self):
@@ -836,12 +964,18 @@ class Visual:
         Updates the window title to show open wall-file name.
         :return:
         """
-        self.graphtitle = str(self.wall_file[:-4])   # update graph-title with file-name
-        title = self.windowtitle + (" - w: %s h: %s - " % self.GLsize) + self.graphtitle
+        self.graphtitle = str(
+            self.wall_file[:-4]
+        )  # update graph-title with file-name
+        title = (
+            self.windowtitle
+            + (" - w: %s h: %s - " % self.GLsize)
+            + self.graphtitle
+        )
         self.visDlg.setWindowTitle(title)
 
     def remove_layers(self, all_layers=True):
-        """ Remove open layers from QGIS.
+        """Remove open layers from QGIS.
         (Not used if run as __main__)
         :param all_layers: Boolean, True if all layers should be removed from QGIS
         :return:
@@ -852,19 +986,19 @@ class Visual:
             self.polyLayer.selectAll()
             self.polyLayer.deleteSelectedFeatures()
             self.polyLayer.commitChanges()
-            #QgsMapLayerRegistry.instance().removeMapLayer(self.polyLayer.id())
+            # QgsMapLayerRegistry.instance().removeMapLayer(self.polyLayer.id())
             self.polyLayer = None
         # delete full dsm layer from QGIS:
         if (self.layer is not None) and all_layers:
-            #QgsMapLayerRegistry.instance().removeMapLayer(self.layer)
+            # QgsMapLayerRegistry.instance().removeMapLayer(self.layer)
             self.layer = None
         # delete selected dsm layer from QGIS:
         if self.dsmlayer is not None:
-            #QgsMapLayerRegistry.instance().removeMapLayer(self.dsmlayer)
+            # QgsMapLayerRegistry.instance().removeMapLayer(self.dsmlayer)
             self.dsmlayer = None
 
     def cleanup(self):
-        """ Cleanup: Remove layers from QGIS and close widget.
+        """Cleanup: Remove layers from QGIS and close widget.
 
         :return:
         """

@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from qgis.gui import QgsMapTool, QgsRubberBand
-from qgis.core import QgsWkbTypes, QgsPointXY, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject
+from qgis.core import (
+    QgsWkbTypes,
+    QgsPointXY,
+    QgsCoordinateReferenceSystem,
+    QgsCoordinateTransform,
+    QgsProject,
+)
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtCore import pyqtSignal
+
 
 class RectangleAreaTool(QgsMapTool):
 
@@ -15,7 +22,9 @@ class RectangleAreaTool(QgsMapTool):
         self.canvas = canvas
         self.active = False
         self.setAction(action)
-        self.rubberBand = QgsRubberBand(self.canvas, QgsWkbTypes.GeometryType.PolygonGeometry)
+        self.rubberBand = QgsRubberBand(
+            self.canvas, QgsWkbTypes.GeometryType.PolygonGeometry
+        )
         mFillColor = QColor(254, 178, 76, 63)
         self.rubberBand.setColor(mFillColor)
         self.rubberBand.setWidth(1)
@@ -36,12 +45,17 @@ class RectangleAreaTool(QgsMapTool):
         self.isEmittingPoint = False
         self.rubberBand.hide()
         self.transformCoordinates()
-        self.rectangleCreated.emit(self.startPoint.x(), self.startPoint.y(), self.endPoint.x(), self.endPoint.y())
+        self.rectangleCreated.emit(
+            self.startPoint.x(),
+            self.startPoint.y(),
+            self.endPoint.x(),
+            self.endPoint.y(),
+        )
 
     def canvasMoveEvent(self, e):
         if not self.isEmittingPoint:
             return
-        self.endPoint = self.toMapCoordinates( e.pos() )
+        self.endPoint = self.toMapCoordinates(e.pos())
         self.showRect(self.startPoint, self.endPoint)
 
     def showRect(self, startPoint, endPoint):
@@ -56,13 +70,16 @@ class RectangleAreaTool(QgsMapTool):
         self.rubberBand.addPoint(point1, False)
         self.rubberBand.addPoint(point2, False)
         self.rubberBand.addPoint(point3, False)
-        self.rubberBand.addPoint(point4, True)    # true to update canvas
+        self.rubberBand.addPoint(point4, True)  # true to update canvas
         self.rubberBand.show()
 
     def transformCoordinates(self):
         if self.startPoint is None or self.endPoint is None:
             return None
-        elif self.startPoint.x() == self.endPoint.x() or self.startPoint.y() == self.endPoint.y():
+        elif (
+            self.startPoint.x() == self.endPoint.x()
+            or self.startPoint.y() == self.endPoint.y()
+        ):
             return None
 
         # Defining the crs from src and destiny
@@ -70,7 +87,9 @@ class RectangleAreaTool(QgsMapTool):
         crsSrc = QgsCoordinateReferenceSystem(epsg)
         crsDest = QgsCoordinateReferenceSystem(4326)
         # Creating a transformer
-        coordinateTransformer = QgsCoordinateTransform(crsSrc, crsDest, QgsProject.instance())
+        coordinateTransformer = QgsCoordinateTransform(
+            crsSrc, crsDest, QgsProject.instance()
+        )
         # Transforming the points
         self.startPoint = coordinateTransformer.transform(self.startPoint)
         self.endPoint = coordinateTransformer.transform(self.endPoint)

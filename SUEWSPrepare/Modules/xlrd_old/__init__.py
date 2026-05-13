@@ -8,37 +8,34 @@ import zipfile
 
 from . import timemachine
 from .biffh import (
-    XL_CELL_BLANK, XL_CELL_BOOLEAN, XL_CELL_DATE, XL_CELL_EMPTY, XL_CELL_ERROR,
-    XL_CELL_NUMBER, XL_CELL_TEXT, XLRDError, biff_text_from_num,
-    error_text_from_code,
+    XLRDError,
 )
-from .book import Book, colname
+from .book import Book
 from .formula import *  # is constrained by __all__
-from .info import __VERSION__, __version__
-from .sheet import empty_cell
-from .xldate import XLDateError, xldate_as_datetime, xldate_as_tuple
 from .xlsx import X12Book
 
 if sys.version.startswith("IronPython"):
     # print >> sys.stderr, "...importing encodings"
-    import encodings
+    pass
 
 try:
-    import mmap
     MMAP_AVAILABLE = 1
 except ImportError:
     MMAP_AVAILABLE = 0
 USE_MMAP = MMAP_AVAILABLE
 
-def open_workbook(filename=None,
-                  logfile=sys.stdout,
-                  verbosity=0,
-                  use_mmap=USE_MMAP,
-                  file_contents=None,
-                  encoding_override=None,
-                  formatting_info=False,
-                  on_demand=False,
-                  ragged_rows=False):
+
+def open_workbook(
+    filename=None,
+    logfile=sys.stdout,
+    verbosity=0,
+    use_mmap=USE_MMAP,
+    file_contents=None,
+    encoding_override=None,
+    formatting_info=False,
+    on_demand=False,
+    ragged_rows=False,
+):
     """
     Open a spreadsheet file for data extraction.
 
@@ -110,7 +107,7 @@ def open_workbook(filename=None,
         filename = os.path.expanduser(filename)
         with open(filename, "rb") as f:
             peek = f.read(peeksz)
-    if peek == b"PK\x03\x04": # a ZIP file
+    if peek == b"PK\x03\x04":  # a ZIP file
         if file_contents:
             zf = zipfile.ZipFile(timemachine.BYTES_IO(file_contents))
         else:
@@ -119,14 +116,16 @@ def open_workbook(filename=None,
         # Workaround for some third party files that use forward slashes and
         # lower case names. We map the expected name in lowercase to the
         # actual filename in the zip container.
-        component_names = dict([(X12Book.convert_filename(name), name)
-                                for name in zf.namelist()])
+        component_names = dict(
+            [(X12Book.convert_filename(name), name) for name in zf.namelist()]
+        )
 
         if verbosity:
-            logfile.write('ZIP component_names:\n')
+            logfile.write("ZIP component_names:\n")
             pprint.pprint(component_names, logfile)
-        if 'xl/workbook.xml' in component_names:
+        if "xl/workbook.xml" in component_names:
             from . import xlsx
+
             bk = xlsx.open_workbook_2007_xml(
                 zf,
                 component_names,
@@ -138,13 +137,14 @@ def open_workbook(filename=None,
                 ragged_rows=ragged_rows,
             )
             return bk
-        if 'xl/workbook.bin' in component_names:
-            raise XLRDError('Excel 2007 xlsb file; not supported')
-        if 'content.xml' in component_names:
-            raise XLRDError('Openoffice.org ODS file; not supported')
-        raise XLRDError('ZIP file contents not a known type of workbook')
+        if "xl/workbook.bin" in component_names:
+            raise XLRDError("Excel 2007 xlsb file; not supported")
+        if "content.xml" in component_names:
+            raise XLRDError("Openoffice.org ODS file; not supported")
+        raise XLRDError("ZIP file contents not a known type of workbook")
 
     from . import book
+
     bk = book.open_workbook_xls(
         filename=filename,
         logfile=logfile,
@@ -168,8 +168,12 @@ def dump(filename, outfile=sys.stdout, unnumbered=False):
     :param unnumbered: If true, omit offsets (for meaningful diffs).
     """
     from .biffh import biff_dump
+
     bk = Book()
-    bk.biff2_8_load(filename=filename, logfile=outfile, )
+    bk.biff2_8_load(
+        filename=filename,
+        logfile=outfile,
+    )
     biff_dump(bk.mem, bk.base, bk.stream_len, 0, outfile, unnumbered)
 
 
@@ -182,6 +186,10 @@ def count_records(filename, outfile=sys.stdout):
     :param outfile: An open file, to which the summary is written.
     """
     from .biffh import biff_count_records
+
     bk = Book()
-    bk.biff2_8_load(filename=filename, logfile=outfile, )
+    bk.biff2_8_load(
+        filename=filename,
+        logfile=outfile,
+    )
     biff_count_records(bk.mem, bk.base, bk.stream_len, outfile)

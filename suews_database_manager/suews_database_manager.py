@@ -22,30 +22,31 @@
  ***************************************************************************/
 """
 
-from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QThread, QCoreApplication
-from qgis.PyQt.QtWidgets import QAction, QMessageBox, QLabel, QLineEdit, QGridLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QFileDialog
-from qgis.PyQt.QtGui import QIcon, QImage, QPixmap
-from qgis.core import QgsVectorLayer, QgsMapLayerProxyModel, QgsProject, QgsField, QgsVectorFileWriter
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
+from qgis.PyQt.QtWidgets import QAction, QMessageBox
+from qgis.PyQt.QtGui import QIcon
 
 # Initialize Qt resources from file resources.py
-from .resources import *
 # Import the code for the dialog
 from .suews_database_manager_dialog import suews_database_managerDialog
 import os.path
 import shutil
+
 # Import tabs
 from .tabs.reclassifier_tab import reclassifier_tab
 from .tabs.typology_creator_tab import TypologyCreator_tab
 from .tabs.landcover_creator_tab import LandcoverCreator_tab
-from .tabs.parameter_creator_tab import ParameterCreator_tab      
+from .tabs.parameter_creator_tab import ParameterCreator_tab
 from .tabs.reference_manager_tab import RefManager_tab
 from .tabs.profiles_tab import ProfileCreator_tab
 from .tabs.irrigation_tab import Irrigation_manager_tab
 from .tabs.anthropogenic_emission_tab import AnthropogenicEmissionCreator_tab
-#from .tabs.country_creator_tab import CountryCreator_tab
+
+# from .tabs.country_creator_tab import CountryCreator_tab
 from .tabs.snow_tab import SnowCreator_tab
-#from .tabs.bulk_import_tab import BulkImport_tab
-from .tabs.spartacus_surface_tab import spartacus_surface_tab 
+
+# from .tabs.bulk_import_tab import BulkImport_tab
+from .tabs.spartacus_surface_tab import spartacus_surface_tab
 from .tabs.spartacus_material_tab import SpartacusMaterialCreator_tab
 
 import webbrowser
@@ -58,19 +59,18 @@ from .utilities.spartacus_material import setup_SS_material_creator
 from .utilities.landcover_creator import setup_landcover_creator
 from .utilities.parameter_creator import setup_parameter_creator
 from .utilities.profile_creator import setup_profile_creator
-from .utilities.anthropogenic_emissions_creator import setup_anthropogenic_emission_manager
+from .utilities.anthropogenic_emissions_creator import (
+    setup_anthropogenic_emission_manager,
+)
 from .utilities.irrigation_manager import setup_irrigation_manager
 from .utilities.references import setup_ref_manager
 from .utilities.snow import setup_snow_creator
 
-from.utilities.database_functions import save_to_db
 
 class suews_database_manager:
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
-
-
         """Constructor.
 
         :param iface: An interface instance that will be passed to this class
@@ -83,29 +83,29 @@ class suews_database_manager:
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(
             self.plugin_dir,
-            'i18n',
-            'suews_database_manager_{}.qm'.format(locale))
+            "i18n",
+            "suews_database_manager_{}.qm".format(locale),
+        )
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
             QCoreApplication.installTranslator(self.translator)
 
-
         self.output_file_list = []
 
-        #self.dlg = suews_database_managerDialog()
+        # self.dlg = suews_database_managerDialog()
 
         # Declare instance attributes
-        #self.actions = []
-        #self.menu = self.tr(u'&suews_database_manager')
+        # self.actions = []
+        # self.menu = self.tr(u'&suews_database_manager')
 
         # Check if plugin was started the first time in current QGIS session
         # Must be set in initGui() to survive plugin reloads
-        #self.first_start = None
+        # self.first_start = None
 
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
@@ -119,8 +119,8 @@ class suews_database_manager:
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('suews_database_manager', message)
-    
+        return QCoreApplication.translate("suews_database_manager", message)
+
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
@@ -133,20 +133,23 @@ class suews_database_manager:
 
         # Create action that will start plugin configuration
         self.action = QAction(
-            QIcon(':/plugins/suews_database_manager/icon.png'),
-            'SUEWS Database Manager', self.iface.mainWindow())
-        
+            QIcon(":/plugins/suews_database_manager/icon.png"),
+            "SUEWS Database Manager",
+            self.iface.mainWindow(),
+        )
+
         # will be set False in run()
-        #self.first_start = True
-        
+        # self.first_start = True
+
         # connect the action to the run method
         self.action.triggered.connect(self.run)
-        
+
         # Add toolbar button and menu item
         self.iface.addToolBarIcon(self.action)
-        self.iface.addPluginToMenu(self.tr("&SUEWS Database Manager"), self.action)
-         
-        
+        self.iface.addPluginToMenu(
+            self.tr("&SUEWS Database Manager"), self.action
+        )
+
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         # for action in self.actions:
@@ -161,8 +164,11 @@ class suews_database_manager:
 
         # self.dlg.tabWidget.clear()
 
-        self.db_path = self.plugin_dir + '/data/database.xlsx' #C:/GitHub/suews_prepare_database/Input/database.xlsx' #TODO Set to UMEP Folder Path 
-        self.db_pathCopy = self.plugin_dir + '/data/databaseCopy.xlsx' #TODO Set to UMEP Folder Path 
+        # C:/GitHub/suews_prepare_database/Input/database.xlsx' #TODO Set to UMEP Folder Path
+        self.db_path = self.plugin_dir + "/data/database.xlsx"
+        self.db_pathCopy = (
+            self.plugin_dir + "/data/databaseCopy.xlsx"
+        )  # TODO Set to UMEP Folder Path
         self.db_dict = None
         self.db_dict = read_DB(self.db_path)
 
@@ -173,83 +179,107 @@ class suews_database_manager:
             shutil.copy(self.db_path, self.db_pathCopy)
 
         # Type, veg, nonveg, water, ref, alb, em, OHM, LAI, st, cnd, LGP, dr, VG, ANOHM, BIOCO2, MVCND, por, reg, snow, AnEm, prof, ws, soil, ESTM, irr, country, type_id_dict = read_DB(db_path)
-        
+
         # Tab 0
         reclassifier = reclassifier_tab()
-        setup_reclassifier(self,reclassifier, self.db_dict)
-        self.dlg.tabWidget.addTab(reclassifier, 'Main tab - Reclassifier')
+        setup_reclassifier(self, reclassifier, self.db_dict)
+        self.dlg.tabWidget.addTab(reclassifier, "Main tab - Reclassifier")
 
         # Tab 1
         typology_creator = TypologyCreator_tab()
-        setup_typology_creator(self, typology_creator, self.db_dict, self.db_path)
-        self.dlg.tabWidget.addTab(typology_creator, 'Typologies')
-        
+        setup_typology_creator(
+            self, typology_creator, self.db_dict, self.db_path
+        )
+        self.dlg.tabWidget.addTab(typology_creator, "Typologies")
+
         # Tab 2
         landcover_creator = LandcoverCreator_tab()
-        setup_landcover_creator(self, landcover_creator, self.db_dict, self.db_path)
-        self.dlg.tabWidget.addTab(landcover_creator, 'Land Cover')
+        setup_landcover_creator(
+            self, landcover_creator, self.db_dict, self.db_path
+        )
+        self.dlg.tabWidget.addTab(landcover_creator, "Land Cover")
 
         # Tab 3
         parameter_creator = ParameterCreator_tab()
-        setup_parameter_creator(self, parameter_creator, self.db_dict, self.db_path)
-        self.dlg.tabWidget.addTab(parameter_creator, 'Parameters')
+        setup_parameter_creator(
+            self, parameter_creator, self.db_dict, self.db_path
+        )
+        self.dlg.tabWidget.addTab(parameter_creator, "Parameters")
 
         # Tab 4
         anthropogenic_emission_creator = AnthropogenicEmissionCreator_tab()
-        setup_anthropogenic_emission_manager(self, anthropogenic_emission_creator, self.db_dict, self.db_path)
-        self.dlg.tabWidget.addTab(anthropogenic_emission_creator, 'Emissions')
-        
+        setup_anthropogenic_emission_manager(
+            self, anthropogenic_emission_creator, self.db_dict, self.db_path
+        )
+        self.dlg.tabWidget.addTab(anthropogenic_emission_creator, "Emissions")
+
         # Tab 5
         profile_creator = ProfileCreator_tab()
-        setup_profile_creator(self, profile_creator, self.db_dict, self.db_path)
-        self.dlg.tabWidget.addTab(profile_creator, 'Profiles')
+        setup_profile_creator(
+            self, profile_creator, self.db_dict, self.db_path
+        )
+        self.dlg.tabWidget.addTab(profile_creator, "Profiles")
 
         # Tab 6
         irrigation_manager = Irrigation_manager_tab()
-        setup_irrigation_manager(self,irrigation_manager, self.db_dict, self.db_path)
-        self.dlg.tabWidget.addTab(irrigation_manager, 'Irrigation')
+        setup_irrigation_manager(
+            self, irrigation_manager, self.db_dict, self.db_path
+        )
+        self.dlg.tabWidget.addTab(irrigation_manager, "Irrigation")
 
         # Tab 7
         snow_creator = SnowCreator_tab()
         setup_snow_creator(self, snow_creator, self.db_dict, self.db_path)
-        self.dlg.tabWidget.addTab(snow_creator, 'Snow')
+        self.dlg.tabWidget.addTab(snow_creator, "Snow")
 
         # Tab 8
         spartacus_creator = spartacus_surface_tab()
-        setup_SUEWS_SS_creator(self, spartacus_creator, self.db_dict, self.db_path)
-        self.dlg.tabWidget.addTab(spartacus_creator, 'Building facets')
+        setup_SUEWS_SS_creator(
+            self, spartacus_creator, self.db_dict, self.db_path
+        )
+        self.dlg.tabWidget.addTab(spartacus_creator, "Building facets")
 
         # Tab 9
         spartacus_material_creator = SpartacusMaterialCreator_tab()
-        setup_SS_material_creator(self, spartacus_material_creator, self.db_dict, self.db_path)
-        self.dlg.tabWidget.addTab(spartacus_material_creator, 'Building Materials')
+        setup_SS_material_creator(
+            self, spartacus_material_creator, self.db_dict, self.db_path
+        )
+        self.dlg.tabWidget.addTab(
+            spartacus_material_creator, "Building Materials"
+        )
 
         # # Tab 9
         # country_creator = CountryCreator_tab()
         # # self.setup_country_creator(country_creator, cnd, reg, country, snow, AnEm, prof, irr, ref, table_dict_pd)
         # self.dlg.tabWidget.addTab(country_creator, 'Country')
-        
+
         # Tab 10
         ref_manager = RefManager_tab()
         setup_ref_manager(self, ref_manager, self.db_dict, self.db_path)
-        self.dlg.tabWidget.addTab(ref_manager, 'References')
+        self.dlg.tabWidget.addTab(ref_manager, "References")
 
         # Tab 11 # Hidded for now
-        #bulk_import = BulkImport_tab()
-        ## self.setup_bulk_import(bulk_import, alb, em, OHM, LAI, st, cnd, LGP, dr, VG, ANOHM, BIOCO2, MVCND, por,  ws, soil, ESTM, prof, table_dict_pd, table_dict_ID)
-        #self.dlg.tabWidget.addTab(bulk_import, 'Bulk Import')
+        # bulk_import = BulkImport_tab()
+        # self.setup_bulk_import(bulk_import, alb, em, OHM, LAI, st, cnd, LGP, dr, VG, ANOHM, BIOCO2, MVCND, por,  ws, soil, ESTM, prof, table_dict_pd, table_dict_ID)
+        # self.dlg.tabWidget.addTab(bulk_import, 'Bulk Import')
 
     def help(self):
-        url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Energy%20Balance%20SUEWS%20Database%20Manager.html'
-        # To readthedocs? 
+        url = "https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Energy%20Balance%20SUEWS%20Database%20Manager.html"
+        # To readthedocs?
         webbrowser.open_new_tab(url)
 
     def closePlugin(self):
-        if QMessageBox.question(None, "Updating database",
-              "Do you want to update your database with any changes made? \r\n"
-              "Also, consider to export your database and submit to the UMEP repo. \r\n"
-              "See help for more info.",
-               QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No) == QMessageBox.StandardButton.No:
+        if (
+            QMessageBox.question(
+                None,
+                "Updating database",
+                "Do you want to update your database with any changes made? \r\n"
+                "Also, consider to export your database and submit to the UMEP repo. \r\n"
+                "See help for more info.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            )
+            == QMessageBox.StandardButton.No
+        ):
             try:
                 shutil.copy(self.db_pathCopy, self.db_path)
                 os.remove(self.db_pathCopy)
@@ -275,11 +305,10 @@ class suews_database_manager:
 
         self.dlg.helpButton.clicked.connect(self.help)
         self.dlg.pushButtonClose.clicked.connect(self.closePlugin)
-        #self.dlg.closeEvent.clicked.connect(self.closePlugin) #TODO, fix later
+        # self.dlg.closeEvent.clicked.connect(self.closePlugin) #TODO, fix later
 
         # show the dialog
         self.dlg.show()
         self.dlg.adjustSize()
         # Run the dialog event loop
         self.dlg.exec()
-

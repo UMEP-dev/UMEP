@@ -32,4 +32,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .solweig import SOLWEIG
+
     return SOLWEIG(iface)

@@ -436,7 +436,6 @@
 #         self._rec_data = pack('<H', 0x00)
 
 
-
 # class RefreshAllRecord(BiffRecord):
 #     """
 #     """

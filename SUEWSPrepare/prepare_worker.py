@@ -385,8 +385,8 @@
 #                                 IMPveg_fai_dec = split[2]
 #                                 IMPveg_max_eve = split[4]  #TODO not used yet
 #                                 IMPveg_sd_eve = split[5]  #TODO not used yet
-#                                 IMPveg_max_dec = split[4] 
-#                                 IMPveg_sd_dec = split[5] 
+#                                 IMPveg_max_dec = split[4]
+#                                 IMPveg_sd_dec = split[5]
 #                                 found_IMPveg_line = True
 #                                 break
 #                         if not found_IMPveg_line:
@@ -423,7 +423,7 @@
 #                     zH = 0
 #                     zMax = 0
 #                 else:
-#                     zH = (float(IMP_heights_mean) * LCF_bu + float(IMPveg_heights_mean_eve) * LCF_ev + float(IMPveg_heights_mean_dec) * LCF_de) / (LCF_bu + LCF_ev + LCF_de)                    
+#                     zH = (float(IMP_heights_mean) * LCF_bu + float(IMPveg_heights_mean_eve) * LCF_ev + float(IMPveg_heights_mean_dec) * LCF_de) / (LCF_bu + LCF_ev + LCF_de)
 #                     zMax = max(float(IMPveg_max_dec),float(IMP_max))
 
 #                 if (LCF_de  == 0 and LCF_ev == 0 and LCF_bu == 0):
@@ -439,7 +439,7 @@
 #                     sdComb = np.sqrt(float(IMPveg_sd_dec) ** 2. / (LCF_tr * float(area)) + float(IMP_sd) ** 2. / (LCF_bu * float(area)))
 
 #                 pai = LCF_bu + LCF_ev + LCF_de
-                
+
 #                 # paiall = (planareaB + planareaV) / AT
 #                 porosity = 0.2  # This should change with season. Net, set for Summer
 #                 Pv = ((-1.251 * porosity ** 2) / 1.2) + ((0.489 * porosity) / 1.2) + (0.803 / 1.2)  # factor accounting for porosity to correct total fai in roughness calc Kent et al. 2017b

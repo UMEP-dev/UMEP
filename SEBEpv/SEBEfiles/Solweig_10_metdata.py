@@ -14,51 +14,57 @@ def Solweig_10_metdata(inputdata, location, UTC):
     :return:
     """
 
-    Newdata1, _, _ = importdata(inputdata, '\t', 1)
-    met = Newdata1['data']
-    met_header = Newdata1['textdata']
+    Newdata1, _, _ = importdata(inputdata, "\t", 1)
+    met = Newdata1["data"]
+    met_header = Newdata1["textdata"]
     time = dict()
-    time['min'] = 30
-    time['sec'] = 0
+    time["min"] = 30
+    time["sec"] = 0
     # (sunposition one halfhour before metdata)
-    time['UTC'] = UTC
+    time["UTC"] = UTC
 
     # initialize matrices
-    data_len = len(Newdata1['data'][:, 0])
+    data_len = len(Newdata1["data"][:, 0])
     altitude = np.empty(shape=(1, data_len))
     azimuth = np.empty(shape=(1, data_len))
     zen = np.empty(shape=(1, data_len))
     jday = np.empty(shape=(1, data_len))
 
-    for i, row in enumerate(Newdata1['data'][:, 0]):
-        time['year'] = float(met[i, 0])
-        time['month'] = float(met[i, 1])
-        time['day'] = float(met[i, 2])
-        time['hour'] = float(met[i, 3])
+    for i, row in enumerate(Newdata1["data"][:, 0]):
+        time["year"] = float(met[i, 0])
+        time["month"] = float(met[i, 1])
+        time["day"] = float(met[i, 2])
+        time["hour"] = float(met[i, 3])
 
         sun = sun_position(time, location)
 
-        altitude[0, i] = 90 - sun['zenith']
-        azimuth[0, i] = sun['azimuth']
-        zen[0, i] = sun['zenith'] * (np.pi/180)
+        altitude[0, i] = 90 - sun["zenith"]
+        azimuth[0, i] = sun["azimuth"]
+        zen[0, i] = sun["zenith"] * (np.pi / 180)
 
         # day of year and check for leap year
-        if isleapyear(time['year']):
-            dayspermonth = np.atleast_2d([31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])
+        if isleapyear(time["year"]):
+            dayspermonth = np.atleast_2d(
+                [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+            )
         else:
-            dayspermonth = np.atleast_2d([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])
-        jday[0, i] = np.sum(dayspermonth[0, 0:time['month']-1]) + time['day']
+            dayspermonth = np.atleast_2d(
+                [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+            )
+        jday[0, i] = (
+            np.sum(dayspermonth[0, 0 : time["month"] - 1]) + time["day"]
+        )
 
     # if time.year<2000, year=time.year-1900 ; else year=time.year-2000; end
     # if year<10, XY='0'; else XY=''; end
-    if time['month'] < 10:
-        XM = '0'
+    if time["month"] < 10:
+        XM = "0"
     else:
-        XM = ''
-    if time['day'] < 10:
-        XD = '0'
+        XM = ""
+    if time["day"] < 10:
+        XD = "0"
     else:
-        XD = np.str('')
+        XD = np.str("")
     return met, met_header, time, altitude, azimuth, zen, jday, XM, XD
 
 

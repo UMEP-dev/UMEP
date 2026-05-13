@@ -5,16 +5,17 @@ from builtins import range
 from qgis.PyQt import QtCore
 from qgis.PyQt.QtCore import QVariant
 from qgis.PyQt.QtWidgets import QMessageBox
-from qgis.core import *  # QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsRasterLayer, QgsGeometry, QgsMessageLog
+
+# QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsRasterLayer, QgsGeometry, QgsMessageLog
+from qgis.core import *
 from .LCZ_fractions import *
-import traceback
 import numpy as np
 from osgeo import gdal, ogr
-import subprocess
 import sys
 import linecache
 import os
 import fileinput
+
 
 class Worker(QtCore.QObject):
 
@@ -22,8 +23,20 @@ class Worker(QtCore.QObject):
     error = QtCore.pyqtSignal(object)
     progress = QtCore.pyqtSignal()
 
-    def __init__(self, lc_grid, poly, vlayer, prov, fields, idx, dir_poly, iface, plugin_dir,
-                 folderPath, dlg):
+    def __init__(
+        self,
+        lc_grid,
+        poly,
+        vlayer,
+        prov,
+        fields,
+        idx,
+        dir_poly,
+        iface,
+        plugin_dir,
+        folderPath,
+        dlg,
+    ):
 
         QtCore.QObject.__init__(self)
         self.killed = False
@@ -49,13 +62,17 @@ class Worker(QtCore.QObject):
 
         ret = 0
         arrmat1 = np.empty((1, 8))
-        arrmat2 = np.empty((1, 9)) # added one column for wai
-        arrmat3 = np.empty((1, 9)) # added one column for wai
+        arrmat2 = np.empty((1, 9))  # added one column for wai
+        arrmat3 = np.empty((1, 9))  # added one column for wai
         pre = str(self.dlg.lineEdit.text())
 
         try:
             # j = 0
-            for f in self.vlayer.getFeatures():  # looping through each grid polygon
+            for (
+                f
+            ) in (
+                self.vlayer.getFeatures()
+            ):  # looping through each grid polygon
                 if self.killed is True:
                     break
 
@@ -65,18 +82,30 @@ class Worker(QtCore.QObject):
                 feature.setAttributes(attributes)
                 feature.setGeometry(geometry)
 
-                writer = QgsVectorFileWriter(self.dir_poly, "CP1250", self.fields, self.prov.wkbType(),
-                                                 self.prov.crs(), "ESRI shapefile")
+                writer = QgsVectorFileWriter(
+                    self.dir_poly,
+                    "CP1250",
+                    self.fields,
+                    self.prov.wkbType(),
+                    self.prov.crs(),
+                    "ESRI shapefile",
+                )
 
-                if writer.hasError() != QgsVectorFileWriter.WriterError.NoError:
-                    self.iface.messageBar().pushMessage("Error when creating shapefile: ", str(writer.hasError()))
-                
+                if (
+                    writer.hasError()
+                    != QgsVectorFileWriter.WriterError.NoError
+                ):
+                    self.iface.messageBar().pushMessage(
+                        "Error when creating shapefile: ",
+                        str(writer.hasError()),
+                    )
+
                 writer.addFeature(feature)
                 del writer
 
                 provider = self.lc_grid.dataProvider()
                 filePath_lc_grid = str(provider.dataSourceUri())
-                
+
                 # gdalruntextlc_grid = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -cutline ' + self.dir_poly + ' -crop_to_cutline -of GTiff "' + filePath_lc_grid + '" "' +        self.plugin_dir + '/data/clipdsm.tif"'
                 #
                 # if sys.platform == 'win32':
@@ -94,39 +123,90 @@ class Worker(QtCore.QObject):
                 feature = layer.GetFeature(0)
                 geom = feature.GetGeometryRef()
                 minX, maxX, minY, maxY = geom.GetEnvelope()
-                bbox = (minX, maxY, maxX, minY)  # Reorder bbox to use with gdal_translate
-                gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster, projWin=bbox)
+                # Reorder bbox to use with gdal_translate
+                bbox = (minX, maxY, maxX, minY)
+                gdal.Translate(
+                    self.plugin_dir + "/data/clipdsm.tif",
+                    bigraster,
+                    projWin=bbox,
+                )
                 bigraster = None
                 Vector.Destroy()
 
-                dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
+                dataset = gdal.Open(self.plugin_dir + "/data/clipdsm.tif")
                 lc_grid_array = dataset.ReadAsArray().astype(float)
                 nd = dataset.GetRasterBand(1).GetNoDataValue()
-                nodata_test = (lc_grid_array == nd)
+                nodata_test = lc_grid_array == nd
                 if nodata_test.any():
-                # if np.sum(lc_grid_array) == (lc_grid_array.shape[0] * lc_grid_array.shape[1] * nd):
-                    QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes Only NoData Pixels", level=Qgis.MessageLevel.Critical)
+                    # if np.sum(lc_grid_array) == (lc_grid_array.shape[0] * lc_grid_array.shape[1] * nd):
+                    QgsMessageLog.logMessage(
+                        "Grid "
+                        + str(f.attributes()[self.idx])
+                        + " not calculated. Includes Only NoData Pixels",
+                        level=Qgis.MessageLevel.Critical,
+                    )
                     cal = 0
                 else:
                     lc_grid_array[lc_grid_array == nd] = 0
                     cal = 1
 
                 if cal == 1:
-                    lczfractions = LCZ_fractions(lc_grid_array,self.dlg)
-                    lczfractions["lc_frac_all"] = np.where(np.isnan(lczfractions["lc_frac_all"] ),-9999,lczfractions["lc_frac_all"] )
-                    lczfractions["bui_aero"] = np.where(np.isnan(lczfractions["bui_aero"]),-9999,lczfractions["bui_aero"])
-                    lczfractions["veg_aero"] = np.where(np.isnan(lczfractions["veg_aero"]),-9999,lczfractions["veg_aero"])
+                    lczfractions = LCZ_fractions(lc_grid_array, self.dlg)
+                    lczfractions["lc_frac_all"] = np.where(
+                        np.isnan(lczfractions["lc_frac_all"]),
+                        -9999,
+                        lczfractions["lc_frac_all"],
+                    )
+                    lczfractions["bui_aero"] = np.where(
+                        np.isnan(lczfractions["bui_aero"]),
+                        -9999,
+                        lczfractions["bui_aero"],
+                    )
+                    lczfractions["veg_aero"] = np.where(
+                        np.isnan(lczfractions["veg_aero"]),
+                        -9999,
+                        lczfractions["veg_aero"],
+                    )
                     lczfractions = self.resultcheck(lczfractions)
-                    
-                    arr1 = np.array([f.attributes()[self.idx], lczfractions["lc_frac_all"][0,0], lczfractions["lc_frac_all"][0,1],
-                                      lczfractions["lc_frac_all"][0,2], lczfractions["lc_frac_all"][0,3], lczfractions["lc_frac_all"][0,4],
-                                     lczfractions["lc_frac_all"][0,5], lczfractions["lc_frac_all"][0,6]])
-                    arr2 = np.array([f.attributes()[self.idx], lczfractions["bui_aero"][0,0], lczfractions["bui_aero"][0,1],
-                                      lczfractions["bui_aero"][0,2], lczfractions["bui_aero"][0,3], lczfractions["bui_aero"][0,4],
-                                     lczfractions["bui_aero"][0,5], lczfractions["bui_aero"][0,6], lczfractions["bui_aero"][0,7]])
-                    arr3 = np.array([f.attributes()[self.idx], lczfractions["veg_aero"][0,0], lczfractions["veg_aero"][0,1],
-                                      lczfractions["veg_aero"][0,2], lczfractions["veg_aero"][0,3], lczfractions["veg_aero"][0,4],
-                                     lczfractions["veg_aero"][0,5], lczfractions["veg_aero"][0,6], lczfractions["veg_aero"][0,7]])
+
+                    arr1 = np.array(
+                        [
+                            f.attributes()[self.idx],
+                            lczfractions["lc_frac_all"][0, 0],
+                            lczfractions["lc_frac_all"][0, 1],
+                            lczfractions["lc_frac_all"][0, 2],
+                            lczfractions["lc_frac_all"][0, 3],
+                            lczfractions["lc_frac_all"][0, 4],
+                            lczfractions["lc_frac_all"][0, 5],
+                            lczfractions["lc_frac_all"][0, 6],
+                        ]
+                    )
+                    arr2 = np.array(
+                        [
+                            f.attributes()[self.idx],
+                            lczfractions["bui_aero"][0, 0],
+                            lczfractions["bui_aero"][0, 1],
+                            lczfractions["bui_aero"][0, 2],
+                            lczfractions["bui_aero"][0, 3],
+                            lczfractions["bui_aero"][0, 4],
+                            lczfractions["bui_aero"][0, 5],
+                            lczfractions["bui_aero"][0, 6],
+                            lczfractions["bui_aero"][0, 7],
+                        ]
+                    )
+                    arr3 = np.array(
+                        [
+                            f.attributes()[self.idx],
+                            lczfractions["veg_aero"][0, 0],
+                            lczfractions["veg_aero"][0, 1],
+                            lczfractions["veg_aero"][0, 2],
+                            lczfractions["veg_aero"][0, 3],
+                            lczfractions["veg_aero"][0, 4],
+                            lczfractions["veg_aero"][0, 5],
+                            lczfractions["veg_aero"][0, 6],
+                            lczfractions["veg_aero"][0, 7],
+                        ]
+                    )
 
                     arrmat1 = np.vstack([arrmat1, arr1])
                     arrmat2 = np.vstack([arrmat2, arr2])
@@ -137,22 +217,51 @@ class Worker(QtCore.QObject):
                 dataset3 = None
                 self.progress.emit()
 
-            header1 = 'ID Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
-            numformat = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
-            arrmatsave1 = arrmat1[1: arrmat1.shape[0], :]
-            np.savetxt(self.folderPath[0] + '/' +pre +'_'+'LCFGrid_isotropic.txt', arrmatsave1, fmt=numformat, delimiter=' ', header=header1, comments='')
-            header2 = ' ID  pai   fai   zH  zHmax   zHstd  zd  z0 wai'
-            numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
-            arrmatsave2 = arrmat2[1: arrmat2.shape[0], :]
-            np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'build_MPGrid_isotropic.txt', arrmatsave2,fmt=numformat, delimiter=' ', header=header2, comments='')
-            header3 = ' ID  pai   fai   zH  zHmax   zHstd  zd  z0 wai'
-            numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
-            arrmatsave3 = arrmat3[1: arrmat3.shape[0], :]
-            np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'veg_MPGrid_isotropic.txt', arrmatsave3,fmt=numformat, delimiter=' ', header=header3, comments='')
-            
-            #when files are saved through the np.savetext method the values are rounded according to the information in
-            #the numformat variable. This can cause the total sum of the values in a line in the text file to not be 1
-            #this method reads through the text file after it has been generated to make sure every line has a sum of 1.
+            header1 = "ID Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water"
+            numformat = "%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f"
+            arrmatsave1 = arrmat1[1 : arrmat1.shape[0], :]
+            np.savetxt(
+                self.folderPath[0] + "/" + pre + "_" + "LCFGrid_isotropic.txt",
+                arrmatsave1,
+                fmt=numformat,
+                delimiter=" ",
+                header=header1,
+                comments="",
+            )
+            header2 = " ID  pai   fai   zH  zHmax   zHstd  zd  z0 wai"
+            numformat = "%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f"
+            arrmatsave2 = arrmat2[1 : arrmat2.shape[0], :]
+            np.savetxt(
+                self.folderPath[0]
+                + "/"
+                + pre
+                + "_"
+                + "build_MPGrid_isotropic.txt",
+                arrmatsave2,
+                fmt=numformat,
+                delimiter=" ",
+                header=header2,
+                comments="",
+            )
+            header3 = " ID  pai   fai   zH  zHmax   zHstd  zd  z0 wai"
+            numformat = "%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f"
+            arrmatsave3 = arrmat3[1 : arrmat3.shape[0], :]
+            np.savetxt(
+                self.folderPath[0]
+                + "/"
+                + pre
+                + "_"
+                + "veg_MPGrid_isotropic.txt",
+                arrmatsave3,
+                fmt=numformat,
+                delimiter=" ",
+                header=header3,
+                comments="",
+            )
+
+            # when files are saved through the np.savetext method the values are rounded according to the information in
+            # the numformat variable. This can cause the total sum of the values in a line in the text file to not be 1
+            # this method reads through the text file after it has been generated to make sure every line has a sum of 1.
             self.textFileCheck(pre)
 
             if self.dlg.checkBox_2.isChecked():
@@ -166,7 +275,7 @@ class Worker(QtCore.QObject):
 
         except Exception as e:
             ret = 0
-            #self.error.emit(e, traceback.format_exc())
+            # self.error.emit(e, traceback.format_exc())
             errorstring = self.print_exception()
             self.error.emit(errorstring)
 
@@ -180,7 +289,9 @@ class Worker(QtCore.QObject):
         filename = f.f_code.co_filename
         linecache.checkcache(filename)
         line = linecache.getline(filename, lineno, f.f_globals)
-        return 'EXCEPTION IN {}, \nLINE {} "{}" \nERROR MESSAGE: {}'.format(filename, lineno, line.strip(), exc_obj)
+        return 'EXCEPTION IN {}, \nLINE {} "{}" \nERROR MESSAGE: {}'.format(
+            filename, lineno, line.strip(), exc_obj
+        )
 
     def addattributes(self, vlayer, matdata, header, pre):
         # vlayer = self.vlayer
@@ -188,11 +299,13 @@ class Worker(QtCore.QObject):
         caps = vlayer.dataProvider().capabilities()
 
         if caps & QgsVectorDataProvider.Capability.AddAttributes:
-            #vlayer.startEditing()
+            # vlayer.startEditing()
             line_split = header.split()
             for x in range(1, len(line_split)):
 
-                vlayer.dataProvider().addAttributes([QgsField(pre + '_' + line_split[x], QVariant.Double)])
+                vlayer.dataProvider().addAttributes(
+                    [QgsField(pre + "_" + line_split[x], QVariant.Double)]
+                )
                 vlayer.commitChanges()
                 vlayer.updateFields()
 
@@ -202,17 +315,23 @@ class Worker(QtCore.QObject):
                 attr_dict.clear()
                 idx = int(matdata[y, 0])
                 for x in range(1, matdata.shape[1]):
-                    attr_dict[current_index_length + x - 1] = float(matdata[y, x])
-                #QMessageBox.information(None, "Error", str(line_split[x]))
+                    attr_dict[current_index_length + x - 1] = float(
+                        matdata[y, x]
+                    )
+                # QMessageBox.information(None, "Error", str(line_split[x]))
                 vlayer.dataProvider().changeAttributeValues({idx: attr_dict})
 
             vlayer.commitChanges()
             vlayer.updateFields()
         else:
-            QMessageBox.critical(None, "Error", "Vector Layer does not support adding attributes")
+            QMessageBox.critical(
+                None,
+                "Error",
+                "Vector Layer does not support adding attributes",
+            )
 
     def resultcheck(self, landcoverresult):
-        total = 0.
+        total = 0.0
         arr = landcoverresult["lc_frac_all"]
 
         for x in range(0, len(arr[0])):
@@ -231,27 +350,29 @@ class Worker(QtCore.QObject):
         landcoverresult["lc_frac_all"] = arr
 
         return landcoverresult
-    
+
     def textFileCheck(self, pre):
         try:
-            file_path = self.folderPath[0] + '/' + pre + '_' + 'LCFG_isotropic.txt'
+            file_path = (
+                self.folderPath[0] + "/" + pre + "_" + "LCFG_isotropic.txt"
+            )
             if os.path.isfile(file_path):
                 wrote_header = False
                 for line in fileinput.input(file_path, inplace=1):
                     if not wrote_header:
                         # fix_print_with_import
-                        print(line, end=' ')
+                        print(line, end=" ")
                         wrote_header = True
                     else:
                         line_split = line.split()
-                        total = 0.
+                        total = 0.0
                         # QgsMessageLog.logMessage(str(line), level=QgsMessageLog.CRITICAL)
                         for x in range(1, len(line_split)):
                             total += float(line_split[x])
 
                         if total == 1.0:
                             # fix_print_with_import
-                            print(line, end=' ')
+                            print(line, end=" ")
                         else:
                             diff = total - 1.0
                             # QgsMessageLog.logMessage("Diff: " + str(diff), level=QgsMessageLog.CRITICAL)
@@ -263,23 +384,25 @@ class Worker(QtCore.QObject):
                                     line_split[x] = float(line_split[x]) - diff
                                     break
                             if int(line_split[0]) < 10:
-                                string_to_print = '  '
+                                string_to_print = "  "
                             elif int(line_split[0]) < 100:
-                                string_to_print = ' '
+                                string_to_print = " "
                             else:
-                                string_to_print = ''
+                                string_to_print = ""
 
                             for element in line_split[:-1]:
-                                string_to_print += str(element) + ' '
+                                string_to_print += str(element) + " "
                             string_to_print += str(line_split[-1])
-                            string_to_print += '\n'
+                            string_to_print += "\n"
 
                             # fix_print_with_import
-                            print(string_to_print, end=' ')
+                            print(string_to_print, end=" ")
                 fileinput.close()
         except Exception as e:
             errorstring = self.print_exception()
-            QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)
+            QgsMessageLog.logMessage(
+                errorstring, level=Qgis.MessageLevel.Critical
+            )
             fileinput.close()
 
     def kill(self):

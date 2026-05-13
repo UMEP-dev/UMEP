@@ -4,14 +4,17 @@ from datetime import datetime as dt
 from datetime import timedelta
 from datetime import date as dtd
 import pytz
+
 try:
     import pandas as pd
 except:
     pass
 
+
 def calc_easter(year):
-    '''Returns Easter Sunday as a date object. Confirmed working by Andy
-    Credit: http://code.activestate.com/recipes/576517-calculate-easter-western-given-a-year'''
+    """Returns Easter Sunday as a date object. Confirmed working by Andy
+    Credit: http://code.activestate.com/recipes/576517-calculate-easter-western-given-a-year
+    """
     a = year % 19
     b = year // 100
     c = year % 100
@@ -22,18 +25,27 @@ def calc_easter(year):
     day = f % 31 + 1
     return dt(year, month, day)
 
-def is_holiday(timeStepEnd, use_UK, extraHolidays):
-    ''' Determines if the given date falls on a bank holiday
-     Considers UK holidays if use_UK = True
-     extraHolidays: List of datetime objects containing any extra holidays.
-     UK holidays generated automatically unless unexpected'''
 
-    if type(timeStepEnd) in [type(dt(2015, 1, 1)), dt(2015, 1, 1), pd.Timestamp]:
+def is_holiday(timeStepEnd, use_UK, extraHolidays):
+    """Determines if the given date falls on a bank holiday
+    Considers UK holidays if use_UK = True
+    extraHolidays: List of datetime objects containing any extra holidays.
+    UK holidays generated automatically unless unexpected"""
+
+    if type(timeStepEnd) in [
+        type(dt(2015, 1, 1)),
+        dt(2015, 1, 1),
+        pd.Timestamp,
+    ]:
         reqDate = timeStepEnd.date()
     elif type(timeStepEnd) is type(dtd(2015, 1, 1)):
         reqDate = timeStepEnd
     else:
-        raise ValueError('Input date is invalid type: ' + str(type(timeStepEnd)) + '. Must be datetime() or datetime.date()')
+        raise ValueError(
+            "Input date is invalid type: "
+            + str(type(timeStepEnd))
+            + ". Must be datetime() or datetime.date()"
+        )
 
     if use_UK:
         if reqDate in holidaysForYear(timeStepEnd.year):
@@ -44,7 +56,9 @@ def is_holiday(timeStepEnd, use_UK, extraHolidays):
 
     return False
 
-def makeUTC(x): return pytz.timezone('UTC').localize(x)
+
+def makeUTC(x):
+    return pytz.timezone("UTC").localize(x)
 
 
 def holidaysForYear(year):
@@ -69,7 +83,9 @@ def holidaysForYear(year):
 
     # Early and late may
     may1 = dt(year, 0o5, 0o1)
-    may1 = may1 if may1.weekday() is 0 else may1 + timedelta(7 - may1.weekday())
+    may1 = (
+        may1 if may1.weekday() is 0 else may1 + timedelta(7 - may1.weekday())
+    )
     holidays.append(may1)
     holidays.append(dt(year, 5, 31) - timedelta(dt(year, 5, 31).weekday()))
     # Final monday in August

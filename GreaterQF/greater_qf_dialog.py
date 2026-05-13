@@ -26,9 +26,9 @@ import os
 from qgis.PyQt import uic
 from qgis.PyQt.QtWidgets import QDialog
 
-
-FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'greater_qf_dialog_base.ui'))
+FORM_CLASS, _ = uic.loadUiType(
+    os.path.join(os.path.dirname(__file__), "greater_qf_dialog_base.ui")
+)
 
 
 class GreaterQFDialog(QDialog, FORM_CLASS):
@@ -41,7 +41,5 @@ class GreaterQFDialog(QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
-     #   print self.dlg
 
-
-
+    #   print self.dlg

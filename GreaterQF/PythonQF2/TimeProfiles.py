@@ -1,25 +1,27 @@
-'''This module provides functions that handle time and date operations for 
+"""This module provides functions that handle time and date operations for
 GreaterQf, as well as a list of known public holidays during the period 2005-
 2008. The functions contained in this module are as follows:
-DayOfWeek - Determines day of the week, returns integer. 
-WeekSatSun - Finds if day is a weekday, Saturday or Sunday, returns integer. 
+DayOfWeek - Determines day of the week, returns integer.
+WeekSatSun - Finds if day is a weekday, Saturday or Sunday, returns integer.
 DailyFact - Assigns factor based on day of the week, returns factor.
-WhatYear - Finds year of a date, returns integer. 
+WhatYear - Finds year of a date, returns integer.
 WhatSeason - Finds season, returns integer.
 DateDiff - Finds the difference in days between two dates.
-'''
-import datetime as dt 
+"""
+
 from datetime import date as dtd
 from datetime import timedelta
-#import f90nml
+
+# import f90nml
 
 GLOBAL_HOLS = []
-#WattHour\Day\Month: [0]Domestic Unrestricted elec [1]Domestic Economy 7 elec\
-#[2]Industrial elec [3]Domestic gas [4]Industrial gas [5]Other industrial\
-#[6]total domestic buildings [7]total industrial buildings [8]total buildings\
-#[9]motorcycles [10]taxis [11]cars [12]buses [13]LGVs [14]HGV Rigid \
-#[15] HGV artic [16]total transport [17] Metabolism\
-#[18]Everything; [8]+[16]+[17]
+# WattHour\Day\Month: [0]Domestic Unrestricted elec [1]Domestic Economy 7 elec\
+# [2]Industrial elec [3]Domestic gas [4]Industrial gas [5]Other industrial\
+# [6]total domestic buildings [7]total industrial buildings [8]total buildings\
+# [9]motorcycles [10]taxis [11]cars [12]buses [13]LGVs [14]HGV Rigid \
+# [15] HGV artic [16]total transport [17] Metabolism\
+# [18]Everything; [8]+[16]+[17]
+
 
 def easterLookup(year):
     # Return easter bank holiday dates for a year
@@ -54,6 +56,7 @@ def easterLookup(year):
 
     return easters[year]
 
+
 def generateHolidays(firstYear, finalYear):
     # UK public holidays (fixed points or easily defined) between specified years (inclusive)
     years = list(range(firstYear, finalYear + 1, 1))
@@ -62,6 +65,7 @@ def generateHolidays(firstYear, finalYear):
         allHolidays.extend(holidaysForYear(y))
 
     return allHolidays
+
 
 def holidaysForYear(year):
     # Generate public holidays (UK) for a given year
@@ -81,7 +85,9 @@ def holidaysForYear(year):
     holidays.extend(easterLookup(year))
     # Early and late may
     may1 = dtd(year, 0o5, 0o1)
-    may1 = may1 if may1.weekday() is 0 else may1 + timedelta(7 - may1.weekday())
+    may1 = (
+        may1 if may1.weekday() is 0 else may1 + timedelta(7 - may1.weekday())
+    )
     holidays.append(may1)
     holidays.append(dtd(year, 5, 31) - timedelta(dtd(year, 5, 31).weekday()))
     # Final monday in August
@@ -103,55 +109,57 @@ def holidaysForYear(year):
         holidays.append(dec27)
     return holidays
 
-def DayOfWeek(x, holidays):  #weekday:Mon=0, Sun=6. isoweekday:Mon=1,Sun=7
+
+def DayOfWeek(x, holidays):  # weekday:Mon=0, Sun=6. isoweekday:Mon=1,Sun=7
     # TODO: KEEP
-    '''Determines day of the week and assigns integer. Mon=0, Sun=6.
-    Public holidays are considered as Sundays.Takes one arguments, x, a 
-    datetime object.'''
+    """Determines day of the week and assigns integer. Mon=0, Sun=6.
+    Public holidays are considered as Sundays.Takes one arguments, x, a
+    datetime object."""
     # Inputs: x (the date in question); holidays: List of dates that are public holidays and should be treated as Sundays
-    dayofweek=dtd.weekday(x)
+    dayofweek = dtd.weekday(x)
     if x in holidays:
-        dayofweek=6#change this if using isoweekday
+        dayofweek = 6  # change this if using isoweekday
     return dayofweek
-    
+
+
 def WeekSatSun(x, holidays):
     # TODO: KEEP
-    '''Determines if a day is a weekday, Saturday or Sunday and assigns an
-    integer to each: weekday=0, Saturday=1, Sunday=2. Takes one arguments, x, a 
-    datetime object. 
-    '''
-    if DayOfWeek(x, holidays) < 5: # Weekday
-        k=0
-    elif DayOfWeek(x, holidays)==5: # Saturday
-        k=1
-    elif DayOfWeek(x, holidays)==6: # Sunday
-        k=2
+    """Determines if a day is a weekday, Saturday or Sunday and assigns an
+    integer to each: weekday=0, Saturday=1, Sunday=2. Takes one arguments, x, a
+    datetime object.
+    """
+    if DayOfWeek(x, holidays) < 5:  # Weekday
+        k = 0
+    elif DayOfWeek(x, holidays) == 5:  # Saturday
+        k = 1
+    elif DayOfWeek(x, holidays) == 6:  # Sunday
+        k = 2
     return k
 
 
 def WhatSeason(x):
     # TODO: KEEP
-    '''Assigns a number depending on the season of a given datetime object x;
+    """Assigns a number depending on the season of a given datetime object x;
     Winter(DJF), 0; Spring(MAM), 3; Summer(JJ), 6; High summer(Aug), 8;
     Autumn(SON), 12. These numbers correspond to season columns in EnergyHourly.
     This function takes one argument:
     x: datetime object
-    '''  
-    if x.month in [12,1,2]:
-        season=0
-    elif x.month in [3,4,5]:
-        season=3
-    elif x.month in [6,7]:
-        season =6
-    elif x.month==8:
-        season=9
-    elif x.month in [9,10,11]:
-        season=12
+    """
+    if x.month in [12, 1, 2]:
+        season = 0
+    elif x.month in [3, 4, 5]:
+        season = 3
+    elif x.month in [6, 7]:
+        season = 6
+    elif x.month == 8:
+        season = 9
+    elif x.month in [9, 10, 11]:
+        season = 12
     return season
- 
+
+
 def DateDiff(start, end):
     # TODO: KEEP
-    '''Finds the difference in days between two dates. '''
-    diff=(end-start).days
+    """Finds the difference in days between two dates."""
+    diff = (end - start).days
     return diff
-

@@ -3,7 +3,7 @@
 /***************************************************************************
  WallHeight
                                  A QGIS plugin
- This plugin identifies wall pixels on a DSM and derives wall height and aspect 
+ This plugin identifies wall pixels on a DSM and derives wall height and aspect
                              -------------------
         begin                : 2015-09-16
         copyright            : (C) 2015 by Fredrik Lindberg
@@ -32,4 +32,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .wall_height import WallHeight
+
     return WallHeight(iface)

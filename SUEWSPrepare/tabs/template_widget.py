@@ -245,7 +245,3 @@
 
 #     def get_title(self):
 #         return self.title
-
-
-
-

@@ -20,14 +20,23 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 from __future__ import absolute_import
 from builtins import str
 from builtins import range
 from builtins import object
 from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from qgis.PyQt.QtWidgets import QAction, QMessageBox, QFileDialog
+from qgis.PyQt.QtWidgets import QMessageBox, QFileDialog
 from qgis.gui import *
-from qgis.core import QgsMapLayerProxyModel, QgsFeature, QgsGeometry, QgsVectorLayer, QgsPointXY, QgsVectorFileWriter, QgsProject
+from qgis.core import (
+    QgsMapLayerProxyModel,
+    QgsFeature,
+    QgsGeometry,
+    QgsVectorLayer,
+    QgsPointXY,
+    QgsVectorFileWriter,
+    QgsProject,
+)
 import os
 from ..Utilities import RoughnessCalcFunctionV2 as rg
 from osgeo import gdal
@@ -35,6 +44,7 @@ import subprocess
 import webbrowser
 from ..Utilities.imageMorphometricParms_v1 import *
 from ..WallHeight import wallalgorithms as wa
+
 # Initialize Qt resources from file resources.py
 # from . import resources_rc
 import sys
@@ -52,17 +62,18 @@ class ImageMorphParmsPoint(object):
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(
             self.plugin_dir,
-            'i18n',
-            'ImageMorphParmsPoint_{}.qm'.format(locale))
+            "i18n",
+            "ImageMorphParmsPoint_{}.qm".format(locale),
+        )
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
 
-            if qVersion() > '4.3.3':
+            if qVersion() > "4.3.3":
                 QCoreApplication.installTranslator(self.translator)
 
         # Create the dialog (after translation) and keep reference
@@ -86,13 +97,13 @@ class ImageMorphParmsPoint(object):
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&Image Morphometric Parameters Point')
+        self.menu = self.tr("&Image Morphometric Parameters Point")
 
         # get reference to the canvas
         self.canvas = self.iface.mapCanvas()
         self.poiLayer = None
         self.polyLayer = None
-        self.folderPath = 'None'
+        self.folderPath = "None"
         self.degree = 5.0
         self.point = None
         self.pointx = None
@@ -102,43 +113,57 @@ class ImageMorphParmsPoint(object):
         self.pointTool = QgsMapToolEmitPoint(self.canvas)
         self.pointTool.canvasClicked.connect(self.create_point)
 
-        self.layerComboManagerPoint = QgsMapLayerComboBox(self.dlg.widgetPointLayer)
+        self.layerComboManagerPoint = QgsMapLayerComboBox(
+            self.dlg.widgetPointLayer
+        )
         self.layerComboManagerPoint.setCurrentIndex(-1)
-        self.layerComboManagerPoint.setFilters(QgsMapLayerProxyModel.Filter.PointLayer)
+        self.layerComboManagerPoint.setFilters(
+            QgsMapLayerProxyModel.Filter.PointLayer
+        )
         self.layerComboManagerPoint.setFixedWidth(175)
-        self.layerComboManagerDSMbuildground = QgsMapLayerComboBox(self.dlg.widgetDSMbuildground)
-        self.layerComboManagerDSMbuildground.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerDSMbuildground = QgsMapLayerComboBox(
+            self.dlg.widgetDSMbuildground
+        )
+        self.layerComboManagerDSMbuildground.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerDSMbuildground.setFixedWidth(175)
         self.layerComboManagerDSMbuildground.setCurrentIndex(-1)
         self.layerComboManagerDEM = QgsMapLayerComboBox(self.dlg.widgetDEM)
-        self.layerComboManagerDEM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerDEM.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerDEM.setFixedWidth(175)
         self.layerComboManagerDEM.setCurrentIndex(-1)
-        self.layerComboManagerDSMbuild = QgsMapLayerComboBox(self.dlg.widgetDSMbuild)
-        self.layerComboManagerDSMbuild.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerDSMbuild = QgsMapLayerComboBox(
+            self.dlg.widgetDSMbuild
+        )
+        self.layerComboManagerDSMbuild.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerDSMbuild.setFixedWidth(175)
         self.layerComboManagerDSMbuild.setCurrentIndex(-1)
 
-
-        if not (os.path.isdir(self.plugin_dir + '/data')):
-            os.mkdir(self.plugin_dir + '/data')
+        if not (os.path.isdir(self.plugin_dir + "/data")):
+            os.mkdir(self.plugin_dir + "/data")
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('ImageMorphParmsPoint', message)
+        return QCoreApplication.translate("ImageMorphParmsPoint", message)
 
     def add_action(
-            self,
-            icon_path,
-            text,
-            callback,
-            enabled_flag=True,
-            add_to_menu=True,
-            add_to_toolbar=True,
-            status_tip=None,
-            whats_this=None,
-            parent=None):
+        self,
+        icon_path,
+        text,
+        callback,
+        enabled_flag=True,
+        add_to_menu=True,
+        add_to_toolbar=True,
+        status_tip=None,
+        whats_this=None,
+        parent=None,
+    ):
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -204,19 +229,20 @@ class ImageMorphParmsPoint(object):
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/ImageMorphParmsPoint/ImageMorphIconPoint.png'
+        icon_path = ":/plugins/ImageMorphParmsPoint/ImageMorphIconPoint.png"
         self.add_action(
             icon_path,
-            text=self.tr(u'Image Morphometric Parameters Point'),
+            text=self.tr("Image Morphometric Parameters Point"),
             callback=self.run,
-            parent=self.iface.mainWindow())
+            parent=self.iface.mainWindow(),
+        )
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr(u'&Image Morphometric Parameters Point'),
-                action)
+                self.tr("&Image Morphometric Parameters Point"), action
+            )
             self.iface.removeToolBarIcon(action)
 
     def folder_path(self):
@@ -253,10 +279,14 @@ class ImageMorphParmsPoint(object):
         if self.dlg.checkBoxVectorLayer.isChecked():
             point = self.layerComboManagerPoint.currentLayer()
             if point is None:
-                QMessageBox.critical(None, "Error", "No valid point layer is selected")
+                QMessageBox.critical(
+                    None, "Error", "No valid point layer is selected"
+                )
                 return
             if not point.geometryType() == 0:
-                QMessageBox.critical(None, "Error", "No valid Polygon layer is selected")
+                QMessageBox.critical(
+                    None, "Error", "No valid Polygon layer is selected"
+                )
                 return
 
             for poi in point.getFeatures():
@@ -265,7 +295,9 @@ class ImageMorphParmsPoint(object):
                 self.pointy = loc[1]
         else:
             if not self.pointx:
-                QMessageBox.critical(None, "Error", "No click registred on map canvas")
+                QMessageBox.critical(
+                    None, "Error", "No click registred on map canvas"
+                )
                 return
 
         self.dlg.runButton.setEnabled(1)
@@ -281,7 +313,8 @@ class ImageMorphParmsPoint(object):
             self.polyLayer.commitChanges()
             QgsProject.instance().removeMapLayer(self.polyLayer.id())
 
-        self.canvas.setMapTool(self.pointTool)  # Calls a canvas click and create_point
+        # Calls a canvas click and create_point
+        self.canvas.setMapTool(self.pointTool)
 
         self.dlg.setEnabled(False)
         self.create_point_layer()
@@ -290,7 +323,10 @@ class ImageMorphParmsPoint(object):
         canvas = self.iface.mapCanvas()
         srs = canvas.mapSettings().destinationCrs()
         crs = str(srs.authid())
-        uri = "Point?field=id:integer&field=x:double&field=y:double&index=yes&crs=" + crs
+        uri = (
+            "Point?field=id:integer&field=x:double&field=y:double&index=yes&crs="
+            + crs
+        )
         self.poiLayer = QgsVectorLayer(uri, "Point of Interest", "memory")
         self.provider = self.poiLayer.dataProvider()
 
@@ -300,10 +336,10 @@ class ImageMorphParmsPoint(object):
         crs = str(srs.authid())
         uri = "Polygon?field=id:integer&index=yes&crs=" + crs
         # dir_poly = self.plugin_dir + '/data/poly_temp.shp'
-        #self.polyLayer = QgsVectorLayer(dir_poly, "Study area", "ogr")
+        # self.polyLayer = QgsVectorLayer(dir_poly, "Study area", "ogr")
         self.polyLayer = QgsVectorLayer(uri, "Study area", "memory")
         self.provider = self.polyLayer.dataProvider()
-        #QgsMapLayerRegistry.instance().addMapLayer(self.polyLayer)
+        # QgsMapLayerRegistry.instance().addMapLayer(self.polyLayer)
 
         # create buffer feature
         fc = int(self.provider.featureCount())
@@ -314,7 +350,11 @@ class ImageMorphParmsPoint(object):
         # featurepoly.setGeometry(
         #     QgsGeometry.fromPointXY(QgsPointXY(self.pointx, self.pointy)).buffer(radius, 1000, 1, 1, 1.0))
         featurepoly.setGeometry(
-            QgsGeometry.fromPointXY(QgsPointXY(self.pointx, self.pointy)).buffer(radius, 1000)) #fix issue #400
+            # fix issue #400
+            QgsGeometry.fromPointXY(
+                QgsPointXY(self.pointx, self.pointy)
+            ).buffer(radius, 1000)
+        )
         featurepoly.setAttributes([fc])
         self.polyLayer.startEditing()
         self.polyLayer.addFeature(featurepoly)
@@ -345,28 +385,40 @@ class ImageMorphParmsPoint(object):
         # pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
         self.dlg.progressBar.setValue(0)
 
-        if self.folderPath == 'None':
+        if self.folderPath == "None":
             QMessageBox.critical(None, "Error", "Select a valid output folder")
             return
 
         poly = self.iface.activeLayer()
         if poly is None:
-            QMessageBox.critical(None, "Error", "No valid Polygon layer is selected")
+            QMessageBox.critical(
+                None, "Error", "No valid Polygon layer is selected"
+            )
             return
         if not poly.geometryType() == 2:
-            QMessageBox.critical(None, "Error", "No valid Polygon layer is selected")
+            QMessageBox.critical(
+                None, "Error", "No valid Polygon layer is selected"
+            )
             return
 
         prov = poly.dataProvider()
         fields = prov.fields()
 
-        dir_poly = self.plugin_dir + '/data/poly_temp.shp'
+        dir_poly = self.plugin_dir + "/data/poly_temp.shp"
 
-        writer = QgsVectorFileWriter(dir_poly, "CP1250", fields, prov.wkbType(),
-                                     prov.crs(), "ESRI shapefile")
+        writer = QgsVectorFileWriter(
+            dir_poly,
+            "CP1250",
+            fields,
+            prov.wkbType(),
+            prov.crs(),
+            "ESRI shapefile",
+        )
 
         if writer.hasError() != QgsVectorFileWriter.WriterError.NoError:
-            self.iface.messageBar().pushMessage("Error when creating shapefile: ", str(writer.hasError()))
+            self.iface.messageBar().pushMessage(
+                "Error when creating shapefile: ", str(writer.hasError())
+            )
 
         poly.selectAll()
         selection = poly.selectedFeatures()
@@ -375,7 +427,7 @@ class ImageMorphParmsPoint(object):
             writer.addFeature(feature)
         del writer
 
-        if sys.platform == 'win32':
+        if sys.platform == "win32":
             si = subprocess.STARTUPINFO()
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         else:
@@ -388,7 +440,11 @@ class ImageMorphParmsPoint(object):
         if self.dlg.checkBoxOnlyBuilding.isChecked():  # Only building heights
             dsm_build = self.layerComboManagerDSMbuild.currentLayer()
             if dsm_build is None:
-                QMessageBox.critical(None, "Error", "No valid building DSM raster layer is selected")
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "No valid building DSM raster layer is selected",
+                )
                 return
 
             provider = dsm_build.dataProvider()
@@ -407,10 +463,12 @@ class ImageMorphParmsPoint(object):
             # Remove gdalwarp with gdal.Translate
             bigraster = gdal.Open(filePath_dsm_build)
             bbox = (x - r, y + r, x + r, y - r)
-            gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster, projWin=bbox)
+            gdal.Translate(
+                self.plugin_dir + "/data/clipdsm.tif", bigraster, projWin=bbox
+            )
             bigraster = None
 
-            dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
+            dataset = gdal.Open(self.plugin_dir + "/data/clipdsm.tif")
             dsm = dataset.ReadAsArray().astype(float)
             sizex = dsm.shape[0]
             sizey = dsm.shape[1]
@@ -421,10 +479,18 @@ class ImageMorphParmsPoint(object):
             dem = self.layerComboManagerDEM.currentLayer()
 
             if dsm is None:
-                QMessageBox.critical(None, "Error", "No valid ground and building DSM raster layer is selected")
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "No valid ground and building DSM raster layer is selected",
+                )
                 return
             if dem is None:
-                QMessageBox.critical(None, "Error", "No valid ground DEM raster layer is selected")
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "No valid ground DEM raster layer is selected",
+                )
                 return
 
             # # get raster source - gdalwarp
@@ -452,45 +518,59 @@ class ImageMorphParmsPoint(object):
             # Testing with gdal.Translate
             bigraster = gdal.Open(filePath_dsm)
             bbox = (x - r, y + r, x + r, y - r)
-            gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster, projWin=bbox)
+            gdal.Translate(
+                self.plugin_dir + "/data/clipdsm.tif", bigraster, projWin=bbox
+            )
             bigraster = gdal.Open(filePath_dem)
             bbox = (x - r, y + r, x + r, y - r)
-            gdal.Translate(self.plugin_dir + '/data/clipdem.tif', bigraster, projWin=bbox)
+            gdal.Translate(
+                self.plugin_dir + "/data/clipdem.tif", bigraster, projWin=bbox
+            )
 
-            dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
+            dataset = gdal.Open(self.plugin_dir + "/data/clipdsm.tif")
             dsm = dataset.ReadAsArray().astype(float)
-            dataset2 = gdal.Open(self.plugin_dir + '/data/clipdem.tif')
+            dataset2 = gdal.Open(self.plugin_dir + "/data/clipdem.tif")
             dem = dataset2.ReadAsArray().astype(float)
 
-            if not (dsm.shape[0] == dem.shape[0]) & (dsm.shape[1] == dem.shape[1]):
-                QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+            if not (dsm.shape[0] == dem.shape[0]) & (
+                dsm.shape[1] == dem.shape[1]
+            ):
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "All grids must be of same extent and resolution",
+                )
                 return
 
         geotransform = dataset.GetGeoTransform()
         scale = 1 / geotransform[1]
         self.degree = float(self.dlg.degreeBox.currentText())
         nd = dataset.GetRasterBand(1).GetNoDataValue()
-        nodata_test = (dsm == nd)
+        nodata_test = dsm == nd
         if nodata_test.any():
-            QMessageBox.critical(None, "Error", "Clipped grid includes nodata pixels")
+            QMessageBox.critical(
+                None, "Error", "Clipped grid includes nodata pixels"
+            )
             return
         else:
-            immorphresult = imagemorphparam_v2(dsm, dem, scale, 1, self.degree, self.dlg, 1)
+            immorphresult = imagemorphparam_v2(
+                dsm, dem, scale, 1, self.degree, self.dlg, 1
+            )
 
         # #Calculate Z0m and Zdm depending on the Z0 method
         ro = self.dlg.comboBox_Roughness.currentIndex()
         if ro == 0:
-            Roughnessmethod = 'RT'
+            Roughnessmethod = "RT"
         elif ro == 1:
-            Roughnessmethod = 'Rau'
+            Roughnessmethod = "Rau"
         elif ro == 2:
-            Roughnessmethod = 'Bot'
+            Roughnessmethod = "Bot"
         elif ro == 3:
-            Roughnessmethod = 'Mac'
+            Roughnessmethod = "Mac"
         elif ro == 4:
-            Roughnessmethod = 'Mho'
+            Roughnessmethod = "Mho"
         else:
-            Roughnessmethod = 'Kan'
+            Roughnessmethod = "Kan"
 
         zH = immorphresult["zH"]
         fai = immorphresult["fai"]
@@ -498,24 +578,45 @@ class ImageMorphParmsPoint(object):
         zMax = immorphresult["zHmax"]
         zSdev = immorphresult["zH_sd"]
 
-        zd,z0 = rg.RoughnessCalcMany(Roughnessmethod, zH, fai, pai, zMax, zSdev)
+        zd, z0 = rg.RoughnessCalcMany(
+            Roughnessmethod, zH, fai, pai, zMax, zSdev
+        )
 
         # save to file
         pre = self.dlg.textOutput_prefix.text()
-        header = 'Wd pai fai zH zHmax zHstd zd z0'
-        numformat = '%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
-        arr = np.concatenate((immorphresult["deg"], immorphresult["pai"], immorphresult["fai"],
-                            immorphresult["zH"], immorphresult["zHmax"], immorphresult["zH_sd"],zd,z0), axis=1)
-        np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'IMPPoint_anisotropic.txt', arr,
-                   fmt=numformat, delimiter=' ', header=header, comments='')
+        header = "Wd pai fai zH zHmax zHstd zd z0"
+        numformat = "%3d %4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f"
+        arr = np.concatenate(
+            (
+                immorphresult["deg"],
+                immorphresult["pai"],
+                immorphresult["fai"],
+                immorphresult["zH"],
+                immorphresult["zHmax"],
+                immorphresult["zH_sd"],
+                zd,
+                z0,
+            ),
+            axis=1,
+        )
+        np.savetxt(
+            self.folderPath[0] + "/" + pre + "_" + "IMPPoint_anisotropic.txt",
+            arr,
+            fmt=numformat,
+            delimiter=" ",
+            header=header,
+            comments="",
+        )
 
         zHall = immorphresult["zH_all"]
         faiall = immorphresult["fai_all"]
         paiall = immorphresult["pai_all"]
         zMaxall = immorphresult["zHmax_all"]
         zSdevall = immorphresult["zH_sd_all"]
-        zdall,z0all = rg.RoughnessCalc(Roughnessmethod, zHall, faiall, paiall, zMaxall, zSdevall)
-        
+        zdall, z0all = rg.RoughnessCalc(
+            Roughnessmethod, zHall, faiall, paiall, zMaxall, zSdevall
+        )
+
         # If zd and z0 are lower than open country, set to open country
         if zdall < 0.2:
             zdall = 0.2
@@ -523,35 +624,49 @@ class ImageMorphParmsPoint(object):
             z0all = 0.03
 
         # If pai is larger than 0 and fai is zero, set fai to 0.001. Issue # 164
-        if paiall > 0.:
-            if faiall == 0.:
+        if paiall > 0.0:
+            if faiall == 0.0:
                 faiall = 0.001
 
         # adding wai area to isotrophic (wall area index)
-        wallarea = np.sum(wa.findwalls(dsm, 2.))
-        gridArea = (abs(bbox[2]-bbox[0]))*(abs(bbox[1]-bbox[3]))
+        wallarea = np.sum(wa.findwalls(dsm, 2.0))
+        gridArea = (abs(bbox[2] - bbox[0])) * (abs(bbox[1] - bbox[3]))
         wai = wallarea / gridArea
 
-        header = 'pai fai zH zHmax zHstd zd z0 wai'
-        numformat = '%4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f %4.3f'
-        arr2 = np.array([[paiall, faiall, zHall, zMaxall, zSdevall, zdall, z0all, wai]])
-        np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'IMPPoint_isotropic.txt', arr2,
-                   fmt=numformat, delimiter=' ', header=header, comments='')
+        header = "pai fai zH zHmax zHstd zd z0 wai"
+        numformat = "%4.3f %4.3f %5.3f %5.3f %5.3f %5.3f %5.3f %4.3f"
+        arr2 = np.array(
+            [[paiall, faiall, zHall, zMaxall, zSdevall, zdall, z0all, wai]]
+        )
+        np.savetxt(
+            self.folderPath[0] + "/" + pre + "_" + "IMPPoint_isotropic.txt",
+            arr2,
+            fmt=numformat,
+            delimiter=" ",
+            header=header,
+            comments="",
+        )
 
         dataset = None
         dataset2 = None
         dataset3 = None
 
-        #self.iface.messageBar().clearWidgets()
-        QMessageBox.information(None, "Image Morphometric Parameters", "Process successful!")
+        # self.iface.messageBar().clearWidgets()
+        QMessageBox.information(
+            None, "Image Morphometric Parameters", "Process successful!"
+        )
 
     def run(self):
         try:
-            import scipy
+            pass
         except Exception as e:
-            QMessageBox.critical(None, 'Error', 'This plugin requires the scipy package '
-                                                'to be installed. Please consult the FAQ in the manual for further '
-                                                'information on how to install missing python packages.')
+            QMessageBox.critical(
+                None,
+                "Error",
+                "This plugin requires the scipy package "
+                "to be installed. Please consult the FAQ in the manual for further "
+                "information on how to install missing python packages.",
+            )
             return
 
         self.dlg.show()

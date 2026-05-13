@@ -21,7 +21,8 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QObject, QThread
+
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QThread
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 from qgis.gui import QgsMapToolEmitPoint
@@ -29,13 +30,11 @@ from osgeo import osr, ogr, gdal
 import os.path
 import webbrowser
 import datetime
-from calendar import monthrange
 from .WorkerDownload import Worker
-import logging
-import sys
 
 # Initialize Qt resources from file resources.py
 from .resources import *
+
 # Import the code for the dialog
 from .copernicus_data_dialog import CopernicusDataDialog
 
@@ -56,11 +55,10 @@ class CopernicusData:
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'CopernicusData_{}.qm'.format(locale))
+            self.plugin_dir, "i18n", "CopernicusData_{}.qm".format(locale)
+        )
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
@@ -107,24 +105,25 @@ class CopernicusData:
         self.save_downloaded_folder = None
         # Check if plugin was started the first time in current QGIS session
         # Must be set in initGui() to survive plugin reloads
-        #self.first_start = None
+        # self.first_start = None
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('CopernicusData', message)
+        return QCoreApplication.translate("CopernicusData", message)
 
     def add_action(
-            self,
-            icon_path,
-            text,
-            callback,
-            enabled_flag=True,
-            add_to_menu=True,
-            add_to_toolbar=True,
-            status_tip=None,
-            whats_this=None,
-            parent=None):
+        self,
+        icon_path,
+        text,
+        callback,
+        enabled_flag=True,
+        add_to_menu=True,
+        add_to_toolbar=True,
+        status_tip=None,
+        whats_this=None,
+        parent=None,
+    ):
 
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
@@ -142,9 +141,7 @@ class CopernicusData:
             self.iface.addToolBarIcon(action)
 
         if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action)
+            self.iface.addPluginToMenu(self.menu, action)
 
         self.actions.append(action)
 
@@ -153,12 +150,13 @@ class CopernicusData:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/copernicus_data/icon.png'
+        icon_path = ":/plugins/copernicus_data/icon.png"
         self.add_action(
             icon_path,
-            text=self.tr(u''),
+            text=self.tr(""),
             callback=self.run,
-            parent=self.iface.mainWindow())
+            parent=self.iface.mainWindow(),
+        )
 
         # will be set False in run()
         # self.first_start = True
@@ -166,9 +164,7 @@ class CopernicusData:
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
-            self.iface.removePluginMenu(
-                self.tr(u'&Copernicus Data'),
-                action)
+            self.iface.removePluginMenu(self.tr("&Copernicus Data"), action)
             self.iface.removeToolBarIcon(action)
 
     def help(self):
@@ -192,7 +188,7 @@ class CopernicusData:
         # print(srs.authid())
         # old_cs = osr.SpatialReference()
         # old_cs.ImportFromEPSG(int(crs[5:]))
-        
+
         old_cs = osr.SpatialReference()
         crs_ref = srs.toWkt()
         old_cs.ImportFromWkt(crs_ref)
@@ -215,15 +211,16 @@ class CopernicusData:
 
         new_cs = osr.SpatialReference()
         new_cs.ImportFromWkt(wgs84_wkt)
-    
+
         transform = osr.CoordinateTransformation(old_cs, new_cs)
 
         latlon = ogr.CreateGeometryFromWkt(
-            'POINT (' + str(point.x()) + ' ' + str(point.y()) + ')')
+            "POINT (" + str(point.x()) + " " + str(point.y()) + ")"
+        )
         latlon.Transform(transform)
 
         gdalver = float(gdal.__version__[0])
-        if gdalver == 3.:
+        if gdalver == 3.0:
             self.dlg.txtLon.setText(str(latlon.GetY()))  # changed to gdal 3
             self.dlg.txtLat.setText(str(latlon.GetX()))  # changed to gdal 3
         else:
@@ -235,17 +232,25 @@ class CopernicusData:
     def run(self):
         # Check the more unusual dependencies to prevent confusing errors later
         try:
-            import supy as sp
+            pass
         except Exception as e:
-            QMessageBox.critical(None, 'Error', 'This plugin requires the supy package '
-                                                'to be installed OR upgraded. Please consult the FAQ in the manual '
-                                                'for further information on how to install missing python packages.')
+            QMessageBox.critical(
+                None,
+                "Error",
+                "This plugin requires the supy package "
+                "to be installed OR upgraded. Please consult the FAQ in the manual "
+                "for further information on how to install missing python packages.",
+            )
             return
 
         if not (os.path.isfile(os.path.expanduser("~") + "/.cdsapirc")):
-            QMessageBox.critical(None, 'CDS configuration missing', 'This plugin requires that you have configured your computer to use the CDS API. '
-                                 'See the help section for the Copernicus plugin in the UMEP-manual for further information on how '
-                                 'to make use of this plugin.')
+            QMessageBox.critical(
+                None,
+                "CDS configuration missing",
+                "This plugin requires that you have configured your computer to use the CDS API. "
+                "See the help section for the Copernicus plugin in the UMEP-manual for further information on how "
+                "to make use of this plugin.",
+            )
             return
 
         self.dlg.show()
@@ -259,19 +264,21 @@ class CopernicusData:
         try:
             lon = float(self.dlg.txtLon.text())
         except:
-            raise ValueError('Invalid longitude co-ordinate entered')
+            raise ValueError("Invalid longitude co-ordinate entered")
 
         if not (-180 < lon < 180):
             raise ValueError(
-                'Invalid longitude co-ordinate entered (must be -180 to 180)')
+                "Invalid longitude co-ordinate entered (must be -180 to 180)"
+            )
 
         try:
             lat = float(self.dlg.txtLat.text())
         except:
-            raise ValueError('Invalid latitude co-ordinate entered')
+            raise ValueError("Invalid latitude co-ordinate entered")
         if not (-90 < lat < 90):
             raise ValueError(
-                'Invalid latitude co-ordinate entered (must be -90 to 90)')
+                "Invalid latitude co-ordinate entered (must be -90 to 90)"
+            )
 
         self.lat = lat
         self.lon = lon
@@ -280,19 +287,20 @@ class CopernicusData:
         start_date = self.dlg.txtStartDate.text()
 
         try:
-            start_datetest = datetime.datetime.strptime(start_date, '%Y-%m-%d')
+            start_datetest = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         except Exception:
-            raise ValueError('Invalid start date (%s) entered' %
-                             (start_datetest,))
+            raise ValueError(
+                "Invalid start date (%s) entered" % (start_datetest,)
+            )
 
         end_date = self.dlg.txtEndDate.text()
         try:
-            end_datetest = datetime.datetime.strptime(end_date, '%Y-%m-%d')
+            end_datetest = datetime.datetime.strptime(end_date, "%Y-%m-%d")
         except Exception:
-            raise ValueError('Invalid end date (%s) entered' % (end_datetest,))
+            raise ValueError("Invalid end date (%s) entered" % (end_datetest,))
 
         if start_date >= end_date:
-            raise ValueError('Start date is greater or equal than end date')
+            raise ValueError("Start date is greater or equal than end date")
 
         self.start_date = start_date
         self.end_date = end_date
@@ -307,7 +315,7 @@ class CopernicusData:
 
     def download(self):
         try:
-            import supy as sp
+            pass
         except:
             pass
 
@@ -321,24 +329,35 @@ class CopernicusData:
             QMessageBox.critical(None, "Error", str(e))
             return
 
-        if QMessageBox.question(self.iface.mainWindow(), "Information", "Data will now be downloaded from the "
-                                    "Copernicus project (https://cds.climate.copernicus.eu/)."
-                                    "\r\n"
-                                    "\r\n"
-                                    "1 month of data takes about 6 minutes depending on traffic and your internet connection. " 
-                                    "The traffic on the CDSAPI can be monitored from https://cds.climate.copernicus.eu/live/queue."
-                                    "\r\n"
-                                    "\r\n"
-                                    "The QGIS session will be active while data is processed. If you like to monitor the download"
-                                    "process from the CDS API, open your Python Console in QGIS."
-                                    "\r\n"
-                                    "\r\n"
-                                    "Do you want to contiune?",
-                                    QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) == QMessageBox.StandardButton.Ok:
-                test = 4
+        if (
+            QMessageBox.question(
+                self.iface.mainWindow(),
+                "Information",
+                "Data will now be downloaded from the "
+                "Copernicus project (https://cds.climate.copernicus.eu/)."
+                "\r\n"
+                "\r\n"
+                "1 month of data takes about 6 minutes depending on traffic and your internet connection. "
+                "The traffic on the CDSAPI can be monitored from https://cds.climate.copernicus.eu/live/queue."
+                "\r\n"
+                "\r\n"
+                "The QGIS session will be active while data is processed. If you like to monitor the download"
+                "process from the CDS API, open your Python Console in QGIS."
+                "\r\n"
+                "\r\n"
+                "Do you want to contiune?",
+                QMessageBox.StandardButton.Ok
+                | QMessageBox.StandardButton.Cancel,
+            )
+            == QMessageBox.StandardButton.Ok
+        ):
+            test = 4
         else:
-            QMessageBox.critical(self.iface.mainWindow(),
-                                 "Process aborted", "Download cancelled")
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Process aborted",
+                "Download cancelled",
+            )
             return
 
         # print(self.lat)
@@ -359,34 +378,36 @@ class CopernicusData:
 
         # put in worker
         # sp.util.gen_forcing_era5(
-            # self.lat, self.lon, self.start_date, self.end_date, dir_save=self.folderPath[0])
+        # self.lat, self.lon, self.start_date, self.end_date, dir_save=self.folderPath[0])
         # self.dlg.progressBar.setValue(100)
         # QMessageBox.information(
-            # self.dlg, "Data Download (ERA5)", "Data downlaoded and processed succesfully")
+        # self.dlg, "Data Download (ERA5)", "Data downlaoded and processed succesfully")
 
         # return
 
         print(self.folderPath)
 
-        self.startWorker(self.lat, self.lon, self.start_date, self.end_date, self.folderPath)
+        self.startWorker(
+            self.lat, self.lon, self.start_date, self.end_date, self.folderPath
+        )
 
     def startWorker(self, lat, lon, start_date, end_date, folderPath):
 
         # Do download in separate thread and track progress
         worker = Worker(lat, lon, start_date, end_date, folderPath[0])
-        
-        self.dlg.cmdRunDownload.setText('Cancel')
+
+        self.dlg.cmdRunDownload.setText("Cancel")
         self.dlg.cmdRunDownload.clicked.disconnect()
         self.dlg.cmdRunDownload.clicked.connect(self.abort_download)
         self.dlg.cmdClose.setEnabled(False)
-        
+
         thread = QThread(self.dlg)
         worker.moveToThread(thread)
 
         worker.finished.connect(self.workerFinished)
         worker.error.connect(self.download_error)
         thread.started.connect(worker.run)
-        
+
         thread.start()
         self.thread = thread
         self.worker = worker
@@ -395,14 +416,13 @@ class CopernicusData:
         try:
             self.worker.deleteLater()
         except RuntimeError:
-             pass
+            pass
         self.thread.quit()
         self.thread.wait()
         self.thread.deleteLater()
 
-
         if ret == 1:
-            self.dlg.cmdRunDownload.setText('Run')
+            self.dlg.cmdRunDownload.setText("Run")
             self.dlg.cmdRunDownload.clicked.disconnect()
             self.dlg.cmdRunDownload.clicked.connect(self.download)
             self.setDownloaderButtonState(True)
@@ -413,35 +433,46 @@ class CopernicusData:
             self.dlg.progressBar.setRange(0, 100)
             self.dlg.progressBar.setValue(100)
 
-            QMessageBox.information(self.dlg, "Data Download (ERA5)", "Data downlaoded and processed succesfully")
+            QMessageBox.information(
+                self.dlg,
+                "Data Download (ERA5)",
+                "Data downlaoded and processed succesfully",
+            )
 
-            self.iface.messageBar().pushMessage("Data Download (ERA5)",
-                                    "Data downlaoded and processed succesfully", duration=5)
+            self.iface.messageBar().pushMessage(
+                "Data Download (ERA5)",
+                "Data downlaoded and processed succesfully",
+                duration=5,
+            )
         else:
-            self.dlg.cmdRunDownload.setText('Run')
+            self.dlg.cmdRunDownload.setText("Run")
             self.dlg.cmdRunDownload.clicked.disconnect()
             self.dlg.cmdRunDownload.clicked.connect(self.download)
             self.setDownloaderButtonState(True)
             self.dlg.progressBar.setValue(0)
-            QMessageBox.information(None, "Data Download (ERA5)", "Operations cancelled, "
-                    "process unsuccessful! See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.")
+            QMessageBox.information(
+                None,
+                "Data Download (ERA5)",
+                "Operations cancelled, "
+                "process unsuccessful! See the General tab in Log Meassages Panel (speech bubble, lower right) for more information.",
+            )
 
     def download_error(self, errorstring):
         self.setDownloaderButtonState(True)
         QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)
-        
+
     def abort_download(self):
         self.dlg.progressBar.setValue(0)
         self.worker.kill()
         # Enable all buttons in downloader.
         self.setDownloaderButtonState(True)
         self.dlg.cmdRunDownload.clicked.disconnect()
-        self.dlg.cmdRunDownload.setText('Run')
+        self.dlg.cmdRunDownload.setText("Run")
         self.dlg.cmdRunDownload.clicked.connect(self.download)
 
     def setDownloaderButtonState(self, state):
-        ''' Enable or disable all dialog buttons in downloader section
-        :param state: boolean: True or False. Reflects button state'''
+        """Enable or disable all dialog buttons in downloader section
+        :param state: boolean: True or False. Reflects button state"""
         self.dlg.cmdSelectPoint.setEnabled(state)
         self.dlg.cmdRunDownload.setEnabled(state)
         self.dlg.cmdClose.setEnabled(state)
