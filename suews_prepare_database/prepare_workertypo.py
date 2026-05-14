@@ -2,17 +2,22 @@ from builtins import next
 from builtins import str
 from builtins import range
 from qgis.PyQt import QtCore
+
 # from PyQt4.QtCore import QVariant
-from qgis.PyQt.QtWidgets import QMessageBox  #, QFileDialog, QAction, QIcon
-from qgis.core import *  # QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsRasterLayer, QgsGeometry, QgsMessageLog
+from qgis.PyQt.QtWidgets import QMessageBox  # , QFileDialog, QAction, QIcon
+
+# QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsRasterLayer, QgsGeometry, QgsMessageLog
+from qgis.core import *
+
 # from qgis.gui import QgsMessageBar
-import traceback
 import numpy as np
 from osgeo import gdal, osr
+
 # import subprocess
 import sys
 import linecache
 import os
+
 # import fileinput
 # import time
 from shutil import copyfile
@@ -21,18 +26,64 @@ from .Utilities import RoughnessCalcFunctionV2 as rg
 import copy
 from .Utilities.db_functions import *
 
+
 class Worker(QtCore.QObject):
 
     finished = QtCore.pyqtSignal(bool)
     error = QtCore.pyqtSignal(object)
     progress = QtCore.pyqtSignal()
 
-    def __init__(self, vlayer, nbr_header, poly_field, Metfile_path, start_DLS, end_DLS, LCF_from_file, LCFfile_path, LCF_paved,
-                 LCF_buildings, LCF_evergreen, LCF_decidious, LCF_grass, LCF_baresoil, LCF_water, IMP_from_file, IMPfile_path,
-                 IMP_heights_mean, IMP_z0, IMP_zd, IMP_fai, IMPveg_from_file, IMPvegfile_path, IMPveg_heights_mean_eve,
-                 IMPveg_heights_mean_dec, IMPveg_fai_eve, IMPveg_fai_dec, pop_density, widget_list, # wall_area,
-                 land_use_from_file, land_use_file_path, lines_to_write, plugin_dir, output_file_list, map_units, header_sheet, output_dir, #, wall_area_info (second last)
-                 day_since_rain, leaf_cycle, soil_moisture, file_code, utc, checkBox_twovegfiles, IMPvegfile_path_dec, IMPvegfile_path_eve, pop_density_day, daypop):
+    def __init__(
+        self,
+        vlayer,
+        nbr_header,
+        poly_field,
+        Metfile_path,
+        start_DLS,
+        end_DLS,
+        LCF_from_file,
+        LCFfile_path,
+        LCF_paved,
+        LCF_buildings,
+        LCF_evergreen,
+        LCF_decidious,
+        LCF_grass,
+        LCF_baresoil,
+        LCF_water,
+        IMP_from_file,
+        IMPfile_path,
+        IMP_heights_mean,
+        IMP_z0,
+        IMP_zd,
+        IMP_fai,
+        IMPveg_from_file,
+        IMPvegfile_path,
+        IMPveg_heights_mean_eve,
+        IMPveg_heights_mean_dec,
+        IMPveg_fai_eve,
+        IMPveg_fai_dec,
+        pop_density,
+        widget_list,  # wall_area,
+        # , wall_area_info (second last)
+        land_use_from_file,
+        land_use_file_path,
+        lines_to_write,
+        plugin_dir,
+        output_file_list,
+        map_units,
+        header_sheet,
+        output_dir,
+        day_since_rain,
+        leaf_cycle,
+        soil_moisture,
+        file_code,
+        utc,
+        checkBox_twovegfiles,
+        IMPvegfile_path_dec,
+        IMPvegfile_path_eve,
+        pop_density_day,
+        daypop,
+    ):
 
         QtCore.QObject.__init__(self)
         self.killed = False
@@ -74,9 +125,9 @@ class Worker(QtCore.QObject):
         self.map_units = map_units
         self.header_sheet = header_sheet
         # self.wall_area_info = wall_area_info
-        self.input_path = plugin_dir + '/Input/'
+        self.input_path = plugin_dir + "/Input/"
         # self.output_path = plugin_dir + '/Output/'
-        self.output_path = plugin_dir[:-12] + 'suewsmodel/Input/'
+        self.output_path = plugin_dir[:-12] + "suewsmodel/Input/"
         self.plugin_dir = plugin_dir
         self.day_since_rain = day_since_rain
         self.leaf_cycle = leaf_cycle
@@ -101,13 +152,17 @@ class Worker(QtCore.QObject):
                 code = "Grid"
                 index = self.find_index(code)
                 new_line[index] = str(feat_id)
-                print('Processing ID: ' + str(feat_id))
+                print("Processing ID: " + str(feat_id))
                 year = None
                 year2 = None
 
                 if self.Metfile_path is None:
-                    QMessageBox.critical(None, "Error", "Meteorological data file has not been provided,"
-                                                        " please check the main tab")
+                    QMessageBox.critical(
+                        None,
+                        "Error",
+                        "Meteorological data file has not been provided,"
+                        " please check the main tab",
+                    )
                     return
                 elif os.path.isfile(self.Metfile_path[0]):
                     with open(self.Metfile_path[0]) as file:
@@ -127,7 +182,9 @@ class Worker(QtCore.QObject):
 
                     # figure out the time res of input file
                     if ind == 1:
-                        met_old = np.genfromtxt(self.Metfile_path[0], skip_header=1, skip_footer=2)
+                        met_old = np.genfromtxt(
+                            self.Metfile_path[0], skip_header=1, skip_footer=2
+                        )
                         id = met_old[:, 1]
                         it = met_old[:, 2]
                         imin = met_old[:, 3]
@@ -137,8 +194,11 @@ class Worker(QtCore.QObject):
                         ind = 999
 
                 else:
-                    QMessageBox.critical(None, "Error",
-                                         "Could not find the file containing meteorological data")
+                    QMessageBox.critical(
+                        None,
+                        "Error",
+                        "Could not find the file containing meteorological data",
+                    )
                     return
 
                 code = "Year"
@@ -176,10 +236,10 @@ class Worker(QtCore.QObject):
                 area = feature.geometry().area()
 
                 if self.map_units == 0:
-                    hectare = area * 0.0001 # meter
+                    hectare = area * 0.0001  # meter
 
                 elif self.map_units == 1:
-                    hectare = area / 107640. # square foot
+                    hectare = area / 107640.0  # square foot
 
                 else:
                     hectare = area
@@ -187,16 +247,16 @@ class Worker(QtCore.QObject):
                 lonlat = transform.TransformPoint(centroid.x(), centroid.y())
                 code = "lat"
                 index = self.find_index(code)
-                if gdalver == 3.:
-                    new_line[index] = '%.6f' % lonlat[0] #changed to gdal 3
+                if gdalver == 3.0:
+                    new_line[index] = "%.6f" % lonlat[0]  # changed to gdal 3
                 else:
-                    new_line[index] = '%.6f' % lonlat[1] #changed to gdal 2
+                    new_line[index] = "%.6f" % lonlat[1]  # changed to gdal 2
                 code = "lng"
                 index = self.find_index(code)
-                if gdalver == 3.:
-                    new_line[index] = '%.6f' % lonlat[1] #changed to gdal 3
+                if gdalver == 3.0:
+                    new_line[index] = "%.6f" % lonlat[1]  # changed to gdal 3
                 else:
-                    new_line[index] = '%.6f' % lonlat[0] #changed to gdal 2
+                    new_line[index] = "%.6f" % lonlat[0]  # changed to gdal 2
 
                 code = "Timezone"
                 index = self.find_index(code)
@@ -251,13 +311,27 @@ class Worker(QtCore.QObject):
                             print_line = False
 
                 else:
-                    LCF_paved = feature.attribute(self.LCF_paved.getFieldName())
-                    LCF_buildings = feature.attribute(self.LCF_buildings.getFieldName())
-                    LCF_evergreen = feature.attribute(self.LCF_evergreen.getFieldName())
-                    LCF_decidious = feature.attribute(self.LCF_decidious.getFieldName())
-                    LCF_grass = feature.attribute(self.LCF_grass.getFieldName())
-                    LCF_baresoil = feature.attribute(self.LCF_baresoil.getFieldName())
-                    LCF_water = feature.attribute(self.LCF_water.getFieldName())
+                    LCF_paved = feature.attribute(
+                        self.LCF_paved.getFieldName()
+                    )
+                    LCF_buildings = feature.attribute(
+                        self.LCF_buildings.getFieldName()
+                    )
+                    LCF_evergreen = feature.attribute(
+                        self.LCF_evergreen.getFieldName()
+                    )
+                    LCF_decidious = feature.attribute(
+                        self.LCF_decidious.getFieldName()
+                    )
+                    LCF_grass = feature.attribute(
+                        self.LCF_grass.getFieldName()
+                    )
+                    LCF_baresoil = feature.attribute(
+                        self.LCF_baresoil.getFieldName()
+                    )
+                    LCF_water = feature.attribute(
+                        self.LCF_water.getFieldName()
+                    )
 
                 code = "Fr_Paved"
                 index = self.find_index(code)
@@ -364,7 +438,9 @@ class Worker(QtCore.QObject):
                             IMP_wai = -999
                             print_line = False
                 else:
-                    IMP_heights_mean = feature.attribute(self.IMP_mean_height.getFieldName())
+                    IMP_heights_mean = feature.attribute(
+                        self.IMP_mean_height.getFieldName()
+                    )
                     IMP_z0 = feature.attribute(self.IMP_z0.getFieldName())
                     IMP_zd = feature.attribute(self.IMP_zd.getFieldName())
                     IMP_fai = feature.attribute(self.IMP_fai.getFieldName())
@@ -382,8 +458,8 @@ class Worker(QtCore.QObject):
                                 IMPveg_heights_mean_dec = split[3]
                                 IMPveg_fai_eve = split[2]
                                 IMPveg_fai_dec = split[2]
-                                IMPveg_max_eve = split[4]  #TODO not used yet
-                                IMPveg_sd_eve = split[5]  #TODO not used yet
+                                IMPveg_max_eve = split[4]  # TODO not used yet
+                                IMPveg_sd_eve = split[5]  # TODO not used yet
                                 IMPveg_max_dec = split[4]
                                 IMPveg_sd_dec = split[5]
                                 found_IMPveg_line = True
@@ -395,10 +471,18 @@ class Worker(QtCore.QObject):
                             IMPveg_fai_dec = -999
                             print_line = False
                 else:
-                    IMPveg_heights_mean_eve = feature.attribute(self.IMPveg_mean_height_eve.getFieldName())
-                    IMPveg_heights_mean_dec = feature.attribute(self.IMPveg_mean_height_dec.getFieldName())
-                    IMPveg_fai_eve = feature.attribute(self.IMPveg_fai_eve.getFieldName())
-                    IMPveg_fai_dec = feature.attribute(self.IMPveg_fai_dec.getFieldName())
+                    IMPveg_heights_mean_eve = feature.attribute(
+                        self.IMPveg_mean_height_eve.getFieldName()
+                    )
+                    IMPveg_heights_mean_dec = feature.attribute(
+                        self.IMPveg_mean_height_dec.getFieldName()
+                    )
+                    IMPveg_fai_eve = feature.attribute(
+                        self.IMPveg_fai_eve.getFieldName()
+                    )
+                    IMPveg_fai_dec = feature.attribute(
+                        self.IMPveg_fai_dec.getFieldName()
+                    )
 
                 code = "H_Bldgs"
                 index = self.find_index(code)
@@ -411,45 +495,70 @@ class Worker(QtCore.QObject):
                 new_line[index] = str(IMPveg_heights_mean_dec)
 
                 # New calcualtion of rouhgness params v2017 (Kent et al. 2017b)
-				# Evergreen not yet included in the calculations
+                # Evergreen not yet included in the calculations
                 LCF_de = float(LCF_decidious)
                 LCF_ev = float(LCF_evergreen)
                 LCF_bu = float(LCF_buildings)
-                LCF_tr = LCF_de + LCF_ev # temporary fix while ev and de is not separated, issue 155
-                if (LCF_de  == 0 and LCF_ev == 0 and LCF_bu == 0):
+                LCF_tr = (
+                    LCF_de + LCF_ev
+                )  # temporary fix while ev and de is not separated, issue 155
+                if LCF_de == 0 and LCF_ev == 0 and LCF_bu == 0:
                     zH = 0
                     zMAx = 0
                 else:
-                    zH = (float(IMP_heights_mean) * LCF_bu + float(IMPveg_heights_mean_eve) * LCF_ev + float(IMPveg_heights_mean_dec) * LCF_de) / (LCF_bu + LCF_ev + LCF_de)                    
-                    zMax = max(float(IMPveg_max_dec),float(IMP_max))
+                    zH = (
+                        float(IMP_heights_mean) * LCF_bu
+                        + float(IMPveg_heights_mean_eve) * LCF_ev
+                        + float(IMPveg_heights_mean_dec) * LCF_de
+                    ) / (LCF_bu + LCF_ev + LCF_de)
+                    zMax = max(float(IMPveg_max_dec), float(IMP_max))
 
-                if (LCF_de  == 0 and LCF_ev == 0 and LCF_bu == 0):
+                if LCF_de == 0 and LCF_ev == 0 and LCF_bu == 0:
                     sdComb = 0
                     IMP_z0 = 0
                     IMP_zd = 0
                     # sdTree = np.sqrt((IMPveg_sd_eve ^ 2 / LCF_evergreen * area) + (IMPveg_sd_dec ^ 2 / LCF_decidious * area))  # not used yet
-                elif (LCF_tr == 0 and LCF_bu != 0):
-                    sdComb = np.sqrt(float(IMP_sd) ** 2. / (LCF_bu * float(area)))  # Fix (fLCF_bu) issue #162
-                elif (LCF_tr != 0 and LCF_bu == 0):
-                    sdComb = np.sqrt(float(IMPveg_sd_dec) ** 2. / (LCF_tr * float(area)))
-                elif (LCF_tr != 0 and LCF_bu != 0):
-                    sdComb = np.sqrt(float(IMPveg_sd_dec) ** 2. / (LCF_tr * float(area)) + float(IMP_sd) ** 2. / (LCF_bu * float(area)))
+                elif LCF_tr == 0 and LCF_bu != 0:
+                    # Fix (fLCF_bu) issue #162
+                    sdComb = np.sqrt(
+                        float(IMP_sd) ** 2.0 / (LCF_bu * float(area))
+                    )
+                elif LCF_tr != 0 and LCF_bu == 0:
+                    sdComb = np.sqrt(
+                        float(IMPveg_sd_dec) ** 2.0 / (LCF_tr * float(area))
+                    )
+                elif LCF_tr != 0 and LCF_bu != 0:
+                    sdComb = np.sqrt(
+                        float(IMPveg_sd_dec) ** 2.0 / (LCF_tr * float(area))
+                        + float(IMP_sd) ** 2.0 / (LCF_bu * float(area))
+                    )
 
                 pai = LCF_bu + LCF_ev + LCF_de
-                
+
                 # paiall = (planareaB + planareaV) / AT
-                porosity = 0.2  # This should change with season. Net, set for Summer
-                Pv = ((-1.251 * porosity ** 2) / 1.2) + ((0.489 * porosity) / 1.2) + (0.803 / 1.2)  # factor accounting for porosity to correct total fai in roughness calc Kent et al. 2017b
+                porosity = (
+                    0.2  # This should change with season. Net, set for Summer
+                )
+                # factor accounting for porosity to correct total fai in roughness calc Kent et al. 2017b
+                Pv = (
+                    ((-1.251 * porosity**2) / 1.2)
+                    + ((0.489 * porosity) / 1.2)
+                    + (0.803 / 1.2)
+                )
                 # faiall_rgh = (frontalareaB + (Pv * frontalareaV)) / (AT / (1 / scale))  # frontal area used in roughness calculation Kent et al. 2017b
-                fai = Pv * (float(IMPveg_fai_eve) + float(IMPveg_fai_dec)) + float(IMP_fai)
-                if (fai == 0. and pai == 1.):
-                    IMP_z0 = 0.
+                fai = Pv * (
+                    float(IMPveg_fai_eve) + float(IMPveg_fai_dec)
+                ) + float(IMP_fai)
+                if fai == 0.0 and pai == 1.0:
+                    IMP_z0 = 0.0
                     IMP_zd = zH
-                elif (fai == 0. and pai < 1.):
-                    IMP_z0 = 0.
-                    IMP_zd = 0.
+                elif fai == 0.0 and pai < 1.0:
+                    IMP_z0 = 0.0
+                    IMP_zd = 0.0
                 else:
-                    IMP_zd, IMP_z0 = rg.RoughnessCalc("Kan", zH, fai, pai, zMax, sdComb)
+                    IMP_zd, IMP_z0 = rg.RoughnessCalc(
+                        "Kan", zH, fai, pai, zMax, sdComb
+                    )
 
                 # clean up and give open country values if non-existant
                 if np.isnan(IMP_z0) or IMP_z0 < 0.03:
@@ -459,10 +568,10 @@ class Worker(QtCore.QObject):
 
                 code = "z0"
                 index = self.find_index(code)
-                new_line[index] = '%.3f' % IMP_z0
+                new_line[index] = "%.3f" % IMP_z0
                 code = "zd"
                 index = self.find_index(code)
-                new_line[index] = '%.3f' % IMP_zd
+                new_line[index] = "%.3f" % IMP_zd
                 code = "FAI_Bldgs"
                 index = self.find_index(code)
                 new_line[index] = str(IMP_fai)
@@ -477,44 +586,70 @@ class Worker(QtCore.QObject):
                 code = "z"
                 index = self.find_index(code)
                 try:
-                    z = ((float(IMP_heights_mean) * float(LCF_buildings) + float(IMPveg_heights_mean_eve) * float(LCF_evergreen) +
-                        float(IMPveg_heights_mean_dec) * float(LCF_decidious)) / (float(LCF_buildings) + float(LCF_evergreen) + float(LCF_decidious))) * 3
+                    z = (
+                        (
+                            float(IMP_heights_mean) * float(LCF_buildings)
+                            + float(IMPveg_heights_mean_eve)
+                            * float(LCF_evergreen)
+                            + float(IMPveg_heights_mean_dec)
+                            * float(LCF_decidious)
+                        )
+                        / (
+                            float(LCF_buildings)
+                            + float(LCF_evergreen)
+                            + float(LCF_decidious)
+                        )
+                    ) * 3
                 except:
-                    z = 10.
-                if z < 10.:
-                    z = 10.
-                new_line[index] = '%.3f' % z
+                    z = 10.0
+                if z < 10.0:
+                    z = 10.0
+                new_line[index] = "%.3f" % z
 
                 if self.pop_density is not None:
-                    pop_density_night = feature.attribute(self.pop_density.currentField())
+                    pop_density_night = feature.attribute(
+                        self.pop_density.currentField()
+                    )
                 else:
                     pop_density_night = -999
 
                 if self.daypop == 1:
-                    pop_density_day = feature.attribute(self.pop_density_day.currentField())
+                    pop_density_day = feature.attribute(
+                        self.pop_density_day.currentField()
+                    )
                 else:
                     pop_density_day = pop_density_night
                 code = "PopDensDay"
                 index = self.find_index(code)
-                new_line[index] = '%.3f' % pop_density_day
+                new_line[index] = "%.3f" % pop_density_day
                 code = "PopDensNight"
                 index = self.find_index(code)
-                new_line[index] = '%.3f' % pop_density_night
+                new_line[index] = "%.3f" % pop_density_night
                 for widget in self.widget_list:
                     if widget.get_checkstate():
-                        code_field = str(widget.comboBox_uniquecodes.currentText())
+                        code_field = str(
+                            widget.comboBox_uniquecodes.currentText()
+                        )
                         try:
                             code = int(feature.attribute(code_field))
                         except ValueError as e:
-                            QMessageBox.critical(None, "Error",
-                                                 "Unique code field for widget " + widget.get_title() +
-                                                 " should only contain integers")
+                            QMessageBox.critical(
+                                None,
+                                "Error",
+                                "Unique code field for widget "
+                                + widget.get_title()
+                                + " should only contain integers",
+                            )
                             return
                         match = widget.comboBox.findText(str(code))
                         if match == -1:
-                            QMessageBox.critical(None, "Error",
-                                                 "Unique code field for widget " + widget.get_title() +
-                                                 " contains one or more codes with no match in site library")
+                            QMessageBox.critical(
+                                None,
+                                "Error",
+                                "Unique code field for widget "
+                                + widget.get_title()
+                                + " contains one or more codes with no match in site library",
+                            )
                             return
                         index = widget.get_sitelistpos()
                         new_line[index - 1] = str(code)
@@ -654,19 +789,20 @@ class Worker(QtCore.QObject):
 
                 code = "AreaWall"
                 index = self.find_index(code)
-                new_line[index] = str(float(IMP_wai) * hectare * 10000.) # currently wallarea. Will change to wai
+                # currently wallarea. Will change to wai
+                new_line[index] = str(float(IMP_wai) * hectare * 10000.0)
 
-                Fr_ESTMClass_Paved1 = 0.
-                Fr_ESTMClass_Paved2 = 1.
-                Fr_ESTMClass_Paved3 = 0.
+                Fr_ESTMClass_Paved1 = 0.0
+                Fr_ESTMClass_Paved2 = 1.0
+                Fr_ESTMClass_Paved3 = 0.0
                 Code_ESTMClass_Paved1 = 99999
                 Code_ESTMClass_Paved2 = 807
                 Code_ESTMClass_Paved3 = 99999
                 Fr_ESTMClass_Bldgs1 = 1.0
-                Fr_ESTMClass_Bldgs2 = 0.
-                Fr_ESTMClass_Bldgs3 = 0.
-                Fr_ESTMClass_Bldgs4 = 0.
-                Fr_ESTMClass_Bldgs5 = 0.
+                Fr_ESTMClass_Bldgs2 = 0.0
+                Fr_ESTMClass_Bldgs3 = 0.0
+                Fr_ESTMClass_Bldgs4 = 0.0
+                Fr_ESTMClass_Bldgs5 = 0.0
                 Code_ESTMClass_Bldgs1 = 801
                 Code_ESTMClass_Bldgs2 = 99999
                 Code_ESTMClass_Bldgs3 = 99999
@@ -683,7 +819,11 @@ class Worker(QtCore.QObject):
                                 Fr_ESTMClass_Paved1 = split[1]
                                 Fr_ESTMClass_Paved2 = split[2]
                                 Fr_ESTMClass_Paved3 = split[3]
-                                if (float(Fr_ESTMClass_Paved1) == 0 and float(Fr_ESTMClass_Paved2) == 0 and float(Fr_ESTMClass_Paved3) == 0):
+                                if (
+                                    float(Fr_ESTMClass_Paved1) == 0
+                                    and float(Fr_ESTMClass_Paved2) == 0
+                                    and float(Fr_ESTMClass_Paved3) == 0
+                                ):
                                     Fr_ESTMClass_Paved2 = 1.0
                                 Code_ESTMClass_Paved1 = split[4]
                                 Code_ESTMClass_Paved2 = split[5]
@@ -693,7 +833,13 @@ class Worker(QtCore.QObject):
                                 Fr_ESTMClass_Bldgs3 = split[9]
                                 Fr_ESTMClass_Bldgs4 = split[10]
                                 Fr_ESTMClass_Bldgs5 = split[11]
-                                if (float(Fr_ESTMClass_Bldgs1) == 0 and float(Fr_ESTMClass_Bldgs2) == 0 and float(Fr_ESTMClass_Bldgs3) == 0 and float(Fr_ESTMClass_Bldgs4) == 0 and float(Fr_ESTMClass_Bldgs5) == 0):
+                                if (
+                                    float(Fr_ESTMClass_Bldgs1) == 0
+                                    and float(Fr_ESTMClass_Bldgs2) == 0
+                                    and float(Fr_ESTMClass_Bldgs3) == 0
+                                    and float(Fr_ESTMClass_Bldgs4) == 0
+                                    and float(Fr_ESTMClass_Bldgs5) == 0
+                                ):
                                     Fr_ESTMClass_Bldgs3 = 1.0
                                 Code_ESTMClass_Bldgs1 = split[12]
                                 Code_ESTMClass_Bldgs2 = split[13]
@@ -786,15 +932,40 @@ class Worker(QtCore.QObject):
             for YYYY in range(int(YYYYmin), int(YYYYmax) + 1):
                 # find start end end of 5 min file for each year
                 if res == 60:
-                    posstart = np.where((met_in[:, 0] == YYYY) & (met_in[:, 1] == 1) & (met_in[:, 2] == 1) & (met_in[:, 3] == 0))
+                    posstart = np.where(
+                        (met_in[:, 0] == YYYY)
+                        & (met_in[:, 1] == 1)
+                        & (met_in[:, 2] == 1)
+                        & (met_in[:, 3] == 0)
+                    )
                 elif res == 120:
-                    posstart = np.where((met_in[:, 0] == YYYY) & (met_in[:, 1] == 1) & (met_in[:, 2] == 2) & (met_in[:, 3] == 0))
+                    posstart = np.where(
+                        (met_in[:, 0] == YYYY)
+                        & (met_in[:, 1] == 1)
+                        & (met_in[:, 2] == 2)
+                        & (met_in[:, 3] == 0)
+                    )
                 elif res == 180:
-                    posstart = np.where((met_in[:, 0] == YYYY) & (met_in[:, 1] == 1) & (met_in[:, 2] == 3) & (met_in[:, 3] == 0))
+                    posstart = np.where(
+                        (met_in[:, 0] == YYYY)
+                        & (met_in[:, 1] == 1)
+                        & (met_in[:, 2] == 3)
+                        & (met_in[:, 3] == 0)
+                    )
                 else:
-                    posstart = np.where((met_in[:, 0] == YYYY) & (met_in[:, 1] == 1) & (met_in[:, 2] == 0) & (met_in[:, 3] == res))
+                    posstart = np.where(
+                        (met_in[:, 0] == YYYY)
+                        & (met_in[:, 1] == 1)
+                        & (met_in[:, 2] == 0)
+                        & (met_in[:, 3] == res)
+                    )
 
-                posend = np.where((met_in[:, 0] == (YYYY + 1)) & (met_in[:, 1] == 1) & (met_in[:, 2] == 0) & (met_in[:, 3] == 0))
+                posend = np.where(
+                    (met_in[:, 0] == (YYYY + 1))
+                    & (met_in[:, 1] == 1)
+                    & (met_in[:, 2] == 0)
+                    & (met_in[:, 3] == 0)
+                )
                 fixpos = 1
 
                 if len(posstart[0]) == 0:
@@ -807,35 +978,67 @@ class Worker(QtCore.QObject):
                 else:
                     ending = posend[0]
 
-                met_save = met_in[int(starting):int(ending) + fixpos, :]  # originally for one full year
+                # originally for one full year
+                met_save = met_in[int(starting) : int(ending) + fixpos, :]
 
                 # --- save met-file --- #
-                data_out = self.output_dir[0] + "/" + self.file_code + '_' + str(YYYY) + '_data_' + str(res) + '.txt'
-                header = '%iy id it imin Q* QH QE Qs Qf Wind RH Td press rain Kdn snow ldown fcld wuh xsmd lai_hr ' \
-                         'Kdiff Kdir Wd'
-                numformat = '%3d %2d %3d %2d %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.4f %6.2f %6.2f ' \
-                            '%6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.2f'
+                data_out = (
+                    self.output_dir[0]
+                    + "/"
+                    + self.file_code
+                    + "_"
+                    + str(YYYY)
+                    + "_data_"
+                    + str(res)
+                    + ".txt"
+                )
+                header = (
+                    "%iy id it imin Q* QH QE Qs Qf Wind RH Td press rain Kdn snow ldown fcld wuh xsmd lai_hr "
+                    "Kdiff Kdir Wd"
+                )
+                numformat = (
+                    "%3d %2d %3d %2d %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.4f %6.2f %6.2f "
+                    "%6.2f %6.2f %6.4f %6.2f %6.2f %6.2f %6.2f %6.2f"
+                )
 
-                np.savetxt(data_out, met_save, fmt=numformat, delimiter=' ', header=header, comments='')
+                np.savetxt(
+                    data_out,
+                    met_save,
+                    fmt=numformat,
+                    delimiter=" ",
+                    header=header,
+                    comments="",
+                )
 
                 # Add new year in SiteSelect
                 if addrows > 0:
                     for i in range(0, lensiteselect):
-                        lines_to_write_oneyear = copy.copy(self.lines_to_write[i+2])
+                        lines_to_write_oneyear = copy.copy(
+                            self.lines_to_write[i + 2]
+                        )
                         lines_to_write_oneyear[1] = str(YYYY)
                         self.lines_to_write.append(lines_to_write_oneyear)
                 addrows += 1
 
-            init_out = self.output_dir[0] + '/InitialConditions' + str(self.file_code) + '_' + str(year) + '.nml'
-            self.write_to_init(self.input_path + 'InitialConditions.nml', init_out)
+            init_out = (
+                self.output_dir[0]
+                + "/InitialConditions"
+                + str(self.file_code)
+                + "_"
+                + str(year)
+                + ".nml"
+            )
+            self.write_to_init(
+                self.input_path + "InitialConditions.nml", init_out
+            )
 
             output_lines = []
             output_file = self.output_dir[0] + "/SUEWS_SiteSelect.txt"
-            with open(output_file, 'w+') as ofile:
+            with open(output_file, "w+") as ofile:
                 for line in self.lines_to_write:
-                    string_to_print = ''
+                    string_to_print = ""
                     for element in line:
-                        string_to_print += str(element) + '\t'
+                        string_to_print += str(element) + "\t"
                     string_to_print += "\n"
                     output_lines.append(string_to_print)
                 output_lines.append("-9\n")
@@ -843,12 +1046,19 @@ class Worker(QtCore.QObject):
                 ofile.writelines(output_lines)
                 for input_file in self.output_file_list:
                     try:
-                        print("Copied: " + self.output_dir[0] + "/" + input_file)
-                        copyfile(self.output_path + input_file, self.output_dir[0] + "/" + input_file)
+                        print(
+                            "Copied: " + self.output_dir[0] + "/" + input_file
+                        )
+                        copyfile(
+                            self.output_path + input_file,
+                            self.output_dir[0] + "/" + input_file,
+                        )
                     except IOError as e:
                         QgsMessageLog.logMessage(
-                            "Error copying output files with SUEWS_SiteSelect.txt: " + str(e),
-                            level=Qgis.MessageLevel.Critical)
+                            "Error copying output files with SUEWS_SiteSelect.txt: "
+                            + str(e),
+                            level=Qgis.MessageLevel.Critical,
+                        )
 
             if self.killed is False:
                 self.progress.emit()
@@ -871,7 +1081,9 @@ class Worker(QtCore.QObject):
         filename = f.f_code.co_filename
         linecache.checkcache(filename)
         line = linecache.getline(filename, lineno, f.f_globals)
-        return 'EXCEPTION IN {}, \nLINE {} "{}" \nERROR MESSAGE: {}'.format(filename, lineno, line.strip(), exc_obj)
+        return 'EXCEPTION IN {}, \nLINE {} "{}" \nERROR MESSAGE: {}'.format(
+            filename, lineno, line.strip(), exc_obj
+        )
 
     def find_index(self, code):
         values = self.header_sheet.row_values(1)
@@ -886,103 +1098,103 @@ class Worker(QtCore.QObject):
 
         nml = f90nml.read(initfilein)
 
-        nml['initialconditions']['soilstorepavedstate'] = moist
-        nml['initialconditions']['soilstorebldgsstate'] = moist
-        nml['initialconditions']['soilstoreevetrstate'] = moist
-        nml['initialconditions']['soilstoredectrstate'] = moist
-        nml['initialconditions']['soilstoregrassstate'] = moist
-        nml['initialconditions']['soilstorebsoilstate'] = moist
+        nml["initialconditions"]["soilstorepavedstate"] = moist
+        nml["initialconditions"]["soilstorebldgsstate"] = moist
+        nml["initialconditions"]["soilstoreevetrstate"] = moist
+        nml["initialconditions"]["soilstoredectrstate"] = moist
+        nml["initialconditions"]["soilstoregrassstate"] = moist
+        nml["initialconditions"]["soilstorebsoilstate"] = moist
 
         # Based on London data
         if LeafCycle == 1:  # Winter
-            nml['initialconditions']['gdd_1_0'] = 0
-            nml['initialconditions']['gdd_2_0'] = -450
-            nml['initialconditions']['laiinitialevetr'] = 4
-            nml['initialconditions']['laiinitialdectr'] = 1
-            nml['initialconditions']['laiinitialgrass'] = 1.6
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.3
-            nml['initialconditions']['porosity0'] = 0.2
+            nml["initialconditions"]["gdd_1_0"] = 0
+            nml["initialconditions"]["gdd_2_0"] = -450
+            nml["initialconditions"]["laiinitialevetr"] = 4
+            nml["initialconditions"]["laiinitialdectr"] = 1
+            nml["initialconditions"]["laiinitialgrass"] = 1.6
+            nml["initialconditions"]["albEveTr0"] = 0.10
+            nml["initialconditions"]["albDecTr0"] = 0.12
+            nml["initialconditions"]["albGrass0"] = 0.18
+            nml["initialconditions"]["decidCap0"] = 0.3
+            nml["initialconditions"]["porosity0"] = 0.2
         elif LeafCycle == 2:
-            nml['initialconditions']['gdd_1_0'] = 50
-            nml['initialconditions']['gdd_2_0'] = -400
-            nml['initialconditions']['laiinitialevetr'] = 4.2
-            nml['initialconditions']['laiinitialdectr'] = 2.0
-            nml['initialconditions']['laiinitialgrass'] = 2.6
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.4
-            nml['initialconditions']['porosity0'] = 0.3
+            nml["initialconditions"]["gdd_1_0"] = 50
+            nml["initialconditions"]["gdd_2_0"] = -400
+            nml["initialconditions"]["laiinitialevetr"] = 4.2
+            nml["initialconditions"]["laiinitialdectr"] = 2.0
+            nml["initialconditions"]["laiinitialgrass"] = 2.6
+            nml["initialconditions"]["albEveTr0"] = 0.10
+            nml["initialconditions"]["albDecTr0"] = 0.12
+            nml["initialconditions"]["albGrass0"] = 0.18
+            nml["initialconditions"]["decidCap0"] = 0.4
+            nml["initialconditions"]["porosity0"] = 0.3
         elif LeafCycle == 3:
-            nml['initialconditions']['gdd_1_0'] = 150
-            nml['initialconditions']['gdd_2_0'] = -300
-            nml['initialconditions']['laiinitialevetr'] = 4.6
-            nml['initialconditions']['laiinitialdectr'] = 3.0
-            nml['initialconditions']['laiinitialgrass'] = 3.6
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.6
-            nml['initialconditions']['porosity0'] = 0.5
+            nml["initialconditions"]["gdd_1_0"] = 150
+            nml["initialconditions"]["gdd_2_0"] = -300
+            nml["initialconditions"]["laiinitialevetr"] = 4.6
+            nml["initialconditions"]["laiinitialdectr"] = 3.0
+            nml["initialconditions"]["laiinitialgrass"] = 3.6
+            nml["initialconditions"]["albEveTr0"] = 0.10
+            nml["initialconditions"]["albDecTr0"] = 0.12
+            nml["initialconditions"]["albGrass0"] = 0.18
+            nml["initialconditions"]["decidCap0"] = 0.6
+            nml["initialconditions"]["porosity0"] = 0.5
         elif LeafCycle == 4:
-            nml['initialconditions']['gdd_1_0'] = 225
-            nml['initialconditions']['gdd_2_0'] = -150
-            nml['initialconditions']['laiinitialevetr'] = 4.9
-            nml['initialconditions']['laiinitialdectr'] = 4.5
-            nml['initialconditions']['laiinitialgrass'] = 4.6
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.8
-            nml['initialconditions']['porosity0'] = 0.6
+            nml["initialconditions"]["gdd_1_0"] = 225
+            nml["initialconditions"]["gdd_2_0"] = -150
+            nml["initialconditions"]["laiinitialevetr"] = 4.9
+            nml["initialconditions"]["laiinitialdectr"] = 4.5
+            nml["initialconditions"]["laiinitialgrass"] = 4.6
+            nml["initialconditions"]["albEveTr0"] = 0.10
+            nml["initialconditions"]["albDecTr0"] = 0.12
+            nml["initialconditions"]["albGrass0"] = 0.18
+            nml["initialconditions"]["decidCap0"] = 0.8
+            nml["initialconditions"]["porosity0"] = 0.6
         elif LeafCycle == 5:  # Summer
-            nml['initialconditions']['gdd_1_0'] = 300
-            nml['initialconditions']['gdd_2_0'] = 0
-            nml['initialconditions']['laiinitialevetr'] = 5.1
-            nml['initialconditions']['laiinitialdectr'] = 5.5
-            nml['initialconditions']['laiinitialgrass'] = 5.9
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.8
-            nml['initialconditions']['porosity0'] = 0.6
+            nml["initialconditions"]["gdd_1_0"] = 300
+            nml["initialconditions"]["gdd_2_0"] = 0
+            nml["initialconditions"]["laiinitialevetr"] = 5.1
+            nml["initialconditions"]["laiinitialdectr"] = 5.5
+            nml["initialconditions"]["laiinitialgrass"] = 5.9
+            nml["initialconditions"]["albEveTr0"] = 0.10
+            nml["initialconditions"]["albDecTr0"] = 0.12
+            nml["initialconditions"]["albGrass0"] = 0.18
+            nml["initialconditions"]["decidCap0"] = 0.8
+            nml["initialconditions"]["porosity0"] = 0.6
         elif LeafCycle == 6:
-            nml['initialconditions']['gdd_1_0'] = 225
-            nml['initialconditions']['gdd_2_0'] = -150
-            nml['initialconditions']['laiinitialevetr'] = 4.9
-            nml['initialconditions']['laiinitialdectr'] = 4, 5
-            nml['initialconditions']['laiinitialgrass'] = 4.6
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.8
-            nml['initialconditions']['porosity0'] = 0.5
+            nml["initialconditions"]["gdd_1_0"] = 225
+            nml["initialconditions"]["gdd_2_0"] = -150
+            nml["initialconditions"]["laiinitialevetr"] = 4.9
+            nml["initialconditions"]["laiinitialdectr"] = 4, 5
+            nml["initialconditions"]["laiinitialgrass"] = 4.6
+            nml["initialconditions"]["albEveTr0"] = 0.10
+            nml["initialconditions"]["albDecTr0"] = 0.12
+            nml["initialconditions"]["albGrass0"] = 0.18
+            nml["initialconditions"]["decidCap0"] = 0.8
+            nml["initialconditions"]["porosity0"] = 0.5
         elif LeafCycle == 7:
-            nml['initialconditions']['gdd_1_0'] = 150
-            nml['initialconditions']['gdd_2_0'] = -300
-            nml['initialconditions']['laiinitialevetr'] = 4.6
-            nml['initialconditions']['laiinitialdectr'] = 3.0
-            nml['initialconditions']['laiinitialgrass'] = 3.6
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.5
-            nml['initialconditions']['porosity0'] = 0.4
+            nml["initialconditions"]["gdd_1_0"] = 150
+            nml["initialconditions"]["gdd_2_0"] = -300
+            nml["initialconditions"]["laiinitialevetr"] = 4.6
+            nml["initialconditions"]["laiinitialdectr"] = 3.0
+            nml["initialconditions"]["laiinitialgrass"] = 3.6
+            nml["initialconditions"]["albEveTr0"] = 0.10
+            nml["initialconditions"]["albDecTr0"] = 0.12
+            nml["initialconditions"]["albGrass0"] = 0.18
+            nml["initialconditions"]["decidCap0"] = 0.5
+            nml["initialconditions"]["porosity0"] = 0.4
         elif LeafCycle == 8:  # Late Autumn
-            nml['initialconditions']['gdd_1_0'] = 50
-            nml['initialconditions']['gdd_2_0'] = -400
-            nml['initialconditions']['laiinitialevetr'] = 4.2
-            nml['initialconditions']['laiinitialdectr'] = 2.0
-            nml['initialconditions']['laiinitialgrass'] = 2.6
-            nml['initialconditions']['albEveTr0'] = 0.10
-            nml['initialconditions']['albDecTr0'] = 0.12
-            nml['initialconditions']['albGrass0'] = 0.18
-            nml['initialconditions']['decidCap0'] = 0.4
-            nml['initialconditions']['porosity0'] = 0.2
+            nml["initialconditions"]["gdd_1_0"] = 50
+            nml["initialconditions"]["gdd_2_0"] = -400
+            nml["initialconditions"]["laiinitialevetr"] = 4.2
+            nml["initialconditions"]["laiinitialdectr"] = 2.0
+            nml["initialconditions"]["laiinitialgrass"] = 2.6
+            nml["initialconditions"]["albEveTr0"] = 0.10
+            nml["initialconditions"]["albDecTr0"] = 0.12
+            nml["initialconditions"]["albGrass0"] = 0.18
+            nml["initialconditions"]["decidCap0"] = 0.4
+            nml["initialconditions"]["porosity0"] = 0.2
 
-        nml['initialconditions']['snowinitially'] = snowinitially
+        nml["initialconditions"]["snowinitially"] = snowinitially
 
         nml.write(initfileout, force=True)

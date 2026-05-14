@@ -114,4 +114,3 @@
 #                 raise ValueError('Custom temperature response parameters had invalid number in entry: ' + str(cl))
 #             except Exception as e:
 #                 raise Exception(str(e))
-

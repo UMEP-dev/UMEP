@@ -21,17 +21,19 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
+
 # from qgis.gui import QgsMessageBar
 import webbrowser
 from qgis.core import Qgis
 from pathlib import Path
+
 # import tempfile
 
 # Initialize Qt resources from file resources.py
-from .resources import *
 # Import the code for the dialog
 from .suews_converter_dialog import SUEWSConverterDialog
 import os.path
@@ -53,11 +55,10 @@ class SUEWSConverter:
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'SUEWSConverter_{}.qm'.format(locale))
+            self.plugin_dir, "i18n", "SUEWSConverter_{}.qm".format(locale)
+        )
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
@@ -66,7 +67,7 @@ class SUEWSConverter:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&SUEWS Converter')
+        self.menu = self.tr("&SUEWS Converter")
 
         self.dlg = SUEWSConverterDialog()
 
@@ -98,8 +99,7 @@ class SUEWSConverter:
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('SUEWSConverter', message)
-
+        return QCoreApplication.translate("SUEWSConverter", message)
 
     def add_action(
         self,
@@ -111,7 +111,8 @@ class SUEWSConverter:
         add_to_toolbar=True,
         status_tip=None,
         whats_this=None,
-        parent=None):
+        parent=None,
+    ):
 
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
@@ -129,9 +130,7 @@ class SUEWSConverter:
             self.iface.addToolBarIcon(action)
 
         if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action)
+            self.iface.addPluginToMenu(self.menu, action)
 
         self.actions.append(action)
 
@@ -140,12 +139,13 @@ class SUEWSConverter:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/suews_converter/icon.png'
+        icon_path = ":/plugins/suews_converter/icon.png"
         self.add_action(
             icon_path,
-            text=self.tr(u''),
+            text=self.tr(""),
             callback=self.run,
-            parent=self.iface.mainWindow())
+            parent=self.iface.mainWindow(),
+        )
 
         # will be set False in run()
         self.first_start = True
@@ -153,9 +153,7 @@ class SUEWSConverter:
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
-            self.iface.removePluginMenu(
-                self.tr(u'&SUEWS Converter'),
-                action)
+            self.iface.removePluginMenu(self.tr("&SUEWS Converter"), action)
             self.iface.removeToolBarIcon(action)
 
     def folder_path_out(self):
@@ -186,11 +184,15 @@ class SUEWSConverter:
 
         try:
             # from supy.util._converter import convert_table
-            from supy.util.converter import convert_to_yaml
+            pass
         except Exception as e:
-            QMessageBox.critical(None, 'SUEWS Converter', 'This plugin requires the correct version of supy package to be installed OR upgraded. '
-                                        'See Section 2.3 in the UMEP-manual for further information on how ' 
-                                        'to install external python packages in QGIS3.')
+            QMessageBox.critical(
+                None,
+                "SUEWS Converter",
+                "This plugin requires the correct version of supy package to be installed OR upgraded. "
+                "See Section 2.3 in the UMEP-manual for further information on how "
+                "to install external python packages in QGIS3.",
+            )
             return
 
         # Create the dialog with elements (after translation) and keep reference
@@ -204,7 +206,7 @@ class SUEWSConverter:
         self.dlg.exec()
 
     def help(self):
-        url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Energy%20Balance%20SUEWS%20Converter.html'
+        url = "https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Energy%20Balance%20SUEWS%20Converter.html"
         webbrowser.open_new_tab(url)
 
     def start_progress(self):
@@ -224,13 +226,21 @@ class SUEWSConverter:
         try:
             # convert_table(fromDir, toDir, fromVer, toVer)
             convert_to_yaml(fromDir, toDir)
-            self.iface.messageBar().pushMessage("SUEWS Converter", "Data successfully converted to lastest version",
-                                                 level=Qgis.MessageLevel.Success)
+            self.iface.messageBar().pushMessage(
+                "SUEWS Converter",
+                "Data successfully converted to lastest version",
+                level=Qgis.MessageLevel.Success,
+            )
             # self.iface.messageBar().pushMessage("SUEWS Converter", "Data successfully converted between: "
             #             + fromVer + " to " + toVer, level=Qgis.Success)
         except Exception as e:
-            QMessageBox.critical(self.dlg, "An error occurred", str(e) + "\r\n\r\n"
-                                "Check: " + str(list(Path.cwd().glob('SuPy.log'))[0]) + "\r\n\r\n"
-                                "Please report any errors to https://github.com/UMEP-dev/UMEP/issues")
+            QMessageBox.critical(
+                self.dlg,
+                "An error occurred",
+                str(e) + "\r\n\r\n"
+                "Check: "
+                + str(list(Path.cwd().glob("SuPy.log"))[0])
+                + "\r\n\r\n"
+                "Please report any errors to https://github.com/UMEP-dev/UMEP/issues",
+            )
             return
-

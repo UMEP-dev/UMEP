@@ -1,8 +1,9 @@
 import numpy as np
 
+
 def Tgmaps_v1(lc_grid, lc_class):
 
-    #Tgmaps_v1 Populates grids with cooeficients for Tg wave
+    # Tgmaps_v1 Populates grids with cooeficients for Tg wave
     #   Detailed explanation goes here
 
     id = np.unique(lc_grid)
@@ -13,7 +14,7 @@ def Tgmaps_v1(lc_grid, lc_class):
     TmaxLST = np.copy(lc_grid)
 
     for i in np.arange(0, id.__len__()):
-        row = (lc_class[:, 0] == id[i])
+        row = lc_class[:, 0] == id[i]
         Tstart[Tstart == id[i]] = lc_class[row, 4]
         alb_grid[alb_grid == id[i]] = lc_class[row, 1]
         emis_grid[emis_grid == id[i]] = lc_class[row, 2]
@@ -25,4 +26,13 @@ def Tgmaps_v1(lc_grid, lc_class):
     Tstart_wall = lc_class[wall_pos, 4]
     TmaxLST_wall = lc_class[wall_pos, 5]
 
-    return TgK, Tstart, alb_grid, emis_grid, TgK_wall, Tstart_wall, TmaxLST, TmaxLST_wall
+    return (
+        TgK,
+        Tstart,
+        alb_grid,
+        emis_grid,
+        TgK_wall,
+        Tstart_wall,
+        TmaxLST,
+        TmaxLST_wall,
+    )

@@ -32,4 +32,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .suews_analyzer import SUEWSAnalyzer
+
     return SUEWSAnalyzer(iface)

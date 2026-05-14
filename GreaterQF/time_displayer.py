@@ -1,15 +1,24 @@
 from __future__ import absolute_import
+from datetime import datetime as dt
+from .PythonQF2.DataManagement.spatialHelpers import (
+    populateShapefileFromTemplate,
+    colourRanges,
+    duplicateVectorLayer,
+)
+from qgis.core import QgsProject
 from builtins import map
 from builtins import str
 from qgis.PyQt import uic
 from qgis.PyQt.QtWidgets import QListWidgetItem, QDialog
+
 # from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 # from qgis.PyQt.QtWidgets import QAction, QMessageBox, QFileDialog
 # from qgis.PyQt.QtGui import QIcon
 import os
-FORM_CLASS, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__), 'time_displayer.ui'))
-from qgis.core import QgsMapRendererJob, QgsRectangle, QgsProject
-from .PythonQF2.DataManagement.spatialHelpers import populateShapefileFromTemplate, colourRanges, openShapeFileInMemory, duplicateVectorLayer
+
+FORM_CLASS, _ = uic.loadUiType(
+    os.path.join(os.path.dirname(__file__), "time_displayer.ui")
+)
 try:
     import pandas as pd
     import numpy as np
@@ -18,14 +27,14 @@ try:
 except:
     pass
 
-from datetime import datetime as dt
-from qgis.PyQt.QtGui import QImage, QColor, QPainter
-from qgis.PyQt.QtCore import QSize
 
 def makeRect(color):
-    return Rectangle((0,0), 1, 1,fc=color)
+    return Rectangle((0, 0), 1, 1, fc=color)
+
 
 # Creates a dialog box that allow different model output time slices to be visualised in QGIS
+
+
 def intOrString(x):
     # Return integer representation if possible, or string if not
     try:
@@ -33,15 +42,16 @@ def intOrString(x):
     except:
         return str(x)
 
+
 class time_displayer(QDialog, FORM_CLASS):
     def __init__(self, model, iface, parent=None):
-        '''
+        """
         Given a folder containing model outputs and DataSources object, this widget displays all available time steps
         No sanity is applied: if a valid GreaterQF output file is present in the folder, this widget will try to display it
         :param dataSources: GreaterQF DataSources object for the model run
         :param modelOutputFolder: Folder containing model outputs for the model run
         :param parent:
-        '''
+        """
         """Constructor."""
         super(time_displayer, self).__init__(parent)
         self.setupUi(self)
@@ -49,176 +59,261 @@ class time_displayer(QDialog, FORM_CLASS):
         self.cmdTimeseries.clicked.connect(self.makeTimeseries)
         self.cmdAddMap.clicked.connect(self.updateDisplay)
         self.model = model
-        self.selectedTime = None # The time currently selected
-        self.selectedArea = None # The area currently selected
+        self.selectedTime = None  # The time currently selected
+        self.selectedArea = None  # The area currently selected
 
         # Deal with output layer
         outlay = self.model.getOutputLayerInfo()
-        self.featureIdField = outlay['featureIds']
-        self.outputEPSG = outlay['EPSG']
-        self.outputLayer = outlay['file']# Holds the map template
-        self.mapLayer = None # Holds the decorated map
+        self.featureIdField = outlay["featureIds"]
+        self.outputEPSG = outlay["EPSG"]
+        self.outputLayer = outlay["file"]  # Holds the map template
+        self.mapLayer = None  # Holds the decorated map
         # File name format
-        self.componentDict = {0:"Qf (Total)", 1:"Qb (Building)", 2:"Qt (Transport)", 3:"Qm (Metabolism)"} # Total, buildings, transport, metabolism
+        # Total, buildings, transport, metabolism
+        self.componentDict = {
+            0: "Qf (Total)",
+            1: "Qb (Building)",
+            2: "Qt (Transport)",
+            3: "Qm (Metabolism)",
+        }
         # Translate between component names and column headers produced by model.fetchResultsForLocation()
 
         # Translate between component names and file headers
-        self.componentTranslation = {"Qf (Total)":"AllTot",
-                                     "Qb (Building)": "BldTot",
-                                     "Qt (Transport)":"TransTot",
-                                     "Qm (Metabolism)":"Metab"}
+        self.componentTranslation = {
+            "Qf (Total)": "AllTot",
+            "Qb (Building)": "BldTot",
+            "Qt (Transport)": "TransTot",
+            "Qm (Metabolism)": "Metab",
+        }
         # Populate list boxes
         self.populateAreaList()
         self.populateTimeList()
 
     def makeTimeseries(self):
-        '''
+        """
         Produce a time series  plot using matplotlib and the currently selected area ID
         :return: None
-        '''
+        """
         id = self.lstAreas.currentItem().text()
-        result = self.model.fetchResultsForLocation(intOrString(id), dt(1900,0o1,0o1), dt(2200,0o1,0o1))
+        result = self.model.fetchResultsForLocation(
+            intOrString(id), dt(1900, 0o1, 0o1), dt(2200, 0o1, 0o1)
+        )
 
         pyplot.rcParams["font.family"] = "arial"
-        fig = pyplot.figure(id, facecolor='white',figsize=(8,17), dpi=80)
+        fig = pyplot.figure(id, facecolor="white", figsize=(8, 17), dpi=80)
         # Make 4 entries
         # 1: Total QF, broken down by buildings, transport and metabolism
         a1 = pyplot.subplot(411)
         # pltQb= pyplot.plot(result.index, result[self.componentTranslation['Qb (Building)']])
-        b_col = 'grey'
-        m_col = 'navy'
-        t_col = 'firebrick'
-        legendtext = 12 # LEgend text size
-        titletext = 12 # Title (inc axes) text size
-        a1.stackplot(result.index, np.array(result[self.componentTranslation['Qb (Building)']]).astype('float'),
-                 np.array(result[self.componentTranslation['Qt (Transport)']]).astype('float'),
-                 np.array(result[self.componentTranslation['Qm (Metabolism)']]).astype('float'),
-                 linewidth=0,
-                 colors=[b_col, t_col, m_col])
-        pyplot.title('Total', fontsize=titletext)
+        b_col = "grey"
+        m_col = "navy"
+        t_col = "firebrick"
+        legendtext = 12  # LEgend text size
+        titletext = 12  # Title (inc axes) text size
+        a1.stackplot(
+            result.index,
+            np.array(
+                result[self.componentTranslation["Qb (Building)"]]
+            ).astype("float"),
+            np.array(
+                result[self.componentTranslation["Qt (Transport)"]]
+            ).astype("float"),
+            np.array(
+                result[self.componentTranslation["Qm (Metabolism)"]]
+            ).astype("float"),
+            linewidth=0,
+            colors=[b_col, t_col, m_col],
+        )
+        pyplot.title("Total", fontsize=titletext)
         rects1 = list(map(makeRect, [b_col, t_col, m_col]))
-        a1.legend(rects1, ('Bldg', 'Tran', 'Met'), loc='best', fontsize=legendtext)
+        a1.legend(
+            rects1, ("Bldg", "Tran", "Met"), loc="best", fontsize=legendtext
+        )
 
         a1.set_ylim((0, a1.get_ylim()[1]))
-        pyplot.ylabel('W m-2', fontsize=titletext)
+        pyplot.ylabel("W m-2", fontsize=titletext)
 
         # 2: Building QF, broken down by sector
         domelec = "firebrick"
-        domgas =  "red" # Reds for domestic
+        domgas = "red"  # Reds for domestic
         eco7 = "salmon"
-        indelec =  "navy"# Blues for industrial
-        indgas =  "royalblue"
-        other =  "grey" # Grey for other
+        indelec = "navy"  # Blues for industrial
+        indgas = "royalblue"
+        other = "grey"  # Grey for other
         colourOrder2 = [domelec, domgas, eco7, indelec, indgas, other]
         a2 = pyplot.subplot(412)
-        a2.stackplot(result.index, np.array(result["ElDmUnr"]).astype('float'),
-                     np.array(result["GasDm"]).astype('float'),
-                     np.array(result["ElDmE7"]).astype('float'),
-                     np.array(result["ElId"]).astype('float'),
-                     np.array(result["GasId"]).astype('float'),
-                     np.array(result["OthrId"]).astype('float'),
-                     linewidth=0,
-                     colors=colourOrder2)
-        pyplot.title('Buildings', fontsize=titletext)
+        a2.stackplot(
+            result.index,
+            np.array(result["ElDmUnr"]).astype("float"),
+            np.array(result["GasDm"]).astype("float"),
+            np.array(result["ElDmE7"]).astype("float"),
+            np.array(result["ElId"]).astype("float"),
+            np.array(result["GasId"]).astype("float"),
+            np.array(result["OthrId"]).astype("float"),
+            linewidth=0,
+            colors=colourOrder2,
+        )
+        pyplot.title("Buildings", fontsize=titletext)
         rects2 = list(map(makeRect, colourOrder2))
-        a2.legend(rects2, ('Dom E', 'Dom G', 'Eco 7', 'Ind E', 'Ind G', 'Oth'), loc='best', fontsize=legendtext)
+        a2.legend(
+            rects2,
+            ("Dom E", "Dom G", "Eco 7", "Ind E", "Ind G", "Oth"),
+            loc="best",
+            fontsize=legendtext,
+        )
         a2.set_ylim((0, a2.get_ylim()[1]))
-        pyplot.ylabel('W m-2', fontsize=titletext)
+        pyplot.ylabel("W m-2", fontsize=titletext)
 
         # 3: Building QF, broken down by sector
-        mcyc = "firebrick" # Reds for people transport
-        taxi =  "red"
+        mcyc = "firebrick"  # Reds for people transport
+        taxi = "red"
         car = "salmon"
-        bus =  "grey" # Grey bus
-        lgv =  "navy"# Blues for goods transport
-        rigd =  "royalblue"
-        art =  "steelblue"
+        bus = "grey"  # Grey bus
+        lgv = "navy"  # Blues for goods transport
+        rigd = "royalblue"
+        art = "steelblue"
 
         colourOrder3 = [mcyc, taxi, car, bus, lgv, rigd, art]
         a3 = pyplot.subplot(413)
-        a3.stackplot(result.index,
-                     np.array(result["Mcyc"]).astype('float'),
-                     np.array(result["Taxi"]).astype('float'),
-                     np.array(result["Car"]).astype('float'),
-                     np.array(result["Bus"]).astype('float'),
-                     np.array(result["LGV"]).astype('float'),
-                     np.array(result["Rigd"]).astype('float'),
-                     np.array(result["Art"]).astype('float'),
-                     linewidth=0,
-                     colors=colourOrder3)
+        a3.stackplot(
+            result.index,
+            np.array(result["Mcyc"]).astype("float"),
+            np.array(result["Taxi"]).astype("float"),
+            np.array(result["Car"]).astype("float"),
+            np.array(result["Bus"]).astype("float"),
+            np.array(result["LGV"]).astype("float"),
+            np.array(result["Rigd"]).astype("float"),
+            np.array(result["Art"]).astype("float"),
+            linewidth=0,
+            colors=colourOrder3,
+        )
         a3.set_ylim((0, a3.get_ylim()[1]))
         # Set X limit to accommodate legend
-        pyplot.title('Transport', fontsize=titletext)
+        pyplot.title("Transport", fontsize=titletext)
 
         rects3 = list(map(makeRect, colourOrder3))
-        a3.legend(rects3, ('Moto', 'Taxi', 'Car', 'Bus', 'LGV', 'Rigid', 'Artic'), loc='best', fontsize=legendtext)
-        pyplot.ylabel('$W m^{-2}$', fontsize=titletext)
+        a3.legend(
+            rects3,
+            ("Moto", "Taxi", "Car", "Bus", "LGV", "Rigid", "Artic"),
+            loc="best",
+            fontsize=legendtext,
+        )
+        pyplot.ylabel("$W m^{-2}$", fontsize=titletext)
 
-        #4 Just overall metabolism
+        # 4 Just overall metabolism
         a4 = pyplot.subplot(414)
-        pyplot.plot(result.index, result[self.componentTranslation['Qm (Metabolism)']])
-        pyplot.title('Metabolism', fontsize=titletext)
-        pyplot.ylabel('W m-2', fontsize=titletext)
-        pyplot.xlabel('Time (UTC)', fontsize=titletext)
+        pyplot.plot(
+            result.index, result[self.componentTranslation["Qm (Metabolism)"]]
+        )
+        pyplot.title("Metabolism", fontsize=titletext)
+        pyplot.ylabel("W m-2", fontsize=titletext)
+        pyplot.xlabel("Time (UTC)", fontsize=titletext)
         pyplot.tight_layout()
         pyplot.show()
 
     def populateTimeList(self):
-        '''
+        """
         Populate the time listbox
         :param timeIndex:
         :return:
-        '''
-        def toString(x): return x.strftime('%Y-%m-%d %H:%M')
+        """
+
+        def toString(x):
+            return x.strftime("%Y-%m-%d %H:%M")
+
         timeLabels = list(map(toString, self.model.getTimeSteps()))
         for label in timeLabels:
             time = QListWidgetItem(label)
             self.lstTimes.addItem(time)
 
     def populateAreaList(self):
-        '''
+        """
         Populate the area ID listbox
-        '''
-        [self.lstAreas.addItem(QListWidgetItem(str(intOrString(label)))) for label in self.model.getOutputAreaIDs()]
+        """
+        [
+            self.lstAreas.addItem(QListWidgetItem(str(intOrString(label))))
+            for label in self.model.getOutputAreaIDs()
+        ]
 
     def updateDisplay(self):
-        ''' Add map(s) of all QF components to the canvas based on what's selected in self.lstTimes'''
-        timestamps = [dt.strptime(newItem.text(), '%Y-%m-%d %H:%M') for newItem in self.lstTimes.selectedItems()] #removed pd.datetime
+        """Add map(s) of all QF components to the canvas based on what's selected in self.lstTimes"""
+        timestamps = [
+            dt.strptime(newItem.text(), "%Y-%m-%d %H:%M")
+            # removed pd.datetime
+            for newItem in self.lstTimes.selectedItems()
+        ]
 
         for t in timestamps:
-            outs = pd.read_csv(self.model.getFileList()[t], header=0, index_col=0)
+            outs = pd.read_csv(
+                self.model.getFileList()[t], header=0, index_col=0
+            )
             outLayer = self.outputLayer
             # Make sure the output file is properly appended (this gets evaluated for non-extra-disaggregated datasets)
             # because I didn't set an output shapefile path properl
 
-            if os.path.split(self.outputLayer)[0] == '':
-                outLayer = os.path.join(self.model.downscaledPath, os.path.split(self.outputLayer)[1])
+            if os.path.split(self.outputLayer)[0] == "":
+                outLayer = os.path.join(
+                    self.model.downscaledPath,
+                    os.path.split(self.outputLayer)[1],
+                )
 
             fileToPopulate = self.outputLayer
-            new_layer = populateShapefileFromTemplate(outs, self.featureIdField, outLayer , int(self.outputEPSG), title=t.strftime(' %Y-%m-%d %H:%M UTC'))
+            new_layer = populateShapefileFromTemplate(
+                outs,
+                self.featureIdField,
+                outLayer,
+                int(self.outputEPSG),
+                title=t.strftime(" %Y-%m-%d %H:%M UTC"),
+            )
 
             # Set ranges suited to all the different QF types
             range_minima = [0, 0.000001, 0.1, 1, 10, 100]
             range_maxima = [0.000001, 0.1, 1, 10, 100, 1000]
-            colours = ['#CECECE', '#FEE6CE', '#FDAE6B', '#F16913', '#D94801', '#7F2704']
+            colours = [
+                "#CECECE",
+                "#FEE6CE",
+                "#FDAE6B",
+                "#F16913",
+                "#D94801",
+                "#7F2704",
+            ]
             opacity = 1
             for component in list(self.componentTranslation.values()):
-                layerName = component + t.strftime(' %Y-%m-%d %H:%M UTC')
+                layerName = component + t.strftime(" %Y-%m-%d %H:%M UTC")
                 if component == list(self.componentTranslation.values())[0]:
-                    colourRanges(new_layer, component, opacity, range_minima, range_maxima, colours)
+                    colourRanges(
+                        new_layer,
+                        component,
+                        opacity,
+                        range_minima,
+                        range_maxima,
+                        colours,
+                    )
                     new_layer.setName(layerName)  # setLayerName()  before
                     layerId = new_layer.id()
                     QgsProject.instance().addMapLayer(new_layer)
-                    proportion = new_layer.extent().height() / new_layer.extent().width()
+                    proportion = (
+                        new_layer.extent().height()
+                        / new_layer.extent().width()
+                    )
 
                 else:
                     # Have to clone. Can't seem to duplicate a map layer...
                     layer = duplicateVectorLayer(new_layer)
                     layer.setName(layerName)  # setLayerName()  before
-                    colourRanges(layer, component, opacity, range_minima, range_maxima, colours)
+                    colourRanges(
+                        layer,
+                        component,
+                        opacity,
+                        range_minima,
+                        range_maxima,
+                        colours,
+                    )
                     layerId = layer.id()
                     QgsProject.instance().addMapLayer(layer)
-                    proportion = layer.extent().height() / layer.extent().width()
+                    proportion = (
+                        layer.extent().height() / layer.extent().width()
+                    )
 
                 # Images is no longer produced. Fredrik 20190507
                 # maxSize = 2000 # Max size of output image

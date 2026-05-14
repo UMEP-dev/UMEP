@@ -1,15 +1,17 @@
 """f90nml.namelist
-   ===============
+===============
 
-   Tools for creating Fortran namelist files from Python ``dict``s.
+Tools for creating Fortran namelist files from Python ``dict``s.
 
-   :copyright: Copyright 2014 Marshall Ward, see AUTHORS for details.
-   :license: Apache License, Version 2.0, see LICENSE for details.
+:copyright: Copyright 2014 Marshall Ward, see AUTHORS for details.
+:license: Apache License, Version 2.0, see LICENSE for details.
 """
+
 from __future__ import print_function
 from builtins import str
 
 import os
+
 try:
     from collections import OrderedDict
 except ImportError:
@@ -29,26 +31,20 @@ class NmlDict(OrderedDict):
 
         # Formatting properties
         self._colwidth = 72
-        self._indent = 4 * ' '
+        self._indent = 4 * " "
         self._end_comma = False
         self._uppercase = False
-        self._floatformat = ''
-        self._logical_repr = {False: '.false.', True: '.true.'}
+        self._floatformat = ""
+        self._logical_repr = {False: ".false.", True: ".true."}
 
         # Representatation functions
         self.f90str = {
-            bool:
-                lambda x: self.logical_repr[x],
-            int:
-                lambda x: str(x),
-            float:
-                lambda x: '{0:{fmt}}'.format(x, fmt=self.floatformat),
-            complex:
-                lambda x: '({0}, {1})'.format(x.real, x.imag),
-            str:
-                lambda x: repr(x).replace("\\'", "''").replace('\\"', '""'),
-            type(None):
-                lambda x: ''
+            bool: lambda x: self.logical_repr[x],
+            int: lambda x: str(x),
+            float: lambda x: "{0:{fmt}}".format(x, fmt=self.floatformat),
+            complex: lambda x: "({0}, {1})".format(x.real, x.imag),
+            str: lambda x: repr(x).replace("\\'", "''").replace('\\"', '""'),
+            type(None): lambda x: "",
         }
 
     def __contains__(self, key):
@@ -78,9 +74,9 @@ class NmlDict(OrderedDict):
             if width >= 0:
                 self._colwidth = width
             else:
-                raise ValueError('Column width must be nonnegative.')
+                raise ValueError("Column width must be nonnegative.")
         else:
-            raise TypeError('Column width must be a nonnegative integer.')
+            raise TypeError("Column width must be a nonnegative integer.")
 
     # Variable indent
     @property
@@ -99,19 +95,21 @@ class NmlDict(OrderedDict):
             if value.isspace():
                 self._indent = value
             else:
-                raise ValueError('String indentation can only contain '
-                                 'whitespace.')
+                raise ValueError(
+                    "String indentation can only contain " "whitespace."
+                )
 
         # Set indent width
         elif isinstance(value, int):
             if value >= 0:
-                self._indent = value * ' '
+                self._indent = value * " "
             else:
-                raise ValueError('Indentation spacing must be nonnegative.')
+                raise ValueError("Indentation spacing must be nonnegative.")
 
         else:
-            raise TypeError('Indentation must be specified by string or space '
-                            'width.')
+            raise TypeError(
+                "Indentation must be specified by string or space " "width."
+            )
 
     # Terminal comma
     @property
@@ -123,7 +121,7 @@ class NmlDict(OrderedDict):
     def end_comma(self, value):
         """Validate and set the comma termination flag."""
         if not isinstance(value, bool):
-            raise TypeError('end_comma attribute must be a logical type.')
+            raise TypeError("end_comma attribute must be a logical type.")
         self._end_comma = value
 
     # Uppercase
@@ -136,7 +134,7 @@ class NmlDict(OrderedDict):
     def uppercase(self, value):
         """Validate and set the upper case flag."""
         if not isinstance(value, bool):
-            raise TypeError('uppercase attribute must be a logical type.')
+            raise TypeError("uppercase attribute must be a logical type.")
         self._uppercase = value
 
     # Float format
@@ -150,11 +148,11 @@ class NmlDict(OrderedDict):
         """Validate and set the upper case flag."""
         if isinstance(value, str):
             # Duck-test the format string; raise ValueError on fail
-            '{0:{1}}'.format(1.23, value)
+            "{0:{1}}".format(1.23, value)
 
             self._floatformat = value
         else:
-            raise TypeError('Floating point format code must be a string.')
+            raise TypeError("Floating point format code must be a string.")
 
     # Logical representation
     # NOTE: This presumes that bools and ints are identical as dict keys
@@ -168,8 +166,10 @@ class NmlDict(OrderedDict):
         """Set the namelist representations of logical values."""
 
         if not any(isinstance(value, t) for t in (list, tuple)):
-            raise TypeError("Logical representation must be a tuple with "
-                            "a valid true and false value.")
+            raise TypeError(
+                "Logical representation must be a tuple with "
+                "a valid true and false value."
+            )
         if not len(value) == 2:
             raise ValueError("List must contain two values.")
 
@@ -185,14 +185,17 @@ class NmlDict(OrderedDict):
     def true_repr(self, value):
         """Validate and set the logical true representation."""
         if isinstance(value, str):
-            if not (value.lower().startswith('t') or
-                    value.lower().startswith('.t')):
-                raise ValueError("Logical true representation must start with "
-                                 "'T' or '.T'.")
+            if not (
+                value.lower().startswith("t") or value.lower().startswith(".t")
+            ):
+                raise ValueError(
+                    "Logical true representation must start with "
+                    "'T' or '.T'."
+                )
             else:
                 self._logical_repr[1] = value
         else:
-            raise TypeError('Logical true representation must be a string.')
+            raise TypeError("Logical true representation must be a string.")
 
     @property
     def false_repr(self):
@@ -203,14 +206,17 @@ class NmlDict(OrderedDict):
     def false_repr(self, value):
         """Validate and set the logical false representation."""
         if isinstance(value, str):
-            if not (value.lower().startswith('f') or
-                    value.lower().startswith('.f')):
-                raise ValueError("Logical false representation must start "
-                                 "with 'F' or '.F'.")
+            if not (
+                value.lower().startswith("f") or value.lower().startswith(".f")
+            ):
+                raise ValueError(
+                    "Logical false representation must start "
+                    "with 'F' or '.F'."
+                )
             else:
                 self._logical_repr[0] = value
         else:
-            raise TypeError('Logical false representation must be a string.')
+            raise TypeError("Logical false representation must be a string.")
 
     # File output
 
@@ -218,9 +224,9 @@ class NmlDict(OrderedDict):
         """Output dict to a Fortran 90 namelist file."""
 
         if not force and os.path.isfile(nml_path):
-            raise IOError('File {0} already exists.'.format(nml_path))
+            raise IOError("File {0} already exists.".format(nml_path))
 
-        with open(nml_path, 'w') as nml_file:
+        with open(nml_path, "w") as nml_file:
             for grp_name, grp_vars in list(self.items()):
                 # Check for repeated namelist records (saved as lists)
                 if isinstance(grp_vars, list):
@@ -230,7 +236,7 @@ class NmlDict(OrderedDict):
                     self.write_nmlgrp(grp_name, grp_vars, nml_file)
 
         if list(self.items()):
-            with open(nml_path, 'rb+') as nml_file:
+            with open(nml_path, "rb+") as nml_file:
                 nml_file.seek(-1, os.SEEK_END)
                 nml_file.truncate()
 
@@ -240,15 +246,15 @@ class NmlDict(OrderedDict):
         if self.uppercase:
             grp_name = grp_name.upper()
 
-        print('&{0}'.format(grp_name), file=nml_file)
+        print("&{0}".format(grp_name), file=nml_file)
 
         for v_name, v_val in list(grp_vars.items()):
 
             for v_str in self.var_strings(v_name, v_val):
-                nml_line = self.indent + '{0}'.format(v_str)
+                nml_line = self.indent + "{0}".format(v_str)
                 print(nml_line, file=nml_file)
 
-        print('/', file=nml_file)
+        print("/", file=nml_file)
         print(file=nml_file)
 
     def var_strings(self, v_name, v_values):
@@ -262,21 +268,23 @@ class NmlDict(OrderedDict):
         # Parse derived type contents
         if isinstance(v_values, dict):
             for f_name, f_vals in list(v_values.items()):
-                v_title = '%'.join([v_name, f_name])
+                v_title = "%".join([v_name, f_name])
 
                 v_strs = self.var_strings(v_title, f_vals)
                 var_strs.extend(v_strs)
 
         # Parse an array of derived types
-        elif (isinstance(v_values, list) and
-              any(isinstance(v, dict) for v in v_values) and
-              all((isinstance(v, dict) or v is None) for v in v_values)):
+        elif (
+            isinstance(v_values, list)
+            and any(isinstance(v, dict) for v in v_values)
+            and all((isinstance(v, dict) or v is None) for v in v_values)
+        ):
             for idx, val in enumerate(v_values, start=1):
 
                 if val is None:
                     continue
 
-                v_title = v_name + '({0})'.format(idx)
+                v_title = v_name + "({0})".format(idx)
 
                 v_strs = self.var_strings(v_title, val)
                 var_strs.extend(v_strs)
@@ -288,31 +296,32 @@ class NmlDict(OrderedDict):
             # Split output across multiple lines (if necessary)
             val_strs = []
 
-            val_line = ''
+            val_line = ""
             for v_val in v_values:
 
-                v_width = self.colwidth - len(self.indent + v_name + ' = ')
+                v_width = self.colwidth - len(self.indent + v_name + " = ")
 
                 if len(val_line) < v_width:
-                    val_line += self.f90repr(v_val) + ', '
+                    val_line += self.f90repr(v_val) + ", "
 
                 if len(val_line) >= v_width:
                     val_strs.append(val_line.rstrip())
-                    val_line = ''
+                    val_line = ""
 
             # Append any remaining values
             if val_line:
-                if (self.end_comma or
-                        (len(v_values) > 1 and v_values[-1] is None)):
+                if self.end_comma or (
+                    len(v_values) > 1 and v_values[-1] is None
+                ):
                     val_strs.append(val_line)
                 else:
                     val_strs.append(val_line[:-2])
 
             # Complete the set of values
-            var_strs.append('{0} = {1}'.format(v_name, val_strs[0]).strip())
+            var_strs.append("{0} = {1}".format(v_name, val_strs[0]).strip())
 
             for v_str in val_strs[1:]:
-                var_strs.append(' ' * (len(v_name + ' = ')) + v_str)
+                var_strs.append(" " * (len(v_name + " = ")) + v_str)
 
         return var_strs
 
@@ -322,5 +331,7 @@ class NmlDict(OrderedDict):
         try:
             return self.f90str[type(value)](value)
         except KeyError:
-            raise ValueError('Type {0} of {1} cannot be converted to a '
-                             'Fortran type.'.format(type(value), value))
+            raise ValueError(
+                "Type {0} of {1} cannot be converted to a "
+                "Fortran type.".format(type(value), value)
+            )

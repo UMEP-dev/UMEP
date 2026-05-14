@@ -21,35 +21,49 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt import QtGui
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
-from qgis.core import QgsMapLayerProxyModel, QgsFieldProxyModel, QgsVectorLayer, QgsRasterShader, QgsColorRampShader, QgsSingleBandPseudoColorRenderer, QgsVectorDataProvider, QgsField
+from qgis.core import (
+    QgsMapLayerProxyModel,
+    QgsFieldProxyModel,
+    QgsVectorLayer,
+    QgsRasterShader,
+    QgsColorRampShader,
+    QgsSingleBandPseudoColorRenderer,
+    QgsVectorDataProvider,
+    QgsField,
+)
 from qgis.gui import QgsMapLayerComboBox, QgsFieldComboBox
 
 # Initialize Qt resources from file resources.py
 from .resources import *
+
 # Import the code for the dialog
 from .target_analyser_dialog import TARGETAnalyserDialog
 import os.path
+
 # from .umep_uwg_export_component import read_uwg_file
 # from ..Utilities.umep_uwg_export_component import read_uwg_file
 import datetime
 import numpy as np
+
 try:
     import matplotlib.pylab as plt
     import matplotlib.dates as dt
+
     nomatplot = 0
 except ImportError:
     nomatplot = 1
-    pass
 import webbrowser
 import shutil
 from osgeo import gdal, ogr, osr
 from osgeo.gdalconst import *
+
 try:
-    #from target_py import Target
+    # from target_py import Target
     from target_py.ui.utils import read_config
 except:
     pass
@@ -71,11 +85,10 @@ class TARGETAnalyser:
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'TARGETAnalyser_{}.qm'.format(locale))
+            self.plugin_dir, "i18n", "TARGETAnalyser_{}.qm".format(locale)
+        )
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
@@ -84,7 +97,7 @@ class TARGETAnalyser:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&TARGET Analyser')
+        self.menu = self.tr("&TARGET Analyser")
 
         # Check if plugin was started the first time in current QGIS session
         # Must be set in initGui() to survive plugin reloads
@@ -105,8 +118,7 @@ class TARGETAnalyser:
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('TARGETAnalyser', message)
-
+        return QCoreApplication.translate("TARGETAnalyser", message)
 
     def add_action(
         self,
@@ -118,7 +130,8 @@ class TARGETAnalyser:
         add_to_toolbar=True,
         status_tip=None,
         whats_this=None,
-        parent=None):
+        parent=None,
+    ):
 
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
@@ -136,37 +149,31 @@ class TARGETAnalyser:
             self.iface.addToolBarIcon(action)
 
         if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action)
+            self.iface.addPluginToMenu(self.menu, action)
 
         self.actions.append(action)
 
         return action
 
-
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/uwg_analyser/icon.png'
+        icon_path = ":/plugins/uwg_analyser/icon.png"
         self.add_action(
             icon_path,
-            text=self.tr(u''),
+            text=self.tr(""),
             callback=self.run,
-            parent=self.iface.mainWindow())
+            parent=self.iface.mainWindow(),
+        )
 
         # will be set False in run()
         self.first_start = True
 
-
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
-            self.iface.removePluginMenu(
-                self.tr(u'&TARGET Analyser'),
-                action)
+            self.iface.removePluginMenu(self.tr("&TARGET Analyser"), action)
             self.iface.removeToolBarIcon(action)
-
 
     def run(self):
         """Run method that performs all the real work"""
@@ -184,19 +191,29 @@ class TARGETAnalyser:
         self.fileDialogOut.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
         self.dlg.pushButtonInFolder.clicked.connect(self.folder_path_inmodel)
-        #self.dlg.pushButtonOutFolder.clicked.connect(self.folder_path_outmodel)
+        # self.dlg.pushButtonOutFolder.clicked.connect(self.folder_path_outmodel)
         self.dlg.runButtonPlot.clicked.connect(self.plotpoint)
         self.dlg.runButtonSpatial.clicked.connect(self.spatial)
         self.dlg.pushButtonSave.clicked.connect(self.geotiff_save)
 
-        self.layerComboManagerPolygrid = QgsMapLayerComboBox(self.dlg.widgetPolygrid)
+        self.layerComboManagerPolygrid = QgsMapLayerComboBox(
+            self.dlg.widgetPolygrid
+        )
         self.layerComboManagerPolygrid.setCurrentIndex(-1)
-        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
+        self.layerComboManagerPolygrid.setFilters(
+            QgsMapLayerProxyModel.Filter.PolygonLayer
+        )
         self.layerComboManagerPolygrid.setFixedWidth(175)
-        self.layerComboManagerPolyfield = QgsFieldComboBox(self.dlg.widgetField)
-        self.layerComboManagerPolyfield.setFilters(QgsFieldProxyModel.Filter.Numeric)
+        self.layerComboManagerPolyfield = QgsFieldComboBox(
+            self.dlg.widgetField
+        )
+        self.layerComboManagerPolyfield.setFilters(
+            QgsFieldProxyModel.Filter.Numeric
+        )
         self.layerComboManagerPolyfield.setFixedWidth(125)
-        self.layerComboManagerPolygrid.layerChanged.connect(self.layerComboManagerPolyfield.setLayer)
+        self.layerComboManagerPolygrid.layerChanged.connect(
+            self.layerComboManagerPolyfield.setLayer
+        )
 
         # show the dialog
         self.dlg.show()
@@ -207,25 +224,23 @@ class TARGETAnalyser:
         else:
             self.dlg.__init__()
 
-
     def clearentries(self):
         # clear old entries
         self.dlg.comboBox_POIField.clear()
         self.dlg.comboBox_POIDOYMin.clear()
         self.dlg.comboBox_POIDOYMax.clear()
-        self.dlg.comboBox_POIField.addItem('Not Specified')
-        self.dlg.comboBox_POIDOYMin.addItem('Not Specified')
-        self.dlg.comboBox_POIDOYMax.addItem('Not Specified')
+        self.dlg.comboBox_POIField.addItem("Not Specified")
+        self.dlg.comboBox_POIDOYMin.addItem("Not Specified")
+        self.dlg.comboBox_POIDOYMax.addItem("Not Specified")
         self.dlg.comboBox_SpatialDOYMin.clear()
         self.dlg.comboBox_SpatialDOYMax.clear()
         self.dlg.textOutput.clear()
-        self.dlg.comboBox_SpatialDOYMin.addItem('Not Specified')
-        self.dlg.comboBox_SpatialDOYMax.addItem('Not Specified')
-        self.dlg.textOutput.setText('Not Specified')
-
+        self.dlg.comboBox_SpatialDOYMin.addItem("Not Specified")
+        self.dlg.comboBox_SpatialDOYMax.addItem("Not Specified")
+        self.dlg.textOutput.setText("Not Specified")
 
     def folder_path_inmodel(self):
-        
+
         self.clearentries()
 
         self.fileDialogIn.open()
@@ -238,165 +253,224 @@ class TARGETAnalyser:
             # a = self.infileList[0].find("_")
             # self.prefix = self.infileList[0][0:a]
 
-            cfM = read_config(self.folderPath[0] + '/config.ini')
-            self.prefix = cfM['run_name']
-            startDate = datetime.datetime.strptime(cfM['date1'], "%Y,%m,%d,%H")
-            endDate = datetime.datetime.strptime(cfM['date2'], "%Y,%m,%d,%H")
+            cfM = read_config(self.folderPath[0] + "/config.ini")
+            self.prefix = cfM["run_name"]
+            startDate = datetime.datetime.strptime(cfM["date1"], "%Y,%m,%d,%H")
+            endDate = datetime.datetime.strptime(cfM["date2"], "%Y,%m,%d,%H")
 
-            #uwgDict = read_uwg_file(self.folderPath[0], self.infileList[0][:-4])
-            #mm = uwgDict['Month']
-            #dd = uwgDict['Day']
-            #nDays = uwgDict['nDay']
+            # uwgDict = read_uwg_file(self.folderPath[0], self.infileList[0][:-4])
+            # mm = uwgDict['Month']
+            # dd = uwgDict['Day']
+            # nDays = uwgDict['nDay']
             nDays = (endDate - startDate).days
             print(int(nDays))
 
             # populate availabe grids in GUI
-            self.l = os.listdir(self.folderPath[0] + '/output')
+            self.l = os.listdir(self.folderPath[0] + "/output")
             for file in self.l:
-                if file.endswith('_UMEP_TARGET.txt'):
-                    self.timelist.append(int(file[len(self.prefix) + 1:-16]))
-                    
+                if file.endswith("_UMEP_TARGET.txt"):
+                    self.timelist.append(int(file[len(self.prefix) + 1 : -16]))
+
             l = sorted(list(set(self.timelist)))
             for i in l:
                 self.dlg.comboBox_POIField.addItem(str(i))
 
             # populate available days
-            #startDate = datetime.date(int(1985), int(mm), int(dd))
+            # startDate = datetime.date(int(1985), int(mm), int(dd))
             for i in range(0, int(nDays)):
-                startDate.strftime('%d %b')
+                startDate.strftime("%d %b")
                 endDateT = startDate + datetime.timedelta(days=int(i))
-                self.dlg.comboBox_POIDOYMin.addItem(endDateT.strftime('%d %b'))
-                self.dlg.comboBox_POIDOYMax.addItem(endDateT.strftime('%d %b'))
-                self.dlg.comboBox_SpatialDOYMin.addItem(endDateT.strftime('%d %b'))
-                self.dlg.comboBox_SpatialDOYMax.addItem(endDateT.strftime('%d %b'))
+                self.dlg.comboBox_POIDOYMin.addItem(endDateT.strftime("%d %b"))
+                self.dlg.comboBox_POIDOYMax.addItem(endDateT.strftime("%d %b"))
+                self.dlg.comboBox_SpatialDOYMin.addItem(
+                    endDateT.strftime("%d %b")
+                )
+                self.dlg.comboBox_SpatialDOYMax.addItem(
+                    endDateT.strftime("%d %b")
+                )
 
-            #self.dlg.pushButtonOutFolder.setEnabled(1)
-            #self.dlg.textModelOutFolder.setEnabled(1)
+            # self.dlg.pushButtonOutFolder.setEnabled(1)
+            # self.dlg.textModelOutFolder.setEnabled(1)
             self.dlg.runButtonPlot.setEnabled(1)
             self.dlg.runButtonSpatial.setEnabled(1)
-            #self.dlg.textOutput.setEnabled(1)
-            #self.dlg.pushButtonSave.setEnabled(1)
-
+            # self.dlg.textOutput.setEnabled(1)
+            # self.dlg.pushButtonSave.setEnabled(1)
 
     def plotpoint(self):
         self.varpoi1 = self.dlg.comboBox_POIField.currentText()
 
-        if self.dlg.comboBox_POIField.currentText() == 'Not Specified':
+        if self.dlg.comboBox_POIField.currentText() == "Not Specified":
             QMessageBox.critical(self.dlg, "Error", "No Grid ID is selected")
             return
 
-        if self.dlg.comboBox_POIDOYMin.currentText() == 'Not Specified':
-            QMessageBox.critical(self.dlg, "Error", "No Minimum DOY is selected")
+        if self.dlg.comboBox_POIDOYMin.currentText() == "Not Specified":
+            QMessageBox.critical(
+                self.dlg, "Error", "No Minimum DOY is selected"
+            )
             return
         else:
-            startDate = datetime.datetime.strptime(self.dlg.comboBox_POIDOYMin.currentText(), '%d %b')
-            startday = int(startDate.strftime('%j'))
+            startDate = datetime.datetime.strptime(
+                self.dlg.comboBox_POIDOYMin.currentText(), "%d %b"
+            )
+            startday = int(startDate.strftime("%j"))
 
-        if self.dlg.comboBox_POIDOYMax.currentText() == 'Not Specified':
-            QMessageBox.critical(self.dlg, "Error", "No Maximum DOY is selected")
+        if self.dlg.comboBox_POIDOYMax.currentText() == "Not Specified":
+            QMessageBox.critical(
+                self.dlg, "Error", "No Maximum DOY is selected"
+            )
             return
         else:
-            endDate = datetime.datetime.strptime(self.dlg.comboBox_POIDOYMax.currentText(), '%d %b')
-            endday = int(endDate.strftime('%j'))
+            endDate = datetime.datetime.strptime(
+                self.dlg.comboBox_POIDOYMax.currentText(), "%d %b"
+            )
+            endday = int(endDate.strftime("%j"))
 
         if startday > endday:
-            QMessageBox.critical(self.dlg, "Error", "Start day happens after end day")
+            QMessageBox.critical(
+                self.dlg, "Error", "Start day happens after end day"
+            )
             return
 
         if startday == endday:
-            QMessageBox.critical(self.dlg, "Error", "End day must be higher than start day")
+            QMessageBox.critical(
+                self.dlg, "Error", "End day must be higher than start day"
+            )
             return
 
         # Load rural data
-        sitein = self.folderPath[0] + '/output/' + self.prefix + '_metdata_UMEP.txt'
+        sitein = (
+            self.folderPath[0] + "/output/" + self.prefix + "_metdata_UMEP.txt"
+        )
         dataref = np.genfromtxt(sitein, skip_header=1)
-        self.yyyy = dataref[0,0]
-        
+        self.yyyy = dataref[0, 0]
+
         # Load TARGET data
-        datawhole = np.genfromtxt(self.folderPath[0] + '/output/' + self.prefix + '_' + self.varpoi1 + '_UMEP_TARGET.txt', skip_header=1)
+        datawhole = np.genfromtxt(
+            self.folderPath[0]
+            + "/output/"
+            + self.prefix
+            + "_"
+            + self.varpoi1
+            + "_UMEP_TARGET.txt",
+            skip_header=1,
+        )
 
         start = np.min(np.where(datawhole[:, 1] == startday))
         if endday > np.max(datawhole[:, 1]):
             ending = np.max(np.where(datawhole[:, 1] == endday - 1))
         else:
             ending = np.min(np.where(datawhole[:, 1] == endday))
-        data1 = datawhole[start:ending + 12, :] # + 12 to include whole final night 
-        dataref1 = dataref[start:ending + 12, :] # + 12 to include whole final night 
+        # + 12 to include whole final night
+        data1 = datawhole[start : ending + 12, :]
+        # + 12 to include whole final night
+        dataref1 = dataref[start : ending + 12, :]
 
         dates = []
         for i in range(0, data1.shape[0]):  # making date number
             dates.append(
-                dt.datetime.datetime(int(data1[i, 0]), 1, 1) + datetime.timedelta(days=data1[i, 1] - 1,
-                                                                                    hours=data1[i, 2],
-                                                                                    minutes=data1[i, 3]))
+                dt.datetime.datetime(int(data1[i, 0]), 1, 1)
+                + datetime.timedelta(
+                    days=data1[i, 1] - 1,
+                    hours=data1[i, 2],
+                    minutes=data1[i, 3],
+                )
+            )
 
-        plt.figure(1, figsize=(15, 7), facecolor='white')
+        plt.figure(1, figsize=(15, 7), facecolor="white")
         ax1 = plt.subplot(2, 1, 1)
-        ax1.plot(dates, dataref1[:, 9], 'b') 
+        ax1.plot(dates, dataref1[:, 9], "b")
         ax1.set_ylim([0, max(dataref1[:, 9])])
         ax2 = ax1.twinx()
-        ax2.plot(dates, dataref1[:, 14], 'r') 
-        ax1.set_ylabel('Wind speed ($m/s$)', color='b', fontsize=14)
-        ax2.set_ylabel('Global radiation ($W/m^2$)', color='r', fontsize=14)
-        plt.title('General weather parameters and model output')
-        
+        ax2.plot(dates, dataref1[:, 14], "r")
+        ax1.set_ylabel("Wind speed ($m/s$)", color="b", fontsize=14)
+        ax2.set_ylabel("Global radiation ($W/m^2$)", color="r", fontsize=14)
+        plt.title("General weather parameters and model output")
+
         ax3 = plt.subplot(2, 1, 2, sharex=ax1)
-        ax3.plot(dates, dataref1[:, 11], 'g', label='Forcing data')
-        ax3.plot(dates, data1[:, 11], 'r', label='Grid: ' + self.varpoi1)
-        ax3.set_ylabel('Air Temperature ($^{o}C$)', color='b', fontsize=14)
+        ax3.plot(dates, dataref1[:, 11], "g", label="Forcing data")
+        ax3.plot(dates, data1[:, 11], "r", label="Grid: " + self.varpoi1)
+        ax3.set_ylabel("Air Temperature ($^{o}C$)", color="b", fontsize=14)
         ax3.legend(loc=2)
         ax1.grid(True)
         ax3.grid(True)
-        ax3.set_xlabel('Time', fontsize=14)
-        
-        plt.show()
+        ax3.set_xlabel("Time", fontsize=14)
 
+        plt.show()
 
     def spatial(self):
 
-        if self.dlg.comboBox_SpatialDOYMax.currentText() == 'Not Specified':
-            QMessageBox.critical(self.dlg, "Error", "No Maximum DOY is selected")
+        if self.dlg.comboBox_SpatialDOYMax.currentText() == "Not Specified":
+            QMessageBox.critical(
+                self.dlg, "Error", "No Maximum DOY is selected"
+            )
             return
 
         poly = self.layerComboManagerPolygrid.currentLayer()
         if poly is None:
-            QMessageBox.critical(self.dlg, "Error", "No valid Polygon layer is selected")
+            QMessageBox.critical(
+                self.dlg, "Error", "No valid Polygon layer is selected"
+            )
             return
         if not poly.geometryType() == 2:
-            QMessageBox.critical(self.dlg, "Error", "No valid Polygon layer is selected")
+            QMessageBox.critical(
+                self.dlg, "Error", "No valid Polygon layer is selected"
+            )
             return
 
         poly_field = self.layerComboManagerPolyfield.currentField()
         if poly_field is None:
-            QMessageBox.critical(self.dlg, "Error", "An attribute with unique fields/records must be selected (same as used in the model run to analyze)")
+            QMessageBox.critical(
+                self.dlg,
+                "Error",
+                "An attribute with unique fields/records must be selected (same as used in the model run to analyze)",
+            )
             return
 
-        if not (self.dlg.addResultToGrid.isChecked() or self.dlg.addResultToGeotiff.isChecked()):
-            QMessageBox.critical(self.dlg, "Error", "No output method has been selected (Add results to polygon grid OR Save as GeoTIFF)")
+        if not (
+            self.dlg.addResultToGrid.isChecked()
+            or self.dlg.addResultToGeotiff.isChecked()
+        ):
+            QMessageBox.critical(
+                self.dlg,
+                "Error",
+                "No output method has been selected (Add results to polygon grid OR Save as GeoTIFF)",
+            )
             return
 
-        if self.dlg.comboBox_SpatialDOYMin.currentText() == 'Not Specified':
-            QMessageBox.critical(self.dlg, "Error", "No Minimum DOY is selected")
+        if self.dlg.comboBox_SpatialDOYMin.currentText() == "Not Specified":
+            QMessageBox.critical(
+                self.dlg, "Error", "No Minimum DOY is selected"
+            )
             return
         else:
-            startDate = datetime.datetime.strptime(self.dlg.comboBox_SpatialDOYMin.currentText(), '%d %b')
-            startday = int(startDate.strftime('%j'))
+            startDate = datetime.datetime.strptime(
+                self.dlg.comboBox_SpatialDOYMin.currentText(), "%d %b"
+            )
+            startday = int(startDate.strftime("%j"))
             startD = startday
-            
-        if self.dlg.comboBox_SpatialDOYMax.currentText() == 'Not Specified':
-            QMessageBox.critical(self.dlg, "Error", "No Maximum DOY is selected")
+
+        if self.dlg.comboBox_SpatialDOYMax.currentText() == "Not Specified":
+            QMessageBox.critical(
+                self.dlg, "Error", "No Maximum DOY is selected"
+            )
             return
         else:
-            endDate = datetime.datetime.strptime(self.dlg.comboBox_SpatialDOYMax.currentText(), '%d %b')
-            endday = int(endDate.strftime('%j'))
+            endDate = datetime.datetime.strptime(
+                self.dlg.comboBox_SpatialDOYMax.currentText(), "%d %b"
+            )
+            endday = int(endDate.strftime("%j"))
             endD = endday
 
         if startday > endday:
-            QMessageBox.critical(self.dlg, "Error", "Start day happens after end day")
+            QMessageBox.critical(
+                self.dlg, "Error", "Start day happens after end day"
+            )
             return
 
         if startday == endday:
-            QMessageBox.critical(self.dlg, "Error", "End day must be higher than start day")
+            QMessageBox.critical(
+                self.dlg, "Error", "End day must be higher than start day"
+            )
             return
 
         # load, cut data and calculate statistics
@@ -411,59 +485,75 @@ class TARGETAnalyser:
         idx = vlayer.fields().indexFromName(poly_field)
         typetest = fields.at(idx).type()
         if typetest == 10:
-            QMessageBox.critical(self.dlg, "ID field is string type", "ID field must be either integer or float")
+            QMessageBox.critical(
+                self.dlg,
+                "ID field is string type",
+                "ID field must be either integer or float",
+            )
             return
 
         # Load rural data
-        sitein = self.folderPath[0] + '/output/' + self.prefix + '_metdata_UMEP.txt'
+        sitein = (
+            self.folderPath[0] + "/output/" + self.prefix + "_metdata_UMEP.txt"
+        )
         dataref = np.genfromtxt(sitein, skip_header=1)
 
         for f in vlayer.getFeatures():
 
             gid = str(int(f.attributes()[idx]))
-            datawhole = np.genfromtxt(self.folderPath[0] + '/output/' + self.prefix + '_' + gid + '_UMEP_TARGET.txt', skip_header=1)
-            
-            # cut TARGET data 
+            datawhole = np.genfromtxt(
+                self.folderPath[0]
+                + "/output/"
+                + self.prefix
+                + "_"
+                + gid
+                + "_UMEP_TARGET.txt",
+                skip_header=1,
+            )
+
+            # cut TARGET data
             start = np.min(np.where(datawhole[:, 1] == startD))
             if endD > np.max(datawhole[:, 1]):
                 ending = np.max(np.where(datawhole[:, 1] == endD - 1))
             else:
                 ending = np.min(np.where(datawhole[:, 1] == endD))
-            data1 = datawhole[start:int(ending + 12), :] # + 12 to include whole final night 
+            # + 12 to include whole final night
+            data1 = datawhole[start : int(ending + 12), :]
 
             # cut REF data
             if endD > np.max(dataref[:, 1]):
                 ending = np.max(np.where(dataref[:, 1] == endD - 1))
             else:
                 ending = np.min(np.where(dataref[:, 1] == endD))
-            data2 = dataref[start:int(ending + 12), :] # + 12 to include whole final night 
+            # + 12 to include whole final night
+            data2 = dataref[start : int(ending + 12), :]
 
             # Select depending of time of day for modelled data. Issue #792
             if self.dlg.radioButtonDaytime_3.isChecked():
-                data1 = data1[np.where(data1[:, 14] > 1.), :]
+                data1 = data1[np.where(data1[:, 14] > 1.0), :]
                 data1 = data1[0][:]
-                data2 = data2[np.where(data2[:, 14] > 1.), :]
+                data2 = data2[np.where(data2[:, 14] > 1.0), :]
                 data2 = data2[0][:]
             if self.dlg.radioButtonNighttime_3.isChecked():
-                data1 = data1[np.where(data1[:, 14] < 1.), :]
+                data1 = data1[np.where(data1[:, 14] < 1.0), :]
                 data1 = data1[0][:]
-                data2 = data2[np.where(data2[:, 14] < 1.), :]
+                data2 = data2[np.where(data2[:, 14] < 1.0), :]
                 data2 = data2[0][:]
 
-            vardatauwg = data1[:, 11] # 11 is temperature column
-            vardataref = data2[:, 11] 
+            vardatauwg = data1[:, 11]  # 11 is temperature column
+            vardataref = data2[:, 11]
             vardata = vardatauwg - vardataref
 
             if self.dlg.radioButtonMean.isChecked():
                 statresult = np.nanmean(vardata)
-                header = 'mean'
+                header = "mean"
 
             if self.dlg.radioButtonMax.isChecked():
                 statresult = np.nanmax(vardata)
-                header = 'max'
+                header = "max"
             if self.dlg.radioButtonMed.isChecked():
                 statresult = np.nanmedian(vardata)
-                header = 'median'
+                header = "median"
 
             statvectemp = np.vstack((statvectemp, statresult))
             idvec = np.vstack((idvec, int(gid)))
@@ -471,51 +561,73 @@ class TARGETAnalyser:
         statvector = statvectemp[1:, :]
         # fix_print_with_import
         statmat = np.hstack((idvec[1:, :], statvector))
-        statmat[statmat < -500] = -9999 #Response to #107 in Processing
+        statmat[statmat < -500] = -9999  # Response to #107 in Processing
 
         if self.dlg.addResultToGrid.isChecked():
             self.addattributes(vlayer, statmat, header)
 
         if self.dlg.addResultToGeotiff.isChecked():
             extent = vlayer.extent()
-        
+
             if self.dlg.checkBoxIrregular.isChecked():
                 resx = self.dlg.doubleSpinBoxRes.value()
             else:
-                for f in vlayer.getFeatures():  # Taking first polygon. Could probably be done nicer
+                for (
+                    f
+                ) in (
+                    vlayer.getFeatures()
+                ):  # Taking first polygon. Could probably be done nicer
                     geom = f.geometry().asMultiPolygon()
                     break
                 resx = np.abs(geom[0][0][0][0] - geom[0][0][2][0])  # x
                 resy = np.abs(geom[0][0][0][1] - geom[0][0][2][1])  # y
 
                 if not resx == resy:
-                    QMessageBox.critical(self.dlg, "Error", "Polygons not squared in current CRS")
+                    QMessageBox.critical(
+                        self.dlg,
+                        "Error",
+                        "Polygons not squared in current CRS",
+                    )
                     return
 
-            if self.dlg.textOutput.text() == 'Not Specified':
-                QMessageBox.critical(self.dlg, "Error", "No output filename for GeoTIFF is added")
+            if self.dlg.textOutput.text() == "Not Specified":
+                QMessageBox.critical(
+                    self.dlg,
+                    "Error",
+                    "No output filename for GeoTIFF is added",
+                )
                 return
             else:
                 filename = self.dlg.textOutput.text()
-            
-            if os.path.isfile(self.plugin_dir + '/tempgrid.tif'): # response to issue 103
+
+            if os.path.isfile(
+                self.plugin_dir + "/tempgrid.tif"
+            ):  # response to issue 103
                 try:
-                    shutil.rmtree(self.plugin_dir + '/tempgrid.tif')
+                    shutil.rmtree(self.plugin_dir + "/tempgrid.tif")
                 except OSError:
-                    os.remove(self.plugin_dir + '/tempgrid.tif')
-            
+                    os.remove(self.plugin_dir + "/tempgrid.tif")
+
             extent = vlayer.extent()
             crs = vlayer.crs().toWkt()
 
-            path=vlayer.dataProvider().dataSourceUri()
-            if path.rfind('|') > 0:
-                polygonpath = path [:path.rfind('|')] # work around. Probably other solution exists
+            path = vlayer.dataProvider().dataSourceUri()
+            if path.rfind("|") > 0:
+                # work around. Probably other solution exists
+                polygonpath = path[: path.rfind("|")]
             else:
                 polygonpath = path
 
-            self.rasterize(polygonpath, str(self.plugin_dir + '/tempgrid.tif'), str(poly_field), resx, crs, extent)
+            self.rasterize(
+                polygonpath,
+                str(self.plugin_dir + "/tempgrid.tif"),
+                str(poly_field),
+                resx,
+                crs,
+                extent,
+            )
 
-            dataset = gdal.Open(self.plugin_dir + '/tempgrid.tif')
+            dataset = gdal.Open(self.plugin_dir + "/tempgrid.tif")
             idgrid_array = dataset.ReadAsArray().astype(float)
 
             gridout = np.zeros((idgrid_array.shape[0], idgrid_array.shape[1]))
@@ -537,12 +649,32 @@ class TARGETAnalyser:
                 c = QgsColorRampShader()
                 c.setColorRampType(QgsColorRampShader.Type.Interpolated)
                 i = []
-                i.append(QgsColorRampShader.ColorRampItem(np.nanmin(gridout), QtGui.QColor('#2b83ba'), str(np.nanmin(gridout))))
-                i.append(QgsColorRampShader.ColorRampItem(np.nanmedian(gridout), QtGui.QColor('#ffffbf'), str(np.nanmedian(gridout))))
-                i.append(QgsColorRampShader.ColorRampItem(np.nanmax(gridout), QtGui.QColor('#d7191c'),str(np.nanmax(gridout))))
+                i.append(
+                    QgsColorRampShader.ColorRampItem(
+                        np.nanmin(gridout),
+                        QtGui.QColor("#2b83ba"),
+                        str(np.nanmin(gridout)),
+                    )
+                )
+                i.append(
+                    QgsColorRampShader.ColorRampItem(
+                        np.nanmedian(gridout),
+                        QtGui.QColor("#ffffbf"),
+                        str(np.nanmedian(gridout)),
+                    )
+                )
+                i.append(
+                    QgsColorRampShader.ColorRampItem(
+                        np.nanmax(gridout),
+                        QtGui.QColor("#d7191c"),
+                        str(np.nanmax(gridout)),
+                    )
+                )
                 c.setColorRampItemList(i)
                 s.setRasterShaderFunction(c)
-                ps = QgsSingleBandPseudoColorRenderer(rlayer.dataProvider(), 1, s)
+                ps = QgsSingleBandPseudoColorRenderer(
+                    rlayer.dataProvider(), 1, s
+                )
                 rlayer.setRenderer(ps)
 
                 # Trigger a repaint
@@ -550,19 +682,23 @@ class TARGETAnalyser:
                     rlayer.setCacheImage(None)
                 rlayer.triggerRepaint()
 
-        QMessageBox.information(self.dlg, "TARGET Analyser", "Process completed")
-
+        QMessageBox.information(
+            self.dlg, "TARGET Analyser", "Process completed"
+        )
 
     def geotiff_save(self):
-        self.outputfile = self.fileDialog.getSaveFileName(None, "Save File As:", None, "GeoTIFF (*.tif)")
+        self.outputfile = self.fileDialog.getSaveFileName(
+            None, "Save File As:", None, "GeoTIFF (*.tif)"
+        )
         self.dlg.textOutput.setText(self.outputfile[0])
-
 
     def saveraster(self, gdal_data, filename, raster):
         rows = gdal_data.RasterYSize
         cols = gdal_data.RasterXSize
 
-        outDs = gdal.GetDriverByName("GTiff").Create(filename, cols, rows, int(1), GDT_Float32)
+        outDs = gdal.GetDriverByName("GTiff").Create(
+            filename, cols, rows, int(1), GDT_Float32
+        )
         outBand = outDs.GetRasterBand(1)
 
         # write the data
@@ -575,8 +711,17 @@ class TARGETAnalyser:
         outDs.SetGeoTransform(gdal_data.GetGeoTransform())
         outDs.SetProjection(gdal_data.GetProjection())
 
-
-    def rasterize(self, src, dst, attribute, resolution, crs, extent, all_touch=False, na=-9999):
+    def rasterize(
+        self,
+        src,
+        dst,
+        attribute,
+        resolution,
+        crs,
+        extent,
+        all_touch=False,
+        na=-9999,
+    ):
 
         # Open shapefile, retrieve the layer
         # print(src)
@@ -590,10 +735,12 @@ class TARGETAnalyser:
         ymin = extent.yMinimum()
 
         # Create the target raster layer
-        cols = int((xmax - xmin)/resolution)
+        cols = int((xmax - xmin) / resolution)
         # rows = int((ymax - ymin)/resolution) + 1
-        rows = int((ymax - ymin)/resolution)  # issue 164
-        trgt = gdal.GetDriverByName("GTiff").Create(dst, cols, rows, 1, GDT_Float32)
+        rows = int((ymax - ymin) / resolution)  # issue 164
+        trgt = gdal.GetDriverByName("GTiff").Create(
+            dst, cols, rows, 1, GDT_Float32
+        )
         trgt.SetGeoTransform((xmin, resolution, 0, ymax, 0, -resolution))
 
         # Add crs
@@ -616,14 +763,15 @@ class TARGETAnalyser:
 
         # Close target an source rasters
         del trgt
-        del src_data 
+        del src_data
 
-    
     def addattributes(self, vlayer, matdata, header):
         current_index_length = len(vlayer.dataProvider().attributeIndexes())
         caps = vlayer.dataProvider().capabilities()
         if caps & QgsVectorDataProvider.Capability.AddAttributes:
-            vlayer.dataProvider().addAttributes([QgsField(header, QVariant.Double)])
+            vlayer.dataProvider().addAttributes(
+                [QgsField(header, QVariant.Double)]
+            )
             attr_dict = {}
             for y in range(0, matdata.shape[0]):
                 attr_dict.clear()
@@ -633,13 +781,12 @@ class TARGETAnalyser:
 
             vlayer.updateFields()
         else:
-            QMessageBox.critical(None, "Error", "Vector Layer does not support adding attributes")
-
+            QMessageBox.critical(
+                None,
+                "Error",
+                "Vector Layer does not support adding attributes",
+            )
 
     def help(self):
-        url = 'https://umep-docs.readthedocs.io/en/latest/post_processor/Urban%20Heat%20Island%20UWG%20Analyser.html'
+        url = "https://umep-docs.readthedocs.io/en/latest/post_processor/Urban%20Heat%20Island%20UWG%20Analyser.html"
         webbrowser.open_new_tab(url)
-
-
-
-            

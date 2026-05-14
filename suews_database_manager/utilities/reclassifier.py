@@ -7,23 +7,30 @@
 from pathlib import Path
 from .database_functions import save_to_db
 
-from qgis.PyQt.QtCore import  QVariant
+from qgis.PyQt.QtCore import QVariant
 from qgis.PyQt.QtWidgets import QFileDialog, QMessageBox
-from qgis.core import QgsVectorLayer, QgsMapLayerProxyModel, QgsProject, QgsField, QgsVectorFileWriter
+from qgis.core import (
+    QgsVectorLayer,
+    QgsMapLayerProxyModel,
+    QgsProject,
+    QgsField,
+    QgsVectorFileWriter,
+)
+
 
 def setup_reclassifier(self, dlg, db_dict):
 
     def fill_cbox():
-        dlg.comboBoxNew1.clear()        
+        dlg.comboBoxNew1.clear()
 
-        typology_list = list(db_dict['Types']['nameOrigin'])
+        typology_list = list(db_dict["Types"]["nameOrigin"])
         for i in range(1, 23):
-            Nc = getattr(dlg, f'comboBoxNew{i}')
+            Nc = getattr(dlg, f"comboBoxNew{i}")
             Nc.clear()
             Nc.addItems(typology_list)
             Nc.setCurrentIndex(-1)
             Nc.setDisabled(True)
-            vars()[f'dlg.comboBoxNew{i}'] = Nc
+            vars()[f"dlg.comboBoxNew{i}"] = Nc
 
     def field_changed():
 
@@ -46,35 +53,35 @@ def setup_reclassifier(self, dlg, db_dict):
         unique_values = list(layer.uniqueValues(att_index))
         len_uv = len(unique_values)
 
-        # Ensure always String 
+        # Ensure always String
         unique_values = [str(x) for x in unique_values]
 
         for i in range(1, 23):
             # Oc == Old Class
-            Oc = getattr(dlg, f'comboBoxClass{i}')
+            Oc = getattr(dlg, f"comboBoxClass{i}")
             Oc.clear()
             Oc.setDisabled(True)
-            vars()[f'dlg.comboBoxClass{i}'] = Oc
-            
+            vars()[f"dlg.comboBoxClass{i}"] = Oc
+
             # Nc == New Class
-            Nc = getattr(dlg, f'comboBoxNew{i}')
+            Nc = getattr(dlg, f"comboBoxNew{i}")
             Nc.setCurrentIndex(-1)
             Nc.setDisabled(True)
-            vars()[f'dlg.comboBoxNew{i}'] = Nc
+            vars()[f"dlg.comboBoxNew{i}"] = Nc
 
         for i in range(min(len_uv, 22)):
             idx = i + 1
-            
+
             # Oc == Old Class
-            Oc = getattr(dlg, f'comboBoxClass{idx}')
+            Oc = getattr(dlg, f"comboBoxClass{idx}")
             Oc.addItems(unique_values)
             Oc.setCurrentIndex(i)
-            vars()[f'dlg.comboBoxClass{idx}'] = Oc
+            vars()[f"dlg.comboBoxClass{idx}"] = Oc
 
             # Nc == New Class
-            Nc = getattr(dlg, f'comboBoxNew{idx}')
+            Nc = getattr(dlg, f"comboBoxNew{idx}")
             Nc.setEnabled(True)
-            vars()[f'dlg.comboBoxNew{idx}'] = Nc
+            vars()[f"dlg.comboBoxNew{idx}"] = Nc
 
     def layer_changed():
 
@@ -86,10 +93,10 @@ def setup_reclassifier(self, dlg, db_dict):
             dlg.comboBoxField.addItems(att_list)
             dlg.comboBoxField.setCurrentIndex(0)
 
-            field_changed() 
+            field_changed()
         except:
             pass
-        
+
     # def typology_info():
     #     typology_str = dlg.comboBoxType.currentText()
     #     dlg.textBrowser.clear()
@@ -123,17 +130,25 @@ def setup_reclassifier(self, dlg, db_dict):
     #             'Effective Surface Emissivity: ' + str(db_dict['Emissivity'].loc[db_dict['NonVeg'].loc[PavedID]['Emissivity']]['Emissivity'].item()) + '\n' +
     #             'More?....'
     #             )
-        
+
     def savefile():
         # Add possibilites to save as other format? Is .shp only format used in SUEWS Prepare?
-        self.outputfile = self.fileDialog.getSaveFileName(None, 'Save File As:', None, 'Shapefiles (*.shp)')
+        self.outputfile = self.fileDialog.getSaveFileName(
+            None, "Save File As:", None, "Shapefiles (*.shp)"
+        )
         dlg.textOutput.setText(self.outputfile[0])
 
     def backupDatabase():
         # Add possibilites to save as other format? Is .shp only format used in SUEWS Prepare?
-        self.backupPath = self.fileDialog.getSaveFileName(None, 'Save File As:', None, 'Excel (*.xlsx)')
+        self.backupPath = self.fileDialog.getSaveFileName(
+            None, "Save File As:", None, "Excel (*.xlsx)"
+        )
         save_to_db(self.backupPath[0], db_dict)
-        QMessageBox.information(None, 'Export Complete', 'Help others and share your data by submitting your database to our UMEP GitHub. See help for more info.')
+        QMessageBox.information(
+            None,
+            "Export Complete",
+            "Help others and share your data by submitting your database to our UMEP GitHub. See help for more info.",
+        )
         # update_db(db_dict, db_path, updated_db_path, backup_path)
         # dlg.textOutput.setText(self.outputfile[0])
 
@@ -142,40 +157,54 @@ def setup_reclassifier(self, dlg, db_dict):
         vlayer = self.layerComboManagerPoint.currentLayer()
         att_list = []
 
-        QgsVectorFileWriter.writeAsVectorFormat(vlayer, dlg.textOutput.text(), "UTF-8", vlayer.crs(), "ESRI Shapefile")
-        vlayer = QgsVectorLayer(self.outputfile[0], Path(self.outputfile[0]).name[:-4])
+        QgsVectorFileWriter.writeAsVectorFormat(
+            vlayer,
+            dlg.textOutput.text(),
+            "UTF-8",
+            vlayer.crs(),
+            "ESRI Shapefile",
+        )
+        vlayer = QgsVectorLayer(
+            self.outputfile[0], Path(self.outputfile[0]).name[:-4]
+        )
 
         for fieldName in vlayer.fields():
             att_list.append(fieldName.name())
 
-        att_column = dlg.comboBoxField.currentText() # Selected columns in  vectorlayer
+        att_column = (
+            dlg.comboBoxField.currentText()
+        )  # Selected columns in  vectorlayer
         att_index = att_list.index(att_column)
-        
+
         unique_values = list(vlayer.uniqueValues(att_index))
-        
-        dict_reclass = {}       # dict for reclassifying typologynames as string
-        dict_reclassID = {}     # dict for reclassifying typologyID as integer
+
+        dict_reclass = {}  # dict for reclassifying typologynames as string
+        dict_reclassID = {}  # dict for reclassifying typologyID as integer
 
         idx = 1
-        for i in range(len(unique_values)):  
+        for i in range(len(unique_values)):
             if idx > 13:
                 break
-            
+
             # Left side
-            Oc = getattr(dlg, f'comboBoxClass{idx}')
+            Oc = getattr(dlg, f"comboBoxClass{idx}")
             oldField = Oc.currentText()
-            
+
             # Right side
-            Nc = getattr(dlg, f'comboBoxNew{idx}')
+            Nc = getattr(dlg, f"comboBoxNew{idx}")
             newField = Nc.currentText()
-            
+
             dict_reclass[str(oldField)] = str(newField)
-            dict_reclassID[str(oldField)] = db_dict['Types'].loc[db_dict['Types']['nameOrigin'] == str(newField)].index.item()
-            
+            dict_reclassID[str(oldField)] = (
+                db_dict["Types"]
+                .loc[db_dict["Types"]["nameOrigin"] == str(newField)]
+                .index.item()
+            )
+
             idx += 1
 
-        newFieldName = 'TypolName' # New field for typology name
-        newFieldID = 'TypolID'   # New field for typologyID
+        newFieldName = "TypolName"  # New field for typology name
+        newFieldID = "TypolID"  # New field for typologyID
 
         # Add fields in vectorlayer
         fields = [
@@ -186,31 +215,38 @@ def setup_reclassifier(self, dlg, db_dict):
         vlayer.startEditing()
         vlayer.dataProvider().addAttributes(fields)
         vlayer.updateFields()
-        
+
         # Reclassify new fields using reclassify dictionaries created above
         for feature in vlayer.getFeatures():
-            old_value = str(feature[att_column]) 
+            old_value = str(feature[att_column])
             new_value1 = dict_reclass.get(old_value, None)
             new_value2 = dict_reclassID.get(old_value, None)
-            
+
             if new_value1 is not None:
                 feature[newFieldName] = new_value1
             if new_value2 is not None:
                 feature[newFieldID] = new_value2
-            
+
             vlayer.updateFeature(feature)
 
         vlayer.commitChanges()
 
-        QgsProject.instance().addMapLayer(vlayer) # Add vectorlayer to QGIS-project
+        QgsProject.instance().addMapLayer(
+            vlayer
+        )  # Add vectorlayer to QGIS-project
 
-        QMessageBox.information(None, 'Process Complete', 'Your reclassified shapefile has been added to project. Proceed to SUEWS Preprare Database to generate input data for SUEWS.')
+        QMessageBox.information(
+            None,
+            "Process Complete",
+            "Your reclassified shapefile has been added to project. Proceed to SUEWS Preprare Database to generate input data for SUEWS.",
+        )
         dlg.textOutput.clear()
-
 
     self.layerComboManagerPoint = dlg.comboBoxVector
     self.layerComboManagerPoint.setCurrentIndex(-1)
-    self.layerComboManagerPoint.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
+    self.layerComboManagerPoint.setFilters(
+        QgsMapLayerProxyModel.Filter.PolygonLayer
+    )
 
     def tab_update():
         if self.dlg.tabWidget.currentIndex() == 0:
@@ -223,11 +259,8 @@ def setup_reclassifier(self, dlg, db_dict):
 
     self.fileDialog = QFileDialog()
     dlg.pushButtonSave.clicked.connect(savefile)
-    
+
     # Set up for the run button
     dlg.runButton.clicked.connect(start_progress)
 
     dlg.pushButtonUpdateDatabase.clicked.connect(backupDatabase)
-
-    
-        

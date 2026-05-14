@@ -20,6 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 from __future__ import absolute_import
 from builtins import str
 from builtins import range
@@ -29,6 +30,7 @@ from qgis.PyQt.QtWidgets import QFileDialog, QAction, QMessageBox
 from qgis.PyQt.QtGui import QIcon
 from qgis.core import *
 from qgis.gui import *
+
 # Initialize Qt resources from file resources.py
 # from . import resources_rc
 # Import the code for the dialog
@@ -36,6 +38,7 @@ from .land_cover_reclassifier_dialog import LandCoverReclassifierDialog
 import os.path
 from ..Utilities.misc import *
 import webbrowser
+
 
 class LandCoverReclassifier(object):
     """QGIS Plugin Implementation."""
@@ -53,17 +56,18 @@ class LandCoverReclassifier(object):
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(
             self.plugin_dir,
-            'i18n',
-            'LandCoverReclassifier_{}.qm'.format(locale))
+            "i18n",
+            "LandCoverReclassifier_{}.qm".format(locale),
+        )
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
 
-            if qVersion() > '4.3.3':
+            if qVersion() > "4.3.3":
                 QCoreApplication.installTranslator(self.translator)
 
         # Create the dialog (after translation) and keep reference
@@ -80,15 +84,19 @@ class LandCoverReclassifier(object):
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&Land Cover Reclassifier')
+        self.menu = self.tr("&Land Cover Reclassifier")
         # TODO: We are going to let the user set this up in a future iteration
         # self.toolbar = self.iface.addToolBar(u'LandCoverReclassifier')
         # self.toolbar.setObjectName(u'LandCoverReclassifier')
 
         # self.layerComboManagerLCgrid = RasterLayerCombo(self.dlg.comboBox_lcgrid)
         # RasterLayerCombo(self.dlg.comboBox_lcgrid, initLayer="")
-        self.layerComboManagerLCgrid = QgsMapLayerComboBox(self.dlg.widgetLCgrid)
-        self.layerComboManagerLCgrid.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerLCgrid = QgsMapLayerComboBox(
+            self.dlg.widgetLCgrid
+        )
+        self.layerComboManagerLCgrid.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerLCgrid.setFixedWidth(175)
         self.layerComboManagerLCgrid.setCurrentIndex(-1)
 
@@ -105,8 +113,7 @@ class LandCoverReclassifier(object):
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('LandCoverReclassifier', message)
-
+        return QCoreApplication.translate("LandCoverReclassifier", message)
 
     def add_action(
         self,
@@ -118,7 +125,8 @@ class LandCoverReclassifier(object):
         add_to_toolbar=True,
         status_tip=None,
         whats_this=None,
-        parent=None):
+        parent=None,
+    ):
 
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
@@ -135,9 +143,7 @@ class LandCoverReclassifier(object):
             self.toolbar.addAction(action)
 
         if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action)
+            self.iface.addPluginToMenu(self.menu, action)
 
         self.actions.append(action)
 
@@ -146,19 +152,20 @@ class LandCoverReclassifier(object):
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/LandCoverReclassifier/icon.png'
+        icon_path = ":/plugins/LandCoverReclassifier/icon.png"
         self.add_action(
             icon_path,
-            text=self.tr(u'Reclassifies a raster to a UMEP land cover grid'),
+            text=self.tr("Reclassifies a raster to a UMEP land cover grid"),
             callback=self.run,
-            parent=self.iface.mainWindow())
+            parent=self.iface.mainWindow(),
+        )
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr(u'&Land Cover Reclassifier'),
-                action)
+                self.tr("&Land Cover Reclassifier"), action
+            )
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
         del self.toolbar
@@ -169,7 +176,7 @@ class LandCoverReclassifier(object):
         # filename = QFileDialog.getSaveFileName(self.dlg, "Save as geotiff ", '*.tif')
         if result == 1:
             self.filePath = self.fileDialog.selectedFiles()
-            self.filePath[0] = self.filePath[0] + '.tif'
+            self.filePath[0] = self.filePath[0] + ".tif"
             self.dlg.textOutput.setText(self.filePath[0])
 
     # def add_target(self):
@@ -184,33 +191,34 @@ class LandCoverReclassifier(object):
     #             Le = eval('self.dlg.Box_' + str(i))
     #             Le.removeItem(8)
     #             Le.removeItem(8)
-            # self.dlg.Box_1.clear()
-            # self.dlg.Box_1.addItem('Not Specified')
-        # if not self.dlg.checkBoxTarget.isChecked:
-            # self.dlg.Box_1.clear()
+    # self.dlg.Box_1.clear()
+    # self.dlg.Box_1.addItem('Not Specified')
+    # if not self.dlg.checkBoxTarget.isChecked:
+    # self.dlg.Box_1.clear()
 
     def add_target(self):
         t = self.dlg.checkBoxTarget.isChecked()
-        
+
         for i in range(1, 14):
             Le = getattr(self.dlg, f"Box_{i}")
-            
+
             if t:
-                Le.addItem('Grass (irrigated)')
-                Le.addItem('Concrete')
+                Le.addItem("Grass (irrigated)")
+                Le.addItem("Concrete")
             else:
                 Le.removeItem(8)
                 Le.removeItem(8)
-            
 
     def start_progress(self):
 
         lc_grid = self.layerComboManagerLCgrid.currentLayer()
         if lc_grid is None:
-            QMessageBox.critical(None, "Error", "No valid raster layer is selected")
+            QMessageBox.critical(
+                None, "Error", "No valid raster layer is selected"
+            )
             return
 
-        if self.filePath == 'None':
+        if self.filePath == "None":
             QMessageBox.critical(None, "Error", "Select a valid output folder")
             return
 
@@ -276,7 +284,7 @@ class LandCoverReclassifier(object):
             lc_type[13, 2] = self.dlg.pai_14_s.text()
 
         provider = lc_grid.dataProvider()
-        filepath_lc_grid= str(provider.dataSourceUri())
+        filepath_lc_grid = str(provider.dataSourceUri())
         gdal_lc_grid = gdal.Open(filepath_lc_grid)
 
         lc_grid = gdal_lc_grid.ReadAsArray().astype(float)
@@ -286,7 +294,11 @@ class LandCoverReclassifier(object):
 
         # populating new grid with values
         for i in range(lc_type.shape[0]):
-            lc_grid_rc[np.where((lc_grid > lc_type[i, 1]) & (lc_grid <= lc_type[i, 2]))] = lc_type[i, 0]
+            lc_grid_rc[
+                np.where(
+                    (lc_grid > lc_type[i, 1]) & (lc_grid <= lc_type[i, 2])
+                )
+            ] = lc_type[i, 0]
 
         filename = self.filePath[0]
         saveraster(gdal_lc_grid, filename, lc_grid_rc)
@@ -295,7 +307,7 @@ class LandCoverReclassifier(object):
         rlayer = self.iface.addRasterLayer(filename)
 
         # This is not working, yet... almost now. only now showing names in layer window
-        rlayer.loadNamedStyle(self.plugin_dir + '/landcoverstyle.qml')
+        rlayer.loadNamedStyle(self.plugin_dir + "/landcoverstyle.qml")
         # self.QgsMapLayerRegistry.instance().addMapLayer(rlayer)
 
         # Trigger a repaint
@@ -309,6 +321,5 @@ class LandCoverReclassifier(object):
         self.dlg.exec()
 
     def help(self):
-        url = 'https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Land%20Cover%20Land%20Cover%20Reclassifier.html'
+        url = "https://umep-docs.readthedocs.io/en/latest/pre-processor/Urban%20Land%20Cover%20Land%20Cover%20Reclassifier.html"
         webbrowser.open_new_tab(url)
-

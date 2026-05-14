@@ -3,7 +3,7 @@
 /***************************************************************************
  Sun
                                  A QGIS plugin
- Creates a sun energy analyzing environment with statistics and 3D model 
+ Creates a sun energy analyzing environment with statistics and 3D model
                              -------------------
         begin                : 2014-03-20
         copyright            : (C) 2014 by Niklas Krave
@@ -21,7 +21,9 @@
  This script initializes the plugin, making it known to QGIS.
 """
 
+
 def classFactory(iface):
     # load Sun class from file Sun
     from sun import Visual
+
     return Visual(iface)

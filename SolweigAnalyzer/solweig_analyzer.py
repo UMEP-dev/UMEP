@@ -20,6 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 from __future__ import print_function
 from __future__ import absolute_import
 from builtins import str
@@ -37,14 +38,15 @@ from osgeo import gdal
 from osgeo.gdalconst import *
 import numpy as np
 import datetime
+
 try:
     import matplotlib.pylab as plt
     import matplotlib.dates as dt
-    from matplotlib.dates import DayLocator, HourLocator, DateFormatter, drange
+    from matplotlib.dates import DayLocator, HourLocator, DateFormatter
+
     nomatplot = 0
 except ImportError:
     nomatplot = 1
-    pass
 
 
 class SolweigAnalyzer(object):
@@ -63,17 +65,16 @@ class SolweigAnalyzer(object):
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'SolweigAnalyzer_{}.qm'.format(locale))
+            self.plugin_dir, "i18n", "SolweigAnalyzer_{}.qm".format(locale)
+        )
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
 
-            if qVersion() > '4.3.3':
+            if qVersion() > "4.3.3":
                 QCoreApplication.installTranslator(self.translator)
 
         # Create the dialog (after translation) and keep reference
@@ -84,20 +85,28 @@ class SolweigAnalyzer(object):
         self.dlg.pushButtonHelp.clicked.connect(self.help)
         self.dlg.pushButtonModelFolder.clicked.connect(self.folder_path_model)
         self.dlg.pushButtonSave.clicked.connect(self.folder_path_save)
-        self.dlg.comboBoxSpatialVariables.currentIndexChanged.connect(self.tmrtchosen)
-        self.dlg.comboBoxSpatialVariables.currentIndexChanged.connect(self.moviescale)
+        self.dlg.comboBoxSpatialVariables.currentIndexChanged.connect(
+            self.tmrtchosen
+        )
+        self.dlg.comboBoxSpatialVariables.currentIndexChanged.connect(
+            self.moviescale
+        )
         self.fileDialog = QFileDialog()
         self.fileDialog.setFileMode(QFileDialog.FileMode.Directory)
         self.fileDialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
 
-        self.layerComboManagerDSM = QgsMapLayerComboBox(self.dlg.widgetBuildings)
-        self.layerComboManagerDSM.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
+        self.layerComboManagerDSM = QgsMapLayerComboBox(
+            self.dlg.widgetBuildings
+        )
+        self.layerComboManagerDSM.setFilters(
+            QgsMapLayerProxyModel.Filter.RasterLayer
+        )
         self.layerComboManagerDSM.setFixedWidth(175)
         self.layerComboManagerDSM.setCurrentIndex(-1)
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&SOLWEIG Analyzer')
+        self.menu = self.tr("&SOLWEIG Analyzer")
         # TODO: We are going to let the user set this up in a future iteration
         # self.toolbar = self.iface.addToolBar(u'SolweigAnalyzer')
         # self.toolbar.setObjectName(u'SolweigAnalyzer')
@@ -124,8 +133,7 @@ class SolweigAnalyzer(object):
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
-        return QCoreApplication.translate('SolweigAnalyzer', message)
-
+        return QCoreApplication.translate("SolweigAnalyzer", message)
 
     def add_action(
         self,
@@ -137,7 +145,8 @@ class SolweigAnalyzer(object):
         add_to_toolbar=True,
         status_tip=None,
         whats_this=None,
-        parent=None):
+        parent=None,
+    ):
 
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
@@ -154,27 +163,24 @@ class SolweigAnalyzer(object):
             self.toolbar.addAction(action)
 
         if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action)
+            self.iface.addPluginToMenu(self.menu, action)
 
         self.actions.append(action)
 
         return action
 
     def initGui(self):
-        icon_path = ':/plugins/SolweigAnalyzer/icon.png'
+        icon_path = ":/plugins/SolweigAnalyzer/icon.png"
         self.add_action(
             icon_path,
-            text=self.tr(u''),
+            text=self.tr(""),
             callback=self.run,
-            parent=self.iface.mainWindow())
+            parent=self.iface.mainWindow(),
+        )
 
     def unload(self):
         for action in self.actions:
-            self.iface.removePluginMenu(
-                self.tr(u'&SOLWEIG Analyzer'),
-                action)
+            self.iface.removePluginMenu(self.tr("&SOLWEIG Analyzer"), action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
         del self.toolbar
@@ -187,9 +193,9 @@ class SolweigAnalyzer(object):
         self.dlg.comboBoxSpecificMin.clear()
         self.dlg.comboBox_POI.clear()
         self.dlg.comboBox_POI_2.clear()
-        self.dlg.comboBoxSpecificMean.addItem('Not Specified')
-        self.dlg.comboBoxSpecificMax.addItem('Not Specified')
-        self.dlg.comboBoxSpecificMin.addItem('Not Specified')
+        self.dlg.comboBoxSpecificMean.addItem("Not Specified")
+        self.dlg.comboBoxSpecificMax.addItem("Not Specified")
+        self.dlg.comboBoxSpecificMin.addItem("Not Specified")
 
         # self.fileDialog.setFileMode(QFileDialog.Directory)
         # self.fileDialog.setOption(QFileDialog.ShowDirsOnly, True)
@@ -214,7 +220,7 @@ class SolweigAnalyzer(object):
                     self.lupPresent = 1
                 if file.startswith("Shadow_") and file.endswith(".tif"):
                     self.shadowPresent = 1
-                if file.endswith('N.tif') or file.endswith('D.tif'):
+                if file.endswith("N.tif") or file.endswith("D.tif"):
                     self.timelist.append(file[-9:-5])
                 if file.startswith("POI_"):
                     self.POIPresent = 1
@@ -223,7 +229,7 @@ class SolweigAnalyzer(object):
                 if file.startswith("PET_"):
                     self.petPresent = 1
                 if file.startswith("UTCI_"):
-                    self.utciPresent = 1    
+                    self.utciPresent = 1
                 index += 1
 
             l = sorted(list(set(self.timelist)))
@@ -232,24 +238,32 @@ class SolweigAnalyzer(object):
             self.dlg.comboBoxSpecificMin.addItems(l)
 
             if self.tmrtPresent == 1:
-                self.dlg.comboBoxSpatialVariables.addItem('Tmrt')
+                self.dlg.comboBoxSpatialVariables.addItem("Tmrt")
             if self.kdownPresent == 1:
-                self.dlg.comboBoxSpatialVariables.addItem('Kdown')
+                self.dlg.comboBoxSpatialVariables.addItem("Kdown")
             if self.kupPresent == 1:
-                self.dlg.comboBoxSpatialVariables.addItem('Kup')
+                self.dlg.comboBoxSpatialVariables.addItem("Kup")
             if self.ldownPresent == 1:
-                self.dlg.comboBoxSpatialVariables.addItem('Ldown')
+                self.dlg.comboBoxSpatialVariables.addItem("Ldown")
             if self.lupPresent == 1:
-                self.dlg.comboBoxSpatialVariables.addItem('Lup')
+                self.dlg.comboBoxSpatialVariables.addItem("Lup")
             if self.shadowPresent == 1:
-                self.dlg.comboBoxSpatialVariables.addItem('Shadow')
+                self.dlg.comboBoxSpatialVariables.addItem("Shadow")
             if self.petPresent == 1:
-                self.dlg.comboBoxSpatialVariables.addItem('PET')
+                self.dlg.comboBoxSpatialVariables.addItem("PET")
             if self.utciPresent == 1:
-                self.dlg.comboBoxSpatialVariables.addItem('UTCI')
+                self.dlg.comboBoxSpatialVariables.addItem("UTCI")
 
-            if self.tmrtPresent == 1 or self.kdownPresent == 1 or self.kupPresent == 1 or self.ldownPresent == 1 or \
-                            self.lupPresent == 1 or self.shadowPresent == 1 or self.petPresent == 1 or self.utciPresent == 1:
+            if (
+                self.tmrtPresent == 1
+                or self.kdownPresent == 1
+                or self.kupPresent == 1
+                or self.ldownPresent == 1
+                or self.lupPresent == 1
+                or self.shadowPresent == 1
+                or self.petPresent == 1
+                or self.utciPresent == 1
+            ):
                 self.dlg.pushButtonSave.setEnabled(1)
                 self.dlg.runButtonMovie.setEnabled(1)
             if self.POIPresent == 1:
@@ -258,7 +272,7 @@ class SolweigAnalyzer(object):
                 self.dlg.spinBoxMovieMax.setEnabled(1)
 
     def tmrtchosen(self):
-        if self.dlg.comboBoxSpatialVariables.currentText() == 'Tmrt':
+        if self.dlg.comboBoxSpatialVariables.currentText() == "Tmrt":
             self.dlg.checkboxTmrtHighRisk.setEnabled(1)
             self.dlg.checkboxTmrtLowRisk.setEnabled(1)
             self.dlg.doubleSpinBoxTmrtHighRisk.setEnabled(1)
@@ -270,28 +284,28 @@ class SolweigAnalyzer(object):
             self.dlg.doubleSpinBoxTmrtLowRisk.setEnabled(0)
 
     def moviescale(self):
-        if self.dlg.comboBoxSpatialVariables.currentText() == 'Tmrt':
+        if self.dlg.comboBoxSpatialVariables.currentText() == "Tmrt":
             self.dlg.spinBoxMovieMin.setValue(-10)
             self.dlg.spinBoxMovieMax.setValue(70)
-        if self.dlg.comboBoxSpatialVariables.currentText() == 'Kdown':
+        if self.dlg.comboBoxSpatialVariables.currentText() == "Kdown":
             self.dlg.spinBoxMovieMin.setValue(0)
             self.dlg.spinBoxMovieMax.setValue(1000)
-        if self.dlg.comboBoxSpatialVariables.currentText() == 'Kup':
+        if self.dlg.comboBoxSpatialVariables.currentText() == "Kup":
             self.dlg.spinBoxMovieMin.setValue(0)
             self.dlg.spinBoxMovieMax.setValue(200)
-        if self.dlg.comboBoxSpatialVariables.currentText() == 'Ldown':
+        if self.dlg.comboBoxSpatialVariables.currentText() == "Ldown":
             self.dlg.spinBoxMovieMin.setValue(300)
             self.dlg.spinBoxMovieMax.setValue(500)
-        if self.dlg.comboBoxSpatialVariables.currentText() == 'Lup':
+        if self.dlg.comboBoxSpatialVariables.currentText() == "Lup":
             self.dlg.spinBoxMovieMin.setValue(300)
             self.dlg.spinBoxMovieMax.setValue(600)
-        if self.dlg.comboBoxSpatialVariables.currentText() == 'Shadow':
+        if self.dlg.comboBoxSpatialVariables.currentText() == "Shadow":
             self.dlg.spinBoxMovieMin.setValue(0)
             self.dlg.spinBoxMovieMax.setValue(1)
-        if self.dlg.comboBoxSpatialVariables.currentText() == 'PET':
+        if self.dlg.comboBoxSpatialVariables.currentText() == "PET":
             self.dlg.spinBoxMovieMin.setValue(-10)
             self.dlg.spinBoxMovieMax.setValue(50)
-        if self.dlg.comboBoxSpatialVariables.currentText() == 'UTCI':
+        if self.dlg.comboBoxSpatialVariables.currentText() == "UTCI":
             self.dlg.spinBoxMovieMin.setValue(-10)
             self.dlg.spinBoxMovieMax.setValue(50)
 
@@ -314,21 +328,70 @@ class SolweigAnalyzer(object):
     def plotpoi(self):
         self.varpoi1 = self.dlg.comboBox_POI.currentText()
 
-        if self.dlg.comboBox_POI.currentText() == 'Not Specified':
+        if self.dlg.comboBox_POI.currentText() == "Not Specified":
             QMessageBox.critical(self.dlg, "Error", "No POI is selected")
             return
 
-        data1 = np.loadtxt(self.folderPath[0] + '/POI_' + self.varpoi1 + '.txt', skiprows=1)
-        varpos = [5, 6, 9, 7, 8, 10, 11, 16, 17, 22, 23, 24, 25, 26, 27, 28, 29, 33, 34]
-        wm2 = '$W$'' ''$m ^{-2}$'
-        degC = '$^{o}C$'
-        deg = '$Degrees(^{o})$'
-        frac = ''
-        varunit = [deg, deg, wm2, wm2, wm2, wm2, wm2, wm2, wm2, degC, degC, frac, frac, degC, wm2, frac, frac, degC, degC]
+        data1 = np.loadtxt(
+            self.folderPath[0] + "/POI_" + self.varpoi1 + ".txt", skiprows=1
+        )
+        varpos = [
+            5,
+            6,
+            9,
+            7,
+            8,
+            10,
+            11,
+            16,
+            17,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            33,
+            34,
+        ]
+        wm2 = "$W$" " " "$m ^{-2}$"
+        degC = "$^{o}C$"
+        deg = "$Degrees(^{o})$"
+        frac = ""
+        varunit = [
+            deg,
+            deg,
+            wm2,
+            wm2,
+            wm2,
+            wm2,
+            wm2,
+            wm2,
+            wm2,
+            degC,
+            degC,
+            frac,
+            frac,
+            degC,
+            wm2,
+            frac,
+            frac,
+            degC,
+            degC,
+        ]
 
         dates = []
         for i in range(0, data1.shape[0]):  # making date number
-            dates.append(dt.datetime.datetime(int(data1[i, 0]), 1, 1) + datetime.timedelta(days=data1[i, 1] - 1, hours=data1[i, 2], minutes=data1[i, 3]))
+            dates.append(
+                dt.datetime.datetime(int(data1[i, 0]), 1, 1)
+                + datetime.timedelta(
+                    days=data1[i, 1] - 1,
+                    hours=data1[i, 2],
+                    minutes=data1[i, 3],
+                )
+            )
 
         # datenum_yy = np.zeros(data1.shape[0])
         # for i in range(0, data1.shape[0]):  # making date number
@@ -343,15 +406,22 @@ class SolweigAnalyzer(object):
             # One variable
             id = self.dlg.comboBox_POIVariable.currentIndex() - 1
 
-            if self.dlg.comboBox_POIVariable.currentText() == 'Not Specified':
-                QMessageBox.critical(self.dlg, "Error", "No plotting variable is selected")
+            if self.dlg.comboBox_POIVariable.currentText() == "Not Specified":
+                QMessageBox.critical(
+                    self.dlg, "Error", "No plotting variable is selected"
+                )
                 return
 
-            plt.figure(1, figsize=(15, 7), facecolor='white')
+            plt.figure(1, figsize=(15, 7), facecolor="white")
             plt.title(self.dlg.comboBox_POIVariable.currentText())
             ax1 = plt.subplot(1, 1, 1)
-            ax1.plot(dates, data1[:, varpos[id]], 'r', label='$' + self.dlg.comboBox_POIVariable.currentText() + '$')
-            plt.setp(plt.gca().xaxis.get_majorticklabels(),'rotation', 45)
+            ax1.plot(
+                dates,
+                data1[:, varpos[id]],
+                "r",
+                label="$" + self.dlg.comboBox_POIVariable.currentText() + "$",
+            )
+            plt.setp(plt.gca().xaxis.get_majorticklabels(), "rotation", 45)
             ax1.grid(True)
 
             if (np.max(data1[:, 1]) - np.min(data1[:, 1])) > 1:
@@ -362,81 +432,147 @@ class SolweigAnalyzer(object):
                 ax1.xaxis.set_major_formatter(DateFormatter("%H:%M"))
 
             ax1.set_ylabel(varunit[id], fontsize=14)
-            ax1.set_xlabel('Time', fontsize=14)
+            ax1.set_xlabel("Time", fontsize=14)
         else:
             # Two variables
             id1 = self.dlg.comboBox_POIVariable.currentIndex() - 1
             id2 = self.dlg.comboBox_POIVariable_2.currentIndex() - 1
-            if self.dlg.comboBox_POIVariable_2.currentText() == 'Not Specified' or self.dlg.comboBox_POIVariable.currentText() == 'Not Specified':
-                QMessageBox.critical(self.dlg, "Error", "No plotting variable is selected")
+            if (
+                self.dlg.comboBox_POIVariable_2.currentText()
+                == "Not Specified"
+                or self.dlg.comboBox_POIVariable.currentText()
+                == "Not Specified"
+            ):
+                QMessageBox.critical(
+                    self.dlg, "Error", "No plotting variable is selected"
+                )
                 return
             self.varpoi2 = self.dlg.comboBox_POI_2.currentText()
-            data2 = np.loadtxt(self.folderPath[0] + '/POI_' + self.varpoi2 + '.txt', skiprows=1)
+            data2 = np.loadtxt(
+                self.folderPath[0] + "/POI_" + self.varpoi2 + ".txt",
+                skiprows=1,
+            )
 
             if self.dlg.checkboxScatterbox.isChecked():
-                plt.figure(1, figsize=(11, 11), facecolor='white')
-                plt.title(self.dlg.comboBox_POIVariable.currentText() + '(' + self.varpoi1 + ') vs ' + self.dlg.comboBox_POIVariable_2.currentText() + '(' + self.varpoi2 + ')')
+                plt.figure(1, figsize=(11, 11), facecolor="white")
+                plt.title(
+                    self.dlg.comboBox_POIVariable.currentText()
+                    + "("
+                    + self.varpoi1
+                    + ") vs "
+                    + self.dlg.comboBox_POIVariable_2.currentText()
+                    + "("
+                    + self.varpoi2
+                    + ")"
+                )
                 ax1 = plt.subplot(1, 1, 1)
                 ax1.plot(data1[:, varpos[id1]], data2[:, varpos[id2]], "k.")
                 ax1.set_ylabel(varunit[id2], fontsize=14)
                 ax1.set_xlabel(varunit[id1], fontsize=14)
             else:
-                plt.figure(1, figsize=(15, 7), facecolor='white')
-                plt.title(self.dlg.comboBox_POIVariable.currentText() + '(' + self.varpoi1 + ') and ' + self.dlg.comboBox_POIVariable_2.currentText() + '(' + self.varpoi2 + ')')
+                plt.figure(1, figsize=(15, 7), facecolor="white")
+                plt.title(
+                    self.dlg.comboBox_POIVariable.currentText()
+                    + "("
+                    + self.varpoi1
+                    + ") and "
+                    + self.dlg.comboBox_POIVariable_2.currentText()
+                    + "("
+                    + self.varpoi2
+                    + ")"
+                )
                 ax1 = plt.subplot(1, 1, 1)
                 if not varunit[id1] == varunit[id2]:
                     ax2 = ax1.twinx()
-                    ax1.plot(dates, data1[:, varpos[id1]], 'r', label='$' + self.dlg.comboBox_POIVariable.currentText() + ' (' + self.varpoi1 + ')$')
+                    ax1.plot(
+                        dates,
+                        data1[:, varpos[id1]],
+                        "r",
+                        label="$"
+                        + self.dlg.comboBox_POIVariable.currentText()
+                        + " ("
+                        + self.varpoi1
+                        + ")$",
+                    )
                     ax1.legend(loc=1)
-                    ax2.plot(dates, data2[:, varpos[id2]], 'b', label='$' + self.dlg.comboBox_POIVariable_2.currentText() + ' (' + self.varpoi2 + ')$')
+                    ax2.plot(
+                        dates,
+                        data2[:, varpos[id2]],
+                        "b",
+                        label="$"
+                        + self.dlg.comboBox_POIVariable_2.currentText()
+                        + " ("
+                        + self.varpoi2
+                        + ")$",
+                    )
                     ax2.legend(loc=2)
-                    ax1.set_ylabel(varunit[id1], color='r', fontsize=14)
-                    ax2.set_ylabel(varunit[id2], color='b', fontsize=14)
+                    ax1.set_ylabel(varunit[id1], color="r", fontsize=14)
+                    ax2.set_ylabel(varunit[id2], color="b", fontsize=14)
                 else:
-                    ax1.plot(dates, data1[:, varpos[id1]], 'r', label='$' + self.dlg.comboBox_POIVariable.currentText() + ' (' + self.varpoi1 + ')$')
-                    ax1.plot(dates, data2[:, varpos[id2]], 'b', label='$' + self.dlg.comboBox_POIVariable_2.currentText() + ' (' + self.varpoi2 + ')$')
+                    ax1.plot(
+                        dates,
+                        data1[:, varpos[id1]],
+                        "r",
+                        label="$"
+                        + self.dlg.comboBox_POIVariable.currentText()
+                        + " ("
+                        + self.varpoi1
+                        + ")$",
+                    )
+                    ax1.plot(
+                        dates,
+                        data2[:, varpos[id2]],
+                        "b",
+                        label="$"
+                        + self.dlg.comboBox_POIVariable_2.currentText()
+                        + " ("
+                        + self.varpoi2
+                        + ")$",
+                    )
                     ax1.legend(loc=2)
                     ax1.set_ylabel(varunit[id1], fontsize=14)
 
-                plt.setp(plt.gca().xaxis.get_majorticklabels(), 'rotation', 45)
+                plt.setp(plt.gca().xaxis.get_majorticklabels(), "rotation", 45)
                 ax1.grid(True)
 
                 if (np.max(data1[:, 1]) - np.min(data1[:, 1])) > 1:
                     ax1.xaxis.set_major_locator(DayLocator())
-                    ax1.xaxis.set_major_formatter(DateFormatter("%Y-%m-%d %H:%M"))
+                    ax1.xaxis.set_major_formatter(
+                        DateFormatter("%Y-%m-%d %H:%M")
+                    )
                 else:
                     ax1.xaxis.set_minor_locator(HourLocator())
                     ax1.xaxis.set_major_formatter(DateFormatter("%H:%M"))
 
-                ax1.set_xlabel('Time', fontsize=14)
+                ax1.set_xlabel("Time", fontsize=14)
         plt.show()
 
     def movieshow(self):
         self.var = self.dlg.comboBoxSpatialVariables.currentText()
 
-        if self.var == 'Not Specified':
+        if self.var == "Not Specified":
             QMessageBox.critical(self.dlg, "Error", "No variable is selected")
             return
 
         cmin = self.dlg.spinBoxMovieMin.value()
         cmax = self.dlg.spinBoxMovieMax.value()
 
-        plt.figure(1, figsize=(9, 9), facecolor='white')
+        plt.figure(1, figsize=(9, 9), facecolor="white")
         plt.ion()
         index = 0
         for file in self.l:
-            if file.startswith(self.var + '_') and file.endswith('.tif'):
+            if file.startswith(self.var + "_") and file.endswith(".tif"):
                 self.posAll.append(index)
             index += 1
 
         index = 0
         for i in self.posAll:
-            gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
+            gdal_dsm = gdal.Open(self.folderPath[0] + "/" + self.l[i])
             grid = gdal_dsm.ReadAsArray().astype(float)
             plt.imshow(grid, clim=(cmin, cmax))
             plt.title(self.l[i])
             if index == 0:
-                plt.colorbar(orientation='horizontal')
+                plt.colorbar(orientation="horizontal")
             plt.show()
             plt.pause(0.5)
             index += 1
@@ -446,19 +582,19 @@ class SolweigAnalyzer(object):
     def start_progress_spatial(self):
         self.var = self.dlg.comboBoxSpatialVariables.currentText()
 
-        if self.var == 'Not Specified':
+        if self.var == "Not Specified":
             QMessageBox.critical(self.dlg, "Error", "No variable is selected")
             return
 
         index = 0
         for file in self.l:
-            if file.startswith(self.var + '_'):
-                if not file.endswith('_average.tif'):
-                    if not file.endswith('.xml'): # response to issue #196
+            if file.startswith(self.var + "_"):
+                if not file.endswith("_average.tif"):
+                    if not file.endswith(".xml"):  # response to issue #196
                         self.posAll.append(index)
-                if file.endswith('D.tif'):
+                if file.endswith("D.tif"):
                     self.posDay.append(index)
-                if file.endswith('N.tif'):
+                if file.endswith("N.tif"):
                     self.posNight.append(index)
                 if file[-9:-5] == self.dlg.comboBoxSpecificMean.currentText():
                     self.posSpecMean.append(index)
@@ -473,16 +609,24 @@ class SolweigAnalyzer(object):
             dsmlayer = self.layerComboManagerDSM.currentLayer()
 
             if dsmlayer is None:
-                QMessageBox.critical(self.dlg, "Error", "No valid raster layer is selected")
+                QMessageBox.critical(
+                    self.dlg, "Error", "No valid raster layer is selected"
+                )
                 return
 
             if self.folderPath[0] is None:
-                QMessageBox.critical(self.dlg, "Error", "No building grid specified")
+                QMessageBox.critical(
+                    self.dlg, "Error", "No building grid specified"
+                )
             else:
                 dsmlayer = self.layerComboManagerDSM.currentLayer()
 
                 if dsmlayer is None:
-                    QMessageBox.critical(self.dlg, "Error", "No valid building raster layer is selected")
+                    QMessageBox.critical(
+                        self.dlg,
+                        "Error",
+                        "No valid building raster layer is selected",
+                    )
                     return
 
                 provider = dsmlayer.dataProvider()
@@ -498,7 +642,7 @@ class SolweigAnalyzer(object):
             # fix_print_with_import
             # print(self.posAll)
             for i in self.posAll:
-                gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
+                gdal_dsm = gdal.Open(self.folderPath[0] + "/" + self.l[i])
                 grid = gdal_dsm.ReadAsArray().astype(float)
                 if index == 0:
                     sizex = grid.shape[0]
@@ -512,16 +656,25 @@ class SolweigAnalyzer(object):
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 gridall[self.build == 0] = -9999
 
-            self.saverasternd(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_diurnal_mean.tif', gridall)
+            self.saverasternd(
+                gdal_dsm,
+                self.folderPathSave[0] + "/" + self.var + "_diurnal_mean.tif",
+                gridall,
+            )
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
-                self.intoCanvas(self.folderPathSave[0] + '/' + self.var + '_diurnal_mean.tif')
+                self.intoCanvas(
+                    self.folderPathSave[0]
+                    + "/"
+                    + self.var
+                    + "_diurnal_mean.tif"
+                )
 
         # Daytime mean
         if self.dlg.checkboxDayMean.isChecked():
             index = 0
             for i in self.posDay:
-                gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
+                gdal_dsm = gdal.Open(self.folderPath[0] + "/" + self.l[i])
                 grid = gdal_dsm.ReadAsArray().astype(float)
                 if index == 0:
                     sizex = grid.shape[0]
@@ -535,16 +688,25 @@ class SolweigAnalyzer(object):
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 daymean[self.build == 0] = -9999
 
-            self.saverasternd(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_daytime_mean.tif', daymean)
+            self.saverasternd(
+                gdal_dsm,
+                self.folderPathSave[0] + "/" + self.var + "_daytime_mean.tif",
+                daymean,
+            )
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
-                self.intoCanvas(self.folderPathSave[0] + '/' + self.var + '_daytime_mean.tif')
+                self.intoCanvas(
+                    self.folderPathSave[0]
+                    + "/"
+                    + self.var
+                    + "_daytime_mean.tif"
+                )
 
         # Nighttime mean
         if self.dlg.checkboxNightMean.isChecked():
             index = 0
             for i in self.posNight:
-                gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
+                gdal_dsm = gdal.Open(self.folderPath[0] + "/" + self.l[i])
                 grid = gdal_dsm.ReadAsArray().astype(float)
                 if index == 0:
                     sizex = grid.shape[0]
@@ -558,58 +720,82 @@ class SolweigAnalyzer(object):
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 daymean[self.build == 0] = -9999
 
-            self.saverasternd(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_nighttime_mean.tif', daymean)
+            self.saverasternd(
+                gdal_dsm,
+                self.folderPathSave[0]
+                + "/"
+                + self.var
+                + "_nighttime_mean.tif",
+                daymean,
+            )
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
-                self.intoCanvas(self.folderPathSave[0] + '/' + self.var + '_nighttime_mean.tif')
+                self.intoCanvas(
+                    self.folderPathSave[0]
+                    + "/"
+                    + self.var
+                    + "_nighttime_mean.tif"
+                )
 
         # Max
         if self.dlg.checkboxMax.isChecked():
             index = 0
             for i in self.posAll:
-                gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
+                gdal_dsm = gdal.Open(self.folderPath[0] + "/" + self.l[i])
                 grid = gdal_dsm.ReadAsArray().astype(float)
                 if index == 0:
                     sizex = grid.shape[0]
                     sizey = grid.shape[1]
-                    gridall = np.zeros((sizex, sizey)) - 100.
+                    gridall = np.zeros((sizex, sizey)) - 100.0
                 gridall = np.maximum(gridall, grid)
                 index += 1
 
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 gridall[self.build == 0] = -9999
 
-            self.saverasternd(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_max.tif', gridall)
+            self.saverasternd(
+                gdal_dsm,
+                self.folderPathSave[0] + "/" + self.var + "_max.tif",
+                gridall,
+            )
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
-                self.intoCanvas(self.folderPathSave[0] + '/' + self.var + '_max.tif')
+                self.intoCanvas(
+                    self.folderPathSave[0] + "/" + self.var + "_max.tif"
+                )
 
         # Min
         if self.dlg.checkboxMin.isChecked():
             index = 0
             for i in self.posAll:
-                gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
+                gdal_dsm = gdal.Open(self.folderPath[0] + "/" + self.l[i])
                 grid = gdal_dsm.ReadAsArray().astype(float)
                 if index == 0:
                     sizex = grid.shape[0]
                     sizey = grid.shape[1]
-                    gridall = np.zeros((sizex, sizey)) + 100.
+                    gridall = np.zeros((sizex, sizey)) + 100.0
                 gridall = np.minimum(gridall, grid)
                 index += 1
 
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 gridall[self.build == 0] = -9999
 
-            self.saverasternd(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_min.tif', gridall)
+            self.saverasternd(
+                gdal_dsm,
+                self.folderPathSave[0] + "/" + self.var + "_min.tif",
+                gridall,
+            )
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
-                self.intoCanvas(self.folderPathSave[0] + '/' + self.var + '_min.tif')
+                self.intoCanvas(
+                    self.folderPathSave[0] + "/" + self.var + "_min.tif"
+                )
 
         # Specific time mean
-        if not self.dlg.comboBoxSpecificMean.currentText() == 'Not Specified':
+        if not self.dlg.comboBoxSpecificMean.currentText() == "Not Specified":
             index = 0
             for i in self.posSpecMean:
-                gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
+                gdal_dsm = gdal.Open(self.folderPath[0] + "/" + self.l[i])
                 grid = gdal_dsm.ReadAsArray().astype(float)
                 if index == 0:
                     sizex = grid.shape[0]
@@ -623,67 +809,115 @@ class SolweigAnalyzer(object):
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 daymean[self.build == 0] = -9999
 
-            self.saverasternd(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_' +
-                            self.dlg.comboBoxSpecificMean.currentText() + '_mean.tif', daymean)
+            self.saverasternd(
+                gdal_dsm,
+                self.folderPathSave[0]
+                + "/"
+                + self.var
+                + "_"
+                + self.dlg.comboBoxSpecificMean.currentText()
+                + "_mean.tif",
+                daymean,
+            )
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
-                self.intoCanvas(self.folderPathSave[0] + '/' + self.var +'_' + self.dlg.comboBoxSpecificMean.currentText() + '_mean.tif')
+                self.intoCanvas(
+                    self.folderPathSave[0]
+                    + "/"
+                    + self.var
+                    + "_"
+                    + self.dlg.comboBoxSpecificMean.currentText()
+                    + "_mean.tif"
+                )
 
         # Specific time max
-        if not self.dlg.comboBoxSpecificMax.currentText() == 'Not Specified':
+        if not self.dlg.comboBoxSpecificMax.currentText() == "Not Specified":
             index = 0
             for i in self.posSpecMax:
-                gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
+                gdal_dsm = gdal.Open(self.folderPath[0] + "/" + self.l[i])
                 grid = gdal_dsm.ReadAsArray().astype(float)
                 if index == 0:
                     sizex = grid.shape[0]
                     sizey = grid.shape[1]
-                    daymean = np.zeros((sizex, sizey)) - 100.
+                    daymean = np.zeros((sizex, sizey)) - 100.0
                 daymean = np.maximum(daymean, grid)
                 index += 1
 
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 daymean[self.build == 0] = -9999
 
-            self.saverasternd(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_' + self.dlg.comboBoxSpecificMax.currentText() + '_max.tif', daymean)
+            self.saverasternd(
+                gdal_dsm,
+                self.folderPathSave[0]
+                + "/"
+                + self.var
+                + "_"
+                + self.dlg.comboBoxSpecificMax.currentText()
+                + "_max.tif",
+                daymean,
+            )
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
-                self.intoCanvas(self.folderPathSave[0] + '/' + self.var + '_' + self.dlg.comboBoxSpecificMax.currentText() + '_max.tif')
+                self.intoCanvas(
+                    self.folderPathSave[0]
+                    + "/"
+                    + self.var
+                    + "_"
+                    + self.dlg.comboBoxSpecificMax.currentText()
+                    + "_max.tif"
+                )
 
         # Specific time min
-        if not self.dlg.comboBoxSpecificMin.currentText() == 'Not Specified':
+        if not self.dlg.comboBoxSpecificMin.currentText() == "Not Specified":
             index = 0
             for i in self.posSpecMin:
-                gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
+                gdal_dsm = gdal.Open(self.folderPath[0] + "/" + self.l[i])
                 grid = gdal_dsm.ReadAsArray().astype(float)
                 if index == 0:
                     sizex = grid.shape[0]
                     sizey = grid.shape[1]
-                    daymean = np.zeros((sizex, sizey)) + 100.
+                    daymean = np.zeros((sizex, sizey)) + 100.0
                 daymean = np.minimum(daymean, grid)
                 index += 1
 
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 daymean[self.build == 0] = -9999
 
-            self.saverasternd(gdal_dsm, self.folderPathSave[0] + '/' + self.var + '_' +
-                            self.dlg.comboBoxSpecificMin.currentText() + '_min.tif', daymean)
+            self.saverasternd(
+                gdal_dsm,
+                self.folderPathSave[0]
+                + "/"
+                + self.var
+                + "_"
+                + self.dlg.comboBoxSpecificMin.currentText()
+                + "_min.tif",
+                daymean,
+            )
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
-                self.intoCanvas(self.folderPathSave[0] + '/' + self.var + '_' + self.dlg.comboBoxSpecificMin.currentText() + '_min.tif')
+                self.intoCanvas(
+                    self.folderPathSave[0]
+                    + "/"
+                    + self.var
+                    + "_"
+                    + self.dlg.comboBoxSpecificMin.currentText()
+                    + "_min.tif"
+                )
 
         # Tmrt threshold above
         if self.dlg.checkboxTmrtHighRisk.isChecked():
             index = 0
             for i in self.posAll:
-                gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
+                gdal_dsm = gdal.Open(self.folderPath[0] + "/" + self.l[i])
                 grid = gdal_dsm.ReadAsArray().astype(float)
                 if index == 0:
                     sizex = grid.shape[0]
                     sizey = grid.shape[1]
                     daymean = np.zeros((sizex, sizey))
 
-                tempgrid = (grid > self.dlg.doubleSpinBoxTmrtHighRisk.value()).astype(float)
+                tempgrid = (
+                    grid > self.dlg.doubleSpinBoxTmrtHighRisk.value()
+                ).astype(float)
                 daymean = daymean + tempgrid
                 index += 1
 
@@ -692,24 +926,41 @@ class SolweigAnalyzer(object):
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 daymean[self.build == 0] = -9999
 
-            self.saverasternd(gdal_dsm, self.folderPathSave[0] + '/PercentOfTime' + self.var + 'Above_' +
-                            str(self.dlg.doubleSpinBoxTmrtHighRisk.value()) + '.tif', daymean) # response to issue #218
+            self.saverasternd(
+                gdal_dsm,
+                self.folderPathSave[0]
+                + "/PercentOfTime"
+                + self.var
+                + "Above_"
+                +
+                # response to issue #218
+                str(self.dlg.doubleSpinBoxTmrtHighRisk.value()) + ".tif",
+                daymean,
+            )
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
-                self.intoCanvas(self.folderPathSave[0] + '/PercentOfTime' + self.var + 'Above_' +
-                            str(self.dlg.doubleSpinBoxTmrtHighRisk.value()) + '.tif')
+                self.intoCanvas(
+                    self.folderPathSave[0]
+                    + "/PercentOfTime"
+                    + self.var
+                    + "Above_"
+                    + str(self.dlg.doubleSpinBoxTmrtHighRisk.value())
+                    + ".tif"
+                )
 
         # Tmrt threshold below
         if self.dlg.checkboxTmrtLowRisk.isChecked():
             index = 0
             for i in self.posAll:
-                gdal_dsm = gdal.Open(self.folderPath[0] + '/' + self.l[i])
+                gdal_dsm = gdal.Open(self.folderPath[0] + "/" + self.l[i])
                 grid = gdal_dsm.ReadAsArray().astype(float)
                 if index == 0:
                     sizex = grid.shape[0]
                     sizey = grid.shape[1]
                     daymean = np.zeros((sizex, sizey))
-                tempgrid = (grid < self.dlg.doubleSpinBoxTmrtLowRisk.value()).astype(float)
+                tempgrid = (
+                    grid < self.dlg.doubleSpinBoxTmrtLowRisk.value()
+                ).astype(float)
                 daymean = daymean + tempgrid
                 index += 1
 
@@ -718,12 +969,27 @@ class SolweigAnalyzer(object):
             if self.dlg.checkboxExcludeBuildings.isChecked():
                 daymean[self.build == 0] = -9999
 
-            self.saverasternd(gdal_dsm, self.folderPathSave[0] + '/PercentOfTime' + self.var + 'Below_' +
-                            str(self.dlg.doubleSpinBoxTmrtLowRisk.value()) + '.tif', daymean)  # response to issue #218
+            self.saverasternd(
+                gdal_dsm,
+                self.folderPathSave[0]
+                + "/PercentOfTime"
+                + self.var
+                + "Below_"
+                +
+                # response to issue #218
+                str(self.dlg.doubleSpinBoxTmrtLowRisk.value()) + ".tif",
+                daymean,
+            )
 
             if self.dlg.checkBoxIntoCanvas.isChecked():
-                self.intoCanvas(self.folderPathSave[0] + '/PercentOfTime' + self.var + 'Below_' +
-                                str(self.dlg.doubleSpinBoxTmrtLowRisk.value()) + '.tif')
+                self.intoCanvas(
+                    self.folderPathSave[0]
+                    + "/PercentOfTime"
+                    + self.var
+                    + "Below_"
+                    + str(self.dlg.doubleSpinBoxTmrtLowRisk.value())
+                    + ".tif"
+                )
 
         del self.posAll[:]
 
@@ -739,14 +1005,16 @@ class SolweigAnalyzer(object):
         self.steps = 0
 
     def help(self):
-        url = 'https://umep-docs.readthedocs.io/en/latest/post_processor/Outdoor%20Thermal%20Comfort%20SOLWEIG%20Analyzer.html#'
+        url = "https://umep-docs.readthedocs.io/en/latest/post_processor/Outdoor%20Thermal%20Comfort%20SOLWEIG%20Analyzer.html#"
         webbrowser.open_new_tab(url)
 
     def saveraster(self, gdal_data, filename, raster):
         rows = gdal_data.RasterYSize
         cols = gdal_data.RasterXSize
 
-        outDs = gdal.GetDriverByName("GTiff").Create(filename, cols, rows, int(1), GDT_Float32)
+        outDs = gdal.GetDriverByName("GTiff").Create(
+            filename, cols, rows, int(1), GDT_Float32
+        )
         outBand = outDs.GetRasterBand(1)
 
         # write the data
@@ -759,11 +1027,15 @@ class SolweigAnalyzer(object):
         outDs.SetGeoTransform(gdal_data.GetGeoTransform())
         outDs.SetProjection(gdal_data.GetProjection())
 
-    def saverasternd(self, gdal_data, filename, raster): # response to issue #218
+    def saverasternd(
+        self, gdal_data, filename, raster
+    ):  # response to issue #218
         rows = gdal_data.RasterYSize
         cols = gdal_data.RasterXSize
 
-        outDs = gdal.GetDriverByName("GTiff").Create(filename, cols, rows, int(1), GDT_Float32)
+        outDs = gdal.GetDriverByName("GTiff").Create(
+            filename, cols, rows, int(1), GDT_Float32
+        )
         outBand = outDs.GetRasterBand(1)
 
         # write the data

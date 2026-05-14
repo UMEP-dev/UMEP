@@ -32,4 +32,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .footprint_model import FootprintModel
+
     return FootprintModel(iface)

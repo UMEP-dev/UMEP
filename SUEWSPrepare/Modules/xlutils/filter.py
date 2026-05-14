@@ -7,19 +7,20 @@ from __future__ import print_function
 
 import logging
 import os
-import xlrd,xlwt
+import xlrd
+import xlwt
 
 from functools import partial
 from glob import glob
 from shutil import rmtree
 from tempfile import mkdtemp
-from xlutils.display import quoted_sheet_name,cell_display
+from xlutils.display import quoted_sheet_name, cell_display
 from xlutils.margins import cells_all_junk
 from xlwt.Style import default_style
 from .compat import xrange
 
+logger = logging.getLogger("xlutils.filter")
 
-logger = logging.getLogger('xlutils.filter')
 
 class BaseReader:
     "A base reader good for subclassing."
@@ -44,12 +45,10 @@ class BaseReader:
         for path in self.get_filepaths():
             yield (
                 xlrd.open_workbook(
-                    path,
-                    formatting_info=1,
-                    on_demand=True,
-                    ragged_rows=True),
-                os.path.split(path)[1]
-                )
+                    path, formatting_info=1, on_demand=True, ragged_rows=True
+                ),
+                os.path.split(path)[1],
+            )
 
     def __call__(self, filter):
         """
@@ -61,23 +60,24 @@ class BaseReader:
         :meth:`get_workbooks` method.
         """
         filter.start()
-        for workbook,filename in self.get_workbooks():
-            filter.workbook(workbook,filename)
+        for workbook, filename in self.get_workbooks():
+            filter.workbook(workbook, filename)
             for sheet_x in range(workbook.nsheets):
                 sheet = workbook.sheet_by_index(sheet_x)
-                filter.sheet(sheet,sheet.name)
+                filter.sheet(sheet, sheet.name)
                 for row_x in xrange(sheet.nrows):
-                    filter.row(row_x,row_x)
+                    filter.row(row_x, row_x)
                     for col_x in xrange(sheet.row_len(row_x)):
-                        filter.cell(row_x,col_x,row_x,col_x)
+                        filter.cell(row_x, col_x, row_x, col_x)
                 if workbook.on_demand:
                     workbook.unload_sheet(sheet_x)
         filter.finish()
-    
+
+
 class BaseFilterInterface:
     """
-    This is the filter interface that shows the correct way to call the 
-    next filter in the chain. 
+    This is the filter interface that shows the correct way to call the
+    next filter in the chain.
     The `next` attribute is set up by the :func:`process` function.
     It can make a good base class for a new filter, but subclassing
     :class:`BaseFilter` is often a better idea!
@@ -88,7 +88,7 @@ class BaseFilterInterface:
         This method is called before processing of a batch of input.
         This allows the filter to initialise any required data
         structures and dispose of any existing state from previous
-        batches. 
+        batches.
 
         It is called once before the processing of any workbooks by
         the included reader implementations.
@@ -102,8 +102,8 @@ class BaseFilterInterface:
         in the chain regardless of any work they do.
         """
         self.next.start()
-        
-    def workbook(self,rdbook,wtbook_name):
+
+    def workbook(self, rdbook, wtbook_name):
         """
         This method is called every time processing of a new
         workbook starts.
@@ -114,9 +114,9 @@ class BaseFilterInterface:
         :param wtbook_name: the name of the workbook into which content
                       should be written.
         """
-        self.next.workbook(rdbook,wtbook_name)
-   
-    def sheet(self,rdsheet,wtsheet_name):
+        self.next.workbook(rdbook, wtbook_name)
+
+    def sheet(self, rdsheet, wtsheet_name):
         """
         This method is called every time processing of a new
         sheet in the current workbook starts.
@@ -127,9 +127,9 @@ class BaseFilterInterface:
         :param wtsheet_name: the name of the sheet into which content
                        should be written.
         """
-        self.next.sheet(rdsheet,wtsheet_name)
-       
-    def set_rdsheet(self,rdsheet):
+        self.next.sheet(rdsheet, wtsheet_name)
+
+    def set_rdsheet(self, rdsheet):
         """
         This is only ever called by a filter that
         wishes to change the source of cells mid-way through writing a
@@ -140,8 +140,8 @@ class BaseFilterInterface:
 
         """
         self.next.set_rdsheet(rdsheet)
-       
-    def row(self,rdrowx,wtrowx):
+
+    def row(self, rdrowx, wtrowx):
         """
         This is called every time processing of a new
         row in the current sheet starts.
@@ -155,20 +155,20 @@ class BaseFilterInterface:
         :param wtrowx: the index of the row in sheet to be written to which
                  information should be written for the row being read.
         """
-        self.next.row(rdrowx,wtrowx)
+        self.next.row(rdrowx, wtrowx)
 
-    def cell(self,rdrowx,rdcolx,wtrowx,wtcolx):
+    def cell(self, rdrowx, rdcolx, wtrowx, wtcolx):
         """
         This is called for every cell in the sheet being processed.
         This is the most common method in which filtering and queuing
         of onward calls to the next filter takes place.
 
-        :param rdrowx: the index of the row to be read from in the current sheet. 
-        :param rdcolx: the index of the column to be read from in the current sheet. 
-        :param wtrowx: the index of the row to be written to in the current output sheet. 
-        :param wtcolx: the index of the column to be written to in the current output sheet. 
+        :param rdrowx: the index of the row to be read from in the current sheet.
+        :param rdcolx: the index of the column to be read from in the current sheet.
+        :param wtrowx: the index of the row to be written to in the current output sheet.
+        :param wtcolx: the index of the column to be written to in the current output sheet.
         """
-        self.next.cell(rdrowx,rdcolx,wtrowx,wtcolx)
+        self.next.cell(rdrowx, rdcolx, wtrowx, wtcolx)
 
     def finish(self):
         """
@@ -183,6 +183,7 @@ class BaseFilterInterface:
         """
         self.next.finish()
 
+
 class BaseFilter:
     """
     A concrete filter that implements pass-through behaviour
@@ -192,29 +193,30 @@ class BaseFilter:
     """
 
     all_methods = (
-        'start',
-        'workbook',
-        'sheet',
-        'set_rdsheet',
-        'row',
-        'cell',
-        'finish',
-        )
+        "start",
+        "workbook",
+        "sheet",
+        "set_rdsheet",
+        "row",
+        "cell",
+        "finish",
+    )
 
-    def sheet(self,rdsheet,wtsheet_name):
+    def sheet(self, rdsheet, wtsheet_name):
         self.rdsheet = rdsheet
-        self.next.sheet(rdsheet,wtsheet_name)
-       
-    def set_rdsheet(self,rdsheet):
+        self.next.sheet(rdsheet, wtsheet_name)
+
+    def set_rdsheet(self, rdsheet):
         self.rdsheet = rdsheet
         self.next.set_rdsheet(rdsheet)
 
-    def __getattr__(self,name):
+    def __getattr__(self, name):
         if name not in self.all_methods:
             raise AttributeError(name)
-        actual = getattr(self.next,name)
-        setattr(self,name,actual)
+        actual = getattr(self.next, name)
+        setattr(self, name, actual)
         return actual
+
 
 class BaseWriter:
     """
@@ -222,7 +224,7 @@ class BaseWriter:
     the specified sources.
     It is designed for sequential use so when, for example, writing
     two workbooks, the calls must be ordered as follows:
-    
+
     - :meth:`workbook` call for first workbook
     - :meth:`sheet` call for first sheet
     - :meth:`row` call for first row
@@ -239,12 +241,12 @@ class BaseWriter:
 
     Usually, only the :meth:`get_stream` method needs to be implemented in subclasses.
     """
-    
+
     wtbook = None
-    
+
     close_after_write = True
 
-    def get_stream(self,filename):
+    def get_stream(self, filename):
         """
         This method is called once for each file written.
         The filename of the file to be created is passed and something with
@@ -258,10 +260,10 @@ class BaseWriter:
         This method should be called before processing of a batch of input.
         This allows the filter to initialise any required data
         structures and dispose of any existing state from previous
-        batches. 
+        batches.
         """
         self.wtbook = None
-        
+
     def close(self):
         if self.wtbook is not None:
             stream = self.get_stream(self.wtname)
@@ -274,7 +276,7 @@ class BaseWriter:
             del self.wtsheet
             del self.style_list
 
-    def workbook(self,rdbook,wtbook_name):
+    def workbook(self, rdbook, wtbook_name):
         """
         This method should be called every time processing of a new
         workbook starts.
@@ -285,7 +287,7 @@ class BaseWriter:
         :param wtbook_name: the name of the workbook into which content
                       will be written.
         """
-        self.close()        
+        self.close()
         self.rdbook = rdbook
         self.wtbook = xlwt.Workbook(style_compression=2)
         self.wtbook.dates_1904 = rdbook.datemode
@@ -315,15 +317,17 @@ class BaseWriter:
             wtf.outline = rdf.outline
             wtf.shadow = rdf.outline
             wtf.colour_index = rdf.colour_index
-            wtf.bold = rdf.bold #### This attribute is redundant, should be driven by weight
-            wtf._weight = rdf.weight #### Why "private"?
+            wtf.bold = (
+                rdf.bold
+            )  # This attribute is redundant, should be driven by weight
+            wtf._weight = rdf.weight  # Why "private"?
             wtf.escapement = rdf.escapement
-            wtf.underline = rdf.underline_type #### 
+            wtf.underline = rdf.underline_type
             # wtf.???? = rdf.underline #### redundant attribute, set on the fly when writing
             wtf.family = rdf.family
             wtf.charset = rdf.character_set
             wtf.name = rdf.name
-            # 
+            #
             # protection
             #
             wtp = wtxf.protection
@@ -335,16 +339,16 @@ class BaseWriter:
             #
             wtb = wtxf.borders
             rdb = rdxf.border
-            wtb.left   = rdb.left_line_style
-            wtb.right  = rdb.right_line_style
-            wtb.top    = rdb.top_line_style
-            wtb.bottom = rdb.bottom_line_style 
-            wtb.diag   = rdb.diag_line_style
-            wtb.left_colour   = rdb.left_colour_index 
-            wtb.right_colour  = rdb.right_colour_index 
-            wtb.top_colour    = rdb.top_colour_index
-            wtb.bottom_colour = rdb.bottom_colour_index 
-            wtb.diag_colour   = rdb.diag_colour_index 
+            wtb.left = rdb.left_line_style
+            wtb.right = rdb.right_line_style
+            wtb.top = rdb.top_line_style
+            wtb.bottom = rdb.bottom_line_style
+            wtb.diag = rdb.diag_line_style
+            wtb.left_colour = rdb.left_colour_index
+            wtb.right_colour = rdb.right_colour_index
+            wtb.top_colour = rdb.top_colour_index
+            wtb.bottom_colour = rdb.bottom_colour_index
+            wtb.diag_colour = rdb.diag_colour_index
             wtb.need_diag1 = rdb.diag_down
             wtb.need_diag2 = rdb.diag_up
             #
@@ -371,8 +375,8 @@ class BaseWriter:
             # wta.merg = ????
             #
             self.style_list.append(wtxf)
-   
-    def sheet(self,rdsheet,wtsheet_name):
+
+    def sheet(self, rdsheet, wtsheet_name):
         """
         This method should be called every time processing of a new
         sheet in the current workbook starts.
@@ -383,26 +387,36 @@ class BaseWriter:
         :param wtsheet_name: the name of the sheet into which content
                        will be written.
         """
-        
+
         # these checks should really be done by xlwt!
         if not wtsheet_name:
-            raise ValueError('Empty sheet name will result in invalid Excel file!')
+            raise ValueError(
+                "Empty sheet name will result in invalid Excel file!"
+            )
         l_wtsheet_name = wtsheet_name.lower()
         if l_wtsheet_name in self.wtsheet_names:
-            raise ValueError('A sheet named %r has already been added!'%l_wtsheet_name)
+            raise ValueError(
+                "A sheet named %r has already been added!" % l_wtsheet_name
+            )
         self.wtsheet_names.add(l_wtsheet_name)
         l_wtsheet_name = len(wtsheet_name)
-        if len(wtsheet_name)>31:
-            raise ValueError('Sheet name cannot be more than 31 characters long, '
-                             'supplied name was %i characters long!'%l_wtsheet_name)
-        
+        if len(wtsheet_name) > 31:
+            raise ValueError(
+                "Sheet name cannot be more than 31 characters long, "
+                "supplied name was %i characters long!" % l_wtsheet_name
+            )
+
         self.rdsheet = rdsheet
-        self.wtsheet_name=wtsheet_name
-        self.wtsheet = wtsheet = self.wtbook.add_sheet(wtsheet_name,cell_overwrite_ok=True)
-        self.wtcols = set() # keep track of which columns have had their attributes set up
+        self.wtsheet_name = wtsheet_name
+        self.wtsheet = wtsheet = self.wtbook.add_sheet(
+            wtsheet_name, cell_overwrite_ok=True
+        )
+        self.wtcols = (
+            set()
+        )  # keep track of which columns have had their attributes set up
         #
         # MERGEDCELLS
-        # 
+        #
         mc_map = {}
         mc_nfa = set()
         for crange in rdsheet.merged_cells:
@@ -419,13 +433,12 @@ class BaseWriter:
         # default column width: STANDARDWIDTH, DEFCOLWIDTH
         #
         if rdsheet.standardwidth is not None:
-            # STANDARDWIDTH is expressed in units of 1/256 of a 
+            # STANDARDWIDTH is expressed in units of 1/256 of a
             # character-width, but DEFCOLWIDTH is expressed in units of
             # character-width; we lose precision by rounding to
             # the higher whole number of characters.
-            #### XXXX TODO: implement STANDARDWIDTH record in xlwt.
-            wtsheet.col_default_width = \
-                (rdsheet.standardwidth + 255) // 256
+            # XXXX TODO: implement STANDARDWIDTH record in xlwt.
+            wtsheet.col_default_width = (rdsheet.standardwidth + 255) // 256
         elif rdsheet.defcolwidth is not None:
             wtsheet.col_default_width = rdsheet.defcolwidth
         #
@@ -447,8 +460,8 @@ class BaseWriter:
         if not self.sheet_visible and rdsheet.sheet_visible:
             self.wtbook.active_sheet = self.wtsheet_index
             wtsheet.sheet_visible = 1
-        self.wtsheet_index +=1
-        
+        self.wtsheet_index += 1
+
         wtsheet.page_preview = rdsheet.show_in_page_break_preview
         wtsheet.first_visible_row = rdsheet.first_visible_rowx
         wtsheet.first_visible_col = rdsheet.first_visible_colx
@@ -459,28 +472,34 @@ class BaseWriter:
         # DEFAULTROWHEIGHT
         #
         if rdsheet.default_row_height is not None:
-            wtsheet.row_default_height =          rdsheet.default_row_height
-        wtsheet.row_default_height_mismatch = rdsheet.default_row_height_mismatch
-        wtsheet.row_default_hidden =          rdsheet.default_row_hidden
-        wtsheet.row_default_space_above =     rdsheet.default_additional_space_above
-        wtsheet.row_default_space_below =     rdsheet.default_additional_space_below
+            wtsheet.row_default_height = rdsheet.default_row_height
+        wtsheet.row_default_height_mismatch = (
+            rdsheet.default_row_height_mismatch
+        )
+        wtsheet.row_default_hidden = rdsheet.default_row_hidden
+        wtsheet.row_default_space_above = (
+            rdsheet.default_additional_space_above
+        )
+        wtsheet.row_default_space_below = (
+            rdsheet.default_additional_space_below
+        )
         #
         # BOUNDSHEET
         #
         wtsheet.visibility = rdsheet.visibility
-       
+
         #
         # PANE
         #
         if rdsheet.has_pane_record:
             wtsheet.split_position_units_are_twips = True
-            wtsheet.active_pane =              rdsheet.split_active_pane
-            wtsheet.horz_split_pos =           rdsheet.horz_split_pos
+            wtsheet.active_pane = rdsheet.split_active_pane
+            wtsheet.horz_split_pos = rdsheet.horz_split_pos
             wtsheet.horz_split_first_visible = rdsheet.horz_split_first_visible
-            wtsheet.vert_split_pos =           rdsheet.vert_split_pos
+            wtsheet.vert_split_pos = rdsheet.vert_split_pos
             wtsheet.vert_split_first_visible = rdsheet.vert_split_first_visible
-            
-    def set_rdsheet(self,rdsheet):
+
+    def set_rdsheet(self, rdsheet):
         """
         This should only ever called by a filter that
         wishes to change the source of cells mid-way through writing a
@@ -491,8 +510,8 @@ class BaseWriter:
 
         """
         self.rdsheet = rdsheet
-        
-    def row(self,rdrowx,wtrowx):
+
+    def row(self, rdrowx, wtrowx):
         """
         This should be called every time processing of a new
         row in the current sheet starts.
@@ -512,23 +531,23 @@ class BaseWriter:
             wtrow.has_default_height = rdrow.has_default_height
             wtrow.height_mismatch = rdrow.height_mismatch
             wtrow.level = rdrow.outline_level
-            wtrow.collapse = rdrow.outline_group_starts_ends # No kiddin'
+            wtrow.collapse = rdrow.outline_group_starts_ends  # No kiddin'
             wtrow.hidden = rdrow.hidden
             wtrow.space_above = rdrow.additional_space_above
             wtrow.space_below = rdrow.additional_space_below
             if rdrow.has_default_xf_index:
                 wtrow.set_style(self.style_list[rdrow.xf_index])
 
-    def cell(self,rdrowx,rdcolx,wtrowx,wtcolx):
+    def cell(self, rdrowx, rdcolx, wtrowx, wtcolx):
         """
         This should be called for every cell in the sheet being processed.
 
-        :param rdrowx: the index of the row to be read from in the current sheet. 
-        :param rdcolx: the index of the column to be read from in the current sheet. 
-        :param wtrowx: the index of the row to be written to in the current output sheet. 
-        :param wtcolx: the index of the column to be written to in the current output sheet. 
+        :param rdrowx: the index of the row to be read from in the current sheet.
+        :param rdcolx: the index of the column to be read from in the current sheet.
+        :param wtrowx: the index of the row to be written to in the current output sheet.
+        :param wtcolx: the index of the column to be written to in the current output sheet.
         """
-        cell = self.rdsheet.cell(rdrowx,rdcolx)
+        cell = self.rdsheet.cell(rdrowx, rdcolx)
         # setup column attributes if not already set
         if wtcolx not in self.wtcols and rdcolx in self.rdsheet.colinfo_map:
             rdcol = self.rdsheet.colinfo_map[rdcolx]
@@ -549,14 +568,18 @@ class BaseWriter:
             style = default_style
         rdcoords2d = (rdrowx, rdcolx)
         if rdcoords2d in self.merged_cell_top_left_map:
-            # The cell is the governing cell of a group of 
+            # The cell is the governing cell of a group of
             # merged cells.
             rlo, rhi, clo, chi = self.merged_cell_top_left_map[rdcoords2d]
             assert (rlo, clo) == rdcoords2d
             self.wtsheet.write_merge(
-                wtrowx, wtrowx + rhi - rlo - 1,
-                wtcolx, wtcolx + chi - clo - 1, 
-                cell.value, style)
+                wtrowx,
+                wtrowx + rhi - rlo - 1,
+                wtcolx,
+                wtcolx + chi - clo - 1,
+                cell.value,
+                style,
+            )
             return
         if rdcoords2d in self.merged_cell_already_set:
             # The cell is in a group of merged cells.
@@ -583,9 +606,9 @@ class BaseWriter:
             wtrow.set_cell_error(wtcolx, cell.value, style)
         else:
             raise Exception(
-                "Unknown xlrd cell type %r with value %r at (sheet=%r,rowx=%r,colx=%r)" \
+                "Unknown xlrd cell type %r with value %r at (sheet=%r,rowx=%r,colx=%r)"
                 % (cty, cell.value, self.rdsheet.name, rdrowx, rdcolx)
-                )
+            )
 
     def finish(self):
         """
@@ -594,55 +617,59 @@ class BaseWriter:
         """
         self.close()
 
-    
+
 class GlobReader(BaseReader):
     "A reader that emits events for all files that match the glob in the spec."
 
-    def __init__(self,spec):
+    def __init__(self, spec):
         self.spec = spec
-        
+
     def get_filepaths(self):
         return sorted(glob(self.spec))
+
 
 class XLRDReader(BaseReader):
     "A reader that uses an in-memory :class:`xlrd.Book` object as its source of events."
 
-    def __init__(self,wb,filename):
+    def __init__(self, wb, filename):
         self.wb = wb
         self.filename = filename
-        
+
     def get_workbooks(self):
         "Yield the workbook passed during instantiation."
-        yield (self.wb,self.filename)
+        yield (self.wb, self.filename)
+
 
 class DirectoryWriter(BaseWriter):
     "A writer that stores files in a filesystem directory"
 
-    def __init__(self,path):
+    def __init__(self, path):
         self.dir_path = path
-        
-    def get_stream(self,filename):
+
+    def get_stream(self, filename):
         """
         Returns a stream for the file in the configured directory
         with the specified name.
         """
-        return open(os.path.join(self.dir_path, filename), 'wb')
+        return open(os.path.join(self.dir_path, filename), "wb")
+
 
 class StreamWriter(BaseWriter):
     "A writer for writing exactly one workbook to the supplied stream"
 
     fired = False
     close_after_write = False
-    
-    def __init__(self,stream):
+
+    def __init__(self, stream):
         self.stream = stream
-        
-    def get_stream(self,filename):
+
+    def get_stream(self, filename):
         "Returns the stream passed during instantiation."
         if self.fired:
-            raise Exception('Attempt to write more than one workbook')
+            raise Exception("Attempt to write more than one workbook")
         self.fired = True
         return self.stream
+
 
 class XLWTWriter(BaseWriter):
     "A writer that writes to a sequence of in-memory :class:`xlwt.Workbook` objects."
@@ -652,8 +679,9 @@ class XLWTWriter(BaseWriter):
 
     def close(self):
         if self.wtbook is not None:
-            self.output.append((self.wtname,self.wtbook))
+            self.output.append((self.wtname, self.wtbook))
             del self.wtbook
+
 
 class MethodFilter(BaseFilter):
     """
@@ -664,27 +692,32 @@ class MethodFilter(BaseFilter):
 
     :ref:`echo` is an example of this.
     """
-    
-    def method(self,name,*args):
+
+    def method(self, name, *args):
         """
         This is the method that needs to be implemented.
         It is called with the name of the method that was called on
         the MethodFilter and the arguments that were passed to that
-        method. 
+        method.
         """
         raise NotImplementedError
-    
-    def __init__(self,methods=True):
-        if methods==True or methods=='True' or (len(methods)==1 and methods[0]=='True'):
+
+    def __init__(self, methods=True):
+        if (
+            methods == True
+            or methods == "True"
+            or (len(methods) == 1 and methods[0] == "True")
+        ):
             methods = self.all_methods
         for name in methods:
             if name not in self.all_methods:
-                raise ValueError('%r is not a valid method name'%(name,))
-            setattr(self,name,partial(self.caller,name))
+                raise ValueError("%r is not a valid method name" % (name,))
+            setattr(self, name, partial(self.caller, name))
 
-    def caller(self,name,*args):
-        self.method(name,*args)
-        getattr(self.next,name)(*args)
+    def caller(self, name, *args):
+        self.method(name, *args)
+        getattr(self.next, name)(*args)
+
 
 class Echo(MethodFilter):
     """
@@ -694,56 +727,63 @@ class Echo(MethodFilter):
     For more details, see the :ref:`documentation <echo>`.
     """
 
-    def __init__(self,name=None,methods=True):
-        MethodFilter.__init__(self,methods)
+    def __init__(self, name=None, methods=True):
+        MethodFilter.__init__(self, methods)
         self.name = name
 
-    def method(self,name,*args):
+    def method(self, name, *args):
         if self.name:
-            print(repr(self.name), end=' ')
+            print(repr(self.name), end=" ")
         print("%s:%r" % (name, args))
-        
+
+
 try:
     from guppy import hpy
+
     guppy = True
 except ImportError:
     guppy = False
-    
+
+
 class MemoryLogger(MethodFilter):
     """
     This filter will dump stats to the path it was configured with using
     the heapy package if it is available.
     """
 
-    def __init__(self,path,methods=True):
-        MethodFilter.__init__(self,methods)
+    def __init__(self, path, methods=True):
+        MethodFilter.__init__(self, methods)
         self.path = path
-        
-    def method(self,name,*args):
+
+    def method(self, name, *args):
         if guppy:
             # We instantiate the heapy environment here
             # so that the memory it consumes doesn't hang
             # around for the whole process
             hpy().heap().stat.dump(self.path)
         else:
-            logger.error('guppy is not availabe, cannot log memory usage!')
-            
-            
-class ErrorFilter(BaseReader,BaseWriter):
+            logger.error("guppy is not availabe, cannot log memory usage!")
+
+
+class ErrorFilter(BaseReader, BaseWriter):
     """
     A filter that gates downstream writers or filters on whether
     or not any errors have occurred.
 
     See :ref:`error-filters` for details.
     """
+
     temp_path = None
-    
-    def __init__(self,level=logging.ERROR,message='No output as errors have occurred.'):
+
+    def __init__(
+        self, level=logging.ERROR, message="No output as errors have occurred."
+    ):
         from errorhandler import ErrorHandler
+
         self.handler = ErrorHandler(level)
         self.message = message
 
-    def start(self,create=True):
+    def start(self, create=True):
         self.prefix = 0
         self.handler.reset()
         if self.temp_path is not None:
@@ -753,21 +793,24 @@ class ErrorFilter(BaseReader,BaseWriter):
         else:
             self.temp_path = None
         BaseWriter.start(self)
-        
-    def get_stream(self,filename):
-        self.prefix+=1
-        return open(os.path.join(self.temp_path,str(self.prefix)+'-'+filename),'wb')
+
+    def get_stream(self, filename):
+        self.prefix += 1
+        return open(
+            os.path.join(self.temp_path, str(self.prefix) + "-" + filename),
+            "wb",
+        )
 
     def get_workbooks(self):
         if self.temp_path is None:
             return
         filenames = []
         for name in os.listdir(self.temp_path):
-            d = name.split('-',1)
+            d = name.split("-", 1)
             d.append(name)
             filenames.append(d)
         filenames.sort()
-        for i,filename,pathname in filenames:
+        for i, filename, pathname in filenames:
             yield (
                 # We currently don't open with on_demand=True here
                 # as error filters should be lastish in the chain
@@ -777,30 +820,33 @@ class ErrorFilter(BaseReader,BaseWriter):
                 # deleted until the xlrd.Book object is done with
                 # and we don't know when that might be :-(
                 xlrd.open_workbook(
-                    os.path.join(self.temp_path,pathname),
+                    os.path.join(self.temp_path, pathname),
                     formatting_info=1,
                     on_demand=False,
-                    ragged_rows=True
-                    ),
-                filename
-                )
+                    ragged_rows=True,
+                ),
+                filename,
+            )
 
-    def sheet(self,rdsheet,wtsheet_name):
+    def sheet(self, rdsheet, wtsheet_name):
         self.rdsheet = rdsheet
-        BaseWriter.sheet(self,rdsheet,wtsheet_name)
+        BaseWriter.sheet(self, rdsheet, wtsheet_name)
 
-    def cell(self,rdrowx,rdcolx,wtrowx,wtcolx):
-        cell = self.rdsheet.cell(rdrowx,rdcolx)
+    def cell(self, rdrowx, rdcolx, wtrowx, wtcolx):
+        cell = self.rdsheet.cell(rdrowx, rdcolx)
         if cell.ctype == xlrd.XL_CELL_EMPTY:
             return
         if cell.ctype == xlrd.XL_CELL_ERROR:
-            logger.error("Cell %s of sheet %r contains a bad value: %s" % (
-                        xlrd.cellname(rdrowx, rdcolx),
-                        quoted_sheet_name(self.rdsheet.name),
-                        cell_display(cell,self.rdbook.datemode),
-                        ))
+            logger.error(
+                "Cell %s of sheet %r contains a bad value: %s"
+                % (
+                    xlrd.cellname(rdrowx, rdcolx),
+                    quoted_sheet_name(self.rdsheet.name),
+                    cell_display(cell, self.rdbook.datemode),
+                )
+            )
             return
-        BaseWriter.cell(self,rdrowx,rdcolx,wtrowx,wtcolx)
+        BaseWriter.cell(self, rdrowx, rdcolx, wtrowx, wtcolx)
 
     def finish(self):
         """
@@ -813,23 +859,33 @@ class ErrorFilter(BaseReader,BaseWriter):
         else:
             self(self.next)
         self.start(create=False)
-        for attr in ('rdbook','rdsheet'):
-            if hasattr(self,attr):
-                delattr(self,attr)
+        for attr in ("rdbook", "rdsheet"):
+            if hasattr(self, attr):
+                delattr(self, attr)
+
 
 class Range(object):
-    __slots__ = ('rsn','rr','rc','wr','wc','r','c')
-    def __init__(self,rsn,rr,rc,wr,wc):
+    __slots__ = ("rsn", "rr", "rc", "wr", "wc", "r", "c")
+
+    def __init__(self, rsn, rr, rc, wr, wc):
         self.rsn = rsn
         self.rr = rr
         self.rc = rc
         self.wr = wr
         self.wc = wc
         self.r = self.c = 1
+
     def __repr__(self):
-        return '<range:%r:(%i,%i)->(%i,%i)-r:%i,c:%i>' % (
-            self.rsn,self.rr,self.rc,self.wr,self.wc,self.r,self.c
-            )
+        return "<range:%r:(%i,%i)->(%i,%i)-r:%i,c:%i>" % (
+            self.rsn,
+            self.rr,
+            self.rc,
+            self.wr,
+            self.wc,
+            self.r,
+            self.c,
+        )
+
 
 class ColumnTrimmer(BaseFilter):
     """
@@ -839,10 +895,10 @@ class ColumnTrimmer(BaseFilter):
     See the :ref:`column_trimmer` documentation for an example.
     """
 
-    def __init__(self,is_junk=None):
+    def __init__(self, is_junk=None):
         self.is_junk = is_junk
-        
-    def start(self,chain=True):
+
+    def start(self, chain=True):
         self.rdsheet = None
         self.pending_rdsheet = None
         self.ranges = []
@@ -850,80 +906,94 @@ class ColumnTrimmer(BaseFilter):
         self.max = 0
         if chain:
             self.next.start()
-        
+
     def flush(self):
         if self.rdsheet is not None:
             rsn = None
             for ra in self.ranges:
                 if rsn is None:
                     rsn = ra.rsn
-                elif ra.rsn!=rsn:
+                elif ra.rsn != rsn:
                     self.rdsheet = self.rdbook.sheet_by_name(ra.rsn)
                     self.next.set_rdsheet(self.rdsheet)
                     rsn = ra.rsn
                 for r in range(ra.r):
                     for c in range(ra.c):
-                        wtcolx=ra.wc+c
-                        if wtcolx<=self.max_nonjunk:
-                            self.next.cell(ra.rr+r,ra.rc+c,ra.wr+r,ra.wc+c)
-            if self.max!=self.max_nonjunk:
-                logger.debug("Number of columns trimmed from %d to %d for sheet %r",
-                             self.max+1,
-                             self.max_nonjunk+1,
-                             quoted_sheet_name(self.wtsheet_name))
+                        wtcolx = ra.wc + c
+                        if wtcolx <= self.max_nonjunk:
+                            self.next.cell(
+                                ra.rr + r, ra.rc + c, ra.wr + r, ra.wc + c
+                            )
+            if self.max != self.max_nonjunk:
+                logger.debug(
+                    "Number of columns trimmed from %d to %d for sheet %r",
+                    self.max + 1,
+                    self.max_nonjunk + 1,
+                    quoted_sheet_name(self.wtsheet_name),
+                )
         self.start(chain=False)
 
-    def workbook(self,rdbook,wtbook_name):
+    def workbook(self, rdbook, wtbook_name):
         self.rdbook = rdbook
         self.flush()
-        self.next.workbook(rdbook,wtbook_name)
-        
-    def sheet(self,rdsheet,wtsheet_name):
+        self.next.workbook(rdbook, wtbook_name)
+
+    def sheet(self, rdsheet, wtsheet_name):
         self.flush()
         self.rdsheet = rdsheet
         self.wtsheet_name = wtsheet_name
-        self.next.sheet(self.rdsheet,wtsheet_name)
-        
-    def set_rdsheet(self,rdsheet):
+        self.next.sheet(self.rdsheet, wtsheet_name)
+
+    def set_rdsheet(self, rdsheet):
         self.pending_rdsheet = rdsheet
         self.rdsheet = rdsheet
-    
-    def add_range(self,rdrowx,rdcolx,wtrowx,wtcolx):
-        if len(self.ranges)>1:
+
+    def add_range(self, rdrowx, rdcolx, wtrowx, wtcolx):
+        if len(self.ranges) > 1:
             to_collapse = self.ranges[-1]
             possible = self.ranges[-2]
-            if to_collapse.rc==possible.rc and \
-               to_collapse.c==possible.c and \
-               to_collapse.rr==possible.rr+possible.r:
-                possible.r+=to_collapse.r
+            if (
+                to_collapse.rc == possible.rc
+                and to_collapse.c == possible.c
+                and to_collapse.rr == possible.rr + possible.r
+            ):
+                possible.r += to_collapse.r
                 self.ranges.pop()
-        self.ranges.append(Range(
-                self.rdsheet.name,rdrowx,rdcolx,wtrowx,wtcolx
-                ))
-        
-    def cell(self,rdrowx,rdcolx,wtrowx,wtcolx):
-        if wtcolx>self.max:
+        self.ranges.append(
+            Range(self.rdsheet.name, rdrowx, rdcolx, wtrowx, wtcolx)
+        )
+
+    def cell(self, rdrowx, rdcolx, wtrowx, wtcolx):
+        if wtcolx > self.max:
             self.max = wtcolx
-        cell = self.rdsheet.cell(rdrowx,rdcolx)
-        if wtcolx>self.max_nonjunk and not cells_all_junk((cell,),self.is_junk):
+        cell = self.rdsheet.cell(rdrowx, rdcolx)
+        if wtcolx > self.max_nonjunk and not cells_all_junk(
+            (cell,), self.is_junk
+        ):
             self.max_nonjunk = wtcolx
         if not self.ranges:
-            self.add_range(rdrowx,rdcolx,wtrowx,wtcolx)
-        elif self.pending_rdsheet is not None: 
-            self.add_range(rdrowx,rdcolx,wtrowx,wtcolx)
+            self.add_range(rdrowx, rdcolx, wtrowx, wtcolx)
+        elif self.pending_rdsheet is not None:
+            self.add_range(rdrowx, rdcolx, wtrowx, wtcolx)
             self.pending_rdsheet = None
         else:
             r = self.ranges[-1]
-            if rdrowx==r.rr and wtrowx==r.wr and rdcolx==r.rc+r.c and wtcolx==r.wc+r.c:
-                r.c+=1
+            if (
+                rdrowx == r.rr
+                and wtrowx == r.wr
+                and rdcolx == r.rc + r.c
+                and wtcolx == r.wc + r.c
+            ):
+                r.c += 1
             else:
-                self.add_range(rdrowx,rdcolx,wtrowx,wtcolx)
-                                                          
+                self.add_range(rdrowx, rdcolx, wtrowx, wtcolx)
+
     def finish(self):
         self.flush()
         del self.rdbook
         self.next.finish()
-        
+
+
 def process(reader, *chain):
     """
     The driver function for the :mod:`xlutils.filter` module.
@@ -936,6 +1006,6 @@ def process(reader, *chain):
     :ref:`reader <reader>` is then called with the first
     :ref:`filter <filter>` in the chain.
     """
-    for i in range(len(chain)-1):
-        chain[i].next = chain[i+1]
+    for i in range(len(chain) - 1):
+        chain[i].next = chain[i + 1]
     reader(chain[0])

@@ -32,4 +32,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .land_cover_reclassifier import LandCoverReclassifier
+
     return LandCoverReclassifier(iface)

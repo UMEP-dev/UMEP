@@ -4,7 +4,8 @@
 # http://www.opensource.org/licenses/mit-license.html
 # See license.txt for more details.
 
-from xlutils.filter import process,XLRDReader,XLWTWriter
+from xlutils.filter import process, XLRDReader, XLWTWriter
+
 
 def copy(wb):
     """
@@ -14,8 +15,5 @@ def copy(wb):
     See the :doc:`copy` documentation for an example.
     """
     w = XLWTWriter()
-    process(
-        XLRDReader(wb,'unknown.xls'),
-        w
-        )
+    process(XLRDReader(wb, "unknown.xls"), w)
     return w.output[0][1]

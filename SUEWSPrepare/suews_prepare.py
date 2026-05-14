@@ -130,9 +130,9 @@
 #         self.supylib = sys.modules["supy"].__path__[0]
 #         if not (os.path.isdir(self.output_path + '/Input')):
 #             os.mkdir(self.output_path + '/Input')
-#             basefiles = ['ESTMinput.nml', 'SUEWS_AnthropogenicEmission.txt', 'SUEWS_BiogenCO2.txt', 'SUEWS_Conductance.txt', 
-#             'SUEWS_ESTMCoefficients.txt', 'SUEWS_Irrigation.txt', 'SUEWS_NonVeg.txt', 'SUEWS_OHMCoefficients.txt', 
-#             'SUEWS_Profiles.txt', 'SUEWS_Snow.txt', 'SUEWS_Soil.txt', 'SUEWS_Water.txt', 'SUEWS_Veg.txt', 
+#             basefiles = ['ESTMinput.nml', 'SUEWS_AnthropogenicEmission.txt', 'SUEWS_BiogenCO2.txt', 'SUEWS_Conductance.txt',
+#             'SUEWS_ESTMCoefficients.txt', 'SUEWS_Irrigation.txt', 'SUEWS_NonVeg.txt', 'SUEWS_OHMCoefficients.txt',
+#             'SUEWS_Profiles.txt', 'SUEWS_Snow.txt', 'SUEWS_Soil.txt', 'SUEWS_Water.txt', 'SUEWS_Veg.txt',
 #             'SUEWS_WithinGridWaterDist.txt', 'SUEWS_SPARTACUS.nml', 'GridLayoutKc.nml'] # added Spartacus files (Issue #462)
 #             for i in range(0, basefiles.__len__()):
 #                 print(basefiles[i])
@@ -575,7 +575,7 @@
 #             QMessageBox.information(None, "Error", "No polygon grid added in main settings yet")
 #         # comment out as response to issue #461
 #             # widget.checkBox.setCheckState(0)
-#         # else: 
+#         # else:
 #             # widget.checkBox.setCheckState(1)
 #             # FieldCombo(widget.comboBox_uniquecodes, self.fieldgen, initField="")
 
@@ -1082,7 +1082,7 @@
 #         if pop_field == '':
 #             QMessageBox.critical(None, "Error", "An attribute field including population density (pp/ha) must be selected")
 #             return
-        
+
 #         if self.leaf_cycle == 0:
 #             QMessageBox.critical(self.dlg, "Error", "No leaf cycle period has been selected")
 #             return

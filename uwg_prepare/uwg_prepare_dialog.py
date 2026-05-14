@@ -28,8 +28,9 @@ from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
-FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'uwg_prepare_dialog_base.ui'))
+FORM_CLASS, _ = uic.loadUiType(
+    os.path.join(os.path.dirname(__file__), "uwg_prepare_dialog_base.ui")
+)
 
 
 class UWGPrepareDialog(QtWidgets.QDialog, FORM_CLASS):

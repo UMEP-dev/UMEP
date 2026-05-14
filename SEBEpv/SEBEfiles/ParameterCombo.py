@@ -9,21 +9,21 @@ from PyQt4.QtCore import QObject
 
 
 def load_data(datapath):
-    """ Load parameters from file. """
+    """Load parameters from file."""
     keys = []  # keys
     para = []  # parameters
-    with open(datapath, 'r') as f:
+    with open(datapath, "r") as f:
         for line in f:
-            if line == '\n':
+            if line == "\n":
                 pass
-            elif line[0] != '#':
-                l = line.split(' ')
-                l[0] = l[0].split('_')
-                l[0] = ' '.join(l[0])
+            elif line[0] != "#":
+                l = line.split(" ")
+                l[0] = l[0].split("_")
+                l[0] = " ".join(l[0])
                 keys.append(l[0])
                 linepara = []
                 for val in l[1:]:
-                    if val != '':
+                    if val != "":
                         linepara.append(float(val))
                 para.append(linepara)
     return keys, para
@@ -54,9 +54,8 @@ class ParametersCombo(QObject):
         self.widget.setCurrentIndex(idx)
 
     def get_items(self):
-        """ Populate combobox with keys """
+        """Populate combobox with keys"""
         self.widget.clear()
         for item in self.keys:
             self.widget.addItem(item)
         self.widget.setCurrentIndex(-1)
-

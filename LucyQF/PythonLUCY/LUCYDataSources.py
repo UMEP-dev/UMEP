@@ -156,5 +156,3 @@
 #                 else:
 #                     raise ValueError('Diurnal %s profile file not found: %s'%(labels[c], file))
 #             setattr(self, c, fileList)
-
-

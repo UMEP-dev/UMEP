@@ -2,11 +2,13 @@ from qgis.PyQt import QtCore
 import numpy as np
 from ..Utilities import shadowingfunctions as shadow
 from ..Utilities.SEBESOLWEIGCommonFiles.create_patches import create_patches
+
 # from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_13 import shadowingfunction_wallheight_13
 # from ..Utilities.SEBESOLWEIGCommonFiles.shadowingfunction_wallheight_23 import shadowingfunction_wallheight_23
 
 import sys
 import linecache
+
 
 class Worker(QtCore.QObject):
 
@@ -69,15 +71,25 @@ class Worker(QtCore.QObject):
             bush = np.logical_not((self.vegdem2 * self.vegdem)) * self.vegdem
 
             # patch_option = 1 # 145 patches
-            patch_option = 2 # 153 patches
+            patch_option = 2  # 153 patches
             # patch_option = 3 # 306 patches
             # patch_option = 4 # 612 patches
-            
-            # Create patches based on patch_option
-            skyvaultalt, skyvaultazi, annulino, skyvaultaltint, aziinterval, skyvaultaziint, azistart = create_patches(patch_option)
 
-            skyvaultaziint = np.array([360/patches for patches in aziinterval])
-            iazimuth = np.hstack(np.zeros((1, np.sum(aziinterval)))) # Nils
+            # Create patches based on patch_option
+            (
+                skyvaultalt,
+                skyvaultazi,
+                annulino,
+                skyvaultaltint,
+                aziinterval,
+                skyvaultaziint,
+                azistart,
+            ) = create_patches(patch_option)
+
+            skyvaultaziint = np.array(
+                [360 / patches for patches in aziinterval]
+            )
+            iazimuth = np.hstack(np.zeros((1, np.sum(aziinterval))))  # Nils
 
             shmat = np.zeros((rows, cols, np.sum(aziinterval)))
             vegshmat = np.zeros((rows, cols, np.sum(aziinterval)))
@@ -88,12 +100,12 @@ class Worker(QtCore.QObject):
             for j in range(0, 8):
                 for k in range(0, int(360 / skyvaultaziint[j])):
                     iazimuth[index] = k * skyvaultaziint[j] + azistart[j]
-                    if iazimuth[index] > 360.:
-                        iazimuth[index] = iazimuth[index] - 360.
+                    if iazimuth[index] > 360.0:
+                        iazimuth[index] = iazimuth[index] - 360.0
                     index = index + 1
             aziintervalaniso = np.ceil(aziinterval / 2.0)
             index = int(0)
-            #for i in np.arange(0, iangle.shape[0]-1):
+            # for i in np.arange(0, iangle.shape[0]-1):
             for i in range(0, skyvaultaltint.shape[0]):
                 # if self.killed is True:
                 #     break
@@ -106,15 +118,27 @@ class Worker(QtCore.QObject):
 
                     # Casting shadow
                     if self.usevegdem == 1:
-                        shadowresult = shadow.shadowingfunction_20(self.a, self.vegdem, self.vegdem2, azimuth, altitude,
-                                                                self.scale, amaxvalue, bush, self.dlg, 1)
+                        shadowresult = shadow.shadowingfunction_20(
+                            self.a,
+                            self.vegdem,
+                            self.vegdem2,
+                            azimuth,
+                            altitude,
+                            self.scale,
+                            amaxvalue,
+                            bush,
+                            self.dlg,
+                            1,
+                        )
                         vegsh = shadowresult["vegsh"]
                         vbshvegsh = shadowresult["vbshvegsh"]
                         sh = shadowresult["sh"]
                         vegshmat[:, :, index] = vegsh
                         vbshvegshmat[:, :, index] = vbshvegsh
                     else:
-                        sh = shadow.shadowingfunctionglobalradiation(self.a, azimuth, altitude, self.scale, self.dlg, 1)
+                        sh = shadow.shadowingfunctionglobalradiation(
+                            self.a, azimuth, altitude, self.scale, self.dlg, 1
+                        )
 
                     shmat[:, :, index] = sh
 
@@ -144,10 +168,14 @@ class Worker(QtCore.QObject):
                     # # sh = shadow.shadowingfunctionglobalradiation(self.a, azimuth, altitude, self.scale, self.dlg, 1)
 
                     # Calculate svfs
-                    for k in np.arange(annulino[int(i)]+1, (annulino[int(i+1.)])+1):
-                        weight = self.annulus_weight(k, aziinterval[i])*sh
+                    for k in np.arange(
+                        annulino[int(i)] + 1, (annulino[int(i + 1.0)]) + 1
+                    ):
+                        weight = self.annulus_weight(k, aziinterval[i]) * sh
                         svf = svf + weight
-                        weight = self.annulus_weight(k, aziintervalaniso[i]) * sh
+                        weight = (
+                            self.annulus_weight(k, aziintervalaniso[i]) * sh
+                        )
                         if (azimuth >= 0) and (azimuth < 180):
                             # weight = self.annulus_weight(k, aziintervalaniso[i])*sh
                             svfE = svfE + weight
@@ -162,12 +190,16 @@ class Worker(QtCore.QObject):
                             svfN = svfN + weight
 
                     if self.usevegdem == 1:
-                        for k in np.arange(annulino[int(i)] + 1, (annulino[int(i + 1.)]) + 1):
+                        for k in np.arange(
+                            annulino[int(i)] + 1, (annulino[int(i + 1.0)]) + 1
+                        ):
                             # % changed to include 90
                             weight = self.annulus_weight(k, aziinterval[i])
                             svfveg = svfveg + weight * vegsh
                             svfaveg = svfaveg + weight * vbshvegsh
-                            weight = self.annulus_weight(k, aziintervalaniso[i])
+                            weight = self.annulus_weight(
+                                k, aziintervalaniso[i]
+                            )
                             if (azimuth >= 0) and (azimuth < 180):
                                 svfEveg = svfEveg + weight * vegsh
                                 svfEaveg = svfEaveg + weight * vbshvegsh
@@ -188,38 +220,54 @@ class Worker(QtCore.QObject):
             svfW = svfW + 3.0459e-004
             # % Last azimuth is 90. Hence, manual add of last annuli for svfS and SVFW
             # %Forcing svf not be greater than 1 (some MATLAB crazyness)
-            svf[(svf > 1.)] = 1.
-            svfE[(svfE > 1.)] = 1.
-            svfS[(svfS > 1.)] = 1.
-            svfW[(svfW > 1.)] = 1.
-            svfN[(svfN > 1.)] = 1.
+            svf[(svf > 1.0)] = 1.0
+            svfE[(svfE > 1.0)] = 1.0
+            svfS[(svfS > 1.0)] = 1.0
+            svfW[(svfW > 1.0)] = 1.0
+            svfN[(svfN > 1.0)] = 1.0
 
             if self.usevegdem == 1:
                 last = np.zeros((rows, cols))
-                last[(self.vegdem2 == 0.)] = 3.0459e-004
+                last[(self.vegdem2 == 0.0)] = 3.0459e-004
                 svfSveg = svfSveg + last
                 svfWveg = svfWveg + last
                 svfSaveg = svfSaveg + last
                 svfWaveg = svfWaveg + last
                 # %Forcing svf not be greater than 1 (some MATLAB crazyness)
-                svfveg[(svfveg > 1.)] = 1.
-                svfEveg[(svfEveg > 1.)] = 1.
-                svfSveg[(svfSveg > 1.)] = 1.
-                svfWveg[(svfWveg > 1.)] = 1.
-                svfNveg[(svfNveg > 1.)] = 1.
-                svfaveg[(svfaveg > 1.)] = 1.
-                svfEaveg[(svfEaveg > 1.)] = 1.
-                svfSaveg[(svfSaveg > 1.)] = 1.
-                svfWaveg[(svfWaveg > 1.)] = 1.
-                svfNaveg[(svfNaveg > 1.)] = 1.
+                svfveg[(svfveg > 1.0)] = 1.0
+                svfEveg[(svfEveg > 1.0)] = 1.0
+                svfSveg[(svfSveg > 1.0)] = 1.0
+                svfWveg[(svfWveg > 1.0)] = 1.0
+                svfNveg[(svfNveg > 1.0)] = 1.0
+                svfaveg[(svfaveg > 1.0)] = 1.0
+                svfEaveg[(svfEaveg > 1.0)] = 1.0
+                svfSaveg[(svfSaveg > 1.0)] = 1.0
+                svfWaveg[(svfWaveg > 1.0)] = 1.0
+                svfNaveg[(svfNaveg > 1.0)] = 1.0
 
-            svfresult = {'svf': svf, 'svfE': svfE, 'svfS': svfS, 'svfW': svfW, 'svfN': svfN,
-                         'svfveg': svfveg, 'svfEveg': svfEveg, 'svfSveg': svfSveg, 'svfWveg': svfWveg,
-                         'svfNveg': svfNveg, 'svfaveg': svfaveg, 'svfEaveg': svfEaveg, 'svfSaveg': svfSaveg,
-                         'svfWaveg': svfWaveg, 'svfNaveg': svfNaveg, 'shmat': shmat,'vegshmat': vegshmat, 'vbshvegshmat': vbshvegshmat}
-                            # ,
-                         # 'vbshvegshmat': vbshvegshmat, 'wallshmat': wallshmat, 'wallsunmat': wallsunmat,
-                         # 'wallshvemat': wallshvemat, 'facesunmat': facesunmat}
+            svfresult = {
+                "svf": svf,
+                "svfE": svfE,
+                "svfS": svfS,
+                "svfW": svfW,
+                "svfN": svfN,
+                "svfveg": svfveg,
+                "svfEveg": svfEveg,
+                "svfSveg": svfSveg,
+                "svfWveg": svfWveg,
+                "svfNveg": svfNveg,
+                "svfaveg": svfaveg,
+                "svfEaveg": svfEaveg,
+                "svfSaveg": svfSaveg,
+                "svfWaveg": svfWaveg,
+                "svfNaveg": svfNaveg,
+                "shmat": shmat,
+                "vegshmat": vegshmat,
+                "vbshvegshmat": vbshvegshmat,
+            }
+            # ,
+            # 'vbshvegshmat': vbshvegshmat, 'wallshmat': wallshmat, 'wallsunmat': wallsunmat,
+            # 'wallshvemat': wallshvemat, 'facesunmat': facesunmat}
 
             if self.killed is False:
                 self.progress.emit()
@@ -237,8 +285,9 @@ class Worker(QtCore.QObject):
         filename = f.f_code.co_filename
         linecache.checkcache(filename)
         line = linecache.getline(filename, lineno, f.f_globals)
-        return 'EXCEPTION IN {}, \nLINE {} "{}" \nERROR MESSAGE: {}'.format(filename, lineno, line.strip(), exc_obj)
-
+        return 'EXCEPTION IN {}, \nLINE {} "{}" \nERROR MESSAGE: {}'.format(
+            filename, lineno, line.strip(), exc_obj
+        )
 
     def kill(self):
         self.killed = True
@@ -275,10 +324,14 @@ class Worker(QtCore.QObject):
 
     def annulus_weight(self, altitude, aziinterval):
 
-        n = 90.
-        steprad = (360./aziinterval) * (np.pi/180.)
-        annulus = 91.-altitude
-        w = (1./(2.*np.pi)) * np.sin(np.pi / (2.*n)) * np.sin((np.pi * (2. * annulus - 1.)) / (2. * n))
+        n = 90.0
+        steprad = (360.0 / aziinterval) * (np.pi / 180.0)
+        annulus = 91.0 - altitude
+        w = (
+            (1.0 / (2.0 * np.pi))
+            * np.sin(np.pi / (2.0 * n))
+            * np.sin((np.pi * (2.0 * annulus - 1.0)) / (2.0 * n))
+        )
         weight = steprad * w
 
         return weight

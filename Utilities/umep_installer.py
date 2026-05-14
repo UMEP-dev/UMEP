@@ -1,4 +1,6 @@
-import sys, subprocess, os
+import sys
+import subprocess
+import os
 from pathlib import Path
 import platform
 from packaging import version
@@ -45,7 +47,9 @@ def locate_py():
         if candidate_path.exists():
             return candidate_path
 
-    raise RuntimeError("UMEP cannot locate the Python interpreter used by QGIS!")
+    raise RuntimeError(
+        "UMEP cannot locate the Python interpreter used by QGIS!"
+    )
 
 
 # check if supy is installed
@@ -53,11 +57,15 @@ def check_supy_version():
     try:
         path_pybin = locate_py()
         list_cmd = f"{str(path_pybin)} -m pip show supy".split()
-        list_info = subprocess.check_output(list_cmd, encoding="UTF8").split("\n")
+        list_info = subprocess.check_output(list_cmd, encoding="UTF8").split(
+            "\n"
+        )
         str_ver = list_info[1].split(":")[1].strip()
         return str_ver
     except Exception:
-        raise RuntimeError("UMEP cannot identify a supy installation!") from Exception
+        raise RuntimeError(
+            "UMEP cannot identify a supy installation!"
+        ) from Exception
 
 
 # install supy
@@ -87,7 +95,7 @@ def install_umep_python(ver=None):
             else ""
         )
         # Select correct supy version via extras (numpy 1 vs 2)
-        numpy_major = np.__version__.split('.')[0]
+        numpy_major = np.__version__.split(".")[0]
         numpy_extra = f"[numpy{numpy_major}]"
         list_cmd = f"{str(path_pybin)} -m pip install umep-reqs{numpy_extra}{str_ver} -U --user --prefer-binary {str_use_feature}".split()
 
@@ -105,12 +113,16 @@ def install_umep_python(ver=None):
 
         str_info = (
             str_info
-            if "Successfully installed UMEP dependent Python packages" in str_info
+            if "Successfully installed UMEP dependent Python packages"
+            in str_info
             else f"UMEP dependent Python packages has already been installed!"
         )
         return str_info
     except subprocess.CalledProcessError as exc:
-        QgsMessageLog.logMessage(f"Error running {exc.args}:\n{exc.stdout}", level=Qgis.MessageLevel.Warning)
+        QgsMessageLog.logMessage(
+            f"Error running {exc.args}:\n{exc.stdout}",
+            level=Qgis.MessageLevel.Warning,
+        )
         raise
 
 
@@ -120,12 +132,16 @@ def uninstall_umep_python():
     try:
         path_pybin = locate_py()
         list_cmd = f"{str(path_pybin)} -m pip uninstall umep-reqs -y".split()
-        list_info = subprocess.check_output(list_cmd, encoding="UTF8").split("\n")
+        list_info = subprocess.check_output(list_cmd, encoding="UTF8").split(
+            "\n"
+        )
 
         str_info = list_info[-2].strip()
         return str_info
     except Exception:
-        raise RuntimeError(f"UMEP couldn't uninstall umep-reqs!") from Exception
+        raise RuntimeError(
+            f"UMEP couldn't uninstall umep-reqs!"
+        ) from Exception
 
 
 # set up umep
@@ -137,9 +153,8 @@ def setup_umep_python(ver=None, debug=False):
     try:
         # check if supy and others have been installed
         import supy as sp
+
         sp.show_version()
-        import numba
-        import jaydebeapi
 
     except Exception:
         # install supy

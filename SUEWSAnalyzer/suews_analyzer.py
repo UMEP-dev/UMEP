@@ -20,12 +20,19 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 from __future__ import print_function
 from __future__ import absolute_import
 from builtins import str
 from builtins import range
 from builtins import object
-from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QVariant, QCoreApplication, Qt
+from qgis.PyQt.QtCore import (
+    QSettings,
+    QTranslator,
+    qVersion,
+    QVariant,
+    QCoreApplication,
+)
 
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 from qgis.PyQt.QtGui import QIcon
@@ -33,6 +40,7 @@ from qgis.PyQt import QtGui
 
 from qgis.core import *
 from qgis.gui import *
+
 # Initialize Qt resources from file resources.py
 # from . import resources_rc
 # Import the code for the dialog
@@ -41,30 +49,33 @@ import os.path
 import webbrowser
 from osgeo import gdal, ogr, osr
 from osgeo.gdalconst import *
-from ..Utilities import f90nml
 from ..Utilities.misc import get_resolution_from_umep_forcing
 import numpy as np
 from ..suewsmodel import suewsdataprocessing
-from ..suewsmodel.suewsdataprocessing import SUEWS_txt_to_df, SUEWS_met_txt_to_df, resample_dataframe
+from ..suewsmodel.suewsdataprocessing import (
+    SUEWS_txt_to_df,
+    SUEWS_met_txt_to_df,
+    resample_dataframe,
+)
 from ..suewsmodel import suewsplotting
 from .params_dict import params_dict, unit_dict
+
 # import sys
 # import subprocess
 import datetime
 import shutil
 import yaml
-import pandas as pd
 
 try:
     import matplotlib.pylab as plt
-    import matplotlib.dates as dt
+
     nomatplot = 0
 except ImportError:
     nomatplot = 1
-    pass
 
 su = suewsdataprocessing.SuewsDataProcessing()
 pl = suewsplotting.SuewsPlotting()
+
 
 class SUEWSAnalyzer(object):
     """QGIS Plugin Implementation."""
@@ -76,31 +87,42 @@ class SUEWSAnalyzer(object):
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'SUEWSAnalyzer_{}.qm'.format(locale))
+            self.plugin_dir, "i18n", "SUEWSAnalyzer_{}.qm".format(locale)
+        )
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
 
-            if qVersion() > '4.3.3':
+            if qVersion() > "4.3.3":
                 QCoreApplication.installTranslator(self.translator)
 
         # Create the dialog (after translation) and keep reference
         self.dlg = SUEWSAnalyzerDialog()
 
-        self.layerComboManagerPolygrid = QgsMapLayerComboBox(self.dlg.widgetPolygrid)
+        self.layerComboManagerPolygrid = QgsMapLayerComboBox(
+            self.dlg.widgetPolygrid
+        )
         self.layerComboManagerPolygrid.setCurrentIndex(-1)
-        self.layerComboManagerPolygrid.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
+        self.layerComboManagerPolygrid.setFilters(
+            QgsMapLayerProxyModel.Filter.PolygonLayer
+        )
         self.layerComboManagerPolygrid.setFixedWidth(175)
-        self.layerComboManagerPolyfield = QgsFieldComboBox(self.dlg.widgetField)
-        self.layerComboManagerPolyfield.setFilters(QgsFieldProxyModel.Filter.Numeric)
-        self.layerComboManagerPolygrid.layerChanged.connect(self.layerComboManagerPolyfield.setLayer)
-        
-        self.dlg.comboBox_POIVariable.currentIndexChanged.connect(self.variable_changed)
+        self.layerComboManagerPolyfield = QgsFieldComboBox(
+            self.dlg.widgetField
+        )
+        self.layerComboManagerPolyfield.setFilters(
+            QgsFieldProxyModel.Filter.Numeric
+        )
+        self.layerComboManagerPolygrid.layerChanged.connect(
+            self.layerComboManagerPolyfield.setLayer
+        )
+
+        self.dlg.comboBox_POIVariable.currentIndexChanged.connect(
+            self.variable_changed
+        )
         self.dlg.pushButtonHelp.clicked.connect(self.help)
         self.dlg.pushButtonRunControl.clicked.connect(self.get_runcontrol)
         self.dlg.pushButtonSave.clicked.connect(self.geotiff_save)
@@ -117,7 +139,7 @@ class SUEWSAnalyzer(object):
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&SUEWS Analyzer')
+        self.menu = self.tr("&SUEWS Analyzer")
         # TODO: We are going to let the user set this up in a future iteration
         # self.toolbar = self.iface.addToolBar(u'SUEWSAnalyzer')
         # self.toolbar.setObjectName(u'SUEWSAnalyzer')
@@ -130,7 +152,7 @@ class SUEWSAnalyzer(object):
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
-        return QCoreApplication.translate('SUEWSAnalyzer', message)
+        return QCoreApplication.translate("SUEWSAnalyzer", message)
 
     def add_action(
         self,
@@ -142,7 +164,8 @@ class SUEWSAnalyzer(object):
         add_to_toolbar=True,
         status_tip=None,
         whats_this=None,
-        parent=None):
+        parent=None,
+    ):
 
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
@@ -159,9 +182,7 @@ class SUEWSAnalyzer(object):
             self.toolbar.addAction(action)
 
         if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action)
+            self.iface.addPluginToMenu(self.menu, action)
 
         self.actions.append(action)
 
@@ -170,19 +191,18 @@ class SUEWSAnalyzer(object):
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/SUEWSAnalyzer/icon.png'
+        icon_path = ":/plugins/SUEWSAnalyzer/icon.png"
         self.add_action(
             icon_path,
-            text=self.tr(u''),
+            text=self.tr(""),
             callback=self.run,
-            parent=self.iface.mainWindow())
+            parent=self.iface.mainWindow(),
+        )
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
-            self.iface.removePluginMenu(
-                self.tr(u'&SUEWS Analyzer'),
-                action)
+            self.iface.removePluginMenu(self.tr("&SUEWS Analyzer"), action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
         del self.toolbar
@@ -202,23 +222,23 @@ class SUEWSAnalyzer(object):
         self.dlg.comboBox_POIVariable.clear()
         self.dlg.comboBox_POIField_2.clear()
         self.dlg.comboBox_POIVariable_2.clear()
-        self.dlg.comboBox_POIField.addItem('Not Specified')
-        self.dlg.comboBox_POIYYYY.addItem('Not Specified')
-        self.dlg.comboBox_POIDOYMin.addItem('Not Specified')
-        self.dlg.comboBox_POIDOYMax.addItem('Not Specified')
-        self.dlg.comboBox_POIVariable.addItem('Not Specified')
-        self.dlg.comboBox_POIField_2.addItem('Not Specified')
-        self.dlg.comboBox_POIVariable_2.addItem('Not Specified')
+        self.dlg.comboBox_POIField.addItem("Not Specified")
+        self.dlg.comboBox_POIYYYY.addItem("Not Specified")
+        self.dlg.comboBox_POIDOYMin.addItem("Not Specified")
+        self.dlg.comboBox_POIDOYMax.addItem("Not Specified")
+        self.dlg.comboBox_POIVariable.addItem("Not Specified")
+        self.dlg.comboBox_POIField_2.addItem("Not Specified")
+        self.dlg.comboBox_POIVariable_2.addItem("Not Specified")
         self.dlg.comboBox_SpatialVariable.clear()
         self.dlg.comboBox_SpatialYYYY.clear()
         self.dlg.comboBox_SpatialDOYMin.clear()
         self.dlg.comboBox_SpatialDOYMax.clear()
         self.dlg.textOutput.clear()
-        self.dlg.comboBox_SpatialVariable.addItem('Not Specified')
-        self.dlg.comboBox_SpatialYYYY.addItem('Not Specified')
-        self.dlg.comboBox_SpatialDOYMin.addItem('Not Specified')
-        self.dlg.comboBox_SpatialDOYMax.addItem('Not Specified')
-        self.dlg.textOutput.setText('Not Specified')
+        self.dlg.comboBox_SpatialVariable.addItem("Not Specified")
+        self.dlg.comboBox_SpatialYYYY.addItem("Not Specified")
+        self.dlg.comboBox_SpatialDOYMin.addItem("Not Specified")
+        self.dlg.comboBox_SpatialDOYMax.addItem("Not Specified")
+        self.dlg.textOutput.setText("Not Specified")
 
     def get_runcontrol(self):
         # now using yml-files instead
@@ -229,31 +249,37 @@ class SUEWSAnalyzer(object):
         if result == 1:
             self.yamlPath = self.fileDialogyaml.selectedFiles()
             self.dlg.textModelFolder.setText(self.yamlPath[0])
-            with open(self.yamlPath[0], 'r') as f:
+            with open(self.yamlPath[0], "r") as f:
                 yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
 
-            self.fileoutputpath = str(yaml_dict['model']['control']['output_file']['path'])
-            
+            self.fileoutputpath = str(
+                yaml_dict["model"]["control"]["output_file"]["path"]
+            )
+
             if self.fileoutputpath.startswith("."):
                 yamlfolder = self.yamlPath[0][:-15]
                 self.fileoutputpath = yamlfolder + self.fileoutputpath[1:]
 
-            grid_list = [] 
-            for n in range(len(yaml_dict['sites'])):
-                grid_list.append(yaml_dict['sites'][n]['gridiv'])
+            grid_list = []
+            for n in range(len(yaml_dict["sites"])):
+                grid_list.append(yaml_dict["sites"][n]["gridiv"])
 
             grid_list = list(map(str, grid_list))
 
             self.dlg.comboBox_POIField.addItems(grid_list)
             self.dlg.comboBox_POIField_2.addItems(grid_list)
 
-            resolutionFilesOut = get_resolution_from_umep_forcing(yaml_dict['model']['control']['forcing_file']['value'])
+            resolutionFilesOut = get_resolution_from_umep_forcing(
+                yaml_dict["model"]["control"]["forcing_file"]["value"]
+            )
             self.resout = int(float(resolutionFilesOut) / 60)
 
             resolutionFilesIn = resolutionFilesOut
             self.resin = int(resolutionFilesIn / 60)
 
-            met_data = SUEWS_met_txt_to_df(yaml_dict['model']['control']['forcing_file']['value'])
+            met_data = SUEWS_met_txt_to_df(
+                yaml_dict["model"]["control"]["forcing_file"]["value"]
+            )
             self.met_data = met_data
             # pd.read_csv(yaml_dict['model']['control']['forcing_file']['value'], delim_whitespace= True)
             # self.met_data['Datetime'] = pd.to_datetime(self.met_data[['iy', 'id', 'it', 'imin']].astype(str).agg('-'.join, axis=1), format='%Y-%j-%H-%M')
@@ -270,24 +296,35 @@ class SUEWSAnalyzer(object):
 
             self.dlg.comboBox_POIYYYY.addItems(years)
             self.dlg.comboBox_SpatialYYYY.addItems(years)
-           
-            mm = 0 #This doesn't work when hourly file starts with e.g.15
+
+            mm = 0  # This doesn't work when hourly file starts with e.g.15
             while mm < 60:
                 self.dlg.comboBox_mm.addItem(str(mm))
                 mm += self.resout
 
             # New structure for 2025.6.2.dev0
 
-            outfile = str(yaml_dict['sites'][0]['gridiv']) + '_' + str(firstyear) + '_SUEWS_60.txt'
-            
+            outfile = (
+                str(yaml_dict["sites"][0]["gridiv"])
+                + "_"
+                + str(firstyear)
+                + "_SUEWS_60.txt"
+            )
+
             # # Set the datetime column as the index
-  
+
             self.YYYY = -99
             self.gridcodemetID = -99
 
             for item in list(sorted(list(params_dict.keys()))):
-                for cbox in [self.dlg.comboBox_POIVariable, self.dlg.comboBox_POIVariable_2,self.dlg.comboBox_SpatialVariable]:
-                    item_desc = item + f" ({params_dict[item]['description']})" #773
+                for cbox in [
+                    self.dlg.comboBox_POIVariable,
+                    self.dlg.comboBox_POIVariable_2,
+                    self.dlg.comboBox_SpatialVariable,
+                ]:
+                    item_desc = (
+                        item + f" ({params_dict[item]['description']})"
+                    )  # 773
                     cbox.addItem(item_desc)
 
             self.dlg.runButtonPlot.setEnabled(1)
@@ -301,144 +338,181 @@ class SUEWSAnalyzer(object):
     def changeYearPOI(self):
         self.dlg.comboBox_POIDOYMin.clear()
         self.dlg.comboBox_POIDOYMax.clear()
-        self.dlg.comboBox_POIDOYMin.addItem('Not Specified')
-        self.dlg.comboBox_POIDOYMax.addItem('Not Specified')
+        self.dlg.comboBox_POIDOYMin.addItem("Not Specified")
+        self.dlg.comboBox_POIDOYMax.addItem("Not Specified")
 
         self.YYYY = self.dlg.comboBox_POIYYYY.currentText()
 
         # if self.multiplemetfiles == 0:
         #     self.gridcodemet = ''
-        # else: 
+        # else:
         self.gridcodemet = self.dlg.comboBox_POIField.currentText()
 
-        if self.YYYY == 'Not Specified':
+        if self.YYYY == "Not Specified":
 
-            doy_list = self.met_data.index.strftime('%Y-%m-%d').unique().tolist()
+            doy_list = (
+                self.met_data.index.strftime("%Y-%m-%d").unique().tolist()
+            )
 
             self.dlg.comboBox_POIDOYMin.addItems(doy_list)
             self.dlg.comboBox_POIDOYMax.addItems(doy_list)
 
         else:
-            doy_list = self.met_data.loc[self.YYYY].index.strftime('%Y-%m-%d').unique().tolist()
+            doy_list = (
+                self.met_data.loc[self.YYYY]
+                .index.strftime("%Y-%m-%d")
+                .unique()
+                .tolist()
+            )
 
             self.dlg.comboBox_POIDOYMin.addItems(doy_list)
             self.dlg.comboBox_POIDOYMax.addItems(doy_list)
-
 
     def changeYearSP(self):
         self.dlg.comboBox_SpatialDOYMin.clear()
         self.dlg.comboBox_SpatialDOYMax.clear()
-        self.dlg.comboBox_SpatialDOYMin.addItem('Not Specified')
-        self.dlg.comboBox_SpatialDOYMax.addItem('Not Specified')
+        self.dlg.comboBox_SpatialDOYMin.addItem("Not Specified")
+        self.dlg.comboBox_SpatialDOYMax.addItem("Not Specified")
 
         self.YYYY = self.dlg.comboBox_SpatialYYYY.currentText()
 
-        if self.YYYY == 'Not Specified':
+        if self.YYYY == "Not Specified":
 
-            doy_list = self.met_data.index.strftime('%Y-%m-%d').unique().tolist()
+            doy_list = (
+                self.met_data.index.strftime("%Y-%m-%d").unique().tolist()
+            )
 
             self.dlg.comboBox_SpatialDOYMin.addItems(doy_list)
             self.dlg.comboBox_SpatialDOYMax.addItems(doy_list)
 
         else:
-            doy_list = self.met_data.loc[self.YYYY].index.strftime('%Y-%m-%d').unique().tolist()
+            doy_list = (
+                self.met_data.loc[self.YYYY]
+                .index.strftime("%Y-%m-%d")
+                .unique()
+                .tolist()
+            )
 
             self.dlg.comboBox_SpatialDOYMin.addItems(doy_list)
             self.dlg.comboBox_SpatialDOYMax.addItems(doy_list)
 
-
     def geotiff_save(self):
-        self.outputfile = self.fileDialog.getSaveFileName(None, "Save File As:", None, "GeoTIFF (*.tif)")
+        self.outputfile = self.fileDialog.getSaveFileName(
+            None, "Save File As:", None, "GeoTIFF (*.tif)"
+        )
         self.dlg.textOutput.setText(self.outputfile[0])
-
 
     def get_unit(self):
         uni = self.lineunit[self.id]
-        if uni == 'W m-2':
-            self.unit = '$W$'' ''$m ^{-2}$'
-        elif uni == 'mm':
-            self.unit = '$mm$'
-        elif uni == 'degC':
-            self.unit = '$^{o}C$'
-        elif uni == 'deg':
-            self.unit = '$Degrees(^{o})$'
-        elif uni == '-':
-            self.unit = '$-$'
-        elif uni == 'm2 m-2':
-            self.unit = '$m ^{2}$'' ''$m ^{-2}$'
-        elif uni == 'm':
-            self.unit = '$m$'
-        elif uni == 'm s-1':
-            self.unit = '$m$'' ''$s ^{-1}$'
-        elif uni == 'umol m-2 s-1':
-            self.unit = '$umol ^{2}$'' ''$m ^{-2}$'' ''$s ^{-1}$'
-        elif uni == 'YYYY':
-            self.unit = '$Year$'
-        elif uni == 'DOY':
-            self.unit = '$Day of Year$'
-        elif uni == 'HH':
-            self.unit = '$Hour$'
-        elif uni == 'mm':
-            self.unit = '$Minute$'
-        elif uni == 'day':
-            self.unit = '$Decimal Time$'
-
+        if uni == "W m-2":
+            self.unit = "$W$" " " "$m ^{-2}$"
+        elif uni == "mm":
+            self.unit = "$mm$"
+        elif uni == "degC":
+            self.unit = "$^{o}C$"
+        elif uni == "deg":
+            self.unit = "$Degrees(^{o})$"
+        elif uni == "-":
+            self.unit = "$-$"
+        elif uni == "m2 m-2":
+            self.unit = "$m ^{2}$" " " "$m ^{-2}$"
+        elif uni == "m":
+            self.unit = "$m$"
+        elif uni == "m s-1":
+            self.unit = "$m$" " " "$s ^{-1}$"
+        elif uni == "umol m-2 s-1":
+            self.unit = "$umol ^{2}$" " " "$m ^{-2}$" " " "$s ^{-1}$"
+        elif uni == "YYYY":
+            self.unit = "$Year$"
+        elif uni == "DOY":
+            self.unit = "$Day of Year$"
+        elif uni == "HH":
+            self.unit = "$Hour$"
+        elif uni == "mm":
+            self.unit = "$Minute$"
+        elif uni == "day":
+            self.unit = "$Decimal Time$"
 
     def spatial(self):
         # self.iface.messageBar().pushMessage("SUEWS Analyzer", "Generating statistics grid", duration=5)
 
-        if self.dlg.comboBox_SpatialVariable.currentText() == 'Not Specified':
-            QMessageBox.critical(self.dlg, "Error", "No analyzing variable is selected")
+        if self.dlg.comboBox_SpatialVariable.currentText() == "Not Specified":
+            QMessageBox.critical(
+                self.dlg, "Error", "No analyzing variable is selected"
+            )
             return
         else:
             self.id = self.dlg.comboBox_SpatialVariable.currentIndex() - 1
 
-        if self.dlg.comboBox_SpatialYYYY.currentText() == 'Not Specified':
+        if self.dlg.comboBox_SpatialYYYY.currentText() == "Not Specified":
             QMessageBox.critical(self.dlg, "Error", "No Year is selected")
             return
 
         poly = self.layerComboManagerPolygrid.currentLayer()
         if poly is None:
-            QMessageBox.critical(self.dlg, "Error", "No valid Polygon layer is selected")
+            QMessageBox.critical(
+                self.dlg, "Error", "No valid Polygon layer is selected"
+            )
             return
         if not poly.geometryType() == 2:
-            QMessageBox.critical(self.dlg, "Error", "No valid Polygon layer is selected")
+            QMessageBox.critical(
+                self.dlg, "Error", "No valid Polygon layer is selected"
+            )
             return
 
         poly_field = self.layerComboManagerPolyfield.currentField()
         if poly_field is None:
-            QMessageBox.critical(self.dlg, "Error", "An attribute with unique fields/records must be selected (same as used in the model run to analyze)")
+            QMessageBox.critical(
+                self.dlg,
+                "Error",
+                "An attribute with unique fields/records must be selected (same as used in the model run to analyze)",
+            )
             return
 
-        if not (self.dlg.addResultToGrid.isChecked() or self.dlg.addResultToGeotiff.isChecked()):
-            QMessageBox.critical(self.dlg, "Error", "No output method has been selected (Add results to polygon grid OR Save as GeoTIFF)")
+        if not (
+            self.dlg.addResultToGrid.isChecked()
+            or self.dlg.addResultToGeotiff.isChecked()
+        ):
+            QMessageBox.critical(
+                self.dlg,
+                "Error",
+                "No output method has been selected (Add results to polygon grid OR Save as GeoTIFF)",
+            )
             return
 
-        if self.dlg.comboBox_SpatialDOYMin.currentText() == 'Not Specified':
-            QMessageBox.critical(self.dlg, "Error", "No Minimum DOY is selected")
+        if self.dlg.comboBox_SpatialDOYMin.currentText() == "Not Specified":
+            QMessageBox.critical(
+                self.dlg, "Error", "No Minimum DOY is selected"
+            )
             return
         else:
-            startday = self.dlg.comboBox_SpatialDOYMin.currentText() 
+            startday = self.dlg.comboBox_SpatialDOYMin.currentText()
 
-        if self.dlg.comboBox_SpatialDOYMax.currentText() == 'Not Specified':
-            QMessageBox.critical(self.dlg, "Error", "No Maximum DOY is selected")
+        if self.dlg.comboBox_SpatialDOYMax.currentText() == "Not Specified":
+            QMessageBox.critical(
+                self.dlg, "Error", "No Maximum DOY is selected"
+            )
             return
         else:
             endday = self.dlg.comboBox_SpatialDOYMax.currentText()
 
         if startday > endday:
-            QMessageBox.critical(self.dlg, "Error", "Start day happens after end day")
+            QMessageBox.critical(
+                self.dlg, "Error", "Start day happens after end day"
+            )
             return
 
         if startday == endday:
-            QMessageBox.critical(self.dlg, "Error", "End day must be higher than start day")
+            QMessageBox.critical(
+                self.dlg, "Error", "End day must be higher than start day"
+            )
             return
 
         if self.dlg.checkBox_TOD.isChecked():
-            if self.dlg.comboBox_HH.currentText() == ' ':
+            if self.dlg.comboBox_HH.currentText() == " ":
                 QMessageBox.critical(self.dlg, "Error", "No Hour specified")
                 return
-            if self.dlg.comboBox_mm.currentText() == ' ':
+            if self.dlg.comboBox_mm.currentText() == " ":
                 QMessageBox.critical(self.dlg, "Error", "No Minute specified")
                 return
 
@@ -453,9 +527,17 @@ class SUEWSAnalyzer(object):
         # for i in range(0, self.idgrid.shape[0]): # loop over vector grid instead
         for grid in grid_list:
 
-            datawhole = SUEWS_txt_to_df(self.fileoutputpath + '/' + str(grid) + '_' +
-                                      str(self.YYYY) + '_SUEWS_' + str(self.resout) + '.txt')
-            
+            datawhole = SUEWS_txt_to_df(
+                self.fileoutputpath
+                + "/"
+                + str(grid)
+                + "_"
+                + str(self.YYYY)
+                + "_SUEWS_"
+                + str(self.resout)
+                + ".txt"
+            )
+
             data1 = datawhole.loc[startday:endday]
 
             if self.dlg.checkBox_TOD.isChecked():
@@ -464,28 +546,34 @@ class SUEWSAnalyzer(object):
                 data1 = data1[data1.index.time == datetime.time(hh, minute)]
             else:
                 if self.dlg.radioButtonDaytime.isChecked():
-                    data1 = data1[data1.loc[:, 'Zenith'] < 90]
+                    data1 = data1[data1.loc[:, "Zenith"] < 90]
                 if self.dlg.radioButtonNighttime.isChecked():
-                    data1 = data1[data1.loc[:, 'Zenith'] > 90.]
+                    data1 = data1[data1.loc[:, "Zenith"] > 90.0]
 
-            var = self.dlg.comboBox_SpatialVariable.currentText().split('(')[0].strip()
+            var = (
+                self.dlg.comboBox_SpatialVariable.currentText()
+                .split("(")[0]
+                .strip()
+            )
             vardata = data1.loc[:, var]
 
             if self.dlg.radioButtonMean.isChecked():
                 statresult = np.nanmean(vardata)
-                suffix = '_mean'
+                suffix = "_mean"
             if self.dlg.radioButtonMin.isChecked():
                 statresult = np.nanmin(vardata)
-                suffix = '_min'
+                suffix = "_min"
             if self.dlg.radioButtonMax.isChecked():
                 statresult = np.nanmax(vardata)
-                suffix = '_max'
+                suffix = "_max"
             if self.dlg.radioButtonMed.isChecked():
                 statresult = np.nanmedian(vardata)
-                suffix = '_median'
+                suffix = "_median"
             if self.dlg.radioButtonIQR.isChecked():
-                statresult = np.nanpercentile(vardata, 75) - np.percentile(vardata, 25)
-                suffix = '_IQR'
+                statresult = np.nanpercentile(vardata, 75) - np.percentile(
+                    vardata, 25
+                )
+                suffix = "_IQR"
             statvectemp = np.vstack((statvectemp, statresult))
             idvec = np.vstack((idvec, int(grid)))
 
@@ -503,38 +591,60 @@ class SUEWSAnalyzer(object):
             if self.dlg.checkBoxIrregular.isChecked():
                 resx = self.dlg.doubleSpinBoxRes.value()
             else:
-                for f in vlayer.getFeatures():  # Taking first polygon. Could probably be done nicer
+                for (
+                    f
+                ) in (
+                    vlayer.getFeatures()
+                ):  # Taking first polygon. Could probably be done nicer
                     geom = f.geometry().asMultiPolygon()
                     break
                 resx = np.abs(geom[0][0][0][0] - geom[0][0][2][0])  # x
                 resy = np.abs(geom[0][0][0][1] - geom[0][0][2][1])  # y
 
                 if not resx == resy:
-                    QMessageBox.critical(self.dlg, "Error", "Polygons not squared in current CRS")
+                    QMessageBox.critical(
+                        self.dlg,
+                        "Error",
+                        "Polygons not squared in current CRS",
+                    )
                     return
 
-            if self.dlg.textOutput.text() == 'Not Specified':
-                QMessageBox.critical(self.dlg, "Error", "No output filename for GeoTIFF is added")
+            if self.dlg.textOutput.text() == "Not Specified":
+                QMessageBox.critical(
+                    self.dlg,
+                    "Error",
+                    "No output filename for GeoTIFF is added",
+                )
                 return
             else:
                 filename = self.dlg.textOutput.text()
 
-            if os.path.isfile(self.plugin_dir + '/tempgrid.tif'): # response to issue 103
+            if os.path.isfile(
+                self.plugin_dir + "/tempgrid.tif"
+            ):  # response to issue 103
                 try:
-                    shutil.rmtree(self.plugin_dir + '/tempgrid.tif')
+                    shutil.rmtree(self.plugin_dir + "/tempgrid.tif")
                 except OSError:
-                    os.remove(self.plugin_dir + '/tempgrid.tif')
+                    os.remove(self.plugin_dir + "/tempgrid.tif")
 
             crs = vlayer.crs().toWkt()
-            path=vlayer.dataProvider().dataSourceUri()
+            path = vlayer.dataProvider().dataSourceUri()
             # polygonpath = path [:path.rfind('|')] # work around. Probably other solution exists
-            if path.rfind('|') > 0:
-                polygonpath = path [:path.rfind('|')] # work around. Probably other solution exists
+            if path.rfind("|") > 0:
+                # work around. Probably other solution exists
+                polygonpath = path[: path.rfind("|")]
             else:
                 polygonpath = path
-            self.rasterize(str(polygonpath), str(self.plugin_dir + '/tempgrid.tif'), str(poly_field), resx, crs, extent)
+            self.rasterize(
+                str(polygonpath),
+                str(self.plugin_dir + "/tempgrid.tif"),
+                str(poly_field),
+                resx,
+                crs,
+                extent,
+            )
 
-            dataset = gdal.Open(self.plugin_dir + '/tempgrid.tif')
+            dataset = gdal.Open(self.plugin_dir + "/tempgrid.tif")
             idgrid_array = dataset.ReadAsArray().astype(float)
 
             gridout = np.zeros((idgrid_array.shape[0], idgrid_array.shape[1]))
@@ -556,12 +666,32 @@ class SUEWSAnalyzer(object):
                 c = QgsColorRampShader()
                 c.setColorRampType(QgsColorRampShader.Type.Interpolated)
                 i = []
-                i.append(QgsColorRampShader.ColorRampItem(np.nanmin(gridout), QtGui.QColor('#2b83ba'), str(np.nanmin(gridout))))
-                i.append(QgsColorRampShader.ColorRampItem(np.nanmedian(gridout), QtGui.QColor('#ffffbf'), str(np.nanmedian(gridout))))
-                i.append(QgsColorRampShader.ColorRampItem(np.nanmax(gridout), QtGui.QColor('#d7191c'),str(np.nanmax(gridout))))
+                i.append(
+                    QgsColorRampShader.ColorRampItem(
+                        np.nanmin(gridout),
+                        QtGui.QColor("#2b83ba"),
+                        str(np.nanmin(gridout)),
+                    )
+                )
+                i.append(
+                    QgsColorRampShader.ColorRampItem(
+                        np.nanmedian(gridout),
+                        QtGui.QColor("#ffffbf"),
+                        str(np.nanmedian(gridout)),
+                    )
+                )
+                i.append(
+                    QgsColorRampShader.ColorRampItem(
+                        np.nanmax(gridout),
+                        QtGui.QColor("#d7191c"),
+                        str(np.nanmax(gridout)),
+                    )
+                )
                 c.setColorRampItemList(i)
                 s.setRasterShaderFunction(c)
-                ps = QgsSingleBandPseudoColorRenderer(rlayer.dataProvider(), 1, s)
+                ps = QgsSingleBandPseudoColorRenderer(
+                    rlayer.dataProvider(), 1, s
+                )
                 rlayer.setRenderer(ps)
 
                 # Trigger a repaint
@@ -569,13 +699,17 @@ class SUEWSAnalyzer(object):
                     rlayer.setCacheImage(None)
                 rlayer.triggerRepaint()
 
-        QMessageBox.information(self.dlg, "SUEWS Analyser", "Process completed")
+        QMessageBox.information(
+            self.dlg, "SUEWS Analyser", "Process completed"
+        )
 
     def saveraster(self, gdal_data, filename, raster):
         rows = gdal_data.RasterYSize
         cols = gdal_data.RasterXSize
 
-        outDs = gdal.GetDriverByName("GTiff").Create(filename, cols, rows, int(1), GDT_Float32)
+        outDs = gdal.GetDriverByName("GTiff").Create(
+            filename, cols, rows, int(1), GDT_Float32
+        )
         outBand = outDs.GetRasterBand(1)
 
         # write the data
@@ -595,7 +729,9 @@ class SUEWSAnalyzer(object):
         caps = vlayer.dataProvider().capabilities()
 
         if caps & QgsVectorDataProvider.Capability.AddAttributes:
-            vlayer.dataProvider().addAttributes([QgsField(header, QVariant.Double)])
+            vlayer.dataProvider().addAttributes(
+                [QgsField(header, QVariant.Double)]
+            )
             attr_dict = {}
             for y in range(0, matdata.shape[0]):
                 attr_dict.clear()
@@ -605,140 +741,246 @@ class SUEWSAnalyzer(object):
 
             vlayer.updateFields()
         else:
-            QMessageBox.critical(None, "Error", "Vector Layer does not support adding attributes")
+            QMessageBox.critical(
+                None,
+                "Error",
+                "Vector Layer does not support adding attributes",
+            )
 
     def plotpoint(self):
         self.varpoi1 = self.dlg.comboBox_POIField.currentText()
 
-        if self.dlg.comboBox_POIField.currentText() == 'Not Specified':
+        if self.dlg.comboBox_POIField.currentText() == "Not Specified":
             QMessageBox.critical(self.dlg, "Error", "No Grid ID is selected")
             return
 
         if not self.dlg.checkboxPlotBasic.isChecked():
 
-            if self.dlg.comboBox_POIDOYMin.currentText() == 'Not Specified':
-                QMessageBox.critical(self.dlg, "Error", "No Minimum DOY is selected")
+            if self.dlg.comboBox_POIDOYMin.currentText() == "Not Specified":
+                QMessageBox.critical(
+                    self.dlg, "Error", "No Minimum DOY is selected"
+                )
                 return
             else:
                 startday = self.dlg.comboBox_POIDOYMin.currentText()
 
-            if self.dlg.comboBox_POIDOYMax.currentText() == 'Not Specified':
-                QMessageBox.critical(self.dlg, "Error", "No Maximum DOY is selected")
+            if self.dlg.comboBox_POIDOYMax.currentText() == "Not Specified":
+                QMessageBox.critical(
+                    self.dlg, "Error", "No Maximum DOY is selected"
+                )
                 return
             else:
                 endday = self.dlg.comboBox_POIDOYMax.currentText()
 
             if startday > endday:
-                QMessageBox.critical(self.dlg, "Error", "Start day happens after end day")
+                QMessageBox.critical(
+                    self.dlg, "Error", "Start day happens after end day"
+                )
                 return
 
             if startday == endday:
-                QMessageBox.critical(self.dlg, "Error", "End day must be higher than start day")
+                QMessageBox.critical(
+                    self.dlg, "Error", "End day must be higher than start day"
+                )
                 return
-            
-            datawhole = SUEWS_txt_to_df(self.fileoutputpath + '/' + self.varpoi1 + '_' +
-                                      str(self.YYYY) + '_SUEWS_' + str(self.resout) + '.txt')
-    
 
-            if self.dlg.comboBox_POIVariable.currentText() == 'Not Specified':
-                QMessageBox.critical(self.dlg, "Error", "No plot variable is selected")
+            datawhole = SUEWS_txt_to_df(
+                self.fileoutputpath
+                + "/"
+                + self.varpoi1
+                + "_"
+                + str(self.YYYY)
+                + "_SUEWS_"
+                + str(self.resout)
+                + ".txt"
+            )
+
+            if self.dlg.comboBox_POIVariable.currentText() == "Not Specified":
+                QMessageBox.critical(
+                    self.dlg, "Error", "No plot variable is selected"
+                )
                 return
 
             if not self.dlg.checkboxPOIAnother.isChecked():
                 # One variable
 
-                if self.dlg.comboBox_POIVariable.currentText() == 'Not Specified':
-                    QMessageBox.critical(self.dlg, "Error", "No plotting variable is selected")
+                if (
+                    self.dlg.comboBox_POIVariable.currentText()
+                    == "Not Specified"
+                ):
+                    QMessageBox.critical(
+                        self.dlg, "Error", "No plotting variable is selected"
+                    )
                     return
 
-                plt.figure(1, figsize=(15, 7), facecolor='white')
+                plt.figure(1, figsize=(15, 7), facecolor="white")
                 plt.title(self.dlg.comboBox_POIVariable.currentText())
                 ax1 = plt.subplot(1, 1, 1)
-                var = self.dlg.comboBox_POIVariable.currentText().split('(')[0].strip()
-                datawhole.loc[startday:endday, var].plot(color = 'r', label='$' + self.dlg.comboBox_POIVariable.currentText() + '$', ax = ax1)
-                
-                ax1.set_ylabel(unit_dict[params_dict[var]['unit']], fontsize=14)
-                ax1.set_xlabel('Time', fontsize=14)
+                var = (
+                    self.dlg.comboBox_POIVariable.currentText()
+                    .split("(")[0]
+                    .strip()
+                )
+                datawhole.loc[startday:endday, var].plot(
+                    color="r",
+                    label="$"
+                    + self.dlg.comboBox_POIVariable.currentText()
+                    + "$",
+                    ax=ax1,
+                )
+
+                ax1.set_ylabel(
+                    unit_dict[params_dict[var]["unit"]], fontsize=14
+                )
+                ax1.set_xlabel("Time", fontsize=14)
                 ax1.grid(True)
             else:
                 # Two variables
-                var1 = self.dlg.comboBox_POIVariable.currentText().split('(')[0].strip()
-                var2 = self.dlg.comboBox_POIVariable_2.currentText().split('(')[0].strip()
-                varunit1 = unit_dict[params_dict[var1]['unit']]
-                varunit2 = unit_dict[params_dict[var2]['unit']]
+                var1 = (
+                    self.dlg.comboBox_POIVariable.currentText()
+                    .split("(")[0]
+                    .strip()
+                )
+                var2 = (
+                    self.dlg.comboBox_POIVariable_2.currentText()
+                    .split("(")[0]
+                    .strip()
+                )
+                varunit1 = unit_dict[params_dict[var1]["unit"]]
+                varunit2 = unit_dict[params_dict[var2]["unit"]]
 
-                if self.dlg.comboBox_POIVariable_2.currentText() == 'Not Specified' or self.dlg.comboBox_POIVariable.currentText() == 'Not Specified':
-                    QMessageBox.critical(self.dlg, "Error", "No plotting variable is selected")
+                if (
+                    self.dlg.comboBox_POIVariable_2.currentText()
+                    == "Not Specified"
+                    or self.dlg.comboBox_POIVariable.currentText()
+                    == "Not Specified"
+                ):
+                    QMessageBox.critical(
+                        self.dlg, "Error", "No plotting variable is selected"
+                    )
                     return
-                
+
                 POIgrid1 = self.dlg.comboBox_POIField.currentText()
                 POIgrid2 = self.dlg.comboBox_POIField_2.currentText()
 
-                datawhole2 = SUEWS_txt_to_df(self.fileoutputpath + '/' + POIgrid2 + '_' +
-                                      str(self.YYYY) + '_SUEWS_' + str(self.resout) + '.txt')
+                datawhole2 = SUEWS_txt_to_df(
+                    self.fileoutputpath
+                    + "/"
+                    + POIgrid2
+                    + "_"
+                    + str(self.YYYY)
+                    + "_SUEWS_"
+                    + str(self.resout)
+                    + ".txt"
+                )
 
                 if self.dlg.checkboxScatterbox.isChecked():
-                    plt.figure(1, figsize=(8, 8), facecolor='white')
+                    plt.figure(1, figsize=(8, 8), facecolor="white")
                     plt.title(
-                        var1 + '(' + POIgrid1 + ') vs ' + var2 + '(' + POIgrid2 + ')')
+                        var1
+                        + "("
+                        + POIgrid1
+                        + ") vs "
+                        + var2
+                        + "("
+                        + POIgrid2
+                        + ")"
+                    )
                     ax1 = plt.subplot(1, 1, 1)
-                    ax1.plot(datawhole.loc[startday: endday, var1], datawhole2.loc[startday: endday, var2], "k.")
-                    ax1.set_ylabel(var1 + ' (' + varunit1 + ')', fontsize=14)
-                    ax1.set_xlabel(var2 + ' (' + varunit2 + ')', fontsize=14)
+                    ax1.plot(
+                        datawhole.loc[startday:endday, var1],
+                        datawhole2.loc[startday:endday, var2],
+                        "k.",
+                    )
+                    ax1.set_ylabel(var1 + " (" + varunit1 + ")", fontsize=14)
+                    ax1.set_xlabel(var2 + " (" + varunit2 + ")", fontsize=14)
                 else:
 
-                    plt.figure(1, figsize=(15, 7), facecolor='white')
+                    plt.figure(1, figsize=(15, 7), facecolor="white")
                     plt.title(
-                        var1 + '(' + POIgrid1 + ') and ' + var2 + '(' + POIgrid2 + ')')
+                        var1
+                        + "("
+                        + POIgrid1
+                        + ") and "
+                        + var2
+                        + "("
+                        + POIgrid2
+                        + ")"
+                    )
                     ax1 = plt.subplot(1, 1, 1)
 
                     if varunit1 != varunit2:
                         ax2 = ax1.twinx()
-                        datawhole.loc[startday: endday, var1].plot(
-                            color = 'r', 
-                            label='$' + var1 + ' (' + POIgrid1 + ')$', 
-                            ax = ax1)
+                        datawhole.loc[startday:endday, var1].plot(
+                            color="r",
+                            label="$" + var1 + " (" + POIgrid1 + ")$",
+                            ax=ax1,
+                        )
                         ax1.legend(loc=1)
-                        datawhole.loc[startday: endday, var2].plot(
-                            color = 'b', 
-                            label='$' + var2 + ' (' + POIgrid2 + ')$', 
-                            ax = ax2)
+                        datawhole.loc[startday:endday, var2].plot(
+                            color="b",
+                            label="$" + var2 + " (" + POIgrid2 + ")$",
+                            ax=ax2,
+                        )
 
                         ax2.legend(loc=2)
-                        ax1.set_ylabel(varunit1, color='r', fontsize=14)
-                        ax2.set_ylabel(varunit2, color='b', fontsize=14)
+                        ax1.set_ylabel(varunit1, color="r", fontsize=14)
+                        ax2.set_ylabel(varunit2, color="b", fontsize=14)
                     else:
-                        datawhole.loc[startday: endday, var1].plot(
-                            color = 'r', 
-                            label='$' + var1 + ' (' + POIgrid1 + ')$', 
-                            ax = ax1)
-                        datawhole.loc[startday: endday, var2].plot(
-                            color = 'b', 
-                            label='$' + var2 + ' (' + POIgrid2 + ')$', 
-                            ax = ax1)
- 
+                        datawhole.loc[startday:endday, var1].plot(
+                            color="r",
+                            label="$" + var1 + " (" + POIgrid1 + ")$",
+                            ax=ax1,
+                        )
+                        datawhole.loc[startday:endday, var2].plot(
+                            color="b",
+                            label="$" + var2 + " (" + POIgrid2 + ")$",
+                            ax=ax1,
+                        )
+
                         ax1.legend(loc=2)
                         ax1.set_ylabel(varunit1, fontsize=14)
 
                     ax1.grid(True)
-                    ax1.set_xlabel('Time', fontsize=14)
+                    ax1.set_xlabel("Time", fontsize=14)
 
             plt.show()
         else:
-            
+
             timeaggregation = int(self.resout)
 
-            df_met_data = resample_dataframe(self.met_data, timeaggregation, interpolate_method='linear')
-            df_dataplotbasic = SUEWS_txt_to_df(self.fileoutputpath + '/'  + self.varpoi1 + '_' + str(self.YYYY) + '_SUEWS_' + str(self.resout) + '.txt')
-                                                  
+            df_met_data = resample_dataframe(
+                self.met_data, timeaggregation, interpolate_method="linear"
+            )
+            df_dataplotbasic = SUEWS_txt_to_df(
+                self.fileoutputpath
+                + "/"
+                + self.varpoi1
+                + "_"
+                + str(self.YYYY)
+                + "_SUEWS_"
+                + str(self.resout)
+                + ".txt"
+            )
+
             pl.plotbasic(df_dataplotbasic, df_met_data)
             plt.show()
 
     def help(self):
-        url = 'http://umep-docs.readthedocs.io/en/latest/post_processor/Urban%20Energy%20Balance%20SUEWS%20Analyser.html'
+        url = "http://umep-docs.readthedocs.io/en/latest/post_processor/Urban%20Energy%20Balance%20SUEWS%20Analyser.html"
         webbrowser.open_new_tab(url)
 
-    def rasterize(self, src, dst, attribute, resolution, crs, extent, all_touch=False, na=-9999):
+    def rasterize(
+        self,
+        src,
+        dst,
+        attribute,
+        resolution,
+        crs,
+        extent,
+        all_touch=False,
+        na=-9999,
+    ):
 
         # Open shapefile, retrieve the layer
         src_data = ogr.Open(src)
@@ -751,9 +993,11 @@ class SUEWSAnalyzer(object):
         ymin = extent.yMinimum()
 
         # Create the target raster layer
-        cols = int((xmax - xmin)/resolution)
-        rows = int((ymax - ymin)/resolution)  # issue 164
-        trgt = gdal.GetDriverByName("GTiff").Create(dst, cols, rows, 1, gdal.GDT_Float32)
+        cols = int((xmax - xmin) / resolution)
+        rows = int((ymax - ymin) / resolution)  # issue 164
+        trgt = gdal.GetDriverByName("GTiff").Create(
+            dst, cols, rows, 1, gdal.GDT_Float32
+        )
         trgt.SetGeoTransform((xmin, resolution, 0, ymax, 0, -resolution))
 
         # Add crs
@@ -776,14 +1020,12 @@ class SUEWSAnalyzer(object):
 
         # Close target an source rasters
         del trgt
-        del src_data 
+        del src_data
 
     def variable_changed(self):
         variable = self.dlg.comboBox_POIVariable.currentText()
         try:
-            description = params_dict[variable]['description']
+            description = params_dict[variable]["description"]
             self.dlg.comboBox_POIVariable.setToolTip(description)
         except:
             pass
-        
-    

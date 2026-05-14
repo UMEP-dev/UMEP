@@ -32,4 +32,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .tree_generator import TreeGenerator
+
     return TreeGenerator(iface)

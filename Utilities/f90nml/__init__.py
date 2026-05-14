@@ -1,16 +1,18 @@
 """f90nml
-   ======
+======
 
-   A Fortran 90 namelist parser and generator.
+A Fortran 90 namelist parser and generator.
 
-   :copyright: Copyright 2014 Marshall Ward, see AUTHORS for details.
-   :license: Apache License, Version 2.0, see LICENSE for details.
+:copyright: Copyright 2014 Marshall Ward, see AUTHORS for details.
+:license: Apache License, Version 2.0, see LICENSE for details.
 """
+
 from __future__ import absolute_import
+
 # from f90nml.parser import Parser
 from .parser import Parser
 
-__version__ = '0.12'
+__version__ = "0.12"
 
 
 def read(nml_fname):

@@ -3,20 +3,20 @@ from builtins import str
 from builtins import range
 from qgis.PyQt import QtCore
 from qgis.PyQt.QtCore import QVariant
-from qgis.PyQt.QtWidgets import QAction, QMessageBox, QFileDialog
-from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QMessageBox
+
 # from qgis.gui import *
-from qgis.core import *  # QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsRasterLayer, QgsGeometry, QgsMessageLog
-import traceback
+# QgsVectorLayer, QgsVectorFileWriter, QgsFeature, QgsRasterLayer, QgsGeometry, QgsMessageLog
+from qgis.core import *
 from ..Utilities.landCoverFractions_v1 import *
 import numpy as np
 from osgeo import gdal, ogr
-import subprocess
 import sys
 import linecache
 import os
 import fileinput
 import time
+
 
 class Worker(QtCore.QObject):
 
@@ -24,8 +24,24 @@ class Worker(QtCore.QObject):
     error = QtCore.pyqtSignal(object)
     progress = QtCore.pyqtSignal()
 
-    def __init__(self, lc_grid, poly, poly_field, vlayer, prov, fields, idx, dir_poly, iface, plugin_dir,
-                 folderPath, dlg, imid, radius, degree):
+    def __init__(
+        self,
+        lc_grid,
+        poly,
+        poly_field,
+        vlayer,
+        prov,
+        fields,
+        idx,
+        dir_poly,
+        iface,
+        plugin_dir,
+        folderPath,
+        dlg,
+        imid,
+        radius,
+        degree,
+    ):
 
         QtCore.QObject.__init__(self)
         self.killed = False
@@ -57,20 +73,24 @@ class Worker(QtCore.QObject):
         imp_point = 0
         arrmat = np.empty((1, 8))
         pre = str(self.dlg.textOutput_prefix.text())
-        header = 'Wd Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
-        numformat = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
-        header2 = 'ID Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
-        numformat2 = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
+        header = "Wd Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water"
+        numformat = "%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f"
+        header2 = "ID Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water"
+        numformat2 = "%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f"
 
         # temporary fix for mac, ISSUE #15
         pf = sys.platform
-        if pf == 'darwin' or pf == 'linux2' or pf == 'linux':
-            if not os.path.exists(self.folderPath[0] + '/' + pre):
-                os.makedirs(self.folderPath[0] + '/' + pre)
+        if pf == "darwin" or pf == "linux2" or pf == "linux":
+            if not os.path.exists(self.folderPath[0] + "/" + pre):
+                os.makedirs(self.folderPath[0] + "/" + pre)
 
         try:
             # j = 0
-            for f in self.vlayer.getFeatures():  # looping through each grid polygon
+            for (
+                f
+            ) in (
+                self.vlayer.getFeatures()
+            ):  # looping through each grid polygon
                 if self.killed is True:
                     break
 
@@ -86,11 +106,23 @@ class Worker(QtCore.QObject):
                     x = f.geometry().centroid().asPoint().x()
                 else:
                     r = 0
-                    writer = QgsVectorFileWriter(self.dir_poly, "CP1250", self.fields, self.prov.wkbType(),
-                                                 self.prov.crs(), "ESRI shapefile")
+                    writer = QgsVectorFileWriter(
+                        self.dir_poly,
+                        "CP1250",
+                        self.fields,
+                        self.prov.wkbType(),
+                        self.prov.crs(),
+                        "ESRI shapefile",
+                    )
 
-                    if writer.hasError() != QgsVectorFileWriter.WriterError.NoError:
-                        self.iface.messageBar().pushMessage("Error when creating shapefile: ", str(writer.hasError()))
+                    if (
+                        writer.hasError()
+                        != QgsVectorFileWriter.WriterError.NoError
+                    ):
+                        self.iface.messageBar().pushMessage(
+                            "Error when creating shapefile: ",
+                            str(writer.hasError()),
+                        )
                     writer.addFeature(feature)
                     del writer
 
@@ -110,7 +142,8 @@ class Worker(QtCore.QObject):
                     feature = layer.GetFeature(0)
                     geom = feature.GetGeometryRef()
                     minX, maxX, minY, maxY = geom.GetEnvelope()
-                    bbox = (minX, maxY, maxX, minY)  # Reorder bbox to use with gdal_translate
+                    # Reorder bbox to use with gdal_translate
+                    bbox = (minX, maxY, maxX, minY)
                     Vector.Destroy()
                     # gdalruntextlc_grid = gdalwarp_os_dep + ' -dstnodata -9999 -q -overwrite -cutline ' + self.dir_poly + \
                     #                        ' -crop_to_cutline -of GTiff "' + filePath_lc_grid + '" "' + \
@@ -125,42 +158,88 @@ class Worker(QtCore.QObject):
 
                 # Remove gdalwarp with gdal.Translate
                 bigraster = gdal.Open(filePath_lc_grid)
-                gdal.Translate(self.plugin_dir + '/data/clipdsm.tif', bigraster, projWin=bbox)
+                gdal.Translate(
+                    self.plugin_dir + "/data/clipdsm.tif",
+                    bigraster,
+                    projWin=bbox,
+                )
                 bigraster = None
 
                 time.sleep(0.05)
-                dataset = gdal.Open(self.plugin_dir + '/data/clipdsm.tif')
+                dataset = gdal.Open(self.plugin_dir + "/data/clipdsm.tif")
                 lc_grid_array = dataset.ReadAsArray().astype(float)
                 nd = dataset.GetRasterBand(1).GetNoDataValue()
-                nodata_test = (lc_grid_array == nd)
+                nodata_test = lc_grid_array == nd
                 if self.dlg.checkBoxNoData.isChecked():
-                    if np.sum(lc_grid_array) == (lc_grid_array.shape[0] * lc_grid_array.shape[1] * nd):
-                        QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes Only NoData Pixels", level=Qgis.MessageLevel.Critical)
+                    if np.sum(lc_grid_array) == (
+                        lc_grid_array.shape[0] * lc_grid_array.shape[1] * nd
+                    ):
+                        QgsMessageLog.logMessage(
+                            "Grid "
+                            + str(f.attributes()[self.idx])
+                            + " not calculated. Includes Only NoData Pixels",
+                            level=Qgis.MessageLevel.Critical,
+                        )
                         cal = 0
                     else:
                         lc_grid_array[lc_grid_array == nd] = 6
                         cal = 1
                 else:
                     if nodata_test.any():  # == True
-                        QgsMessageLog.logMessage("Grid " + str(f.attributes()[self.idx]) + " not calculated. Includes NoData Pixels", level=Qgis.MessageLevel.Critical)
+                        QgsMessageLog.logMessage(
+                            "Grid "
+                            + str(f.attributes()[self.idx])
+                            + " not calculated. Includes NoData Pixels",
+                            level=Qgis.MessageLevel.Critical,
+                        )
                         cal = 0
                     else:
                         cal = 1
 
                 if cal == 1:
-                    landcoverresult = landcover_v1(lc_grid_array, self.imid, self.degree, self.dlg, imp_point)
+                    landcoverresult = landcover_v1(
+                        lc_grid_array,
+                        self.imid,
+                        self.degree,
+                        self.dlg,
+                        imp_point,
+                    )
                     landcoverresult = self.resultcheck(landcoverresult)
 
                     # save to file
                     # header = 'Wd Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
                     # numformat = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
-                    arr = np.concatenate((landcoverresult["deg"], landcoverresult["lc_frac"]), axis=1)
-                    np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'LCFG_anisotropic_result_' + str(f.attributes()[self.idx]) + '.txt', arr,
-                               fmt=numformat, delimiter=' ', header=header, comments='')
+                    arr = np.concatenate(
+                        (landcoverresult["deg"], landcoverresult["lc_frac"]),
+                        axis=1,
+                    )
+                    np.savetxt(
+                        self.folderPath[0]
+                        + "/"
+                        + pre
+                        + "_"
+                        + "LCFG_anisotropic_result_"
+                        + str(f.attributes()[self.idx])
+                        + ".txt",
+                        arr,
+                        fmt=numformat,
+                        delimiter=" ",
+                        header=header,
+                        comments="",
+                    )
                     del arr
-                    arr2 = np.array([f.attributes()[self.idx], landcoverresult["lc_frac_all"][0, 0], landcoverresult["lc_frac_all"][0, 1],
-                                      landcoverresult["lc_frac_all"][0, 2], landcoverresult["lc_frac_all"][0, 3], landcoverresult["lc_frac_all"][0, 4],
-                                     landcoverresult["lc_frac_all"][0, 5], landcoverresult["lc_frac_all"][0, 6]])
+                    arr2 = np.array(
+                        [
+                            f.attributes()[self.idx],
+                            landcoverresult["lc_frac_all"][0, 0],
+                            landcoverresult["lc_frac_all"][0, 1],
+                            landcoverresult["lc_frac_all"][0, 2],
+                            landcoverresult["lc_frac_all"][0, 3],
+                            landcoverresult["lc_frac_all"][0, 4],
+                            landcoverresult["lc_frac_all"][0, 5],
+                            landcoverresult["lc_frac_all"][0, 6],
+                        ]
+                    )
 
                     arrmat = np.vstack([arrmat, arr2])
 
@@ -171,49 +250,73 @@ class Worker(QtCore.QObject):
 
             # header2 = 'ID Paved Buildings EvergreenTrees DecidiousTrees Grass Baresoil Water'
             # numformat2 = '%3d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f'
-            arrmatsave = arrmat[1: arrmat.shape[0], :]
-            np.savetxt(self.folderPath[0] + '/' + pre + '_' + 'LCFG_isotropic.txt', arrmatsave,
-                                fmt=numformat2, delimiter=' ', header=header2, comments='')
+            arrmatsave = arrmat[1 : arrmat.shape[0], :]
+            np.savetxt(
+                self.folderPath[0] + "/" + pre + "_" + "LCFG_isotropic.txt",
+                arrmatsave,
+                fmt=numformat2,
+                delimiter=" ",
+                header=header2,
+                comments="",
+            )
 
-            #when files are saved through the np.savetext method the values are rounded according to the information in
-            #the numformat variable. This can cause the total sum of the values in a line in the text file to not be 1
-            #this method reads through the text file after it has been generated to make sure every line has a sum of 1.
+            # when files are saved through the np.savetext method the values are rounded according to the information in
+            # the numformat variable. This can cause the total sum of the values in a line in the text file to not be 1
+            # this method reads through the text file after it has been generated to make sure every line has a sum of 1.
             self.textFileCheck(pre)
 
             if self.dlg.addResultToGrid.isChecked():
                 # self.addattributes(self.vlayer, arrmatsave, header, pre)
                 matdata = arrmatsave
-                current_index_length = len(self.vlayer.dataProvider().attributeIndexes())
+                current_index_length = len(
+                    self.vlayer.dataProvider().attributeIndexes()
+                )
                 caps = self.vlayer.dataProvider().capabilities()
 
                 if caps & QgsVectorDataProvider.Capability.AddAttributes:
                     line_split = header.split()
                     for x in range(1, len(line_split)):
 
-                        self.vlayer.dataProvider().addAttributes([QgsField(pre + '_' + line_split[x], QVariant.Double)])
+                        self.vlayer.dataProvider().addAttributes(
+                            [
+                                QgsField(
+                                    pre + "_" + line_split[x], QVariant.Double
+                                )
+                            ]
+                        )
                         self.vlayer.updateFields()
                         self.vlayer.commitChanges()
 
-                    features=self.vlayer.getFeatures()
-                    self.vlayer_provider=self.vlayer.dataProvider()
+                    features = self.vlayer.getFeatures()
+                    self.vlayer_provider = self.vlayer.dataProvider()
                     self.vlayer.startEditing()
                     for f in features:
                         id = f.id()
                         idxx = f.attributes()[self.idx]
-                        pos = np.where(idxx == matdata[:,0])
+                        pos = np.where(idxx == matdata[:, 0])
                         if pos[0].size > 0:
                             for x in range(1, matdata.shape[1]):
                                 pos2 = current_index_length + x - 1
                                 val = float(matdata[pos[0], x])
-                                attr_dict = {current_index_length + x - 1: float(matdata[pos[0], x])}
-                                self.vlayer.dataProvider().changeAttributeValues({id: attr_dict})
+                                attr_dict = {
+                                    current_index_length
+                                    + x
+                                    - 1: float(matdata[pos[0], x])
+                                }
+                                self.vlayer.dataProvider().changeAttributeValues(
+                                    {id: attr_dict}
+                                )
                                 attr_dict.clear()
 
                     self.vlayer.commitChanges()
                     self.vlayer.updateFields()
                     self.iface.mapCanvas().refresh()
                 else:
-                    QMessageBox.critical(None, "Error", "Vector Layer does not support adding attributes")
+                    QMessageBox.critical(
+                        None,
+                        "Error",
+                        "Vector Layer does not support adding attributes",
+                    )
 
             if self.killed is False:
                 self.progress.emit()
@@ -221,7 +324,7 @@ class Worker(QtCore.QObject):
 
         except Exception as e:
             ret = 0
-            #self.error.emit(e, traceback.format_exc())
+            # self.error.emit(e, traceback.format_exc())
             errorstring = self.print_exception()
             self.error.emit(errorstring)
 
@@ -235,7 +338,9 @@ class Worker(QtCore.QObject):
         filename = f.f_code.co_filename
         linecache.checkcache(filename)
         line = linecache.getline(filename, lineno, f.f_globals)
-        return 'EXCEPTION IN {}, \nLINE {} "{}" \nERROR MESSAGE: {}'.format(filename, lineno, line.strip(), exc_obj)
+        return 'EXCEPTION IN {}, \nLINE {} "{}" \nERROR MESSAGE: {}'.format(
+            filename, lineno, line.strip(), exc_obj
+        )
 
     def addattributes(self, vlayer, matdata, header, pre):
         # vlayer = self.vlayer
@@ -243,11 +348,13 @@ class Worker(QtCore.QObject):
         caps = vlayer.dataProvider().capabilities()
 
         if caps & QgsVectorDataProvider.Capability.AddAttributes:
-            #vlayer.startEditing()
+            # vlayer.startEditing()
             line_split = header.split()
             for x in range(1, len(line_split)):
 
-                vlayer.dataProvider().addAttributes([QgsField(pre + '_' + line_split[x], QVariant.Double)])
+                vlayer.dataProvider().addAttributes(
+                    [QgsField(pre + "_" + line_split[x], QVariant.Double)]
+                )
                 vlayer.commitChanges()
                 vlayer.updateFields()
 
@@ -257,16 +364,22 @@ class Worker(QtCore.QObject):
                 attr_dict.clear()
                 idx = int(matdata[y, 0])
                 for x in range(1, matdata.shape[1]):
-                    attr_dict[current_index_length + x - 1] = float(matdata[y, x])
+                    attr_dict[current_index_length + x - 1] = float(
+                        matdata[y, x]
+                    )
                 vlayer.dataProvider().changeAttributeValues({idx: attr_dict})
 
             vlayer.commitChanges()
             vlayer.updateFields()
         else:
-            QMessageBox.critical(None, "Error", "Vector Layer does not support adding attributes")
+            QMessageBox.critical(
+                None,
+                "Error",
+                "Vector Layer does not support adding attributes",
+            )
 
     def resultcheck(self, landcoverresult):
-        total = 0.
+        total = 0.0
         arr = landcoverresult["lc_frac_all"]
 
         for x in range(0, len(arr[0])):
@@ -288,23 +401,25 @@ class Worker(QtCore.QObject):
 
     def textFileCheck(self, pre):
         try:
-            file_path = self.folderPath[0] + '/' + pre + '_' + 'LCFG_isotropic.txt'
+            file_path = (
+                self.folderPath[0] + "/" + pre + "_" + "LCFG_isotropic.txt"
+            )
             if os.path.isfile(file_path):
                 wrote_header = False
                 for line in fileinput.input(file_path, inplace=1):
                     if not wrote_header:
                         # fix_print_with_import
-                        print(line, end=' ')
+                        print(line, end=" ")
                         wrote_header = True
                     else:
                         line_split = line.split()
-                        total = 0.
+                        total = 0.0
                         for x in range(1, len(line_split)):
                             total += float(line_split[x])
 
                         if total == 1.0:
                             # fix_print_with_import
-                            print(line, end=' ')
+                            print(line, end=" ")
                         else:
                             diff = total - 1.0
                             max_number = max(line_split[1:])
@@ -314,23 +429,25 @@ class Worker(QtCore.QObject):
                                     line_split[x] = float(line_split[x]) - diff
                                     break
                             if int(line_split[0]) < 10:
-                                string_to_print = '  '
+                                string_to_print = "  "
                             elif int(line_split[0]) < 100:
-                                string_to_print = ' '
+                                string_to_print = " "
                             else:
-                                string_to_print = ''
+                                string_to_print = ""
 
                             for element in line_split[:-1]:
-                                string_to_print += str(element) + ' '
+                                string_to_print += str(element) + " "
                             string_to_print += str(line_split[-1])
-                            string_to_print += '\n'
+                            string_to_print += "\n"
 
                             # fix_print_with_import
-                            print(string_to_print, end=' ')
+                            print(string_to_print, end=" ")
                 fileinput.close()
         except Exception as e:
             errorstring = self.print_exception()
-            QgsMessageLog.logMessage(errorstring, level=Qgis.MessageLevel.Critical)
+            QgsMessageLog.logMessage(
+                errorstring, level=Qgis.MessageLevel.Critical
+            )
             fileinput.close()
 
     def kill(self):

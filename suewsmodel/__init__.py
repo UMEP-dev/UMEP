@@ -17,7 +17,7 @@
 # from .supy_installer import locate_py, setup_supy
 # from qgis.core import Qgis, QgsMessageLog
 # # we can specify a version if needed
-# try: 
+# try:
 #     import supy as sp
 #     from supy import __version__ as ver_supy
 #     import pydantic

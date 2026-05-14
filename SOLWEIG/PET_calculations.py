@@ -3,32 +3,45 @@
 import numpy as np
 from collections import namedtuple
 
-PET_person=namedtuple("PET_person","mbody age height activity sex clo")
+PET_person = namedtuple("PET_person", "mbody age height activity sex clo")
 
 
 def calculate_PET_index(Ta, Pa, Tmrt, va, pet):
-    mbody=pet.mbody
-    age=pet.age
-    height=pet.height
-    activity=pet.activity
-    sex=pet.sex
-    clo=pet.clo
-    pet_index=np.zeros_like(Tmrt)
+    mbody = pet.mbody
+    age = pet.age
+    height = pet.height
+    activity = pet.activity
+    sex = pet.sex
+    clo = pet.clo
+    pet_index = np.zeros_like(Tmrt)
     for x in range(pet_index.shape[0]):
         for y in range(pet_index.shape[1]):
-            pet_index[x][y]=_PET(Ta[x],Pa[x],Tmrt[x][y],va[x][y],mbody,age,height,activity,clo,sex)
+            pet_index[x][y] = _PET(
+                Ta[x],
+                Pa[x],
+                Tmrt[x][y],
+                va[x][y],
+                mbody,
+                age,
+                height,
+                activity,
+                clo,
+                sex,
+            )
 
-def calculate_PET_index_vec(Ta, Pa, Tmrt, va,pet):
-    mbody=pet.mbody
-    age=pet.age
-    height=pet.height
-    activity=pet.activity
-    sex=pet.sex
-    clo=pet.clo
 
-    pet_index=_PET(Ta,Pa,Tmrt,va,mbody,age,height,activity,clo,sex)
+def calculate_PET_index_vec(Ta, Pa, Tmrt, va, pet):
+    mbody = pet.mbody
+    age = pet.age
+    height = pet.height
+    activity = pet.activity
+    sex = pet.sex
+    clo = pet.clo
 
-def _PET(ta,RH,tmrt,v,mbody,age,ht,work,icl,sex):
+    pet_index = _PET(Ta, Pa, Tmrt, va, mbody, age, height, activity, clo, sex)
+
+
+def _PET(ta, RH, tmrt, v, mbody, age, ht, work, icl, sex):
     """
     Args:
         ta: air temperature
@@ -45,7 +58,7 @@ def _PET(ta,RH,tmrt,v,mbody,age,ht,work,icl,sex):
     """
 
     # humidity conversion
-    vps = 6.107 * (10. ** (7.5 * ta / (238. + ta)))
+    vps = 6.107 * (10.0 ** (7.5 * ta / (238.0 + ta)))
     vpa = RH * vps / 100  # water vapour presure, kPa
 
     po = 1013.25  # Pressure
@@ -61,21 +74,37 @@ def _PET(ta,RH,tmrt,v,mbody,age,ht,work,icl,sex):
 
     eta = 0  # No idea what eta is
 
-    c_1 = 0.
-    c_2 = 0.
-    c_3 = 0.
-    c_4 = 0.
-    c_5 = 0.
-    c_6 = 0.
-    c_7 = 0.
-    c_8 = 0.
-    c_9 = 0.
-    c_10 = 0.
-    c_11 = 0.
+    c_1 = 0.0
+    c_2 = 0.0
+    c_3 = 0.0
+    c_4 = 0.0
+    c_5 = 0.0
+    c_6 = 0.0
+    c_7 = 0.0
+    c_8 = 0.0
+    c_9 = 0.0
+    c_10 = 0.0
+    c_11 = 0.0
 
     # INBODY
-    metbf = 3.19 * mbody ** (3 / 4) * (1 + 0.004 * (30 - age) + 0.018 * ((ht * 100 / (mbody ** (1 / 3))) - 42.1))
-    metbm = 3.45 * mbody ** (3 / 4) * (1 + 0.004 * (30 - age) + 0.010 * ((ht * 100 / (mbody ** (1 / 3))) - 43.4))
+    metbf = (
+        3.19
+        * mbody ** (3 / 4)
+        * (
+            1
+            + 0.004 * (30 - age)
+            + 0.018 * ((ht * 100 / (mbody ** (1 / 3))) - 42.1)
+        )
+    )
+    metbm = (
+        3.45
+        * mbody ** (3 / 4)
+        * (
+            1
+            + 0.004 * (30 - age)
+            + 0.010 * ((ht * 100 / (mbody ** (1 / 3))) - 43.4)
+        )
+    )
     if sex == 1:
         met = metbm + work
     else:
@@ -96,8 +125,8 @@ def _PET(ta,RH,tmrt,v,mbody,age,ht,work,icl,sex):
 
     # calcul constants
     feff = 0.725
-    adu = 0.203 * mbody ** 0.425 * ht ** 0.725
-    facl = (-2.36 + 173.51 * icl - 100.76 * icl * icl + 19.28 * (icl ** 3)) / 100
+    adu = 0.203 * mbody**0.425 * ht**0.725
+    facl = (-2.36 + 173.51 * icl - 100.76 * icl * icl + 19.28 * (icl**3)) / 100
     if facl > 1:
         facl = 1
     rcl = (icl / 6.45) / facl
@@ -105,14 +134,14 @@ def _PET(ta,RH,tmrt,v,mbody,age,ht,work,icl,sex):
 
     # should these be else if statements?
     if icl < 2:
-        y = (ht-0.2) / ht
+        y = (ht - 0.2) / ht
     if icl <= 0.6:
         y = 0.5
     if icl <= 0.3:
         y = 0.1
 
     fcl = 1 + 0.15 * icl
-    r2 = adu * (fcl - 1. + facl) / (2 * 3.14 * ht * y)
+    r2 = adu * (fcl - 1.0 + facl) / (2 * 3.14 * ht * y)
     r1 = facl * adu / (2 * 3.14 * ht * y)
     di = r2 - r1
     acl = adu * facl + adu * (fcl - 1)
@@ -120,7 +149,7 @@ def _PET(ta,RH,tmrt,v,mbody,age,ht,work,icl,sex):
     tcore = [0] * 8
 
     wetsk = 0
-    hc = 2.67 + 6.5 * v ** 0.67
+    hc = 2.67 + 6.5 * v**0.67
     hc = hc * (p / po) ** 0.55
     c_1 = h + ere
     he = 0.633 * hc / (p * cair)
@@ -130,7 +159,7 @@ def _PET(ta,RH,tmrt,v,mbody,age,ht,work,icl,sex):
     c_2 = adu * rob * cb
     c_5 = 0.0208 * c_2
     c_6 = 0.76075 * c_2
-    rdsk = 0.79 * 10 ** 7
+    rdsk = 0.79 * 10**7
     rdcl = 0
 
     count2 = 0
@@ -145,15 +174,32 @@ def _PET(ta,RH,tmrt,v,mbody,age,ht,work,icl,sex):
 
         while count1 <= 3:
             enbal = 0
-            while (enbal*enbal2) >= 0 and count3 < 200:
+            while (enbal * enbal2) >= 0 and count3 < 200:
                 enbal2 = enbal
                 # 20
-                rclo2 = emcl * sigma * ((tcl + 273.2) ** 4 - (tmrt + 273.2) ** 4) * feff
+                rclo2 = (
+                    emcl
+                    * sigma
+                    * ((tcl + 273.2) ** 4 - (tmrt + 273.2) ** 4)
+                    * feff
+                )
                 tsk = 1 / htcl * (hc * (tcl - ta) + rclo2) + tcl
 
                 # radiation balance
-                rbare = aeff * (1 - facl) * emsk * sigma * ((tmrt + 273.2) ** 4 - (tsk + 273.2) ** 4)
-                rclo = feff * acl * emcl * sigma * ((tmrt + 273.2) ** 4 - (tcl + 273.2) ** 4)
+                rbare = (
+                    aeff
+                    * (1 - facl)
+                    * emsk
+                    * sigma
+                    * ((tmrt + 273.2) ** 4 - (tsk + 273.2) ** 4)
+                )
+                rclo = (
+                    feff
+                    * acl
+                    * emcl
+                    * sigma
+                    * ((tmrt + 273.2) ** 4 - (tcl + 273.2) ** 4)
+                )
                 rsum = rbare + rclo
 
                 # convection
@@ -166,29 +212,38 @@ def _PET(ta,RH,tmrt,v,mbody,age,ht,work,icl,sex):
                 c_4 = 5.28 * adu * c_3
                 c_7 = c_4 - c_6 - tsk * c_5
                 c_8 = -c_1 * c_3 - tsk * c_4 + tsk * c_6
-                c_9 = c_7 * c_7 - 4. * c_5 * c_8
+                c_9 = c_7 * c_7 - 4.0 * c_5 * c_8
                 c_10 = 5.28 * adu - c_6 - c_5 * tsk
-                c_11 = c_10 * c_10 - 4 * c_5 * (c_6 * tsk - c_1 - 5.28 * adu * tsk)
+                c_11 = c_10 * c_10 - 4 * c_5 * (
+                    c_6 * tsk - c_1 - 5.28 * adu * tsk
+                )
                 # tsk[tsk==36]=36.01
                 if tsk == 36:
                     tsk = 36.01
 
                 tcore[7] = c_1 / (5.28 * adu + c_2 * 6.3 / 3600) + tsk
-                tcore[3] = c_1 / (5.28 * adu + (c_2 * 6.3 / 3600) / (1 + 0.5 * (34 - tsk))) + tsk
+                tcore[3] = (
+                    c_1
+                    / (
+                        5.28 * adu
+                        + (c_2 * 6.3 / 3600) / (1 + 0.5 * (34 - tsk))
+                    )
+                    + tsk
+                )
                 if c_11 >= 0:
-                    tcore[6] = (-c_10-c_11 ** 0.5) / (2 * c_5)
+                    tcore[6] = (-c_10 - c_11**0.5) / (2 * c_5)
                 if c_11 >= 0:
-                    tcore[1] = (-c_10+c_11 ** 0.5) / (2 * c_5)
+                    tcore[1] = (-c_10 + c_11**0.5) / (2 * c_5)
                 if c_9 >= 0:
-                    tcore[2] = (-c_7+abs(c_9) ** 0.5) / (2 * c_5)
+                    tcore[2] = (-c_7 + abs(c_9) ** 0.5) / (2 * c_5)
                 if c_9 >= 0:
-                    tcore[5] = (-c_7-abs(c_9) ** 0.5) / (2 * c_5)
+                    tcore[5] = (-c_7 - abs(c_9) ** 0.5) / (2 * c_5)
                 tcore[4] = c_1 / (5.28 * adu + c_2 * 1 / 40) + tsk
 
                 # transpiration
                 tbody = 0.1 * tsk + 0.9 * tcore[j]
                 sw = 304.94 * (tbody - 36.6) * adu / 3600000
-                vpts = 6.11 * 10 ** (7.45 * tsk / (235. + tsk))
+                vpts = 6.11 * 10 ** (7.45 * tsk / (235.0 + tsk))
                 if tbody <= 36.6:
                     sw = 0
                 if sex == 2:
@@ -294,7 +349,7 @@ def _PET(ta,RH,tmrt,v,mbody,age,ht,work,icl,sex):
     count1 = 0
     enbal = 0
 
-    hc = 2.67 + 6.5 * 0.1 ** 0.67
+    hc = 2.67 + 6.5 * 0.1**0.67
     hc = hc * (p / po) ** 0.55
 
     while count1 <= 3:
@@ -302,8 +357,20 @@ def _PET(ta,RH,tmrt,v,mbody,age,ht,work,icl,sex):
             enbal2 = enbal
 
             # radiation balance
-            rbare = aeff * (1 - facl) * emsk * sigma * ((tx + 273.2) ** 4 - (tsk + 273.2) ** 4)
-            rclo = feff * acl * emcl * sigma * ((tx + 273.2) ** 4 - (tcl + 273.2) ** 4)
+            rbare = (
+                aeff
+                * (1 - facl)
+                * emsk
+                * sigma
+                * ((tx + 273.2) ** 4 - (tsk + 273.2) ** 4)
+            )
+            rclo = (
+                feff
+                * acl
+                * emcl
+                * sigma
+                * ((tx + 273.2) ** 4 - (tcl + 273.2) ** 4)
+            )
             rsum = rbare + rclo
 
             # convection

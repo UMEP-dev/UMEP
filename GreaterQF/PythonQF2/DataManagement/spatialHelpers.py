@@ -1,20 +1,37 @@
 # Helper methods to do spatial and shapefile-related manipulations
 # amg 23/06/2016
-import string
 import os
+
 try:
     import numpy as np
     import pandas as pd
 except:
     pass
-from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsRasterLayer, QgsGeometry, QgsRaster, QgsRectangle, QgsPoint, QgsField, QgsFeature, QgsSpatialIndex, QgsMessageLog, NULL, QgsCoordinateReferenceSystem, QgsCoordinateTransform
+from qgis.core import (
+    QgsVectorFileWriter,
+    QgsVectorLayer,
+    QgsGeometry,
+    QgsField,
+    QgsFeature,
+    QgsSpatialIndex,
+    QgsCoordinateReferenceSystem,
+    QgsCoordinateTransform,
+)
+
 # from qgis.core import QgsMapLayerRegistry, QgsSymbol, QgsGraduatedSymbolRenderer, QgsRendererRange, QgsFeatureRequest, QgsExpression, QgsDistanceArea
-from qgis.core import QgsSymbol, QgsGraduatedSymbolRenderer, QgsRendererRange, QgsFeatureRequest, QgsExpression, QgsDistanceArea, QgsCoordinateTransformContext, QgsVectorLayerUtils, QgsProcessingFeedback
-from qgis.analysis import QgsZonalStatistics
+from qgis.core import (
+    QgsFeatureRequest,
+    QgsDistanceArea,
+    QgsCoordinateTransformContext,
+    QgsVectorLayerUtils,
+    QgsProcessingFeedback,
+)
 import processing  # qgis processing framework
+
 # from qgis.PyQt.QtCore import QVariant, QPyNullVariant
 from qgis.PyQt.QtCore import QVariant
 import tempfile
+
 # from .string_func import   lower
 #
 # qgs = QgsApplication(sys.argv, False)
@@ -23,15 +40,16 @@ import tempfile
 
 
 def reprojectVectorLayer_threadSafe(filename, targetEpsgCode):
-    ''' Does the same thing as reprojectVectorLayer but in a thread safe way'''
+    """Does the same thing as reprojectVectorLayer but in a thread safe way"""
     orig_layer = loadShapeFile(filename)
     orig_crs = orig_layer.crs()
-    dest = os.path.join(tempfile.mkdtemp() + 'reprojected.shp')
+    dest = os.path.join(tempfile.mkdtemp() + "reprojected.shp")
     target_crs = QgsCoordinateReferenceSystem()
-    target_crs.createFromUserInput('EPSG:%d' % int(targetEpsgCode))
+    target_crs.createFromUserInput("EPSG:%d" % int(targetEpsgCode))
 
     new_layer = QgsVectorLayer(
-        "Polygon?crs=EPSG:" + str(targetEpsgCode), "temp", "memory")
+        "Polygon?crs=EPSG:" + str(targetEpsgCode), "temp", "memory"
+    )
     crs_transform = QgsCoordinateTransform(orig_crs, target_crs)
     out_feat = QgsFeature()
 
@@ -52,7 +70,8 @@ def reprojectVectorLayer_threadSafe(filename, targetEpsgCode):
     new_layer.updateExtents()
     new_layer.commitChanges()
     error_code, error_msg = QgsVectorFileWriter.writeAsVectorFormat(
-        new_layer, dest, "CP1250", target_crs, "ESRI Shapefile")
+        new_layer, dest, "CP1250", target_crs, "ESRI Shapefile"
+    )
     new_layer = None
     orig_layer = None
     out_feat = None
@@ -62,32 +81,33 @@ def reprojectVectorLayer_threadSafe(filename, targetEpsgCode):
 
 
 def reprojectVectorLayer(filename, targetEpsgCode):
-    ''' Reprojects a shapefile to a new EPSG code using QGIS built-in algorithm
+    """Reprojects a shapefile to a new EPSG code using QGIS built-in algorithm
     :param filename: str: filename of shapefile to reproject
     :param targetEpsgCode: int: EPSG code of the new shapefile
-    :return str: filename of reprojected shapefile (in a temporary directory)'''
+    :return str: filename of reprojected shapefile (in a temporary directory)
+    """
     if type(filename) is not str:
-        raise ValueError('Filename must be a string')
+        raise ValueError("Filename must be a string")
 
-    dest = os.path.join(tempfile.mkdtemp() + 'reprojected.shp')
+    dest = os.path.join(tempfile.mkdtemp() + "reprojected.shp")
     # processing.runalg('qgis:reprojectlayer', filename, "EPSG:" + str(targetEpsgCode), dest)
     try:
         processing.run(
-            'qgis:reprojectlayer',
+            "qgis:reprojectlayer",
             {
-                'INPUT': filename,
-                'TARGET_CRS': "EPSG:" + str(targetEpsgCode),
-                'OUTPUT': dest,
-            }
+                "INPUT": filename,
+                "TARGET_CRS": "EPSG:" + str(targetEpsgCode),
+                "OUTPUT": dest,
+            },
         )
     except:
         processing.run(
-            'native:reprojectlayer',
+            "native:reprojectlayer",
             {
-                'INPUT': filename,
-                'TARGET_CRS': "EPSG:" + str(targetEpsgCode),
-                'OUTPUT': dest,
-            }
+                "INPUT": filename,
+                "TARGET_CRS": "EPSG:" + str(targetEpsgCode),
+                "OUTPUT": dest,
+            },
         )
 
     # WORKAROUND FOR QGIS BUG: qgis:reprojectvectorlayer mishandles attributes so that QLongLong data types are
@@ -98,10 +118,12 @@ def reprojectVectorLayer(filename, targetEpsgCode):
     reproj_layer = loadShapeFile(dest, targetEPSG=targetEpsgCode)
 
     reproj_layer.startEditing()
-    orig_fieldNames = {a.name(): i for i, a in enumerate(
-        orig_layer.dataProvider().fields())}
-    reproj_fieldNames = {a.name(): i for i, a in enumerate(
-        reproj_layer.dataProvider().fields())}
+    orig_fieldNames = {
+        a.name(): i for i, a in enumerate(orig_layer.dataProvider().fields())
+    }
+    reproj_fieldNames = {
+        a.name(): i for i, a in enumerate(reproj_layer.dataProvider().fields())
+    }
     # Copy features
     for orig_feat in orig_layer.getFeatures():
         orig_id = orig_feat.id()
@@ -109,7 +131,8 @@ def reprojectVectorLayer(filename, targetEpsgCode):
             try:
                 new_val = float(orig_feat[orig_fieldNames[fieldName]])
                 reproj_layer.changeAttributeValue(
-                    orig_id, reproj_fieldNames[fieldName], new_val)
+                    orig_id, reproj_fieldNames[fieldName], new_val
+                )
             except Exception:
                 continue
     reproj_layer.commitChanges()
@@ -120,12 +143,21 @@ def reprojectVectorLayer(filename, targetEpsgCode):
     return dest
 
 
-def calculate_fuel_use(inputLayer, inputIdField,
-                       completeInputs,
-                       modelParams, age, fuelCon, roadTypeLookup,
-                       modelledTypesAADTprovided, completeInputAADTprovided,
-                       vAADTFields, roadTypeField, totalAADTField=None,):
-    '''
+def calculate_fuel_use(
+    inputLayer,
+    inputIdField,
+    completeInputs,
+    modelParams,
+    age,
+    fuelCon,
+    roadTypeLookup,
+    modelledTypesAADTprovided,
+    completeInputAADTprovided,
+    vAADTFields,
+    roadTypeField,
+    totalAADTField=None,
+):
+    """
     Calculate total fuel use (petrol and diesel separately) for each modelled vehicle type in each given road segment.
     :param inputLayer: QgsVectorLayer: Map of road segments that may or may not have  AADT by vehicle type or overall
     :param inputIdField: str: Name of input layer field containing unique identifiers for each road segment
@@ -140,11 +172,11 @@ def calculate_fuel_use(inputLayer, inputIdField,
     :param completeInputAADTprovided: bool: AADT in inputLayer is broken down exactly into completeInputs
     :return: dict of {fuelUse: pandas.DataFrame of fuel use [KILOGRAMS] for each modelled vehicle type, petrol and diesel, for each feature ID,
                       names: dict of {fueltype: {vehicleType: column name in dataframe}}
-    '''
+    """
 
     # Make sure any lengths are calculated independently of CRS
     in_a = QgsDistanceArea()
-    in_a.setEllipsoid('WGS84')
+    in_a.setEllipsoid("WGS84")
     # in_a.setEllipsoidalMode(True)
     in_a.setSourceCrs(inputLayer.crs(), QgsCoordinateTransformContext())
 
@@ -155,20 +187,38 @@ def calculate_fuel_use(inputLayer, inputIdField,
 
     # Make new attribute names to hold consumption attributes
     # Make a dict that links the modelled vehicle names to new field names
-    dieselFields = {'motorcycle': '_FC_Dmcyc', 'artic': '_FC_Dart', 'rigid': '_FC_Drig',
-                    'taxi': '_FC_Dtaxi', 'car': '_FC_Dcar', 'bus': '_FC_Dbus', 'lgv': '_FC_Dlgv'}
-    petrolFields = {'motorcycle': '_FC_Pmcyc', 'artic': '_FC_Part', 'rigid': '_FC_Prig',
-                    'taxi': '_FC_Ptaxi', 'car': '_FC_Pcar', 'bus': '_FC_Pbus', 'lgv': '_FC_Plgv'}
+    dieselFields = {
+        "motorcycle": "_FC_Dmcyc",
+        "artic": "_FC_Dart",
+        "rigid": "_FC_Drig",
+        "taxi": "_FC_Dtaxi",
+        "car": "_FC_Dcar",
+        "bus": "_FC_Dbus",
+        "lgv": "_FC_Dlgv",
+    }
+    petrolFields = {
+        "motorcycle": "_FC_Pmcyc",
+        "artic": "_FC_Part",
+        "rigid": "_FC_Prig",
+        "taxi": "_FC_Ptaxi",
+        "car": "_FC_Pcar",
+        "bus": "_FC_Pbus",
+        "lgv": "_FC_Plgv",
+    }
 
     # Get overall list of new attrib names
     consumption_attributes = list(dieselFields.values())
     consumption_attributes.extend(list(petrolFields.values()))
-    fieldMap = {'diesel': dieselFields, 'petrol': petrolFields}
+    fieldMap = {"diesel": dieselFields, "petrol": petrolFields}
     modelledTypes = list(petrolFields.keys())
 
     # Read-across from our road classes to EuroClass road classes (used in the FuelConsumption object)
-    roadAcross = {'motorway': 'motorway', 'primary_road': 'urban',
-                  'secondary_road': 'urban', 'other': 'urban'}
+    roadAcross = {
+        "motorway": "motorway",
+        "primary_road": "urban",
+        "secondary_road": "urban",
+        "other": "urban",
+    }
 
     # Get all feature IDs
     allIds = []
@@ -181,16 +231,17 @@ def calculate_fuel_use(inputLayer, inputIdField,
     # Unique road types that are present in shapefile
     # roadTypes = list(set(inputLayer.getValues(roadTypeField)[0]))
     roadTypes = list(
-        set(QgsVectorLayerUtils.getValues(inputLayer, roadTypeField)[0]))
+        set(QgsVectorLayerUtils.getValues(inputLayer, roadTypeField)[0])
+    )
 
     for roadType in roadTypes:  # For each road type in the file
         # If we don't explicitly consider this road type as motorway, A road or B road, just consider it "other"
         if roadType not in list(roadTypeLookup.keys()):
-            roadTypeOfficial = 'other'
+            roadTypeOfficial = "other"
         else:
             roadTypeOfficial = roadTypeLookup[roadType]
         inputLayer.selectAll()
-        expressionText = "\"" + roadTypeField + "\" = '" + roadType + "'"
+        expressionText = '"' + roadTypeField + "\" = '" + roadType + "'"
         # Select all features with this road type, then do calculations
         thisRoad = QgsFeatureRequest().setFilterExpression(expressionText)
 
@@ -219,10 +270,12 @@ def calculate_fuel_use(inputLayer, inputIdField,
             fids.append(f.id())
             ids.append(intOrString(f[inputIdField]))
             # Length of segment in km
-            lkm.append(in_a.measureLine(f.geometry().asMultiPolyline()[0])/1000.0)
+            lkm.append(
+                in_a.measureLine(f.geometry().asMultiPolyline()[0]) / 1000.0
+            )
 
         inputLayer.selectByIds(fids)
-        #ids = np.array(ids)
+        # ids = np.array(ids)
         lkm = pd.Series(index=ids, data=lkm)
 
         # Road type in terms of fuel consumption object
@@ -235,19 +288,28 @@ def calculate_fuel_use(inputLayer, inputIdField,
             if not totalAADTAvailable:
                 # Scenario 1: There is no AADT data available whatsoever.
                 # Calculate this segment's AADT both from the parameters file, based solely on road type
-                aadtData = pd.DataFrame(np.repeat(modelParams.roadAADTs[roadTypeOfficial], len(ids))[:, np.newaxis] *
-                                        np.array(
-                    modelParams.vehicleFractions[roadType]),
-                    columns=modelledTypes, index=ids)
+                aadtData = pd.DataFrame(
+                    np.repeat(
+                        modelParams.roadAADTs[roadTypeOfficial], len(ids)
+                    )[:, np.newaxis]
+                    * np.array(modelParams.vehicleFractions[roadType]),
+                    columns=modelledTypes,
+                    index=ids,
+                )
             else:
                 # Scenario 2: Only total AADT is available for each segment.
                 # Break this down into vehicle types using vehicle fractions in parameters file for each segment
-                totalAadtData = np.array(QgsVectorLayerUtils.getDoubleValues(inputLayer,
-                    totalAADTField, selectedOnly=True)[0])
-                aadtData = pd.DataFrame(totalAadtData[:, np.newaxis] *
-                                        np.array(
-                    modelParams.vehicleFractions[roadTypeOfficial]),
-                    columns=modelledTypes, index=ids)
+                totalAadtData = np.array(
+                    QgsVectorLayerUtils.getDoubleValues(
+                        inputLayer, totalAADTField, selectedOnly=True
+                    )[0]
+                )
+                aadtData = pd.DataFrame(
+                    totalAadtData[:, np.newaxis]
+                    * np.array(modelParams.vehicleFractions[roadTypeOfficial]),
+                    columns=modelledTypes,
+                    index=ids,
+                )
 
             # Now we effectively have AADT for every modelled type, so set the flag (reduces code duplication)
             # TODO: If AADT counts are available for some road segments but not others, calculate a mean and apply this
@@ -262,97 +324,137 @@ def calculate_fuel_use(inputLayer, inputIdField,
             for key in completeInputs:
                 aadtData[key] = np.array(
                     QgsVectorLayerUtils.getDoubleValues(
-                    inputLayer, vAADTFields[key], selectedOnly=True)[0])  # Populate and translate names at the same time
+                        # Populate and translate names at the same time
+                        inputLayer,
+                        vAADTFields[key],
+                        selectedOnly=True,
+                    )[0]
+                )
                 # aadtData[key] = np.array(QgsVectorLayerUtils.getDoubleValues(inputLayer,vAADTFields[key], selectedOnly=True)[0])  # Populate and translate names at the same time
 
             # Make use of the extra detail available to us
-            newValues[fieldMap['diesel']['car']].loc[ids] = aadtData['diesel_car'] * \
-                lkm * \
-                fuelCon.getFuelConsumption(age, 'car', rType_cons, 'diesel')
-            newValues[fieldMap['petrol']['car']].loc[ids] = aadtData['petrol_car'] * \
-                lkm * \
-                fuelCon.getFuelConsumption(age, 'car', rType_cons, 'petrol')
-            newValues[fieldMap['diesel']['lgv']].loc[ids] = aadtData['diesel_lgv'] * \
-                lkm * \
-                fuelCon.getFuelConsumption(age, 'lgv', rType_cons, 'diesel')
-            newValues[fieldMap['petrol']['lgv']].loc[ids] = aadtData['petrol_lgv'] * \
-                lkm * \
-                fuelCon.getFuelConsumption(age, 'lgv', rType_cons, 'petrol')
+            newValues[fieldMap["diesel"]["car"]].loc[ids] = (
+                aadtData["diesel_car"]
+                * lkm
+                * fuelCon.getFuelConsumption(age, "car", rType_cons, "diesel")
+            )
+            newValues[fieldMap["petrol"]["car"]].loc[ids] = (
+                aadtData["petrol_car"]
+                * lkm
+                * fuelCon.getFuelConsumption(age, "car", rType_cons, "petrol")
+            )
+            newValues[fieldMap["diesel"]["lgv"]].loc[ids] = (
+                aadtData["diesel_lgv"]
+                * lkm
+                * fuelCon.getFuelConsumption(age, "lgv", rType_cons, "diesel")
+            )
+            newValues[fieldMap["petrol"]["lgv"]].loc[ids] = (
+                aadtData["petrol_lgv"]
+                * lkm
+                * fuelCon.getFuelConsumption(age, "lgv", rType_cons, "petrol")
+            )
 
             # Complete input data includes coaches, which will be lumped in with buses
-            newValues[fieldMap['petrol']['bus']].loc[ids] = aadtData['coach'] * \
-                modelParams.fuelFractions['bus']['petrol'] * lkm * \
-                fuelCon.getFuelConsumption(age, 'bus', rType_cons, 'petrol')
-            newValues[fieldMap['diesel']['bus']].loc[ids] = aadtData['coach'] * \
-                modelParams.fuelFractions['bus']['diesel'] * lkm * \
-                fuelCon.getFuelConsumption(age, 'bus', rType_cons, 'diesel')
-            alreadyCalculated = ['car', 'lgv', 'bus']
+            newValues[fieldMap["petrol"]["bus"]].loc[ids] = (
+                aadtData["coach"]
+                * modelParams.fuelFractions["bus"]["petrol"]
+                * lkm
+                * fuelCon.getFuelConsumption(age, "bus", rType_cons, "petrol")
+            )
+            newValues[fieldMap["diesel"]["bus"]].loc[ids] = (
+                aadtData["coach"]
+                * modelParams.fuelFractions["bus"]["diesel"]
+                * lkm
+                * fuelCon.getFuelConsumption(age, "bus", rType_cons, "diesel")
+            )
+            alreadyCalculated = ["car", "lgv", "bus"]
         else:
             # Scenario 3: Vehicle-specific AADT data available in the shapefile, but with no fuel type specifics
             aadtData = pd.DataFrame(columns=modelledTypes, index=ids)
             for key in modelledTypes:
-                aadtData[key] = np.array(QgsVectorLayerUtils.getDoubleValues(inputLayer,
-                    vAADTFields[key], selectedOnly=True)[0])
+                aadtData[key] = np.array(
+                    QgsVectorLayerUtils.getDoubleValues(
+                        inputLayer, vAADTFields[key], selectedOnly=True
+                    )[0]
+                )
             # Populate car, bus and LGV differently to above
             for fuelType in list(fieldMap.keys()):
-                newValues[fieldMap[fuelType]['car']].loc[ids] = aadtData['total_car'] *\
-                    modelParams.fuelFractions['car'][fuelType] *\
-                    lkm *\
-                    fuelCon.getFuelConsumption(
-                        age, 'car', rType_cons, fuelType)
+                newValues[fieldMap[fuelType]["car"]].loc[ids] = (
+                    aadtData["total_car"]
+                    * modelParams.fuelFractions["car"][fuelType]
+                    * lkm
+                    * fuelCon.getFuelConsumption(
+                        age, "car", rType_cons, fuelType
+                    )
+                )
 
-                newValues[fieldMap[fuelType]['lgv']].loc[ids] = aadtData['total_lgv'] *\
-                    modelParams.fuelFractions['lgv'][fuelType] * \
-                    lkm *\
-                    fuelCon.getFuelConsumption(
-                        age, 'lgv', rType_cons, fuelType)
+                newValues[fieldMap[fuelType]["lgv"]].loc[ids] = (
+                    aadtData["total_lgv"]
+                    * modelParams.fuelFractions["lgv"][fuelType]
+                    * lkm
+                    * fuelCon.getFuelConsumption(
+                        age, "lgv", rType_cons, fuelType
+                    )
+                )
 
             # Setting coach contribution to buses as zero lets us use "+=" in a few moments' time.
-            newValues['_FC_Pbus'].loc[ids] = 0
-            newValues['_FC_Dbus'].loc[ids] = 0
-            alreadyCalculated = ['car', 'lgv', 'bus']
+            newValues["_FC_Pbus"].loc[ids] = 0
+            newValues["_FC_Dbus"].loc[ids] = 0
+            alreadyCalculated = ["car", "lgv", "bus"]
 
         # The remaining vehicle types all get calculated in the same way so loop over fieldMap to save on code...
         for fuelType in list(fieldMap.keys()):
             for vehType in list(fieldMap[fuelType].keys()):
                 if vehType not in alreadyCalculated:
-                    newValues[fieldMap[fuelType][vehType]].loc[ids] = aadtData[vehType] * \
-                        modelParams.fuelFractions[vehType][fuelType] * \
-                        lkm * \
-                        fuelCon.getFuelConsumption(
-                            age, vehType, rType_cons, fuelType)
+                    newValues[fieldMap[fuelType][vehType]].loc[ids] = (
+                        aadtData[vehType]
+                        * modelParams.fuelFractions[vehType][fuelType]
+                        * lkm
+                        * fuelCon.getFuelConsumption(
+                            age, vehType, rType_cons, fuelType
+                        )
+                    )
             # Special case for bus, because coaches may already have added a contribution
-            newValues[fieldMap[fuelType]['bus']].loc[ids] += aadtData['bus'] *\
-                modelParams.fuelFractions['bus'][fuelType] *\
-                lkm *\
-                fuelCon.getFuelConsumption(age, 'bus', rType_cons, fuelType)
+            newValues[fieldMap[fuelType]["bus"]].loc[ids] += (
+                aadtData["bus"]
+                * modelParams.fuelFractions["bus"][fuelType]
+                * lkm
+                * fuelCon.getFuelConsumption(age, "bus", rType_cons, fuelType)
+            )
 
         inputLayer.selectByIds([])  # Deselect features ready for next loop
         # End of loop over road types
-    return {'fuelUse': newValues, 'names': fieldMap}
+    return {"fuelUse": newValues, "names": fieldMap}
 
 
-def intersecting_amounts(fieldsToSample, inputIndex, inputLayer, new_layer, inputLayerIdField, newLayerIdField):
-    ''' calculate the length/area of each input feature intersecting each output area. Also returns requested attributes of the input feature
+def intersecting_amounts(
+    fieldsToSample,
+    inputIndex,
+    inputLayer,
+    new_layer,
+    inputLayerIdField,
+    newLayerIdField,
+):
+    """calculate the length/area of each input feature intersecting each output area. Also returns requested attributes of the input feature
     :param fieldsToSample: List of input shapefile fields from which to draw values
     :param inputIndex: QgsSpatialIndex of input features
     :param inputLayer: QgsVectorLayer containing the input features
     :param new_layer: QgsVectorLayer to use as output (contain polygons to intersect input features)
     :param inputLayerIdField: str name of ID field of input layer
     :param newLayerIdField: str name of ID field of output layer (names are needed for cross-referencing)
-    :return Dictionary of outputAreaId:{inputFeatureId: amountIntersected}'''
+    :return Dictionary of outputAreaId:{inputFeatureId: amountIntersected}"""
 
     intersectedAmounts = {}
 
     # Ensure areas are all square metres (if SRS=WGS84 then doing geometry.area() gives square degrees)
     # when comparing across different layers. Comparing areas within the same layer don't need this
     in_a = QgsDistanceArea()
-    in_a.setEllipsoid('WGS84')
+    in_a.setEllipsoid("WGS84")
     # in_a.setEllipsoidalMode(True)
     in_a.setSourceCrs(inputLayer.crs(), QgsCoordinateTransformContext())
 
     out_a = QgsDistanceArea()
-    out_a.setEllipsoid('WGS84')
+    out_a.setEllipsoid("WGS84")
     # out_a.setEllipsoidalMode(True)
     out_a.setSourceCrs(new_layer.crs(), QgsCoordinateTransformContext())
 
@@ -365,8 +467,11 @@ def intersecting_amounts(fieldsToSample, inputIndex, inputLayer, new_layer, inpu
     if inputLayer.selectedFeatureCount() < 10:
         new_layer.selectAll()
         bbox = QgsGeometry().fromRect(new_layer.boundingBoxOfSelected())
-        subsumed = {feat[inputLayerIdField]: feat.geometry().intersection(
-            bbox).area()/bbox.area() for feat in inputLayer.getFeatures()}
+        subsumed = {
+            feat[inputLayerIdField]: feat.geometry().intersection(bbox).area()
+            / bbox.area()
+            for feat in inputLayer.getFeatures()
+        }
 
     # # convert multilinestring to linestring for later conversion
     # lyr_linstring = processing.runAndLoadResults(
@@ -379,21 +484,27 @@ def intersecting_amounts(fieldsToSample, inputIndex, inputLayer, new_layer, inpu
     # )
     # lyr_linstring = loadShapeFile(lyr_linstring['OUTPUT'])
 
-
     # Calculate the area or length of all input features (to avoid doing it repetitively later)
     # What type of input features are we dealing with? Support line or polygon
     for inFeat in inputLayer.getFeatures():
         if inFeat.geometry().type() == 1:
-            inType = 'Line'
-            inputAmounts = {feat[inputLayerIdField]: in_a.measureLine(
-                feat.geometry().asMultiPolyline()[0]) for feat in inputLayer.getFeatures()}
+            inType = "Line"
+            inputAmounts = {
+                feat[inputLayerIdField]: in_a.measureLine(
+                    feat.geometry().asMultiPolyline()[0]
+                )
+                for feat in inputLayer.getFeatures()
+            }
         elif inFeat.geometry().type() == 2:
-            inType = 'Polygon'
-            inputAmounts = {feat[inputLayerIdField]: in_a.measureArea(
-                feat.geometry()) for feat in inputLayer.getFeatures()}
+            inType = "Polygon"
+            inputAmounts = {
+                feat[inputLayerIdField]: in_a.measureArea(feat.geometry())
+                for feat in inputLayer.getFeatures()
+            }
         else:
             raise ValueError(
-                'Input shapefile must contain either polygons or lines')
+                "Input shapefile must contain either polygons or lines"
+            )
         break  # Just look at the first feature and assume the rest are of the same type
 
     # # convert multilinestring to linestring for later use
@@ -416,7 +527,7 @@ def intersecting_amounts(fieldsToSample, inputIndex, inputLayer, new_layer, inpu
         outGeo = outputFeat.geometry()
         outType = outGeo.type()
         if outType != 2:
-            raise ValueError('Output features must all be polygons')
+            raise ValueError("Output features must all be polygons")
         # IDs of input data features intersected by the output area polygon
         matching = inputIndex.intersects(outputFeat.geometry().boundingBox())
         matchingInputAmounts = {}
@@ -429,47 +540,59 @@ def intersecting_amounts(fieldsToSample, inputIndex, inputLayer, new_layer, inpu
         for featureMatched in selected:
             # Time-saver: If everything is subsumed by the input, skip the following calculations
             # To account for rounding error
-            if subsumed is not None and subsumed[featureMatched[inputLayerIdField]] > 0.999999999:
+            if (
+                subsumed is not None
+                and subsumed[featureMatched[inputLayerIdField]] > 0.999999999
+            ):
                 amountIntersected = out_a.measureArea(outGeo)
             else:
                 # Calculate the amount intersected (metres for lines, square metres for polygons)
-                if inType == 'Line':
+                if inType == "Line":
                     amountIntersected = outGeo.intersection(
-                        featureMatched.geometry()).length()
+                        featureMatched.geometry()
+                    ).length()
                     # amountIntersected = out_a.measureLine(
                     #     outGeo.intersection(featureMatched.geometry()).asPolyline())
-                if inType == 'Polygon':
+                if inType == "Polygon":
                     amountIntersected = out_a.measureArea(
-                        outGeo.intersection(featureMatched.geometry()))
+                        outGeo.intersection(featureMatched.geometry())
+                    )
 
             if amountIntersected < 0.1:
                 continue  # Ignore any intersections smaller than 0.1m2 or 0.1m
 
-            matchingInputAmounts[featureMatched[inputLayerIdField]] = {'amountIntersected': amountIntersected,
-                                                                       'originalAmount': inputAmounts[featureMatched[inputLayerIdField]]}
+            matchingInputAmounts[featureMatched[inputLayerIdField]] = {
+                "amountIntersected": amountIntersected,
+                "originalAmount": inputAmounts[
+                    featureMatched[inputLayerIdField]
+                ],
+            }
             # Get the requested feature attributes too
             for field in fieldsToSample:
-                matchingInputAmounts[featureMatched[inputLayerIdField]
-                                     ][field] = featureMatched[field]
+                matchingInputAmounts[featureMatched[inputLayerIdField]][
+                    field
+                ] = featureMatched[field]
 
         intersectedAmounts[outputFeat[newLayerIdField]] = matchingInputAmounts
 
     return intersectedAmounts
 
 
-def intersecting_amounts_LUCY(fieldsToSample, inputLayer, new_layer, inputLayerIdField, newLayerIdField):
-    ''' Identical to intersecting_amounts but does spatial indexing differently to get around big extents making it crash'''
+def intersecting_amounts_LUCY(
+    fieldsToSample, inputLayer, new_layer, inputLayerIdField, newLayerIdField
+):
+    """Identical to intersecting_amounts but does spatial indexing differently to get around big extents making it crash"""
     intersectedAmounts = {}
 
     # Ensure areas are all square metres (if SRS=WGS84 then doing geometry.area() gives square degrees)
     # when comparing across different layers. Comparing areas within the same layer don't need this
     in_a = QgsDistanceArea()
-    in_a.setEllipsoid('WGS84')
+    in_a.setEllipsoid("WGS84")
     # in_a.setEllipsoidalMode(True)
     in_a.setSourceCrs(inputLayer.crs(), QgsCoordinateTransformContext())
 
     out_a = QgsDistanceArea()
-    out_a.setEllipsoid('WGS84')
+    out_a.setEllipsoid("WGS84")
     # out_a.setEllipsoidalMode(True)
     out_a.setSourceCrs(new_layer.crs(), QgsCoordinateTransformContext())
 
@@ -481,8 +604,16 @@ def intersecting_amounts_LUCY(fieldsToSample, inputLayer, new_layer, inputLayerI
     if inputLayer.selectedFeatureCount() < 10:
         new_layer.selectAll()
         bbox = QgsGeometry().fromRect(new_layer.boundingBoxOfSelected())
-        subsumed = {feat[inputLayerIdField]: feat.geometry().intersection(
-            bbox).area()/bbox.area() for feat in inputLayer.getFeatures()}  # Area ratio
+        subsumed = {
+            feat[inputLayerIdField]: feat.geometry()
+            .intersection(
+                # Area ratio
+                bbox
+            )
+            .area()
+            / bbox.area()
+            for feat in inputLayer.getFeatures()
+        }
 
     # # convert multilinestring to linestring for later use
     # lyr_linstring = processing.runAndLoadResults(
@@ -498,18 +629,25 @@ def intersecting_amounts_LUCY(fieldsToSample, inputLayer, new_layer, inputLayerI
     # Calculate the area or length of all input features (to avoid doing it repetitively later)
     # What type of input features are we dealing with? Support line or polygon
     for inFeat in inputLayer.getFeatures():
-    # for inFeat in lyr_linstring.getFeatures():
+        # for inFeat in lyr_linstring.getFeatures():
         if inFeat.geometry().type() == 1:
-            inType = 'Line'
-            inputAmounts = {feat[inputLayerIdField]: in_a.measureLine(
-                feat.geometry().asMultiPolyline()[0]) for feat in inputLayer.getFeatures()}
+            inType = "Line"
+            inputAmounts = {
+                feat[inputLayerIdField]: in_a.measureLine(
+                    feat.geometry().asMultiPolyline()[0]
+                )
+                for feat in inputLayer.getFeatures()
+            }
         elif inFeat.geometry().type() == 2:
-            inType = 'Polygon'
-            inputAmounts = {feat[inputLayerIdField]: in_a.measureArea(
-                feat.geometry()) for feat in inputLayer.getFeatures()}
+            inType = "Polygon"
+            inputAmounts = {
+                feat[inputLayerIdField]: in_a.measureArea(feat.geometry())
+                for feat in inputLayer.getFeatures()
+            }
         else:
             raise ValueError(
-                'Input shapefile must contain either polygons or lines')
+                "Input shapefile must contain either polygons or lines"
+            )
         break  # Just look at the first feature and assume the rest are of the same type
 
     a = QgsSpatialIndex()
@@ -517,7 +655,7 @@ def intersecting_amounts_LUCY(fieldsToSample, inputLayer, new_layer, inputLayerI
         outGeo = outputFeat.geometry()
         outType = outGeo.type()
         if outType != 2:
-            raise ValueError('Output features must all be polygons')
+            raise ValueError("Output features must all be polygons")
 
         # Generate spatial index of this specific feature and see which input features overlay them
         # This is a workaround as putting the whole world in a spatial index caused QGIS to crash hard
@@ -536,15 +674,17 @@ def intersecting_amounts_LUCY(fieldsToSample, inputLayer, new_layer, inputLayerI
 
         # convert multilinestring to linestring for later use
         lyr_linstring = processing.runAndLoadResults(
-            'qgis:convertgeometrytype',
+            "qgis:convertgeometrytype",
             {
-                'INPUT': inputLayer,
-                'TYPE': 2,  # line string
-                'OUTPUT': 'memory:',
+                "INPUT": inputLayer,
+                "TYPE": 2,  # line string
+                "OUTPUT": "memory:",
             },
-            feedback=QgsProcessingFeedback().reportError('invalid features encountered in `qgis:convertgeometrytype` processing')
+            feedback=QgsProcessingFeedback().reportError(
+                "invalid features encountered in `qgis:convertgeometrytype` processing"
+            ),
         )
-        lyr_linstring = loadShapeFile(lyr_linstring['OUTPUT'])
+        lyr_linstring = loadShapeFile(lyr_linstring["OUTPUT"])
 
         # Input features that intersect the bounding box of the output feature
         selected = lyr_linstring.selectedFeatures()
@@ -554,26 +694,38 @@ def intersecting_amounts_LUCY(fieldsToSample, inputLayer, new_layer, inputLayerI
         for featureMatched in selected:
             # Time-saver: If everything is subsumed by the input, skip the following calculations
             # To account for rounding error
-            if subsumed is not None and subsumed[featureMatched[inputLayerIdField]] > 0.999999999:
+            if (
+                subsumed is not None
+                and subsumed[featureMatched[inputLayerIdField]] > 0.999999999
+            ):
                 amountIntersected = out_a.measureArea(outGeo)
             else:
                 # Calculate the amount intersected (metres for lines, square metres for polygons)
-                if inType == 'Line':
+                if inType == "Line":
                     amountIntersected = out_a.measureLine(
-                        outGeo.intersection(featureMatched.geometry()).asPolyline())
-                if inType == 'Polygon':
+                        outGeo.intersection(
+                            featureMatched.geometry()
+                        ).asPolyline()
+                    )
+                if inType == "Polygon":
                     amountIntersected = out_a.measureArea(
-                        outGeo.intersection(featureMatched.geometry()))
+                        outGeo.intersection(featureMatched.geometry())
+                    )
 
             if amountIntersected < 0.1:
                 continue  # Ignore any intersections smaller than 0.1m2 or 0.1m
 
-            matchingInputAmounts[featureMatched[inputLayerIdField]] = {'amountIntersected': amountIntersected,
-                                                                       'originalAmount': inputAmounts[featureMatched[inputLayerIdField]]}
+            matchingInputAmounts[featureMatched[inputLayerIdField]] = {
+                "amountIntersected": amountIntersected,
+                "originalAmount": inputAmounts[
+                    featureMatched[inputLayerIdField]
+                ],
+            }
             # Get the requested feature attributes too
             for field in fieldsToSample:
-                matchingInputAmounts[featureMatched[inputLayerIdField]
-                                     ][field] = featureMatched[field]
+                matchingInputAmounts[featureMatched[inputLayerIdField]][
+                    field
+                ] = featureMatched[field]
 
         intersectedAmounts[outputFeat[newLayerIdField]] = matchingInputAmounts
     return intersectedAmounts
@@ -592,8 +744,14 @@ def get_field_index(layer, fieldname):
         return names.index(fieldname)
 
 
-def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttributes, total_weightings, outputLayerIdField):
-    ''' Disaggregate the values obtained by intersecting_amounts and return factors by which to multiply the original feature attribute
+def disaggregate_weightings(
+    intersectedAmounts,
+    output_layer,
+    weightingAttributes,
+    total_weightings,
+    outputLayerIdField,
+):
+    """Disaggregate the values obtained by intersecting_amounts and return factors by which to multiply the original feature attribute
     to get the amount in the new feature
     :param intersectedAmounts: Dict intersectedAreas (from intersecting_amounts()): {inputAreaId: {'amountIntersected', 'originalArea'} }
     :param output_layer: The QgsVectorLayer() object into which to place downscaled values
@@ -605,30 +763,34 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
     :return dict of {output_id: {attributeName: {input_id : new_amount}}}
 
     If output area straddles multiple input areas, the weight in the input area is mutliplied by the proportion of the output area
-    intersected by the input area'''
+    intersected by the input area"""
 
     # Calculate feature areas in square metres, because intersecting_amount are stated in square metres
     out_a = QgsDistanceArea()
-    out_a.setEllipsoid('WGS84')
+    out_a.setEllipsoid("WGS84")
     # out_a.setEllipsoidalMode(True)
     out_a.setSourceCrs(output_layer.crs(), QgsCoordinateTransformContext())
 
     # Check the requested weightingAttribute exists in the output layer. If not, make some noise
     if weightingAttributes is None:
-        weightingAttributes = ['_AREA_']  # Reserved word
+        weightingAttributes = ["_AREA_"]  # Reserved word
     else:
         if type(weightingAttributes) is not list:
             weightingAttributes = [weightingAttributes]
-        if '_AREA_' in weightingAttributes:
+        if "_AREA_" in weightingAttributes:
             raise ValueError(
-                'The attribute _AREA_ is not allowed to be used as it is a reserved word')
+                "The attribute _AREA_ is not allowed to be used as it is a reserved word"
+            )
 
     for wa in weightingAttributes:
         # Check each attribute (except _AREA_) is in the output shapefile
-        if wa != '_AREA_':
+        if wa != "_AREA_":
             if output_layer.dataProvider().fieldNameIndex(wa) == -1:
-                raise ValueError('Weighting attribute:' +
-                                 str(wa) + ' not in the output shapefile.')
+                raise ValueError(
+                    "Weighting attribute:"
+                    + str(wa)
+                    + " not in the output shapefile."
+                )
 
     weighting_attrib = {wa: {} for wa in weightingAttributes}
 
@@ -636,12 +798,16 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
     for feat in output_layer.getFeatures():
         geoArea = out_a.measureArea(feat.geometry())
         for wa in weightingAttributes:
-            if wa == '_AREA_':
+            if wa == "_AREA_":
                 weighting_attrib[wa][feat[outputLayerIdField]] = {
-                    'area': geoArea, 'weight': geoArea}  # Just use area
+                    "area": geoArea,
+                    "weight": geoArea,
+                }  # Just use area
             else:
                 weighting_attrib[wa][feat[outputLayerIdField]] = {
-                    'area': geoArea, 'weight': feat[wa]}
+                    "area": geoArea,
+                    "weight": feat[wa],
+                }
 
     # turn the input dictionary inside out to get all the output features touching a given input feature
     input_features = {}
@@ -652,10 +818,14 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
                 input_features[in_id] = {}
             # Each entry contains the area intersected, size and values of the input feature
             # Append the weighting attributes to the input data dict
-            intersectedAmounts[out_id][in_id]['weight_attrib'] = {}
+            intersectedAmounts[out_id][in_id]["weight_attrib"] = {}
             for wa in weightingAttributes:
-                intersectedAmounts[out_id][in_id]['weight_attrib'][wa] = weighting_attrib[wa][out_id]['weight']
-            intersectedAmounts[out_id][in_id]['output_feature_area'] = weighting_attrib[wa][out_id]['area']
+                intersectedAmounts[out_id][in_id]["weight_attrib"][wa] = (
+                    weighting_attrib[wa][out_id]["weight"]
+                )
+            intersectedAmounts[out_id][in_id]["output_feature_area"] = (
+                weighting_attrib[wa][out_id]["area"]
+            )
             # Create lookup from input feature to its constituent output area(s)
             input_features[in_id][out_id] = intersectedAmounts[out_id][in_id]
 
@@ -676,7 +846,8 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
 
     elif len(list(total_weightings.keys())) != len(weightingAttributes):
         raise ValueError(
-            'Total weightings are not present for all weighting attributes')
+            "Total weightings are not present for all weighting attributes"
+        )
 
     # Keep track of the number of output features (reflects partial overlaps) intersecting each input feature
     num_outfeats = {}
@@ -699,12 +870,16 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
             # If not all of the output area intersects the input area, don't use all of the output area's weighting
             # Use proportion_of_output_area_intersected * weighting as the weighting. This prevents an output area from "stealing"
             # all of the disaggregated value when only a sliver intersects the input area
-            fraction_intersected = input_features[in_id][out_id]['amountIntersected'] / \
-                input_features[in_id][out_id]['output_feature_area']
+            fraction_intersected = (
+                input_features[in_id][out_id]["amountIntersected"]
+                / input_features[in_id][out_id]["output_feature_area"]
+            )
             num_outfeats[in_id] += fraction_intersected
             if not totals_already_available:
-                inputAreaCovered[in_id] += input_features[in_id][out_id]['amountIntersected'] / \
-                    input_features[in_id][out_id]['originalAmount']
+                inputAreaCovered[in_id] += (
+                    input_features[in_id][out_id]["amountIntersected"]
+                    / input_features[in_id][out_id]["originalAmount"]
+                )
 
             for wa in weightingAttributes:
                 # If none of the output areas in this input area, just allocate empty entries
@@ -715,14 +890,20 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
             for wa in weightingAttributes:
                 try:
                     weight = float(
-                        input_features[in_id][out_id]['weight_attrib'][wa])
-                except Exception:  # Non-numeric weight encountered. Nothing from out_id will contribute to in_id
+                        input_features[in_id][out_id]["weight_attrib"][wa]
+                    )
+                except (
+                    Exception
+                ):  # Non-numeric weight encountered. Nothing from out_id will contribute to in_id
                     continue
 
-                disagg_weightings[wa][out_id][in_id] = weight * \
-                    fraction_intersected
+                disagg_weightings[wa][out_id][in_id] = (
+                    weight * fraction_intersected
+                )
                 if not totals_already_available:
-                    total_weightings[wa][in_id] += disagg_weightings[wa][out_id][in_id]
+                    total_weightings[wa][in_id] += disagg_weightings[wa][
+                        out_id
+                    ][in_id]
 
     # Go back round and normalise disagg_weightings by total weighting within each input feature
     # This conserves the total amount to be disaggregated in each input feature unless totals were obtained separately,
@@ -736,19 +917,27 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
                 try:
                     # If a zero weighting found, spread evenly over input area
                     if total_weightings[wa][in_id] == 0.0:
-                        disagg_weightings[wa][out_id][in_id] = 1 / \
-                            float(num_outfeats[in_id])
-                    else:                                # Non-zero weightings found: respect local variations
+                        disagg_weightings[wa][out_id][in_id] = 1 / float(
+                            num_outfeats[in_id]
+                        )
+                    else:  # Non-zero weightings found: respect local variations
                         disagg_weightings[wa][out_id][in_id] /= float(
-                            total_weightings[wa][in_id])
+                            total_weightings[wa][in_id]
+                        )
 
                     # Apply correction factor if needed
                     if not totals_already_available:
-                        disagg_weightings[wa][out_id][in_id] *= inputAreaCovered[in_id]
+                        disagg_weightings[wa][out_id][
+                            in_id
+                        ] *= inputAreaCovered[in_id]
                 except:
                     pass
-    total_weightings = {}  # Done with this. No point it hanging around taking up memory
+    total_weightings = (
+        {}
+    )  # Done with this. No point it hanging around taking up memory
     return disagg_weightings
+
+
 #
 # def spatialAverageField(mappings, fieldNum, inLayer):
 #     # Take input features (each has a set of fields) and does a spatial average of the features within inLayer falling inside
@@ -770,9 +959,9 @@ def disaggregate_weightings(intersectedAmounts, output_layer, weightingAttribute
 
 
 def feature_areas(layer):
-   # Return dict of feature areas {feature_id:area m^2}
+    # Return dict of feature areas {feature_id:area m^2}
     out_a = QgsDistanceArea()  # Ensure metres are the unit rather than degrees
-    out_a.setEllipsoid('WGS84')
+    out_a.setEllipsoid("WGS84")
     # out_a.setEllipsoidalMode(True)
     out_a.setSourceCrs(layer.crs(), QgsCoordinateTransformContext())
 
@@ -783,12 +972,13 @@ def feature_areas(layer):
 
 
 def multiply_shapefile_attribute(layer, attribute, factor):
-    ''' Multiply the named attribute by the given float() factor
-        Return updated layer (if layer is ogr, then it will be altered on disk)'''
+    """Multiply the named attribute by the given float() factor
+    Return updated layer (if layer is ogr, then it will be altered on disk)"""
     feats = layer.getFeatures()
     # Work out which entry in the field list is the one of interest
-    fieldNames = {a.name(): i for i, a in enumerate(
-        layer.dataProvider().fields())}
+    fieldNames = {
+        a.name(): i for i, a in enumerate(layer.dataProvider().fields())
+    }
     fieldIndex = fieldNames[attribute]
     layer.startEditing()
     for feat in feats:
@@ -804,24 +994,26 @@ def multiply_shapefile_attribute(layer, attribute, factor):
 
 
 def convert_to_spatial_density(layer, attribute):
-    ''' Normalise the named attribute by the area of its parent feature
-        Return updated layer (if layer is ogr, then it will be altered on disk)'''
+    """Normalise the named attribute by the area of its parent feature
+    Return updated layer (if layer is ogr, then it will be altered on disk)"""
     out_a = QgsDistanceArea()  # Ensure metres are the unit rather than degrees
-    out_a.setEllipsoid('WGS84')
+    out_a.setEllipsoid("WGS84")
     # out_a.setEllipsoidalMode(True)
     out_a.setSourceCrs(layer.crs(), QgsCoordinateTransformContext()())
 
     feats = layer.getFeatures()
     # Work out which entry in the field list is the one of interest
-    fieldNames = {a.name(): i for i, a in enumerate(
-        layer.dataProvider().fields())}
+    fieldNames = {
+        a.name(): i for i, a in enumerate(layer.dataProvider().fields())
+    }
     fieldIndex = fieldNames[attribute]
     layer.startEditing()
     for feat in feats:
         # Only update the number if it converts to a float
         try:
-            new_val = float(feat[attribute]) / \
-                float(out_a.measureArea(feat.geometry()))
+            new_val = float(feat[attribute]) / float(
+                out_a.measureArea(feat.geometry())
+            )
             layer.changeAttributeValue(feat.id(), fieldIndex, new_val)
         except Exception:
             continue
@@ -848,6 +1040,7 @@ def convert_to_spatial_density(layer, attribute):
 #     layer.commitChanges()
 #     return layer
 
+
 def shapefile_attributes(layer):
     # Return a pandas Data Frame of shapefile attributes indexed by feature ID
     # Input: a QgsVectorLayer
@@ -861,23 +1054,23 @@ def shapefile_attributes(layer):
             try:
                 vals.append(float(a))
             except Exception:
-                if str(a) is 'NULL':
+                if str(a) is "NULL":
                     vals.append(np.nan)
                 else:
                     # vals.append(str(a))
                     vals.append(a)
 
                 # try:
-                    # vals.append(str(a))
+                # vals.append(str(a))
                 # except Exception:
                 #     QPyNullVariant is deprecated
-                    # always cast to NaN
-                    # vals.append(np.nan)
-                    # if a is NULL:
-                    #     print(a)
-                    #     vals.append(np.nan)
-                    # else:
-                    #     vals.append(a)
+                # always cast to NaN
+                # vals.append(np.nan)
+                # if a is NULL:
+                #     print(a)
+                #     vals.append(np.nan)
+                # else:
+                #     vals.append(a)
                 # print('not a good value', type(a))
                 # if type(a) is QPyNullVariant:
                 # if a is None:
@@ -895,17 +1088,18 @@ def shapefile_attributes(layer):
 
 
 def sameFeatures(layer1, layer2):
-    '''
+    """
     Determines whether two QgsVectorLayers contain the same features (ignoring different attributes)
     :param layer1: QgsVectorLayer 1
     :param layer2: QgsVectorLayer 2
     :return: True if they match, False if they don't
-    '''
+    """
     extentsMatch = layer1.extent() == layer2.extent()
     crsMatch = layer1.crs() == layer2.crs()
     expectedFeatureIds = layer2.allFeatureIds()
-    featureIdsMatch = len(set(layer1.allFeatureIds()).intersection(
-        expectedFeatureIds)) == len(expectedFeatureIds)
+    featureIdsMatch = len(
+        set(layer1.allFeatureIds()).intersection(expectedFeatureIds)
+    ) == len(expectedFeatureIds)
     # Do all the features have the same geometry?
     geometryMatch = True
     for id in expectedFeatureIds:
@@ -968,7 +1162,7 @@ def mapGeometries(newGeos, origGeos):
 
 def loadShapeFile(filename, targetEPSG=None):
     # Opens a shapefile. Note that any changes to this shapefile will be written straight to disk
-    layer = QgsVectorLayer(filename, 'Shapefile', 'ogr')
+    layer = QgsVectorLayer(filename, "Shapefile", "ogr")
     # layer = QgsVectorLayer(path=filename, baseName='shpfile', providerLib='ogr')
 
     # print(layer)
@@ -978,13 +1172,14 @@ def loadShapeFile(filename, targetEPSG=None):
 
     # print layer.dataProvider().crs().authid().split(':')[1]
     if not layer:
-        raise Exception('Shapefile %s not valid') % (filename,)
+        raise Exception("Shapefile %s not valid") % (filename,)
     if targetEPSG is None:
         try:
-            targetEPSG = '32631'
+            targetEPSG = "32631"
         except Exception:
             raise ValueError(
-                'Could not determine a CRS for shapefile %s' % (filename,))
+                "Could not determine a CRS for shapefile %s" % (filename,)
+            )
     crs = layer.crs()
     crs.createFromId(int(targetEPSG))
     layer.setCrs(crs)
@@ -992,13 +1187,13 @@ def loadShapeFile(filename, targetEPSG=None):
 
 
 def openShapeFileInMemory(filename, targetEPSG=None, label="Layer"):
-    '''
+    """
     Returns a duplicate of the input QgsVectorLayer, stored in memory
     :param filename: Filename of shapefile
     :param targetEPSG: EPSG code (numeric) of shapefile
     :param label: Label to use in QGIS
     :return: QgsVectorLayer
-    '''
+    """
     # Returns a duplicate of the input qgsVectorLayer, in memory
     # Optionally labels the name of the layer
     a = loadShapeFile(filename)
@@ -1008,31 +1203,35 @@ def openShapeFileInMemory(filename, targetEPSG=None, label="Layer"):
 
 
 def saveLayerToFile(layer, filename, targetCRS=None, label=None):
-    '''saves a QgsVectorLayer that may be in memory to a disk,  Overwrites it if it already exists
+    """saves a QgsVectorLayer that may be in memory to a disk,  Overwrites it if it already exists
     :param layer:  QgsVectorLayer to save
     :param filename:  File name to save as
     :param targetCRS: CRS of layer to write (as with layer.getCRS())
     :param label: Label of layer
     :return: None
-    '''
+    """
 
     if os.path.exists(filename):
         deleted = QgsVectorFileWriter.deleteShapeFile(filename)
         if not deleted:
-            raise IOError('Failed to delete existing vector file ' + str(filename) +
-                          '. The file may be in use. Please close it and try again.')
+            raise IOError(
+                "Failed to delete existing vector file "
+                + str(filename)
+                + ". The file may be in use. Please close it and try again."
+            )
 
     error_code, error_msg = QgsVectorFileWriter.writeAsVectorFormat(
-        layer, filename, "CP1250", targetCRS, "ESRI Shapefile")
+        layer, filename, "CP1250", targetCRS, "ESRI Shapefile"
+    )
 
     if error_code != QgsVectorFileWriter.WriterError.NoError:
         print(error)
-        raise IOError('Failed to write vector file ' + str(filename))
+        raise IOError("Failed to write vector file " + str(filename))
 
 
 def addNewField(inLayer, fieldNames, initialValue=None):
-    ''' Adds a Double field (attribute) to a QgsVectorLayer and also gives it an initial value (optional)
-        returns the updated layer'''
+    """Adds a Double field (attribute) to a QgsVectorLayer and also gives it an initial value (optional)
+    returns the updated layer"""
 
     if type(fieldNames) is not list:
         fieldNames = [fieldNames]
@@ -1047,8 +1246,9 @@ def addNewField(inLayer, fieldNames, initialValue=None):
     # Populate with initial values
     for fieldName in fieldNames:
         # Find index of this field
-        fieldNameList = {a.name(): i for i, a in enumerate(
-            inLayer.dataProvider().fields())}
+        fieldNameList = {
+            a.name(): i for i, a in enumerate(inLayer.dataProvider().fields())
+        }
         fieldIndex = fieldNameList[fieldName]
 
         # Now propagate the initial value through all the features
@@ -1056,7 +1256,8 @@ def addNewField(inLayer, fieldNames, initialValue=None):
             inLayer.startEditing()
             for feat in inLayer.getFeatures():
                 inLayer.changeAttributeValue(
-                    feat.id(), fieldIndex, float(initialValue))
+                    feat.id(), fieldIndex, float(initialValue)
+                )
             inLayer.commitChanges()
 
     inLayer.updateExtents()
@@ -1069,14 +1270,16 @@ def duplicateVectorLayer(inLayer, targetEPSG=None, label=None):
     # Shapefile is assigned CRS using targetEPSG (integer): the EPSG code (optional)
 
     if label is None:
-        label = 'Duplicated Layer'
+        label = "Duplicated Layer"
     # If no target EPSG specified, try inheriting that from the input layer. If nothing there, try 27700
     if targetEPSG is None:
         try:
-            targetEPSG = inLayer.dataProvider().crs().authid().split(':')[1]
+            targetEPSG = inLayer.dataProvider().crs().authid().split(":")[1]
         except Exception:
-            raise Exception('Cannot identify the EPSG code for shapefile:' +
-                            str(inLayer.dataProvider().dataSourceUri().uri()))
+            raise Exception(
+                "Cannot identify the EPSG code for shapefile:"
+                + str(inLayer.dataProvider().dataSourceUri().uri())
+            )
 
     # Try very hard to set the CRS of the input layer so there are no annoying popups
     inLayer.startEditing()
@@ -1116,18 +1319,24 @@ def duplicateVectorLayer(inLayer, targetEPSG=None, label=None):
     newLayer = processing.run(
         "native:saveselectedfeatures",
         {
-            'INPUT': inLayer,
-            'OUTPUT': 'memory:',
-        }
-    )['OUTPUT']
+            "INPUT": inLayer,
+            "OUTPUT": "memory:",
+        },
+    )["OUTPUT"]
     newLayer.setCrs(crs)
     # newLayer.setLabel(label)
     return newLayer
 
 
-def colourRanges(displayLayer, attribute, opacity, range_minima, range_maxima, colours):
+def colourRanges(
+    displayLayer, attribute, opacity, range_minima, range_maxima, colours
+):
     # from qgis.core import QgsMapLayerRegistry, QgsSymbol, QgsGraduatedSymbolRenderer, QgsRendererRange
-    from qgis.core import QgsSymbol, QgsGraduatedSymbolRenderer, QgsRendererRange
+    from qgis.core import (
+        QgsSymbol,
+        QgsGraduatedSymbolRenderer,
+        QgsRendererRange,
+    )
     from qgis.PyQt.QtGui import QColor
 
     # Colour vector layer according to the value of attribute <<attribute>>, with ranges set out by <<range_minima>> (list), <<range_maxima>> (list)
@@ -1141,19 +1350,28 @@ def colourRanges(displayLayer, attribute, opacity, range_minima, range_maxima, c
         symbol.setOpacity(opacity)  # setAlpha is now setOpacity
         # symbol.symbolLayer(0).setOutlineColor(transparent)
 
-        valueRange = QgsRendererRange(range_minima[i], range_maxima[i], symbol,
-                                      str(range_minima[i]) + ' - ' + str(range_maxima[i]))
+        valueRange = QgsRendererRange(
+            range_minima[i],
+            range_maxima[i],
+            symbol,
+            str(range_minima[i]) + " - " + str(range_maxima[i]),
+        )
         rangeList.append(valueRange)
 
-    renderer = QgsGraduatedSymbolRenderer('', rangeList)
+    renderer = QgsGraduatedSymbolRenderer("", rangeList)
     renderer.setMode(QgsGraduatedSymbolRenderer.Mode.EqualInterval)
     renderer.setClassAttribute(attribute)
     displayLayer.setRenderer(renderer)  # setRendererV2 before
 
 
-def populateShapefileFromTemplate(dataMatrix, primaryKey, templateShapeFile,
-                                  templateEpsgCode=None, title=None):
-    '''
+def populateShapefileFromTemplate(
+    dataMatrix,
+    primaryKey,
+    templateShapeFile,
+    templateEpsgCode=None,
+    title=None,
+):
+    """
     Produce a map of greaterQF outputs based on a template shape file (QGIS ONLY)
     Inputs:
       dataMatrix:Pandas array with indexes equal to feature IDs and columns with headings for shapefile attributes
@@ -1163,31 +1381,36 @@ def populateShapefileFromTemplate(dataMatrix, primaryKey, templateShapeFile,
     Outputs:
       newLayer: A QGIS layer containing all greaterQF components for each feature. Stored in memory.
       :param templateEpsgCode:
-    '''
+    """
 
     if type(templateShapeFile) in [str, str]:
         # Open existing layer and try to set its CRS
         layer = openShapeFileInMemory(
-            templateShapeFile, templateEpsgCode, label=title)
+            templateShapeFile, templateEpsgCode, label=title
+        )
 
         if not layer:
             raise Exception(
-                'Shapefile ' + str(templateShapeFile) + ' not valid')
+                "Shapefile " + str(templateShapeFile) + " not valid"
+            )
 
     elif type(templateShapeFile) is QgsVectorLayer:
         # Just use if already a QgsVectorLayer
         layer = templateShapeFile
     else:
         raise ValueError(
-            'Input layer should be a string path to a shapefile or a QgsVectorLayer')
+            "Input layer should be a string path to a shapefile or a QgsVectorLayer"
+        )
 
     if templateEpsgCode is None:
         try:
             templateEpsgCode = int(
-                layer.dataProvider().crs().authid().split(':')[1])
+                layer.dataProvider().crs().authid().split(":")[1]
+            )
         except Exception:
             raise ValueError(
-                'Could not ascertain EPSG code from output layer. One must be specified explicitly.')
+                "Could not ascertain EPSG code from output layer. One must be specified explicitly."
+            )
 
     # Deal with fields/attributes
     attribs = list(dataMatrix.columns)
@@ -1195,11 +1418,11 @@ def populateShapefileFromTemplate(dataMatrix, primaryKey, templateShapeFile,
     fields = []
     for cmpt in attribs:
         fi = QgsField(cmpt, QVariant.Double)
-        fi.setTypeName('double')  # Assume all the data are double
+        fi.setTypeName("double")  # Assume all the data are double
         fields.append(fi)
 
     idField = QgsField(primaryKey, QVariant.String)
-    idField.setTypeName('QString')
+    idField.setTypeName("QString")
     layer.startEditing()
     layer.dataProvider().addAttributes([idField])
     layer.dataProvider().addAttributes(fields)
@@ -1221,7 +1444,8 @@ def populateShapefileFromTemplate(dataMatrix, primaryKey, templateShapeFile,
             try:
                 if areaId not in nulls:
                     layer.changeAttributeValue(
-                        feat.id(), idx, float(dataMatrix[fld][areaId]))
+                        feat.id(), idx, float(dataMatrix[fld][areaId])
+                    )
             except:
                 pass  # Allow a mismatch between input and output layer feature IDs
     layer.commitChanges()

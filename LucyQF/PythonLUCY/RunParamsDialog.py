@@ -26,4 +26,3 @@
 #         result = dialog.exec()
 #         date = dialog.dateTime()
 #         return (date.date(), date.time(), result == QDialog.DialogCode.Accepted)
-

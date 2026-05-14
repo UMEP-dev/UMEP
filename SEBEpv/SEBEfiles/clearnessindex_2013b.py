@@ -1,12 +1,12 @@
-author = 'xlinfr'
-
-import sun_distance
-import numpy as np
 import math
+import numpy as np
+import sun_distance
+
+author = "xlinfr"
+
 
 def clearnessindex_2013b(zen, jday, Ta, RH, radG, location, P):
-
-    """ Clearness Index at the Earth's surface calculated from Crawford and Duchon 1999
+    """Clearness Index at the Earth's surface calculated from Crawford and Duchon 1999
 
     :param zen: zenith angle in radians
     :param jday: day of year
@@ -19,14 +19,18 @@ def clearnessindex_2013b(zen, jday, Ta, RH, radG, location, P):
     """
 
     if P == -999.0:
-        p = 1013.  # Pressure in millibars
+        p = 1013.0  # Pressure in millibars
     else:
-        p = P*10.  # Convert from hPa to millibars
+        p = P * 10.0  # Convert from hPa to millibars
 
     Itoa = 1370.0  # Effective solar constant
-    D = sun_distance.sun_distance(jday)  # irradiance differences due to Sun-Earth distances
-    m = 35. * np.cos(zen) * ((1224. * (np.cos(zen)**2) + 1) ** (-1/2.))     # optical air mass at p=1013
-    Trpg = 1.021-0.084*(m*(0.000949*p+0.051))**0.5  # Transmission coefficient for Rayliegh scattering and permanent gases
+    # irradiance differences due to Sun-Earth distances
+    D = sun_distance.sun_distance(jday)
+    m = (
+        35.0 * np.cos(zen) * ((1224.0 * (np.cos(zen) ** 2) + 1) ** (-1 / 2.0))
+    )  # optical air mass at p=1013
+    # Transmission coefficient for Rayliegh scattering and permanent gases
+    Trpg = 1.021 - 0.084 * (m * (0.000949 * p + 0.051)) ** 0.5
 
     # empirical constant depending on latitude
     # table, see Smith, W. L., 1966: Note on the relationship between total precipitable water and surface dewpoint. J.
@@ -34,23 +38,23 @@ def clearnessindex_2013b(zen, jday, Ta, RH, radG, location, P):
     # see also: Y. Viswanadham, The relationship between total precipitable water and surface dew point Journal of
     # Applied Meteorology, 20 (1981), pp. 3-7
     # valid only for Northern Hemisphere!!
-    if location['latitude'] < 10.:
+    if location["latitude"] < 10.0:
         G = [3.37, 2.85, 2.80, 2.64]
-    elif location['latitude'] >= 10. and location['latitude'] < 20.:
+    elif location["latitude"] >= 10.0 and location["latitude"] < 20.0:
         G = [2.99, 3.02, 2.70, 2.93]
-    elif location['latitude'] >= 20. and location['latitude'] <30.:
+    elif location["latitude"] >= 20.0 and location["latitude"] < 30.0:
         G = [3.60, 3.00, 2.98, 2.93]
-    elif location['latitude'] >= 30. and location['latitude'] <40.:
+    elif location["latitude"] >= 30.0 and location["latitude"] < 40.0:
         G = [3.04, 3.11, 2.92, 2.94]
-    elif location['latitude'] >= 40. and location['latitude'] <50.:
+    elif location["latitude"] >= 40.0 and location["latitude"] < 50.0:
         G = [2.70, 2.95, 2.77, 2.71]
-    elif location['latitude'] >= 50. and location['latitude'] <60.:
+    elif location["latitude"] >= 50.0 and location["latitude"] < 60.0:
         G = [2.52, 3.07, 2.67, 2.93]
-    elif location['latitude'] >= 60. and location['latitude'] <70.:
+    elif location["latitude"] >= 60.0 and location["latitude"] < 70.0:
         G = [1.76, 2.69, 2.61, 2.61]
-    elif location['latitude'] >= 70. and location['latitude'] <80.:
+    elif location["latitude"] >= 70.0 and location["latitude"] < 80.0:
         G = [1.60, 1.67, 2.24, 2.63]
-    elif location['latitude'] >= 80. and location['latitude'] <90.:
+    elif location["latitude"] >= 80.0 and location["latitude"] < 90.0:
         G = [1.11, 1.44, 1.94, 2.02]
 
     if jday > 335 or jday <= 60:
@@ -65,28 +69,32 @@ def clearnessindex_2013b(zen, jday, Ta, RH, radG, location, P):
     # dewpoint calculation
     a2 = 17.27
     b2 = 237.7
-    Td = (b2*(((a2*Ta)/(b2+Ta))+np.log(RH)))/(a2-(((a2*Ta)/(b2+Ta))+np.log(RH)))
-    Td = (Td*1.8)+32  # Dewpoint (F)
-    u = np.exp(0.1133-np.log(G+1)+0.0393*Td)  # Precipitable water
-    Tw = 1-0.077*((u*m)**0.3)  # Transmission coefficient for water vapor
+    Td = (b2 * (((a2 * Ta) / (b2 + Ta)) + np.log(RH))) / (
+        a2 - (((a2 * Ta) / (b2 + Ta)) + np.log(RH))
+    )
+    Td = (Td * 1.8) + 32  # Dewpoint (F)
+    u = np.exp(0.1133 - np.log(G + 1) + 0.0393 * Td)  # Precipitable water
+    Tw = 1 - 0.077 * (
+        (u * m) ** 0.3
+    )  # Transmission coefficient for water vapor
     Tar = 0.935**m  # Transmission coefficient for aerosols
 
-    I0=Itoa*np.cos(zen)*Trpg*Tw*D*Tar
-    if abs(zen)>np.pi/2:
+    I0 = Itoa * np.cos(zen) * Trpg * Tw * D * Tar
+    if abs(zen) > np.pi / 2:
         I0 = 0
     # b=I0==abs(zen)>np.pi/2
     # I0(b==1)=0
     # clear b;
-    if not(np.isreal(I0)):
+    if not (np.isreal(I0)):
         I0 = 0
 
-    corr=0.1473*np.log(90-(zen/np.pi*180))+0.3454  # 20070329
+    corr = 0.1473 * np.log(90 - (zen / np.pi * 180)) + 0.3454  # 20070329
 
     CIuncorr = radG / I0
-    CI = CIuncorr + (1-corr)
-    I0et = Itoa*np.cos(zen)*D  # extra terrestial solar radiation
+    CI = CIuncorr + (1 - corr)
+    I0et = Itoa * np.cos(zen) * D  # extra terrestial solar radiation
     Kt = radG / I0et
     if math.isnan(CI):
-        CI = float('Inf')
+        CI = float("Inf")
 
     return I0, CI, Kt, I0et, CIuncorr

@@ -1,11 +1,34 @@
 import numpy as np
 from .sunonsurface_2018a import sunonsurface_2018a
+
 # import matplotlib.pyplot as plt
 
 
-def gvf_2018a(wallsun, walls, buildings, scale, shadow, first, second, dirwalls, Tg, Tgwall, Ta, emis_grid, ewall,
-              alb_grid, SBC, albedo_b, rows, cols, Twater, lc_grid, landcover):
-    azimuthA = np.arange(5, 359, 20)  # Search directions for Ground View Factors (GVF)
+def gvf_2018a(
+    wallsun,
+    walls,
+    buildings,
+    scale,
+    shadow,
+    first,
+    second,
+    dirwalls,
+    Tg,
+    Tgwall,
+    Ta,
+    emis_grid,
+    ewall,
+    alb_grid,
+    SBC,
+    albedo_b,
+    rows,
+    cols,
+    Twater,
+    lc_grid,
+    landcover,
+):
+    # Search directions for Ground View Factors (GVF)
+    azimuthA = np.arange(5, 359, 20)
 
     #### Ground View Factors ####
     gvfLup = np.zeros((rows, cols))
@@ -29,12 +52,28 @@ def gvf_2018a(wallsun, walls, buildings, scale, shadow, first, second, dirwalls,
     sunwall = (wallsun / walls * buildings) == 1  # new as from 2015a
 
     for j in np.arange(0, azimuthA.__len__()):
-        _, gvfLupi, gvfalbi, gvfalbnoshi, gvf2 = sunonsurface_2018a(azimuthA[j], scale, buildings, shadow, sunwall,
-                                                                    first,
-                                                                    second, dirwalls * np.pi / 180, walls, Tg, Tgwall,
-                                                                    Ta,
-                                                                    emis_grid, ewall, alb_grid, SBC, albedo_b, Twater,
-                                                                    lc_grid, landcover)
+        _, gvfLupi, gvfalbi, gvfalbnoshi, gvf2 = sunonsurface_2018a(
+            azimuthA[j],
+            scale,
+            buildings,
+            shadow,
+            sunwall,
+            first,
+            second,
+            dirwalls * np.pi / 180,
+            walls,
+            Tg,
+            Tgwall,
+            Ta,
+            emis_grid,
+            ewall,
+            alb_grid,
+            SBC,
+            albedo_b,
+            Twater,
+            lc_grid,
+            landcover,
+        )
 
         gvfLup = gvfLup + gvfLupi
         gvfalb = gvfalb + gvfalbi
@@ -65,10 +104,22 @@ def gvf_2018a(wallsun, walls, buildings, scale, shadow, first, second, dirwalls,
     gvfalb = gvfalb / azimuthA.__len__()
     gvfalbnosh = gvfalbnosh / azimuthA.__len__()
 
-    gvfLupE = gvfLupE / (azimuthA.__len__() / 2) + SBC * emis_grid * (Ta + 273.15) ** 4
-    gvfLupS = gvfLupS / (azimuthA.__len__() / 2) + SBC * emis_grid * (Ta + 273.15) ** 4
-    gvfLupW = gvfLupW / (azimuthA.__len__() / 2) + SBC * emis_grid * (Ta + 273.15) ** 4
-    gvfLupN = gvfLupN / (azimuthA.__len__() / 2) + SBC * emis_grid * (Ta + 273.15) ** 4
+    gvfLupE = (
+        gvfLupE / (azimuthA.__len__() / 2)
+        + SBC * emis_grid * (Ta + 273.15) ** 4
+    )
+    gvfLupS = (
+        gvfLupS / (azimuthA.__len__() / 2)
+        + SBC * emis_grid * (Ta + 273.15) ** 4
+    )
+    gvfLupW = (
+        gvfLupW / (azimuthA.__len__() / 2)
+        + SBC * emis_grid * (Ta + 273.15) ** 4
+    )
+    gvfLupN = (
+        gvfLupN / (azimuthA.__len__() / 2)
+        + SBC * emis_grid * (Ta + 273.15) ** 4
+    )
 
     gvfalbE = gvfalbE / (azimuthA.__len__() / 2)
     gvfalbS = gvfalbS / (azimuthA.__len__() / 2)
@@ -82,5 +133,23 @@ def gvf_2018a(wallsun, walls, buildings, scale, shadow, first, second, dirwalls,
 
     gvfNorm = gvfSum / (azimuthA.__len__())
     gvfNorm[buildings == 0] = 1
-    
-    return gvfLup, gvfalb, gvfalbnosh, gvfLupE, gvfalbE, gvfalbnoshE, gvfLupS, gvfalbS, gvfalbnoshS, gvfLupW, gvfalbW, gvfalbnoshW, gvfLupN, gvfalbN, gvfalbnoshN, gvfSum, gvfNorm
+
+    return (
+        gvfLup,
+        gvfalb,
+        gvfalbnosh,
+        gvfLupE,
+        gvfalbE,
+        gvfalbnoshE,
+        gvfLupS,
+        gvfalbS,
+        gvfalbnoshS,
+        gvfLupW,
+        gvfalbW,
+        gvfalbnoshW,
+        gvfLupN,
+        gvfalbN,
+        gvfalbnoshN,
+        gvfSum,
+        gvfNorm,
+    )

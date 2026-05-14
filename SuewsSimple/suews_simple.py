@@ -20,41 +20,39 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 from __future__ import print_function
 from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import range
-from builtins import object
-from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QThread
-from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
-from qgis.PyQt.QtGui import QIcon
-from qgis.core import Qgis
-from .suews_simple_dialog import SuewsSimpleDialog
-from ..suewsmodel import suews_wrapper
-from ..ImageMorphParmsPoint.imagemorphparmspoint_v1 import ImageMorphParmsPoint
-from ..LandCoverFractionPoint.landcover_fraction_point import LandCoverFractionPoint
-from ..suews_prepare_database.Utilities.db_functions import leaf_cycle_dict
-from ..Utilities import f90nml
-from ..Utilities.misc import get_resolution_from_umep_forcing
-import numpy as np
-import shutil
-import os.path
-import webbrowser
-import sys
-import yaml
 from pathlib import Path
-import time
+import yaml
+import sys
+import webbrowser
+import os.path
+import shutil
+import numpy as np
+from ..Utilities.misc import get_resolution_from_umep_forcing
+from ..Utilities import f90nml
+from ..suews_prepare_database.Utilities.db_functions import leaf_cycle_dict
+from ..suewsmodel import suews_wrapper
+from .suews_simple_dialog import SuewsSimpleDialog
+from qgis.core import Qgis
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from builtins import object
+from builtins import range
+from builtins import str
+from future import standard_library
+
+standard_library.install_aliases()
 # from .suewssimpleworker import Worker
 # from ..suewsmodel import suewstask
 
 try:
-    import matplotlib.pyplot as plt
     nomatplot = 0
 except ImportError:
     nomatplot = 1
-    pass
+
 
 class SuewsSimple(object):
     """QGIS Plugin Implementation."""
@@ -65,17 +63,16 @@ class SuewsSimple(object):
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'SuewsSimple_{}.qm'.format(locale))
+            self.plugin_dir, "i18n", "SuewsSimple_{}.qm".format(locale)
+        )
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
 
-            if qVersion() > '4.3.3':
+            if qVersion() > "4.3.3":
                 QCoreApplication.installTranslator(self.translator)
 
         # Create the dialog (after translation) and keep reference
@@ -112,18 +109,20 @@ class SuewsSimple(object):
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&Suews Simple')
+        self.menu = self.tr("&Suews Simple")
 
-        self.model_dir = os.path.normpath(self.plugin_dir + os.sep + os.pardir + os.sep + 'suewsmodel')
+        self.model_dir = os.path.normpath(
+            self.plugin_dir + os.sep + os.pardir + os.sep + "suewsmodel"
+        )
         # sys.path.append(self.model_dir)
 
-        if not (os.path.isdir(self.model_dir + '/Input')):
-            os.mkdir(self.model_dir + '/Input')
+        if not (os.path.isdir(self.model_dir + "/Input")):
+            os.mkdir(self.model_dir + "/Input")
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('SuewsSimple', message)
+        return QCoreApplication.translate("SuewsSimple", message)
 
     def add_action(
         self,
@@ -135,7 +134,8 @@ class SuewsSimple(object):
         add_to_toolbar=True,
         status_tip=None,
         whats_this=None,
-        parent=None):
+        parent=None,
+    ):
 
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
@@ -152,9 +152,7 @@ class SuewsSimple(object):
             self.toolbar.addAction(action)
 
         if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action)
+            self.iface.addPluginToMenu(self.menu, action)
 
         self.actions.append(action)
 
@@ -162,19 +160,18 @@ class SuewsSimple(object):
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
-        icon_path = ':/plugins/SuewsSimple/icon.png'
+        icon_path = ":/plugins/SuewsSimple/icon.png"
         self.add_action(
             icon_path,
-            text=self.tr(u'SUEWS (simple)'),
+            text=self.tr("SUEWS (simple)"),
             callback=self.run,
-            parent=self.iface.mainWindow())
+            parent=self.iface.mainWindow(),
+        )
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
-            self.iface.removePluginMenu(
-                self.tr(u'&Suews Simple'),
-                action)
+            self.iface.removePluginMenu(self.tr("&Suews Simple"), action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
         del self.toolbar
@@ -182,34 +179,44 @@ class SuewsSimple(object):
     def run(self):
 
         try:
-            import supy
+            pass
         except Exception as e:
-            QMessageBox.critical(None, 'SuPy library missing', 'This plugin requires the supy package to be installed OR upgraded. '
-                                                'See Section 2.3 in the UMEP-manual for further information on how ' 
-                                                'to install missing/external python packages in QGIS3.')
+            QMessageBox.critical(
+                None,
+                "SuPy library missing",
+                "This plugin requires the supy package to be installed OR upgraded. "
+                "See Section 2.3 in the UMEP-manual for further information on how "
+                "to install missing/external python packages in QGIS3.",
+            )
             return
 
         self.supylib = sys.modules["supy"].__path__[0]
-      
+
         self.dlg.show()
         self.dlg.exec()
 
     def IMCP(self):
-        QMessageBox.information(None, "Plugin moved",
+        QMessageBox.information(
+            None,
+            "Plugin moved",
             "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information."
-            " After variables are generated, fetch file to change settings in this panel.")
+            " After variables are generated, fetch file to change settings in this panel.",
+        )
 
     def LCFP(self):
-        QMessageBox.information(None, "Plugin moved",
+        QMessageBox.information(
+            None,
+            "Plugin moved",
             "This tool has moved to <b> UMEP for processing</b>, available via the QGIS Plugin Manager. Visit our online manual for more information."
-            " After variables are generated, fetch file to change settings in this panel.")
+            " After variables are generated, fetch file to change settings in this panel.",
+        )
 
     def folder_path(self):
         self.fileDialogOut.open()
         result = self.fileDialogOut.exec()
         if result == 1:
             self.folderPathOut = self.fileDialogOut.selectedFiles()
-            self.dlg.textOutput.setText(self.folderPathOut[0] + '/')
+            self.dlg.textOutput.setText(self.folderPathOut[0] + "/")
 
         self.dlg.runButton.setEnabled(True)
 
@@ -228,20 +235,30 @@ class SuewsSimple(object):
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             headernum = 1
-            delim = ' '
+            delim = " "
             try:
-                data = np.loadtxt(self.folderPath[0],skiprows=headernum, delimiter=delim)
+                data = np.loadtxt(
+                    self.folderPath[0], skiprows=headernum, delimiter=delim
+                )
             except:
-                QMessageBox.critical(self.dlg, "Import Error", "The file does not have the correct format")
+                QMessageBox.critical(
+                    self.dlg,
+                    "Import Error",
+                    "The file does not have the correct format",
+                )
                 return
             self.dlg.lineEdit_zHBuild.setText(str(data[2]))
             self.dlg.lineEdit_faiBuild.setText(str(data[1]))
             self.dlg.lineEdit_paiBuild.setText(str(data[0]))
             if self.dlg.pai_build.text():
                 if np.abs(float(self.dlg.pai_build.text()) - data[0]) > 0.01:
-                    self.iface.messageBar().pushMessage("Non-consistency warning", "A relatively large difference in "
-                    "building fraction between the DSM and the landcover grid was found: " + str(float(self.dlg.pai_build.text())
-                                - data[0]), level=Qgis.MessageLevel.Warning)
+                    self.iface.messageBar().pushMessage(
+                        "Non-consistency warning",
+                        "A relatively large difference in "
+                        "building fraction between the DSM and the landcover grid was found: "
+                        + str(float(self.dlg.pai_build.text()) - data[0]),
+                        level=Qgis.MessageLevel.Warning,
+                    )
 
     def import_file_IMPV(self):
         self.fileDialog.open()
@@ -249,20 +266,41 @@ class SuewsSimple(object):
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             headernum = 1
-            delim = ' '
+            delim = " "
             try:
-                data = np.loadtxt(self.folderPath[0],skiprows=headernum, delimiter=delim)
+                data = np.loadtxt(
+                    self.folderPath[0], skiprows=headernum, delimiter=delim
+                )
             except:
-                QMessageBox.critical(self.dlg, "Import Error", "The file does not have the correct format")
+                QMessageBox.critical(
+                    self.dlg,
+                    "Import Error",
+                    "The file does not have the correct format",
+                )
                 return
             self.dlg.lineEdit_zHveg.setText(str(data[2]))
             self.dlg.lineEdit_faiveg.setText(str(data[1]))
             self.dlg.lineEdit_paiveg.setText(str(data[0]))
             if self.dlg.pai_evergreen.text() or self.dlg.pai_decid.text():
-                if np.abs(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - data[0]) > 0.01:
-                    self.iface.messageBar().pushMessage("Non-consistency warning", "A relatively large difference in "
-                    "vegetation fraction between the canopy DSM and the landcover grid was found: " + str(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text())
-                                - data[0]), level=Qgis.MessageLevel.Warning)
+                if (
+                    np.abs(
+                        float(self.dlg.pai_decid.text())
+                        + float(self.dlg.pai_evergreen.text())
+                        - data[0]
+                    )
+                    > 0.01
+                ):
+                    self.iface.messageBar().pushMessage(
+                        "Non-consistency warning",
+                        "A relatively large difference in "
+                        "vegetation fraction between the canopy DSM and the landcover grid was found: "
+                        + str(
+                            float(self.dlg.pai_decid.text())
+                            + float(self.dlg.pai_evergreen.text())
+                            - data[0]
+                        ),
+                        level=Qgis.MessageLevel.Warning,
+                    )
 
     def import_file_LCFP(self):
         self.fileDialog.open()
@@ -270,11 +308,17 @@ class SuewsSimple(object):
         if result == 1:
             self.folderPath = self.fileDialog.selectedFiles()
             headernum = 1
-            delim = ' '
+            delim = " "
             try:
-                data = np.loadtxt(self.folderPath[0],skiprows=headernum, delimiter=delim)
+                data = np.loadtxt(
+                    self.folderPath[0], skiprows=headernum, delimiter=delim
+                )
             except:
-                QMessageBox.critical(self.dlg, "Import Error", "The file does not have the correct format")
+                QMessageBox.critical(
+                    self.dlg,
+                    "Import Error",
+                    "The file does not have the correct format",
+                )
                 return
             self.dlg.pai_paved.setText(str(data[0]))
             self.dlg.pai_build.setText(str(data[1]))
@@ -284,13 +328,39 @@ class SuewsSimple(object):
             self.dlg.pai_baresoil.setText(str(data[5]))
             self.dlg.pai_water.setText(str(data[6]))
             if self.dlg.lineEdit_paiBuild.text():
-                if np.abs(float(self.dlg.lineEdit_paiBuild.text()) - data[1]) > 0.01:
-                    self.iface.messageBar().pushMessage("Non-consistency warning", "A relatively large difference in "
-                    "building fraction between the DSM and the landcover grid was found: " + str(float(self.dlg.lineEdit_paiBuild.text()) - data[1]), level=Qgis.MessageLevel.Warning)
+                if (
+                    np.abs(float(self.dlg.lineEdit_paiBuild.text()) - data[1])
+                    > 0.01
+                ):
+                    self.iface.messageBar().pushMessage(
+                        "Non-consistency warning",
+                        "A relatively large difference in "
+                        "building fraction between the DSM and the landcover grid was found: "
+                        + str(
+                            float(self.dlg.lineEdit_paiBuild.text()) - data[1]
+                        ),
+                        level=Qgis.MessageLevel.Warning,
+                    )
             if self.dlg.lineEdit_paiveg.text():
-                if np.abs(float(self.dlg.lineEdit_paiveg.text()) - data[2] - data[3]) > 0.01:
-                    self.iface.messageBar().pushMessage("Non-consistency warning", "A relatively large difference in "
-                    "vegetation fraction between the canopy DSM and the landcover grid was found: " + str(float(self.dlg.lineEdit_paiveg.text()) - data[2] - data[3]), level=Qgis.MessageLevel.Warning)
+                if (
+                    np.abs(
+                        float(self.dlg.lineEdit_paiveg.text())
+                        - data[2]
+                        - data[3]
+                    )
+                    > 0.01
+                ):
+                    self.iface.messageBar().pushMessage(
+                        "Non-consistency warning",
+                        "A relatively large difference in "
+                        "vegetation fraction between the canopy DSM and the landcover grid was found: "
+                        + str(
+                            float(self.dlg.lineEdit_paiveg.text())
+                            - data[2]
+                            - data[3]
+                        ),
+                        level=Qgis.MessageLevel.Warning,
+                    )
 
     # def import_initial(self):
     #     self.fileDialogInit.open()
@@ -314,35 +384,81 @@ class SuewsSimple(object):
 
     def set_default_settings(self):
 
-        with open(self.supylib + '/sample_data/sample_config.yml', 'r') as f:
+        with open(self.supylib + "/sample_data/sample_config.yml", "r") as f:
             yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
 
-        land_cover = yaml_dict['sites'][0]['properties']['land_cover']
+        land_cover = yaml_dict["sites"][0]["properties"]["land_cover"]
 
-        self.dlg.lineEdit_YYYY.setText(str(2012)) #response to issue #655 
-        self.dlg.pai_paved.setText(str(land_cover['paved']['sfr']['value']))
-        self.dlg.pai_build.setText(str(land_cover['bldgs']['sfr']['value']))
-        self.dlg.pai_evergreen.setText(str(land_cover['evetr']['sfr']['value']))
-        self.dlg.pai_decid.setText(str(land_cover['dectr']['sfr']['value']))
-        self.dlg.pai_grass.setText(str(land_cover['grass']['sfr']['value']))
-        self.dlg.pai_baresoil.setText(str(land_cover['bsoil']['sfr']['value']))
-        self.dlg.pai_water.setText(str(land_cover['water']['sfr']['value']))
-        self.dlg.lineEdit_zHBuild.setText(str(land_cover['bldgs']['bldgh']['value'])) #2020a: +4 cols from 20
-        self.dlg.lineEdit_faiBuild.setText(str(land_cover['bldgs']['faibldg']['value']))
-        self.dlg.lineEdit_paiBuild.setText(str(land_cover['bldgs']['sfr']['value']))
-        self.dlg.lineEdit_zHveg.setText(str((land_cover['evetr']['evetreeh']['value'] + land_cover['dectr']['dectreeh']['value']) / 2))
-        self.dlg.lineEdit_faiveg.setText(str((land_cover['evetr']['faievetree']['value'] + land_cover['dectr']['faidectree']['value']) / 2))
-        self.dlg.lineEdit_paiveg.setText(str((land_cover['evetr']['sfr']['value'] + land_cover['dectr']['sfr']['value'])))
-        self.dlg.Latitude.setText(str(yaml_dict['sites'][0]['properties']['lat']['value']))
-        self.dlg.Longitude.setText(str(yaml_dict['sites'][0]['properties']['lng']['value']))
-        self.dlg.PopDensNight.setText(str(yaml_dict['sites'][0]['properties']['anthropogenic_emissions']['heat']['popdensnighttime']))
-        self.dlg.Height.setText(str(yaml_dict['sites'][0]['properties']['z']['value']))
+        self.dlg.lineEdit_YYYY.setText(str(2012))  # response to issue #655
+        self.dlg.pai_paved.setText(str(land_cover["paved"]["sfr"]["value"]))
+        self.dlg.pai_build.setText(str(land_cover["bldgs"]["sfr"]["value"]))
+        self.dlg.pai_evergreen.setText(
+            str(land_cover["evetr"]["sfr"]["value"])
+        )
+        self.dlg.pai_decid.setText(str(land_cover["dectr"]["sfr"]["value"]))
+        self.dlg.pai_grass.setText(str(land_cover["grass"]["sfr"]["value"]))
+        self.dlg.pai_baresoil.setText(str(land_cover["bsoil"]["sfr"]["value"]))
+        self.dlg.pai_water.setText(str(land_cover["water"]["sfr"]["value"]))
+        self.dlg.lineEdit_zHBuild.setText(
+            # 2020a: +4 cols from 20
+            str(land_cover["bldgs"]["bldgh"]["value"])
+        )
+        self.dlg.lineEdit_faiBuild.setText(
+            str(land_cover["bldgs"]["faibldg"]["value"])
+        )
+        self.dlg.lineEdit_paiBuild.setText(
+            str(land_cover["bldgs"]["sfr"]["value"])
+        )
+        self.dlg.lineEdit_zHveg.setText(
+            str(
+                (
+                    land_cover["evetr"]["evetreeh"]["value"]
+                    + land_cover["dectr"]["dectreeh"]["value"]
+                )
+                / 2
+            )
+        )
+        self.dlg.lineEdit_faiveg.setText(
+            str(
+                (
+                    land_cover["evetr"]["faievetree"]["value"]
+                    + land_cover["dectr"]["faidectree"]["value"]
+                )
+                / 2
+            )
+        )
+        self.dlg.lineEdit_paiveg.setText(
+            str(
+                (
+                    land_cover["evetr"]["sfr"]["value"]
+                    + land_cover["dectr"]["sfr"]["value"]
+                )
+            )
+        )
+        self.dlg.Latitude.setText(
+            str(yaml_dict["sites"][0]["properties"]["lat"]["value"])
+        )
+        self.dlg.Longitude.setText(
+            str(yaml_dict["sites"][0]["properties"]["lng"]["value"])
+        )
+        self.dlg.PopDensNight.setText(
+            str(
+                yaml_dict["sites"][0]["properties"]["anthropogenic_emissions"][
+                    "heat"
+                ]["popdensnighttime"]
+            )
+        )
+        self.dlg.Height.setText(
+            str(yaml_dict["sites"][0]["properties"]["z"]["value"])
+        )
         self.dlg.comboBoxLeafCycle.setCurrentIndex(1)
 
-        self.dlg.UTC.setText('0')
+        self.dlg.UTC.setText("0")
 
-        self.dlg.textInputMetdata.setText(self.supylib + '/sample_data/Kc_2012_data_60.txt') #response to issue #655 
-        self.dlg.textOutput.setText(self.model_dir  + '/Output/')
+        self.dlg.textInputMetdata.setText(
+            self.supylib + "/sample_data/Kc_2012_data_60.txt"
+        )  # response to issue #655
+        self.dlg.textOutput.setText(self.model_dir + "/Output/")
         self.dlg.spinBoxSoilMoisture.setValue(100)
 
         self.dlg.runButton.setEnabled(True)
@@ -350,24 +466,56 @@ class SuewsSimple(object):
     def start_progress(self):
 
         try:
-            import matplotlib.pyplot
-        except ImportError:
             pass
-            self.iface.messageBar().pushMessage("Unable to import Matplotlib module. Plots will not be produced",
-                                                "Visit UMEP webpage for installation instructions.", level=Qgis.MessageLevel.Warning)
+        except ImportError:
+            self.iface.messageBar().pushMessage(
+                "Unable to import Matplotlib module. Plots will not be produced",
+                "Visit UMEP webpage for installation instructions.",
+                level=Qgis.MessageLevel.Warning,
+            )
         # Checking consistency between fractions
-        if np.abs(float(self.dlg.pai_build.text()) - float(self.dlg.lineEdit_paiBuild.text())) > 0.05:
-            QMessageBox.critical(self.dlg, "Non-consistency Error", "A relatively large difference in "
-                "building fraction between the DSM and the landcover grid was found: " + str(float(self.dlg.pai_build.text()) - float(self.dlg.lineEdit_paiBuild.text())))
+        if (
+            np.abs(
+                float(self.dlg.pai_build.text())
+                - float(self.dlg.lineEdit_paiBuild.text())
+            )
+            > 0.05
+        ):
+            QMessageBox.critical(
+                self.dlg,
+                "Non-consistency Error",
+                "A relatively large difference in "
+                "building fraction between the DSM and the landcover grid was found: "
+                + str(
+                    float(self.dlg.pai_build.text())
+                    - float(self.dlg.lineEdit_paiBuild.text())
+                ),
+            )
             return
-        if np.abs(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - float(self.dlg.lineEdit_paiveg.text())) > 0.05:
-            QMessageBox.critical(self.dlg, "Non-consistency Error", "A relatively large difference in "
-                "tree fraction between the Vegetation DSM and the landcover grid was found: " + str(float(self.dlg.pai_decid.text()) + float(self.dlg.pai_evergreen.text()) - float(self.dlg.lineEdit_paiveg.text())))
+        if (
+            np.abs(
+                float(self.dlg.pai_decid.text())
+                + float(self.dlg.pai_evergreen.text())
+                - float(self.dlg.lineEdit_paiveg.text())
+            )
+            > 0.05
+        ):
+            QMessageBox.critical(
+                self.dlg,
+                "Non-consistency Error",
+                "A relatively large difference in "
+                "tree fraction between the Vegetation DSM and the landcover grid was found: "
+                + str(
+                    float(self.dlg.pai_decid.text())
+                    + float(self.dlg.pai_evergreen.text())
+                    - float(self.dlg.lineEdit_paiveg.text())
+                ),
+            )
             return
 
-        #Response to issue #617
+        # Response to issue #617
         try:
-            shutil.rmtree(self.model_dir + '/Output')
+            shutil.rmtree(self.model_dir + "/Output")
         except:
             pass
 
@@ -394,14 +542,36 @@ class SuewsSimple(object):
         z = self.dlg.Height.text()
 
         # Checking LC fractions = 1
-        LCtest = float(pai_paved) + float(pai_build) + float(pai_evergreen) + float(pai_decid) + float(pai_grass) + float(pai_baresoil) + float(pai_water)
-        if np.abs(LCtest - 1.) > 0.03:
-            QMessageBox.critical(self.dlg, "Non-consistency Error", "Sum of Land cover fraction is too far (3 %) from 1"
-                                                                                   " (" + str(LCtest) + ")")
+        LCtest = (
+            float(pai_paved)
+            + float(pai_build)
+            + float(pai_evergreen)
+            + float(pai_decid)
+            + float(pai_grass)
+            + float(pai_baresoil)
+            + float(pai_water)
+        )
+        if np.abs(LCtest - 1.0) > 0.03:
+            QMessageBox.critical(
+                self.dlg,
+                "Non-consistency Error",
+                "Sum of Land cover fraction is too far (3 %) from 1"
+                " (" + str(LCtest) + ")",
+            )
             return
 
         # adjust lc to 1 (work around)
-        arr = np.array([float(pai_paved), float(pai_build), float(pai_evergreen), float(pai_decid), float(pai_grass), float(pai_baresoil), float(pai_water)])
+        arr = np.array(
+            [
+                float(pai_paved),
+                float(pai_build),
+                float(pai_evergreen),
+                float(pai_decid),
+                float(pai_grass),
+                float(pai_baresoil),
+                float(pai_water),
+            ]
+        )
         if LCtest != 1.0:
             diff = LCtest - 1.0
             print(diff)
@@ -428,12 +598,12 @@ class SuewsSimple(object):
             if index == 6:
                 pai_water = arr[index]
 
-        with open(self.supylib + '/sample_data/sample_config.yml', 'r') as f:
+        with open(self.supylib + "/sample_data/sample_config.yml", "r") as f:
             yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
 
         # land_cover = yaml_dict['sites'][0]['properties']['land_cover']
 
-        # self.dlg.lineEdit_YYYY.setText(str(2012)) #response to issue #655 
+        # self.dlg.lineEdit_YYYY.setText(str(2012)) #response to issue #655
         # self.dlg.pai_paved.setText(str(land_cover['paved']['sfr']['value']))
         # self.dlg.pai_build.setText(str(land_cover['bldgs']['sfr']['value']))
         # self.dlg.pai_evergreen.setText(str(land_cover['evetr']['sfr']['value']))
@@ -454,29 +624,65 @@ class SuewsSimple(object):
         # self.dlg.comboBoxLeafCycle.setCurrentIndex(1)
 
         # newdata[1] = YYYY
-        yaml_dict['sites'][0]['properties']['lat']['value'] = float(lat)
-        yaml_dict['sites'][0]['properties']['lng']['value'] = float(lon)
-        yaml_dict['sites'][0]['properties']['timezone']['value'] = int(utc)
-        yaml_dict['sites'][0]['properties']['z']['value'] = float(z)
-        yaml_dict['sites'][0]['properties']['land_cover']['paved']['sfr']['value'] = float(pai_paved)
-        yaml_dict['sites'][0]['properties']['land_cover']['bldgs']['sfr']['value'] = float(pai_build)
-        yaml_dict['sites'][0]['properties']['land_cover']['evetr']['sfr']['value'] = float(pai_evergreen)
-        yaml_dict['sites'][0]['properties']['land_cover']['dectr']['sfr']['value'] = float(pai_decid)
-        yaml_dict['sites'][0]['properties']['land_cover']['grass']['sfr']['value'] = float(pai_grass)
-        yaml_dict['sites'][0]['properties']['land_cover']['bsoil']['sfr']['value'] = float(pai_baresoil)
-        yaml_dict['sites'][0]['properties']['land_cover']['water']['sfr']['value'] = float(pai_water)
-        yaml_dict['sites'][0]['properties']['land_cover']['bldgs']['bldgh']['value'] = float(zHBuild) #old 23
-        yaml_dict['sites'][0]['properties']['land_cover']['evetr']['evetreeh']['value'] = float(zHveg)
-        yaml_dict['sites'][0]['properties']['land_cover']['dectr']['dectreeh']['value'] = float(zHveg)
-        yaml_dict['sites'][0]['properties']['land_cover']['bldgs']['faibldg']['value'] = float(faiBuild) #old28
-        yaml_dict['sites'][0]['properties']['land_cover']['evetr']['faievetree']['value'] = float(faiveg)
-        yaml_dict['sites'][0]['properties']['land_cover']['dectr']['faidectree']['value'] = float(faiveg)
-        yaml_dict['sites'][0]['properties']['anthropogenic_emissions']['heat']['popdensnighttime'] = float(popdens)
-        yaml_dict['sites'][0]['properties']['anthropogenic_emissions']['heat']['popdensdaytime']['working_day'] = float(popdens)
-        yaml_dict['sites'][0]['properties']['anthropogenic_emissions']['heat']['popdensdaytime']['holiday'] = float(popdens)
+        yaml_dict["sites"][0]["properties"]["lat"]["value"] = float(lat)
+        yaml_dict["sites"][0]["properties"]["lng"]["value"] = float(lon)
+        yaml_dict["sites"][0]["properties"]["timezone"]["value"] = int(utc)
+        yaml_dict["sites"][0]["properties"]["z"]["value"] = float(z)
+        yaml_dict["sites"][0]["properties"]["land_cover"]["paved"]["sfr"][
+            "value"
+        ] = float(pai_paved)
+        yaml_dict["sites"][0]["properties"]["land_cover"]["bldgs"]["sfr"][
+            "value"
+        ] = float(pai_build)
+        yaml_dict["sites"][0]["properties"]["land_cover"]["evetr"]["sfr"][
+            "value"
+        ] = float(pai_evergreen)
+        yaml_dict["sites"][0]["properties"]["land_cover"]["dectr"]["sfr"][
+            "value"
+        ] = float(pai_decid)
+        yaml_dict["sites"][0]["properties"]["land_cover"]["grass"]["sfr"][
+            "value"
+        ] = float(pai_grass)
+        yaml_dict["sites"][0]["properties"]["land_cover"]["bsoil"]["sfr"][
+            "value"
+        ] = float(pai_baresoil)
+        yaml_dict["sites"][0]["properties"]["land_cover"]["water"]["sfr"][
+            "value"
+        ] = float(pai_water)
+        yaml_dict["sites"][0]["properties"]["land_cover"]["bldgs"]["bldgh"][
+            "value"
+        ] = float(
+            zHBuild
+        )  # old 23
+        yaml_dict["sites"][0]["properties"]["land_cover"]["evetr"]["evetreeh"][
+            "value"
+        ] = float(zHveg)
+        yaml_dict["sites"][0]["properties"]["land_cover"]["dectr"]["dectreeh"][
+            "value"
+        ] = float(zHveg)
+        yaml_dict["sites"][0]["properties"]["land_cover"]["bldgs"]["faibldg"][
+            "value"
+        ] = float(
+            faiBuild
+        )  # old28
+        yaml_dict["sites"][0]["properties"]["land_cover"]["evetr"][
+            "faievetree"
+        ]["value"] = float(faiveg)
+        yaml_dict["sites"][0]["properties"]["land_cover"]["dectr"][
+            "faidectree"
+        ]["value"] = float(faiveg)
+        yaml_dict["sites"][0]["properties"]["anthropogenic_emissions"]["heat"][
+            "popdensnighttime"
+        ] = float(popdens)
+        yaml_dict["sites"][0]["properties"]["anthropogenic_emissions"]["heat"][
+            "popdensdaytime"
+        ]["working_day"] = float(popdens)
+        yaml_dict["sites"][0]["properties"]["anthropogenic_emissions"]["heat"][
+            "popdensdaytime"
+        ]["holiday"] = float(popdens)
 
-        if (faiBuild == -999.0 or faiveg == -999.0):
-            yaml_dict['model']['physics']['roughlenmommethod'] = 3
+        if faiBuild == -999.0 or faiveg == -999.0:
+            yaml_dict["model"]["physics"]["roughlenmommethod"] = 3
 
         # Plots or not
         if self.dlg.checkBoxPlots.isChecked():
@@ -484,34 +690,51 @@ class SuewsSimple(object):
         else:
             plot = 0
 
-        plotnml = f90nml.read(self.model_dir + '/plot.nml')
-        plotnml['plot']['plotbasic'] = plot
-        plotnml['plot']['plotmonthlystat'] = plot
+        plotnml = f90nml.read(self.model_dir + "/plot.nml")
+        plotnml["plot"]["plotbasic"] = plot
+        plotnml["plot"]["plotmonthlystat"] = plot
         # plotnml['plot']['plotforcing'] = plotforcing
-        plotnml.write(self.model_dir + '/plot.nml', force=True)
+        plotnml.write(self.model_dir + "/plot.nml", force=True)
 
         inmetfile = self.dlg.textInputMetdata.text()
         outfolder = self.dlg.textOutput.text()
 
-        resolutionfilesin =  get_resolution_from_umep_forcing(inmetfile)
+        resolutionfilesin = get_resolution_from_umep_forcing(inmetfile)
 
-        runmetfile = self.model_dir + '/Input/' + str(filecode) + '_' + self.dlg.lineEdit_YYYY.text() + '_data_' + str(int(resolutionfilesin / 60)) + '.txt'
-        
+        runmetfile = (
+            self.model_dir
+            + "/Input/"
+            + str(filecode)
+            + "_"
+            + self.dlg.lineEdit_YYYY.text()
+            + "_data_"
+            + str(int(resolutionfilesin / 60))
+            + ".txt"
+        )
+
         try:
             shutil.copy(inmetfile, runmetfile)
         except:
             os.remove(inmetfile)
             shutil.copy(inmetfile, runmetfile)
 
-        yaml_dict['model']['control']['forcing_file']['value'] = runmetfile
+        yaml_dict["model"]["control"]["forcing_file"]["value"] = runmetfile
 
-        #response to issue #198
-        with open(runmetfile, 'r') as file: 
+        # response to issue #198
+        with open(runmetfile, "r") as file:
             first_line = file.readline()
             first_line = file.readline()
             split = first_line.split()
-            if int(split[1]) == 1 and int(split[2]) == 0 and int(split[3]) == 0:
-                QMessageBox.critical(self.dlg, "Error in Meteorological file", "First line of meteorological data is not representing chosen year but year before.")
+            if (
+                int(split[1]) == 1
+                and int(split[2]) == 0
+                and int(split[3]) == 0
+            ):
+                QMessageBox.critical(
+                    self.dlg,
+                    "Error in Meteorological file",
+                    "First line of meteorological data is not representing chosen year but year before.",
+                )
                 return
 
         LeafCycle = self.dlg.comboBoxLeafCycle.currentIndex()
@@ -520,77 +743,133 @@ class SuewsSimple(object):
 
         initial_states = leaf_cycle_dict[LeafCycle]
 
-        surf = 'evetr'
-        yaml_dict['sites'][0]['initial_states'][surf]['alb_id']['value'] = initial_states['albEveTr0']
-        yaml_dict['sites'][0]['initial_states'][surf]['lai_id']['value'] = initial_states['laiinitialevetr']
-        yaml_dict['sites'][0]['initial_states'][surf]['gdd_id']['value'] = initial_states['gdd_1_0']
-        yaml_dict['sites'][0]['initial_states'][surf]['sdd_id']['value'] = initial_states['gdd_2_0']
-        surf = 'dectr' 
-        yaml_dict['sites'][0]['initial_states'][surf]['alb_id']['value'] = initial_states['albDecTr0']
-        yaml_dict['sites'][0]['initial_states'][surf]['lai_id']['value'] = initial_states['laiinitialdectr']
-        yaml_dict['sites'][0]['initial_states'][surf]['gdd_id']['value'] = initial_states['gdd_1_0']
-        yaml_dict['sites'][0]['initial_states'][surf]['sdd_id']['value'] = initial_states['gdd_2_0']
-        yaml_dict['sites'][0]['initial_states'][surf]['porosity_id']['value'] = initial_states['porosity0']
-        yaml_dict['sites'][0]['initial_states'][surf]['decidcap_id']['value'] = initial_states['decidCap0']
-        surf = 'grass'
-        yaml_dict['sites'][0]['initial_states'][surf]['alb_id']['value'] = initial_states['albGrass0']
-        yaml_dict['sites'][0]['initial_states'][surf]['lai_id']['value'] = initial_states['laiinitialgrass']
-        yaml_dict['sites'][0]['initial_states'][surf]['gdd_id']['value'] = initial_states['gdd_1_0']
-        yaml_dict['sites'][0]['initial_states'][surf]['sdd_id']['value'] = initial_states['gdd_2_0']
+        surf = "evetr"
+        yaml_dict["sites"][0]["initial_states"][surf]["alb_id"]["value"] = (
+            initial_states["albEveTr0"]
+        )
+        yaml_dict["sites"][0]["initial_states"][surf]["lai_id"]["value"] = (
+            initial_states["laiinitialevetr"]
+        )
+        yaml_dict["sites"][0]["initial_states"][surf]["gdd_id"]["value"] = (
+            initial_states["gdd_1_0"]
+        )
+        yaml_dict["sites"][0]["initial_states"][surf]["sdd_id"]["value"] = (
+            initial_states["gdd_2_0"]
+        )
+        surf = "dectr"
+        yaml_dict["sites"][0]["initial_states"][surf]["alb_id"]["value"] = (
+            initial_states["albDecTr0"]
+        )
+        yaml_dict["sites"][0]["initial_states"][surf]["lai_id"]["value"] = (
+            initial_states["laiinitialdectr"]
+        )
+        yaml_dict["sites"][0]["initial_states"][surf]["gdd_id"]["value"] = (
+            initial_states["gdd_1_0"]
+        )
+        yaml_dict["sites"][0]["initial_states"][surf]["sdd_id"]["value"] = (
+            initial_states["gdd_2_0"]
+        )
+        yaml_dict["sites"][0]["initial_states"][surf]["porosity_id"][
+            "value"
+        ] = initial_states["porosity0"]
+        yaml_dict["sites"][0]["initial_states"][surf]["decidcap_id"][
+            "value"
+        ] = initial_states["decidCap0"]
+        surf = "grass"
+        yaml_dict["sites"][0]["initial_states"][surf]["alb_id"]["value"] = (
+            initial_states["albGrass0"]
+        )
+        yaml_dict["sites"][0]["initial_states"][surf]["lai_id"]["value"] = (
+            initial_states["laiinitialgrass"]
+        )
+        yaml_dict["sites"][0]["initial_states"][surf]["gdd_id"]["value"] = (
+            initial_states["gdd_1_0"]
+        )
+        yaml_dict["sites"][0]["initial_states"][surf]["sdd_id"]["value"] = (
+            initial_states["gdd_2_0"]
+        )
 
-        yaml_dict['model']['control']['output_file'] = outfolder
+        yaml_dict["model"]["control"]["output_file"] = outfolder
 
-        yaml_dict['sites'][0]['name'] = filecode
+        yaml_dict["sites"][0]["name"] = filecode
 
-        with open(self.model_dir + f'/Input/{filecode}_suews_simple.yml', 'w') as file:
-            yaml.dump(yaml_dict, file, sort_keys = False)
-       
-        # TODO Set moisture       
+        with open(
+            self.model_dir + f"/Input/{filecode}_suews_simple.yml", "w"
+        ) as file:
+            yaml.dump(yaml_dict, file, sort_keys=False)
+
+        # TODO Set moisture
         # for surf in ['paved', 'bldgs', 'evetr', 'dectr', 'grass','bsoil','water']:
         #      yaml_dict['sites'][0]['initial_states'][surf][f'']
 
-                # TODO: Put suews in a worker or a QgsTask. Task is working but no correct message when model is finished.
+        # TODO: Put suews in a worker or a QgsTask. Task is working but no correct message when model is finished.
         # self.startWorker(self.iface, self.model_dir, self.dlg)
 
-        #suews_wrapper.wrapper(self.model_dir, self.iface, year=YYYY)
-        if QMessageBox.question(None, "Model information", "Model run will now start. "
-                                                            "QGIS might freeze during calculation."
-                                                            "\r\n"
-                                                            "\r\n"
-                                                            "This will hopefully be fixed in future versions."
-                                                            "\r\n"
-                                                            "\r\n"
-                                                            "Do you want to contiune?",
-                                QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) == QMessageBox.StandardButton.Ok:
-            #self.iface.mainWindow()
-            suews_wrapper.wrapper(self.model_dir, plot, filecode) #For testing
+        # suews_wrapper.wrapper(self.model_dir, self.iface, year=YYYY)
+        if (
+            QMessageBox.question(
+                None,
+                "Model information",
+                "Model run will now start. "
+                "QGIS might freeze during calculation."
+                "\r\n"
+                "\r\n"
+                "This will hopefully be fixed in future versions."
+                "\r\n"
+                "\r\n"
+                "Do you want to contiune?",
+                QMessageBox.StandardButton.Ok
+                | QMessageBox.StandardButton.Cancel,
+            )
+            == QMessageBox.StandardButton.Ok
+        ):
+            # self.iface.mainWindow()
+            suews_wrapper.wrapper(
+                self.model_dir, plot, filecode
+            )  # For testing
             # time.sleep(0.5)
             try:
-                
-                #suews_wrapper.wrapper(self.model_dir, plot, filecode)
-                
-                QMessageBox.information(None, "Model run successful", "Model run finished")
-                
-                #copy yml-file to output folder
-                shutil.copy(self.model_dir + f'/Input/{filecode}_suews_simple.yml', outfolder + f'{filecode}_suews_simple.yml') # issue 782 
+
+                # suews_wrapper.wrapper(self.model_dir, plot, filecode)
+
+                QMessageBox.information(
+                    None, "Model run successful", "Model run finished"
+                )
+
+                # copy yml-file to output folder
+                shutil.copy(
+                    self.model_dir + f"/Input/{filecode}_suews_simple.yml",
+                    # issue 782
+                    outfolder + f"{filecode}_suews_simple.yml",
+                )
 
             except Exception as e:
-                QMessageBox.critical(self.dlg, "An error occurred", str(e) + "\r\n\r\n"
-                                "Check also: " + str(list(Path.cwd().glob('SuPy.log'))[0]) + "\r\n\r\n"
-                                "Please report any errors to https://github.com/UMEP-dev/UMEP/issues")
+                QMessageBox.critical(
+                    self.dlg,
+                    "An error occurred",
+                    str(e) + "\r\n\r\n"
+                    "Check also: "
+                    + str(list(Path.cwd().glob("SuPy.log"))[0])
+                    + "\r\n\r\n"
+                    "Please report any errors to https://github.com/UMEP-dev/UMEP/issues",
+                )
                 return
 
         else:
-            QMessageBox.critical(self.iface.mainWindow(), "Model termination", "Model calculation cancelled")
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Model termination",
+                "Model calculation cancelled",
+            )
             return
 
-        
     def help(self):
-        url = 'http://umep-docs.readthedocs.io/en/latest/processor/Urban%20Energy%20Balance%20Urban%20Energy%20' \
-              'Balance%20(SUEWS,%20simple).html'
+        url = (
+            "http://umep-docs.readthedocs.io/en/latest/processor/Urban%20Energy%20Balance%20Urban%20Energy%20"
+            "Balance%20(SUEWS,%20simple).html"
+        )
         webbrowser.open_new_tab(url)
 
-        
     # def write_to_init(self, initfilein, initfileout):
     #     LeafCycle = self.dlg.comboBoxLeafCycle.currentIndex()
     #     SoilMoisture = self.dlg.spinBoxSoilMoisture.value()
@@ -701,5 +980,3 @@ class SuewsSimple(object):
     #         nml['initialconditions']['porosity0'] = 0.2
 
     #     nml.write(initfileout, force=True)
-
-

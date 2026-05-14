@@ -90,6 +90,3 @@
 #         if not ((ed.month == 12) and (ed.day == 31)):
 #             if (ed + timedelta(1)) not in obj.yearContents[y].index:
 #                 obj.yearContents[y][endDate + timedelta(1)] = None
-
-
-

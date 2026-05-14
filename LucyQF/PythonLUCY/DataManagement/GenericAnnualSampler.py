@@ -414,4 +414,3 @@
 #             return list(endings) # There are gaps and here they are
 #         else:
 #             return False # no gaps
-

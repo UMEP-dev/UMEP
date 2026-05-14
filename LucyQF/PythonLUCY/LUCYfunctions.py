@@ -103,7 +103,7 @@
 #     :param profile: (float) Mean metabolic activity per person in area (Wm-2)
 #     :return: Qm (pd.Series): Metabolic heat flux for each local area in Wm-2
 #     '''
-#     Qm = population_density*profile # W/m^2 
+#     Qm = population_density*profile # W/m^2
 #     return Qm
 
 # def qb(params, energy_use, temperature, profile, BP_temperature, attribs):
@@ -164,4 +164,3 @@
 #         a = getTMF(te.getTemp(dt.to_datetime(), 3600)[0], 12, attribs)
 #         # fix_print_with_import
 #         print(a)
-

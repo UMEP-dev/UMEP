@@ -1,12 +1,10 @@
 from __future__ import absolute_import
-import traceback
 from qgis.PyQt import QtCore
-from qgis.PyQt.QtCore import QObject, pyqtSignal
 import logging
 import sys
 from pathlib import Path
 
-try: 
+try:
     import supy as sp
 except:
     pass
@@ -36,16 +34,22 @@ class Worker(QtCore.QObject):
             # sp.util.gen_forcing_era5(self.lat, self.lon, self.start_date, self.end_date, dir_save=self.folderPath)
             # print(self.folderPath)
 
-            logger_sp = logging.getLogger('SuPy')
+            logger_sp = logging.getLogger("SuPy")
             logger_sp.disabled = True
-            
-            sp.util.gen_forcing_era5(self.lat, self.lon, self.start_date, self.end_date, dir_save=Path(self.folderPath))
+
+            sp.util.gen_forcing_era5(
+                self.lat,
+                self.lon,
+                self.start_date,
+                self.end_date,
+                dir_save=Path(self.folderPath),
+            )
             ret = 1
         except Exception:
             ret = 0
             errorstring = self.print_exception()
             self.error.emit(errorstring)
-        
+
         self.finished.emit(ret)
 
     def kill(self):
@@ -58,5 +62,6 @@ class Worker(QtCore.QObject):
         filename = f.f_code.co_filename
         linecache.checkcache(filename)
         line = linecache.getline(filename, lineno, f.f_globals)
-        return 'EXCEPTION IN {}, \nLINE {} "{}" \nERROR MESSAGE: {}'.format(filename, lineno, line.strip(), exc_obj)
-
+        return 'EXCEPTION IN {}, \nLINE {} "{}" \nERROR MESSAGE: {}'.format(
+            filename, lineno, line.strip(), exc_obj
+        )

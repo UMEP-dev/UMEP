@@ -28,10 +28,18 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QThread
+
+from PyQt4.QtCore import (
+    QSettings,
+    QTranslator,
+    qVersion,
+    QCoreApplication,
+    QThread,
+)
 from PyQt4.QtGui import QAction, QIcon, QFileDialog, QMessageBox
 from qgis.gui import QgsMessageBar
 from qgis.core import QgsMessageLog
+
 # Initialize Qt resources from file resources.py
 # import resources
 # Import the code for the dialog
@@ -44,14 +52,13 @@ import numpy as np
 from sebeworker import Worker
 from SEBEfiles.Solweig_v2015_metdata_noload import Solweig_2015a_metdata_noload
 from SEBEfiles import pvmodel as pv
-from SEBEfiles import ParameterCombo as pc       # for PV model combobox
-from SEBEfiles.sunmapcreator_2016pv import sunmapcreator_2015a
+from SEBEfiles import ParameterCombo as pc  # for PV model combobox
 import webbrowser
 
 
 def valid_float(value):
-    """ Returns True if value can be converted to float,
-        otherwise returns False.
+    """Returns True if value can be converted to float,
+    otherwise returns False.
     """
     try:
         float(value)
@@ -77,22 +84,25 @@ class SEBEpv:
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'SEBE_{}.qm'.format(locale))
+            self.plugin_dir, "i18n", "SEBE_{}.qm".format(locale)
+        )
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
 
-            if qVersion() > '4.3.3':
+            if qVersion() > "4.3.3":
                 QCoreApplication.installTranslator(self.translator)
 
         # PV module parameters:
-        self.celltdata = self.plugin_dir + "/ModelParameters/temperature_model.txt"
-        self.pvdata = self.plugin_dir + "/ModelParameters/photovoltaic_model.txt"
+        self.celltdata = (
+            self.plugin_dir + "/ModelParameters/temperature_model.txt"
+        )
+        self.pvdata = (
+            self.plugin_dir + "/ModelParameters/photovoltaic_model.txt"
+        )
 
         # Create the dialog (after translation) and keep reference
         self.dlg = SEBEDialog()
@@ -111,31 +121,49 @@ class SEBEpv:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&SEBEpv - Photovoltaic Yield on Building Envelopes')
+        self.menu = self.tr(
+            "&SEBEpv - Photovoltaic Yield on Building Envelopes"
+        )
         # TODO: We are going to let the user set this up in a future iteration
         # self.toolbar = self.iface.addToolBar(u'SEBEpv')
         # self.toolbar.setObjectName(u'SEBEpv')
 
         self.layerComboManagerDSM = RasterLayerCombo(self.dlg.comboBox_dsm)
         RasterLayerCombo(self.dlg.comboBox_dsm, initLayer="")
-        self.layerComboManagerVEGDSM = RasterLayerCombo(self.dlg.comboBox_vegdsm)
+        self.layerComboManagerVEGDSM = RasterLayerCombo(
+            self.dlg.comboBox_vegdsm
+        )
         RasterLayerCombo(self.dlg.comboBox_vegdsm, initLayer="")
-        self.layerComboManagerVEGDSM2 = RasterLayerCombo(self.dlg.comboBox_vegdsm2)
+        self.layerComboManagerVEGDSM2 = RasterLayerCombo(
+            self.dlg.comboBox_vegdsm2
+        )
         RasterLayerCombo(self.dlg.comboBox_vegdsm2, initLayer="")
-        self.layerComboManagerWH = RasterLayerCombo(self.dlg.comboBox_wallheight)
+        self.layerComboManagerWH = RasterLayerCombo(
+            self.dlg.comboBox_wallheight
+        )
         RasterLayerCombo(self.dlg.comboBox_wallheight, initLayer="")
-        self.layerComboManagerWA = RasterLayerCombo(self.dlg.comboBox_wallaspect)
+        self.layerComboManagerWA = RasterLayerCombo(
+            self.dlg.comboBox_wallaspect
+        )
         RasterLayerCombo(self.dlg.comboBox_wallaspect, initLayer="")
 
         # PV model combobox:
         keys, params = pc.load_data(self.celltdata)
-        self.ComboPVmount = pc.ParametersCombo(self.dlg.comboPVmount, keys, params)
+        self.ComboPVmount = pc.ParametersCombo(
+            self.dlg.comboPVmount, keys, params
+        )
         keys, params = pc.load_data(self.pvdata)
-        self.ComboPVtech = pc.ParametersCombo(self.dlg.comboPVtech, keys, params)
-        self.dlg.linePnom.setText('1.')
+        self.ComboPVtech = pc.ParametersCombo(
+            self.dlg.comboPVtech, keys, params
+        )
+        self.dlg.linePnom.setText("1.")
 
-        self.dlg.comboPVmount.currentIndexChanged.connect(self.update_tempmodel_params)
-        self.dlg.comboPVtech.currentIndexChanged.connect(self.update_pvmodel_params)
+        self.dlg.comboPVmount.currentIndexChanged.connect(
+            self.update_tempmodel_params
+        )
+        self.dlg.comboPVtech.currentIndexChanged.connect(
+            self.update_pvmodel_params
+        )
 
         self.dlg.lineK1.editingFinished.connect(self.manual_pv_params)
         self.dlg.lineK2.editingFinished.connect(self.manual_pv_params)
@@ -177,8 +205,7 @@ class SEBEpv:
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('SEBEpv', message)
-
+        return QCoreApplication.translate("SEBEpv", message)
 
     def add_action(
         self,
@@ -190,7 +217,8 @@ class SEBEpv:
         add_to_toolbar=True,
         status_tip=None,
         whats_this=None,
-        parent=None):
+        parent=None,
+    ):
 
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
@@ -207,9 +235,7 @@ class SEBEpv:
             self.toolbar.addAction(action)
 
         if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action)
+            self.iface.addPluginToMenu(self.menu, action)
 
         self.actions.append(action)
 
@@ -217,19 +243,21 @@ class SEBEpv:
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
-        icon_path = ':/plugins/SEBEpv/icon.png'
+        icon_path = ":/plugins/SEBEpv/icon.png"
         self.add_action(
             icon_path,
-            text=self.tr(u'Photovoltaic Yield on Building Envelopes'),
+            text=self.tr("Photovoltaic Yield on Building Envelopes"),
             callback=self.run,
-            parent=self.iface.mainWindow())
+            parent=self.iface.mainWindow(),
+        )
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr(u'&SEBEpv - Photovoltaic Yield on Building Envelopes'),
-                action)
+                self.tr("&SEBEpv - Photovoltaic Yield on Building Envelopes"),
+                action,
+            )
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
         del self.toolbar
@@ -249,53 +277,89 @@ class SEBEpv:
             self.folderPathMetdata = self.fileDialogFile.selectedFiles()
             self.dlg.textInputMetdata.setText(self.folderPathMetdata[0])
             headernum = 1
-            delim = ' '
+            delim = " "
 
             try:
-                self.metdata = np.loadtxt(self.folderPathMetdata[0],skiprows=headernum, delimiter=delim)
+                self.metdata = np.loadtxt(
+                    self.folderPathMetdata[0],
+                    skiprows=headernum,
+                    delimiter=delim,
+                )
             except:
-                QMessageBox.critical(None, "Import Error", "Make sure format of meteorological file is correct. You can"
-                                                           "prepare your data by using 'Prepare Existing Data' in "
-                                                           "the Pre-processor")
+                QMessageBox.critical(
+                    None,
+                    "Import Error",
+                    "Make sure format of meteorological file is correct. You can"
+                    "prepare your data by using 'Prepare Existing Data' in "
+                    "the Pre-processor",
+                )
                 return
 
             # Test if short wave irradiation is within bounds:
-            testwhere = np.where((self.metdata[:, 14] < 0.0) | (self.metdata[:, 14] > 1300.0))
+            testwhere = np.where(
+                (self.metdata[:, 14] < 0.0) | (self.metdata[:, 14] > 1300.0)
+            )
             if testwhere[0].__len__() > 0:
-                QMessageBox.critical(None, "Value error", "Kdown - beyond what is expected at line: \n" +
-                                     str(testwhere[0] + 1))
+                QMessageBox.critical(
+                    None,
+                    "Value error",
+                    "Kdown - beyond what is expected at line: \n"
+                    + str(testwhere[0] + 1),
+                )
                 return
 
             # Test if ambient temperature is within bounds:
-            testwhere = np.where((self.metdata[:, 11] < -30.0) | (self.metdata[:, 11] > 55.0))
+            testwhere = np.where(
+                (self.metdata[:, 11] < -30.0) | (self.metdata[:, 11] > 55.0)
+            )
             if testwhere[0].__len__() > 0:
-                QMessageBox.critical(None, "Value error", "Air temperature - beyond what is expected at line:"
-                                                          " \n" + str(testwhere[0] + 1))
+                QMessageBox.critical(
+                    None,
+                    "Value error",
+                    "Air temperature - beyond what is expected at line:"
+                    " \n" + str(testwhere[0] + 1),
+                )
                 return
 
             # Test if wind speed is within bounds:
-            testwhere = np.where((self.metdata[:, 9] <= 0) | (self.metdata[:, 9] > 60.0))
+            testwhere = np.where(
+                (self.metdata[:, 9] <= 0) | (self.metdata[:, 9] > 60.0)
+            )
             if testwhere[0].__len__() > 0:
-                QMessageBox.critical(None, "Value error", "Wind speed - beyond what is expected at line:"
-                                                          " \n" + str(testwhere[0] + 1))
+                QMessageBox.critical(
+                    None,
+                    "Value error",
+                    "Wind speed - beyond what is expected at line:"
+                    " \n" + str(testwhere[0] + 1),
+                )
                 return
 
             if self.metdata.shape[1] == 24:
-                self.iface.messageBar().pushMessage("SEBEpv", "Meteorological data succefully loaded",
-                                                    level=QgsMessageBar.INFO, duration=3)
+                self.iface.messageBar().pushMessage(
+                    "SEBEpv",
+                    "Meteorological data succefully loaded",
+                    level=QgsMessageBar.INFO,
+                    duration=3,
+                )
             else:
-                QMessageBox.critical(None, "Import Error", "Wrong number of columns in meteorological data. You can "
-                                                           "prepare your data by using 'Prepare Existing Data' in "
-                                                           "the Pre-processor")
+                QMessageBox.critical(
+                    None,
+                    "Import Error",
+                    "Wrong number of columns in meteorological data. You can "
+                    "prepare your data by using 'Prepare Existing Data' in "
+                    "the Pre-processor",
+                )
                 return
 
     def save_radmat(self):
-        self.radmatfile = self.fileDialogFile.getSaveFileName(None, "Save File As:", None, "Text Files (*.txt)")
+        self.radmatfile = self.fileDialogFile.getSaveFileName(
+            None, "Save File As:", None, "Text Files (*.txt)"
+        )
         self.dlg.textOutputIrradience.setText(self.radmatfile)
 
     def set_default_pvmodel(self):
-        self.ComboPVmount.set_selection_index('Open rack cell polymerback')
-        self.ComboPVtech.set_selection_index('c-Si Huld')
+        self.ComboPVmount.set_selection_index("Open rack cell polymerback")
+        self.ComboPVtech.set_selection_index("c-Si Huld")
         self.dlg.linePnom.setText("1.")
         self.check_allparams_valid()
 
@@ -306,7 +370,7 @@ class SEBEpv:
             pass
         else:
             sender.setText("invalid number")
-        self.ComboPVtech.set_selection_index('')
+        self.ComboPVtech.set_selection_index("")
         self.check_allparams_valid()
 
     def manual_tmp_params(self):
@@ -316,7 +380,7 @@ class SEBEpv:
             pass
         else:
             sender.setText("invalid number")
-        self.ComboPVmount.set_selection_index('')
+        self.ComboPVmount.set_selection_index("")
         self.check_allparams_valid()
 
     def manual_pnom(self):
@@ -329,17 +393,18 @@ class SEBEpv:
         self.check_allparams_valid()
 
     def check_allparams_valid(self):
-        allvalues = [self.dlg.lineK1.text(),
-                     self.dlg.lineK2.text(),
-                     self.dlg.lineK3.text(),
-                     self.dlg.lineK4.text(),
-                     self.dlg.lineK5.text(),
-                     self.dlg.lineK6.text(),
-                     self.dlg.lineTempA.text(),
-                     self.dlg.lineTempB.text(),
-                     self.dlg.lineTempD.text(),
-                     self.dlg.linePnom.text()
-                     ]
+        allvalues = [
+            self.dlg.lineK1.text(),
+            self.dlg.lineK2.text(),
+            self.dlg.lineK3.text(),
+            self.dlg.lineK4.text(),
+            self.dlg.lineK5.text(),
+            self.dlg.lineK6.text(),
+            self.dlg.lineTempA.text(),
+            self.dlg.lineTempB.text(),
+            self.dlg.lineTempD.text(),
+            self.dlg.linePnom.text(),
+        ]
         if ("invalid number" in allvalues) or ("" in allvalues):
             self.dlg.runButton.setEnabled(0)
         else:
@@ -348,9 +413,11 @@ class SEBEpv:
     def update_pvmodel_params(self):
         self.ComboPVtech.changed_selection()
         try:
-            params = self.ComboPVtech.paramdict[self.ComboPVtech.get_current_item()]
+            params = self.ComboPVtech.paramdict[
+                self.ComboPVtech.get_current_item()
+            ]
         except KeyError:
-            pass   # ignore, as with manual edit key becomes ''.
+            pass  # ignore, as with manual edit key becomes ''.
         else:
             self.dlg.lineK1.setText(str(params[0]))
             self.dlg.lineK2.setText(str(params[1]))
@@ -363,18 +430,19 @@ class SEBEpv:
     def update_tempmodel_params(self):
         self.ComboPVmount.changed_selection()
         try:
-            params = self.ComboPVmount.paramdict[self.ComboPVmount.get_current_item()]
+            params = self.ComboPVmount.paramdict[
+                self.ComboPVmount.get_current_item()
+            ]
         except KeyError:
-            pass   # ignore, as with manual edit key becomes ''.
+            pass  # ignore, as with manual edit key becomes ''.
         else:
             self.dlg.lineTempA.setText(str(params[0]))
             self.dlg.lineTempB.setText(str(params[1]))
             self.dlg.lineTempD.setText(str(params[2]))
             self.check_allparams_valid()
 
-
     def start_progress(self):
-        self.dlg.progressBar.setRange(0, 145*len(self.metdata[:, 0]))
+        self.dlg.progressBar.setRange(0, 145 * len(self.metdata[:, 0]))
         if self.folderPath is None:
             QMessageBox.critical(None, "Error", "No output folder selected")
             return
@@ -382,8 +450,10 @@ class SEBEpv:
             dsmlayer = self.layerComboManagerDSM.getLayer()
 
             if dsmlayer is None:
-                    QMessageBox.critical(None, "Error", "No valid DSM raster layer is selected")
-                    return
+                QMessageBox.critical(
+                    None, "Error", "No valid DSM raster layer is selected"
+                )
+                return
 
             provider = dsmlayer.dataProvider()
             filepath_dsm = str(provider.dataSourceUri())
@@ -418,7 +488,11 @@ class SEBEpv:
             height = self.gdal_dsm.RasterYSize
             geotransform = self.gdal_dsm.GetGeoTransform()
             minx = geotransform[0]
-            miny = geotransform[3] + width*geotransform[4] + height*geotransform[5]
+            miny = (
+                geotransform[3]
+                + width * geotransform[4]
+                + height * geotransform[5]
+            )
             lonlat = transform.TransformPoint(minx, miny)
             lon = lonlat[0]
             lat = lonlat[1]
@@ -426,27 +500,44 @@ class SEBEpv:
             # self.iface.messageBar().pushMessage("SEBE", str(lonlat),level=QgsMessageBar.INFO)
 
             if (sizex * sizey) > 250000 and (sizex * sizey) <= 1000000:
-                QMessageBox.warning(None, "Semi lage grid", "This process will take a couple of minutes. "
-                                                            "Go and make yourself a cup of tea...")
+                QMessageBox.warning(
+                    None,
+                    "Semi lage grid",
+                    "This process will take a couple of minutes. "
+                    "Go and make yourself a cup of tea...",
+                )
 
             if (sizex * sizey) > 1000000 and (sizex * sizey) <= 4000000:
-                QMessageBox.warning(None, "Large grid", "This process will take some time. "
-                                                        "Go for lunch...")
+                QMessageBox.warning(
+                    None,
+                    "Large grid",
+                    "This process will take some time. " "Go for lunch...",
+                )
 
             if (sizex * sizey) > 4000000 and (sizex * sizey) <= 16000000:
-                QMessageBox.warning(None, "Very large grid", "This process will take a long time. "
-                                                             "Go for lunch and for a walk...")
+                QMessageBox.warning(
+                    None,
+                    "Very large grid",
+                    "This process will take a long time. "
+                    "Go for lunch and for a walk...",
+                )
 
             if (sizex * sizey) > 16000000:
-                QMessageBox.warning(None, "Huge grid", "This process will take a very long time. "
-                                                       "Go home for the weekend or consider to tile your grid")
+                QMessageBox.warning(
+                    None,
+                    "Huge grid",
+                    "This process will take a very long time. "
+                    "Go home for the weekend or consider to tile your grid",
+                )
 
             if self.dlg.checkBoxUseVeg.isChecked():
                 self.usevegdem = 1
                 self.vegdsm = self.layerComboManagerVEGDSM.getLayer()
 
                 if self.vegdsm is None:
-                    QMessageBox.critical(None, "Error", "No valid vegetation DSM selected")
+                    QMessageBox.critical(
+                        None, "Error", "No valid vegetation DSM selected"
+                    )
                     return
 
                 # load raster
@@ -460,14 +551,20 @@ class SEBEpv:
                 vegsizey = self.vegdsm.shape[1]
 
                 if not (vegsizex == sizex) & (vegsizey == sizey):  # &
-                    QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+                    QMessageBox.critical(
+                        None,
+                        "Error",
+                        "All grids must be of same extent and resolution",
+                    )
                     return
 
                 if self.dlg.checkBoxTrunkExist.isChecked():
                     self.vegdsm2 = self.layerComboManagerVEGDSM2.getLayer()
 
                     if self.vegdsm2 is None:
-                        QMessageBox.critical(None, "Error", "No valid trunk zone DSM selected")
+                        QMessageBox.critical(
+                            None, "Error", "No valid trunk zone DSM selected"
+                        )
                         return
 
                     # load raster
@@ -484,7 +581,11 @@ class SEBEpv:
                 vegsizey = self.vegdsm2.shape[1]
 
                 if not (vegsizex == sizex) & (vegsizey == sizey):  # &
-                    QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+                    QMessageBox.critical(
+                        None,
+                        "Error",
+                        "All grids must be of same extent and resolution",
+                    )
                     return
             else:
                 self.vegdsm = 0
@@ -500,43 +601,60 @@ class SEBEpv:
             else:
                 onlyglobal = 0
 
-            output = {'energymonth': 0, 'energyyear': 1, 'suitmap': 0}
+            output = {"energymonth": 0, "energyyear": 1, "suitmap": 0}
 
-             # wall height layer
+            # wall height layer
             whlayer = self.layerComboManagerWH.getLayer()
             if whlayer is None:
-                    QMessageBox.critical(None, "Error", "No valid wall height raster layer is selected")
-                    return
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "No valid wall height raster layer is selected",
+                )
+                return
             provider = whlayer.dataProvider()
-            filepath_wh= str(provider.dataSourceUri())
+            filepath_wh = str(provider.dataSourceUri())
             self.gdal_wh = gdal.Open(filepath_wh)
             self.wheight = self.gdal_wh.ReadAsArray().astype(float)
             vhsizex = self.wheight.shape[0]
             vhsizey = self.wheight.shape[1]
             if not (vhsizex == sizex) & (vhsizey == sizey):  # &
-                QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "All grids must be of same extent and resolution",
+                )
                 return
 
             # wall aspectlayer
             walayer = self.layerComboManagerWA.getLayer()
             if walayer is None:
-                    QMessageBox.critical(None, "Error", "No valid wall aspect raster layer is selected")
-                    return
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "No valid wall aspect raster layer is selected",
+                )
+                return
             provider = walayer.dataProvider()
-            filepath_wa= str(provider.dataSourceUri())
+            filepath_wa = str(provider.dataSourceUri())
             self.gdal_wa = gdal.Open(filepath_wa)
             self.waspect = self.gdal_wa.ReadAsArray().astype(float)
             vasizex = self.waspect.shape[0]
             vasizey = self.waspect.shape[1]
             if not (vasizex == sizex) & (vasizey == sizey):
-                QMessageBox.critical(None, "Error", "All grids must be of same extent and resolution")
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "All grids must be of same extent and resolution",
+                )
                 return
 
             # Prepare metdata
             alt = self.dsm.mean()
-            location = {'longitude': lon, 'latitude': lat, 'altitude': alt}
-            YYYY, altitude, azimuth, zen, jday, leafon, dectime, altmax = \
-                Solweig_2015a_metdata_noload(self.metdata,location, UTC)
+            location = {"longitude": lon, "latitude": lat, "altitude": alt}
+            YYYY, altitude, azimuth, zen, jday, leafon, dectime, altmax = (
+                Solweig_2015a_metdata_noload(self.metdata, location, UTC)
+            )
 
             building_slope, building_aspect = get_ders(self.dsm, self.scale)
             calc_month = False  # TODO: Month not implemented
@@ -545,42 +663,116 @@ class SEBEpv:
             pvmodel = pv.PhotovoltaicModel(self.pvdata)
             celltemp = pv.TemperatureModel(self.celltdata)
 
-            if self.ComboPVtech.get_current_item() != '':
+            if self.ComboPVtech.get_current_item() != "":
                 pvmodel.set_model(self.ComboPVtech.get_current_item())
                 pvmodel.set_peakpower(self.dlg.linePnom.text())
             else:
-                pvmodel.set_modelparams(self.dlg.linePnom.text(),
-                                        self.dlg.lineK1.text(),
-                                        self.dlg.lineK2.text(),
-                                        self.dlg.lineK3.text(),
-                                        self.dlg.lineK4.text(),
-                                        self.dlg.lineK5.text(),
-                                        self.dlg.lineK6.text())
-            if self.ComboPVmount.get_current_item() != '':
+                pvmodel.set_modelparams(
+                    self.dlg.linePnom.text(),
+                    self.dlg.lineK1.text(),
+                    self.dlg.lineK2.text(),
+                    self.dlg.lineK3.text(),
+                    self.dlg.lineK4.text(),
+                    self.dlg.lineK5.text(),
+                    self.dlg.lineK6.text(),
+                )
+            if self.ComboPVmount.get_current_item() != "":
                 celltemp.set_model(self.ComboPVmount.get_current_item())
             else:
-                celltemp.set_modelparams(self.dlg.lineTempA,
-                                         self.dlg.lineTempB,
-                                         self.dlg.lineTempD
-                                         )
+                celltemp.set_modelparams(
+                    self.dlg.lineTempA, self.dlg.lineTempB, self.dlg.lineTempD
+                )
 
-            self.startWorker(self.dsm, self.scale, building_slope, building_aspect, voxelheight, sizey, sizex,
-                             self.vegdsm, self.vegdsm2, self.wheight, self.waspect, albedo, psi,
-                             self.metdata, altitude, azimuth, onlyglobal, output, jday, location, zen,
-                             self.usevegdem, calc_month, self.dlg, pvmodel, celltemp)
+            self.startWorker(
+                self.dsm,
+                self.scale,
+                building_slope,
+                building_aspect,
+                voxelheight,
+                sizey,
+                sizex,
+                self.vegdsm,
+                self.vegdsm2,
+                self.wheight,
+                self.waspect,
+                albedo,
+                psi,
+                self.metdata,
+                altitude,
+                azimuth,
+                onlyglobal,
+                output,
+                jday,
+                location,
+                zen,
+                self.usevegdem,
+                calc_month,
+                self.dlg,
+                pvmodel,
+                celltemp,
+            )
 
     # here changes by MRevesz:
-    def startWorker(self, dsm, scale, building_slope, building_aspect, voxelheight, sizey, sizex,
-                    vegdsm, vegdsm2, wheight, waspect, albedo, psi,
-                    metdata, altitude, azimuth, onlyglobal, output, jday, location, zen,
-                    usevegdem, calc_month, dlg, pvm, tcel):
+    def startWorker(
+        self,
+        dsm,
+        scale,
+        building_slope,
+        building_aspect,
+        voxelheight,
+        sizey,
+        sizex,
+        vegdsm,
+        vegdsm2,
+        wheight,
+        waspect,
+        albedo,
+        psi,
+        metdata,
+        altitude,
+        azimuth,
+        onlyglobal,
+        output,
+        jday,
+        location,
+        zen,
+        usevegdem,
+        calc_month,
+        dlg,
+        pvm,
+        tcel,
+    ):
         # create a new worker instance
-        worker = Worker(dsm, scale, building_slope, building_aspect, voxelheight, sizey, sizex,
-                        vegdsm, vegdsm2, wheight, waspect, albedo, psi,
-                        metdata, altitude, azimuth, onlyglobal, output, jday, location, zen,
-                        usevegdem, calc_month, dlg, pvm, tcel)
+        worker = Worker(
+            dsm,
+            scale,
+            building_slope,
+            building_aspect,
+            voxelheight,
+            sizey,
+            sizex,
+            vegdsm,
+            vegdsm2,
+            wheight,
+            waspect,
+            albedo,
+            psi,
+            metdata,
+            altitude,
+            azimuth,
+            onlyglobal,
+            output,
+            jday,
+            location,
+            zen,
+            usevegdem,
+            calc_month,
+            dlg,
+            pvm,
+            tcel,
+        )
 
-        self.dlg.runButton.setText('Cancel')
+        self.dlg.runButton.setText("Cancel")
         self.dlg.runButton.clicked.disconnect()
         self.dlg.runButton.clicked.connect(worker.kill)
         self.dlg.pushButtonClose.setEnabled(False)
@@ -609,20 +801,36 @@ class SEBEpv:
             Energyyearwall = ret["PVEnergyyearwall"]
             vegdata = ret["vegdata"]
             # layer, total_area = ret
-            saveraster(self.gdal_dsm, self.folderPath[0] + '/dsm.tif', self.dsm)
-            filenameroof = self.folderPath[0] + '/PVEnergyyearroof.tif'
+            saveraster(
+                self.gdal_dsm, self.folderPath[0] + "/dsm.tif", self.dsm
+            )
+            filenameroof = self.folderPath[0] + "/PVEnergyyearroof.tif"
             saveraster(self.gdal_dsm, filenameroof, Energyyearroof)
-            filenamewall = self.folderPath[0] + '/PVEnergyyearwall.txt'
-            header = '%row col irradiance'
+            filenamewall = self.folderPath[0] + "/PVEnergyyearwall.txt"
+            header = "%row col irradiance"
             # numformat = '%4d %4d ' + '%6.2f ' * (Energyyearwall.shape[1] - 2)
-            numformat = '%4d %4d ' + '%.4E ' * (Energyyearwall.shape[1] - 2)
-            np.savetxt(filenamewall, Energyyearwall, fmt=numformat, header=header, comments='')
+            numformat = "%4d %4d " + "%.4E " * (Energyyearwall.shape[1] - 2)
+            np.savetxt(
+                filenamewall,
+                Energyyearwall,
+                fmt=numformat,
+                header=header,
+                comments="",
+            )
             if self.usevegdem == 1:
-                filenamewall = self.folderPath[0] + '/Vegetationdata.txt'
-                header = '%row col height'
-                numformat = '%4d %4d %.4E'    #%6.2f'
-                np.savetxt(filenamewall, vegdata, fmt=numformat, header=header, comments='')
-            QMessageBox.information(None, "SEBEpv", "Calculation successfully completed")
+                filenamewall = self.folderPath[0] + "/Vegetationdata.txt"
+                header = "%row col height"
+                numformat = "%4d %4d %.4E"  # %6.2f'
+                np.savetxt(
+                    filenamewall,
+                    vegdata,
+                    fmt=numformat,
+                    header=header,
+                    comments="",
+                )
+            QMessageBox.information(
+                None, "SEBEpv", "Calculation successfully completed"
+            )
 
             # load roof irradiance result into map canvas
             if self.dlg.checkBoxIntoCanvas.isChecked():
@@ -633,24 +841,32 @@ class SEBEpv:
                     rlayer.setCacheImage(None)
                 rlayer.triggerRepaint()
 
-                rlayer.loadNamedStyle(self.plugin_dir + '/SEBE_kwh.qml')
+                rlayer.loadNamedStyle(self.plugin_dir + "/SEBE_kwh.qml")
                 # self.QgsMapLayerRegistry.instance().addMapLayer(rlayer)
 
                 if hasattr(rlayer, "setCacheImage"):
                     rlayer.setCacheImage(None)
                 rlayer.triggerRepaint()
 
-            QMessageBox.information(None, "SEBEpv", "Calculation successfully completed")
+            QMessageBox.information(
+                None, "SEBEpv", "Calculation successfully completed"
+            )
         else:
             # notify the user that something went wrong
-            self.iface.messageBar().pushMessage('Operations cancelled either by user or error. ' +
-                                                'See the General tab in Log Messages Panel ' +
-                                                '(speech bubble, lower right) for more information.',
-                                                level=QgsMessageBar.CRITICAL, duration=3)
-            QMessageBox.information(None, "SEBEpv",
-                                    'Operations cancelled either by user or error. See the General tab ' +
-                                    'in Log Messages Panel (speech bubble, lower right) for more information.')
-        self.dlg.runButton.setText('Run')
+            self.iface.messageBar().pushMessage(
+                "Operations cancelled either by user or error. "
+                + "See the General tab in Log Messages Panel "
+                + "(speech bubble, lower right) for more information.",
+                level=QgsMessageBar.CRITICAL,
+                duration=3,
+            )
+            QMessageBox.information(
+                None,
+                "SEBEpv",
+                "Operations cancelled either by user or error. See the General tab "
+                + "in Log Messages Panel (speech bubble, lower right) for more information.",
+            )
+        self.dlg.runButton.setText("Run")
         self.dlg.runButton.clicked.disconnect()
         self.dlg.runButton.clicked.connect(self.start_progress)
         self.steps = 0

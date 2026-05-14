@@ -32,4 +32,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .shadow_generator import ShadowGenerator
+
     return ShadowGenerator(iface)

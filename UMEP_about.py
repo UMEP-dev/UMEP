@@ -23,11 +23,12 @@
 
 import os
 
-from qgis.PyQt import QtGui, uic
+from qgis.PyQt import uic
 from qgis.PyQt.QtWidgets import QDialog
 
-FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'UMEP_about.ui'))
+FORM_CLASS, _ = uic.loadUiType(
+    os.path.join(os.path.dirname(__file__), "UMEP_about.ui")
+)
 
 
 class UMEPDialogAbout(QDialog, FORM_CLASS):

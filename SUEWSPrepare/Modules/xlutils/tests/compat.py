@@ -14,7 +14,7 @@ from manuel.codeblock import (
     CODEBLOCK_END,
     CodeBlock,
     execute_code_block,
-    )
+)
 
 from ..compat import PY3
 
@@ -27,16 +27,16 @@ def version_agnostic(text):
         regex = UNICODE_LITERALS
     else:
         regex = BYTE_LITERALS
-    return regex.sub('\\1', text)
+    return regex.sub("\\1", text)
 
 
 def find_code_blocks(document):
     for region in document.find_regions(CODEBLOCK_START, CODEBLOCK_END):
         start_end = CODEBLOCK_START.search(region.source).end()
         source = version_agnostic(textwrap.dedent(region.source[start_end:]))
-        source = 'from __future__ import print_function\n' + source
-        source_location = '%s:%d' % (document.location, region.lineno)
-        code = compile(source, source_location, 'exec', 0, True)
+        source = "from __future__ import print_function\n" + source
+        source_location = "%s:%d" % (document.location, region.lineno)
+        code = compile(source, source_location, "exec", 0, True)
         document.claim_region(region)
         region.parsed = CodeBlock(code, source)
 
@@ -49,6 +49,4 @@ class Manuel(manuel.Manuel):
 class DocTestChecker(doctest.OutputChecker):
     def check_output(self, want, got, optionflags):
         want = version_agnostic(want)
-        return doctest.OutputChecker.check_output(
-            self, want, got, optionflags
-            )
+        return doctest.OutputChecker.check_output(self, want, got, optionflags)

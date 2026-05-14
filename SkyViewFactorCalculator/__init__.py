@@ -32,4 +32,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .svf_calculator import SkyViewFactorCalculator
+
     return SkyViewFactorCalculator(iface)

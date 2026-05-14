@@ -3,7 +3,6 @@ from .database_functions import save_to_db, create_code
 from qgis.PyQt.QtWidgets import QMessageBox
 
 
-
 #################################################################################################
 #                                                                                               #
 #                                  Reference manager                                            #
@@ -17,38 +16,56 @@ def setup_ref_manager(self, dlg, db_dict, db_path):
         dlg.textEditTitle.clear(),
         dlg.textEditJournal.clear(),
         dlg.textEditDOI.clear()
-        for i in range(0,16):
-            first_name = getattr(dlg, f'textEditFN_{i}')
-            last_name = getattr(dlg, f'textEditLN0_{i}')   
+        for i in range(0, 16):
+            first_name = getattr(dlg, f"textEditFN_{i}")
+            last_name = getattr(dlg, f"textEditLN0_{i}")
             first_name.clear()
             last_name.clear()
-            
-        dlg.comboBoxRef.addItems(sorted(db_dict['References']['authorYear'])) 
+
+        dlg.comboBoxRef.addItems(sorted(db_dict["References"]["authorYear"]))
         dlg.comboBoxRef.setCurrentIndex(-1)
 
     def ref_changed():
         dlg.textBrowserRef.clear()
         try:
-            ID = db_dict['References'][db_dict['References']['authorYear'] ==  dlg.comboBoxRef.currentText()].index.item()
+            ID = db_dict["References"][
+                db_dict["References"]["authorYear"]
+                == dlg.comboBoxRef.currentText()
+            ].index.item()
             dlg.textBrowserRef.setText(
-                '<b>Author: ' +'</b>' + str(db_dict['References'].loc[ID, 'Author']) + '<br><br><b>' +
-                'Year: ' + '</b> '+ str(db_dict['References'].loc[ID, 'Year']) + '<br><br><b>' +
-                'Title: ' + '</b> ' +  str(db_dict['References'].loc[ID, 'Title']) + '<br><br><b>' +
-                'Journal: ' + '</b>' + str(db_dict['References'].loc[ID, 'Journal']) + '<br><br><b>' +
-                'DOI: ' + '</b>' + str(db_dict['References'].loc[ID, 'DOI']) + '<br><br><b>' 
+                "<b>Author: "
+                + "</b>"
+                + str(db_dict["References"].loc[ID, "Author"])
+                + "<br><br><b>"
+                + "Year: "
+                + "</b> "
+                + str(db_dict["References"].loc[ID, "Year"])
+                + "<br><br><b>"
+                + "Title: "
+                + "</b> "
+                + str(db_dict["References"].loc[ID, "Title"])
+                + "<br><br><b>"
+                + "Journal: "
+                + "</b>"
+                + str(db_dict["References"].loc[ID, "Journal"])
+                + "<br><br><b>"
+                + "DOI: "
+                + "</b>"
+                + str(db_dict["References"].loc[ID, "DOI"])
+                + "<br><br><b>"
             )
         except:
             pass
-            
+
     def check_reference():
 
         dlg.pushButtonAddRef.setEnabled(True)
         author_list = []
-        for i in range(0,16):
-            first_name = getattr(dlg, f'textEditFN_{i}')
-            last_name = getattr(dlg, f'textEditLN0_{i}')   
-            name = first_name.value() + ', ' + last_name.value() + ';' 
-            if len(first_name.value()) > 0 and len(last_name.value()) > 0: 
+        for i in range(0, 16):
+            first_name = getattr(dlg, f"textEditFN_{i}")
+            last_name = getattr(dlg, f"textEditLN0_{i}")
+            name = first_name.value() + ", " + last_name.value() + ";"
+            if len(first_name.value()) > 0 and len(last_name.value()) > 0:
                 author_list.append(name)
 
         # ref_dict = {
@@ -66,9 +83,9 @@ def setup_ref_manager(self, dlg, db_dict, db_path):
     #     author_list = []
     #     for i in range(0,16):
     #         first_name = getattr(dlg, f'textEditFN_{i}')
-    #         last_name = getattr(dlg, f'textEditLN0_{i}')   
-    #         name = first_name.value() + ', ' + last_name.value() + ';' 
-    #         if len(first_name.value()) > 0 and len(last_name.value()) > 0: 
+    #         last_name = getattr(dlg, f'textEditLN0_{i}')
+    #         name = first_name.value() + ', ' + last_name.value() + ';'
+    #         if len(first_name.value()) > 0 and len(last_name.value()) > 0:
     #             author_list.append(name)
 
     #     ref_dict = {
@@ -87,36 +104,37 @@ def setup_ref_manager(self, dlg, db_dict, db_path):
     #     self.dlg.tabWidget.setCurrentIndex(10)
     #     QMessageBox.information(None, 'Sucessful','Reference Added to Local database')
 
-
     def add_ref():
 
         author_list = []
-        for i in range(0,16):
-            first_name = getattr(dlg, f'textEditFN_{i}')
-            last_name = getattr(dlg, f'textEditLN0_{i}')   
-            # name = first_name.value() + ', ' + last_name.value() + ';' 
-            name = last_name.value() + ', ' + first_name.value() + ';' 
-            if len(first_name.value()) > 0 and len(last_name.value()) > 0: 
+        for i in range(0, 16):
+            first_name = getattr(dlg, f"textEditFN_{i}")
+            last_name = getattr(dlg, f"textEditLN0_{i}")
+            # name = first_name.value() + ', ' + last_name.value() + ';'
+            name = last_name.value() + ", " + first_name.value() + ";"
+            if len(first_name.value()) > 0 and len(last_name.value()) > 0:
                 author_list.append(name)
 
         ref_dict = {
-            'ID' : create_code('Reference'),
-            'Author' : (' '.join(author_list)),
-            'Year' : dlg.textEditYear.value(),
-            'Title' : dlg.textEditTitle.value(),
-            'Journal' : dlg.textEditJournal.value(),
-            'DOI' : dlg.textEditDOI.value()
+            "ID": create_code("Reference"),
+            "Author": (" ".join(author_list)),
+            "Year": dlg.textEditYear.value(),
+            "Title": dlg.textEditTitle.value(),
+            "Journal": dlg.textEditJournal.value(),
+            "DOI": dlg.textEditDOI.value(),
         }
 
-        new_edit = DataFrame([ref_dict]).set_index('ID')
-        db_dict['References'] = concat([db_dict['References'], new_edit])
+        new_edit = DataFrame([ref_dict]).set_index("ID")
+        db_dict["References"] = concat([db_dict["References"], new_edit])
         save_to_db(db_path, db_dict)
 
-        QMessageBox.information(None, 'Succesful', 'New edit added to your local database')
+        QMessageBox.information(
+            None, "Succesful", "New edit added to your local database"
+        )
         fill_cboxes()
 
     # def ref_info():
-        
+
     #     dlg.textBrowserRef.clear()
     #     if dlg.textBrowserRef.currentIndex() != -1:
     #         #typology_sel = db_dict['NonVeg'].loc[db_dict['NonVeg']['nameOrigin'] == typology_str]
@@ -138,6 +156,6 @@ def setup_ref_manager(self, dlg, db_dict, db_path):
             fill_cboxes()
 
     # dlg.pushButtonCheck.clicked.connect(check_reference)
-    dlg.pushButtonAddRef.clicked.connect(add_ref)            
+    dlg.pushButtonAddRef.clicked.connect(add_ref)
     dlg.comboBoxRef.currentIndexChanged.connect(ref_changed)
     self.dlg.tabWidget.currentChanged.connect(tab_update)

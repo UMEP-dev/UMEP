@@ -26,8 +26,9 @@ import os
 from qgis.PyQt import uic
 from qgis.PyQt.QtWidgets import QWidget
 
-FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'main_tab.ui'))
+FORM_CLASS, _ = uic.loadUiType(
+    os.path.join(os.path.dirname(__file__), "main_tab.ui")
+)
 
 
 class MainTab(QWidget, FORM_CLASS):
@@ -40,5 +41,3 @@ class MainTab(QWidget, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
-
-

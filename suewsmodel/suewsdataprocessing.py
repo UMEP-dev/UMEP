@@ -2,13 +2,15 @@ from __future__ import print_function
 from builtins import input
 from builtins import range
 from builtins import object
-__author__ = 'Fredrik Lindberg'
+
+__author__ = "Fredrik Lindberg"
 
 # This class will be used to prepare input met data into UMEP
 
 import numpy as np
 import datetime
 import pandas as pd
+
 
 def leap_year(yy):
     if (yy % 4) == 0:
@@ -46,24 +48,30 @@ class SuewsDataProcessing(object):
         leapyear = 0
 
         if nsh < 1:
-            #TODO:  put code here to make longer timestep
+            # TODO:  put code here to make longer timestep
             notused = []
         else:  # interpolate to five minute
 
             met_new = np.zeros(((met_old.shape[0]) * nsh, 24)) - 999
 
-            for i in range(0, met_old.shape[0]): # writing time columns
+            for i in range(0, met_old.shape[0]):  # writing time columns
 
                 yyyy = iy[i]
                 dd = id[i]
                 hh = it[i]
                 mins = imin[i]
 
-                ymdhm = datetime.datetime(int(yyyy), 1, 1) + datetime.timedelta(days=int(dd - 1), hours=int(hh), minutes=mins)
+                ymdhm = datetime.datetime(
+                    int(yyyy), 1, 1
+                ) + datetime.timedelta(
+                    days=int(dd - 1), hours=int(hh), minutes=mins
+                )
 
                 for j in range(0, nsh):
 
-                    timestep = ymdhm - datetime.timedelta(minutes=timeres_old - 5 * j - 5)
+                    timestep = ymdhm - datetime.timedelta(
+                        minutes=timeres_old - 5 * j - 5
+                    )
                     met_new[index, 0] = timestep.year
                     met_new[index, 1] = timestep.timetuple().tm_yday
                     met_new[index, 2] = timestep.hour
@@ -71,7 +79,7 @@ class SuewsDataProcessing(object):
                     index += 1
 
             index = 0
-            for i in range(0, met_old.shape[0] - 1): # Making 5min metdata
+            for i in range(0, met_old.shape[0] - 1):  # Making 5min metdata
                 met_now = met_old[i, 4:24]
                 if i > met_old.shape[0] - 2:
                     met_next = met_old[i, 4:24]
@@ -88,17 +96,28 @@ class SuewsDataProcessing(object):
 
                 for j in range(0, nsh):
 
-                    met_new[index + int(nsh / 2), 4:24] = met_now - (met_next - met_now) / (2 * nsh) + (met_next - met_now) / nsh * (j + 1)
+                    met_new[index + int(nsh / 2), 4:24] = (
+                        met_now
+                        - (met_next - met_now) / (2 * nsh)
+                        + (met_next - met_now) / nsh * (j + 1)
+                    )
 
                     met_new[index, 13] = rainchange  # rain
                     met_new[index, 18] = waterchange  # wuh
 
-                    if (i == 1 and j == 0): # fixing beginning of file
-                        met_new[0:int(nsh / 2), 4:24] = met_new[int(nsh / 2), 4:24]
+                    if i == 1 and j == 0:  # fixing beginning of file
+                        met_new[0 : int(nsh / 2), 4:24] = met_new[
+                            int(nsh / 2), 4:24
+                        ]
 
                     index += 1
 
-            met_new[index + int(nsh / 2):met_new.shape[0], 4:24] = met_new[index + int(nsh / 2) - 1, 4:24] # fixing end of files
+            met_new[index + int(nsh / 2) : met_new.shape[0], 4:24] = met_new[
+                index +
+                # fixing end of files
+                int(nsh / 2) - 1,
+                4:24,
+            ]
 
         return met_new
 
@@ -124,18 +143,24 @@ class SuewsDataProcessing(object):
 
             met_new = np.zeros(((met_old.shape[0]) * nsh, 13)) - 999
 
-            for i in range(0, met_old.shape[0]): # writing time columns
+            for i in range(0, met_old.shape[0]):  # writing time columns
 
                 yyyy = iy[i]
                 dd = id[i]
                 hh = it[i]
                 mins = imin[i]
 
-                ymdhm = datetime.datetime(int(yyyy), 1, 1, 0) + datetime.timedelta(days=int(dd - 1), hours=int(hh), minutes=mins)
+                ymdhm = datetime.datetime(
+                    int(yyyy), 1, 1, 0
+                ) + datetime.timedelta(
+                    days=int(dd - 1), hours=int(hh), minutes=mins
+                )
 
                 for j in range(0, nsh):
 
-                    timestep = ymdhm - datetime.timedelta(minutes=timeres_old - 5 * j - 5)
+                    timestep = ymdhm - datetime.timedelta(
+                        minutes=timeres_old - 5 * j - 5
+                    )
                     met_new[index, 0] = timestep.year
                     met_new[index, 1] = timestep.timetuple().tm_yday
                     met_new[index, 2] = timestep.hour
@@ -143,7 +168,7 @@ class SuewsDataProcessing(object):
                     index += 1
 
             index = 0
-            for i in range(0, met_old.shape[0] - 1): # Making 5min metdata
+            for i in range(0, met_old.shape[0] - 1):  # Making 5min metdata
                 met_now = met_old[i, 4:13]
                 if i > met_old.shape[0] - 2:
                     met_next = met_old[i, 4:13]
@@ -152,27 +177,41 @@ class SuewsDataProcessing(object):
 
                 for j in range(0, nsh):
 
-                    met_new[index + int(nsh / 2), 4:13] = met_now - (met_next - met_now) / (2 * nsh) + (met_next - met_now) / nsh * (j + 1)
+                    met_new[index + int(nsh / 2), 4:13] = (
+                        met_now
+                        - (met_next - met_now) / (2 * nsh)
+                        + (met_next - met_now) / nsh * (j + 1)
+                    )
 
-                    if (i == 1 and j == 0): # fixing beginning of file
-                        met_new[0:int(nsh / 2), 4:13] = met_new[int(nsh / 2), 4:13]
+                    if i == 1 and j == 0:  # fixing beginning of file
+                        met_new[0 : int(nsh / 2), 4:13] = met_new[
+                            int(nsh / 2), 4:13
+                        ]
 
                     index += 1
 
-            met_new[index + int(nsh / 2):met_new.shape[0], 4:13] = met_new[index + int(nsh / 2) - 1, 4:13] # fixing end of files
+            met_new[index + int(nsh / 2) : met_new.shape[0], 4:13] = met_new[
+                index +
+                # fixing end of files
+                int(nsh / 2) - 1,
+                4:13,
+            ]
 
         return met_new
-
 
     def from5minto1hour_v1(self, results, SumCol, LastCol, TimeCol):
 
         suews_1h = np.zeros((results.shape[0] / 12, results.shape[1]))
 
         for i in range(0, suews_1h.shape[0]):
-            suews_1h[i, 5:results.shape[1] - 1] = np.mean(results[i * 12: i * 12 + 12, 5:results.shape[1] - 1], axis=0)
+            suews_1h[i, 5 : results.shape[1] - 1] = np.mean(
+                results[i * 12 : i * 12 + 12, 5 : results.shape[1] - 1], axis=0
+            )
 
             for j in range(0, SumCol.__len__()):
-                suews_1h[i, SumCol[j]] = np.sum(results[i * 12: i * 12 + 12, SumCol[j]], axis=0)
+                suews_1h[i, SumCol[j]] = np.sum(
+                    results[i * 12 : i * 12 + 12, SumCol[j]], axis=0
+                )
 
             for j in range(0, LastCol.__len__()):
                 suews_1h[i, LastCol[j]] = results[i * 12 + 11, LastCol[j]]
@@ -184,18 +223,36 @@ class SuewsDataProcessing(object):
     def from5mintoanytime(self, results, SumCol, LastCol, TimeCol, minint):
 
         splitparts = minint / 5
-        suews_anytime = np.zeros((int(results.shape[0] / splitparts), results.shape[1]))
+        suews_anytime = np.zeros(
+            (int(results.shape[0] / splitparts), results.shape[1])
+        )
 
         for i in range(0, suews_anytime.shape[0]):
-            suews_anytime[i, 5:results.shape[1] - 1] = np.mean(results[int(i * splitparts): int(i * splitparts + splitparts), 5:results.shape[1] - 1], axis=0)
+            suews_anytime[i, 5 : results.shape[1] - 1] = np.mean(
+                results[
+                    int(i * splitparts) : int(i * splitparts + splitparts),
+                    5 : results.shape[1] - 1,
+                ],
+                axis=0,
+            )
 
             for j in range(0, SumCol.__len__()):
-                suews_anytime[i, SumCol[j]] = np.sum(results[int(i * splitparts): int(i * splitparts + splitparts), SumCol[j]], axis=0)
+                suews_anytime[i, SumCol[j]] = np.sum(
+                    results[
+                        int(i * splitparts) : int(i * splitparts + splitparts),
+                        SumCol[j],
+                    ],
+                    axis=0,
+                )
 
             for j in range(0, LastCol.__len__()):
-                suews_anytime[i, LastCol[j]] = results[int(i * splitparts + splitparts - 1), LastCol[j]]
+                suews_anytime[i, LastCol[j]] = results[
+                    int(i * splitparts + splitparts - 1), LastCol[j]
+                ]
 
-            suews_anytime[i, TimeCol] = results[int(i * splitparts + splitparts - 1), TimeCol]
+            suews_anytime[i, TimeCol] = results[
+                int(i * splitparts + splitparts - 1), TimeCol
+            ]
 
         return suews_anytime
 
@@ -226,98 +283,114 @@ class SuewsDataProcessing(object):
             press = met_old[:, 8].copy() * 0 - 999
 
             # Moving one hour
-            Ta[1:np.size(Ta)] = Ta[0:np.size(Ta) - 1]
+            Ta[1 : np.size(Ta)] = Ta[0 : np.size(Ta) - 1]
             Ta[0] = Ta[1]
-            RH[1:np.size(RH)] = RH[0:np.size(RH) - 1]
+            RH[1 : np.size(RH)] = RH[0 : np.size(RH) - 1]
             RH[0] = RH[1]
-            G[1:np.size(G)] = G[0:np.size(G) - 1]
+            G[1 : np.size(G)] = G[0 : np.size(G) - 1]
             G[0] = G[1]
-            D[1:np.size(D)] = D[0:np.size(D) - 1]
+            D[1 : np.size(D)] = D[0 : np.size(D) - 1]
             D[0] = D[1]
-            I[1:np.size(I)] = I[0:np.size(I) - 1]
+            I[1 : np.size(I)] = I[0 : np.size(I) - 1]
             I[0] = I[1]
-            Ws[1:np.size(Ws)] = Ws[0:np.size(Ws) - 1]
+            Ws[1 : np.size(Ws)] = Ws[0 : np.size(Ws) - 1]
             Ws[0] = Ws[1]
             minute = Ta * 0
 
         else:
             met_old = np.loadtxt(inputdata, skiprows=1)
 
-            user_input = int(input('Put in manually or translate from v2014 (1 or 0)?: '))
-            yyyy_exist = int(input('yyyy exist (1 or 0)?: '))
+            user_input = int(
+                input("Put in manually or translate from v2014 (1 or 0)?: ")
+            )
+            yyyy_exist = int(input("yyyy exist (1 or 0)?: "))
             if yyyy_exist == 1:
-                yyyy_col = int(input('column for yyyy: ')) - 1
+                yyyy_col = int(input("column for yyyy: ")) - 1
             else:
-                yy = int(input('Specify year (yyyy): '))
+                yy = int(input("Specify year (yyyy): "))
 
             if user_input == 1:
-                doy_exist = int(input('doy exist (1 or 0)?: '))
+                doy_exist = int(input("doy exist (1 or 0)?: "))
                 if doy_exist == 1:
-                    doy_col = int(input('column for doy: ')) - 1
+                    doy_col = int(input("column for doy: ")) - 1
                 else:
-                    month_col = int(input('column for month: ')) - 1
-                    day_col = int(input('column for day of month: ')) - 1
+                    month_col = int(input("column for month: ")) - 1
+                    day_col = int(input("column for day of month: ")) - 1
 
-                hh_col = int(input('column for hour: ')) - 1
-                dectime_exist = int(input('dectime exist (1 or 0)?: '))
+                hh_col = int(input("column for hour: ")) - 1
+                dectime_exist = int(input("dectime exist (1 or 0)?: "))
                 if dectime_exist == 1:
-                    dectime_col = int(input('column for dectime: ')) - 1
+                    dectime_col = int(input("column for dectime: ")) - 1
                     if ver == 2015:
-                        dechour = (met_old[:, dectime_col] - np.floor(met_old[:, dectime_col])) * 24
+                        dechour = (
+                            met_old[:, dectime_col]
+                            - np.floor(met_old[:, dectime_col])
+                        ) * 24
                         minute = np.round((dechour - np.floor(dechour)) * 60)
                         minute[(minute == 60)] = 0
                 else:
-                    min_col = int(input('column for min: ')) - 1
+                    min_col = int(input("column for min: ")) - 1
 
-                only_mandatory = int(input('Only put in mandatory [Ta,RH,Kdn,pres,Ws] (1 or 0)?: '))
+                only_mandatory = int(
+                    input(
+                        "Only put in mandatory [Ta,RH,Kdn,pres,Ws] (1 or 0)?: "
+                    )
+                )
 
                 if only_mandatory == 1:
-                    wind_col = int(input('column for Ws: ')) - 1
-                    RH_col = int(input('column for RH: ')) - 1
-                    Ta_col = int(input('column for Ta: ')) - 1
-                    press_exist = int(input('Pressure exist (1 or 0)?: '))
+                    wind_col = int(input("column for Ws: ")) - 1
+                    RH_col = int(input("column for RH: ")) - 1
+                    Ta_col = int(input("column for Ta: ")) - 1
+                    press_exist = int(input("Pressure exist (1 or 0)?: "))
                     if press_exist == 1:
-                        press_col = int(input('column for Pressure (kPa): ')) - 1
+                        press_col = (
+                            int(input("column for Pressure (kPa): ")) - 1
+                        )
                     else:
                         press_av = 101.3
                         # fix_print_with_import
-                        print('Pressure set to 101.3 kPa')
+                        print("Pressure set to 101.3 kPa")
 
-                    grad_col = int(input('column for Kdn: ')) - 1
+                    grad_col = int(input("column for Kdn: ")) - 1
                 else:
-                    Qstar_col = int(input('column for Q*: ')) - 1
-                    Qh_col = int(input('column for Qh: ')) - 1
-                    Qe_col = int(input('column for Qe: ')) - 1
-                    Qs_col = int(input('column for Qs: ')) - 1
-                    Qf_col = int(input('column for Qf: ')) - 1
-                    wind_col = int(input('column for Ws: ')) - 1
-                    RH_col = int(input('column for RH: ')) - 1
-                    Ta_col = int(input('column for Ta: ')) - 1
-                    press_exist = int(input('Pressure exist (1 or 0)?: '))
+                    Qstar_col = int(input("column for Q*: ")) - 1
+                    Qh_col = int(input("column for Qh: ")) - 1
+                    Qe_col = int(input("column for Qe: ")) - 1
+                    Qs_col = int(input("column for Qs: ")) - 1
+                    Qf_col = int(input("column for Qf: ")) - 1
+                    wind_col = int(input("column for Ws: ")) - 1
+                    RH_col = int(input("column for RH: ")) - 1
+                    Ta_col = int(input("column for Ta: ")) - 1
+                    press_exist = int(input("Pressure exist (1 or 0)?: "))
                     if press_exist == 1:
-                        press_col = int(input('column for Pressure (kPa): ')) - 1
+                        press_col = (
+                            int(input("column for Pressure (kPa): ")) - 1
+                        )
                     else:
                         press_av = 101.3
                         # fix_print_with_import
-                        print('Pressure set to 101.3 kPa')
-                    rain_col = int(input('column for rain: ')) - 1
-                    grad_col = int(input('column for Kdn: ')) - 1
-                    snow_col = int(input('column for snow: ')) - 1
-                    ldown_col = int(input('column for ldown: ')) - 1
-                    fcld_col = int(input('column for fcld: ')) - 1
-                    wuh_col = int(input('column for wuh: ')) - 1
-                    xsmd_col = int(input('column for xsmd: ')) - 1
-                    lai_col = int(input('column for lai: ')) - 1
-                    drad_col = int(input('column for kdiff: ')) - 1
-                    irad_col = int(input('column for kdir: ')) - 1
-                    wdir_col = int(input('column for Wdir: ')) - 1
+                        print("Pressure set to 101.3 kPa")
+                    rain_col = int(input("column for rain: ")) - 1
+                    grad_col = int(input("column for Kdn: ")) - 1
+                    snow_col = int(input("column for snow: ")) - 1
+                    ldown_col = int(input("column for ldown: ")) - 1
+                    fcld_col = int(input("column for fcld: ")) - 1
+                    wuh_col = int(input("column for wuh: ")) - 1
+                    xsmd_col = int(input("column for xsmd: ")) - 1
+                    lai_col = int(input("column for lai: ")) - 1
+                    drad_col = int(input("column for kdiff: ")) - 1
+                    irad_col = int(input("column for kdir: ")) - 1
+                    wdir_col = int(input("column for Wdir: ")) - 1
 
             else:
                 doy_col = 1 - 1
                 hh_col = 2 - 1
                 dectime_col = 3 - 1
                 if ver == 2015:
-                    dechour = (met_old[:, dectime_col] - np.floor(met_old[:, dectime_col])) * 24
+                    dechour = (
+                        met_old[:, dectime_col]
+                        - np.floor(met_old[:, dectime_col])
+                    ) * 24
                     minute = np.round((dechour - np.floor(dechour)) * 60)
                     minute[(minute == 60)] = 0
 
@@ -415,13 +488,15 @@ class SuewsDataProcessing(object):
                 dayspermonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
             if doy_exist == 0:
-                doy[i] = sum(dayspermonth[0:int(mm[i] - 1)]) + dd[i]  # might now work
+                doy[i] = (
+                    sum(dayspermonth[0 : int(mm[i] - 1)]) + dd[i]
+                )  # might now work
 
         if ver == 2015:  # v2015a
             # inputnew = 'M:/SOLWEIG/Inputdata/metdata/2015a/gbg20051011_2015a.txt'
-            #f = open(inputnew, 'r')
-            #header = f.readline()
-            header = 'iy id it imin qn qh qe qs qf U RH Tair pres rain kdown snow ldown fcld wuh xsmd lai kdiff kdir wdir'
+            # f = open(inputnew, 'r')
+            # header = f.readline()
+            header = "iy id it imin qn qh qe qs qf U RH Tair pres rain kdown snow ldown fcld wuh xsmd lai kdiff kdir wdir"
 
             met_new[:, 0] = yyyy
             met_new[:, 1] = doy
@@ -455,12 +530,14 @@ class SuewsDataProcessing(object):
                 met_new[:, 22] = wdir
 
             # #Save as text files
-            numformat = '%d %d %d %d %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f'
-            np.savetxt(outputdata, met_new, fmt=numformat, header=header, comments='')
+            numformat = "%d %d %d %d %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f"
+            np.savetxt(
+                outputdata, met_new, fmt=numformat, header=header, comments=""
+            )
 
         else:  # v2014a
-            inputnew = 'M:/SOLWEIG/Inputdata/metdata/2014a/gbg20051011_2014a_space.txt'
-            f = open(inputnew, 'r')
+            inputnew = "M:/SOLWEIG/Inputdata/metdata/2014a/gbg20051011_2014a_space.txt"
+            f = open(inputnew, "r")
             header = f.readline()
 
             if dectime_exist == 1:
@@ -480,11 +557,24 @@ class SuewsDataProcessing(object):
             met_new[:, 8] = Ws
 
             # %Save as text files
-            numformat = '%3d %3d %6.5f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f'
-            np.savetxt(outputdata, met_new, fmt=numformat, delimiter=delim, header=header, comments='')
+            numformat = "%3d %3d %6.5f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f"
+            np.savetxt(
+                outputdata,
+                met_new,
+                fmt=numformat,
+                delimiter=delim,
+                header=header,
+                comments="",
+            )
 
 
-def resample_dataframe( df, expected_time_resolution_min, how='mean', missing_val=-999, interpolate_method='linear'):
+def resample_dataframe(
+    df,
+    expected_time_resolution_min,
+    how="mean",
+    missing_val=-999,
+    interpolate_method="linear",
+):
     """
     Resample a time series DataFrame to a new temporal resolution.
 
@@ -506,9 +596,11 @@ def resample_dataframe( df, expected_time_resolution_min, how='mean', missing_va
     df_cleaned = df.replace(missing_val, np.nan)
 
     # Determine current resolution
-    current_resolution_min = int((df_cleaned.index[1] - df_cleaned.index[0]).total_seconds() / 60)
+    current_resolution_min = int(
+        (df_cleaned.index[1] - df_cleaned.index[0]).total_seconds() / 60
+    )
 
-    freq_str = f'{expected_time_resolution_min}T'
+    freq_str = f"{expected_time_resolution_min}T"
 
     if expected_time_resolution_min > current_resolution_min:
         # ⬇️ Downsampling (e.g., 5-min to hourly)
@@ -516,22 +608,34 @@ def resample_dataframe( df, expected_time_resolution_min, how='mean', missing_va
     else:
         # ⬆️ Upsampling (e.g., hourly to 5-min) + Interpolation
         df_resampled = df_cleaned.resample(freq_str).asfreq()
-        df_resampled = df_resampled.interpolate(method=interpolate_method, limit_direction='both')
+        df_resampled = df_resampled.interpolate(
+            method=interpolate_method, limit_direction="both"
+        )
 
     return df_resampled
 
-def SUEWS_txt_to_df( suews_output_path):
+
+def SUEWS_txt_to_df(suews_output_path):
     df_output_suews = pd.read_csv(suews_output_path, sep=r"\s+")
-    df_output_suews['Datetime'] = pd.to_datetime(df_output_suews[['Year', 'DOY', 'Hour', 'Min']].astype(str).agg('-'.join, axis=1), format='%Y-%j-%H-%M')
-    df_output_suews.set_index('Datetime', inplace=True)
+    df_output_suews["Datetime"] = pd.to_datetime(
+        df_output_suews[["Year", "DOY", "Hour", "Min"]]
+        .astype(str)
+        .agg("-".join, axis=1),
+        format="%Y-%j-%H-%M",
+    )
+    df_output_suews.set_index("Datetime", inplace=True)
 
     return df_output_suews
 
+
 def SUEWS_met_txt_to_df(suews_met_path):
     df_met_forcing = pd.read_csv(suews_met_path, sep=r"\s+")
-    df_met_forcing['Datetime'] = pd.to_datetime(df_met_forcing[['iy', 'id', 'it', 'imin']].astype(str).agg('-'.join, axis=1), format='%Y-%j-%H-%M')
-    df_met_forcing.set_index('Datetime', inplace=True)
-    
+    df_met_forcing["Datetime"] = pd.to_datetime(
+        df_met_forcing[["iy", "id", "it", "imin"]]
+        .astype(str)
+        .agg("-".join, axis=1),
+        format="%Y-%j-%H-%M",
+    )
+    df_met_forcing.set_index("Datetime", inplace=True)
+
     return df_met_forcing
-
-

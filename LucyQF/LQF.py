@@ -433,7 +433,6 @@
 #             self.dlg.txtParams.setText(locations['paramsFile'])
 
 
-
 #     # noinspection PyMethodMayBeStatic
 #     def tr(self, message):
 #         return QCoreApplication.translate('LQF', message)
@@ -617,4 +616,3 @@
 #         self.dlg.cmdLoadResults.setText('Load results')
 #         self.dlg.cmdLoadResults.clicked.connect(self.loadResults, Qt.ConnectionType.UniqueConnection)  # Load a previous run's results
 #         self.dlg.cmdLoadResults.setEnabled(True)
-

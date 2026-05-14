@@ -23,12 +23,12 @@
 
 import os
 
-from qgis.PyQt import uic #QtWidgets,
+from qgis.PyQt import uic  # QtWidgets,
 from qgis.PyQt.QtWidgets import QDialog
 
-
-FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'visualizer_dialog_base.ui'))
+FORM_CLASS, _ = uic.loadUiType(
+    os.path.join(os.path.dirname(__file__), "visualizer_dialog_base.ui")
+)
 
 
 class VisualizerDialog(QDialog, FORM_CLASS):
@@ -42,4 +42,3 @@ class VisualizerDialog(QDialog, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
 
         self.setupUi(self)
-
