@@ -71,8 +71,9 @@ import requests
 try:
     from future import standard_library
     standard_library.install_aliases()
-except ImportError:
-    pass
+except ImportError as exc:
+    if getattr(exc, "name", None) != "future":
+        raise
 # Initialize Qt resources from file resources.py
 # from . import resources
 # Import the code for the dialog
