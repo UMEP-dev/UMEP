@@ -43,9 +43,11 @@ from qgis.PyQt.QtCore import (
 )
 from builtins import object
 from builtins import str
-from future import standard_library
-
-standard_library.install_aliases()
+try:
+    from future import standard_library
+    standard_library.install_aliases()
+except ImportError:
+    pass
 
 
 class WallHeight(object):
