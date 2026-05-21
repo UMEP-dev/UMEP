@@ -36,9 +36,11 @@ from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from builtins import object
 from builtins import str
-from future import standard_library
-
-standard_library.install_aliases()
+try:
+    from future import standard_library
+    standard_library.install_aliases()
+except ImportError:
+    pass
 
 
 class SUEWS(object):

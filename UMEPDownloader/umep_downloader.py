@@ -66,10 +66,14 @@ from builtins import object
 from builtins import range
 from builtins import str
 from builtins import map
-from future import standard_library
 import requests
 
-standard_library.install_aliases()
+try:
+    from future import standard_library
+    standard_library.install_aliases()
+except ImportError as exc:
+    if getattr(exc, "name", None) != "future":
+        raise
 # Initialize Qt resources from file resources.py
 # from . import resources
 # Import the code for the dialog

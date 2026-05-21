@@ -3,9 +3,11 @@ import traceback
 from qgis.core import QgsRasterLayer, QgsRasterPipe, QgsRasterFileWriter
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 from builtins import str
-from future import standard_library
-
-standard_library.install_aliases()
+try:
+    from future import standard_library
+    standard_library.install_aliases()
+except ImportError:
+    pass
 
 
 class DownloadDataWorker(QObject):
