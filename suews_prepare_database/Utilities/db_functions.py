@@ -34,6 +34,9 @@ def read_DB(db_path):
 
     for col in sheets:
 
+        text_cols = db[col].select_dtypes(include=["object", "string"]).columns
+        db[col][text_cols] = db[col][text_cols].fillna("N/A")
+
         if col == "Name":
             db[col]["nameOrigin"] = (
                 db[col]["Name"].astype(str)
