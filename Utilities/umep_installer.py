@@ -82,12 +82,6 @@ def install_umep_python(ver=None):
             list_cmd0, stderr=subprocess.STDOUT, encoding="UTF8"
         )
 
-        # add netCDF4 TODO: Should later be replaced with xarrays
-        # list_cmd0 = f"{str(path_pybin)} -m pip install netCDF4 -U --user".split()
-        # str_info0 = subprocess.check_output(
-        #     list_cmd0, stderr=subprocess.STDOUT, encoding="UTF8"
-        # )
-
         # install supy and dependencies
         str_use_feature = (
             "--use-feature=2020-resolver"
@@ -99,12 +93,6 @@ def install_umep_python(ver=None):
         numpy_extra = f"[numpy{numpy_major}]"
         list_cmd = f"{str(path_pybin)} -m pip install umep-reqs{numpy_extra}{str_ver} -U --user --prefer-binary {str_use_feature}".split()
 
-        # select correct supy version via extras (QGIS 3 vs 4)
-        # qgis_major = int(Qgis.QGIS_VERSION.split('.')[0])
-        # qgis_extra = f"[qgis{qgis_major}]"
-        # # --prefer-binary because https://github.com/jameskermode/f90wrap/issues/203
-        # list_cmd = f"{str(path_pybin)} -m pip install umep-reqs{qgis_extra}{str_ver} -U --user --prefer-binary {str_use_feature}".split()
-        # QgsMessageLog.logMessage(str(list_cmd), level=Qgis.Info)
         str_info = subprocess.check_output(
             list_cmd, stderr=subprocess.STDOUT, encoding="UTF8"
         )
