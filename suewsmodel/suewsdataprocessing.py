@@ -600,7 +600,7 @@ def resample_dataframe(
         (df_cleaned.index[1] - df_cleaned.index[0]).total_seconds() / 60
     )
 
-    freq_str = f"{expected_time_resolution_min}T"
+    freq_str = f"{expected_time_resolution_min}min"
 
     if expected_time_resolution_min > current_resolution_min:
         # ⬇️ Downsampling (e.g., 5-min to hourly)

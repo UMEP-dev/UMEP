@@ -48,7 +48,7 @@ def wrapper(pathtoplugin, plotornot, filecode):
     with open(yaml_path, "r") as f:
         yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
 
-    sim.save(yaml_dict["model"]["control"]["output_file"])
+    sim.save(yaml_dict["model"]["control"]["output"]["dir"])
     # sp.save_supy(df_output, df_state_final, path_dir_save = yaml_dict['model']['control']['output_file'])
 
     # --- plot results --- #
@@ -61,7 +61,7 @@ def wrapper(pathtoplugin, plotornot, filecode):
         plotbasic = plotnml["plot"]["plotbasic"]
         # choosegridbasic = plotnml['plot']['choosegridbasic']
         # chooseyearbasic = plotnml['plot']['chooseyearbasic']
-        fileoutputpath = yaml_dict["model"]["control"]["output_file"]
+        fileoutputpath = yaml_dict["model"]["control"]["output"]["dir"]
         # fileinputpath = nml['runcontrol']['fileinputpath']
         # timeaggregation = 60
         multiplemetfiles = 0  # nml['runcontrol']['multiplemetfiles']
@@ -76,9 +76,7 @@ def wrapper(pathtoplugin, plotornot, filecode):
 
         gridcode = df_state_init.index[0]  # for plotting
         if multiplemetfiles == 0:  # one file
-            met_data_file = yaml_dict["model"]["control"]["forcing_file"][
-                "value"
-            ]
+            met_data_file = yaml_dict["model"]["control"]["forcing"]["file"]
 
         suews_out = (
             fileoutputpath

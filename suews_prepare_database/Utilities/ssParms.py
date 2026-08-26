@@ -553,9 +553,9 @@ def ss_calc_gridlayout(
                         "rho_cp": {"value": C_list},
                         # 'rho': rho_list
                     },
-                    "statelimit": {"value": 5},
-                    "soilstorecap": {"value": 5},
-                    "wetthresh": {"value": 5},
+                    "state_limit": {"value": 5},
+                    "soil_store_capacity": {"value": 5},
+                    "wet_threshold": {"value": 5},
                     "roof_albedo_dir_mult_fact": {"value": 1.0},
                     "wall_specular_frac": {"value": 0.0},
                 }
@@ -586,9 +586,9 @@ def ss_calc_gridlayout(
                     "thermal_layers": horizontal_aggregation(
                         code, surface[0], db_dict, no_rho=True
                     ),
-                    "statelimit": {"value": 5},
-                    "soilstorecap": {"value": 5},
-                    "wetthresh": {"value": 5},
+                    "state_limit": {"value": 5},
+                    "soil_store_capacity": {"value": 5},
+                    "wet_threshold": {"value": 5},
                     "roof_albedo_dir_mult_fact": {"value": 1.0},
                     "wall_specular_frac": {"value": 0.0},
                 }

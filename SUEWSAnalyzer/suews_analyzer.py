@@ -252,8 +252,10 @@ class SUEWSAnalyzer(object):
             with open(self.yamlPath[0], "r") as f:
                 yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
 
+            self.fileCode = str(yaml_dict["sites"][0]["name"])
+            
             self.fileoutputpath = str(
-                yaml_dict["model"]["control"]["output_file"]["path"]
+                yaml_dict["model"]["control"]["output"]["dir"]
             )
 
             if self.fileoutputpath.startswith("."):
@@ -270,7 +272,7 @@ class SUEWSAnalyzer(object):
             self.dlg.comboBox_POIField_2.addItems(grid_list)
 
             resolutionFilesOut = get_resolution_from_umep_forcing(
-                yaml_dict["model"]["control"]["forcing_file"]["value"]
+                yaml_dict["model"]["control"]["forcing"]["file"]
             )
             self.resout = int(float(resolutionFilesOut) / 60)
 
@@ -278,7 +280,7 @@ class SUEWSAnalyzer(object):
             self.resin = int(resolutionFilesIn / 60)
 
             met_data = SUEWS_met_txt_to_df(
-                yaml_dict["model"]["control"]["forcing_file"]["value"]
+                    yaml_dict["model"]["control"]["forcing"]["file"]
             )
             self.met_data = met_data
             # pd.read_csv(yaml_dict['model']['control']['forcing_file']['value'], delim_whitespace= True)
@@ -530,6 +532,7 @@ class SUEWSAnalyzer(object):
             datawhole = SUEWS_txt_to_df(
                 self.fileoutputpath
                 + "/"
+                + self.fileCode
                 + str(grid)
                 + "_"
                 + str(self.YYYY)
@@ -787,6 +790,7 @@ class SUEWSAnalyzer(object):
             datawhole = SUEWS_txt_to_df(
                 self.fileoutputpath
                 + "/"
+                + self.fileCode
                 + self.varpoi1
                 + "_"
                 + str(self.YYYY)
@@ -866,6 +870,7 @@ class SUEWSAnalyzer(object):
                 datawhole2 = SUEWS_txt_to_df(
                     self.fileoutputpath
                     + "/"
+                    + self.fileCode
                     + POIgrid2
                     + "_"
                     + str(self.YYYY)
@@ -955,6 +960,7 @@ class SUEWSAnalyzer(object):
             df_dataplotbasic = SUEWS_txt_to_df(
                 self.fileoutputpath
                 + "/"
+                + self.fileCode
                 + self.varpoi1
                 + "_"
                 + str(self.YYYY)

@@ -361,7 +361,15 @@ def convert_numpy_types(obj):
     yaml does not work with numpy
     """
     if isinstance(obj, dict):
-        return {k: convert_numpy_types(v) for k, v in obj.items()}
+        out = {}
+        for k, v in obj.items():
+            if k == "desc":
+                continue
+            v = convert_numpy_types(v)
+            if k == "ref" and isinstance(v, dict) and not v:
+                continue
+            out[k] = v
+        return out
     elif isinstance(obj, list):
         return [convert_numpy_types(i) for i in obj]
     elif isinstance(obj, int32) or isinstance(obj, int64):
@@ -580,11 +588,16 @@ def horizontal_aggregation(surface_code, roofwall, db_dict, no_rho=False):
     if no_rho == True:
         agg_surface["rho_cp"] = agg_surface["cp"] * agg_surface["rho"]
         agg_surface = agg_surface.drop(columns=["rho", "cp"])
+
+        agg_surface = agg_surface.fillna(-999)
+
         agg_surface = (
             agg_surface.round(3).loc[:, ["dz", "k", "rho_cp"]].to_dict()
         )
 
     else:
+        agg_surface = agg_surface.fillna(-999)
+
         agg_surface = (
             agg_surface.round(3).loc[:, ["dz", "k", "cp", "rho"]].to_dict()
         )
@@ -760,7 +773,7 @@ def fill_lai_yaml(indict, db_dict, zenodo):
 
     lai = {
         # Vegetaion Growth
-        "baset": {
+        "base_temperature": {
             "value": db_dict["Vegetation Growth"].loc[VG_code, "BaseT"],
             "ref": {
                 "desc": db_dict["Vegetation Growth"].loc[
@@ -770,7 +783,7 @@ def fill_lai_yaml(indict, db_dict, zenodo):
                 "DOI": zenodo,
             },
         },
-        "basete": {
+        "base_temperature_senescence": {
             "value": db_dict["Vegetation Growth"].loc[VG_code, "BaseTe"],
             "ref": {
                 "desc": db_dict["Vegetation Growth"].loc[
@@ -780,7 +793,7 @@ def fill_lai_yaml(indict, db_dict, zenodo):
                 "DOI": zenodo,
             },
         },
-        "gddfull": {
+        "gdd_full": {
             "value": db_dict["Vegetation Growth"].loc[VG_code, "GDDFull"],
             "ref": {
                 "desc": db_dict["Vegetation Growth"].loc[
@@ -790,7 +803,7 @@ def fill_lai_yaml(indict, db_dict, zenodo):
                 "DOI": zenodo,
             },
         },
-        "sddfull": {
+        "sdd_full": {
             "value": db_dict["Vegetation Growth"].loc[VG_code, "SDDFull"],
             "ref": {
                 "desc": db_dict["Vegetation Growth"].loc[
@@ -801,7 +814,7 @@ def fill_lai_yaml(indict, db_dict, zenodo):
             },
         },
         # LAI
-        "laimin": {
+        "lai_min": {
             "value": db_dict["Leaf Area Index"].loc[LAI_code, "LAIMin"],
             "ref": {
                 "desc": db_dict["Leaf Area Index"].loc[LAI_code, "nameOrigin"],
@@ -809,7 +822,7 @@ def fill_lai_yaml(indict, db_dict, zenodo):
                 "DOI": zenodo,
             },
         },
-        "laimax": {
+        "lai_max": {
             "value": db_dict["Leaf Area Index"].loc[LAI_code, "LAIMax"],
             "ref": {
                 "desc": db_dict["Leaf Area Index"].loc[LAI_code, "nameOrigin"],
@@ -817,7 +830,7 @@ def fill_lai_yaml(indict, db_dict, zenodo):
                 "DOI": zenodo,
             },
         },
-        "laipower": {
+        "lai_power": {
             # Leaf Growth Power
             "growth_lai": {
                 "value": db_dict["Leaf Growth Power"].loc[
@@ -875,7 +888,7 @@ def fill_lai_yaml(indict, db_dict, zenodo):
                 "DOI": zenodo,
             },
         },
-        "laitype": {
+        "lai_type": {
             "value": db_dict["Leaf Area Index"].loc[LAI_code, "LAIEq"],
             "ref": {
                 "desc": db_dict["Leaf Area Index"].loc[LAI_code, "nameOrigin"],
@@ -913,14 +926,15 @@ def fill_BiogenCO2_yaml(indict, db_dict, zenodo):
         return b_dict
 
     biogen_dict = {
-        "beta_enh_bioco2": fill_BiogenCO2_params("beta"),
-        "alpha_bioco2": fill_BiogenCO2_params("alpha"),
-        "alpha_enh_bioco2": fill_BiogenCO2_params("beta_enh"),
-        "resp_a": fill_BiogenCO2_params("resp_a"),
-        "resp_b": fill_BiogenCO2_params("resp_b"),
-        "theta_bioco2": fill_BiogenCO2_params("theta"),
-        "maxconductance": indict["MaxConductance"],
-        "min_res_bioco2": fill_BiogenCO2_params("min_respi"),
+    "beta_bio_co2": fill_BiogenCO2_params("beta"),
+    "alpha_bio_co2": fill_BiogenCO2_params("alpha"),
+    "beta_enh_bio_co2": fill_BiogenCO2_params("beta_enh"),
+    "alpha_enh_bio_co2": fill_BiogenCO2_params("alpha_enh"),
+    "resp_a": fill_BiogenCO2_params("resp_a"),
+    "resp_b": fill_BiogenCO2_params("resp_b"),
+    "theta_bio_co2": fill_BiogenCO2_params("theta"),
+    "max_conductance": indict["MaxConductance"],
+    "min_res_bio_co2": fill_BiogenCO2_params("min_respi"),
     }
 
     return biogen_dict
@@ -929,32 +943,32 @@ def fill_BiogenCO2_yaml(indict, db_dict, zenodo):
 def fill_snow_yaml(snow, indict, profiles_dict, zenodo):
 
     snow_dict = {
-        "crwmax": {"value": indict["CRWMax"]["value"]},
-        "crwmin": {"value": indict["CRWMin"]["value"]},
-        "narp_emis_snow": {"value": indict["Emissivity"]["value"]},
-        "preciplimit": {"value": indict["PrecipLimSnow"]["value"]},
-        "preciplimitalb": {"value": indict["PrecipLimAlb"]["value"]},
-        "snowalbmin": {"value": indict["AlbedoMin"]["value"]},
-        "snowalbmax": {"value": indict["AlbedoMax"]["value"]},
-        "snowdensmin": {"value": indict["SnowDensMin"]["value"]},
-        "snowdensmax": {"value": indict["SnowDensMax"]["value"]},
-        "snowlimbldg": {
+        "water_holding_capacity_max": {"value": indict["CRWMax"]["value"]},
+        "water_holding_capacity_min": {"value": indict["CRWMin"]["value"]},
+        "narp_emissivity_snow": {"value": indict["Emissivity"]["value"]},
+        "temperature_rain_snow_threshold": {"value": indict["PrecipLimSnow"]["value"]},
+        "precipitation_threshold_albedo_reset": {"value": indict["PrecipLimAlb"]["value"]},
+        "snow_albedo_min": {"value": indict["AlbedoMin"]["value"]},
+        "snow_albedo_max": {"value": indict["AlbedoMax"]["value"]},
+        "snow_density_min": {"value": indict["SnowDensMin"]["value"]},
+        "snow_density_max": {"value": indict["SnowDensMax"]["value"]},
+        "snow_depth_limit_building": {
             "value": 100,
             "ref": {"desc": "Example values [mm] [Järvi et al., 2014]"},
         },
-        "snowlimpaved": {
+        "snow_depth_limit_paved": {
             "value": 40,
             "ref": {"desc": "Example values [mm] [Järvi et al., 2014]"},
         },
-        "snowprof_24hr": {
+        "snow_profile_24hr": {
             "working_day": profiles_dict["SnowClearingProfWD"],
             "holiday": profiles_dict["SnowClearingProfWE"],
         },
-        "tau_a": {"value": indict["tau_a"]["value"]},
-        "tau_f": {"value": indict["tau_f"]["value"]},
-        "tau_r": {"value": indict["tau_r"]["value"]},
-        "tempmeltfact": {"value": indict["TempMeltFactor"]["value"]},
-        "radmeltfact": {"value": indict["RadMeltFactor"]["value"]},
+        "tau_cold_snow": {"value": indict["tau_a"]["value"]},
+        "tau_melting_snow": {"value": indict["tau_f"]["value"]},
+        "tau_refreezing_snow": {"value": indict["tau_r"]["value"]},
+        "temperature_melt_factor": {"value": indict["TempMeltFactor"]["value"]},
+        "radiation_melt_factor": {"value": indict["RadMeltFactor"]["value"]},
         "ref": indict["ref"],
     }
 
@@ -974,7 +988,7 @@ def fill_soil_yaml(db_dict, indict, surface, zenodo):
 
     soil_dict = {
         # Soil
-        "soildepth": {
+        "soil_depth": {
             "value": db_dict["Soil"].loc[soil_code, "SoilDepth"],
             "ref": {
                 "desc": db_dict["Soil"].loc[soil_code, "nameOrigin"],
@@ -982,7 +996,7 @@ def fill_soil_yaml(db_dict, indict, surface, zenodo):
                 "DOI": zenodo,
             },
         },
-        "soilstorecap": {
+        "soil_store_capacity": {
             "value": db_dict["Soil"].loc[soil_code, "SoilStoreCap"],
             "ref": {
                 "desc": db_dict["Soil"].loc[soil_code, "nameOrigin"],
@@ -990,7 +1004,7 @@ def fill_soil_yaml(db_dict, indict, surface, zenodo):
                 "DOI": zenodo,
             },
         },
-        "sathydraulicconduct": {
+        "saturated_hydraulic_conductivity": {
             "value": db_dict["Soil"].loc[soil_code, "SatHydraulicCond"],
             "ref": {
                 "desc": db_dict["Soil"].loc[soil_code, "nameOrigin"],
@@ -1015,11 +1029,11 @@ def fill_bare_soil_yaml(
     temp_bsoil["sfr"]["value"] = round(LCF_baresoil, 3)
     temp_bsoil["emis"] = indict["Emissivity"]
     temp_bsoil["alb"] = indict["AlbedoMax"]
-    temp_bsoil["irrfrac"]["value"] = irrFr
+    temp_bsoil["irrigation_fraction"]["value"] = irrFr
 
     temp_bsoil["ohm_coef"] = indict["ohm_coef"]
 
-    temp_bsoil["soildepth"] = {
+    temp_bsoil["soil_depth"] = {
         "value": db_dict["Soil"].loc[
             indict["SoilTypeCode"]["value"], "SoilDepth"
         ],
@@ -1032,7 +1046,7 @@ def fill_bare_soil_yaml(
         },
     }
 
-    temp_bsoil["storedrainprm"] = {
+    temp_bsoil["storage_drain_params"] = {
         "store_min": indict["StorageMin"],
         "store_max": indict["StorageMax"],
         # TODO THIS IS probably wrong this is current storage according to manual
@@ -1076,9 +1090,9 @@ def fill_water_yaml(
 
     temp_water["ohm_coef"] = indict["ohm_coef"]
 
-    temp_water["statelimit"] = indict["StateLimit"]
+    temp_water["state_limit"] = indict["StateLimit"]
 
-    temp_water["storedrainprm"] = {
+    temp_water["storage_drain_params"] = {
         "store_min": indict["StorageMin"],
         "store_max": indict["StorageMax"],
         # TODO THIS IS probably wrong this is current storage according to manual
@@ -1088,7 +1102,7 @@ def fill_water_yaml(
         "drain_coef_2": indict["DrainageCoef2"],
     }
 
-    temp_water["irrfrac"]["value"] = IrrFr_Water
+    temp_water["irrigation_fraction"]["value"] = IrrFr_Water
 
     temp_water = temp_water | fill_soil_yaml(db_dict, indict, "Water", zenodo)
 
@@ -1136,7 +1150,7 @@ def fill_veg_yaml(
     temp_veg["lai"] = fill_lai_yaml(veg_dict[surface], db_dict, zenodo)
 
     # Storage and drainage
-    temp_veg["storedrainprm"] = {
+    temp_veg["storage_drain_params"] = {
         "store_min": veg_dict[surface]["StorageMin"],
         "store_max": veg_dict[surface]["StorageMax"],
         # TODO THIS IS probably wrong this is current storage according to manual
@@ -1155,11 +1169,11 @@ def fill_veg_yaml(
     #     }
     # },
 
-    temp_veg["irrfrac"]["value"] = irrFr
+    temp_veg["irrigation_fraction"]["value"] = irrFr
 
     if surface == "Evergreen Tree":
-        temp_veg["faievetree"] = {"value": IMPveg_fai}
-        temp_veg["evetreeh"] = {"value": IMPveg_heights_mean}
+        temp_veg["fai_evergreen_tree"] = {"value": IMPveg_fai}
+        temp_veg["height_evergreen_tree"] = {"value": IMPveg_heights_mean}
         temp_veg["ie_a"] = {
             "value": db_dict["Irrigation"].loc[irr_code, "Ie_a1"],
             "ref": {
@@ -1189,8 +1203,8 @@ def fill_veg_yaml(
         #     'to_soilstore': {'value' : 0.9},
         #     'to_runoff' : {'value' : 0}
         # }
-        temp_veg["faidectree"]["value"] = IMPveg_fai
-        temp_veg["dectreeh"]["value"] = IMPveg_heights_mean
+        temp_veg["fai_deciduous_tree"]["value"] = IMPveg_fai
+        temp_veg["height_deciduous_tree"]["value"] = IMPveg_heights_mean
         temp_veg["ie_a"] = {
             "value": db_dict["Irrigation"].loc[irr_code, "Ie_a2"],
             "ref": {
@@ -1210,11 +1224,11 @@ def fill_veg_yaml(
 
         # porosity_code = veg_dict[surface]['Code']['value']
 
-        temp_veg["pormin_dec"] = {
+        temp_veg["porosity_min_deciduous"] = {
             "value": veg_dict[surface]["PorosityMin"]["value"],
             "ref": veg_dict[surface]["PorosityMin"]["ref"],
         }
-        temp_veg["pormax_dec"] = {
+        temp_veg["porosity_max_deciduous"] = {
             "value": veg_dict[surface]["PorosityMax"]["value"],
             "ref": veg_dict[surface]["PorosityMax"]["ref"],
         }
@@ -1275,7 +1289,7 @@ def fill_nonveg_yaml(
     temp_nonveg["sfr"]["value"] = round(LCF, 3)
     temp_nonveg["emis"] = nonveg_dict[surface]["Emissivity"]
     temp_nonveg["alb"] = nonveg_dict[surface]["AlbedoMax"]
-    temp_nonveg["irrfrac"]["value"] = irrFr
+    temp_nonveg["irrigation_fraction"]["value"] = irrFr
     # 'ohm_threshsw': {
     #     'value': 10., # TODO This param is static at the moment. Needs to be set somehow.,
     #     'ref' : {
@@ -1294,7 +1308,7 @@ def fill_nonveg_yaml(
 
     temp_nonveg["ohm_coef"] = nonveg_dict[surface]["ohm_coef"]
 
-    temp_nonveg["storedrainprm"] = {
+    temp_nonveg["storage_drain_params"] = {
         "store_min": nonveg_dict[surface]["StorageMin"],
         "store_max": nonveg_dict[surface]["StorageMax"],
         # TODO THIS IS probably wrong this is current storage according to manual
@@ -1569,9 +1583,9 @@ def fill_irrigation_yaml(sel_irrigation, profiles_dict, zenodo):
 #     #                 'k': {'value': [1.0, 1.0, 1.0, 1.0, 1.0]},
 #     #                 'cp': {'value': [1000, 1000, 1000, 1000, 1000]}
 #     #             },
-#     #             'statelimit': {'value': 10.0},
-#     #             'soilstorecap': {'value': 150.0},
-#     #             'wetthresh': {'value': 0.5},
+#     #             'state_limit': {'value': 10.0},
+#     #             'soil_store_capacity': {'value': 150.0},
+#     #             'wet_threshold': {'value': 0.5},
 #     #             'roof_albedo_dir_mult_fact':{'value':  0.1},
 #     #             'wall_specular_frac':{'value':  0.1}
 #     #         }
