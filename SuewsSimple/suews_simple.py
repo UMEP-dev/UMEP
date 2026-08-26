@@ -414,8 +414,8 @@ class SuewsSimple(object):
         self.dlg.lineEdit_zHveg.setText(
             str(
                 (
-                    land_cover["evetr"]["evetreeh"]["value"]
-                    + land_cover["dectr"]["dectreeh"]["value"]
+                    land_cover["evetr"]["height_evergreen_tree"]["value"]
+                    + land_cover["dectr"]["height_deciduous_tree"]["value"]
                 )
                 / 2
             )
@@ -423,8 +423,8 @@ class SuewsSimple(object):
         self.dlg.lineEdit_faiveg.setText(
             str(
                 (
-                    land_cover["evetr"]["faievetree"]["value"]
-                    + land_cover["dectr"]["faidectree"]["value"]
+                    land_cover["evetr"]["fai_evergreen_tree"]["value"]
+                    + land_cover["dectr"]["fai_deciduous_tree"]["value"]
                 )
                 / 2
             )
@@ -616,8 +616,8 @@ class SuewsSimple(object):
         # self.dlg.lineEdit_zHBuild.setText(str(land_cover['bldgs']['bldgh']['value'])) #2020a: +4 cols from 20
         # self.dlg.lineEdit_faiBuild.setText(str(land_cover['bldgs']['faibldg']['value']))
         # self.dlg.lineEdit_paiBuild.setText(str(land_cover['bldgs']['sfr']['value']))
-        # self.dlg.lineEdit_zHveg.setText(str((land_cover['evetr']['evetreeh']['value'] + land_cover['dectr']['dectreeh']['value']) / 2))
-        # self.dlg.lineEdit_faiveg.setText(str((land_cover['evetr']['faievetree']['value'] + land_cover['dectr']['faidectree']['value']) / 2))
+        # self.dlg.lineEdit_zHveg.setText(str((land_cover['evetr']['height_evergreen_tree']['value'] + land_cover['dectr']['height_deciduous_tree']['value']) / 2))
+        # self.dlg.lineEdit_faiveg.setText(str((land_cover['evetr']['faievetree']['value'] + land_cover['dectr']['fai_deciduous_tree']['value']) / 2))
         # self.dlg.lineEdit_paiveg.setText(str((land_cover['evetr']['sfr']['value'] + land_cover['dectr']['sfr']['value'])))
         # self.dlg.Latitude.setText(str(yaml_dict['sites'][0]['properties']['lat']['value']))
         # self.dlg.Longitude.setText(str(yaml_dict['sites'][0]['properties']['lng']['value']))
@@ -656,10 +656,10 @@ class SuewsSimple(object):
         ] = float(
             zHBuild
         )  # old 23
-        yaml_dict["sites"][0]["properties"]["land_cover"]["evetr"]["evetreeh"][
+        yaml_dict["sites"][0]["properties"]["land_cover"]["evetr"]["height_evergreen_tree"][
             "value"
         ] = float(zHveg)
-        yaml_dict["sites"][0]["properties"]["land_cover"]["dectr"]["dectreeh"][
+        yaml_dict["sites"][0]["properties"]["land_cover"]["dectr"]["height_deciduous_tree"][
             "value"
         ] = float(zHveg)
         yaml_dict["sites"][0]["properties"]["land_cover"]["bldgs"]["faibldg"][
@@ -668,10 +668,10 @@ class SuewsSimple(object):
             faiBuild
         )  # old28
         yaml_dict["sites"][0]["properties"]["land_cover"]["evetr"][
-            "faievetree"
+            "fai_evergreen_tree"
         ]["value"] = float(faiveg)
         yaml_dict["sites"][0]["properties"]["land_cover"]["dectr"][
-            "faidectree"
+            "fai_deciduous_tree"
         ]["value"] = float(faiveg)
         yaml_dict["sites"][0]["properties"]["anthropogenic_emissions"]["heat"][
             "popdensnighttime"
@@ -684,7 +684,7 @@ class SuewsSimple(object):
         ]["holiday"] = float(popdens)
 
         if faiBuild == -999.0 or faiveg == -999.0:
-            yaml_dict["model"]["physics"]["roughlenmommethod"] = 3
+            yaml_dict["model"]["physics"]["roughness_length_momentum"] = "alternative"
 
         # Plots or not
         if self.dlg.checkBoxPlots.isChecked():
@@ -720,7 +720,7 @@ class SuewsSimple(object):
             os.remove(inmetfile)
             shutil.copy(inmetfile, runmetfile)
 
-        yaml_dict["model"]["control"]["forcing_file"]["value"] = runmetfile
+        yaml_dict["model"]["control"]["forcing"]["file"] = runmetfile
 
         # response to issue #198
         with open(runmetfile, "r") as file:
@@ -746,53 +746,48 @@ class SuewsSimple(object):
         initial_states = leaf_cycle_dict[LeafCycle]
 
         surf = "evetr"
-        yaml_dict["sites"][0]["initial_states"][surf]["alb_id"]["value"] = (
+        yaml_dict["sites"][0]["initial_states"][surf]["alb_id"] = (
             initial_states["albEveTr0"]
         )
-        yaml_dict["sites"][0]["initial_states"][surf]["lai_id"]["value"] = (
+        yaml_dict["sites"][0]["initial_states"][surf]["lai_id"] = (
             initial_states["laiinitialevetr"]
         )
-        yaml_dict["sites"][0]["initial_states"][surf]["gdd_id"]["value"] = (
+        yaml_dict["sites"][0]["initial_states"][surf]["gdd_id"] = (
             initial_states["gdd_1_0"]
         )
-        yaml_dict["sites"][0]["initial_states"][surf]["sdd_id"]["value"] = (
+        yaml_dict["sites"][0]["initial_states"][surf]["sdd_id"] = (
             initial_states["gdd_2_0"]
         )
         surf = "dectr"
-        yaml_dict["sites"][0]["initial_states"][surf]["alb_id"]["value"] = (
+        yaml_dict["sites"][0]["initial_states"][surf]["alb_id"] = (
             initial_states["albDecTr0"]
         )
-        yaml_dict["sites"][0]["initial_states"][surf]["lai_id"]["value"] = (
+        yaml_dict["sites"][0]["initial_states"][surf]["lai_id"] = (
             initial_states["laiinitialdectr"]
         )
-        yaml_dict["sites"][0]["initial_states"][surf]["gdd_id"]["value"] = (
+        yaml_dict["sites"][0]["initial_states"][surf]["gdd_id"] = (
             initial_states["gdd_1_0"]
         )
-        yaml_dict["sites"][0]["initial_states"][surf]["sdd_id"]["value"] = (
+        yaml_dict["sites"][0]["initial_states"][surf]["sdd_id"] = (
             initial_states["gdd_2_0"]
         )
-        yaml_dict["sites"][0]["initial_states"][surf]["porosity_id"][
-            "value"
-        ] = initial_states["porosity0"]
-        yaml_dict["sites"][0]["initial_states"][surf]["decidcap_id"][
-            "value"
-        ] = initial_states["decidCap0"]
+        yaml_dict["sites"][0]["initial_states"][surf]["porosity_id"] = initial_states["porosity0"]
+        yaml_dict["sites"][0]["initial_states"][surf]["decidcap_id"] = initial_states["decidCap0"]
         surf = "grass"
-        yaml_dict["sites"][0]["initial_states"][surf]["alb_id"]["value"] = (
+        yaml_dict["sites"][0]["initial_states"][surf]["alb_id"] = (
             initial_states["albGrass0"]
         )
-        yaml_dict["sites"][0]["initial_states"][surf]["lai_id"]["value"] = (
+        yaml_dict["sites"][0]["initial_states"][surf]["lai_id"] = (
             initial_states["laiinitialgrass"]
         )
-        yaml_dict["sites"][0]["initial_states"][surf]["gdd_id"]["value"] = (
+        yaml_dict["sites"][0]["initial_states"][surf]["gdd_id"] = (
             initial_states["gdd_1_0"]
         )
-        yaml_dict["sites"][0]["initial_states"][surf]["sdd_id"]["value"] = (
+        yaml_dict["sites"][0]["initial_states"][surf]["sdd_id"] = (
             initial_states["gdd_2_0"]
         )
 
-        yaml_dict["model"]["control"]["output_file"] = outfolder
-
+        yaml_dict["model"]["control"]["output"]["dir"] = outfolder
         yaml_dict["sites"][0]["name"] = filecode
 
         with open(

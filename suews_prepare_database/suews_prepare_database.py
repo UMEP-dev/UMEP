@@ -1912,7 +1912,7 @@ class SUEWSPrepareDatabase(object):
             )
             return
         else:
-            # Define the column names (you can adjust this to match the actual met forcing file)
+            # Define the column names
             column_names = [
                 "iy",
                 "id",
@@ -1925,8 +1925,8 @@ class SUEWSPrepareDatabase(object):
                 "qf",
                 "U",
                 "RH",
-                "Td",
-                "press",
+                "Tair",
+                "pres",
                 "rain",
                 "kdown",
                 "snow",
@@ -1982,8 +1982,8 @@ class SUEWSPrepareDatabase(object):
             # 5. Save the file using .to_csv (formatted like np.savetxt)
             df_out = df[column_names]  # Preserve original order
             header = (
-                "iy id it imin Q* QH QE Qs Qf Wind RH Td press rain Kdn snow ldown fcld wuh xsmd lai_hr "
-                "Kdiff Kdir Wd"
+                "iy id it imin qn qh qe qs qf U RH Tair pres rain kdown snow ldown fcld wuh xsmd lai "
+                "kdiff kdir wdir"
             )
 
             # Save with formatting
@@ -2001,17 +2001,18 @@ class SUEWSPrepareDatabase(object):
             yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
 
         # Start populating yml-file
-        yaml_dict["model"]["control"]["forcing_file"]["value"] = data_out
-        yaml_dict["model"]["control"]["forcing_file"]["value"] = data_out
+        yaml_dict["model"]["control"]["forcing"]["file"]["value"] = data_out
+        yaml_dict["model"]["control"]["output"]["dir"] = save_txt_folder
         yaml_dict["model"]["control"]["start_time"] = start_date
         yaml_dict["model"]["control"]["end_time"] = end_date
+    
 
         # yaml_dict['model']['physics']
         # Comment out lines that only contains default values here. This is set later in Processing/SUEWS
         # yaml_dict['model']['physics']['netradiationmethod']['value'] = 1 #changed from 1 FL
-        yaml_dict["model"]["physics"]["emissionsmethod"]["value"] = db_dict[
-            "AnthropogenicEmission"
-        ].loc[parameter_dict["AnthropogenicCode"], "Model"]
+        # yaml_dict["model"]["physics"]["emissionsmethod"]["value"] = db_dict[
+        #     "AnthropogenicEmission"
+        # ].loc[parameter_dict["AnthropogenicCode"], "Model"]
         # yaml_dict['model']['physics']['storageheatmethod']['value'] = 1 #Changed from 3 FL
         # yaml_dict['model']['physics']['ohmincqf']['value'] = 0
         # yaml_dict['model']['physics']['roughlenmommethod']['value'] = 1 # Values based on Kent et al. 2017
@@ -2552,6 +2553,24 @@ class SUEWSPrepareDatabase(object):
                     + 1,
                     4,
                 )
+                iface.messageBar().pushMessage(
+                    "lambda_c debug",
+                    "ID: "
+                    + str(feat_id)
+                    + " wall_array.sum(): "
+                    + str(wall_array.sum())
+                    + " pixelSize: "
+                    + str(pixelSize)
+                    + " hectare: "
+                    + str(hectare)
+                    + " LCF_buildings: "
+                    + str(LCF_buildings)
+                    + " wallAreaGrid: "
+                    + str(gridlayoutOut[feat_id]["wallAreaGrid"])
+                    + " lambda_c: "
+                    + str(temp_grid["properties"]["lambda_c"]["value"]),
+                    level=Qgis.MessageLevel.Warning,
+)
 
             # buildings_count_dict[feat_id]
             temp_grid["properties"]["n_buildings"]["value"] = gridlayoutOut[
@@ -2802,7 +2821,10 @@ class SUEWSPrepareDatabase(object):
         if not is_valid:
             pydanticError = ""
             for error in errors:
-                pydanticError = pydanticError + error
+                pydanticError += str(getattr(error, "__dict__", error)) + "\n\n"
+
+                print(pydanticError)
+
             QMessageBox.information(
                 None,
                 "Process Complete with warnings",
