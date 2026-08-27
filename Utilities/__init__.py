@@ -68,7 +68,7 @@ except:
                 "Please report at https://github.com/UMEP-dev/UMEP-processing/issues",
             )
         try:
-            setup_umep_python(ver="4.1")  # here you specify umep-reqs version
+            setup_umep_python(ver="4.2")  # here you specify umep-reqs version
             QMessageBox.information(
                 None,
                 "Packages successfully installed",
