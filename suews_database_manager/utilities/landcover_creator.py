@@ -1,4 +1,4 @@
-from qgis.PyQt.QtWidgets import QMessageBox
+from qgis.PyQt.QtWidgets import QMessageBox, QTextEdit
 from pandas import DataFrame, concat
 from .database_functions import (
     create_code,
@@ -409,7 +409,7 @@ def setup_landcover_creator(self, dlg, db_dict, db_path):
                         .to_html(index=True)
                     )
                 )
-                Tb.setLineWrapMode(0)
+                Tb.setLineWrapMode(QTextEdit.LineWrapMode.NoWrap)
 
             elif table_var in ["Leaf Area Index", "Leaf Growth Power"]:
 
@@ -432,7 +432,7 @@ def setup_landcover_creator(self, dlg, db_dict, db_path):
                 Tb.setText(
                     str(table.drop(columns=["Ref", "ID"]).to_html(index=True))
                 )
-                Tb.setLineWrapMode(0)
+                Tb.setLineWrapMode(QTextEdit.LineWrapMode.NoWrap)
 
             else:
                 Tb = getattr(dlg, "textBrowserEl", None)
@@ -448,7 +448,7 @@ def setup_landcover_creator(self, dlg, db_dict, db_path):
                         .to_html(index=True)
                     )
                 )
-                Tb.setLineWrapMode(0)
+                Tb.setLineWrapMode(QTextEdit.LineWrapMode.NoWrap)
 
             # except:
             #     pass #TODO Fix better solution to avoid error when changing surfaces
