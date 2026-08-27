@@ -1,5 +1,5 @@
 from pandas import DataFrame, concat
-from qgis.PyQt.QtWidgets import QMessageBox
+from qgis.PyQt.QtWidgets import QMessageBox, QTextEdit
 from .database_functions import (
     param_info_dict,
     create_code,
@@ -189,7 +189,7 @@ def setup_parameter_creator(self, dlg, db_dict, db_path):
                     .to_html(index=True)
                 )
             )
-            Tb.setLineWrapMode(0)
+            Tb.setLineWrapMode(QTextEdit.LineWrapMode.NoWrap)
 
         else:
             # Determine if to use OHM or not
@@ -226,7 +226,7 @@ def setup_parameter_creator(self, dlg, db_dict, db_path):
                     .to_html(index=True)
                 )
             )
-            Tb.setLineWrapMode(0)
+            Tb.setLineWrapMode(QTextEdit.LineWrapMode.NoWrap)
 
     def add_table():
 
