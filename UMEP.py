@@ -103,7 +103,7 @@ class UMEP(object):
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        #locale = QSettings().value("locale/userLocale")[0:2]
+        # locale = QSettings().value("locale/userLocale")[0:2]
         locale = QSettings().value("locale/userLocale") or "en_US"  # fix issue 876
         locale = locale[:2]
         locale_path = os.path.join(

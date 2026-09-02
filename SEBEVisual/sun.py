@@ -117,7 +117,9 @@ class Visual:
 
         if self.iface is not None:
             # initialize locale
-            locale = QSettings().value("locale/userLocale")[0:2]
+            #locale = QSettings().value("locale/userLocale")[0:2]
+            locale = QSettings().value("locale/userLocale") or "en_US"  # fix issue 876
+            locale = locale[:2]
             localePath = os.path.join(
                 self.plugin_dir, "i18n", "sun_{}.qm".format(locale)
             )
