@@ -2583,7 +2583,7 @@ class SUEWSPrepareDatabase(object):
             # TODO we dont set any initial states except for seasonal cycles and for roof/wall
             # evetree
             temp_grid["initial_states"]["evetr"]["alb_id"] = {
-                "value": leaf_cycle_dict[leaf_cycle]["albEveTr0"]
+                "value": None
             }
             temp_grid["initial_states"]["evetr"]["lai_id"] = {
                 "value": leaf_cycle_dict[leaf_cycle]["laiinitialevetr"]
@@ -2596,7 +2596,7 @@ class SUEWSPrepareDatabase(object):
             }
             # dectr
             temp_grid["initial_states"]["dectr"]["alb_id"] = {
-                "value": leaf_cycle_dict[leaf_cycle]["albDecTr0"]
+                "value": None
             }
             temp_grid["initial_states"]["dectr"]["lai_id"] = {
                 "value": leaf_cycle_dict[leaf_cycle]["laiinitialdectr"]
@@ -2615,7 +2615,7 @@ class SUEWSPrepareDatabase(object):
             }
             # grass
             temp_grid["initial_states"]["grass"]["alb_id"] = {
-                "value": leaf_cycle_dict[leaf_cycle]["albGrass0"]
+                "value": None
             }
             temp_grid["initial_states"]["grass"]["lai_id"] = {
                 "value": leaf_cycle_dict[leaf_cycle]["laiinitialgrass"]

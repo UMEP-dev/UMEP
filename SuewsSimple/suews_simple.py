@@ -722,7 +722,7 @@ class SuewsSimple(object):
             os.remove(inmetfile)
             shutil.copy(inmetfile, runmetfile)
 
-        yaml_dict["model"]["control"]["forcing"]["file"] = runmetfile
+        yaml_dict["model"]["control"]["forcing"]["file"]["value"] = runmetfile
 
         # response to issue #198
         with open(runmetfile, "r") as file:
