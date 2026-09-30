@@ -274,7 +274,7 @@ class SUEWSAnalyzer(object):
             self.dlg.comboBox_POIField_2.addItems(grid_list)
 
             resolutionFilesOut = get_resolution_from_umep_forcing(
-                yaml_dict["model"]["control"]["forcing"]["file"]
+                yaml_dict["model"]["control"]["forcing"]["file"]["value"]
             )
             self.resout = int(float(resolutionFilesOut) / 60)
 
@@ -282,7 +282,7 @@ class SUEWSAnalyzer(object):
             self.resin = int(resolutionFilesIn / 60)
 
             met_data = SUEWS_met_txt_to_df(
-                    yaml_dict["model"]["control"]["forcing"]["file"]
+                    yaml_dict["model"]["control"]["forcing"]["file"]["value"]
             )
             self.met_data = met_data
             # pd.read_csv(yaml_dict['model']['control']['forcing_file']['value'], delim_whitespace= True)
