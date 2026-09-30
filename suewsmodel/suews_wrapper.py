@@ -18,7 +18,7 @@ def wrapper(pathtoplugin, plotornot, filecode):
 
     sys.path.append(pathtoplugin)
     import yaml
-
+    
     try:
         import matplotlib.pyplot as plt
 
@@ -76,7 +76,7 @@ def wrapper(pathtoplugin, plotornot, filecode):
 
         gridcode = df_state_init.index[0]  # for plotting
         if multiplemetfiles == 0:  # one file
-            met_data_file = yaml_dict["model"]["control"]["forcing"]["file"]
+            met_data_file = yaml_dict["model"]["control"]["forcing"]["file"]["value"]
 
         suews_out = (
             fileoutputpath
