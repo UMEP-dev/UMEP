@@ -47,11 +47,6 @@ from qgis.PyQt.QtCore import (
 )
 from builtins import object
 from builtins import str
-try:
-    from future import standard_library
-    standard_library.install_aliases()
-except ImportError:
-    pass
 
 
 class SEBE(object):
@@ -353,6 +348,9 @@ class SEBE(object):
 
             new_cs = osr.SpatialReference()
             new_cs.ImportFromWkt(wgs84_wkt)
+            if hasattr(osr, "OAMS_TRADITIONAL_GIS_ORDER"):
+                old_cs.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
+                new_cs.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
 
             transform = osr.CoordinateTransformation(old_cs, new_cs)
             width = self.gdal_dsm.RasterXSize
@@ -365,13 +363,8 @@ class SEBE(object):
                 + height * geotransform[5]
             )
             lonlat = transform.TransformPoint(minx, miny)
-            gdalver = float(gdal.__version__[0])
-            if gdalver == 3.0:
-                lon = lonlat[1]  # changed to gdal 3
-                lat = lonlat[0]  # changed to gdal 3
-            else:
-                lon = lonlat[0]  # changed to gdal 2
-                lat = lonlat[1]  # changed to gdal 2
+            lon = lonlat[0]
+            lat = lonlat[1]
             self.scale = 1 / geotransform[1]
             # self.iface.messageBar().pushMessage("SEBE", str(lonlat),level=QgsMessageBar.INFO)
 

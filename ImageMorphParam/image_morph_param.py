@@ -40,11 +40,6 @@ from qgis.PyQt.QtCore import (
     QCoreApplication,
 )
 from builtins import range
-try:
-    from future import standard_library
-    standard_library.install_aliases()
-except ImportError:
-    pass
 # from builtins import str
 # from builtins import object
 

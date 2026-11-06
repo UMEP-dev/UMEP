@@ -211,6 +211,9 @@ class CopernicusData:
 
         new_cs = osr.SpatialReference()
         new_cs.ImportFromWkt(wgs84_wkt)
+        if hasattr(osr, "OAMS_TRADITIONAL_GIS_ORDER"):
+            old_cs.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
+            new_cs.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
 
         transform = osr.CoordinateTransformation(old_cs, new_cs)
 
@@ -219,13 +222,8 @@ class CopernicusData:
         )
         latlon.Transform(transform)
 
-        gdalver = float(gdal.__version__[0])
-        if gdalver == 3.0:
-            self.dlg.txtLon.setText(str(latlon.GetY()))  # changed to gdal 3
-            self.dlg.txtLat.setText(str(latlon.GetX()))  # changed to gdal 3
-        else:
-            self.dlg.txtLon.setText(str(latlon.GetX()))  # changed to gdal 2
-            self.dlg.txtLat.setText(str(latlon.GetY()))  # changed to gdal 2
+        self.dlg.txtLon.setText(str(latlon.GetX()))
+        self.dlg.txtLat.setText(str(latlon.GetY()))
 
         self.dlg.progressBar.setValue(0)
 

@@ -68,12 +68,6 @@ from builtins import str
 from builtins import map
 import requests
 
-try:
-    from future import standard_library
-    standard_library.install_aliases()
-except ImportError as exc:
-    if getattr(exc, "name", None) != "future":
-        raise
 # Initialize Qt resources from file resources.py
 # from . import resources
 # Import the code for the dialog
@@ -403,17 +397,17 @@ class UMEP_Data_Download(object):
 
             target_crs = osr.SpatialReference()
             target_crs.ImportFromWkt(wgs84_wkt)
+            if hasattr(osr, "OAMS_TRADITIONAL_GIS_ORDER"):
+                canvas_crs.SetAxisMappingStrategy(
+                    osr.OAMS_TRADITIONAL_GIS_ORDER
+                )
+                target_crs.SetAxisMappingStrategy(
+                    osr.OAMS_TRADITIONAL_GIS_ORDER
+                )
 
-            # transform = osr.CoordinateTransformation(old_cs, new_cs)
-            # target_crs = QgsCoordinateReferenceSystem(4326)
-            # target_crs.createFromUserInput('EPSG:4326')
-            # crsSrc = QgsCoordinateReferenceSystem(4326)
-            # crs_transform = QgsCoordinateTransform(canvas_crs, target_crs)
             crs_transform = osr.CoordinateTransformation(
                 canvas_crs, target_crs
             )  # New for QGIS3
-            # canvas_geom = crs_transform.transform(canvas.extent())
-            # canvas_geom = crs_transform.TransformPoints(canvas.extent())
 
             extentCanvas = self.iface.mapCanvas().extent()
 
@@ -425,17 +419,10 @@ class UMEP_Data_Download(object):
             canxymin = crs_transform.TransformPoint(canminx, canminy)
             canxymax = crs_transform.TransformPoint(canmaxx, canmaxy)
 
-            gdalver = float(gdal.__version__[0])
-            if gdalver == 3.0:
-                self.bbox["xmin"] = float(canxymin[1])  # changed to gdal 3
-                self.bbox["xmax"] = float(canxymax[1])  # changed to gdal 3
-                self.bbox["ymin"] = float(canxymin[0])  # changed to gdal 3
-                self.bbox["ymax"] = float(canxymax[0])  # changed to gdal 3
-            else:
-                self.bbox["xmin"] = float(canxymin[0])  # changed to gdal 2
-                self.bbox["xmax"] = float(canxymax[0])  # changed to gdal 2
-                self.bbox["ymin"] = float(canxymin[1])  # changed to gdal 2
-                self.bbox["ymax"] = float(canxymax[1])  # changed to gdal 2
+            self.bbox["xmin"] = float(canxymin[0])
+            self.bbox["xmax"] = float(canxymax[0])
+            self.bbox["ymin"] = float(canxymin[1])
+            self.bbox["ymax"] = float(canxymax[1])
         else:
             canvas_geom = canvas.extent()
 

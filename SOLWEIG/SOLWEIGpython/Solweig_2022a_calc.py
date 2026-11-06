@@ -481,7 +481,7 @@ def Solweig_2022a_calc(
         # # # # Lup # # # #
         Lup = SBC * emis_grid * ((Knight + Ta + Tg + 273.15) ** 4)
         if landcover == 1:
-            Lup[lc_grid == 3] = (
+            Lup[lc_grid == 7] = (
                 SBC * 0.98 * (Twater + 273.15) ** 4
             )  # nocturnal Water temp
 

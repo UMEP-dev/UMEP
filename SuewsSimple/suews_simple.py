@@ -42,11 +42,6 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from builtins import object
 from builtins import range
 from builtins import str
-try:
-    from future import standard_library
-    standard_library.install_aliases()
-except ImportError:
-    pass
 # from .suewssimpleworker import Worker
 # from ..suewsmodel import suewstask
 
